@@ -1,0 +1,412 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
+		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
+		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
+		2C0574931EDD9E8E00D9E7F2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C0574911EDD9E8E00D9E7F2 /* LaunchScreen.storyboard */; };
+		2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */; };
+		2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */; };
+		2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5631EDDE0FB0093D85A /* Foundation.framework */; };
+		2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5661EDDE1340093D85A /* CoreGraphics.framework */; };
+		2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5681EDDE13A0093D85A /* UIKit.framework */; };
+		2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5CE1EDF23A00093D85A /* WebKit.framework */; };
+		2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */; };
+		2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC901F014354002FE6A2 /* NCConnectionController.m */; };
+		2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */; };
+		2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA1CC961F016117002FE6A2 /* Security.framework */; };
+		2CA1CC9A1F0161EA002FE6A2 /* UICKeyChainStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */; };
+		2CA1CCA41F025F64002FE6A2 /* CallsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA31F025F64002FE6A2 /* CallsTableViewController.m */; };
+		2CA1CCA71F026222002FE6A2 /* ContactsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */; };
+		2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
+		2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2C05747D1EDD9E8E00D9E7F2 /* VideoCalls.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoCalls.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		2C05748D1EDD9E8E00D9E7F2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		2C0574921EDD9E8E00D9E7F2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		2C0574941EDD9E8E00D9E7F2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2C0574A11EDDA2E300D9E7F2 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
+		2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
+		2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoginViewController.xib; sourceTree = "<group>"; };
+		2C90E5631EDDE0FB0093D85A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		2C90E5661EDDE1340093D85A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		2C90E5681EDDE13A0093D85A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		2C90E5CE1EDF23A00093D85A /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		2C90E5D01EE80C870093D85A /* AuthenticationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthenticationViewController.h; sourceTree = "<group>"; };
+		2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthenticationViewController.m; sourceTree = "<group>"; };
+		2CA1CC8F1F014354002FE6A2 /* NCConnectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCConnectionController.h; sourceTree = "<group>"; };
+		2CA1CC901F014354002FE6A2 /* NCConnectionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCConnectionController.m; sourceTree = "<group>"; };
+		2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSettingsController.h; sourceTree = "<group>"; };
+		2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCSettingsController.m; sourceTree = "<group>"; };
+		2CA1CC961F016117002FE6A2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		2CA1CC981F0161EA002FE6A2 /* UICKeyChainStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UICKeyChainStore.h; path = ThirdParty/UICKeyChainStore/UICKeyChainStore.h; sourceTree = "<group>"; };
+		2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UICKeyChainStore.m; path = ThirdParty/UICKeyChainStore/UICKeyChainStore.m; sourceTree = "<group>"; };
+		2CA1CCA21F025F64002FE6A2 /* CallsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CallsTableViewController.h; sourceTree = "<group>"; };
+		2CA1CCA31F025F64002FE6A2 /* CallsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CallsTableViewController.m; sourceTree = "<group>"; };
+		2CA1CCA51F026222002FE6A2 /* ContactsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactsTableViewController.h; sourceTree = "<group>"; };
+		2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactsTableViewController.m; sourceTree = "<group>"; };
+		2CA1CCA81F02D1A4002FE6A2 /* NCAPIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCAPIController.h; sourceTree = "<group>"; };
+		2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCAPIController.m; sourceTree = "<group>"; };
+		2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2C05747A1EDD9E8E00D9E7F2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
+				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
+				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
+				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
+				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2C0574741EDD9E8E00D9E7F2 = {
+			isa = PBXGroup;
+			children = (
+				2C05747E1EDD9E8E00D9E7F2 /* Products */,
+				2C05749C1EDDA01700D9E7F2 /* ThirdParty */,
+				2C05747F1EDD9E8E00D9E7F2 /* VideoCalls */,
+				2C90E5621EDDE0FB0093D85A /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		2C05747E1EDD9E8E00D9E7F2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2C05747D1EDD9E8E00D9E7F2 /* VideoCalls.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2C05747F1EDD9E8E00D9E7F2 /* VideoCalls */ = {
+			isa = PBXGroup;
+			children = (
+				2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */,
+				2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */,
+				2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */,
+				2C90E5D01EE80C870093D85A /* AuthenticationViewController.h */,
+				2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */,
+				2CA1CCA21F025F64002FE6A2 /* CallsTableViewController.h */,
+				2CA1CCA31F025F64002FE6A2 /* CallsTableViewController.m */,
+				2CA1CCA51F026222002FE6A2 /* ContactsTableViewController.h */,
+				2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */,
+				2C0574941EDD9E8E00D9E7F2 /* Info.plist */,
+				2C0574911EDD9E8E00D9E7F2 /* LaunchScreen.storyboard */,
+				2C0574A11EDDA2E300D9E7F2 /* LoginViewController.h */,
+				2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */,
+				2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */,
+				2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */,
+				2CA1CCA81F02D1A4002FE6A2 /* NCAPIController.h */,
+				2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */,
+				2CA1CC8F1F014354002FE6A2 /* NCConnectionController.h */,
+				2CA1CC901F014354002FE6A2 /* NCConnectionController.m */,
+				2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */,
+				2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */,
+				2C0574801EDD9E8E00D9E7F2 /* Supporting Files */,
+			);
+			path = VideoCalls;
+			sourceTree = "<group>";
+		};
+		2C0574801EDD9E8E00D9E7F2 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2C0574811EDD9E8E00D9E7F2 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2C05749C1EDDA01700D9E7F2 /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+				2CA1CC9B1F0161FB002FE6A2 /* UICKeyChainStore */,
+			);
+			name = ThirdParty;
+			sourceTree = "<group>";
+		};
+		2C90E5621EDDE0FB0093D85A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2CA1CC961F016117002FE6A2 /* Security.framework */,
+				2C90E5CE1EDF23A00093D85A /* WebKit.framework */,
+				2C90E5681EDDE13A0093D85A /* UIKit.framework */,
+				2C90E5661EDDE1340093D85A /* CoreGraphics.framework */,
+				2C90E5631EDDE0FB0093D85A /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2CA1CC9B1F0161FB002FE6A2 /* UICKeyChainStore */ = {
+			isa = PBXGroup;
+			children = (
+				2CA1CC981F0161EA002FE6A2 /* UICKeyChainStore.h */,
+				2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */,
+			);
+			name = UICKeyChainStore;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2C05747C1EDD9E8E00D9E7F2 /* VideoCalls */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C0574971EDD9E8E00D9E7F2 /* Build configuration list for PBXNativeTarget "VideoCalls" */;
+			buildPhases = (
+				2C0574791EDD9E8E00D9E7F2 /* Sources */,
+				2C05747A1EDD9E8E00D9E7F2 /* Frameworks */,
+				2C05747B1EDD9E8E00D9E7F2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VideoCalls;
+			productName = VideoCalls;
+			productReference = 2C05747D1EDD9E8E00D9E7F2 /* VideoCalls.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2C0574751EDD9E8E00D9E7F2 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0830;
+				ORGANIZATIONNAME = "struktur AG";
+				TargetAttributes = {
+					2C05747C1EDD9E8E00D9E7F2 = {
+						CreatedOnToolsVersion = 8.3.2;
+						DevelopmentTeam = 7T56CJ62G4;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 2C0574781EDD9E8E00D9E7F2 /* Build configuration list for PBXProject "VideoCalls" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2C0574741EDD9E8E00D9E7F2;
+			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2C05747C1EDD9E8E00D9E7F2 /* VideoCalls */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2C05747B1EDD9E8E00D9E7F2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
+				2C0574931EDD9E8E00D9E7F2 /* LaunchScreen.storyboard in Resources */,
+				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
+				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2C0574791EDD9E8E00D9E7F2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
+				2CA1CCA71F026222002FE6A2 /* ContactsTableViewController.m in Sources */,
+				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
+				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
+				2CA1CCA41F025F64002FE6A2 /* CallsTableViewController.m in Sources */,
+				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
+				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
+				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
+				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
+				2CA1CC9A1F0161EA002FE6A2 /* UICKeyChainStore.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2C05748D1EDD9E8E00D9E7F2 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		2C0574911EDD9E8E00D9E7F2 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2C0574921EDD9E8E00D9E7F2 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		2C0574951EDD9E8E00D9E7F2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2C0574961EDD9E8E00D9E7F2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2C0574981EDD9E8E00D9E7F2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 7T56CJ62G4;
+				INFOPLIST_FILE = VideoCalls/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.strukturag.VideoCalls;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2C0574991EDD9E8E00D9E7F2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 7T56CJ62G4;
+				INFOPLIST_FILE = VideoCalls/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.strukturag.VideoCalls;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2C0574781EDD9E8E00D9E7F2 /* Build configuration list for PBXProject "VideoCalls" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C0574951EDD9E8E00D9E7F2 /* Debug */,
+				2C0574961EDD9E8E00D9E7F2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2C0574971EDD9E8E00D9E7F2 /* Build configuration list for PBXNativeTarget "VideoCalls" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C0574981EDD9E8E00D9E7F2 /* Debug */,
+				2C0574991EDD9E8E00D9E7F2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
+}
