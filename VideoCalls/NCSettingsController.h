@@ -23,5 +23,6 @@ extern NSString * const kNCTokenKey;
 @property (nonatomic, copy) NSString *ncToken;
 
 + (instancetype)sharedInstance;
+- (void)cleanAllStoredValues;
 
 @end

@@ -8,6 +8,8 @@
 
 #import "NCSettingsController.h"
 
+#import "NCAPIController.h"
+
 @implementation NCSettingsController
 
 NSString * const kNCServerKey   = @"ncServer";
@@ -38,6 +40,18 @@ NSString * const kNCTokenKey    = @"ncToken";
     _ncServer = [UICKeyChainStore stringForKey:kNCServerKey];
     _ncUser = [UICKeyChainStore stringForKey:kNCUserKey];
     _ncToken = [UICKeyChainStore stringForKey:kNCTokenKey];
+}
+
+- (void)cleanAllStoredValues
+{
+    _ncServer = nil;
+    _ncUser = nil;
+    _ncToken = nil;
+
+    [UICKeyChainStore removeAllItems];
+
+#warning TODO - Restore NCAPIController in a diferent way
+    [[NCAPIController sharedInstance] setAuthHeaderWithUser:NULL andToken:NULL];
 }
 
 @end

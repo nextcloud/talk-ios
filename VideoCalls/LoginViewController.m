@@ -46,6 +46,13 @@
         serverUrl = [serverUrl substringToIndex:[serverUrl length] - 1];
     }
     
+    // Remove stored cookies
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (NSHTTPCookie *cookie in [storage cookies])
+    {
+        [storage deleteCookie:cookie];
+    }
+
     [[NCAPIController sharedInstance] setNCServer:serverUrl];
     [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger errorCode) {
         if (errorCode == 401) {
