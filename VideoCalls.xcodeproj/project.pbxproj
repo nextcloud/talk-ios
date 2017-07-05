@@ -26,6 +26,7 @@
 		2CA1CCA71F026222002FE6A2 /* ContactsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */; };
 		2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
 		2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
+		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,6 +60,9 @@
 		2CA1CCA81F02D1A4002FE6A2 /* NCAPIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCAPIController.h; sourceTree = "<group>"; };
 		2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCAPIController.m; sourceTree = "<group>"; };
 		2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VideoCalls.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.debug.xcconfig"; sourceTree = "<group>"; };
+		E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +75,7 @@
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
+				DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +89,7 @@
 				2C05749C1EDDA01700D9E7F2 /* ThirdParty */,
 				2C05747F1EDD9E8E00D9E7F2 /* VideoCalls */,
 				2C90E5621EDDE0FB0093D85A /* Frameworks */,
+				926177EBCFB97EA1273DEDB9 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -148,6 +154,7 @@
 				2C90E5681EDDE13A0093D85A /* UIKit.framework */,
 				2C90E5661EDDE1340093D85A /* CoreGraphics.framework */,
 				2C90E5631EDDE0FB0093D85A /* Foundation.framework */,
+				6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -161,6 +168,15 @@
 			name = UICKeyChainStore;
 			sourceTree = "<group>";
 		};
+		926177EBCFB97EA1273DEDB9 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */,
+				E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -168,9 +184,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2C0574971EDD9E8E00D9E7F2 /* Build configuration list for PBXNativeTarget "VideoCalls" */;
 			buildPhases = (
+				902A7A3EC0BDCC947AEF3EBF /* [CP] Check Pods Manifest.lock */,
 				2C0574791EDD9E8E00D9E7F2 /* Sources */,
 				2C05747A1EDD9E8E00D9E7F2 /* Frameworks */,
 				2C05747B1EDD9E8E00D9E7F2 /* Resources */,
+				29696B57B26EBF9C28436CE8 /* [CP] Embed Pods Frameworks */,
+				A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -228,6 +247,54 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		29696B57B26EBF9C28436CE8 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		902A7A3EC0BDCC947AEF3EBF /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2C0574791EDD9E8E00D9E7F2 /* Sources */ = {
@@ -363,6 +430,7 @@
 		};
 		2C0574981EDD9E8E00D9E7F2 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 7T56CJ62G4;
@@ -375,6 +443,7 @@
 		};
 		2C0574991EDD9E8E00D9E7F2 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 7T56CJ62G4;
