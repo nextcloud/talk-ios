@@ -32,7 +32,14 @@
                             <outlet property="delegate" destination="GE9-5J-Ym6" id="gEz-jq-Hgx"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Root View Controller" id="3e2-3x-z0c"/>
+                    <navigationItem key="navigationItem" title="Root View Controller" id="3e2-3x-z0c">
+                        <barButtonItem key="leftBarButtonItem" image="settings" id="jaA-0s-oKf">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="0Gy-30-3im">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZLM-Qn-93V" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -43,7 +50,7 @@
             <objects>
                 <navigationController id="OKQ-YS-70y" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Calls" image="call" id="Lrt-Tc-cji"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="pVd-L5-3CP">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="pVd-L5-3CP">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -89,7 +96,7 @@
             <objects>
                 <navigationController id="QHn-J8-lK0" userLabel="Contacts" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Contacts" image="contact" id="ERX-cz-L8N" userLabel="Contacts"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="AMd-5w-H1M">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="AMd-5w-H1M">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -125,5 +132,6 @@
     <resources>
         <image name="call" width="44" height="44"/>
         <image name="contact" width="30" height="30"/>
+        <image name="settings" width="25" height="25"/>
     </resources>
 </document>
