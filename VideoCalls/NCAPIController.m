@@ -80,6 +80,27 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     return [NSString stringWithFormat:@"%@%@%@/%@", _serverUrl, kNCOCSAPIVersion, kNCSpreedAPIVersion, endpoint];
 }
 
+#pragma mark - Contacts Controller
+
+- (void)getContactsWithCompletionBlock:(GetContactsCompletionBlock)block
+{
+	NSString *URLString = [NSString stringWithFormat:@"%@%@/apps/files_sharing/api/v1/sharees?format=json&search=&perPage=200&itemType=call", _serverUrl, kNCOCSAPIVersion];
+	
+	[_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		NSArray *responseContacts = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"users"];
+		NSMutableArray *contacts = [[NSMutableArray alloc] initWithArray:responseContacts];
+		if (block) {
+			block(contacts, nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(nil, error, [operation.response statusCode]);
+		}
+	}];
+}
+
+#pragma mark - Rooms Controller
+
 - (void)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:@"room"];
@@ -97,21 +118,216 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     }];
 }
 
-- (void)getContactsWithCompletionBlock:(GetContactsCompletionBlock)block
+- (void)getRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block
 {
-    NSString *URLString = [NSString stringWithFormat:@"%@%@/apps/files_sharing/api/v1/sharees?format=json&search=&perPage=200&itemType=call", _serverUrl, kNCOCSAPIVersion];
-    
-    [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
-        NSArray *responseContacts = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"users"];
-        NSMutableArray *contacts = [[NSMutableArray alloc] initWithArray:responseContacts];
-        if (block) {
-            block(contacts, nil, [operation.response statusCode]);
-        }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
-        if (block) {
-            block(nil, error, [operation.response statusCode]);
-        }
-    }];
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", token]];
+	
+	[_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		NSDictionary *room = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+		if (block) {
+			block(room, nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(nil, error, [operation.response statusCode]);
+		}
+	}];
 }
+
+- (void)createOneToOneRoom:(NSString *)user withCompletionBlock:(CreateOneToOneRoomCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"oneToOne"];
+	NSDictionary *parameters = @{@"targetUserName" : user};
+	
+	[_manager PUT:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		NSString *token = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"token"];
+		if (block) {
+			block(token, nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(nil, error, [operation.response statusCode]);
+		}
+	}];
+}
+
+- (void)createGroupRoom:(NSString *)group withCompletionBlock:(CreateGroupRoomCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"group"];
+	NSDictionary *parameters = @{@"targetGroupName" : group};
+	
+	[_manager PUT:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		NSString *token = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"token"];
+		if (block) {
+			block(token, nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(nil, error, [operation.response statusCode]);
+		}
+	}];
+}
+
+- (void)createPublicRoomWithCompletionBlock:(CreatePublicRoomCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"public"];
+	
+	[_manager PUT:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		NSString *token = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"token"];
+		if (block) {
+			block(token, nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(nil, error, [operation.response statusCode]);
+		}
+	}];
+}
+
+- (void)renameRoom:(NSString *)roomId withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", roomId]];
+	NSDictionary *parameters = @{@"roomName" : newName};
+	
+	[_manager PUT:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		if (block) {
+			block(nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(error, [operation.response statusCode]);
+		}
+	}];
+}
+
+- (void)addParticipant:(NSString *)user toRoom:(NSString *)roomId withCompletionBlock:(AddParticipantCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", roomId]];
+	NSDictionary *parameters = @{@"newParticipant" : user};
+	
+	[_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		if (block) {
+			block(nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(error, [operation.response statusCode]);
+		}
+	}];
+}
+
+- (void)removeSelfFromRoom:(NSString *)roomId withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", roomId]];
+	
+	[_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		if (block) {
+			block(nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(error, [operation.response statusCode]);
+		}
+	}];
+}
+
+- (void)makeRoomPublic:(NSString *)roomId withCompletionBlock:(MakeRoomPublicCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"public"];
+	NSDictionary *parameters = @{@"roomId" : roomId};
+	
+	[_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		if (block) {
+			block(nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(error, [operation.response statusCode]);
+		}
+	}];
+}
+
+- (void)makeRoomPrivate:(NSString *)roomId withCompletionBlock:(MakeRoomPrivateCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"public"];
+	NSDictionary *parameters = @{@"roomId" : roomId};
+	
+	[_manager DELETE:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		if (block) {
+			block(nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(error, [operation.response statusCode]);
+		}
+	}];
+}
+
+#pragma mark - Call Controller
+
+- (void)getPeersForCall:(NSString *)token WithCompletionBlock:(GetPeersForCallCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/peers", token]];
+	
+	[_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		NSArray *responsePeers = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+		NSMutableArray *peers = [[NSMutableArray alloc] initWithArray:responsePeers];
+		if (block) {
+			block(peers, nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(nil, error, [operation.response statusCode]);
+		}
+	}];
+}
+
+- (void)joinCall:(NSString *)token WithCompletionBlock:(JoinCallCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/join", token]];
+	
+	[_manager POST:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		NSString *sessionId = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"sessionId"];
+		if (block) {
+			block(sessionId, nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(nil, error, [operation.response statusCode]);
+		}
+	}];
+}
+
+- (void)pingCall:(NSString *)token WithCompletionBlock:(PingCallCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"ping"];
+	NSDictionary *parameters = @{@"token" : token};
+	
+	[_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		if (block) {
+			block(nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(error, [operation.response statusCode]);
+		}
+	}];
+}
+
+- (void)leaveCallWithCompletionBlock:(LeaveCallCompletionBlock)block
+{
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"leave"];
+	
+	[_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		if (block) {
+			block(nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(error, [operation.response statusCode]);
+		}
+	}];
+}
+
 
 @end
