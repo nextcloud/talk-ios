@@ -12,9 +12,7 @@ typedef void (^GetContactsCompletionBlock)(NSMutableArray *contacts, NSError *er
 
 typedef void (^GetRoomsCompletionBlock)(NSMutableArray *rooms, NSError *error, NSInteger errorCode);
 typedef void (^GetRoomCompletionBlock)(NSDictionary *room, NSError *error, NSInteger errorCode);
-typedef void (^CreateOneToOneRoomCompletionBlock)(NSString *token, NSError *error, NSInteger errorCode);
-typedef void (^CreateGroupRoomCompletionBlock)(NSString *token, NSError *error, NSInteger errorCode);
-typedef void (^CreatePublicRoomCompletionBlock)(NSString *token, NSError *error, NSInteger errorCode);
+typedef void (^CreateRoomCompletionBlock)(NSString *token, NSError *error, NSInteger errorCode);
 typedef void (^RenameRoomCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^AddParticipantCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^RemoveSelfFromRoomCompletionBlock)(NSError *error, NSInteger errorCode);
@@ -25,6 +23,12 @@ typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *e
 typedef void (^JoinCallCompletionBlock)(NSString *sessionId, NSError *error, NSInteger errorCode);
 typedef void (^PingCallCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
+
+typedef enum RoomType {
+	kRoomTypeOneToOneCall = 0,
+	kRoomTypeGroupCall,
+	kRoomTypePublicCall
+} RoomType;
 
 
 @interface NCAPIController : NSObject
@@ -39,21 +43,19 @@ typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
 // Rooms Controller
 - (void)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block;
 - (void)getRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
-- (void)createOneToOneRoom:(NSString *)user withCompletionBlock:(CreateOneToOneRoomCompletionBlock)block;
-- (void)createGroupRoom:(NSString *)group withCompletionBlock:(CreateGroupRoomCompletionBlock)block;
-- (void)createPublicRoomWithCompletionBlock:(CreatePublicRoomCompletionBlock)block;
-- (void)renameRoom:(NSString *)roomId withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
-- (void)addParticipant:(NSString *)user toRoom:(NSString *)roomId withCompletionBlock:(AddParticipantCompletionBlock)block;
-- (void)removeSelfFromRoom:(NSString *)roomId withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block;
-- (void)makeRoomPublic:(NSString *)roomId withCompletionBlock:(MakeRoomPublicCompletionBlock)block;
-- (void)makeRoomPrivate:(NSString *)roomId withCompletionBlock:(MakeRoomPrivateCompletionBlock)block;
+- (void)createRoom:(NSString *)user type:(RoomType)type invite:(NSString *)invite withCompletionBlock:(CreateRoomCompletionBlock)block;
+- (void)renameRoom:(NSString *)token withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
+- (void)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(AddParticipantCompletionBlock)block;
+- (void)removeSelfFromRoom:(NSString *)token withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block;
+- (void)makeRoomPublic:(NSString *)token withCompletionBlock:(MakeRoomPublicCompletionBlock)block;
+- (void)makeRoomPrivate:(NSString *)token withCompletionBlock:(MakeRoomPrivateCompletionBlock)block;
 
 
 // Call Controller
-- (void)getPeersForCall:(NSString *)token WithCompletionBlock:(GetPeersForCallCompletionBlock)block;
-- (void)joinCall:(NSString *)token WithCompletionBlock:(JoinCallCompletionBlock)block;
-- (void)pingCall:(NSString *)token WithCompletionBlock:(PingCallCompletionBlock)block;
-- (void)leaveCallWithCompletionBlock:(LeaveCallCompletionBlock)block;
+- (void)getPeersForCall:(NSString *)token withCompletionBlock:(GetPeersForCallCompletionBlock)block;
+- (void)joinCall:(NSString *)token withCompletionBlock:(JoinCallCompletionBlock)block;
+- (void)pingCall:(NSString *)token withCompletionBlock:(PingCallCompletionBlock)block;
+- (void)leaveCall:(NSString *)token withCompletionBlock:(LeaveCallCompletionBlock)block;
 
 
 

@@ -134,12 +134,12 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 	}];
 }
 
-- (void)createOneToOneRoom:(NSString *)user withCompletionBlock:(CreateOneToOneRoomCompletionBlock)block
+- (void)createRoom:(NSString *)user type:(RoomType)type invite:(NSString *)invite withCompletionBlock:(CreateRoomCompletionBlock)block
 {
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"oneToOne"];
-	NSDictionary *parameters = @{@"targetUserName" : user};
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"room"];
+	NSDictionary *parameters = @{@"roomType" : @(type), @"invite" : invite};
 	
-	[_manager PUT:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+	[_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
 		NSString *token = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"token"];
 		if (block) {
 			block(token, nil, [operation.response statusCode]);
@@ -151,42 +151,9 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 	}];
 }
 
-- (void)createGroupRoom:(NSString *)group withCompletionBlock:(CreateGroupRoomCompletionBlock)block
+- (void)renameRoom:(NSString *)token withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block
 {
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"group"];
-	NSDictionary *parameters = @{@"targetGroupName" : group};
-	
-	[_manager PUT:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
-		NSString *token = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"token"];
-		if (block) {
-			block(token, nil, [operation.response statusCode]);
-		}
-	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
-		if (block) {
-			block(nil, error, [operation.response statusCode]);
-		}
-	}];
-}
-
-- (void)createPublicRoomWithCompletionBlock:(CreatePublicRoomCompletionBlock)block
-{
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"public"];
-	
-	[_manager PUT:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
-		NSString *token = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"token"];
-		if (block) {
-			block(token, nil, [operation.response statusCode]);
-		}
-	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
-		if (block) {
-			block(nil, error, [operation.response statusCode]);
-		}
-	}];
-}
-
-- (void)renameRoom:(NSString *)roomId withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block
-{
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", roomId]];
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", token]];
 	NSDictionary *parameters = @{@"roomName" : newName};
 	
 	[_manager PUT:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
@@ -200,9 +167,9 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 	}];
 }
 
-- (void)addParticipant:(NSString *)user toRoom:(NSString *)roomId withCompletionBlock:(AddParticipantCompletionBlock)block
+- (void)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(AddParticipantCompletionBlock)block
 {
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", roomId]];
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants", token]];
 	NSDictionary *parameters = @{@"newParticipant" : user};
 	
 	[_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
@@ -216,9 +183,9 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 	}];
 }
 
-- (void)removeSelfFromRoom:(NSString *)roomId withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block
+- (void)removeSelfFromRoom:(NSString *)token withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block
 {
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", roomId]];
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/self", token]];
 	
 	[_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
 		if (block) {
@@ -231,12 +198,11 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 	}];
 }
 
-- (void)makeRoomPublic:(NSString *)roomId withCompletionBlock:(MakeRoomPublicCompletionBlock)block
+- (void)makeRoomPublic:(NSString *)token withCompletionBlock:(MakeRoomPublicCompletionBlock)block
 {
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"public"];
-	NSDictionary *parameters = @{@"roomId" : roomId};
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/public", token]];
 	
-	[_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+	[_manager POST:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
 		if (block) {
 			block(nil, [operation.response statusCode]);
 		}
@@ -247,12 +213,11 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 	}];
 }
 
-- (void)makeRoomPrivate:(NSString *)roomId withCompletionBlock:(MakeRoomPrivateCompletionBlock)block
+- (void)makeRoomPrivate:(NSString *)token withCompletionBlock:(MakeRoomPrivateCompletionBlock)block
 {
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"public"];
-	NSDictionary *parameters = @{@"roomId" : roomId};
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/public", token]];
 	
-	[_manager DELETE:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+	[_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
 		if (block) {
 			block(nil, [operation.response statusCode]);
 		}
@@ -265,9 +230,9 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 
 #pragma mark - Call Controller
 
-- (void)getPeersForCall:(NSString *)token WithCompletionBlock:(GetPeersForCallCompletionBlock)block
+- (void)getPeersForCall:(NSString *)token withCompletionBlock:(GetPeersForCallCompletionBlock)block
 {
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/peers", token]];
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"call/%@", token]];
 	
 	[_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
 		NSArray *responsePeers = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
@@ -282,9 +247,9 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 	}];
 }
 
-- (void)joinCall:(NSString *)token WithCompletionBlock:(JoinCallCompletionBlock)block
+- (void)joinCall:(NSString *)token withCompletionBlock:(JoinCallCompletionBlock)block
 {
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/join", token]];
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"call/%@", token]];
 	
 	[_manager POST:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
 		NSString *sessionId = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"sessionId"];
@@ -298,12 +263,11 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 	}];
 }
 
-- (void)pingCall:(NSString *)token WithCompletionBlock:(PingCallCompletionBlock)block
+- (void)pingCall:(NSString *)token withCompletionBlock:(PingCallCompletionBlock)block
 {
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"ping"];
-	NSDictionary *parameters = @{@"token" : token};
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"call/%@", token]];
 	
-	[_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+	[_manager PUT:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
 		if (block) {
 			block(nil, [operation.response statusCode]);
 		}
@@ -314,9 +278,9 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 	}];
 }
 
-- (void)leaveCallWithCompletionBlock:(LeaveCallCompletionBlock)block
+- (void)leaveCall:(NSString *)token withCompletionBlock:(LeaveCallCompletionBlock)block
 {
-	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"leave"];
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"call/%@", token]];
 	
 	[_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
 		if (block) {
