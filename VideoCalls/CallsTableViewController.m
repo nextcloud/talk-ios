@@ -162,7 +162,15 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	if (editingStyle == UITableViewCellEditingStyleDelete) {
-		// Remove row and leave room.
+		NSString *token = [[_rooms objectAtIndex:indexPath.row] objectForKey:@"token"];
+		[[NCAPIController sharedInstance] removeSelfFromRoom:token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+			if (error) {
+				// Show alert
+			}
+		}];
+		
+		[_rooms removeObjectAtIndex:indexPath.row];
+		[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
 	}
 }
 
