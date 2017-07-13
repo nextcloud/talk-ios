@@ -18,40 +18,40 @@ NSString * const kNCTokenKey    = @"ncToken";
 
 + (NCSettingsController *)sharedInstance
 {
-	static dispatch_once_t once;
-	static NCSettingsController *sharedInstance;
-	dispatch_once(&once, ^{
-		sharedInstance = [[self alloc] init];
-	});
-	return sharedInstance;
+    static dispatch_once_t once;
+    static NCSettingsController *sharedInstance;
+    dispatch_once(&once, ^{
+        sharedInstance = [[self alloc] init];
+    });
+    return sharedInstance;
 }
 
 - (id)init
 {
-	self = [super init];
-	if (self) {
-		[self readValuesFromKeyChain];
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        [self readValuesFromKeyChain];
+    }
+    return self;
 }
 
 - (void)readValuesFromKeyChain
 {
-	_ncServer = [UICKeyChainStore stringForKey:kNCServerKey];
-	_ncUser = [UICKeyChainStore stringForKey:kNCUserKey];
-	_ncToken = [UICKeyChainStore stringForKey:kNCTokenKey];
+    _ncServer = [UICKeyChainStore stringForKey:kNCServerKey];
+    _ncUser = [UICKeyChainStore stringForKey:kNCUserKey];
+    _ncToken = [UICKeyChainStore stringForKey:kNCTokenKey];
 }
 
 - (void)cleanAllStoredValues
 {
-	_ncServer = nil;
-	_ncUser = nil;
-	_ncToken = nil;
-	
-	[UICKeyChainStore removeAllItems];
-	
+    _ncServer = nil;
+    _ncUser = nil;
+    _ncToken = nil;
+    
+    [UICKeyChainStore removeAllItems];
+    
 #warning TODO - Restore NCAPIController in a diferent way
-	[[NCAPIController sharedInstance] setAuthHeaderWithUser:NULL andToken:NULL];
+    [[NCAPIController sharedInstance] setAuthHeaderWithUser:NULL andToken:NULL];
 }
 
 @end

@@ -10,11 +10,11 @@
 
 
 typedef enum ConnectionState {
-	kConnectionStateNotServerProvided = 0,
-	kConnectionStateAuthenticationNeeded,
-	kConnectionStateNetworkDisconnected,
-	kConnectionStateConnecting,
-	kConnectionStateConnected
+    kConnectionStateNotServerProvided = 0,
+    kConnectionStateAuthenticationNeeded,
+    kConnectionStateNetworkDisconnected,
+    kConnectionStateConnecting,
+    kConnectionStateConnected
 } ConnectionState;
 
 extern NSString * const NCNetworkReachabilityHasChangedNotification;

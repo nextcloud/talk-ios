@@ -9,9 +9,9 @@
 #import <Foundation/Foundation.h>
 
 typedef enum NCRoomType {
-	kNCRoomTypeOneToOneCall = 1,
-	kNCRoomTypeGroupCall,
-	kNCRoomTypePublicCall
+    kNCRoomTypeOneToOneCall = 1,
+    kNCRoomTypeGroupCall,
+    kNCRoomTypePublicCall
 } NCRoomType;
 
 
