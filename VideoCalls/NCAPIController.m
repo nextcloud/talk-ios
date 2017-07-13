@@ -134,7 +134,7 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 	}];
 }
 
-- (void)createRoom:(NSString *)user type:(RoomType)type invite:(NSString *)invite withCompletionBlock:(CreateRoomCompletionBlock)block
+- (void)createRoom:(NSString *)user type:(NCRoomType)type invite:(NSString *)invite withCompletionBlock:(CreateRoomCompletionBlock)block
 {
 	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"room"];
 	NSDictionary *parameters = @{@"roomType" : @(type), @"invite" : invite};

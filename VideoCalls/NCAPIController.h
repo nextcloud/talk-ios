@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "NCRoom.h"
+
 typedef void (^GetContactsCompletionBlock)(NSMutableArray *contacts, NSError *error, NSInteger errorCode);
 
 typedef void (^GetRoomsCompletionBlock)(NSMutableArray *rooms, NSError *error, NSInteger errorCode);
@@ -24,12 +26,6 @@ typedef void (^JoinCallCompletionBlock)(NSString *sessionId, NSError *error, NSI
 typedef void (^PingCallCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
 
-typedef enum RoomType {
-	kRoomTypeOneToOneCall = 0,
-	kRoomTypeGroupCall,
-	kRoomTypePublicCall
-} RoomType;
-
 
 @interface NCAPIController : NSObject
 
@@ -43,7 +39,7 @@ typedef enum RoomType {
 // Rooms Controller
 - (void)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block;
 - (void)getRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
-- (void)createRoom:(NSString *)user type:(RoomType)type invite:(NSString *)invite withCompletionBlock:(CreateRoomCompletionBlock)block;
+- (void)createRoom:(NSString *)user type:(NCRoomType)type invite:(NSString *)invite withCompletionBlock:(CreateRoomCompletionBlock)block;
 - (void)renameRoom:(NSString *)token withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
 - (void)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(AddParticipantCompletionBlock)block;
 - (void)removeSelfFromRoom:(NSString *)token withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block;
