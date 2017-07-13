@@ -19,6 +19,7 @@
 {
     NSMutableArray *_rooms;
     BOOL _networkDisconnectedRetry;
+    UIRefreshControl *_refreshControl;
 }
 
 @end
@@ -31,6 +32,8 @@
     
     _rooms = [[NSMutableArray alloc] init];
     _networkDisconnectedRetry = NO;
+    
+    [self createRefreshControl];
     
     UIImage *image = [UIImage imageNamed:@"navigationLogo"];
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:image];
@@ -72,6 +75,33 @@
     NSLog(@"Network Status:%ld", (long)status);
 }
 
+#pragma mark - Refresh Control
+
+- (void)createRefreshControl
+{
+    _refreshControl = [UIRefreshControl new];
+    _refreshControl.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    _refreshControl.backgroundColor = [UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1.0];
+    [_refreshControl addTarget:self action:@selector(refreshControlTarget) forControlEvents:UIControlEventValueChanged];
+    [self setRefreshControl:_refreshControl];
+}
+
+- (void)deleteRefreshControl
+{
+    [_refreshControl endRefreshing];
+    self.refreshControl = nil;
+}
+
+- (void)refreshControlTarget
+{
+    [self getRooms];
+    
+    // Actuate `Peek` feedback (weak boom)
+    AudioServicesPlaySystemSound(1519);
+}
+
+#pragma mark - Rooms
+
 - (void)checkConnectionState
 {
     ConnectionState connectionState = [[NCConnectionController sharedInstance] connectionState];
@@ -105,7 +135,7 @@
             break;
             
         default:
-        {  
+        {
             [self getRooms];
             _networkDisconnectedRetry = NO;
         }
@@ -119,9 +149,12 @@
         if (!error) {
             _rooms = rooms;
             [self.tableView reloadData];
+            NSLog(@"Rooms updated");
         } else {
             NSLog(@"Error while trying to get rooms: %@", error);
         }
+        
+        [_refreshControl endRefreshing];
     }];
 }
 

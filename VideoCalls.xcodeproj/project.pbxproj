@@ -28,6 +28,7 @@
 		2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
 		2CA1CCB51F0D0D5E002FE6A2 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCB41F0D0D5E002FE6A2 /* SettingsViewController.m */; };
 		2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
+		2CA1CCCA1F17C503002FE6A2 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */; };
 		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
 /* End PBXBuildFile section */
 
@@ -66,6 +67,7 @@
 		2CA1CCB41F0D0D5E002FE6A2 /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
 		2CA1CCC11F166CC5002FE6A2 /* NCRoom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCRoom.h; sourceTree = "<group>"; };
 		2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCRoom.m; sourceTree = "<group>"; };
+		2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VideoCalls.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.debug.xcconfig"; sourceTree = "<group>"; };
 		E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.release.xcconfig"; sourceTree = "<group>"; };
@@ -76,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CA1CCCA1F17C503002FE6A2 /* AudioToolbox.framework in Frameworks */,
 				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
@@ -159,6 +162,7 @@
 		2C90E5621EDDE0FB0093D85A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */,
 				2CA1CC961F016117002FE6A2 /* Security.framework */,
 				2C90E5CE1EDF23A00093D85A /* WebKit.framework */,
 				2C90E5681EDDE13A0093D85A /* UIKit.framework */,
