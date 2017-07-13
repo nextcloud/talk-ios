@@ -16,9 +16,9 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 
 @interface NCAPIController ()
 {
-    AFHTTPRequestOperationManager *_manager;
-    NSString *_serverUrl;
-    NSString *_authToken;
+	AFHTTPRequestOperationManager *_manager;
+	NSString *_serverUrl;
+	NSString *_authToken;
 }
 
 @end
@@ -27,57 +27,57 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 
 + (NCAPIController *)sharedInstance
 {
-    static dispatch_once_t once;
-    static NCAPIController *sharedInstance;
-    dispatch_once(&once, ^{
-        sharedInstance = [[self alloc] init];
-    });
-    return sharedInstance;
+	static dispatch_once_t once;
+	static NCAPIController *sharedInstance;
+	dispatch_once(&once, ^{
+		sharedInstance = [[self alloc] init];
+	});
+	return sharedInstance;
 }
 
 - (id)init
 {
-    self = [super init];
-    if (self) {
-        _manager = [[AFHTTPRequestOperationManager alloc] init];
-        _manager.responseSerializer = [[AFJSONResponseSerializer alloc] init];
-        _manager.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
-        
-        _manager.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
-        _manager.responseSerializer = [[AFJSONResponseSerializer alloc] init];
-        
-        AFSecurityPolicy* policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
-        _manager.securityPolicy = policy;
-        _manager.securityPolicy.allowInvalidCertificates = YES;
-        _manager.securityPolicy.validatesDomainName = NO;
-        
-        [_manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-        [_manager.requestSerializer setValue:@"true" forHTTPHeaderField:@"OCS-APIRequest"];
-        [_manager.requestSerializer setValue:kNCUserAgent forHTTPHeaderField:@"User-Agent"];
-    }
-    return self;
+	self = [super init];
+	if (self) {
+		_manager = [[AFHTTPRequestOperationManager alloc] init];
+		_manager.responseSerializer = [[AFJSONResponseSerializer alloc] init];
+		_manager.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
+		
+		_manager.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
+		_manager.responseSerializer = [[AFJSONResponseSerializer alloc] init];
+		
+		AFSecurityPolicy* policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
+		_manager.securityPolicy = policy;
+		_manager.securityPolicy.allowInvalidCertificates = YES;
+		_manager.securityPolicy.validatesDomainName = NO;
+		
+		[_manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+		[_manager.requestSerializer setValue:@"true" forHTTPHeaderField:@"OCS-APIRequest"];
+		[_manager.requestSerializer setValue:kNCUserAgent forHTTPHeaderField:@"User-Agent"];
+	}
+	return self;
 }
 
 - (void)setNCServer:(NSString *)serverUrl
 {
-    _serverUrl = serverUrl;
+	_serverUrl = serverUrl;
 }
 
 - (void)setAuthHeaderWithUser:(NSString *)user andToken:(NSString *)token
 {
-    NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", user, token];
-    NSData *data = [userTokenString dataUsingEncoding:NSUTF8StringEncoding];
-    NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
-    
-    NSString *authHeader = [[NSString alloc]initWithFormat:@"Basic %@",base64Encoded];
-    [_manager.requestSerializer setValue:authHeader forHTTPHeaderField:@"Authorization"];
-    
-    _authToken = token;
+	NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", user, token];
+	NSData *data = [userTokenString dataUsingEncoding:NSUTF8StringEncoding];
+	NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
+	
+	NSString *authHeader = [[NSString alloc]initWithFormat:@"Basic %@",base64Encoded];
+	[_manager.requestSerializer setValue:authHeader forHTTPHeaderField:@"Authorization"];
+	
+	_authToken = token;
 }
 
 - (NSString *)getRequestURLForSpreedEndpoint:(NSString *)endpoint
 {
-    return [NSString stringWithFormat:@"%@%@%@/%@", _serverUrl, kNCOCSAPIVersion, kNCSpreedAPIVersion, endpoint];
+	return [NSString stringWithFormat:@"%@%@%@/%@", _serverUrl, kNCOCSAPIVersion, kNCSpreedAPIVersion, endpoint];
 }
 
 #pragma mark - Contacts Controller
@@ -103,19 +103,19 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 
 - (void)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block
 {
-    NSString *URLString = [self getRequestURLForSpreedEndpoint:@"room"];
-    
-    [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
-        NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-        NSMutableArray *rooms = [[NSMutableArray alloc] initWithArray:responseRooms];
-        if (block) {
-            block(rooms, nil, [operation.response statusCode]);
-        }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
-        if (block) {
-            block(nil, error, [operation.response statusCode]);
-        }
-    }];
+	NSString *URLString = [self getRequestURLForSpreedEndpoint:@"room"];
+	
+	[_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+		NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+		NSMutableArray *rooms = [[NSMutableArray alloc] initWithArray:responseRooms];
+		if (block) {
+			block(rooms, nil, [operation.response statusCode]);
+		}
+	} failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+		if (block) {
+			block(nil, error, [operation.response statusCode]);
+		}
+	}];
 }
 
 - (void)getRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block
