@@ -107,7 +107,11 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     
     [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-        NSMutableArray *rooms = [[NSMutableArray alloc] initWithArray:responseRooms];
+        NSMutableArray *rooms = [[NSMutableArray alloc] initWithCapacity:responseRooms.count];
+        for (NSDictionary *room in responseRooms) {
+            NCRoom *ncRoom = [NCRoom roomWithDictionary:room];
+            [rooms addObject:ncRoom];
+        }
         if (block) {
             block(rooms, nil, [operation.response statusCode]);
         }

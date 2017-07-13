@@ -195,8 +195,8 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        NSString *token = [[_rooms objectAtIndex:indexPath.row] objectForKey:@"token"];
-        [[NCAPIController sharedInstance] removeSelfFromRoom:token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
             if (error) {
                 // Show alert
             }
@@ -209,13 +209,11 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSDictionary *room = [_rooms objectAtIndex:indexPath.row];
-    NSString *roomName = [room objectForKey:@"displayName"];
-    
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RoomCellIdentifier"];
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"RoomCellIdentifier"];
-        cell.textLabel.text = roomName;
+        cell.textLabel.text = room.displayName;
     }
     
     return cell;
