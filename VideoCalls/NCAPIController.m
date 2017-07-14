@@ -9,6 +9,7 @@
 #import "NCAPIController.h"
 
 #import "AFNetworking.h"
+#import "NCSettingsController.h"
 
 NSString * const kNCOCSAPIVersion       = @"/ocs/v2.php";
 NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
@@ -91,7 +92,9 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
         NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseUsers.count];
         for (NSDictionary *user in responseUsers) {
             NCUser *ncUser = [NCUser userWithDictionary:user];
-            [users addObject:ncUser];
+            if (![ncUser.userId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
+                [users addObject:ncUser];
+            }
         }
         if (block) {
             block(users, nil, [operation.response statusCode]);
