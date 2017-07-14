@@ -87,10 +87,14 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     NSString *URLString = [NSString stringWithFormat:@"%@%@/apps/files_sharing/api/v1/sharees?format=json&search=&perPage=200&itemType=call", _serverUrl, kNCOCSAPIVersion];
     
     [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
-        NSArray *responseContacts = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"users"];
-        NSMutableArray *contacts = [[NSMutableArray alloc] initWithArray:responseContacts];
+        NSArray *responseUsers = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"users"];
+        NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseUsers.count];
+        for (NSDictionary *user in responseUsers) {
+            NCUser *ncUser = [NCUser userWithDictionary:user];
+            [users addObject:ncUser];
+        }
         if (block) {
-            block(contacts, nil, [operation.response statusCode]);
+            block(users, nil, [operation.response statusCode]);
         }
     } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
         if (block) {

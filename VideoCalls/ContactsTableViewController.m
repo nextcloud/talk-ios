@@ -136,12 +136,12 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSDictionary *contact = [_contacts objectAtIndex:indexPath.row];
+    NCUser *contact = [_contacts objectAtIndex:indexPath.row];
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RoomCellIdentifier"];
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"RoomCellIdentifier"];
-        cell.textLabel.text = [contact objectForKey:@"label"];
+        cell.textLabel.text = contact.name;
     }
     
     return cell;

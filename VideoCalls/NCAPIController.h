@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #import "NCRoom.h"
+#import "NCUser.h"
 
 typedef void (^GetContactsCompletionBlock)(NSMutableArray *contacts, NSError *error, NSInteger errorCode);
 

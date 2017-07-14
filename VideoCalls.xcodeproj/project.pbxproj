@@ -29,6 +29,7 @@
 		2CA1CCB51F0D0D5E002FE6A2 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCB41F0D0D5E002FE6A2 /* SettingsViewController.m */; };
 		2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
 		2CA1CCCA1F17C503002FE6A2 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */; };
+		2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
 		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
 /* End PBXBuildFile section */
 
@@ -68,6 +69,8 @@
 		2CA1CCC11F166CC5002FE6A2 /* NCRoom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCRoom.h; sourceTree = "<group>"; };
 		2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCRoom.m; sourceTree = "<group>"; };
 		2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		2CA1CCCB1F181741002FE6A2 /* NCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCUser.h; sourceTree = "<group>"; };
+		2CA1CCCC1F181741002FE6A2 /* NCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCUser.m; sourceTree = "<group>"; };
 		6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VideoCalls.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.debug.xcconfig"; sourceTree = "<group>"; };
 		E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.release.xcconfig"; sourceTree = "<group>"; };
@@ -136,6 +139,8 @@
 				2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */,
 				2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */,
 				2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */,
+				2CA1CCCB1F181741002FE6A2 /* NCUser.h */,
+				2CA1CCCC1F181741002FE6A2 /* NCUser.m */,
 				2CA1CCB31F0D0D5E002FE6A2 /* SettingsViewController.h */,
 				2CA1CCB41F0D0D5E002FE6A2 /* SettingsViewController.m */,
 				2C0574801EDD9E8E00D9E7F2 /* Supporting Files */,
@@ -323,6 +328,7 @@
 				2CA1CCA41F025F64002FE6A2 /* CallsTableViewController.m in Sources */,
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
+				2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */,
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
 				2CA1CCB51F0D0D5E002FE6A2 /* SettingsViewController.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
