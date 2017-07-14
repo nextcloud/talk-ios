@@ -40,7 +40,7 @@ typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
 // Rooms Controller
 - (void)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block;
 - (void)getRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
-- (void)createRoom:(NSString *)user type:(NCRoomType)type invite:(NSString *)invite withCompletionBlock:(CreateRoomCompletionBlock)block;
+- (void)createRoomWith:(NSString *)invite ofType:(NCRoomType)type withCompletionBlock:(CreateRoomCompletionBlock)block;
 - (void)renameRoom:(NSString *)token withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
 - (void)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(AddParticipantCompletionBlock)block;
 - (void)removeSelfFromRoom:(NSString *)token withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block;
