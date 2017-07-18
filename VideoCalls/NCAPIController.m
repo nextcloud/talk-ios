@@ -93,8 +93,10 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     
     [_manager GET:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         NSArray *responseUsers = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"users"];
-        NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseUsers.count];
-        for (NSDictionary *user in responseUsers) {
+        NSArray *responseExtactUsers = [[[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"exact"] objectForKey:@"users"];
+        NSArray *responseContacts = [responseUsers arrayByAddingObjectsFromArray:responseExtactUsers];
+        NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseContacts.count];
+        for (NSDictionary *user in responseContacts) {
             NCUser *ncUser = [NCUser userWithDictionary:user];
             if (![ncUser.userId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
                 [users addObject:ncUser];
