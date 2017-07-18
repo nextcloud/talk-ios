@@ -35,7 +35,7 @@ typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
 - (void)setAuthHeaderWithUser:(NSString *)user andToken:(NSString *)token;
 
 // Contacts Controller
-- (void)getContactsWithCompletionBlock:(GetContactsCompletionBlock)block;
+- (void)getContactsWithSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
 
 // Rooms Controller
 - (void)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block;

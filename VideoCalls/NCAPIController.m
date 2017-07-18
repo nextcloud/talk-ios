@@ -83,11 +83,15 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 
 #pragma mark - Contacts Controller
 
-- (void)getContactsWithCompletionBlock:(GetContactsCompletionBlock)block
+- (void)getContactsWithSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block
 {
-    NSString *URLString = [NSString stringWithFormat:@"%@%@/apps/files_sharing/api/v1/sharees?format=json&search=&perPage=200&itemType=call", _serverUrl, kNCOCSAPIVersion];
+    NSString *URLString = [NSString stringWithFormat:@"%@%@/apps/files_sharing/api/v1/sharees", _serverUrl, kNCOCSAPIVersion];
+    NSDictionary *parameters = @{@"fomat" : @"json",
+                                 @"search" : search ? search : @"",
+                                 @"perPage" : @"200",
+                                 @"itemType" : @"call"};
     
-    [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+    [_manager GET:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         NSArray *responseUsers = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"users"];
         NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseUsers.count];
         for (NSDictionary *user in responseUsers) {

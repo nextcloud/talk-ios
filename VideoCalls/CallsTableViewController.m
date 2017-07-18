@@ -213,8 +213,9 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RoomCellIdentifier"];
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"RoomCellIdentifier"];
-        cell.textLabel.text = room.displayName;
     }
+    
+    cell.textLabel.text = room.displayName;
     
     return cell;
 }

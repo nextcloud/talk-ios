@@ -48,7 +48,7 @@
         <scene sceneID="54W-NR-WAb">
             <objects>
                 <navigationController id="tcx-5H-OG9" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="pba-Gu-M55">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="pba-Gu-M55">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <textAttributes key="titleTextAttributes">
@@ -124,9 +124,9 @@
         <!--Root View Controller-->
         <scene sceneID="2Fv-cG-2wu">
             <objects>
-                <tableViewController id="0hK-nw-rSf" customClass="ContactsTableViewController" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="jFG-KC-K2L">
-                        <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                <tableViewController extendedLayoutIncludesOpaqueBars="YES" id="0hK-nw-rSf" customClass="ContactsTableViewController" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="jFG-KC-K2L">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
@@ -155,7 +155,7 @@
             <objects>
                 <navigationController id="QHn-J8-lK0" userLabel="Contacts" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Contacts" image="contact" id="ERX-cz-L8N" userLabel="Contacts"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="AMd-5w-H1M">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="AMd-5w-H1M">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>

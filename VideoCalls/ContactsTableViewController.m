@@ -14,11 +14,14 @@
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
 #import "NCSettingsController.h"
+#import "SearchTableViewController.h"
 
-@interface ContactsTableViewController ()
+@interface ContactsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
     NSMutableArray *_contacts;
     BOOL _networkDisconnectedRetry;
+    UISearchController *_searchController;
+    SearchTableViewController *_resultTableViewController;
 }
 
 @end
@@ -31,6 +34,21 @@
     
     _contacts = [[NSMutableArray alloc] init];
     _networkDisconnectedRetry = NO;
+    
+    _resultTableViewController = [[SearchTableViewController alloc] init];
+    
+    _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
+    _searchController.searchResultsUpdater = self;
+    [_searchController.searchBar sizeToFit];
+    self.tableView.tableHeaderView = _searchController.searchBar;
+    
+    // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
+    _resultTableViewController.tableView.delegate = self;
+    _searchController.delegate = self;
+    _searchController.dimsBackgroundDuringPresentation = NO;
+    _searchController.searchBar.delegate = self;
+    
+    self.definesPresentationContext = YES;
     
     UIImage *image = [UIImage imageNamed:@"navigationLogo"];
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:image];
@@ -115,7 +133,7 @@
 
 - (void)getContacts
 {
-    [[NCAPIController sharedInstance] getContactsWithCompletionBlock:^(NSMutableArray *contacts, NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSMutableArray *contacts, NSError *error, NSInteger errorCode) {
         if (!error) {
             _contacts = contacts;
             [self.tableView reloadData];
@@ -123,6 +141,25 @@
             NSLog(@"Error while trying to get contacts: %@", error);
         }
     }];
+}
+
+- (void)searchForContactsWithString:(NSString *)searchString
+{
+    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSMutableArray *contacts, NSError *error, NSInteger errorCode) {
+        if (!error) {
+            _resultTableViewController.filteredContacts = contacts;
+            [_resultTableViewController.tableView reloadData];
+        } else {
+            NSLog(@"Error while searching for contacts: %@", error);
+        }
+    }];
+}
+
+#pragma mark - Search controller
+
+- (void)updateSearchResultsForSearchController:(UISearchController *)searchController
+{
+    [self searchForContactsWithString:_searchController.searchBar.text];
 }
 
 #pragma mark - Table view data source
@@ -137,12 +174,12 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NCUser *contact = [_contacts objectAtIndex:indexPath.row];
-    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RoomCellIdentifier"];
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"RoomCellIdentifier"];
-        cell.textLabel.text = contact.name;
     }
+    
+    cell.textLabel.text = contact.name;
     
     return cell;
 }
