@@ -10,6 +10,7 @@
 
 #import "AFNetworking.h"
 #import "AuthenticationViewController.h"
+#import "CallsTableViewCell.h"
 #import "LoginViewController.h"
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
@@ -32,6 +33,8 @@
     
     _rooms = [[NSMutableArray alloc] init];
     _networkDisconnectedRetry = NO;
+    
+    [self.tableView registerNib:[UINib nibWithNibName:kCallsTableCellNibName bundle:nil] forCellReuseIdentifier:kCallCellIdentifier];
     
     [self createRefreshControl];
     
@@ -210,12 +213,29 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RoomCellIdentifier"];
+    CallsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kCallCellIdentifier];
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"RoomCellIdentifier"];
+        cell = [[CallsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kCallCellIdentifier];
     }
     
-    cell.textLabel.text = room.displayName;
+    cell.labelTitle.text = room.displayName;
+    
+    switch (room.type) {
+        case kNCRoomTypeOneToOneCall:
+            [cell.callImage setImage:[UIImage imageNamed:@"user"]];
+            break;
+            
+        case kNCRoomTypeGroupCall:
+            [cell.callImage setImage:[UIImage imageNamed:@"group"]];
+            break;
+            
+        case kNCRoomTypePublicCall:
+            [cell.callImage setImage:[UIImage imageNamed:@"public"]];
+            break;
+            
+        default:
+            break;
+    }
     
     return cell;
 }

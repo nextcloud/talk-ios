@@ -10,9 +10,6 @@
 
 #import "NCUser.h"
 
-NSString *const kContactCellIdentifier = @"ContactCellIdentifier";
-NSString *const kContactsTableCellNibName = @"ContactCell";
-
 @interface SearchTableViewController ()
 
 @end
@@ -45,12 +42,12 @@ NSString *const kContactsTableCellNibName = @"ContactCell";
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCUser *contact = [_filteredContacts objectAtIndex:indexPath.row];
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kContactCellIdentifier forIndexPath:indexPath];
+    ContactsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kContactCellIdentifier forIndexPath:indexPath];
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kContactCellIdentifier];
+        cell = [[ContactsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kContactCellIdentifier];
     }
     
-    cell.textLabel.text = contact.name;
+    cell.labelTitle.text = contact.name;
     
     return cell;
 }

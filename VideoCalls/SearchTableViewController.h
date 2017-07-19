@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "ContactsTableViewCell.h"
+
 @interface SearchTableViewController : UITableViewController
 
 @property (nonatomic, strong) NSArray *filteredContacts;

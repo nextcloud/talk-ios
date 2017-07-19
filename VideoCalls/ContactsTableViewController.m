@@ -35,6 +35,8 @@
     _contacts = [[NSMutableArray alloc] init];
     _networkDisconnectedRetry = NO;
     
+    [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
+    
     _resultTableViewController = [[SearchTableViewController alloc] init];
     
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
@@ -174,12 +176,12 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NCUser *contact = [_contacts objectAtIndex:indexPath.row];
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RoomCellIdentifier"];
+    ContactsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kContactCellIdentifier forIndexPath:indexPath];
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"RoomCellIdentifier"];
+        cell = [[ContactsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kContactCellIdentifier];
     }
     
-    cell.textLabel.text = contact.name;
+    cell.labelTitle.text = contact.name;
     
     return cell;
 }
