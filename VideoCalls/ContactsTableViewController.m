@@ -190,6 +190,10 @@
 {
     NCUser *contact = [_contacts objectAtIndex:indexPath.row];
     
+    if (_searchController.active) {
+        contact =  [_resultTableViewController.filteredContacts objectAtIndex:indexPath.row];
+    }
+    
     [[NCAPIController sharedInstance] createRoomWith:contact.userId
                                               ofType:kNCRoomTypeOneToOneCall
                                  withCompletionBlock:^(NSString *token, NSError *error, NSInteger errorCode) {
