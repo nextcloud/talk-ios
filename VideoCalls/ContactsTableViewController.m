@@ -47,7 +47,6 @@
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
     _resultTableViewController.tableView.delegate = self;
     _searchController.delegate = self;
-    _searchController.dimsBackgroundDuringPresentation = NO;
     _searchController.searchBar.delegate = self;
     
     self.definesPresentationContext = YES;
