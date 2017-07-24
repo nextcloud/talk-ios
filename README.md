@@ -5,6 +5,7 @@ At this moment, the app is at a very early development stage **[WIP]**
 
 ## Prerequisites
 
+- Nexcloud instance with [Video calls app](https://github.com/nextcloud/spreed) installed (Latest [master](https://github.com/nextcloud/spreed/commits/master))
 - [CocoaPods](https://cocoapods.org/)
 
 ## Build steps
