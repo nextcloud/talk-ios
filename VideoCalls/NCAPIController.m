@@ -282,9 +282,9 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 
 - (void)pingCall:(NSString *)token withCompletionBlock:(PingCallCompletionBlock)block
 {
-    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"call/%@", token]];
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"call/%@/ping", token]];
     
-    [_manager PUT:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+    [_manager POST:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         if (block) {
             block(nil, [operation.response statusCode]);
         }
