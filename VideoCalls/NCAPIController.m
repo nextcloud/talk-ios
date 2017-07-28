@@ -310,5 +310,39 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     }];
 }
 
+#pragma mark - Signalling Controller
+
+- (void)sendSignallingMessages:(NSArray *)messages withCompletionBlock:(SendSignallingMessagesCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:@"signalling"];
+    NSDictionary *parameters = @{@"messages" : messages};
+    
+    [_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        if (block) {
+            block(nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(error, [operation.response statusCode]);
+        }
+    }];
+}
+
+- (void)pullSignallingMessagesWithCompletionBlock:(PullSignallingMessagesCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:@"messages"];
+    
+    [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        NSDictionary *responseDict = responseObject;
+        if (block) {
+            block(responseDict, nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error, [operation.response statusCode]);
+        }
+    }];
+}
+
 
 @end

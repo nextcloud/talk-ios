@@ -27,6 +27,9 @@ typedef void (^JoinCallCompletionBlock)(NSString *sessionId, NSError *error, NSI
 typedef void (^PingCallCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
 
+typedef void (^SendSignallingMessagesCompletionBlock)(NSError *error, NSInteger errorCode);
+typedef void (^PullSignallingMessagesCompletionBlock)(NSDictionary *messages, NSError *error, NSInteger errorCode);
+
 
 @interface NCAPIController : NSObject
 
@@ -53,6 +56,10 @@ typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
 - (void)joinCall:(NSString *)token withCompletionBlock:(JoinCallCompletionBlock)block;
 - (void)pingCall:(NSString *)token withCompletionBlock:(PingCallCompletionBlock)block;
 - (void)leaveCall:(NSString *)token withCompletionBlock:(LeaveCallCompletionBlock)block;
+
+// Signalling Controller
+- (void)sendSignallingMessages:(NSArray *)messages withCompletionBlock:(SendSignallingMessagesCompletionBlock)block;
+- (void)pullSignallingMessagesWithCompletionBlock:(PullSignallingMessagesCompletionBlock)block;
 
 
 
