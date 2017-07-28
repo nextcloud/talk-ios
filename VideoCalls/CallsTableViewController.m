@@ -21,6 +21,8 @@
     NSMutableArray *_rooms;
     BOOL _networkDisconnectedRetry;
     UIRefreshControl *_refreshControl;
+    NSTimer *_pingTimer;
+    NSString *_currentCallToken;
 }
 
 @end
@@ -161,6 +163,23 @@
     }];
 }
 
+- (void)startPingCall
+{
+    [self pingCall];
+    _pingTimer = [NSTimer scheduledTimerWithTimeInterval:5.0  target:self selector:@selector(pingCall) userInfo:nil repeats:YES];
+}
+
+- (void)pingCall
+{
+    if (_currentCallToken) {
+        [[NCAPIController sharedInstance] pingCall:_currentCallToken withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+            //TODO: Error handling
+        }];
+    } else {
+        NSLog(@"No call token to ping");
+    }
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -238,6 +257,20 @@
     }
     
     return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    [[NCAPIController sharedInstance] joinCall:room.token withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger errorCode) {
+        if (!error) {
+            _currentCallToken = room.token;
+            [self startPingCall];
+        }
+    }];
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 
