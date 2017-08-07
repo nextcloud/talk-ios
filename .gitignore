@@ -2,4 +2,5 @@ Pods
 Podfile.lock
 VideoCalls.xcodeproj/xcuserdata
 VideoCalls.xcworkspace/xcuserdata
+ThirdParty/WebRTC
 
