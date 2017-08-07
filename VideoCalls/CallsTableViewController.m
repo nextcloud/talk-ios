@@ -10,6 +10,7 @@
 
 #import "AFNetworking.h"
 #import "AuthenticationViewController.h"
+#import "CallViewController.h"
 #import "CallsTableViewCell.h"
 #import "LoginViewController.h"
 #import "NCAPIController.h"
@@ -298,6 +299,8 @@
         if (!error) {
             _currentCallToken = room.token;
             [self startPingCall];
+            CallViewController *callVC = [[CallViewController alloc] initWithSessionId:sessionId];
+            [self presentViewController:callVC animated:YES completion:nil];
         }
     }];
     

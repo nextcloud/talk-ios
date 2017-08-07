@@ -318,7 +318,7 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 
 #pragma mark - Signalling Controller
 
-- (void)sendSignallingMessages:(NSArray *)messages withCompletionBlock:(SendSignallingMessagesCompletionBlock)block
+- (void)sendSignallingMessages:(NSString *)messages withCompletionBlock:(SendSignallingMessagesCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:@"signalling"];
     NSDictionary *parameters = @{@"messages" : messages};

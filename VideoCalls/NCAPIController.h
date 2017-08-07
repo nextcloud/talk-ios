@@ -58,7 +58,7 @@ typedef void (^PullSignallingMessagesCompletionBlock)(NSDictionary *messages, NS
 - (void)leaveCall:(NSString *)token withCompletionBlock:(LeaveCallCompletionBlock)block;
 
 // Signalling Controller
-- (void)sendSignallingMessages:(NSArray *)messages withCompletionBlock:(SendSignallingMessagesCompletionBlock)block;
+- (void)sendSignallingMessages:(NSString *)messages withCompletionBlock:(SendSignallingMessagesCompletionBlock)block;
 - (void)pullSignallingMessagesWithCompletionBlock:(PullSignallingMessagesCompletionBlock)block;
 
 // User avatars
