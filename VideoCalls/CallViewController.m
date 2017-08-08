@@ -33,6 +33,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     RTCVideoTrack *_localVideoTrack;
     ARDCaptureController *_captureController;
+    RTCVideoTrack *_remoteVideoTrack;
     UIView<RTCVideoRenderer> *_remoteVideoView;
     
     CGSize _remoteVideoSize;
@@ -198,8 +199,15 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)setRemoteVideoTrack:(RTCVideoTrack *)remoteVideoTrack
 {
+    if (_remoteVideoTrack == remoteVideoTrack) {
+        return;
+    }
+    
+    [_remoteVideoTrack removeRenderer:_remoteVideoView];
+    _remoteVideoTrack = nil;
     [_remoteVideoView renderFrame:nil];
-    [remoteVideoTrack addRenderer:_remoteVideoView];
+    _remoteVideoTrack = remoteVideoTrack;
+    [_remoteVideoTrack addRenderer:_remoteVideoView];
 }
 
 #pragma mark - Utils
