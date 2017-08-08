@@ -25,6 +25,8 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     RTCPeerConnectionFactory *_factory;
     
+    NSMutableArray *_iceServers;
+    
     NSMapTable *_sessionIdMap;
     NSMutableDictionary *_peerConnectionDict;
     NSMutableArray *_usersInCall;
@@ -59,6 +61,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     _sessionIdMap = [[NSMapTable alloc] init];
     _peerConnectionDict = [[NSMutableDictionary alloc] init];
     _usersInCall = [[NSMutableArray alloc] init];
+    
+    RTCIceServer *stunServer = [[RTCIceServer alloc] initWithURLStrings:[NSArray arrayWithObjects:@"stun:stun.nextcloud.com:443", nil]];
+    NSMutableArray *iceServers = [NSMutableArray array];
+    [iceServers addObject:stunServer];
+    [_iceServers addObjectsFromArray:iceServers];
     
     RTCEAGLVideoView *remoteView = [[RTCEAGLVideoView alloc] initWithFrame:_remoteView.layer.bounds];
     remoteView.delegate = self;
@@ -335,6 +342,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                                             initWithMandatoryConstraints:nil
                                             optionalConstraints:nil];
         RTCConfiguration *config = [[RTCConfiguration alloc] init];
+        config.iceServers = _iceServers;
         
         peerConnection = [_factory peerConnectionWithConfiguration:config
                                                        constraints:constraints
@@ -354,6 +362,8 @@ static NSString * const kNCVideoTrackKind = @"video";
                                         initWithMandatoryConstraints:nil
                                         optionalConstraints:nil];
     RTCConfiguration *config = [[RTCConfiguration alloc] init];
+    config.iceServers = _iceServers;
+    
     RTCPeerConnection *peerConnection = [_factory peerConnectionWithConfiguration:config
                                                                       constraints:constraints
                                                                          delegate:self];
