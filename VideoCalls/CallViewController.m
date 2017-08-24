@@ -26,8 +26,9 @@ static NSString * const kNCVideoTrackKind = @"video";
     RTCPeerConnectionFactory *_factory;
     
     NSMutableArray *_iceServers;
-    
-    NSMutableDictionary *_peerConnectionDict;
+        
+    NSMutableDictionary *_peerConnectionDict; // sessionId -> peerConnection
+    NSMutableDictionary *_signalingMessagesDict; // sessionId -> messageQueue
     NSMutableArray *_usersInCall;
     
     RTCVideoTrack *_localVideoTrack;
@@ -59,6 +60,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         
     _factory = [[RTCPeerConnectionFactory alloc] init];
     _peerConnectionDict = [[NSMutableDictionary alloc] init];
+    _signalingMessagesDict = [[NSMutableDictionary alloc] init];
     _usersInCall = [[NSMutableArray alloc] init];
     
     RTCIceServer *stunServer = [[RTCIceServer alloc] initWithURLStrings:[NSArray arrayWithObjects:@"stun:stun.nextcloud.com:443", nil]];
@@ -240,7 +242,30 @@ static NSString * const kNCVideoTrackKind = @"video";
                 [self processUsersInRoom:[message objectForKey:@"data"]];
             } else if ([messageType isEqualToString:@"message"]) {
                 NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromJSONString:[message objectForKey:@"data"]];
-                [self processSignalingMessage:signalingMessage];
+                if (signalingMessage) {
+                    RTCPeerConnection *peerConnection = [self getPeerConnectionForSessionId:signalingMessage.from];
+                    NSMutableArray *messageQueue = [_signalingMessagesDict objectForKey:signalingMessage.from];
+                    
+                    switch (signalingMessage.messageType) {
+                        case kNCSignalingMessageTypeOffer:
+                        case kNCSignalingMessageTypeAnswer:
+                            // Offers and answers must be processed before any other message, so we
+                            // place them at the front of the queue.
+                            [self processSignalingMessage:signalingMessage];
+                            break;
+                        case kNCSignalingMessageTypeCandidate:
+                            if (!peerConnection.remoteDescription) {
+                                [messageQueue addObject:signalingMessage];
+                            } else {
+                                [self processSignalingMessage:signalingMessage];
+                                [self drainMessageQueueIfReadyForPeer:signalingMessage.from];
+                            }
+                            
+                            break;
+                        case kNCSignalingMessageTypeUknown:
+                            break;
+                    }
+                }
             } else {
                 NSLog(@"Uknown message: %@", [message objectForKey:@"data"]);
             }
@@ -248,6 +273,16 @@ static NSString * const kNCVideoTrackKind = @"video";
         
         [self startPullingSignallingMessages];
     }];
+}
+
+- (void)drainMessageQueueIfReadyForPeer:(NSString *)sessionId {
+    NSMutableArray *messageQueue = [_signalingMessagesDict objectForKey:sessionId];
+    
+    for (NCSignalingMessage *message in messageQueue) {
+        [self processSignalingMessage:message];
+    }
+    
+    [messageQueue removeAllObjects];
 }
 
 - (void)sendSignalingMessages:(NSArray *)messages
@@ -344,6 +379,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     if (!peerConnection) {
         // Create peer connection.
+        NSLog(@"Creating a peer for %@", sessionId);
         RTCMediaConstraints* constraints = [[RTCMediaConstraints alloc]
                                             initWithMandatoryConstraints:nil
                                             optionalConstraints:nil];
@@ -355,6 +391,10 @@ static NSString * const kNCVideoTrackKind = @"video";
                                                           delegate:self];
         
         [_peerConnectionDict setObject:peerConnection forKey:sessionId];
+        
+        // Initialize message queue for this peer
+        NSMutableArray *messageQueue = [[NSMutableArray alloc] init];
+        [_signalingMessagesDict setObject:messageQueue forKey:sessionId];
     }
     
     return peerConnection;
@@ -390,6 +430,10 @@ static NSString * const kNCVideoTrackKind = @"video";
                                                                          delegate:self];
     
     [_peerConnectionDict setObject:peerConnection forKey:sessionId];
+    
+    // Initialize message queue for this peer
+    NSMutableArray *messageQueue = [[NSMutableArray alloc] init];
+    [_signalingMessagesDict setObject:messageQueue forKey:sessionId];
     
     [peerConnection offerForConstraints:[self defaultOfferConstraints]
                        completionHandler:^(RTCSessionDescription *sdp,
