@@ -27,7 +27,6 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     NSMutableArray *_iceServers;
     
-    NSMapTable *_sessionIdMap;
     NSMutableDictionary *_peerConnectionDict;
     NSMutableArray *_usersInCall;
     
@@ -59,7 +58,6 @@ static NSString * const kNCVideoTrackKind = @"video";
     [super viewDidLoad];
         
     _factory = [[RTCPeerConnectionFactory alloc] init];
-    _sessionIdMap = [[NSMapTable alloc] init];
     _peerConnectionDict = [[NSMutableDictionary alloc] init];
     _usersInCall = [[NSMutableArray alloc] init];
     
@@ -139,7 +137,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didGenerateIceCandidate:(RTCIceCandidate *)candidate
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *to = [_sessionIdMap objectForKey:peerConnection];
+        NSString *to = [self getSessionIdForPeerConnection:peerConnection];
         NCICECandidateMessage *message = [[NCICECandidateMessage alloc] initWithCandidate:candidate
                                                                                      from:_sessionId
                                                                                        to:to
@@ -356,11 +354,26 @@ static NSString * const kNCVideoTrackKind = @"video";
                                                        constraints:constraints
                                                           delegate:self];
         
-        [_sessionIdMap setObject:sessionId forKey:peerConnection];
         [_peerConnectionDict setObject:peerConnection forKey:sessionId];
     }
     
     return peerConnection;
+}
+
+- (NSString *)getSessionIdForPeerConnection:(RTCPeerConnection *)peerConnection
+{
+    NSString *sessionId = nil;
+    NSArray *keysForPC = [_peerConnectionDict allKeysForObject:peerConnection];
+    
+    if ([keysForPC count] > 0) {
+        sessionId = [keysForPC lastObject];
+    }
+    
+    if ([keysForPC count] > 1) {
+        NSLog(@"Warning: Multiple session ids saved the same peer connection object.");
+    }
+    
+    return sessionId;
 }
 
 - (void)createPeerConnectionWithOfferForSessionId:(NSString *)sessionId
@@ -376,7 +389,6 @@ static NSString * const kNCVideoTrackKind = @"video";
                                                                       constraints:constraints
                                                                          delegate:self];
     
-    [_sessionIdMap setObject:sessionId forKey:peerConnection];
     [_peerConnectionDict setObject:peerConnection forKey:sessionId];
     
     [peerConnection offerForConstraints:[self defaultOfferConstraints]
