@@ -402,6 +402,11 @@ static NSString * const kNCVideoTrackKind = @"video";
 didCreateSessionDescription:(RTCSessionDescription *)sdp
                  error:(NSError *)error
 {
+    if (error) {
+        NSLog(@"Failed to create session description. Error: %@", error);
+        return;
+    }
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         NSLog(@"didCreateSessionDescription: %ld", (long)sdp.type);
         RTCPeerConnection *peerConnection = [self getPeerConnectionForSessionId:sessionId];
@@ -422,6 +427,11 @@ didCreateSessionDescription:(RTCSessionDescription *)sdp
 - (void)peerConnectionForSessionId:(NSString *)sessionId
 didSetSessionDescriptionWithError:(NSError *)error
 {
+    if (error) {
+        NSLog(@"Failed to set session description. Error: %@", error);
+        return;
+    }
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         // If we're answering and we've just set the remote offer we need to create
         // an answer and set the local description.
