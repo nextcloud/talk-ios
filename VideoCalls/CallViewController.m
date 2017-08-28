@@ -37,6 +37,8 @@ static NSString * const kNCVideoTrackKind = @"video";
     UIView<RTCVideoRenderer> *_remoteVideoView;
     
     CGSize _remoteVideoSize;
+    
+    BOOL _stopPullingMessages;
 }
 @end
 
@@ -76,6 +78,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     [_remoteView addSubview:_remoteVideoView];
     
     [self startPullingSignallingMessages];
+    _stopPullingMessages = false;
 }
 
 - (void)didReceiveMemoryWarning
@@ -243,6 +246,9 @@ static NSString * const kNCVideoTrackKind = @"video";
     self.localVideoView.captureSession = nil;
     [_captureController stopCapture];
     _captureController = nil;
+    
+    _stopPullingMessages = true;
+    
     [_delegate viewControllerDidFinish:self];
 }
 
@@ -288,7 +294,9 @@ static NSString * const kNCVideoTrackKind = @"video";
             }
         }
         
-        [self startPullingSignallingMessages];
+        if (!_stopPullingMessages) {
+            [self startPullingSignallingMessages];
+        }
     }];
 }
 
