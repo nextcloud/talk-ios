@@ -21,6 +21,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @interface CallViewController () <RTCPeerConnectionDelegate, RTCEAGLVideoViewDelegate>
 {
+    NSString *_callToken;
     NSString *_sessionId;
     
     RTCPeerConnectionFactory *_factory;
@@ -46,13 +47,14 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @synthesize delegate = _delegate;
 
-- (instancetype)initWithSessionId:(NSString *)sessionId
+- (instancetype)initCall:(NSString *)token withSessionId:(NSString *)sessionId
 {
     self = [super init];
     if (!self) {
         return nil;
     }
     
+    _callToken = token;
     _sessionId = sessionId;
     
     return self;
@@ -270,8 +272,13 @@ static NSString * const kNCVideoTrackKind = @"video";
     [_captureController stopCapture];
     _captureController = nil;
     
-    _stopPullingMessages = true;
+    [[NCAPIController sharedInstance] leaveCall:_callToken withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        if (error) {
+            NSLog(@"Error while leaving the call.");
+        }
+    }];
     
+    _stopPullingMessages = true;
     [_delegate viewControllerDidFinish:self];
 }
 

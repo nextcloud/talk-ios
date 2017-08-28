@@ -24,6 +24,6 @@
 @property (strong, nonatomic) IBOutlet UIView *remoteView;
 @property (strong, nonatomic) IBOutlet UIButton *hangupButton;
 
-- (instancetype)initWithSessionId:(NSString *)sessionId;
+- (instancetype)initCall:(NSString *)token withSessionId:(NSString *)sessionId;
 
 @end
