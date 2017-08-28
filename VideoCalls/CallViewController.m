@@ -87,17 +87,37 @@ static NSString * const kNCVideoTrackKind = @"video";
     // Dispose of any resources that can be recreated.
 }
 
-- (IBAction)hangupButtonPressed:(id)sender {
-    [self hangup];
-}
+#pragma mark - Remote Video view
 
 - (void)videoView:(RTCEAGLVideoView*)videoView didChangeVideoSize:(CGSize)size
 {
     if (videoView == _remoteVideoView) {
         _remoteVideoSize = size;
-        _remoteVideoView.bounds = _remoteView.bounds;
+        [self resizeRemoteVideoView];
     }
-    [_remoteView setNeedsLayout];
+}
+
+- (void)resizeRemoteVideoView {
+    CGRect bounds = self.view.bounds;
+    if (_remoteVideoSize.width > 0 && _remoteVideoSize.height > 0) {
+        // Aspect fill remote video into bounds.
+        CGRect remoteVideoFrame =
+        AVMakeRectWithAspectRatioInsideRect(_remoteVideoSize, bounds);
+        CGFloat scale = 1;
+        if (remoteVideoFrame.size.width > remoteVideoFrame.size.height) {
+            // Scale by height.
+            scale = bounds.size.height / remoteVideoFrame.size.height;
+        } else {
+            // Scale by width.
+            scale = bounds.size.width / remoteVideoFrame.size.width;
+        }
+        remoteVideoFrame.size.height *= scale;
+        remoteVideoFrame.size.width *= scale;
+        _remoteVideoView.frame = remoteVideoFrame;
+        _remoteVideoView.center = CGPointMake(CGRectGetMidX(bounds), CGRectGetMidY(bounds));
+    } else {
+        _remoteVideoView.frame = bounds;
+    }
 }
 
 #pragma mark - RTCPeerConnectionDelegate
@@ -240,8 +260,11 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 #pragma mark - Call actions
 
+- (IBAction)hangupButtonPressed:(id)sender {
+    [self hangup];
+}
+
 - (void)hangup {
-    NSLog(@"hangup");
     self.remoteVideoTrack = nil;
     self.localVideoView.captureSession = nil;
     [_captureController stopCapture];
