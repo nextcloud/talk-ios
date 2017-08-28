@@ -42,6 +42,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @implementation CallViewController
 
+@synthesize delegate = _delegate;
+
 - (instancetype)initWithSessionId:(NSString *)sessionId
 {
     self = [super init];
@@ -80,6 +82,10 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)hangupButtonPressed:(id)sender {
+    [self hangup];
 }
 
 - (void)videoView:(RTCEAGLVideoView*)videoView didChangeVideoSize:(CGSize)size
@@ -227,6 +233,17 @@ static NSString * const kNCVideoTrackKind = @"video";
                                         initWithMandatoryConstraints:mandatoryConstraints
                                         optionalConstraints:nil];
     return constraints;
+}
+
+#pragma mark - Call actions
+
+- (void)hangup {
+    NSLog(@"hangup");
+    self.remoteVideoTrack = nil;
+    self.localVideoView.captureSession = nil;
+    [_captureController stopCapture];
+    _captureController = nil;
+    [_delegate viewControllerDidFinish:self];
 }
 
 #pragma mark - Signalling

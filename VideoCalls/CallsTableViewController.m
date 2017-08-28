@@ -20,7 +20,7 @@
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
-@interface CallsTableViewController ()
+@interface CallsTableViewController () <CallViewControllerDelegate>
 {
     NSMutableArray *_rooms;
     BOOL _networkDisconnectedRetry;
@@ -300,11 +300,22 @@
             _currentCallToken = room.token;
             [self startPingCall];
             CallViewController *callVC = [[CallViewController alloc] initWithSessionId:sessionId];
+            callVC.delegate = self;
             [self presentViewController:callVC animated:YES completion:nil];
         }
     }];
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+#pragma mark - CallViewControllerDelegate
+
+- (void)viewControllerDidFinish:(CallViewController *)viewController {
+    if (![viewController isBeingDismissed]) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            NSLog(@"Call view controller dismissed");
+        }];
+    }
 }
 
 
