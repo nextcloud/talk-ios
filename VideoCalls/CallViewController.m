@@ -390,7 +390,7 @@ static NSString * const kNCVideoTrackKind = @"video";
             NSComparisonResult result = [sessionId compare:_sessionId];
             if (result == NSOrderedAscending) {
                 NSLog(@"Creating offer...");
-                [self createPeerConnectionWithOfferForSessionId:sessionId];
+                [self sendOfferToSessionId:sessionId];
             } else {
                 NSLog(@"Waiting for offer...");
             }
@@ -471,38 +471,24 @@ static NSString * const kNCVideoTrackKind = @"video";
     return sessionId;
 }
 
-- (void)createPeerConnectionWithOfferForSessionId:(NSString *)sessionId
+- (void)sendOfferToSessionId:(NSString *)sessionId
 {
-    // Create peer connection.
-    RTCMediaConstraints* constraints = [[RTCMediaConstraints alloc]
-                                        initWithMandatoryConstraints:nil
-                                        optionalConstraints:nil];
-    RTCConfiguration *config = [[RTCConfiguration alloc] init];
-    config.iceServers = _iceServers;
-    
-    RTCPeerConnection *peerConnection = [_factory peerConnectionWithConfiguration:config
-                                                                      constraints:constraints
-                                                                         delegate:self];
-    
-    [_peerConnectionDict setObject:peerConnection forKey:sessionId];
-    
-    // Initialize message queue for this peer
-    NSMutableArray *messageQueue = [[NSMutableArray alloc] init];
-    [_signalingMessagesDict setObject:messageQueue forKey:sessionId];
-    
-    [peerConnection offerForConstraints:[self defaultOfferConstraints]
-                       completionHandler:^(RTCSessionDescription *sdp,
-                                           NSError *error) {
-                           [peerConnection setLocalDescription:sdp completionHandler:^(NSError *error) {
-                               NCSessionDescriptionMessage *message = [[NCSessionDescriptionMessage alloc]
-                                                                       initWithSessionDescription:sdp
-                                                                       from:_sessionId
-                                                                       to:sessionId
-                                                                       sid:[NCSignalingMessage getMessageSid]
-                                                                       roomType:@"video"];
-                               [self sendSignalingMessage:message];
-                           }];
-                       }];
+    RTCPeerConnection *peerConnection =  [self getPeerConnectionForSessionId:sessionId];
+    if (peerConnection) {
+        [peerConnection offerForConstraints:[self defaultOfferConstraints] completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
+            [peerConnection setLocalDescription:sdp completionHandler:^(NSError *error) {
+                NCSessionDescriptionMessage *message = [[NCSessionDescriptionMessage alloc]
+                                                        initWithSessionDescription:sdp
+                                                        from:_sessionId
+                                                        to:sessionId
+                                                        sid:[NCSignalingMessage getMessageSid]
+                                                        roomType:@"video"];
+                [self sendSignalingMessage:message];
+            }];
+        }];
+    } else {
+        NSLog(@"Could not send offer.");
+    }
 }
 
 #pragma mark - RTCSessionDescriptionDelegate
