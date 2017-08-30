@@ -213,7 +213,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     RTCRtpSender *sender =
     [peerConnection senderWithKind:kRTCMediaStreamTrackKindVideo
                           streamId:kNCMediaStreamId];
-    
+#if !TARGET_IPHONE_SIMULATOR
     RTCVideoSource *source = [_factory videoSource];
     RTCCameraVideoCapturer *capturer = [[RTCCameraVideoCapturer alloc] initWithDelegate:source];
     ARDSettingsModel *settingsModel = [[ARDSettingsModel alloc] init];
@@ -225,6 +225,8 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     _localVideoTrack = [_factory videoTrackWithSource:source trackId:kNCVideoTrackId];
     
+    sender.track = _localVideoTrack;
+#endif
     return sender;
 }
 
@@ -444,6 +446,9 @@ static NSString * const kNCVideoTrackKind = @"video";
         peerConnection = [_factory peerConnectionWithConfiguration:config
                                                        constraints:constraints
                                                           delegate:self];
+        
+        [self createAudioSenderForPeerConnection:peerConnection];
+        [self createVideoSenderForPeerConnection:peerConnection];
         
         [_peerConnectionDict setObject:peerConnection forKey:sessionId];
         
