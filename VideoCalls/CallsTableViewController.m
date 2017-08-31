@@ -38,6 +38,7 @@
     _networkDisconnectedRetry = NO;
     
     [self.tableView registerNib:[UINib nibWithNibName:kCallsTableCellNibName bundle:nil] forCellReuseIdentifier:kCallCellIdentifier];
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 64, 70, 0);
     
     [self createRefreshControl];
     
@@ -191,6 +192,11 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return _rooms.count;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 70.0f;
 }
 
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
