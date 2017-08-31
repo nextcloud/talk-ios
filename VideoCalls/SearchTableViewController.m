@@ -9,6 +9,7 @@
 #import "SearchTableViewController.h"
 
 #import "NCUser.h"
+#import "UIImageView+Letters.h"
 
 @interface SearchTableViewController ()
 
@@ -48,6 +49,7 @@
     }
     
     cell.labelTitle.text = contact.name;
+    [cell.contactImage setImageWithString:contact.name color:nil circular:true];
     
     return cell;
 }
