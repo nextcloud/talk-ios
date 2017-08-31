@@ -153,9 +153,7 @@ static const CGFloat kFontResizingProportion = 0.42f;
     float s = 90.0f;
     float l = 65.0f;
     float alpha = 1.0f;
-    
-    NSLog(@"COLOR : %f - %f - %f", h, s, l);
-    
+        
     if (s < 0.0f || s > 100.0f) {
         NSLog(@"Color parameter outside of expected range - Saturation");
     }
