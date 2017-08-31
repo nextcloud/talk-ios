@@ -15,6 +15,7 @@
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
 #import "NCSettingsController.h"
+#import "UIImageView+Letters.h"
 
 @interface CallsTableViewController ()
 {
@@ -241,7 +242,7 @@
     
     switch (room.type) {
         case kNCRoomTypeOneToOneCall:
-            [cell.callImage setImage:[UIImage imageNamed:@"user"]];
+            [cell.callImage setImageWithString:room.displayName color:nil circular:true];
             break;
             
         case kNCRoomTypeGroupCall:

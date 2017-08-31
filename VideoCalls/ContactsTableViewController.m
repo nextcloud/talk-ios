@@ -15,6 +15,7 @@
 #import "NCConnectionController.h"
 #import "NCSettingsController.h"
 #import "SearchTableViewController.h"
+#import "UIImageView+Letters.h"
 
 @interface ContactsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
@@ -181,7 +182,7 @@
     }
     
     cell.labelTitle.text = contact.name;
-    
+    [cell.contactImage setImageWithString:contact.name color:nil circular:true];
     return cell;
 }
 
