@@ -23,6 +23,7 @@
 // THE SOFTWARE.
 
 #import "UIImageView+Letters.h"
+#import <CommonCrypto/CommonDigest.h>
 
 // This multiplier sets the font size based on the view bounds
 static const CGFloat kFontResizingProportion = 0.42f;
@@ -93,7 +94,7 @@ static const CGFloat kFontResizingProportion = 0.42f;
         }
     }
     
-    UIColor *backgroundColor = color ? color : [self randomColor];
+    UIColor *backgroundColor = color ? color : [self colorFromString:string];
 
     self.image = [self imageSnapshotFromText:[displayString uppercaseString] backgroundColor:backgroundColor circular:isCircular textAttributes:textAttributes];
 }
@@ -132,6 +133,87 @@ static const CGFloat kFontResizingProportion = 0.42f;
     }
     
     return [UIColor colorWithRed:red green:green blue:blue alpha:1.0f];
+}
+
+- (UIColor *)colorFromString:(NSString *)string {
+    const char *cStr = [string UTF8String];
+    unsigned char result[CC_MD5_DIGEST_LENGTH];
+    CC_MD5( cStr, (int)strlen(cStr), result );
+    NSInteger seedMd5Int = [[NSString stringWithFormat:
+                        @"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                        result[0], result[1], result[2], result[3],
+                        result[4], result[5], result[6], result[7],
+                        result[8], result[9], result[10], result[11],
+                        result[12], result[13], result[14], result[15]
+                        ] hash];
+    
+    int maxRange = INT_MAX;
+    
+    float h = (float) (seedMd5Int / maxRange * 360);
+    float s = 90.0f;
+    float l = 65.0f;
+    float alpha = 1.0f;
+    
+    NSLog(@"COLOR : %f - %f - %f", h, s, l);
+    
+    if (s < 0.0f || s > 100.0f) {
+        NSLog(@"Color parameter outside of expected range - Saturation");
+    }
+    
+    if (l < 0.0f || l > 100.0f) {
+        NSLog(@"Color parameter outside of expected range - Luminance");
+    }
+    
+    if (alpha < 0.0f || alpha > 1.0f) {
+        NSLog(@"Color parameter outside of expected range - Alpha");
+    }
+    
+    //  Formula needs all values between 0 - 1.
+    
+    h = fmodf(h, 360.0f);//h % 360;
+    h = h / 360.0f;
+    s = s / 100.0f;
+    l = l / 100.0f;
+    
+    float q;
+    
+    if (l < 0.5) {
+        q = l * (1 + s);
+    } else {
+        q = (l + s) - (s * l);
+    }
+    
+    float p = 2 * l - q;
+    
+    int r = round(MAX(0, [self HueToRGBp:p q:q h:h + (1.0f / 3.0f)] * 256));
+    int g = round(MAX(0, [self HueToRGBp:p q:q h:h] * 256));
+    int b = round(MAX(0, [self HueToRGBp:p q:q h:h - (1.0f / 3.0f)] * 256));
+    
+    return [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1];
+}
+
+- (float)HueToRGBp:(float)p q:(float)q h:(float)h {
+    if (h < 0) {
+        h += 1;
+    }
+    
+    if (h > 1) {
+        h -= 1;
+    }
+    
+    if (6 * h < 1) {
+        return p + ((q - p) * 6 * h);
+    }
+    
+    if (2 * h < 1) {
+        return q;
+    }
+    
+    if (3 * h < 2) {
+        return p + ((q - p) * 6 * ((2.0f / 3.0f) - h));
+    }
+    
+    return p;
 }
 
 - (UIImage *)imageSnapshotFromText:(NSString *)text backgroundColor:(UIColor *)color circular:(BOOL)isCircular textAttributes:(NSDictionary *)textAttributes {
