@@ -18,6 +18,7 @@
 		2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5681EDDE13A0093D85A /* UIKit.framework */; };
 		2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5CE1EDF23A00093D85A /* WebKit.framework */; };
 		2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */; };
+		2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
 		2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC901F014354002FE6A2 /* NCConnectionController.m */; };
 		2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */; };
 		2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA1CC961F016117002FE6A2 /* Security.framework */; };
@@ -55,6 +56,8 @@
 		2C90E5CE1EDF23A00093D85A /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		2C90E5D01EE80C870093D85A /* AuthenticationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthenticationViewController.h; sourceTree = "<group>"; };
 		2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthenticationViewController.m; sourceTree = "<group>"; };
+		2C92195A1F58530B008AC1A3 /* UIImageView+Letters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+Letters.h"; sourceTree = "<group>"; };
+		2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+Letters.m"; sourceTree = "<group>"; };
 		2CA1CC8F1F014354002FE6A2 /* NCConnectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCConnectionController.h; sourceTree = "<group>"; };
 		2CA1CC901F014354002FE6A2 /* NCConnectionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCConnectionController.m; sourceTree = "<group>"; };
 		2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSettingsController.h; sourceTree = "<group>"; };
@@ -180,6 +183,7 @@
 		2C05749C1EDDA01700D9E7F2 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				2C9219591F58530B008AC1A3 /* UIImageView+Letters */,
 				2CA1CC9B1F0161FB002FE6A2 /* UICKeyChainStore */,
 			);
 			name = ThirdParty;
@@ -197,6 +201,16 @@
 				6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2C9219591F58530B008AC1A3 /* UIImageView+Letters */ = {
+			isa = PBXGroup;
+			children = (
+				2C92195A1F58530B008AC1A3 /* UIImageView+Letters.h */,
+				2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */,
+			);
+			name = "UIImageView+Letters";
+			path = "ThirdParty/UIImageView+Letters";
 			sourceTree = "<group>";
 		};
 		2CA1CC9B1F0161FB002FE6A2 /* UICKeyChainStore */ = {
@@ -356,6 +370,7 @@
 				2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
+				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
 				2CA1CCB51F0D0D5E002FE6A2 /* SettingsViewController.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2CA1CC9A1F0161EA002FE6A2 /* UICKeyChainStore.m in Sources */,
