@@ -37,6 +37,7 @@
     _networkDisconnectedRetry = NO;
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 48, 52, 0);
     
     _resultTableViewController = [[SearchTableViewController alloc] init];
     
