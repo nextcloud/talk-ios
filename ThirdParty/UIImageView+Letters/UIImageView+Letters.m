@@ -68,7 +68,7 @@ static const CGFloat kFontResizingProportion = 0.42f;
     NSMutableArray *words = [[string componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] mutableCopy];
     
     //
-    // Get first letter of the first and last word
+    // Get first letter of the first word
     //
     if ([words count]) {
         NSString *firstWord = [words firstObject];
@@ -76,21 +76,6 @@ static const CGFloat kFontResizingProportion = 0.42f;
             // Get character range to handle emoji (emojis consist of 2 characters in sequence)
             NSRange firstLetterRange = [firstWord rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, 1)];
             [displayString appendString:[firstWord substringWithRange:firstLetterRange]];
-        }
-        
-        if ([words count] >= 2) {
-            NSString *lastWord = [words lastObject];
-            
-            while ([lastWord length] == 0 && [words count] >= 2) {
-                [words removeLastObject];
-                lastWord = [words lastObject];
-            }
-            
-            if ([words count] > 1) {
-                // Get character range to handle emoji (emojis consist of 2 characters in sequence)
-                NSRange lastLetterRange = [lastWord rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, 1)];
-                [displayString appendString:[lastWord substringWithRange:lastLetterRange]];
-            }
         }
     }
     
