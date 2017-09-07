@@ -17,6 +17,7 @@
 #import "NCSettingsController.h"
 #import "NSDate+DateTools.h"
 #import "UIImageView+Letters.h"
+#import "UIImageView+AFNetworking.h"
 
 @interface CallsTableViewController ()
 {
@@ -259,7 +260,16 @@
     // Set room image
     switch (room.type) {
         case kNCRoomTypeOneToOneCall:
+        {
+            // Create avatar for every OneToOne call
             [cell.callImage setImageWithString:room.displayName color:nil circular:true];
+            
+            // Request user avatar to the server and set it if exist
+            [cell.callImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name]
+                                  placeholderImage:nil
+                                           success:nil
+                                           failure:nil];
+        }
             break;
             
         case kNCRoomTypeGroupCall:
@@ -273,6 +283,9 @@
         default:
             break;
     }
+    
+    cell.callImage.layer.cornerRadius = 24.0;
+    cell.callImage.layer.masksToBounds = YES;
     
     return cell;
 }
