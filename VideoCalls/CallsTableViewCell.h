@@ -15,5 +15,6 @@ extern NSString *const kCallsTableCellNibName;
 
 @property(nonatomic, weak) IBOutlet UIImageView *callImage;
 @property(nonatomic, weak) IBOutlet UILabel *labelTitle;
+@property(nonatomic, weak) IBOutlet UILabel *labelSubTitle;
 
 @end

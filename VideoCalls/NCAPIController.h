@@ -61,6 +61,7 @@ typedef void (^PullSignallingMessagesCompletionBlock)(NSDictionary *messages, NS
 - (void)sendSignallingMessages:(NSArray *)messages withCompletionBlock:(SendSignallingMessagesCompletionBlock)block;
 - (void)pullSignallingMessagesWithCompletionBlock:(PullSignallingMessagesCompletionBlock)block;
 
-
+// User avatars
+- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId;
 
 @end

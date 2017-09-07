@@ -15,6 +15,8 @@
 #import "NCConnectionController.h"
 #import "NCSettingsController.h"
 #import "SearchTableViewController.h"
+#import "UIImageView+Letters.h"
+#import "UIImageView+AFNetworking.h"
 
 @interface ContactsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
@@ -36,6 +38,7 @@
     _networkDisconnectedRetry = NO;
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 48, 52, 0);
     
     _resultTableViewController = [[SearchTableViewController alloc] init];
     
@@ -181,6 +184,18 @@
     }
     
     cell.labelTitle.text = contact.name;
+    
+    // Create avatar for every contact
+    [cell.contactImage setImageWithString:contact.name color:nil circular:true];
+    
+    // Request user avatar to the server and set it if exist
+    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId]
+                             placeholderImage:nil
+                                      success:nil
+                                      failure:nil];
+    
+    cell.contactImage.layer.cornerRadius = 16.0;
+    cell.contactImage.layer.masksToBounds = YES;
     
     return cell;
 }

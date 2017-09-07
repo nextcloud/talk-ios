@@ -350,5 +350,16 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     }];
 }
 
+#pragma mark - User avatars
+
+- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId
+{
+    #warning TODO - Clear cache from time to time and reload possible new images
+    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/128", _serverUrl, userId];
+    return [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]
+                            cachePolicy:NSURLRequestReturnCacheDataElseLoad
+                        timeoutInterval:60];
+}
+
 
 @end

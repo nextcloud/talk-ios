@@ -15,6 +15,9 @@
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
 #import "NCSettingsController.h"
+#import "NSDate+DateTools.h"
+#import "UIImageView+Letters.h"
+#import "UIImageView+AFNetworking.h"
 
 @interface CallsTableViewController ()
 {
@@ -37,6 +40,7 @@
     _networkDisconnectedRetry = NO;
     
     [self.tableView registerNib:[UINib nibWithNibName:kCallsTableCellNibName bundle:nil] forCellReuseIdentifier:kCallCellIdentifier];
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 64, 60, 0);
     
     [self createRefreshControl];
     
@@ -192,6 +196,11 @@
     return _rooms.count;
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 60.0f;
+}
+
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     return UITableViewCellEditingStyleDelete;
@@ -237,11 +246,30 @@
         cell = [[CallsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kCallCellIdentifier];
     }
     
+    // Set room name
     cell.labelTitle.text = room.displayName;
     
+    // Set last ping
+    NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
+    cell.labelSubTitle.text = [date timeAgoSinceNow];
+    
+    if (room.lastPing == 0) {
+        cell.labelSubTitle.text = @"Invited";
+    }
+    
+    // Set room image
     switch (room.type) {
         case kNCRoomTypeOneToOneCall:
-            [cell.callImage setImage:[UIImage imageNamed:@"user"]];
+        {
+            // Create avatar for every OneToOne call
+            [cell.callImage setImageWithString:room.displayName color:nil circular:true];
+            
+            // Request user avatar to the server and set it if exist
+            [cell.callImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name]
+                                  placeholderImage:nil
+                                           success:nil
+                                           failure:nil];
+        }
             break;
             
         case kNCRoomTypeGroupCall:
@@ -255,6 +283,9 @@
         default:
             break;
     }
+    
+    cell.callImage.layer.cornerRadius = 24.0;
+    cell.callImage.layer.masksToBounds = YES;
     
     return cell;
 }
