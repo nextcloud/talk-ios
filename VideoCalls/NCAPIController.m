@@ -125,6 +125,12 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
             NCRoom *ncRoom = [NCRoom roomWithDictionary:room];
             [rooms addObject:ncRoom];
         }
+        
+        // Sort by lastPing
+        NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"lastPing" ascending:NO];
+        NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];
+        [rooms sortUsingDescriptors:descriptors];
+        
         if (block) {
             block(rooms, nil, [operation.response statusCode]);
         }
