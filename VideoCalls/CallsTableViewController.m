@@ -15,6 +15,7 @@
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
 #import "NCSettingsController.h"
+#import "NSDate+DateTools.h"
 #import "UIImageView+Letters.h"
 
 @interface CallsTableViewController ()
@@ -38,7 +39,7 @@
     _networkDisconnectedRetry = NO;
     
     [self.tableView registerNib:[UINib nibWithNibName:kCallsTableCellNibName bundle:nil] forCellReuseIdentifier:kCallCellIdentifier];
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 64, 70, 0);
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 64, 60, 0);
     
     [self createRefreshControl];
     
@@ -196,7 +197,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 70.0f;
+    return 60.0f;
 }
 
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -245,6 +246,9 @@
     }
     
     cell.labelTitle.text = room.displayName;
+    
+    NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
+    cell.labelSubTitle.text = [date timeAgoSinceNow];
     
     switch (room.type) {
         case kNCRoomTypeOneToOneCall:
