@@ -245,11 +245,18 @@
         cell = [[CallsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kCallCellIdentifier];
     }
     
+    // Set room name
     cell.labelTitle.text = room.displayName;
     
+    // Set last ping
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
     cell.labelSubTitle.text = [date timeAgoSinceNow];
     
+    if (room.lastPing == 0) {
+        cell.labelSubTitle.text = @"Invited";
+    }
+    
+    // Set room image
     switch (room.type) {
         case kNCRoomTypeOneToOneCall:
             [cell.callImage setImageWithString:room.displayName color:nil circular:true];
