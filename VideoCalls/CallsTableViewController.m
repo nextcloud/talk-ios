@@ -269,6 +269,9 @@
                                   placeholderImage:nil
                                            success:nil
                                            failure:nil];
+            
+            cell.callImage.layer.cornerRadius = 24.0;
+            cell.callImage.layer.masksToBounds = YES;
         }
             break;
             
@@ -283,9 +286,6 @@
         default:
             break;
     }
-    
-    cell.callImage.layer.cornerRadius = 24.0;
-    cell.callImage.layer.masksToBounds = YES;
     
     return cell;
 }
