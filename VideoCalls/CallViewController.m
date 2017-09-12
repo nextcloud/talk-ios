@@ -385,7 +385,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         NSString *sessionId = [user objectForKey:@"sessionId"];
         
         if([_sessionId isEqualToString:sessionId]) {
-            return;
+            continue;
         }
         
         if (![_peerConnectionDict objectForKey:sessionId]) {
