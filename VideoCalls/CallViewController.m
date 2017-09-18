@@ -11,6 +11,7 @@
 #import "ARDSettingsModel.h"
 #import "ARDCaptureController.h"
 #import "ARDSignalingMessage.h"
+#import "ARDSDPUtils.h"
 #import "NCAPIController.h"
 #import "NCSignalingMessage.h"
 
@@ -511,13 +512,15 @@ didCreateSessionDescription:(RTCSessionDescription *)sdp
     
     dispatch_async(dispatch_get_main_queue(), ^{
         NSLog(@"didCreateSessionDescription: %ld", (long)sdp.type);
+        // Set VP8 as preferred codec.
+        RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sdp preferredVideoCodec:@"VP8"];
         RTCPeerConnection *peerConnection = [self getPeerConnectionForSessionId:sessionId];
-        [peerConnection setLocalDescription:sdp completionHandler:^(NSError *error) {
+        [peerConnection setLocalDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
             [self peerConnectionForSessionId:sessionId didSetSessionDescriptionWithError:error];
         }];
         
         NCSessionDescriptionMessage *message = [[NCSessionDescriptionMessage alloc]
-                                                initWithSessionDescription:sdp
+                                                initWithSessionDescription:sdpPreferringCodec
                                                 from:_sessionId to:sessionId
                                                 sid:[NCSignalingMessage getMessageSid]
                                                 roomType:@"video"];
