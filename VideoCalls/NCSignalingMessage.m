@@ -162,7 +162,6 @@ static NSString * const kNCSignalingMessageSdpKey = @"sdp";
 - (NSDictionary *)functionDict {
     return @{
              kNCSignalingMessageToKey: self.to,
-             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
              kNCSignalingMessagePayloadKey: @{
@@ -256,7 +255,6 @@ static NSString * const kNCSignalingMessageSdpKey = @"sdp";
 - (NSDictionary *)functionDict {
     return @{
              kNCSignalingMessageToKey: self.to,
-             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
              kNCSignalingMessagePayloadKey: @{

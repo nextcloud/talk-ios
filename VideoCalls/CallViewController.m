@@ -175,7 +175,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         NCICECandidateMessage *message = [[NCICECandidateMessage alloc] initWithCandidate:candidate
                                                                                      from:_sessionId
                                                                                        to:to
-                                                                                      sid:[NCSignalingMessage getMessageSid]
+                                                                                      sid:nil
                                                                                  roomType:@"video"];
         [self sendSignalingMessage:message];
     });
@@ -487,7 +487,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                                                         initWithSessionDescription:sdp
                                                         from:_sessionId
                                                         to:sessionId
-                                                        sid:[NCSignalingMessage getMessageSid]
+                                                        sid:nil
                                                         roomType:@"video"];
                 [self sendSignalingMessage:message];
             }];
@@ -522,7 +522,7 @@ didCreateSessionDescription:(RTCSessionDescription *)sdp
         NCSessionDescriptionMessage *message = [[NCSessionDescriptionMessage alloc]
                                                 initWithSessionDescription:sdpPreferringCodec
                                                 from:_sessionId to:sessionId
-                                                sid:[NCSignalingMessage getMessageSid]
+                                                sid:nil
                                                 roomType:@"video"];
         [self sendSignalingMessage:message];
 //        [self setMaxBitrateForPeerConnectionVideoSender];
