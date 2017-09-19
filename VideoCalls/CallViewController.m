@@ -33,6 +33,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     NSMutableDictionary *_signalingMessagesDict; // sessionId -> messageQueue
     NSMutableArray *_usersInCall;
     
+    RTCAudioTrack *_localAudioTrack;
     RTCVideoTrack *_localVideoTrack;
     ARDCaptureController *_captureController;
     RTCVideoTrack *_remoteVideoTrack;
@@ -69,6 +70,9 @@ static NSString * const kNCVideoTrackKind = @"video";
     _peerConnectionDict = [[NSMutableDictionary alloc] init];
     _signalingMessagesDict = [[NSMutableDictionary alloc] init];
     _usersInCall = [[NSMutableArray alloc] init];
+    
+    self.isAudioMute = NO;
+    self.isVideoMute = NO;
     
     RTCIceServer *stunServer = [[RTCIceServer alloc] initWithURLStrings:[NSArray arrayWithObjects:@"stun:stun.nextcloud.com:443", nil]];
     NSMutableArray *iceServers = [NSMutableArray array];
@@ -201,11 +205,11 @@ static NSString * const kNCVideoTrackKind = @"video";
                                           optionalConstraints:nil];
     
     RTCAudioSource *source = [_factory audioSourceWithConstraints:constraints];
-    RTCAudioTrack *track = [_factory audioTrackWithSource:source trackId:kNCAudioTrackId];
+    _localAudioTrack = [_factory audioTrackWithSource:source trackId:kNCAudioTrackId];
     RTCRtpSender *sender =
     [peerConnection senderWithKind:kRTCMediaStreamTrackKindAudio
                           streamId:kNCMediaStreamId];
-    sender.track = track;
+    sender.track = _localAudioTrack;
     return sender;
 }
 
@@ -265,6 +269,34 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 #pragma mark - Call actions
 
+- (IBAction)audioButtonPressed:(id)sender
+{
+    UIButton *audioButton = sender;
+    if (self.isAudioMute) {
+        [self unmuteAudio];
+        [audioButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+        self.isAudioMute = NO;
+    } else {
+        [self muteAudio];
+        [audioButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+        self.isAudioMute = YES;
+    }
+}
+
+- (IBAction)videoButtonPressed:(id)sender
+{
+    UIButton *videoButton = sender;
+    if (self.isVideoMute) {
+        [self unmuteVideo];
+        [videoButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
+        self.isVideoMute = NO;
+    } else {
+        [self muteVideo];
+        [videoButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
+        self.isVideoMute = YES;
+    }
+}
+
 - (IBAction)hangupButtonPressed:(id)sender {
     [self hangup];
 }
@@ -283,6 +315,62 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     _stopPullingMessages = true;
     [_delegate viewControllerDidFinish:self];
+}
+
+#pragma mark - Audio mute/unmute
+- (void)muteAudio
+{
+    NSLog(@"audio muted");
+    NSArray *peerConnections = [_peerConnectionDict allValues];
+    for (RTCPeerConnection *peerConnection in peerConnections) {
+        NSArray *senders = peerConnection.senders;
+        for (RTCRtpSender *sender in senders) {
+            if (sender.track.kind == kRTCMediaStreamTrackKindAudio) {
+                sender.track.isEnabled = NO;
+            }
+        }
+    }
+}
+- (void)unmuteAudio
+{
+    NSLog(@"audio unmuted");
+    NSArray *peerConnections = [_peerConnectionDict allValues];
+    for (RTCPeerConnection *peerConnection in peerConnections) {
+        NSArray *senders = peerConnection.senders;
+        for (RTCRtpSender *sender in senders) {
+            if (sender.track.kind == kRTCMediaStreamTrackKindAudio) {
+                sender.track.isEnabled = YES;
+            }
+        }
+    }
+}
+
+#pragma mark - Video mute/unmute
+- (void)muteVideo
+{
+    NSLog(@"video muted");
+    NSArray *peerConnections = [_peerConnectionDict allValues];
+    for (RTCPeerConnection *peerConnection in peerConnections) {
+        NSArray *senders = peerConnection.senders;
+        for (RTCRtpSender *sender in senders) {
+            if (sender.track.kind == kRTCMediaStreamTrackKindVideo) {
+                sender.track.isEnabled = NO;
+            }
+        }
+    }
+}
+- (void)unmuteVideo
+{
+    NSLog(@"video unmuted");
+    NSArray *peerConnections = [_peerConnectionDict allValues];
+    for (RTCPeerConnection *peerConnection in peerConnections) {
+        NSArray *senders = peerConnection.senders;
+        for (RTCRtpSender *sender in senders) {
+            if (sender.track.kind == kRTCMediaStreamTrackKindVideo) {
+                sender.track.isEnabled = YES;
+            }
+        }
+    }
 }
 
 #pragma mark - Signalling

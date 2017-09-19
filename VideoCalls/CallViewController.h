@@ -22,6 +22,13 @@
 
 @property (strong, nonatomic) IBOutlet RTCCameraPreviewView *localVideoView;
 @property (strong, nonatomic) IBOutlet UIView *remoteView;
+
+@property (assign, nonatomic) BOOL isAudioMute;
+@property (assign, nonatomic) BOOL isVideoMute;
+
+- (IBAction)audioButtonPressed:(id)sender;
+- (IBAction)videoButtonPressed:(id)sender;
+
 @property (strong, nonatomic) IBOutlet UIButton *hangupButton;
 
 - (instancetype)initCall:(NSString *)token withSessionId:(NSString *)sessionId;

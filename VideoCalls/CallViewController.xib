@@ -47,11 +47,17 @@
                             <rect key="frame" x="5" y="0.0" width="36" height="36"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <state key="normal" title="Button" image="audio"/>
+                            <connections>
+                                <action selector="audioButtonPressed:" destination="-1" eventType="touchUpInside" id="S7l-rj-Mm7"/>
+                            </connections>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mnS-Sn-kuO">
                             <rect key="frame" x="5" y="63" width="36" height="36"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <state key="normal" title="Button" image="video"/>
+                            <connections>
+                                <action selector="videoButtonPressed:" destination="-1" eventType="touchUpInside" id="zX8-Yh-b2V"/>
+                            </connections>
                         </button>
                     </subviews>
                 </view>
