@@ -20,7 +20,7 @@ static NSString * const kNCAudioTrackId = @"NCa0";
 static NSString * const kNCVideoTrackId = @"NCv0";
 static NSString * const kNCVideoTrackKind = @"video";
 
-@interface CallViewController () <RTCPeerConnectionDelegate, RTCEAGLVideoViewDelegate>
+@interface CallViewController () <RTCPeerConnectionDelegate, RTCDataChannelDelegate, RTCEAGLVideoViewDelegate>
 {
     NSString *_callToken;
     NSString *_sessionId;
@@ -40,6 +40,9 @@ static NSString * const kNCVideoTrackKind = @"video";
     UIView<RTCVideoRenderer> *_remoteVideoView;
     
     CGSize _remoteVideoSize;
+    
+    RTCDataChannel *_localdataChannel;
+    RTCDataChannel *_remoteDataChannel;
     
     BOOL _stopPullingMessages;
 }
@@ -192,7 +195,93 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didOpenDataChannel:(RTCDataChannel *)dataChannel
 {
-    NSLog(@"Data channel was opened.");
+    if ([dataChannel.label isEqualToString:@"status"]) {
+        _remoteDataChannel = dataChannel;
+        _remoteDataChannel.delegate = self;
+        
+        NSLog(@"Remote data channel '%@' was opened.", dataChannel.label);
+    } else {
+        NSLog(@"Data channel '%@' was opened.", dataChannel.label);
+    }
+}
+
+//#pragma mark - RTCDataChannelDelegate
+
+- (void)dataChannelDidChangeState:(RTCDataChannel *)dataChannel
+{
+    NSLog(@"Data cahnnel '%@' did change state: %ld", dataChannel.label, dataChannel.readyState);
+    if (dataChannel.readyState == RTCDataChannelStateOpen && [dataChannel.label isEqualToString:@"status"]) {
+        // Send current audio state
+        if (self.isAudioMute) {
+            [self sendDataChannelMessageOfType:@"audioOff" withPayload:nil];
+        } else {
+            [self sendDataChannelMessageOfType:@"audioOn" withPayload:nil];
+        }
+        
+        // Send current video state
+        if (self.isVideoMute) {
+            [self sendDataChannelMessageOfType:@"videoOff" withPayload:nil];
+        } else {
+            [self sendDataChannelMessageOfType:@"videoOn" withPayload:nil];
+        }
+    }
+}
+
+- (void)dataChannel:(RTCDataChannel *)dataChannel didReceiveMessageWithBuffer:(RTCDataBuffer *)buffer
+{
+    NSDictionary *message = [self getDataChannelMessageFromJSONData:buffer.data];
+    NSString *messageType =[message objectForKey:@"type"];
+//    NSString *messagePayload = [message objectForKey:@"payload"];
+    NSLog(@"Data channel '%@' did receive message: %@", dataChannel.label, messageType);
+}
+
+- (NSDictionary *)getDataChannelMessageFromJSONData:(NSData *)jsonData
+{
+    NSError *error;
+    NSDictionary* messageDict = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                options:kNilOptions
+                                                                  error:&error];
+    
+    if (!messageDict) {
+        NSLog(@"Error parsing data channel message: %@", error);
+    }
+    
+    return messageDict;
+}
+
+- (NSData *)createDataChannelMessage:(NSDictionary *)message
+{
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:message
+                                                       options:0
+                                                         error:&error];
+    
+    if (!jsonData) {
+        NSLog(@"Error creating data channel message: %@", error);
+    }
+    
+    return jsonData;
+}
+
+- (void)sendDataChannelMessageOfType:(NSString *)type withPayload:(NSString *)payload
+{
+    NSDictionary *message = @{@"type": type};
+    
+    if (payload) {
+        message = @{@"type": type,
+                    @"payload": payload};
+    }
+    
+    NSData *jsonMessage = [self createDataChannelMessage:message];
+    RTCDataBuffer *dataBuffer = [[RTCDataBuffer alloc] initWithData:jsonMessage isBinary:NO];
+    
+    if (_localdataChannel) {
+        [_localdataChannel sendData:dataBuffer];
+    } else if (_remoteDataChannel) {
+        [_remoteDataChannel sendData:dataBuffer];
+    } else {
+        NSLog(@"No data channel opened");
+    }
 }
 
 #pragma mark - Audio & Video senders
@@ -261,9 +350,15 @@ static NSString * const kNCVideoTrackKind = @"video";
                                            @"OfferToReceiveAudio" : @"true",
                                            @"OfferToReceiveVideo" : @"true"
                                            };
+    
+    NSDictionary *optionalConstraints = @{
+                                          @"internalSctpDataChannels": @"true",
+                                          @"DtlsSrtpKeyAgreement": @"true"
+                                          };
+    
     RTCMediaConstraints* constraints = [[RTCMediaConstraints alloc]
                                         initWithMandatoryConstraints:mandatoryConstraints
-                                        optionalConstraints:nil];
+                                        optionalConstraints:optionalConstraints];
     return constraints;
 }
 
@@ -275,10 +370,12 @@ static NSString * const kNCVideoTrackKind = @"video";
     if (self.isAudioMute) {
         [self unmuteAudio];
         [audioButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+        [self sendDataChannelMessageOfType:@"audioOn" withPayload:nil];
         self.isAudioMute = NO;
     } else {
         [self muteAudio];
         [audioButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+        [self sendDataChannelMessageOfType:@"audioOff" withPayload:nil];
         self.isAudioMute = YES;
     }
 }
@@ -289,10 +386,12 @@ static NSString * const kNCVideoTrackKind = @"video";
     if (self.isVideoMute) {
         [self unmuteVideo];
         [videoButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
+        [self sendDataChannelMessageOfType:@"videoOn" withPayload:nil];
         self.isVideoMute = NO;
     } else {
         [self muteVideo];
         [videoButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
+        [self sendDataChannelMessageOfType:@"videoOff" withPayload:nil];
         self.isVideoMute = YES;
     }
 }
@@ -569,6 +668,11 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     RTCPeerConnection *peerConnection =  [self getPeerConnectionForSessionId:sessionId];
     if (peerConnection) {
+        //Create data channel before creating the offer to enable data channels
+        RTCDataChannelConfiguration* config = [[RTCDataChannelConfiguration alloc] init];
+        config.isNegotiated = NO;
+        _localdataChannel = [peerConnection dataChannelForLabel:@"status" configuration:config];
+        _localdataChannel.delegate = self;
         [peerConnection offerForConstraints:[self defaultOfferConstraints] completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
             [peerConnection setLocalDescription:sdp completionHandler:^(NSError *error) {
                 NCSessionDescriptionMessage *message = [[NCSessionDescriptionMessage alloc]
