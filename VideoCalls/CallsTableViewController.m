@@ -10,6 +10,7 @@
 
 #import "AFNetworking.h"
 #import "AuthenticationViewController.h"
+#import "CallViewController.h"
 #import "CallsTableViewCell.h"
 #import "LoginViewController.h"
 #import "NCAPIController.h"
@@ -19,7 +20,7 @@
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
-@interface CallsTableViewController ()
+@interface CallsTableViewController () <CallViewControllerDelegate>
 {
     NSMutableArray *_rooms;
     BOOL _networkDisconnectedRetry;
@@ -298,10 +299,23 @@
         if (!error) {
             _currentCallToken = room.token;
             [self startPingCall];
+            CallViewController *callVC = [[CallViewController alloc] initCall:room.token withSessionId:sessionId];
+            callVC.delegate = self;
+            [self presentViewController:callVC animated:YES completion:nil];
         }
     }];
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+#pragma mark - CallViewControllerDelegate
+
+- (void)viewControllerDidFinish:(CallViewController *)viewController {
+    if (![viewController isBeingDismissed]) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            NSLog(@"Call view controller dismissed");
+        }];
+    }
 }
 
 
