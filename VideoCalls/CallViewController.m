@@ -10,7 +10,6 @@
 
 #import "ARDSettingsModel.h"
 #import "ARDCaptureController.h"
-#import "ARDSignalingMessage.h"
 #import "ARDSDPUtils.h"
 #import "NCAPIController.h"
 #import "NCSignalingMessage.h"

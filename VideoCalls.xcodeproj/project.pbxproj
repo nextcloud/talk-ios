@@ -21,7 +21,6 @@
 		2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
 		2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
 		2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
-		2C4D7D711F309DA500FF4A0D /* ARDSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D6C1F309DA500FF4A0D /* ARDSignalingMessage.m */; };
 		2C4D7D721F309DA500FF4A0D /* RTCIceCandidate+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D6E1F309DA500FF4A0D /* RTCIceCandidate+JSON.m */; };
 		2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D701F309DA500FF4A0D /* RTCSessionDescription+JSON.m */; };
 		2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */; };
@@ -91,8 +90,6 @@
 		2C4D7D661F2F7DBC00FF4A0D /* ARDSettingsModel+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ARDSettingsModel+Private.h"; sourceTree = "<group>"; };
 		2C4D7D671F2F7DBC00FF4A0D /* ARDSettingsStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSettingsStore.h; sourceTree = "<group>"; };
 		2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDSettingsStore.m; sourceTree = "<group>"; };
-		2C4D7D6B1F309DA500FF4A0D /* ARDSignalingMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSignalingMessage.h; sourceTree = "<group>"; };
-		2C4D7D6C1F309DA500FF4A0D /* ARDSignalingMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDSignalingMessage.m; sourceTree = "<group>"; };
 		2C4D7D6D1F309DA500FF4A0D /* RTCIceCandidate+JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RTCIceCandidate+JSON.h"; sourceTree = "<group>"; };
 		2C4D7D6E1F309DA500FF4A0D /* RTCIceCandidate+JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RTCIceCandidate+JSON.m"; sourceTree = "<group>"; };
 		2C4D7D6F1F309DA500FF4A0D /* RTCSessionDescription+JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RTCSessionDescription+JSON.h"; sourceTree = "<group>"; };
@@ -251,17 +248,15 @@
 		2C4D7D601F2F7C2C00FF4A0D /* AppRTC */ = {
 			isa = PBXGroup;
 			children = (
-				2C9E6CCC1F6F34F000399B7A /* ARDSDPUtils.h */,
-				2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */,
 				2C4D7D611F2F7C2C00FF4A0D /* ARDCaptureController.h */,
 				2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */,
+				2C9E6CCC1F6F34F000399B7A /* ARDSDPUtils.h */,
+				2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */,
 				2C4D7D641F2F7DBC00FF4A0D /* ARDSettingsModel.h */,
 				2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */,
 				2C4D7D661F2F7DBC00FF4A0D /* ARDSettingsModel+Private.h */,
 				2C4D7D671F2F7DBC00FF4A0D /* ARDSettingsStore.h */,
 				2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */,
-				2C4D7D6B1F309DA500FF4A0D /* ARDSignalingMessage.h */,
-				2C4D7D6C1F309DA500FF4A0D /* ARDSignalingMessage.m */,
 				2C4D7D741F30F7B600FF4A0D /* ARDUtilities.h */,
 				2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */,
 				2C4D7D6D1F309DA500FF4A0D /* RTCIceCandidate+JSON.h */,
@@ -466,7 +461,6 @@
 				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
 				2CA1CCB51F0D0D5E002FE6A2 /* SettingsViewController.m in Sources */,
-				2C4D7D711F309DA500FF4A0D /* ARDSignalingMessage.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
 				2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */,
