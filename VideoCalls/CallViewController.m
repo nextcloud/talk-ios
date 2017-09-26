@@ -86,7 +86,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     _remoteVideoView = remoteView;
     [_remoteView addSubview:_remoteVideoView];
     
-    [self startPullingSignallingMessages];
+    [self startPullingSignalingMessages];
     _stopPullingMessages = false;
 }
 
@@ -471,11 +471,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     }
 }
 
-#pragma mark - Signalling
+#pragma mark - Signaling
 
-- (void)startPullingSignallingMessages
+- (void)startPullingSignalingMessages
 {
-    [[NCAPIController sharedInstance] pullSignallingMessagesWithCompletionBlock:^(NSDictionary *messages, NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] pullSignalingMessagesWithCompletionBlock:^(NSDictionary *messages, NSError *error, NSInteger errorCode) {
         NSArray *messagesArray = [[messages objectForKey:@"ocs"] objectForKey:@"data"];
         for (NSDictionary *message in messagesArray) {
             NSString *messageType = [message objectForKey:@"type"];
@@ -514,7 +514,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
         
         if (!_stopPullingMessages) {
-            [self startPullingSignallingMessages];
+            [self startPullingSignalingMessages];
         }
     }];
 }
@@ -531,8 +531,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)sendSignalingMessages:(NSArray *)messages
 {
-    [[NCAPIController sharedInstance] sendSignallingMessages:[self messagesJSONSerialization:messages] withCompletionBlock:^(NSError *error, NSInteger errorCode) {
-        NSLog(@"Sent %ld signalling messages", messages.count);
+    [[NCAPIController sharedInstance] sendSignalingMessages:[self messagesJSONSerialization:messages] withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        NSLog(@"Sent %ld signaling messages", messages.count);
     }];
 }
 
@@ -540,7 +540,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     NSArray *messagesArray = [NSArray arrayWithObjects:[message messageDict], nil];
     NSString *JSONSerializedMessages = [self messagesJSONSerialization:messagesArray];
-    [[NCAPIController sharedInstance] sendSignallingMessages:JSONSerializedMessages withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages withCompletionBlock:^(NSError *error, NSInteger errorCode) {
         if (error) {
             //TODO: Error handling
             NSLog(@"Error sending signaling message.");

@@ -316,9 +316,9 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     }];
 }
 
-#pragma mark - Signalling Controller
+#pragma mark - Signaling Controller
 
-- (void)sendSignallingMessages:(NSString *)messages withCompletionBlock:(SendSignallingMessagesCompletionBlock)block
+- (void)sendSignalingMessages:(NSString *)messages withCompletionBlock:(SendSignalingMessagesCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:@"signaling"];
     NSDictionary *parameters = @{@"messages" : messages};
@@ -334,7 +334,7 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     }];
 }
 
-- (void)pullSignallingMessagesWithCompletionBlock:(PullSignallingMessagesCompletionBlock)block
+- (void)pullSignalingMessagesWithCompletionBlock:(PullSignalingMessagesCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:@"signaling"];
     

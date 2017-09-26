@@ -27,8 +27,8 @@ typedef void (^JoinCallCompletionBlock)(NSString *sessionId, NSError *error, NSI
 typedef void (^PingCallCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
 
-typedef void (^SendSignallingMessagesCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^PullSignallingMessagesCompletionBlock)(NSDictionary *messages, NSError *error, NSInteger errorCode);
+typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error, NSInteger errorCode);
+typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error, NSInteger errorCode);
 
 
 @interface NCAPIController : NSObject
@@ -57,9 +57,9 @@ typedef void (^PullSignallingMessagesCompletionBlock)(NSDictionary *messages, NS
 - (void)pingCall:(NSString *)token withCompletionBlock:(PingCallCompletionBlock)block;
 - (void)leaveCall:(NSString *)token withCompletionBlock:(LeaveCallCompletionBlock)block;
 
-// Signalling Controller
-- (void)sendSignallingMessages:(NSString *)messages withCompletionBlock:(SendSignallingMessagesCompletionBlock)block;
-- (void)pullSignallingMessagesWithCompletionBlock:(PullSignallingMessagesCompletionBlock)block;
+// Signaling Controller
+- (void)sendSignalingMessages:(NSString *)messages withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
+- (void)pullSignalingMessagesWithCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
 
 // User avatars
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId;
