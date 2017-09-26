@@ -320,7 +320,7 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 
 - (void)sendSignallingMessages:(NSString *)messages withCompletionBlock:(SendSignallingMessagesCompletionBlock)block
 {
-    NSString *URLString = [self getRequestURLForSpreedEndpoint:@"signalling"];
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:@"signaling"];
     NSDictionary *parameters = @{@"messages" : messages};
     
     [_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
@@ -336,7 +336,7 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 
 - (void)pullSignallingMessagesWithCompletionBlock:(PullSignallingMessagesCompletionBlock)block
 {
-    NSString *URLString = [self getRequestURLForSpreedEndpoint:@"messages"];
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:@"signaling"];
     
     [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         NSDictionary *responseDict = responseObject;
