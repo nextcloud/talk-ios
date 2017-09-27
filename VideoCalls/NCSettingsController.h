@@ -13,6 +13,7 @@
 
 extern NSString * const kNCServerKey;
 extern NSString * const kNCUserKey;
+extern NSString * const kNCUserDisplayNameKey;
 extern NSString * const kNCTokenKey;
 
 
@@ -20,6 +21,7 @@ extern NSString * const kNCTokenKey;
 
 @property (nonatomic, copy) NSString *ncServer;
 @property (nonatomic, copy) NSString *ncUser;
+@property (nonatomic, copy) NSString *ncUserDisplayName;
 @property (nonatomic, copy) NSString *ncToken;
 
 + (instancetype)sharedInstance;

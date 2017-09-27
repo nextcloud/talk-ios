@@ -12,9 +12,10 @@
 
 @implementation NCSettingsController
 
-NSString * const kNCServerKey   = @"ncServer";
-NSString * const kNCUserKey     = @"ncUser";
-NSString * const kNCTokenKey    = @"ncToken";
+NSString * const kNCServerKey           = @"ncServer";
+NSString * const kNCUserKey             = @"ncUser";
+NSString * const kNCUserDisplayNameKey  = @"ncUserDisplayName";
+NSString * const kNCTokenKey            = @"ncToken";
 
 + (NCSettingsController *)sharedInstance
 {
@@ -39,6 +40,7 @@ NSString * const kNCTokenKey    = @"ncToken";
 {
     _ncServer = [UICKeyChainStore stringForKey:kNCServerKey];
     _ncUser = [UICKeyChainStore stringForKey:kNCUserKey];
+    _ncUserDisplayName = [UICKeyChainStore stringForKey:kNCUserDisplayNameKey];
     _ncToken = [UICKeyChainStore stringForKey:kNCTokenKey];
 }
 
@@ -46,6 +48,7 @@ NSString * const kNCTokenKey    = @"ncToken";
 {
     _ncServer = nil;
     _ncUser = nil;
+    _ncUserDisplayName = nil;
     _ncToken = nil;
     
     [UICKeyChainStore removeAllItems];

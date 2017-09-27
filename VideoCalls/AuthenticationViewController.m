@@ -105,6 +105,17 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
         [[NCAPIController sharedInstance] setNCServer:_serverUrl];
         [[NCAPIController sharedInstance] setAuthHeaderWithUser:user andToken:token];
         
+        // Get user display name
+        [[NCAPIController sharedInstance] getUserProfileWithCompletionBlock:^(NSDictionary *userProfile, NSError *error, NSInteger errorCode) {
+            if (!error) {
+                NSString *userDisplayName = [userProfile objectForKey:@"displayname"];
+                [NCSettingsController sharedInstance].ncUserDisplayName = userDisplayName;
+                [UICKeyChainStore setString:userDisplayName forKey:kNCUserDisplayNameKey];
+            } else {
+                NSLog(@"Error while getting the user profile");
+            }
+        }];
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:NCLoginCompletedNotification
                                                             object:self
                                                           userInfo:@{kNCServerKey:_serverUrl,

@@ -361,5 +361,24 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
                         timeoutInterval:60];
 }
 
+#pragma mark - User profile
+
+- (void)getUserProfileWithCompletionBlock:(GetUserProfileCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/users/%@", _serverUrl, [NCSettingsController sharedInstance].ncUser];
+    NSDictionary *parameters = @{@"fomat" : @"json"};
+    
+    [_manager GET:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        NSDictionary *room = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            block(room, nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error, [operation.response statusCode]);
+        }
+    }];
+}
+
 
 @end

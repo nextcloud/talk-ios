@@ -30,6 +30,8 @@ typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error, NSInteger errorCode);
 
+typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error, NSInteger errorCode);
+
 
 @interface NCAPIController : NSObject
 
@@ -63,5 +65,8 @@ typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSE
 
 // User avatars
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId;
+
+// User Profile
+- (void)getUserProfileWithCompletionBlock:(GetUserProfileCompletionBlock)block;
 
 @end
