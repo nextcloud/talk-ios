@@ -38,7 +38,7 @@
     _networkDisconnectedRetry = NO;
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 48, 52, 0);
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 44, 52, 0);
     
     _resultTableViewController = [[SearchTableViewController alloc] init];
     
@@ -174,6 +174,11 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return _contacts.count;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 44.0f;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

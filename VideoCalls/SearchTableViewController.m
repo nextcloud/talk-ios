@@ -23,7 +23,7 @@
 {
     [super viewDidLoad];
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 48, 52, 0);
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 44, 52, 0);
 }
 
 - (void)didReceiveMemoryWarning
@@ -41,6 +41,11 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return _filteredContacts.count;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 44.0f;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
