@@ -1,5 +1,5 @@
 //
-//  CallsTableViewController.h
+//  RoomsTableViewController.h
 //  VideoCalls
 //
 //  Created by Ivan Sein on 27.06.17.
@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import <AudioToolbox/AudioToolbox.h>
 
-@interface CallsTableViewController : UITableViewController
+@interface RoomsTableViewController : UITableViewController
 
 @end

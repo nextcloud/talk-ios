@@ -1,17 +1,17 @@
 //
-//  CallsTableViewController.m
+//  RoomsTableViewController.m
 //  VideoCalls
 //
 //  Created by Ivan Sein on 27.06.17.
 //  Copyright © 2017 struktur AG. All rights reserved.
 //
 
-#import "CallsTableViewController.h"
+#import "RoomsTableViewController.h"
 
 #import "AFNetworking.h"
 #import "AuthenticationViewController.h"
 #import "CallViewController.h"
-#import "CallsTableViewCell.h"
+#import "RoomTableViewCell.h"
 #import "LoginViewController.h"
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
@@ -20,7 +20,7 @@
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
-@interface CallsTableViewController () <CallViewControllerDelegate>
+@interface RoomsTableViewController () <CallViewControllerDelegate>
 {
     NSMutableArray *_rooms;
     BOOL _networkDisconnectedRetry;
@@ -31,7 +31,7 @@
 
 @end
 
-@implementation CallsTableViewController
+@implementation RoomsTableViewController
 
 - (void)viewDidLoad
 {
@@ -39,9 +39,6 @@
     
     _rooms = [[NSMutableArray alloc] init];
     _networkDisconnectedRetry = NO;
-    
-    [self.tableView registerNib:[UINib nibWithNibName:kCallsTableCellNibName bundle:nil] forCellReuseIdentifier:kCallCellIdentifier];
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 64, 60, 0);
     
     [self createRefreshControl];
     
@@ -242,9 +239,9 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    CallsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kCallCellIdentifier];
+    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
     if (!cell) {
-        cell = [[CallsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kCallCellIdentifier];
+        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
     }
     
     // Set room name
@@ -263,25 +260,25 @@
         case kNCRoomTypeOneToOneCall:
         {
             // Create avatar for every OneToOne call
-            [cell.callImage setImageWithString:room.displayName color:nil circular:true];
+            [cell.roomImage setImageWithString:room.displayName color:nil circular:true];
             
             // Request user avatar to the server and set it if exist
-            [cell.callImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name]
+            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name]
                                   placeholderImage:nil
                                            success:nil
                                            failure:nil];
             
-            cell.callImage.layer.cornerRadius = 24.0;
-            cell.callImage.layer.masksToBounds = YES;
+            cell.roomImage.layer.cornerRadius = 24.0;
+            cell.roomImage.layer.masksToBounds = YES;
         }
             break;
             
         case kNCRoomTypeGroupCall:
-            [cell.callImage setImage:[UIImage imageNamed:@"group"]];
+            [cell.roomImage setImage:[UIImage imageNamed:@"group"]];
             break;
             
         case kNCRoomTypePublicCall:
-            [cell.callImage setImage:[UIImage imageNamed:@"public"]];
+            [cell.roomImage setImage:[UIImage imageNamed:@"public"]];
             break;
             
         default:

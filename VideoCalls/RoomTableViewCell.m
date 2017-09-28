@@ -1,17 +1,16 @@
 //
-//  CallsTableViewCell.m
+//  RoomTableViewCell.m
 //  VideoCalls
 //
 //  Created by Ivan Sein on 19.07.17.
 //  Copyright © 2017 struktur AG. All rights reserved.
 //
 
-#import "CallsTableViewCell.h"
+#import "RoomTableViewCell.h"
 
-NSString *const kCallCellIdentifier = @"CallCellIdentifier";
-NSString *const kCallsTableCellNibName = @"CallsTableViewCell";
+NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
 
-@implementation CallsTableViewCell
+@implementation RoomTableViewCell
 
 - (void)awakeFromNib {
     [super awakeFromNib];

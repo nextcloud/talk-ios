@@ -1,5 +1,5 @@
 //
-//  CallsTableViewCell.h
+//  RoomTableViewCell.h
 //  VideoCalls
 //
 //  Created by Ivan Sein on 19.07.17.
@@ -8,12 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-extern NSString *const kCallCellIdentifier;
-extern NSString *const kCallsTableCellNibName;
+extern NSString *const kRoomCellIdentifier;
 
-@interface CallsTableViewCell : UITableViewCell
+@interface RoomTableViewCell : UITableViewCell
 
-@property(nonatomic, weak) IBOutlet UIImageView *callImage;
+@property(nonatomic, weak) IBOutlet UIImageView *roomImage;
 @property(nonatomic, weak) IBOutlet UILabel *labelTitle;
 @property(nonatomic, weak) IBOutlet UILabel *labelSubTitle;
 

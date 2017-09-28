@@ -35,7 +35,7 @@
 		2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */; };
 		2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA1CC961F016117002FE6A2 /* Security.framework */; };
 		2CA1CC9A1F0161EA002FE6A2 /* UICKeyChainStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */; };
-		2CA1CCA41F025F64002FE6A2 /* CallsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA31F025F64002FE6A2 /* CallsTableViewController.m */; };
+		2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */; };
 		2CA1CCA71F026222002FE6A2 /* ContactsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */; };
 		2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
 		2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
@@ -46,8 +46,7 @@
 		2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCF1F1E1779002FE6A2 /* SearchTableViewController.m */; };
 		2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */; };
 		2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */; };
-		2CA1CCDB1F1F6FCA002FE6A2 /* CallsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* CallsTableViewCell.m */; };
-		2CA1CCDC1F1F6FCA002FE6A2 /* CallsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCDA1F1F6FCA002FE6A2 /* CallsTableViewCell.xib */; };
+		2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
 		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
 /* End PBXBuildFile section */
 
@@ -113,8 +112,8 @@
 		2CA1CC961F016117002FE6A2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		2CA1CC981F0161EA002FE6A2 /* UICKeyChainStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UICKeyChainStore.h; path = ThirdParty/UICKeyChainStore/UICKeyChainStore.h; sourceTree = "<group>"; };
 		2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UICKeyChainStore.m; path = ThirdParty/UICKeyChainStore/UICKeyChainStore.m; sourceTree = "<group>"; };
-		2CA1CCA21F025F64002FE6A2 /* CallsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CallsTableViewController.h; sourceTree = "<group>"; };
-		2CA1CCA31F025F64002FE6A2 /* CallsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CallsTableViewController.m; sourceTree = "<group>"; };
+		2CA1CCA21F025F64002FE6A2 /* RoomsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoomsTableViewController.h; sourceTree = "<group>"; };
+		2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoomsTableViewController.m; sourceTree = "<group>"; };
 		2CA1CCA51F026222002FE6A2 /* ContactsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactsTableViewController.h; sourceTree = "<group>"; };
 		2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactsTableViewController.m; sourceTree = "<group>"; };
 		2CA1CCA81F02D1A4002FE6A2 /* NCAPIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCAPIController.h; sourceTree = "<group>"; };
@@ -132,9 +131,8 @@
 		2CA1CCD31F1E664C002FE6A2 /* ContactsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactsTableViewCell.h; sourceTree = "<group>"; };
 		2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactsTableViewCell.m; sourceTree = "<group>"; };
 		2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContactsTableViewCell.xib; sourceTree = "<group>"; };
-		2CA1CCD81F1F6FCA002FE6A2 /* CallsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CallsTableViewCell.h; sourceTree = "<group>"; };
-		2CA1CCD91F1F6FCA002FE6A2 /* CallsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CallsTableViewCell.m; sourceTree = "<group>"; };
-		2CA1CCDA1F1F6FCA002FE6A2 /* CallsTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CallsTableViewCell.xib; sourceTree = "<group>"; };
+		2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoomTableViewCell.h; sourceTree = "<group>"; };
+		2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoomTableViewCell.m; sourceTree = "<group>"; };
 		6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VideoCalls.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.debug.xcconfig"; sourceTree = "<group>"; };
 		E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.release.xcconfig"; sourceTree = "<group>"; };
@@ -186,11 +184,10 @@
 				2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */,
 				2C90E5D01EE80C870093D85A /* AuthenticationViewController.h */,
 				2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */,
-				2CA1CCD81F1F6FCA002FE6A2 /* CallsTableViewCell.h */,
-				2CA1CCD91F1F6FCA002FE6A2 /* CallsTableViewCell.m */,
-				2CA1CCDA1F1F6FCA002FE6A2 /* CallsTableViewCell.xib */,
-				2CA1CCA21F025F64002FE6A2 /* CallsTableViewController.h */,
-				2CA1CCA31F025F64002FE6A2 /* CallsTableViewController.m */,
+				2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */,
+				2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */,
+				2CA1CCA21F025F64002FE6A2 /* RoomsTableViewController.h */,
+				2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */,
 				2C4D7D571F2F6D4500FF4A0D /* CallViewController.h */,
 				2C4D7D581F2F6D4500FF4A0D /* CallViewController.m */,
 				2C4D7D591F2F6D4500FF4A0D /* CallViewController.xib */,
@@ -375,7 +372,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
-				2CA1CCDC1F1F6FCA002FE6A2 /* CallsTableViewCell.xib in Resources */,
 				2C0574931EDD9E8E00D9E7F2 /* LaunchScreen.storyboard in Resources */,
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2C4D7D5B1F2F6D4500FF4A0D /* CallViewController.xib in Resources */,
@@ -440,7 +436,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
-				2CA1CCDB1F1F6FCA002FE6A2 /* CallsTableViewCell.m in Sources */,
+				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
 				2CA1CCA71F026222002FE6A2 /* ContactsTableViewController.m in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
@@ -450,7 +446,7 @@
 				2C4D7D721F309DA500FF4A0D /* RTCIceCandidate+JSON.m in Sources */,
 				2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
-				2CA1CCA41F025F64002FE6A2 /* CallsTableViewController.m in Sources */,
+				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
