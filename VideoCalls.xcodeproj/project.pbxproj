@@ -180,45 +180,18 @@
 		2C05747F1EDD9E8E00D9E7F2 /* VideoCalls */ = {
 			isa = PBXGroup;
 			children = (
+				2C5521691F7D48480077E587 /* Calls */,
+				2C5521671F7D47BA0077E587 /* Contacts */,
+				2C5521681F7D481C0077E587 /* Login */,
+				2C55216B1F7D48970077E587 /* Network */,
+				2C5521661F7D47A50077E587 /* Rooms */,
+				2C55216A1F7D48850077E587 /* Settings */,
 				2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */,
 				2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */,
-				2C90E5D01EE80C870093D85A /* AuthenticationViewController.h */,
-				2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */,
-				2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */,
-				2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */,
-				2CA1CCA21F025F64002FE6A2 /* RoomsTableViewController.h */,
-				2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */,
-				2C4D7D571F2F6D4500FF4A0D /* CallViewController.h */,
-				2C4D7D581F2F6D4500FF4A0D /* CallViewController.m */,
-				2C4D7D591F2F6D4500FF4A0D /* CallViewController.xib */,
-				2CA1CCD31F1E664C002FE6A2 /* ContactsTableViewCell.h */,
-				2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */,
-				2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */,
-				2CA1CCA51F026222002FE6A2 /* ContactsTableViewController.h */,
-				2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */,
 				2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */,
 				2C0574941EDD9E8E00D9E7F2 /* Info.plist */,
 				2C0574911EDD9E8E00D9E7F2 /* LaunchScreen.storyboard */,
-				2C0574A11EDDA2E300D9E7F2 /* LoginViewController.h */,
-				2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */,
-				2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */,
 				2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */,
-				2CA1CCA81F02D1A4002FE6A2 /* NCAPIController.h */,
-				2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */,
-				2CA1CC8F1F014354002FE6A2 /* NCConnectionController.h */,
-				2CA1CC901F014354002FE6A2 /* NCConnectionController.m */,
-				2CA1CCC11F166CC5002FE6A2 /* NCRoom.h */,
-				2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */,
-				2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */,
-				2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */,
-				2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */,
-				2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */,
-				2CA1CCCB1F181741002FE6A2 /* NCUser.h */,
-				2CA1CCCC1F181741002FE6A2 /* NCUser.m */,
-				2CA1CCCE1F1E1779002FE6A2 /* SearchTableViewController.h */,
-				2CA1CCCF1F1E1779002FE6A2 /* SearchTableViewController.m */,
-				2CA1CCB31F0D0D5E002FE6A2 /* SettingsViewController.h */,
-				2CA1CCB41F0D0D5E002FE6A2 /* SettingsViewController.m */,
 				2C0574801EDD9E8E00D9E7F2 /* Supporting Files */,
 			);
 			path = VideoCalls;
@@ -263,6 +236,81 @@
 			);
 			name = AppRTC;
 			path = ThirdParty/AppRTC;
+			sourceTree = "<group>";
+		};
+		2C5521661F7D47A50077E587 /* Rooms */ = {
+			isa = PBXGroup;
+			children = (
+				2CA1CCC11F166CC5002FE6A2 /* NCRoom.h */,
+				2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */,
+				2CA1CCA21F025F64002FE6A2 /* RoomsTableViewController.h */,
+				2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */,
+				2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */,
+				2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */,
+			);
+			name = Rooms;
+			sourceTree = "<group>";
+		};
+		2C5521671F7D47BA0077E587 /* Contacts */ = {
+			isa = PBXGroup;
+			children = (
+				2CA1CCD31F1E664C002FE6A2 /* ContactsTableViewCell.h */,
+				2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */,
+				2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */,
+				2CA1CCA51F026222002FE6A2 /* ContactsTableViewController.h */,
+				2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */,
+				2CA1CCCB1F181741002FE6A2 /* NCUser.h */,
+				2CA1CCCC1F181741002FE6A2 /* NCUser.m */,
+				2CA1CCCE1F1E1779002FE6A2 /* SearchTableViewController.h */,
+				2CA1CCCF1F1E1779002FE6A2 /* SearchTableViewController.m */,
+			);
+			name = Contacts;
+			sourceTree = "<group>";
+		};
+		2C5521681F7D481C0077E587 /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				2C90E5D01EE80C870093D85A /* AuthenticationViewController.h */,
+				2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */,
+				2C0574A11EDDA2E300D9E7F2 /* LoginViewController.h */,
+				2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */,
+				2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */,
+			);
+			name = Login;
+			sourceTree = "<group>";
+		};
+		2C5521691F7D48480077E587 /* Calls */ = {
+			isa = PBXGroup;
+			children = (
+				2C4D7D571F2F6D4500FF4A0D /* CallViewController.h */,
+				2C4D7D581F2F6D4500FF4A0D /* CallViewController.m */,
+				2C4D7D591F2F6D4500FF4A0D /* CallViewController.xib */,
+			);
+			name = Calls;
+			sourceTree = "<group>";
+		};
+		2C55216A1F7D48850077E587 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */,
+				2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */,
+				2CA1CCB31F0D0D5E002FE6A2 /* SettingsViewController.h */,
+				2CA1CCB41F0D0D5E002FE6A2 /* SettingsViewController.m */,
+			);
+			name = Settings;
+			sourceTree = "<group>";
+		};
+		2C55216B1F7D48970077E587 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				2CA1CCA81F02D1A4002FE6A2 /* NCAPIController.h */,
+				2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */,
+				2CA1CC8F1F014354002FE6A2 /* NCConnectionController.h */,
+				2CA1CC901F014354002FE6A2 /* NCConnectionController.m */,
+				2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */,
+				2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */,
+			);
+			name = Network;
 			sourceTree = "<group>";
 		};
 		2C90E5621EDDE0FB0093D85A /* Frameworks */ = {
