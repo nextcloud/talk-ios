@@ -391,7 +391,7 @@
 				TargetAttributes = {
 					2C05747C1EDD9E8E00D9E7F2 = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = 7T56CJ62G4;
+						DevelopmentTeam = NKUJUXUJ3B;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -631,7 +631,8 @@
 			baseConfigurationReference = 8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 7T56CJ62G4;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -640,7 +641,7 @@
 				INFOPLIST_FILE = VideoCalls/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.strukturag.VideoCalls;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.VideoCalls;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -650,7 +651,8 @@
 			baseConfigurationReference = E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 7T56CJ62G4;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -659,7 +661,7 @@
 				INFOPLIST_FILE = VideoCalls/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.strukturag.VideoCalls;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.VideoCalls;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
