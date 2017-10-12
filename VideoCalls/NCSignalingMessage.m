@@ -27,6 +27,7 @@ static NSString * const kNCSignalingMessageSidKey = @"sid";
 static NSString * const kNCSignalingMessageTypeKey = @"type";
 static NSString * const kNCSignalingMessagePayloadKey = @"payload";
 static NSString * const kNCSignalingMessageRoomTypeKey = @"roomType";
+static NSString * const kNCSignalingMessageNickKey = @"nick";
 
 static NSString * const kNCSignalingMessageTypeOfferKey = @"offer";
 static NSString * const kNCSignalingMessageTypeAnswerKey = @"answer";
@@ -203,14 +204,17 @@ static NSString * const kNCSignalingMessageSdpKey = @"sdp";
 @implementation NCSessionDescriptionMessage
 
 @synthesize sessionDescription = _sessionDescription;
+@synthesize nick = _nick;
 
 - (instancetype)initWithValues:(NSDictionary *)values {
     RTCSessionDescription *description = [RTCSessionDescription descriptionFromJSONDictionary:[values objectForKey:kNCSignalingMessagePayloadKey]];
+    NSString *nick = [[values objectForKey:kNCSignalingMessagePayloadKey] objectForKey:kNCSignalingMessageNickKey];
     return [self initWithSessionDescription:description
                                        from:[values objectForKey:kNCSignalingMessageFromKey]
                                          to:[values objectForKey:kNCSignalingMessageToKey]
                                         sid:[values objectForKey:kNCSignalingMessageSidKey]
-                                   roomType:[values objectForKey:kNCSignalingMessageRoomTypeKey]];
+                                   roomType:[values objectForKey:kNCSignalingMessageRoomTypeKey]
+                                       nick:nick];
 }
 
 - (NSData *)JSONData {
@@ -259,7 +263,8 @@ static NSString * const kNCSignalingMessageSdpKey = @"sdp";
              kNCSignalingMessageTypeKey: self.type,
              kNCSignalingMessagePayloadKey: @{
                      kNCSignalingMessageTypeKey: self.type,
-                     kNCSignalingMessageSdpKey: self.sessionDescription.sdp
+                     kNCSignalingMessageSdpKey: self.sessionDescription.sdp,
+                     kNCSignalingMessageNickKey: self.nick
                      },
              };
 }
@@ -272,10 +277,12 @@ static NSString * const kNCSignalingMessageSdpKey = @"sdp";
 }
 
 - (instancetype)initWithSessionDescription:(RTCSessionDescription *)sessionDescription
-                             from:(NSString *)from
-                               to:(NSString *)to
-                              sid:(NSString *)sid
-                         roomType:(NSString *)roomType {
+                                      from:(NSString *)from
+                                        to:(NSString *)to
+                                       sid:(NSString *)sid
+                                  roomType:(NSString *)roomType
+                                      nick:(NSString *)nick
+{
     RTCSdpType sdpType = sessionDescription.type;
     NSString *type = nil;
     switch (sdpType) {
@@ -307,6 +314,7 @@ static NSString * const kNCSignalingMessageSdpKey = @"sdp";
     }
     
     _sessionDescription = sessionDescription;
+    _nick = nick;
     
     return self;
 }

@@ -164,6 +164,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallParticipantViewCell *cell = (CallParticipantViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCallParticipantCellIdentifier forIndexPath:indexPath];
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
     
+    cell.peerNameLabel.text = peerConnection.peerName;
     [cell setVideoView:[_renderersDict objectForKey:peerConnection.peerId]];
     
     return cell;

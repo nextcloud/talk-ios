@@ -253,7 +253,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                 {
                     NCSessionDescriptionMessage *sdpMessage = (NCSessionDescriptionMessage *)signalingMessage;
                     RTCSessionDescription *description = sdpMessage.sessionDescription;
-                    
+                    [peerConnectionWrapper setPeerName:sdpMessage.nick];
                     [peerConnectionWrapper setRemoteDescription:description];
                     break;
                 }
@@ -335,10 +335,6 @@ static NSString * const kNCVideoTrackKind = @"video";
         NSLog(@"Send videoOff");
         [peerConnection sendDataChannelMessageOfType:@"videoOff" withPayload:nil];
     }
-    
-    // Send nick (TODO: peer.nick could be send in the offer as simplewebrtc does)
-    [peerConnection sendDataChannelMessageOfType:@"nickChanged" withPayload:_userDisplayName];
-
 }
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didGenerateIceCandidate:(RTCIceCandidate *)candidate
@@ -359,7 +355,8 @@ static NSString * const kNCVideoTrackKind = @"video";
                                             from:_userSessionId
                                             to:peerConnection.peerId
                                             sid:nil
-                                            roomType:@"video"];
+                                            roomType:@"video"
+                                            nick:_userDisplayName];
     
     [_signalingController sendSignalingMessage:message];
 }
