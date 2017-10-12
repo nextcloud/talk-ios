@@ -7,7 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <WebRTC/WebRTC.h>
+
+#import <WebRTC/RTCCameraPreviewView.h>
+#import "NCRoom.h"
 
 @class CallViewController;
 @protocol CallViewControllerDelegate <NSObject>
@@ -18,19 +20,11 @@
 
 @interface CallViewController : UIViewController
 
-@property(nonatomic, weak) id<CallViewControllerDelegate> delegate;
+@property (nonatomic, weak) id<CallViewControllerDelegate> delegate;
+@property (nonatomic, copy) NSString *room;
 
-@property (strong, nonatomic) IBOutlet RTCCameraPreviewView *localVideoView;
-@property (strong, nonatomic) IBOutlet UIView *remoteView;
+@property (nonatomic, strong) IBOutlet RTCCameraPreviewView *localVideoView;
 
-@property (assign, nonatomic) BOOL isAudioMute;
-@property (assign, nonatomic) BOOL isVideoMute;
-
-- (IBAction)audioButtonPressed:(id)sender;
-- (IBAction)videoButtonPressed:(id)sender;
-
-@property (strong, nonatomic) IBOutlet UIButton *hangupButton;
-
-- (instancetype)initCall:(NSString *)token withSessionId:(NSString *)sessionId;
+- (instancetype)initCallInRoom:(NSString *)room asUser:(NSString*)displayName;
 
 @end

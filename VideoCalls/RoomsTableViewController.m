@@ -58,6 +58,7 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
     [self checkConnectionState];
 }
 
@@ -295,8 +296,7 @@
     [[NCAPIController sharedInstance] joinCall:room.token withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger errorCode) {
         if (!error) {
             _currentCallToken = room.token;
-            [self startPingCall];
-            CallViewController *callVC = [[CallViewController alloc] initCall:room.token withSessionId:sessionId];
+            CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room.token asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
             callVC.delegate = self;
             [self presentViewController:callVC animated:YES completion:nil];
         }
