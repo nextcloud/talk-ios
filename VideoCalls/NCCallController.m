@@ -27,6 +27,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @interface NCCallController () <NCPeerConnectionDelegate, NCSignalingControllerObserver>
 
+@property (nonatomic, assign) BOOL leavingCall;
 @property (nonatomic, strong) NSTimer *pingTimer;
 @property (nonatomic, strong) NSArray *usersInRoom;;
 @property (nonatomic, strong) RTCMediaStream *localStream;
@@ -75,6 +76,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)leaveCall
 {
+    _leavingCall = YES;
+    
     for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
         [peerConnectionWrapper close];
     }
@@ -243,6 +246,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     NSString *messageType = [message objectForKey:@"type"];
     
+    if (_leavingCall) {return;}
+    
     if ([messageType isEqualToString:@"usersInRoom"]) {
         [self processUsersInRoom:[message objectForKey:@"data"]];
     } else if ([messageType isEqualToString:@"message"]) {
@@ -292,6 +297,8 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     // Calculate sessions that join the call
     [newSessions removeObjectsInArray:oldSessions];
+    
+    if (_leavingCall) {return;}
     
     for (NSString *sessionId in newSessions) {
         if (![_connectionsDict objectForKey:sessionId]) {
