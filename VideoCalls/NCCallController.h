@@ -19,6 +19,7 @@
 - (void)callControllerDidJoinCall:(NCCallController *)callController;
 - (void)callControllerDidEndCall:(NCCallController *)callController;
 - (void)callController:(NCCallController *)callController peerJoined:(NCPeerConnection *)peer;
+- (void)callController:(NCCallController *)callController peerLeft:(NCPeerConnection *)peer;
 - (void)callController:(NCCallController *)callController didCreateLocalVideoCapturer:(RTCCameraVideoCapturer *)videoCapturer;
 - (void)callController:(NCCallController *)callController didAddLocalStream:(RTCMediaStream *)localStream;
 - (void)callController:(NCCallController *)callController didRemoveLocalStream:(RTCMediaStream *)localStream;

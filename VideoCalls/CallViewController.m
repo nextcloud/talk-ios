@@ -200,6 +200,15 @@ typedef NS_ENUM(NSInteger, CallState) {
     // Start adding cell for that peer and wait until add
 }
 
+- (void)callController:(NCCallController *)callController peerLeft:(NCPeerConnection *)peer
+{
+    RTCEAGLVideoView *renderer = [_renderersDict objectForKey:peer.peerId];
+    [[peer.remoteStream.videoTracks firstObject] removeRenderer:renderer];
+    [_renderersDict removeObjectForKey:peer.peerId];
+    [_peersInCall removeObject:peer];
+    [self.collectionView reloadData];
+}
+
 - (void)callController:(NCCallController *)callController didCreateLocalVideoCapturer:(RTCCameraVideoCapturer *)videoCapturer
 {
     _localVideoView.captureSession = videoCapturer.captureSession;
@@ -226,8 +235,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 }
 - (void)callController:(NCCallController *)callController didRemoveStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
-    [_peersInCall removeObject:remotePeer];
-    [self.collectionView reloadData];
+    
 }
 - (void)callController:(NCCallController *)callController iceStatusChanged:(RTCIceConnectionState)state ofPeer:(NCPeerConnection *)peer
 {

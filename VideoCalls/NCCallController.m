@@ -28,7 +28,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @interface NCCallController () <NCPeerConnectionDelegate, NCSignalingControllerObserver>
 
 @property (nonatomic, strong) NSTimer *pingTimer;
-
+@property (nonatomic, strong) NSArray *usersInRoom;;
 @property (nonatomic, strong) RTCMediaStream *localStream;
 @property (nonatomic, strong) RTCAudioTrack *localAudioTrack;
 @property (nonatomic, strong) RTCVideoTrack *localVideoTrack;
@@ -46,7 +46,8 @@ static NSString * const kNCVideoTrackKind = @"video";
     if (self) {
         _delegate = delegate;
         _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] init];
-        _connectionsDict = [NSMutableDictionary dictionary];
+        _connectionsDict = [[NSMutableDictionary alloc] init];
+        _usersInRoom = [[NSArray alloc] init];
         
         _signalingController = [[NCSignalingController alloc] init];
         _signalingController.observer = self;
@@ -205,6 +206,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         [peerConnectionWrapper.peerConnection addStream:_localStream];
         
         [_connectionsDict setObject:peerConnectionWrapper forKey:sessionId];
+        NSLog(@"Peer joined: %@", sessionId);
         [self.delegate callController:self peerJoined:peerConnectionWrapper];
     }
     
@@ -278,13 +280,20 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)processUsersInRoom:(NSArray *)users
 {
-    for (NSDictionary *user in users) {
-        NSString *sessionId = [user objectForKey:@"sessionId"];
-        
-        if([_userSessionId isEqualToString:sessionId]) {
-            continue;
-        }
-        
+    NSMutableArray *newSessions = [self getSessionsFromUsersInRoom:users];
+    NSMutableArray *oldSessions = [NSMutableArray arrayWithArray:_usersInRoom];
+    
+    //Save current sessions in call
+    _usersInRoom = [NSArray arrayWithArray:newSessions];
+    
+    // Calculate sessions that left the call
+    NSMutableArray *leftSessions = [NSMutableArray arrayWithArray:oldSessions];
+    [leftSessions removeObjectsInArray:newSessions];
+    
+    // Calculate sessions that join the call
+    [newSessions removeObjectsInArray:oldSessions];
+    
+    for (NSString *sessionId in newSessions) {
         if (![_connectionsDict objectForKey:sessionId]) {
             NSComparisonResult result = [sessionId compare:_userSessionId];
             if (result == NSOrderedAscending) {
@@ -295,8 +304,33 @@ static NSString * const kNCVideoTrackKind = @"video";
                 NSLog(@"Waiting for offer...");
             }
         }
-        
     }
+    
+    for (NSString *sessionId in leftSessions) {
+        NCPeerConnection *leftPeerConnection = [_connectionsDict objectForKey:sessionId];
+        if (leftPeerConnection) {
+            NSLog(@"Peer left: %@", sessionId);
+            [self.delegate callController:self peerLeft:leftPeerConnection];
+            [leftPeerConnection close];
+            [_connectionsDict removeObjectForKey:sessionId];
+        }
+    }
+}
+
+- (NSMutableArray *)getSessionsFromUsersInRoom:(NSArray *)users
+{
+    NSMutableArray *sessions = [[NSMutableArray alloc] init];
+    for (NSDictionary *user in users) {
+        NSString *sessionId = [user objectForKey:@"sessionId"];
+        
+        // Ignore user sessionId
+        if([_userSessionId isEqualToString:sessionId]) {
+            continue;
+        }
+        
+        [sessions addObject:sessionId];
+    }
+    return sessions;
 }
 
 #pragma mark - NCPeerConnectionDelegate
