@@ -164,8 +164,9 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallParticipantViewCell *cell = (CallParticipantViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCallParticipantCellIdentifier forIndexPath:indexPath];
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
     
-    cell.peerNameLabel.text = peerConnection.peerName;
     [cell setVideoView:[_renderersDict objectForKey:peerConnection.peerId]];
+    [cell setDisplayName:peerConnection.peerName];
+    [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
     
     return cell;
 }
@@ -239,6 +240,21 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
 }
 
+- (void)callController:(NCCallController *)callController didReceiveDataChannelMessage:(NSString *)message fromPeer:(NCPeerConnection *)peer
+{
+    if ([message isEqualToString:@"audioOn"] || [message isEqualToString:@"audioOff"]) {
+        [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+            [cell setAudioDisabled:peer.isRemoteAudioDisabled];
+        }];
+    }
+}
+- (void)callController:(NCCallController *)callController didReceiveNick:(NSString *)nick fromPeer:(NCPeerConnection *)peer
+{
+    [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+        [cell setDisplayName:nick];
+    }];
+}
+
 #pragma mark - RTCEAGLVideoViewDelegate
 
 - (void)videoView:(RTCEAGLVideoView*)videoView didChangeVideoSize:(CGSize)size
@@ -250,6 +266,21 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     [self.collectionView reloadData];
+}
+
+#pragma mark - Cell updates
+
+- (NSIndexPath *)indexPathOfPeer:(NCPeerConnection *)peer {
+    NSUInteger idx = [_peersInCall indexOfObject:peer];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+    
+    return indexPath;
+}
+
+- (void)updatePeer:(NCPeerConnection *)peer block:(void(^)(CallParticipantViewCell* cell))block {
+    NSIndexPath *indexPath = [self indexPathOfPeer:peer];
+    CallParticipantViewCell *cell = (id)[self.collectionView cellForItemAtIndexPath:indexPath];
+    block(cell);
 }
 
 @end

@@ -300,16 +300,16 @@
 		2C5521691F7D48480077E587 /* Calls */ = {
 			isa = PBXGroup;
 			children = (
+				2C78EFA21F86FF4A008AFA74 /* CallParticipantViewCell.h */,
+				2C78EFA31F86FF4A008AFA74 /* CallParticipantViewCell.m */,
+				2C78EFA41F86FF4A008AFA74 /* CallParticipantViewCell.xib */,
+				2C78EF9D1F828C41008AFA74 /* CallViewController.h */,
+				2C78EF9E1F828C41008AFA74 /* CallViewController.m */,
+				2C78EF9F1F828C41008AFA74 /* CallViewController.xib */,
 				2C78EFA71F87EF39008AFA74 /* NBMPeersFlowLayout.h */,
 				2C78EFA81F87EF39008AFA74 /* NBMPeersFlowLayout.m */,
 				2C78EF9A1F826B22008AFA74 /* NCCallController.h */,
 				2C78EF9B1F826B22008AFA74 /* NCCallController.m */,
-				2C78EF9D1F828C41008AFA74 /* CallViewController.h */,
-				2C78EF9E1F828C41008AFA74 /* CallViewController.m */,
-				2C78EF9F1F828C41008AFA74 /* CallViewController.xib */,
-				2C78EFA21F86FF4A008AFA74 /* CallParticipantViewCell.h */,
-				2C78EFA31F86FF4A008AFA74 /* CallParticipantViewCell.m */,
-				2C78EFA41F86FF4A008AFA74 /* CallParticipantViewCell.xib */,
 			);
 			name = Calls;
 			sourceTree = "<group>";

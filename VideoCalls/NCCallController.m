@@ -361,5 +361,15 @@ static NSString * const kNCVideoTrackKind = @"video";
     [_signalingController sendSignalingMessage:message];
 }
 
+- (void)peerConnection:(NCPeerConnection *)peerConnection didReceiveStatusDataChannelMessage:(NSString *)type
+{
+    [self.delegate callController:self didReceiveDataChannelMessage:type fromPeer:peerConnection];
+}
+
+- (void)peerConnection:(NCPeerConnection *)peerConnection didReceivePeerNick:(NSString *)nick
+{
+    [self.delegate callController:self didReceiveNick:nick fromPeer:peerConnection];
+}
+
 
 @end

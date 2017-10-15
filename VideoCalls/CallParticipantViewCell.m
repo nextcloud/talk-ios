@@ -25,10 +25,48 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 
 - (void)awakeFromNib {
     [super awakeFromNib];
+    self.audioOffIndicator.hidden = YES;
+}
+
+- (void)prepareForReuse
+{
+    [super prepareForReuse];
+    _displayName = nil;
+    _peerNameLabel.text = nil;
+    [_videoView removeFromSuperview];
+    _videoView = nil;
+}
+
+- (void)setDisplayName:(NSString *)displayName
+{
+    _displayName = displayName;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.peerNameLabel.text = _displayName;
+        // Only for guests
+        if (!_displayName || [_displayName isEqualToString:@""]) {
+            self.peerNameLabel.text = @"Guest";
+        }
+    });
+}
+
+- (void)setAudioDisabled:(BOOL)audioDisabled
+{
+    _audioDisabled = audioDisabled;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.audioOffIndicator.hidden = !_audioDisabled;
+    });
+}
+
+- (void)setVideoDisabled:(BOOL)videoDisabled
+{
+    _videoDisabled = videoDisabled;
+    //TODO: Set avatar in the middle of the cell
 }
 
 - (void)setVideoView:(RTCEAGLVideoView *)videoView
 {
+    [_videoView removeFromSuperview];
+    _videoView = nil;
     _videoView = videoView;
     [_peerVideoView addSubview:_videoView];
     [self resizeRemoteVideoView];

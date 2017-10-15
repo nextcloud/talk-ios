@@ -23,8 +23,14 @@
 /** Called any time the IceConnectionState changes. */
 - (void)peerConnection:(NCPeerConnection *)peerConnection didChangeIceConnectionState:(RTCIceConnectionState)newState;
 
-/** New data channel has been opened. */
+/** Status data channel has been opened. */
 - (void)peerConnectionDidOpenStatusDataChannel:(NCPeerConnection *)peerConnection;
+
+/** Message received from status data channel has been opened. */
+- (void)peerConnection:(NCPeerConnection *)peerConnection didReceiveStatusDataChannelMessage:(NSString *)type;
+
+/** Peer's nick received from status data channel has been opened. */
+- (void)peerConnection:(NCPeerConnection *)peerConnection didReceivePeerNick:(NSString *)nick;
 
 /** New ice candidate has been found. */
 - (void)peerConnection:(NCPeerConnection *)peerConnection didGenerateIceCandidate:(RTCIceCandidate *)candidate;
@@ -44,6 +50,8 @@
 @property (nonatomic, assign) BOOL isInitiator;
 @property (nonatomic, strong) RTCDataChannel *localDataChannel;
 @property (nonatomic, strong) RTCDataChannel *remoteDataChannel;
+@property (nonatomic, assign) BOOL isRemoteAudioDisabled;
+@property (nonatomic, assign) BOOL isRemoteVideoDisabled;
 @property (nonatomic, strong, readonly) NSMutableArray *queuedRemoteCandidates;
 @property (nonatomic, strong) RTCMediaStream *remoteStream;
 @property (nonatomic, assign) NSUInteger iceAttempts;

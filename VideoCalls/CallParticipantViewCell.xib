@@ -23,20 +23,28 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     </view>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="sdfsdf" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D5h-T2-aB9">
-                        <rect key="frame" x="8" y="161" width="184" height="36"/>
+                        <rect key="frame" x="8" y="160" width="184" height="36"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="audio-off" translatesAutoresizingMaskIntoConstraints="NO" id="0G6-qf-Fj2">
+                        <rect key="frame" x="8" y="138" width="22" height="22"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </imageView>
                 </subviews>
             </view>
             <size key="customSize" width="200" height="200"/>
             <connections>
+                <outlet property="audioOffIndicator" destination="0G6-qf-Fj2" id="iwd-A7-kaB"/>
                 <outlet property="peerNameLabel" destination="D5h-T2-aB9" id="m82-2d-znc"/>
                 <outlet property="peerVideoView" destination="2xo-Od-0bZ" id="YvZ-QP-fUW"/>
             </connections>
             <point key="canvasLocation" x="-41" y="129"/>
         </collectionViewCell>
     </objects>
+    <resources>
+        <image name="audio-off" width="48" height="48"/>
+    </resources>
 </document>

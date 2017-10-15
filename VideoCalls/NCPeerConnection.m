@@ -244,8 +244,27 @@ static NSString *kDefaultSTUNServerUrl = @"stun:stun.nextcloud.com:443";
 {
     NSDictionary *message = [self getDataChannelMessageFromJSONData:buffer.data];
     NSString *messageType =[message objectForKey:@"type"];
-    //    NSString *messagePayload = [message objectForKey:@"payload"];
+    
     NSLog(@"Data channel '%@' did receive message: %@", dataChannel.label, messageType);
+    
+    if ([messageType isEqualToString:@"nickChanged"]) {
+        NSString *messagePayload = [message objectForKey:@"payload"];
+        _peerName = messagePayload;
+        [self.delegate peerConnection:self didReceivePeerNick:messagePayload];
+    } else {
+        // Check remote audio/video status
+        if ([messageType isEqualToString:@"audioOn"]) {
+            _isRemoteAudioDisabled = NO;
+        } else if ([messageType isEqualToString:@"audioOff"]) {
+            _isRemoteAudioDisabled = YES;
+        } else if ([messageType isEqualToString:@"videoOn"]) {
+            _isRemoteVideoDisabled = NO;
+        } else if ([messageType isEqualToString:@"videoOff"]) {
+            _isRemoteVideoDisabled = YES;
+        }
+        
+        [self.delegate peerConnection:self didReceiveStatusDataChannelMessage:messageType];
+    }
 }
 
 - (NSDictionary *)getDataChannelMessageFromJSONData:(NSData *)jsonData

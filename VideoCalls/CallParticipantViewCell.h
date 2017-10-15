@@ -17,8 +17,13 @@ extern NSString *const kCallParticipantCellNibName;
 
 @interface CallParticipantViewCell : UICollectionViewCell
 
+@property (nonatomic, strong)  NSString *displayName;
+@property (nonatomic, assign)  BOOL audioDisabled;
+@property (nonatomic, assign)  BOOL videoDisabled;
+
 @property (nonatomic, weak) IBOutlet UIView *peerVideoView;
 @property (nonatomic, weak) IBOutlet UILabel *peerNameLabel;
+@property (nonatomic, weak) IBOutlet UIImageView *audioOffIndicator;
 
 - (void)setVideoView:(RTCEAGLVideoView *)videoView;
 
