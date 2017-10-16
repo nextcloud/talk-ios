@@ -51,13 +51,15 @@ typedef enum {
 @interface NCSessionDescriptionMessage : NCSignalingMessage
 
 @property(nonatomic, readonly) RTCSessionDescription *sessionDescription;
+@property(nonatomic, readonly) NSString *nick;
 
 - (instancetype)initWithValues:(NSDictionary *)values;
 - (instancetype)initWithSessionDescription:(RTCSessionDescription *)sessionDescription
                                       from:(NSString *)from
                                         to:(NSString *)to
                                        sid:(NSString *)sid
-                                  roomType:(NSString *)roomType;
+                                  roomType:(NSString *)roomType
+                                      nick:(NSString *)nick;
 
 
 @end

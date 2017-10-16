@@ -69,4 +69,7 @@ typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError
 // User Profile
 - (void)getUserProfileWithCompletionBlock:(GetUserProfileCompletionBlock)block;
 
+//Utils
+- (void)cancelAllOperations;
+
 @end

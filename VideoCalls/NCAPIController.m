@@ -380,5 +380,12 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     }];
 }
 
+#pragma mark - Utils
+
+- (void)cancelAllOperations
+{
+    [_manager.operationQueue cancelAllOperations];
+}
+
 
 @end
