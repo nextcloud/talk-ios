@@ -37,7 +37,17 @@
         if (_shouldStopPullingMessages) {
             return;
         }
-        NSArray *messagesArray = [[messages objectForKey:@"ocs"] objectForKey:@"data"];
+        
+        id messagesObj = [[messages objectForKey:@"ocs"] objectForKey:@"data"];
+        NSArray *messagesArray = [[NSArray alloc] init];
+        
+        // Check if messages array was parsed correctly
+        if ([messagesObj isKindOfClass:[NSArray class]]) {
+            messagesArray = messagesObj;
+        }else if ([messagesObj isKindOfClass:[NSDictionary class]]) {
+            messagesArray = [messagesObj allValues];
+        }
+        
         for (NSDictionary *message in messagesArray) {
             if ([self.observer respondsToSelector:@selector(signalingController:didReceiveSignalingMessage:)]) {
                 [self.observer signalingController:self didReceiveSignalingMessage:message];
