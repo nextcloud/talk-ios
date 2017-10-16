@@ -36,13 +36,22 @@
                         <outlet property="delegate" destination="-1" id="rTW-Ir-7cH"/>
                     </connections>
                 </collectionView>
+                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl8-bS-FJ5">
+                    <rect key="frame" x="331" y="20" width="28" height="28"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                    <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <state key="normal" backgroundImage="close"/>
+                    <connections>
+                        <action selector="hangupButtonPressed:" destination="-1" eventType="touchUpInside" id="S0I-zJ-AFf"/>
+                    </connections>
+                </button>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TXj-7E-NAa" userLabel="localVideo" customClass="RTCCameraPreviewView">
                     <rect key="frame" x="239" y="477" width="120" height="170"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
                     <subviews>
                         <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-7q-HlR">
                             <rect key="frame" x="20" y="126" width="80" height="36"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <subviews>
                                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kDR-Ds-I7B">
                                     <rect key="frame" x="4" y="4" width="28" height="28"/>
@@ -64,15 +73,6 @@
                         </view>
                     </subviews>
                 </view>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl8-bS-FJ5">
-                    <rect key="frame" x="331" y="20" width="28" height="28"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                    <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    <state key="normal" backgroundImage="close"/>
-                    <connections>
-                        <action selector="hangupButtonPressed:" destination="-1" eventType="touchUpInside" id="S0I-zJ-AFf"/>
-                    </connections>
-                </button>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <point key="canvasLocation" x="34.5" y="53.5"/>
