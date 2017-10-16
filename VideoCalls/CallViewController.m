@@ -114,9 +114,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     UIButton *videoButton = sender;
     if ([_callController isVideoEnabled]) {
         [_callController enableVideo:NO];
+        [_captureController stopCapture];
         [videoButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
     } else {
         [_callController enableVideo:YES];
+        [_captureController startCapture];
         [videoButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
     }
 }
