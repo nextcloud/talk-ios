@@ -252,7 +252,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         [self processUsersInRoom:[message objectForKey:@"data"]];
     } else if ([messageType isEqualToString:@"message"]) {
         NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromJSONString:[message objectForKey:@"data"]];
-        if (signalingMessage) {
+        if (signalingMessage && [signalingMessage.roomType isEqualToString:kRoomTypeVideo]) {
             NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from];            
             switch (signalingMessage.messageType) {
                 case kNCSignalingMessageTypeOffer:

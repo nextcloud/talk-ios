@@ -11,6 +11,9 @@
 #import "WebRTC/RTCIceCandidate.h"
 #import "WebRTC/RTCSessionDescription.h"
 
+extern NSString *const kRoomTypeVideo;
+extern NSString *const kRoomTypeScreen;
+
 typedef enum {
     kNCSignalingMessageTypeUknown,
     kNCSignalingMessageTypeCandidate,

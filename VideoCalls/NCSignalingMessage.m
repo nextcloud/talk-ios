@@ -36,6 +36,9 @@ static NSString * const kNCSignalingMessageTypeRemoveCandidatesKey = @"remove-ca
 
 static NSString * const kNCSignalingMessageSdpKey = @"sdp";
 
+NSString *const kRoomTypeVideo = @"video";
+NSString *const kRoomTypeScreen = @"screen";
+
 @implementation NCSignalingMessage
 
 @synthesize from = _from;

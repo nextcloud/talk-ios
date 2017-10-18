@@ -332,8 +332,6 @@
 				2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */,
 				2CA1CC8F1F014354002FE6A2 /* NCConnectionController.h */,
 				2CA1CC901F014354002FE6A2 /* NCConnectionController.m */,
-				2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */,
-				2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */,
 			);
 			name = Network;
 			sourceTree = "<group>";
@@ -345,6 +343,8 @@
 				2C78EF941F7E70EB008AFA74 /* NCPeerConnection.m */,
 				2C78EF971F80F81E008AFA74 /* NCSignalingController.h */,
 				2C78EF981F80F81E008AFA74 /* NCSignalingController.m */,
+				2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */,
+				2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */,
 			);
 			name = WebRTC;
 			sourceTree = "<group>";
