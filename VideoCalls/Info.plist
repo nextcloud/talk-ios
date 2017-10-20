@@ -26,6 +26,10 @@
 	<string>Camera is used in video calls</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone is used in video calls</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

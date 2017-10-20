@@ -384,7 +384,6 @@
 				2C05747B1EDD9E8E00D9E7F2 /* Resources */,
 				29696B57B26EBF9C28436CE8 /* [CP] Embed Pods Frameworks */,
 				A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */,
-				2C4D7D5F1F2F6E9600FF4A0D /* Embed Frameworks */,
 				2C8035721F950BA800501B5C /* ShellScript */,
 			);
 			buildRules = (
@@ -409,6 +408,11 @@
 						CreatedOnToolsVersion = 8.3.2;
 						DevelopmentTeam = NKUJUXUJ3B;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
