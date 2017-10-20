@@ -11,6 +11,9 @@
 #import "AFNetworkReachabilityManager.h"
 #import "AFNetworkActivityIndicatorManager.h"
 
+#import <WebRTC/RTCAudioSession.h>
+#import <WebRTC/RTCAudioSessionConfiguration.h>
+
 #import "UICKeyChainStore.h"
 
 @interface AppDelegate ()
@@ -24,6 +27,11 @@
 {
     [AFNetworkActivityIndicatorManager sharedManager].enabled = YES;
     [[AFNetworkReachabilityManager sharedManager] startMonitoring];
+    
+    RTCAudioSessionConfiguration *webRTCConfig = [RTCAudioSessionConfiguration webRTCConfiguration];
+    webRTCConfig.categoryOptions = webRTCConfig.categoryOptions | AVAudioSessionCategoryOptionDefaultToSpeaker;
+    [RTCAudioSessionConfiguration setWebRTCConfiguration:webRTCConfig];
+
     return YES;
 }
 
