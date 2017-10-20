@@ -14,8 +14,6 @@
 		2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */; };
 		2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
-		2C4D7D5D1F2F6E9600FF4A0D /* WebRTC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C4D7D5C1F2F6E9600FF4A0D /* WebRTC.framework */; };
-		2C4D7D5E1F2F6E9600FF4A0D /* WebRTC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2C4D7D5C1F2F6E9600FF4A0D /* WebRTC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
 		2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
 		2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
@@ -63,7 +61,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				2C4D7D5E1F2F6E9600FF4A0D /* WebRTC.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,7 +81,6 @@
 		2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSignalingMessage.h; sourceTree = "<group>"; };
 		2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCSignalingMessage.m; sourceTree = "<group>"; };
 		2C4D7D551F2F607E00FF4A0D /* WebRTC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebRTC.framework; path = ThirdParty/WebRTC/WebRTC.framework; sourceTree = "<group>"; };
-		2C4D7D5C1F2F6E9600FF4A0D /* WebRTC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebRTC.framework; path = ThirdParty/WebRTC/WebRTC.framework; sourceTree = "<group>"; };
 		2C4D7D611F2F7C2C00FF4A0D /* ARDCaptureController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDCaptureController.h; sourceTree = "<group>"; };
 		2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDCaptureController.m; sourceTree = "<group>"; };
 		2C4D7D641F2F7DBC00FF4A0D /* ARDSettingsModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSettingsModel.h; sourceTree = "<group>"; };
@@ -163,7 +159,6 @@
 				2CA1CCCA1F17C503002FE6A2 /* AudioToolbox.framework in Frameworks */,
 				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
-				2C4D7D5D1F2F6E9600FF4A0D /* WebRTC.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
@@ -177,7 +172,6 @@
 		2C0574741EDD9E8E00D9E7F2 = {
 			isa = PBXGroup;
 			children = (
-				2C4D7D5C1F2F6E9600FF4A0D /* WebRTC.framework */,
 				2C05747E1EDD9E8E00D9E7F2 /* Products */,
 				2C05749C1EDDA01700D9E7F2 /* ThirdParty */,
 				2C05747F1EDD9E8E00D9E7F2 /* VideoCalls */,
@@ -475,9 +469,12 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-frameworks.sh",
+				"${PODS_ROOT}/GoogleWebRTC/Frameworks/frameworks/WebRTC.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WebRTC.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -503,13 +500,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VideoCalls-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */ = {
@@ -518,9 +518,12 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-resources.sh",
+				"${PODS_ROOT}/DateTools/DateTools/DateTools/DateTools.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
