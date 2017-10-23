@@ -251,6 +251,21 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     }];
 }
 
+- (void)deleteRoom:(NSString *)token withCompletionBlock:(DeleteRoomCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", token]];
+    
+    [_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        if (block) {
+            block(nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(error, [operation.response statusCode]);
+        }
+    }];
+}
+
 #pragma mark - Call Controller
 
 - (void)getPeersForCall:(NSString *)token withCompletionBlock:(GetPeersForCallCompletionBlock)block

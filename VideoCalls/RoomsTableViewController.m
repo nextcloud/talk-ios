@@ -229,9 +229,30 @@
     
 }
 
+- (void)leaveRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        if (error) {
+            //TODO: Error handling
+        }
+    }];
+    
+    [_rooms removeObjectAtIndex:indexPath.row];
+    [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+}
+
 - (void)deleteRoomAtIndexPath:(NSIndexPath *)indexPath
 {
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    [[NCAPIController sharedInstance] deleteRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        if (error) {
+            //TODO: Error handling
+        }
+    }];
     
+    [_rooms removeObjectAtIndex:indexPath.row];
+    [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
 }
 
 #pragma mark - Table view data source
@@ -328,15 +349,7 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
-            if (error) {
-                //TODO: Error handling
-            }
-        }];
-        
-        [_rooms removeObjectAtIndex:indexPath.row];
-        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        [self leaveRoomAtIndexPath:indexPath];
     }
 }
 
