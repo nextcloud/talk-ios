@@ -14,6 +14,13 @@ typedef enum NCRoomType {
     kNCRoomTypePublicCall
 } NCRoomType;
 
+typedef enum NCParticipantType {
+    kNCParticipantTypeOwner = 1,
+    kNCParticipantTypeModerator,
+    kNCParticipantTypeUser,
+    kNCParticipantTypeGuest,
+    kNCParticipantTypeUserFollowingLink
+} NCParticipantType;
 
 @interface NCRoom : NSObject
 
@@ -23,10 +30,17 @@ typedef enum NCRoomType {
 @property (nonatomic, copy) NSString *displayName;
 @property (nonatomic, assign) NCRoomType type;
 @property (nonatomic, assign) NSInteger count;
+@property (nonatomic, assign) BOOL hasPassword;
+@property (nonatomic, assign) NCParticipantType participantType;
 @property (nonatomic, assign) NSInteger lastPing;
+@property (nonatomic, assign) NSInteger numGuests;
 @property (nonatomic, copy) NSString *guestList;
 @property (nonatomic, copy) NSArray *participants;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
+
+- (BOOL)canModerate;
+- (BOOL)isNameEditable;
+- (BOOL)isDeletable;
 
 @end
