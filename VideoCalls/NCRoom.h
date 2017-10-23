@@ -39,6 +39,7 @@ typedef enum NCParticipantType {
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 
+- (BOOL)isPublic;
 - (BOOL)canModerate;
 - (BOOL)isNameEditable;
 - (BOOL)isDeletable;

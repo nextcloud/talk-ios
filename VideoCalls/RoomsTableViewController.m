@@ -229,6 +229,11 @@
     
 }
 
+- (void)deleteRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -253,8 +258,14 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForSwipeAccessoryButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString *moreButtonText = @"More";
-    return moreButtonText;
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    if (room.canModerate) {
+        NSString *moreButtonText = @"More";
+        return moreButtonText;
+    }
+    
+    return nil;
 }
 
 - (void)tableView:(UITableView *)tableView swipeAccessoryButtonPushedForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -265,22 +276,43 @@
     [UIAlertController alertControllerWithTitle:room.displayName
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
+    // Rename
+    if (room.isNameEditable) {
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Rename"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self renameRoomAtIndexPath:indexPath];
+                                                             }]];
+    }
     
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Rename"
-                                                           style:UIAlertActionStyleDefault
-                                                         handler:^void (UIAlertAction *action) {
-                                                             [self renameRoomAtIndexPath:indexPath];
-                                                         }]];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share Link"
+    // Share Link
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
                                                            style:UIAlertActionStyleDefault
                                                          handler:^void (UIAlertAction *action) {
                                                              [self shareLinkFromRoomAtIndexPath:indexPath];
                                                          }]];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Set Password"
-                                                           style:UIAlertActionStyleDefault
-                                                         handler:^void (UIAlertAction *action) {
-                                                             [self setPasswordToRoomAtIndexPath:indexPath];
-                                                         }]];
+    
+    // Set Password
+    if (room.isPublic) {
+        NSString *passwordOptionTitle = @"Set password";
+        if (room.hasPassword) {
+            passwordOptionTitle = @"Change password";
+        }
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:passwordOptionTitle
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self setPasswordToRoomAtIndexPath:indexPath];
+                                                             }]];
+    }
+    
+    // Delete room
+    if (room.isDeletable) {
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Delete call"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self deleteRoomAtIndexPath:indexPath];
+                                                             }]];
+    }
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     

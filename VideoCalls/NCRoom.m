@@ -33,6 +33,11 @@
     return room;
 }
 
+- (BOOL)isPublic
+{
+    return _type == kNCRoomTypePublicCall;
+}
+
 - (BOOL)canModerate
 {
     return _participantType == kNCParticipantTypeOwner || _participantType == kNCParticipantTypeModerator;
