@@ -282,6 +282,8 @@
                                                              [self setPasswordToRoomAtIndexPath:indexPath];
                                                          }]];
     
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
