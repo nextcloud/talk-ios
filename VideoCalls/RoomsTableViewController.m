@@ -183,6 +183,52 @@
     }
 }
 
+#pragma mark - Room actions
+
+- (void)renameRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    UIAlertController *renameDialog =
+    [UIAlertController alertControllerWithTitle:@"Enter new name:"
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    [renameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = @"Name";
+        textField.text = room.displayName;
+    }];
+    
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *newRoomName = [[renameDialog textFields][0] text];
+        NSLog(@"New room name %@", newRoomName);
+        [[NCAPIController sharedInstance] renameRoom:room.token withName:newRoomName andCompletionBlock:^(NSError *error, NSInteger errorCode) {
+            if (!error) {
+                [self getRooms];
+            } else {
+                NSLog(@"Error renaming the room: %@", error.description);
+                //TODO: Error handling
+            }
+        }];
+    }];
+    [renameDialog addAction:confirmAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [renameDialog addAction:cancelAction];
+    
+    [self presentViewController:renameDialog animated:YES completion:nil];
+}
+
+- (void)shareLinkFromRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+}
+
+- (void)setPasswordToRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -213,7 +259,30 @@
 
 - (void)tableView:(UITableView *)tableView swipeAccessoryButtonPushedForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    // Show more options for that room.
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:room.displayName
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Rename"
+                                                           style:UIAlertActionStyleDefault
+                                                         handler:^void (UIAlertAction *action) {
+                                                             [self renameRoomAtIndexPath:indexPath];
+                                                         }]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share Link"
+                                                           style:UIAlertActionStyleDefault
+                                                         handler:^void (UIAlertAction *action) {
+                                                             [self shareLinkFromRoomAtIndexPath:indexPath];
+                                                         }]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Set Password"
+                                                           style:UIAlertActionStyleDefault
+                                                         handler:^void (UIAlertAction *action) {
+                                                             [self setPasswordToRoomAtIndexPath:indexPath];
+                                                         }]];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -228,7 +297,7 @@
         NCRoom *room = [_rooms objectAtIndex:indexPath.row];
         [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
             if (error) {
-                // Show alert
+                //TODO: Error handling
             }
         }];
         
