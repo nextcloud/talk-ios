@@ -224,6 +224,32 @@
     
 }
 
+- (void)makePublicRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    [[NCAPIController sharedInstance] makeRoomPublic:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        if (!error) {
+            [self getRooms];
+        } else {
+            NSLog(@"Error making public the room: %@", error.description);
+            //TODO: Error handling
+        }
+    }];
+}
+
+- (void)makePrivateRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    [[NCAPIController sharedInstance] makeRoomPrivate:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        if (!error) {
+            [self getRooms];
+        } else {
+            NSLog(@"Error making private the room: %@", error.description);
+            //TODO: Error handling
+        }
+    }];
+}
+
 - (void)setPasswordToRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
@@ -334,15 +360,24 @@
                                                              }]];
     }
     
-    // Share Link
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
-                                                           style:UIAlertActionStyleDefault
-                                                         handler:^void (UIAlertAction *action) {
-                                                             [self shareLinkFromRoomAtIndexPath:indexPath];
-                                                         }]];
-    
-    // Set Password
+    // Public/Private room options
     if (room.isPublic) {
+        
+        // Share Link
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self shareLinkFromRoomAtIndexPath:indexPath];
+                                                             }]];
+        
+        // Make call private
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Stop sharing call"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self makePrivateRoomAtIndexPath:indexPath];
+                                                             }]];
+        
+        // Set Password
         NSString *passwordOptionTitle = @"Set password";
         if (room.hasPassword) {
             passwordOptionTitle = @"Change password";
@@ -352,12 +387,19 @@
                                                              handler:^void (UIAlertAction *action) {
                                                                  [self setPasswordToRoomAtIndexPath:indexPath];
                                                              }]];
+    } else {
+        // Make call public
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self makePublicRoomAtIndexPath:indexPath];
+                                                             }]];
     }
     
     // Delete room
     if (room.isDeletable) {
         [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Delete call"
-                                                               style:UIAlertActionStyleDefault
+                                                               style:UIAlertActionStyleDestructive
                                                              handler:^void (UIAlertAction *action) {
                                                                  [self deleteRoomAtIndexPath:indexPath];
                                                              }]];
