@@ -266,6 +266,22 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     }];
 }
 
+- (void)setPassword:(NSString *)password toRoom:(NSString *)token withCompletionBlock:(SetPasswordCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/password", token]];
+    NSDictionary *parameters = @{@"password" : password};
+    
+    [_manager PUT:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        if (block) {
+            block(nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(error, [operation.response statusCode]);
+        }
+    }];
+}
+
 #pragma mark - Call Controller
 
 - (void)getPeersForCall:(NSString *)token withCompletionBlock:(GetPeersForCallCompletionBlock)block

@@ -22,6 +22,7 @@ typedef void (^RemoveSelfFromRoomCompletionBlock)(NSError *error, NSInteger erro
 typedef void (^MakeRoomPublicCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^MakeRoomPrivateCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^DeleteRoomCompletionBlock)(NSError *error, NSInteger errorCode);
+typedef void (^SetPasswordCompletionBlock)(NSError *error, NSInteger errorCode);
 
 typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *error, NSInteger errorCode);
 typedef void (^JoinCallCompletionBlock)(NSString *sessionId, NSError *error, NSInteger errorCode);
@@ -53,6 +54,7 @@ typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError
 - (void)makeRoomPublic:(NSString *)token withCompletionBlock:(MakeRoomPublicCompletionBlock)block;
 - (void)makeRoomPrivate:(NSString *)token withCompletionBlock:(MakeRoomPrivateCompletionBlock)block;
 - (void)deleteRoom:(NSString *)token withCompletionBlock:(DeleteRoomCompletionBlock)block;
+- (void)setPassword:(NSString *)password toRoom:(NSString *)token withCompletionBlock:(SetPasswordCompletionBlock)block;
 
 
 // Call Controller

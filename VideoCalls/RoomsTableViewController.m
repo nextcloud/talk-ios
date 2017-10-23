@@ -226,7 +226,35 @@
 
 - (void)setPasswordToRoomAtIndexPath:(NSIndexPath *)indexPath
 {
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
+    UIAlertController *renameDialog =
+    [UIAlertController alertControllerWithTitle:@"Set password:"
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    [renameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = @"Password";
+        textField.secureTextEntry = YES;
+    }];
+    
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *password = [[renameDialog textFields][0] text];
+        [[NCAPIController sharedInstance] setPassword:password toRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+            if (!error) {
+                [self getRooms];
+            } else {
+                NSLog(@"Error setting room password: %@", error.description);
+                //TODO: Error handling
+            }
+        }];
+    }];
+    [renameDialog addAction:confirmAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [renameDialog addAction:cancelAction];
+    
+    [self presentViewController:renameDialog animated:YES completion:nil];
 }
 
 - (void)leaveRoomAtIndexPath:(NSIndexPath *)indexPath
