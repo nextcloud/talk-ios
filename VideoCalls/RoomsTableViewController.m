@@ -532,7 +532,10 @@
             _currentCallToken = room.token;
             CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room.token asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
             callVC.delegate = self;
-            [self presentViewController:callVC animated:YES completion:nil];
+            [self presentViewController:callVC animated:YES completion:^{
+                // Disable sleep timer
+                [UIApplication sharedApplication].idleTimerDisabled = YES;
+            }];
         }
     }];
     
@@ -545,6 +548,8 @@
     if (![viewController isBeingDismissed]) {
         [self dismissViewControllerAnimated:YES completion:^{
             NSLog(@"Call view controller dismissed");
+            // Enable sleep timer
+            [UIApplication sharedApplication].idleTimerDisabled = NO;
         }];
     }
 }
