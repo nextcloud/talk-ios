@@ -76,6 +76,11 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     _authToken = token;
 }
 
+- (NSString *)currentServerUrl
+{
+    return _serverUrl;
+}
+
 - (NSString *)getRequestURLForSpreedEndpoint:(NSString *)endpoint
 {
     return [NSString stringWithFormat:@"%@%@%@/%@", _serverUrl, kNCOCSAPIVersion, kNCSpreedAPIVersion, endpoint];

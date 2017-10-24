@@ -40,6 +40,7 @@ typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError
 + (instancetype)sharedInstance;
 - (void)setNCServer:(NSString *)serverUrl;
 - (void)setAuthHeaderWithUser:(NSString *)user andToken:(NSString *)token;
+- (NSString *)currentServerUrl;
 
 // Contacts Controller
 - (void)getContactsWithSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;

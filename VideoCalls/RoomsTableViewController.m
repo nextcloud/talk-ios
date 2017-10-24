@@ -221,7 +221,22 @@
 
 - (void)shareLinkFromRoomAtIndexPath:(NSIndexPath *)indexPath
 {
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    NSString *shareMessage = [NSString stringWithFormat:@"You can join to this call: %@/index.php/call/%@", [[NCAPIController sharedInstance] currentServerUrl], room.token];
+    NSArray *items = @[shareMessage];
     
+    UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
+    
+    [self presentViewController:controller animated:YES completion:nil];
+    
+    controller.completionWithItemsHandler = ^(NSString *activityType,
+                                              BOOL completed,
+                                              NSArray *returnedItems,
+                                              NSError *error) {
+        if (error) {
+            NSLog(@"An Error occured sharing room: %@, %@", error.localizedDescription, error.localizedFailureReason);
+        }
+    };
 }
 
 - (void)makePublicRoomAtIndexPath:(NSIndexPath *)indexPath
@@ -230,6 +245,7 @@
     [[NCAPIController sharedInstance] makeRoomPublic:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
         if (!error) {
             [self getRooms];
+            [self shareLinkFromRoomAtIndexPath:indexPath];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
             //TODO: Error handling
