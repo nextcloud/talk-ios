@@ -363,20 +363,6 @@
     // Public/Private room options
     if (room.isPublic) {
         
-        // Share Link
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-                                                                 [self shareLinkFromRoomAtIndexPath:indexPath];
-                                                             }]];
-        
-        // Make call private
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Stop sharing call"
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-                                                                 [self makePrivateRoomAtIndexPath:indexPath];
-                                                             }]];
-        
         // Set Password
         NSString *passwordOptionTitle = @"Set password";
         if (room.hasPassword) {
@@ -386,6 +372,20 @@
                                                                style:UIAlertActionStyleDefault
                                                              handler:^void (UIAlertAction *action) {
                                                                  [self setPasswordToRoomAtIndexPath:indexPath];
+                                                             }]];
+        
+        // Share Link
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self shareLinkFromRoomAtIndexPath:indexPath];
+                                                             }]];
+        
+        // Make call private
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Stop sharing call"
+                                                               style:UIAlertActionStyleDestructive
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self makePrivateRoomAtIndexPath:indexPath];
                                                              }]];
     } else {
         // Make call public
