@@ -83,6 +83,26 @@
     NSLog(@"Network Status:%ld", (long)status);
 }
 
+#pragma mark - Interface Builder Actions
+
+- (IBAction)addButtonPressed:(id)sender
+{
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:nil
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"New public call"
+                                                           style:UIAlertActionStyleDefault
+                                                         handler:^void (UIAlertAction *action) {
+                                                             [self createNewPublicRoom];
+                                                         }]];
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
 #pragma mark - Refresh Control
 
 - (void)createRefreshControl
@@ -323,6 +343,18 @@
     
     [_rooms removeObjectAtIndex:indexPath.row];
     [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+}
+
+- (void)createNewPublicRoom
+{
+    [[NCAPIController sharedInstance] createRoomWith:nil ofType:kNCRoomTypePublicCall withCompletionBlock:^(NSString *token, NSError *error, NSInteger errorCode) {
+        if (!error) {
+            [self getRooms];
+        } else {
+            NSLog(@"Error creating new public room: %@", error.description);
+            //TODO: Error handling
+        }
+    }];
 }
 
 #pragma mark - Table view data source

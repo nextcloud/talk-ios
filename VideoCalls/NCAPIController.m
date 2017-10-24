@@ -165,7 +165,10 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 - (void)createRoomWith:(NSString *)invite ofType:(NCRoomType)type withCompletionBlock:(CreateRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:@"room"];
-    NSDictionary *parameters = @{@"roomType" : @(type), @"invite" : invite};
+    NSDictionary *parameters = @{@"roomType" : @(type)};
+    if (invite) {
+        parameters = @{@"roomType" : @(type), @"invite" : invite};
+    }
     
     [_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         NSString *token = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"token"];
