@@ -83,6 +83,26 @@
     NSLog(@"Network Status:%ld", (long)status);
 }
 
+#pragma mark - Interface Builder Actions
+
+- (IBAction)addButtonPressed:(id)sender
+{
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:nil
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"New public call"
+                                                           style:UIAlertActionStyleDefault
+                                                         handler:^void (UIAlertAction *action) {
+                                                             [self createNewPublicRoom];
+                                                         }]];
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
 #pragma mark - Refresh Control
 
 - (void)createRefreshControl
@@ -183,6 +203,160 @@
     }
 }
 
+#pragma mark - Room actions
+
+- (void)renameRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    UIAlertController *renameDialog =
+    [UIAlertController alertControllerWithTitle:@"Enter new name:"
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    [renameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = @"Name";
+        textField.text = room.displayName;
+    }];
+    
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *newRoomName = [[renameDialog textFields][0] text];
+        NSLog(@"New room name %@", newRoomName);
+        [[NCAPIController sharedInstance] renameRoom:room.token withName:newRoomName andCompletionBlock:^(NSError *error, NSInteger errorCode) {
+            if (!error) {
+                [self getRooms];
+            } else {
+                NSLog(@"Error renaming the room: %@", error.description);
+                //TODO: Error handling
+            }
+        }];
+    }];
+    [renameDialog addAction:confirmAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [renameDialog addAction:cancelAction];
+    
+    [self presentViewController:renameDialog animated:YES completion:nil];
+}
+
+- (void)shareLinkFromRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    NSString *shareMessage = [NSString stringWithFormat:@"You can join to this call: %@/index.php/call/%@", [[NCAPIController sharedInstance] currentServerUrl], room.token];
+    NSArray *items = @[shareMessage];
+    
+    UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
+    
+    [self presentViewController:controller animated:YES completion:nil];
+    
+    controller.completionWithItemsHandler = ^(NSString *activityType,
+                                              BOOL completed,
+                                              NSArray *returnedItems,
+                                              NSError *error) {
+        if (error) {
+            NSLog(@"An Error occured sharing room: %@, %@", error.localizedDescription, error.localizedFailureReason);
+        }
+    };
+}
+
+- (void)makePublicRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    [[NCAPIController sharedInstance] makeRoomPublic:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        if (!error) {
+            [self getRooms];
+            [self shareLinkFromRoomAtIndexPath:indexPath];
+        } else {
+            NSLog(@"Error making public the room: %@", error.description);
+            //TODO: Error handling
+        }
+    }];
+}
+
+- (void)makePrivateRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    [[NCAPIController sharedInstance] makeRoomPrivate:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        if (!error) {
+            [self getRooms];
+        } else {
+            NSLog(@"Error making private the room: %@", error.description);
+            //TODO: Error handling
+        }
+    }];
+}
+
+- (void)setPasswordToRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    UIAlertController *renameDialog =
+    [UIAlertController alertControllerWithTitle:@"Set password:"
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    [renameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = @"Password";
+        textField.secureTextEntry = YES;
+    }];
+    
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *password = [[renameDialog textFields][0] text];
+        [[NCAPIController sharedInstance] setPassword:password toRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+            if (!error) {
+                [self getRooms];
+            } else {
+                NSLog(@"Error setting room password: %@", error.description);
+                //TODO: Error handling
+            }
+        }];
+    }];
+    [renameDialog addAction:confirmAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [renameDialog addAction:cancelAction];
+    
+    [self presentViewController:renameDialog animated:YES completion:nil];
+}
+
+- (void)leaveRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        if (error) {
+            //TODO: Error handling
+        }
+    }];
+    
+    [_rooms removeObjectAtIndex:indexPath.row];
+    [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+}
+
+- (void)deleteRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    [[NCAPIController sharedInstance] deleteRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        if (error) {
+            //TODO: Error handling
+        }
+    }];
+    
+    [_rooms removeObjectAtIndex:indexPath.row];
+    [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+}
+
+- (void)createNewPublicRoom
+{
+    [[NCAPIController sharedInstance] createRoomWith:nil ofType:kNCRoomTypePublicCall withCompletionBlock:^(NSString *token, NSError *error, NSInteger errorCode) {
+        if (!error) {
+            [self getRooms];
+        } else {
+            NSLog(@"Error creating new public room: %@", error.description);
+            //TODO: Error handling
+        }
+    }];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -207,13 +381,81 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForSwipeAccessoryButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString *moreButtonText = @"More";
-    return moreButtonText;
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    if (room.canModerate) {
+        NSString *moreButtonText = @"More";
+        return moreButtonText;
+    }
+    
+    return nil;
 }
 
 - (void)tableView:(UITableView *)tableView swipeAccessoryButtonPushedForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    // Show more options for that room.
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:room.displayName
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    // Rename
+    if (room.isNameEditable) {
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Rename"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self renameRoomAtIndexPath:indexPath];
+                                                             }]];
+    }
+    
+    // Public/Private room options
+    if (room.isPublic) {
+        
+        // Set Password
+        NSString *passwordOptionTitle = @"Set password";
+        if (room.hasPassword) {
+            passwordOptionTitle = @"Change password";
+        }
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:passwordOptionTitle
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self setPasswordToRoomAtIndexPath:indexPath];
+                                                             }]];
+        
+        // Share Link
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self shareLinkFromRoomAtIndexPath:indexPath];
+                                                             }]];
+        
+        // Make call private
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Stop sharing call"
+                                                               style:UIAlertActionStyleDestructive
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self makePrivateRoomAtIndexPath:indexPath];
+                                                             }]];
+    } else {
+        // Make call public
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self makePublicRoomAtIndexPath:indexPath];
+                                                             }]];
+    }
+    
+    // Delete room
+    if (room.isDeletable) {
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Delete call"
+                                                               style:UIAlertActionStyleDestructive
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self deleteRoomAtIndexPath:indexPath];
+                                                             }]];
+    }
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -225,15 +467,7 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
-            if (error) {
-                // Show alert
-            }
-        }];
-        
-        [_rooms removeObjectAtIndex:indexPath.row];
-        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        [self leaveRoomAtIndexPath:indexPath];
     }
 }
 
@@ -253,7 +487,7 @@
     cell.labelSubTitle.text = [date timeAgoSinceNow];
     
     if (room.lastPing == 0) {
-        cell.labelSubTitle.text = @"Invited";
+        cell.labelSubTitle.text = @"Never";
     }
     
     // Set room image

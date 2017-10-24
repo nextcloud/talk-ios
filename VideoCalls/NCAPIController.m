@@ -76,6 +76,11 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     _authToken = token;
 }
 
+- (NSString *)currentServerUrl
+{
+    return _serverUrl;
+}
+
 - (NSString *)getRequestURLForSpreedEndpoint:(NSString *)endpoint
 {
     return [NSString stringWithFormat:@"%@%@%@/%@", _serverUrl, kNCOCSAPIVersion, kNCSpreedAPIVersion, endpoint];
@@ -160,7 +165,10 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 - (void)createRoomWith:(NSString *)invite ofType:(NCRoomType)type withCompletionBlock:(CreateRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:@"room"];
-    NSDictionary *parameters = @{@"roomType" : @(type), @"invite" : invite};
+    NSDictionary *parameters = @{@"roomType" : @(type)};
+    if (invite) {
+        parameters = @{@"roomType" : @(type), @"invite" : invite};
+    }
     
     [_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         NSString *token = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"token"];
@@ -241,6 +249,37 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/public", token]];
     
     [_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        if (block) {
+            block(nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(error, [operation.response statusCode]);
+        }
+    }];
+}
+
+- (void)deleteRoom:(NSString *)token withCompletionBlock:(DeleteRoomCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", token]];
+    
+    [_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        if (block) {
+            block(nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(error, [operation.response statusCode]);
+        }
+    }];
+}
+
+- (void)setPassword:(NSString *)password toRoom:(NSString *)token withCompletionBlock:(SetPasswordCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/password", token]];
+    NSDictionary *parameters = @{@"password" : password};
+    
+    [_manager PUT:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         if (block) {
             block(nil, [operation.response statusCode]);
         }
