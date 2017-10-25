@@ -100,6 +100,11 @@
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
+    // Presentation on iPads
+    UIPopoverPresentationController *popController = [optionsActionSheet popoverPresentationController];
+    popController.permittedArrowDirections = UIPopoverArrowDirectionAny;
+    popController.barButtonItem = self.navigationItem.rightBarButtonItem;
+    
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
@@ -246,6 +251,10 @@
     NSArray *items = @[shareMessage];
     
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
+    
+    // Presentation on iPads
+    controller.popoverPresentationController.sourceView = self.tableView;
+    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
     
     [self presentViewController:controller animated:YES completion:nil];
     
@@ -454,6 +463,10 @@
     }
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [tableView rectForRowAtIndexPath:indexPath];
     
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
