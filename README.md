@@ -1,11 +1,9 @@
-# Nextcloud Video Calls iOS app
-This is the iOS app for the Nextcloud [Video calls app](https://github.com/nextcloud/spreed).
-
-At this moment, the app is at a very early development stage **[WIP]**
+# Nextcloud Talk iOS app
+This is the iOS app for the [Nextcloud Talk](https://github.com/nextcloud/spreed) app.
 
 ## Prerequisites
 
-- Nexcloud instance with [Video calls app](https://github.com/nextcloud/spreed) installed (Latest [master](https://github.com/nextcloud/spreed/commits/master))
+- Nexcloud instance with [Nextcloud Talk](https://github.com/nextcloud/spreed) app installed (Latest [master](https://github.com/nextcloud/spreed/commits/master))
 - [CocoaPods](https://cocoapods.org/)
 
 ## Build steps
