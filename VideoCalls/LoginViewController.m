@@ -32,6 +32,11 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskPortrait;
+}
+
 - (IBAction)login:(id)sender
 {
     NSString *serverUrl = self.serverUrl.text;
