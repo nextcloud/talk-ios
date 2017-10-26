@@ -47,7 +47,9 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
     
     _webView = [[WKWebView alloc] initWithFrame:self.view.frame
                                   configuration:configuration];
-    _webView.customUserAgent = @"Video Calls iOS";
+    
+    NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
+    _webView.customUserAgent = appDisplayName;
     _webView.navigationDelegate = self;
     
     [_webView loadRequest:request];
