@@ -65,8 +65,8 @@
             [self presentViewController:authVC animated:YES completion:nil];
         } else {
             UIAlertController * alert = [UIAlertController
-                                         alertControllerWithTitle:@"Video Calls app not found"
-                                         message:@"Please, check that you enter the correct Nextcloud server url and the Video Calls app is enabled in that instance."
+                                         alertControllerWithTitle:@"Nextcloud Talk app not found"
+                                         message:@"Please, check that you enter the correct Nextcloud server url and the Nextcloud Talk app is enabled in that instance."
                                          preferredStyle:UIAlertControllerStyleAlert];
             
             
