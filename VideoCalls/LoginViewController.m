@@ -24,6 +24,8 @@
     
     self.appLogo.image = [UIImage imageNamed:@"loginLogo"];
     self.login.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    self.activityIndicatorView.color = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    self.activityIndicatorView.hidden = YES;
 }
 
 - (void)didReceiveMemoryWarning
@@ -58,8 +60,13 @@
         [storage deleteCookie:cookie];
     }
     
+    [self.activityIndicatorView startAnimating];
+    self.activityIndicatorView.hidden = NO;
+    
     [[NCAPIController sharedInstance] setNCServer:serverUrl];
     [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger errorCode) {
+        [self.activityIndicatorView stopAnimating];
+        self.activityIndicatorView.hidden = YES;
         if (errorCode == 401) {
             AuthenticationViewController *authVC = [[AuthenticationViewController alloc] initWithServerUrl:serverUrl];
             [self presentViewController:authVC animated:YES completion:nil];

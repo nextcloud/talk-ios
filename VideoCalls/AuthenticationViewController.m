@@ -15,6 +15,9 @@ NSString * const kNCAuthTokenFlowEndpoint       = @"/index.php/login/flow";
 NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification";
 
 @interface AuthenticationViewController () <WKNavigationDelegate>
+{
+    UIActivityIndicatorView *_activityIndicatorView;
+}
 
 @end
 
@@ -54,6 +57,12 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
     
     [_webView loadRequest:request];
     [self.view addSubview:_webView];
+    
+    _activityIndicatorView = [[UIActivityIndicatorView alloc] init];
+    _activityIndicatorView.center = self.view.center;
+    _activityIndicatorView.color = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    [_activityIndicatorView startAnimating];
+    [self.view addSubview:_activityIndicatorView];
 }
 
 - (void)didReceiveMemoryWarning
@@ -173,6 +182,12 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
     SecTrustSetExceptions (serverTrust, exceptions);
     CFRelease (exceptions);
     completionHandler (NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:serverTrust]);
+}
+
+- (void)webView:(WKWebView *)webView didCommitNavigation:(WKNavigation *)navigation
+{
+    [_activityIndicatorView stopAnimating];
+    [_activityIndicatorView removeFromSuperview];
 }
 
 

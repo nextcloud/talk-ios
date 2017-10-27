@@ -5,12 +5,13 @@
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13174"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LoginViewController">
             <connections>
+                <outlet property="activityIndicatorView" destination="Dkt-lG-hBg" id="jaC-Lf-swb"/>
                 <outlet property="appLogo" destination="iwf-In-Fgx" id="lQi-z1-f1e"/>
                 <outlet property="imageBaseUrl" destination="FqU-PH-59c" id="HcC-vC-kkQ"/>
                 <outlet property="login" destination="WaC-p3-cE0" id="gR4-kZ-73f"/>
@@ -25,10 +26,6 @@
             <subviews>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="loginURL" translatesAutoresizingMaskIntoConstraints="NO" id="FqU-PH-59c">
                     <rect key="frame" x="16" y="220" width="25" height="25"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="25" id="fqG-8V-Qol"/>
-                        <constraint firstAttribute="width" constant="25" id="puj-kP-F7W"/>
-                    </constraints>
                 </imageView>
                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="loginLogo" translatesAutoresizingMaskIntoConstraints="NO" id="iwf-In-Fgx">
                     <rect key="frame" x="73" y="56" width="229" height="120"/>
@@ -38,7 +35,7 @@
                     </constraints>
                 </imageView>
                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Server address https://…" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Xub-RR-Z2O">
-                    <rect key="frame" x="49" y="210" width="310" height="44"/>
+                    <rect key="frame" x="49" y="215" width="282" height="35"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <color key="textColor" white="0.26000000000000001" alpha="1" colorSpace="calibratedWhite"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -59,6 +56,10 @@
                         <action selector="login:" destination="-1" eventType="touchUpInside" id="N8h-1K-h4U"/>
                     </connections>
                 </button>
+                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="Dkt-lG-hBg">
+                    <rect key="frame" x="339" y="222" width="20" height="20"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                </activityIndicatorView>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
