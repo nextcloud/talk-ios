@@ -290,6 +290,37 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     }];
 }
 
+- (void)joinRoom:(NSString *)token withCompletionBlock:(JoinRoomCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/active", token]];
+    
+    [_manager POST:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        NSString *sessionId = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"sessionId"];
+        if (block) {
+            block(sessionId, nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error, [operation.response statusCode]);
+        }
+    }];
+}
+
+- (void)exitRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/active", token]];
+    
+    [_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        if (block) {
+            block(nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(error, [operation.response statusCode]);
+        }
+    }];
+}
+
 #pragma mark - Call Controller
 
 - (void)getPeersForCall:(NSString *)token withCompletionBlock:(GetPeersForCallCompletionBlock)block
@@ -314,13 +345,12 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"call/%@", token]];
     
     [_manager POST:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
-        NSString *sessionId = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"sessionId"];
         if (block) {
-            block(sessionId, nil, [operation.response statusCode]);
+            block(nil, [operation.response statusCode]);
         }
     } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error, [operation.response statusCode]);
+            block(error, [operation.response statusCode]);
         }
     }];
 }
