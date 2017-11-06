@@ -99,7 +99,14 @@ static NSString * const kNCVideoTrackKind = @"video";
         if (!error) {
             [self stopPingCall];
             [_signalingController stopPullingSignalingMessages];
-            [self.delegate callControllerDidEndCall:self];
+            [[NCAPIController sharedInstance] exitRoom:_room withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+                if (!error) {
+                    [self.delegate callControllerDidEndCall:self];
+                } else {
+                    NSLog(@"Could not leave room. Error: %@", error.description);
+                }
+                
+            }];
         } else {
             NSLog(@"Could not leave call. Error: %@", error.description);
         }
