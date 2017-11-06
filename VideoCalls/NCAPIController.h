@@ -23,11 +23,11 @@ typedef void (^MakeRoomPublicCompletionBlock)(NSError *error, NSInteger errorCod
 typedef void (^MakeRoomPrivateCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^DeleteRoomCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^SetPasswordCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^JoinRoomCompletionBlock)(NSError *error, NSInteger errorCode);
+typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NSError *error, NSInteger errorCode);
 typedef void (^ExitRoomCompletionBlock)(NSError *error, NSInteger errorCode);
 
 typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *error, NSInteger errorCode);
-typedef void (^JoinCallCompletionBlock)(NSString *sessionId, NSError *error, NSInteger errorCode);
+typedef void (^JoinCallCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^PingCallCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
 
