@@ -540,16 +540,12 @@
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
-    [[NCAPIController sharedInstance] joinCall:room.token withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger errorCode) {
-        if (!error) {
-            _currentCallToken = room.token;
-            CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room.token asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
-            callVC.delegate = self;
-            [self presentViewController:callVC animated:YES completion:^{
-                // Disable sleep timer
-                [UIApplication sharedApplication].idleTimerDisabled = YES;
-            }];
-        }
+    _currentCallToken = room.token;
+    CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room.token asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
+    callVC.delegate = self;
+    [self presentViewController:callVC animated:YES completion:^{
+        // Disable sleep timer
+        [UIApplication sharedApplication].idleTimerDisabled = YES;
     }];
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
