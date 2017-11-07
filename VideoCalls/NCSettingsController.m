@@ -16,6 +16,7 @@ NSString * const kNCServerKey           = @"ncServer";
 NSString * const kNCUserKey             = @"ncUser";
 NSString * const kNCUserDisplayNameKey  = @"ncUserDisplayName";
 NSString * const kNCTokenKey            = @"ncToken";
+NSString * const kNCPushTokenKey        = @"ncPushToken";
 
 + (NCSettingsController *)sharedInstance
 {
@@ -42,6 +43,7 @@ NSString * const kNCTokenKey            = @"ncToken";
     _ncUser = [UICKeyChainStore stringForKey:kNCUserKey];
     _ncUserDisplayName = [UICKeyChainStore stringForKey:kNCUserDisplayNameKey];
     _ncToken = [UICKeyChainStore stringForKey:kNCTokenKey];
+    _ncPushToken = [UICKeyChainStore stringForKey:kNCPushTokenKey];
 }
 
 - (void)cleanAllStoredValues
@@ -50,6 +52,7 @@ NSString * const kNCTokenKey            = @"ncToken";
     _ncUser = nil;
     _ncUserDisplayName = nil;
     _ncToken = nil;
+    _ncPushToken = nil;
     
     [UICKeyChainStore removeAllItems];
     

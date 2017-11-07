@@ -16,7 +16,7 @@
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
-#import "UICKeyChainStore.h"
+#import "NCSettingsController.h"
 
 @interface AppDelegate () <UNUserNotificationCenterDelegate, FIRMessagingDelegate>
 
@@ -100,6 +100,7 @@
 - (void)messaging:(FIRMessaging *)messaging didRefreshRegistrationToken:(NSString *)fcmToken
 {
     NSLog(@"FCM registration token: %@", fcmToken);
+    [NCSettingsController sharedInstance].ncPushToken = fcmToken;
 }
 
 
