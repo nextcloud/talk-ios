@@ -20,6 +20,7 @@
 		2C4D7D721F309DA500FF4A0D /* RTCIceCandidate+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D6E1F309DA500FF4A0D /* RTCIceCandidate+JSON.m */; };
 		2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D701F309DA500FF4A0D /* RTCSessionDescription+JSON.m */; };
 		2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */; };
+		2C5435ED1FB1E5E8003D4222 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C5435EC1FB1E5E8003D4222 /* GoogleService-Info.plist */; };
 		2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF941F7E70EB008AFA74 /* NCPeerConnection.m */; };
 		2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF981F80F81E008AFA74 /* NCSignalingController.m */; };
 		2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF9B1F826B22008AFA74 /* NCCallController.m */; };
@@ -80,6 +81,8 @@
 		2C4D7D701F309DA500FF4A0D /* RTCSessionDescription+JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RTCSessionDescription+JSON.m"; sourceTree = "<group>"; };
 		2C4D7D741F30F7B600FF4A0D /* ARDUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDUtilities.h; sourceTree = "<group>"; };
 		2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDUtilities.m; sourceTree = "<group>"; };
+		2C5435EC1FB1E5E8003D4222 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		2C6085C11FB1063700B36A6E /* VideoCalls.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VideoCalls.entitlements; sourceTree = "<group>"; };
 		2C78EF931F7E70EB008AFA74 /* NCPeerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCPeerConnection.h; sourceTree = "<group>"; };
 		2C78EF941F7E70EB008AFA74 /* NCPeerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCPeerConnection.m; sourceTree = "<group>"; };
 		2C78EF971F80F81E008AFA74 /* NCSignalingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSignalingController.h; sourceTree = "<group>"; };
@@ -177,6 +180,7 @@
 		2C05747F1EDD9E8E00D9E7F2 /* VideoCalls */ = {
 			isa = PBXGroup;
 			children = (
+				2C6085C11FB1063700B36A6E /* VideoCalls.entitlements */,
 				2C78EF961F7E720A008AFA74 /* WebRTC */,
 				2C5521691F7D48480077E587 /* Calls */,
 				2C5521671F7D47BA0077E587 /* Contacts */,
@@ -188,6 +192,7 @@
 				2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */,
 				2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */,
 				2C0574941EDD9E8E00D9E7F2 /* Info.plist */,
+				2C5435EC1FB1E5E8003D4222 /* GoogleService-Info.plist */,
 				2C0574911EDD9E8E00D9E7F2 /* LaunchScreen.storyboard */,
 				2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */,
 				2C0574801EDD9E8E00D9E7F2 /* Supporting Files */,
@@ -412,6 +417,9 @@
 							com.apple.BackgroundModes = {
 								enabled = 1;
 							};
+							com.apple.Push = {
+								enabled = 1;
+							};
 						};
 					};
 				};
@@ -440,6 +448,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C78EFA11F828C41008AFA74 /* CallViewController.xib in Resources */,
+				2C5435ED1FB1E5E8003D4222 /* GoogleService-Info.plist in Resources */,
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
 				2C0574931EDD9E8E00D9E7F2 /* LaunchScreen.storyboard in Resources */,
@@ -679,6 +688,7 @@
 			baseConfigurationReference = 8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = VideoCalls/VideoCalls.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -699,6 +709,7 @@
 			baseConfigurationReference = E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = VideoCalls/VideoCalls.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
