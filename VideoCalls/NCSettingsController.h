@@ -16,6 +16,8 @@ extern NSString * const kNCUserKey;
 extern NSString * const kNCUserDisplayNameKey;
 extern NSString * const kNCTokenKey;
 extern NSString * const kNCPushTokenKey;
+extern NSString * const kNCPNPublicKey;
+extern NSString * const kNCPNPrivateKey;
 
 
 @interface NCSettingsController : NSObject
@@ -25,6 +27,8 @@ extern NSString * const kNCPushTokenKey;
 @property (nonatomic, copy) NSString *ncUserDisplayName;
 @property (nonatomic, copy) NSString *ncToken;
 @property (nonatomic, copy) NSString *ncPushToken;
+@property (nonatomic, copy) NSData *ncPNPublicKey;
+@property (nonatomic, copy) NSData *ncPNPrivateKey;
 
 + (instancetype)sharedInstance;
 - (void)cleanAllStoredValues;
