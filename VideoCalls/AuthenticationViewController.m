@@ -105,6 +105,8 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
         [[NCAPIController sharedInstance] setNCServer:_serverUrl];
         [[NCAPIController sharedInstance] setAuthHeaderWithUser:user andToken:token];
         
+        [[NCSettingsController sharedInstance] generatePushNotificationsKeyPair];
+        
         // Get user display name
         [[NCAPIController sharedInstance] getUserProfileWithCompletionBlock:^(NSDictionary *userProfile, NSError *error, NSInteger errorCode) {
             if (!error) {
@@ -113,6 +115,35 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
                 [UICKeyChainStore setString:userDisplayName forKey:kNCUserDisplayNameKey];
             } else {
                 NSLog(@"Error while getting the user profile");
+            }
+        }];
+        
+        // Subscribe to NC server
+        [[NCAPIController sharedInstance] subscribeToNextcloudServer:^(NSDictionary *responseDict, NSError *error, NSInteger errorCode) {
+            if (!error) {
+                NSLog(@"Subscribed to NC server successfully.");
+                
+                NSString *publicKey = [responseDict objectForKey:@"publicKey"];
+                NSString *deviceIdentifier = [responseDict objectForKey:@"deviceIdentifier"];
+                NSString *signature = [responseDict objectForKey:@"signature"];
+
+                [NCSettingsController sharedInstance].ncUserPublicKey = publicKey;
+                [NCSettingsController sharedInstance].ncDeviceIdentifier = deviceIdentifier;
+                [NCSettingsController sharedInstance].ncDeviceSignature = signature;
+                
+                [UICKeyChainStore setString:publicKey forKey:kNCUserPublicKey];
+                [UICKeyChainStore setString:deviceIdentifier forKey:kNCDeviceIdentifier];
+                [UICKeyChainStore setString:signature forKey:kNCDeviceSignature];
+                
+                [[NCAPIController sharedInstance] subscribeToPushServer:^(NSError *error, NSInteger errorCode) {
+                    if (!error) {
+                        NSLog(@"Subscribed to Push Notification server successfully.");
+                    } else {
+                        NSLog(@"Error while subscribing to Push Notification server.");
+                    }
+                }];
+            } else {
+                NSLog(@"Error while subscribing to NC server.");
             }
         }];
         

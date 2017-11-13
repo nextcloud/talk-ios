@@ -16,8 +16,12 @@ extern NSString * const kNCUserKey;
 extern NSString * const kNCUserDisplayNameKey;
 extern NSString * const kNCTokenKey;
 extern NSString * const kNCPushTokenKey;
+extern NSString * const kNCPushServer;
 extern NSString * const kNCPNPublicKey;
 extern NSString * const kNCPNPrivateKey;
+extern NSString * const kNCDeviceIdentifier;
+extern NSString * const kNCDeviceSignature;
+extern NSString * const kNCUserPublicKey;
 
 
 @interface NCSettingsController : NSObject
@@ -29,8 +33,13 @@ extern NSString * const kNCPNPrivateKey;
 @property (nonatomic, copy) NSString *ncPushToken;
 @property (nonatomic, copy) NSData *ncPNPublicKey;
 @property (nonatomic, copy) NSData *ncPNPrivateKey;
+@property (nonatomic, copy) NSString *ncDeviceIdentifier;
+@property (nonatomic, copy) NSString *ncDeviceSignature;
+@property (nonatomic, copy) NSString *ncUserPublicKey;
 
 + (instancetype)sharedInstance;
-- (void)cleanAllStoredValues;
+- (void)cleanUserAndServerStoredValues;
+- (BOOL)generatePushNotificationsKeyPair;
+- (NSString *)pushTokenSHA512;
 
 @end

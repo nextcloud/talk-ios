@@ -34,6 +34,11 @@ typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSE
 
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error, NSInteger errorCode);
 
+typedef void (^SubscribeToNextcloudServerCompletionBlock)(NSDictionary *responseDict, NSError *error, NSInteger errorCode);
+typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error, NSInteger errorCode);
+typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error, NSInteger errorCode);
+typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error, NSInteger errorCode);
+
 
 @interface NCAPIController : NSObject
 
@@ -73,6 +78,13 @@ typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError
 
 // User Profile
 - (void)getUserProfileWithCompletionBlock:(GetUserProfileCompletionBlock)block;
+
+// Push Notifications
+- (void)subscribeToNextcloudServer:(SubscribeToNextcloudServerCompletionBlock)block;
+- (void)unsubscribeToNextcloudServer:(UnsubscribeToNextcloudServerCompletionBlock)block;
+- (void)subscribeToPushServer:(SubscribeToPushProxyCompletionBlock)block;
+- (void)unsubscribeToPushServer:(UnsubscribeToPushProxyCompletionBlock)block;
+
 
 //Utils
 - (void)cancelAllOperations;

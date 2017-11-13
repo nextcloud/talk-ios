@@ -9,6 +9,7 @@
 #import "SettingsViewController.h"
 
 #import "NCSettingsController.h"
+#import "NCAPIController.h"
 
 typedef enum SettingsSection {
     kSettingsSectionServer = 0,
@@ -106,7 +107,24 @@ typedef enum SettingsSection {
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == kSettingsSectionLogout) {
-        [[NCSettingsController sharedInstance] cleanAllStoredValues];
+        if ([[NCSettingsController sharedInstance] ncDeviceIdentifier]) {
+            [[NCAPIController sharedInstance] unsubscribeToNextcloudServer:^(NSError *error, NSInteger errorCode) {
+                if (!error) {
+                    NSLog(@"Unsubscribed from NC server!!!");
+                } else {
+                    NSLog(@"Error while unsubscribing from NC server.");
+                }
+            }];
+            [[NCAPIController sharedInstance] unsubscribeToPushServer:^(NSError *error, NSInteger errorCode) {
+                if (!error) {
+                    NSLog(@"Unsubscribed from Push Notification server!!!");
+                } else {
+                    NSLog(@"Error while unsubscribing from Push Notification server.");
+                }
+            }];
+        }
+        
+        [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
         [self dismissViewControllerAnimated:true completion:nil];
     }
 }

@@ -12,6 +12,8 @@
 #import <openssl/pem.h>
 #import <openssl/bio.h>
 #import <openssl/bn.h>
+#import <openssl/sha.h>
+#import <CommonCrypto/CommonDigest.h>
 
 #import "NCAPIController.h"
 
@@ -22,8 +24,12 @@ NSString * const kNCUserKey             = @"ncUser";
 NSString * const kNCUserDisplayNameKey  = @"ncUserDisplayName";
 NSString * const kNCTokenKey            = @"ncToken";
 NSString * const kNCPushTokenKey        = @"ncPushToken";
+NSString * const kNCPushServer          = @"https://push-notifications.nextcloud.com";
 NSString * const kNCPNPublicKey         = @"ncPNPublicKey";
 NSString * const kNCPNPrivateKey        = @"ncPNPrivateKey";
+NSString * const kNCDeviceIdentifier    = @"ncDeviceIdentifier";
+NSString * const kNCDeviceSignature     = @"ncDeviceSignature";
+NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
 
 + (NCSettingsController *)sharedInstance
 {
@@ -44,6 +50,8 @@ NSString * const kNCPNPrivateKey        = @"ncPNPrivateKey";
     return self;
 }
 
+#pragma mark - KeyChain
+
 - (void)readValuesFromKeyChain
 {
     _ncServer = [UICKeyChainStore stringForKey:kNCServerKey];
@@ -53,27 +61,38 @@ NSString * const kNCPNPrivateKey        = @"ncPNPrivateKey";
     _ncPushToken = [UICKeyChainStore stringForKey:kNCPushTokenKey];
     _ncPNPublicKey = [UICKeyChainStore dataForKey:kNCPNPublicKey];
     _ncPNPrivateKey = [UICKeyChainStore dataForKey:kNCPNPrivateKey];
-    
-    if (!_ncPNPublicKey) {
-        [self generatePushNotificationsKeyPair];
-    }
+    _ncDeviceIdentifier = [UICKeyChainStore stringForKey:kNCDeviceIdentifier];
+    _ncDeviceSignature = [UICKeyChainStore stringForKey:kNCDeviceSignature];
+    _ncUserPublicKey = [UICKeyChainStore stringForKey:kNCUserPublicKey];
 }
 
-- (void)cleanAllStoredValues
+- (void)cleanUserAndServerStoredValues
 {
     _ncServer = nil;
     _ncUser = nil;
     _ncUserDisplayName = nil;
     _ncToken = nil;
-    _ncPushToken = nil;
     _ncPNPublicKey = nil;
     _ncPNPrivateKey = nil;
+    _ncUserPublicKey = nil;
+    _ncDeviceIdentifier = nil;
+    _ncDeviceSignature = nil;
     
-    [UICKeyChainStore removeAllItems];
+    [UICKeyChainStore removeItemForKey:kNCServerKey];
+    [UICKeyChainStore removeItemForKey:kNCUserKey];
+    [UICKeyChainStore removeItemForKey:kNCUserDisplayNameKey];
+    [UICKeyChainStore removeItemForKey:kNCTokenKey];
+    [UICKeyChainStore removeItemForKey:kNCPNPublicKey];
+    [UICKeyChainStore removeItemForKey:kNCPNPrivateKey];
+    [UICKeyChainStore removeItemForKey:kNCDeviceIdentifier];
+    [UICKeyChainStore removeItemForKey:kNCDeviceSignature];
+    [UICKeyChainStore removeItemForKey:kNCUserPublicKey];
     
 #warning TODO - Restore NCAPIController in a diferent way
     [[NCAPIController sharedInstance] setAuthHeaderWithUser:NULL andToken:NULL];
 }
+
+#pragma mark - Push Notifications
 
 - (BOOL)generatePushNotificationsKeyPair
 {
@@ -144,6 +163,26 @@ cleanup:
     BN_free(bigNumber);
     
     return pkey;
+}
+
+- (NSString *)pushTokenSHA512
+{
+    return [self createSHA512:_ncPushToken];
+}
+
+#pragma mark - Utils
+
+- (NSString *)createSHA512:(NSString *)string
+{
+    const char *cstr = [string cStringUsingEncoding:NSUTF8StringEncoding];
+    NSData *data = [NSData dataWithBytes:cstr length:string.length];
+    uint8_t digest[CC_SHA512_DIGEST_LENGTH];
+    CC_SHA512(data.bytes, (unsigned int)data.length, digest);
+    NSMutableString* output = [NSMutableString  stringWithCapacity:CC_SHA512_DIGEST_LENGTH * 2];
+    
+    for(int i = 0; i < CC_SHA512_DIGEST_LENGTH; i++)
+        [output appendFormat:@"%02x", digest[i]];
+    return output;
 }
 
 @end

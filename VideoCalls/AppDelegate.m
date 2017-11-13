@@ -101,6 +101,7 @@
 {
     NSLog(@"FCM registration token: %@", fcmToken);
     [NCSettingsController sharedInstance].ncPushToken = fcmToken;
+    [UICKeyChainStore setString:fcmToken forKey:kNCPushTokenKey];
 }
 
 
