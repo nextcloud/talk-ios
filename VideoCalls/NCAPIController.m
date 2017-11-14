@@ -449,6 +449,101 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     }];
 }
 
+#pragma mark - Push Notifications
+
+- (void)subscribeToNextcloudServer:(SubscribeToNextcloudServerCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/push", _serverUrl];
+    NSString *devicePublicKey = [[NSString alloc] initWithData:[NCSettingsController sharedInstance].ncPNPublicKey encoding:NSUTF8StringEncoding];
+    
+    NSDictionary *parameters = @{@"pushTokenHash" : [[NCSettingsController sharedInstance] pushTokenSHA512],
+                                 @"devicePublicKey" : devicePublicKey,
+                                 @"proxyServer" : kNCPushServer
+                                 };
+    
+    [_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        NSDictionary *responseDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            block(responseDict, nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error, [operation.response statusCode]);
+        }
+    }];
+}
+- (void)unsubscribeToNextcloudServer:(UnsubscribeToNextcloudServerCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/push", _serverUrl];
+    
+    [_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        if (block) {
+            block(nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(error, [operation.response statusCode]);
+        }
+    }];
+}
+- (void)subscribeToPushServer:(SubscribeToPushProxyCompletionBlock)block
+{
+    AFHTTPRequestOperationManager *manager = [[AFHTTPRequestOperationManager alloc] init];
+    manager.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
+    manager.responseSerializer = [[AFHTTPResponseSerializer alloc] init];
+    
+    AFSecurityPolicy* policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
+    manager.securityPolicy = policy;
+    manager.securityPolicy.allowInvalidCertificates = YES;
+    manager.securityPolicy.validatesDomainName = NO;
+    
+    NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
+    
+    NSDictionary *parameters = @{@"pushToken" : [NCSettingsController sharedInstance].ncPushToken,
+                                 @"deviceIdentifier" : [NCSettingsController sharedInstance].ncDeviceIdentifier,
+                                 @"deviceIdentifierSignature" : [NCSettingsController sharedInstance].ncDeviceSignature,
+                                 @"userPublicKey" : [NCSettingsController sharedInstance].ncUserPublicKey
+                                 };
+    
+    [manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        if (block) {
+            block(nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(error, [operation.response statusCode]);
+        }
+    }];
+}
+- (void)unsubscribeToPushServer:(UnsubscribeToPushProxyCompletionBlock)block
+{
+    AFHTTPRequestOperationManager *manager = [[AFHTTPRequestOperationManager alloc] init];
+    manager.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
+    manager.responseSerializer = [[AFHTTPResponseSerializer alloc] init];
+    
+    AFSecurityPolicy* policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
+    manager.securityPolicy = policy;
+    manager.securityPolicy.allowInvalidCertificates = YES;
+    manager.securityPolicy.validatesDomainName = NO;
+    
+    NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
+
+    NSDictionary *parameters = @{@"deviceIdentifier" : [NCSettingsController sharedInstance].ncDeviceIdentifier,
+                                 @"deviceIdentifierSignature" : [NCSettingsController sharedInstance].ncDeviceSignature,
+                                 @"userPublicKey" : [NCSettingsController sharedInstance].ncUserPublicKey
+                                 };
+
+    [manager DELETE:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        if (block) {
+            block(nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(error, [operation.response statusCode]);
+        }
+    }];
+}
+
 #pragma mark - Utils
 
 - (void)cancelAllOperations
