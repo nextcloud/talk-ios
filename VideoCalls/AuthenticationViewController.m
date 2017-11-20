@@ -98,9 +98,12 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
         [NCSettingsController sharedInstance].ncUser = user;
         [NCSettingsController sharedInstance].ncToken = token;
         
-        [UICKeyChainStore setString:_serverUrl forKey:kNCServerKey];
-        [UICKeyChainStore setString:user forKey:kNCUserKey];
-        [UICKeyChainStore setString:token forKey:kNCTokenKey];
+        UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
+                                                                    accessGroup:@"group.com.nextcloud.Talk"];
+        
+        [keychain setString:_serverUrl forKey:kNCServerKey];
+        [keychain setString:user forKey:kNCUserKey];
+        [keychain setString:token forKey:kNCTokenKey];
         
         [[NCAPIController sharedInstance] setNCServer:_serverUrl];
         [[NCAPIController sharedInstance] setAuthHeaderWithUser:user andToken:token];
@@ -112,7 +115,7 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
             if (!error) {
                 NSString *userDisplayName = [userProfile objectForKey:@"displayname"];
                 [NCSettingsController sharedInstance].ncUserDisplayName = userDisplayName;
-                [UICKeyChainStore setString:userDisplayName forKey:kNCUserDisplayNameKey];
+                [keychain setString:userDisplayName forKey:kNCUserDisplayNameKey];
             } else {
                 NSLog(@"Error while getting the user profile");
             }
@@ -131,9 +134,9 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
                 [NCSettingsController sharedInstance].ncDeviceIdentifier = deviceIdentifier;
                 [NCSettingsController sharedInstance].ncDeviceSignature = signature;
                 
-                [UICKeyChainStore setString:publicKey forKey:kNCUserPublicKey];
-                [UICKeyChainStore setString:deviceIdentifier forKey:kNCDeviceIdentifier];
-                [UICKeyChainStore setString:signature forKey:kNCDeviceSignature];
+                [keychain setString:publicKey forKey:kNCUserPublicKey];
+                [keychain setString:deviceIdentifier forKey:kNCDeviceIdentifier];
+                [keychain setString:signature forKey:kNCDeviceSignature];
                 
                 [[NCAPIController sharedInstance] subscribeToPushServer:^(NSError *error, NSInteger errorCode) {
                     if (!error) {

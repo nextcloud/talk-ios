@@ -13,9 +13,16 @@
 #import <openssl/bio.h>
 #import <openssl/bn.h>
 #import <openssl/sha.h>
+#import <openssl/err.h>
 #import <CommonCrypto/CommonDigest.h>
-
 #import "NCAPIController.h"
+
+@interface NCSettingsController ()
+{
+    UICKeyChainStore *_keychain;
+}
+
+@end
 
 @implementation NCSettingsController
 
@@ -45,6 +52,8 @@ NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
 {
     self = [super init];
     if (self) {
+        _keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
+                                                   accessGroup:@"group.com.nextcloud.Talk"];
         [self readValuesFromKeyChain];
     }
     return self;
@@ -54,16 +63,16 @@ NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
 
 - (void)readValuesFromKeyChain
 {
-    _ncServer = [UICKeyChainStore stringForKey:kNCServerKey];
-    _ncUser = [UICKeyChainStore stringForKey:kNCUserKey];
-    _ncUserDisplayName = [UICKeyChainStore stringForKey:kNCUserDisplayNameKey];
-    _ncToken = [UICKeyChainStore stringForKey:kNCTokenKey];
-    _ncPushToken = [UICKeyChainStore stringForKey:kNCPushTokenKey];
-    _ncPNPublicKey = [UICKeyChainStore dataForKey:kNCPNPublicKey];
-    _ncPNPrivateKey = [UICKeyChainStore dataForKey:kNCPNPrivateKey];
-    _ncDeviceIdentifier = [UICKeyChainStore stringForKey:kNCDeviceIdentifier];
-    _ncDeviceSignature = [UICKeyChainStore stringForKey:kNCDeviceSignature];
-    _ncUserPublicKey = [UICKeyChainStore stringForKey:kNCUserPublicKey];
+    _ncServer = [_keychain stringForKey:kNCServerKey];
+    _ncUser = [_keychain stringForKey:kNCUserKey];
+    _ncUserDisplayName = [_keychain stringForKey:kNCUserDisplayNameKey];
+    _ncToken = [_keychain stringForKey:kNCTokenKey];
+    _ncPushToken = [_keychain stringForKey:kNCPushTokenKey];
+    _ncPNPublicKey = [_keychain dataForKey:kNCPNPublicKey];
+    _ncPNPrivateKey = [_keychain dataForKey:kNCPNPrivateKey];
+    _ncDeviceIdentifier = [_keychain stringForKey:kNCDeviceIdentifier];
+    _ncDeviceSignature = [_keychain stringForKey:kNCDeviceSignature];
+    _ncUserPublicKey = [_keychain stringForKey:kNCUserPublicKey];
 }
 
 - (void)cleanUserAndServerStoredValues
@@ -78,15 +87,15 @@ NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
     _ncDeviceIdentifier = nil;
     _ncDeviceSignature = nil;
     
-    [UICKeyChainStore removeItemForKey:kNCServerKey];
-    [UICKeyChainStore removeItemForKey:kNCUserKey];
-    [UICKeyChainStore removeItemForKey:kNCUserDisplayNameKey];
-    [UICKeyChainStore removeItemForKey:kNCTokenKey];
-    [UICKeyChainStore removeItemForKey:kNCPNPublicKey];
-    [UICKeyChainStore removeItemForKey:kNCPNPrivateKey];
-    [UICKeyChainStore removeItemForKey:kNCDeviceIdentifier];
-    [UICKeyChainStore removeItemForKey:kNCDeviceSignature];
-    [UICKeyChainStore removeItemForKey:kNCUserPublicKey];
+    [_keychain removeItemForKey:kNCServerKey];
+    [_keychain removeItemForKey:kNCUserKey];
+    [_keychain removeItemForKey:kNCUserDisplayNameKey];
+    [_keychain removeItemForKey:kNCTokenKey];
+    [_keychain removeItemForKey:kNCPNPublicKey];
+    [_keychain removeItemForKey:kNCPNPrivateKey];
+    [_keychain removeItemForKey:kNCDeviceIdentifier];
+    [_keychain removeItemForKey:kNCDeviceSignature];
+    [_keychain removeItemForKey:kNCUserPublicKey];
     
 #warning TODO - Restore NCAPIController in a diferent way
     [[NCAPIController sharedInstance] setAuthHeaderWithUser:NULL andToken:NULL];
@@ -116,7 +125,7 @@ NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
     
     BIO_read(publicKeyBIO, keyBytes, len);
     _ncPNPublicKey = [NSData dataWithBytes:keyBytes length:len];
-    [UICKeyChainStore setData:_ncPNPublicKey forKey:kNCPNPublicKey];
+    [_keychain setData:_ncPNPublicKey forKey:kNCPNPublicKey];
     NSLog(@"Push Notifications Key Pair generated: \n%@", [[NSString alloc] initWithData:_ncPNPublicKey encoding:NSUTF8StringEncoding]);
     
     // PrivateKey
@@ -128,7 +137,7 @@ NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
     
     BIO_read(privateKeyBIO, keyBytes, len);
     _ncPNPrivateKey = [NSData dataWithBytes:keyBytes length:len];
-    [UICKeyChainStore setData:_ncPNPrivateKey forKey:kNCPNPrivateKey];
+    [_keychain setData:_ncPNPrivateKey forKey:kNCPNPrivateKey];
     
     EVP_PKEY_free(pkey);
     
@@ -163,6 +172,42 @@ cleanup:
     BN_free(bigNumber);
     
     return pkey;
+}
+
+- (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey
+{
+    NSString *privateKeyString = [[NSString alloc] initWithData:privateKey encoding:NSUTF8StringEncoding];
+    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:message options:0];
+    char *privKey = (char *)[privateKeyString UTF8String];
+    
+    // Get Device Private Key from PEM
+    BIO *bio = BIO_new(BIO_s_mem());
+    BIO_write(bio, privKey, (int)strlen(privKey));
+    
+    EVP_PKEY* pkey = 0;
+    PEM_read_bio_PrivateKey(bio, &pkey, 0, 0);
+    
+    RSA* rsa = EVP_PKEY_get1_RSA(pkey);
+    
+    // Decrypt the message
+    unsigned char *decrypted = (unsigned char *) malloc(4096);
+    
+    int decrypted_length = RSA_private_decrypt((int)[decodedData length], [decodedData bytes], decrypted, rsa, RSA_PKCS1_PADDING);
+    if(decrypted_length == -1) {
+        char buffer[500];
+        ERR_error_string(ERR_get_error(), buffer);
+        NSLog(@"%@",[NSString stringWithUTF8String:buffer]);
+        return nil;
+    }
+    
+    NSString *decryptString = [[NSString alloc] initWithBytes:decrypted length:decrypted_length encoding:NSUTF8StringEncoding];
+    
+    if (decrypted)
+        free(decrypted);
+    free(bio);
+    free(rsa);
+    
+    return decryptString;
 }
 
 - (NSString *)pushTokenSHA512

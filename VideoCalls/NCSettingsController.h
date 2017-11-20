@@ -41,5 +41,6 @@ extern NSString * const kNCUserPublicKey;
 - (void)cleanUserAndServerStoredValues;
 - (BOOL)generatePushNotificationsKeyPair;
 - (NSString *)pushTokenSHA512;
+- (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
 
 @end

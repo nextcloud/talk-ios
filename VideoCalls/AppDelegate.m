@@ -63,7 +63,6 @@
     return YES;
 }
 
-
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -101,7 +100,9 @@
 {
     NSLog(@"FCM registration token: %@", fcmToken);
     [NCSettingsController sharedInstance].ncPushToken = fcmToken;
-    [UICKeyChainStore setString:fcmToken forKey:kNCPushTokenKey];
+    UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
+                                                                accessGroup:@"group.com.nextcloud.Talk"];
+    [keychain setString:fcmToken forKey:kNCPushTokenKey];
 }
 
 

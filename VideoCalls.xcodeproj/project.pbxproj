@@ -14,6 +14,15 @@
 		2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */; };
 		2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
+		2C3F6AA81FBB1ACD00E2705C /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3F6AA71FBB1ACD00E2705C /* NotificationService.m */; };
+		2C3F6AAC1FBB1ACD00E2705C /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2C3F6AB31FBB45E600E2705C /* NCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */; };
+		2C3F6AB41FBB45FD00E2705C /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60131FB4A9DA006E87EF /* libcrypto.a */; };
+		2C3F6AB51FBB460100E2705C /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60141FB4A9DA006E87EF /* libssl.a */; };
+		2C3F6AB61FBB47B800E2705C /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
+		2C3F6AB71FBB47C400E2705C /* UICKeyChainStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */; };
+		2C3F6AB81FBB4C9500E2705C /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
+		2C3F6AB91FBB4C9D00E2705C /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
 		2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
 		2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
 		2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
@@ -54,8 +63,33 @@
 		2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
 		2CB5D0531FB4D1FD00D7A5B7 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60141FB4A9DA006E87EF /* libssl.a */; };
 		2CB5D0541FB4D20B00D7A5B7 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60131FB4A9DA006E87EF /* libcrypto.a */; };
+		85032FFE8557E8F29A3C79B8 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49EC325ACC97A400B9FAFA27 /* libPods-NotificationServiceExtension.a */; };
 		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2C3F6AAA1FBB1ACD00E2705C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2C3F6AA31FBB1ACC00E2705C;
+			remoteInfo = NotificationServiceExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2C3F6AAC1FBB1ACD00E2705C /* NotificationServiceExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2C05747D1EDD9E8E00D9E7F2 /* VideoCalls.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoCalls.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,6 +104,10 @@
 		2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoginViewController.xib; sourceTree = "<group>"; };
 		2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSignalingMessage.h; sourceTree = "<group>"; };
 		2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCSignalingMessage.m; sourceTree = "<group>"; };
+		2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C3F6AA61FBB1ACD00E2705C /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
+		2C3F6AA71FBB1ACD00E2705C /* NotificationService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
+		2C3F6AA91FBB1ACD00E2705C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2C4D7D611F2F7C2C00FF4A0D /* ARDCaptureController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDCaptureController.h; sourceTree = "<group>"; };
 		2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDCaptureController.m; sourceTree = "<group>"; };
 		2C4D7D641F2F7DBC00FF4A0D /* ARDSettingsModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSettingsModel.h; sourceTree = "<group>"; };
@@ -212,7 +250,11 @@
 		2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContactsTableViewCell.xib; sourceTree = "<group>"; };
 		2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoomTableViewCell.h; sourceTree = "<group>"; };
 		2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoomTableViewCell.m; sourceTree = "<group>"; };
+		2CF6F5E21FC211EC00E4EFAA /* NotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationServiceExtension.entitlements; sourceTree = "<group>"; };
+		49EC325ACC97A400B9FAFA27 /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5EF849CBD848BB3194C0D885 /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VideoCalls.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		73D489B0CDBE660CF768BABE /* Pods-NotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.debug.xcconfig"; sourceTree = "<group>"; };
 		E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -234,12 +276,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2C3F6AA11FBB1ACC00E2705C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C3F6AB51FBB460100E2705C /* libssl.a in Frameworks */,
+				2C3F6AB41FBB45FD00E2705C /* libcrypto.a in Frameworks */,
+				85032FFE8557E8F29A3C79B8 /* libPods-NotificationServiceExtension.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		2C0574741EDD9E8E00D9E7F2 = {
 			isa = PBXGroup;
 			children = (
+				2C3F6AA51FBB1ACC00E2705C /* NotificationServiceExtension */,
 				2C05747E1EDD9E8E00D9E7F2 /* Products */,
 				2C05749C1EDDA01700D9E7F2 /* ThirdParty */,
 				2C05747F1EDD9E8E00D9E7F2 /* VideoCalls */,
@@ -252,6 +305,7 @@
 			isa = PBXGroup;
 			children = (
 				2C05747D1EDD9E8E00D9E7F2 /* VideoCalls.app */,
+				2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -296,6 +350,17 @@
 				2CA1CC9B1F0161FB002FE6A2 /* UICKeyChainStore */,
 			);
 			name = ThirdParty;
+			sourceTree = "<group>";
+		};
+		2C3F6AA51FBB1ACC00E2705C /* NotificationServiceExtension */ = {
+			isa = PBXGroup;
+			children = (
+				2CF6F5E21FC211EC00E4EFAA /* NotificationServiceExtension.entitlements */,
+				2C3F6AA61FBB1ACD00E2705C /* NotificationService.h */,
+				2C3F6AA71FBB1ACD00E2705C /* NotificationService.m */,
+				2C3F6AA91FBB1ACD00E2705C /* Info.plist */,
+			);
+			path = NotificationServiceExtension;
 			sourceTree = "<group>";
 		};
 		2C4D7D601F2F7C2C00FF4A0D /* AppRTC */ = {
@@ -507,6 +572,7 @@
 				2C90E5661EDDE1340093D85A /* CoreGraphics.framework */,
 				2C90E5631EDDE0FB0093D85A /* Foundation.framework */,
 				6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */,
+				49EC325ACC97A400B9FAFA27 /* libPods-NotificationServiceExtension.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -535,6 +601,8 @@
 			children = (
 				8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */,
 				E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */,
+				5EF849CBD848BB3194C0D885 /* Pods-NotificationServiceExtension.debug.xcconfig */,
+				73D489B0CDBE660CF768BABE /* Pods-NotificationServiceExtension.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -553,15 +621,36 @@
 				29696B57B26EBF9C28436CE8 /* [CP] Embed Pods Frameworks */,
 				A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */,
 				2C8035721F950BA800501B5C /* ShellScript */,
+				2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				2C3F6AAB1FBB1ACD00E2705C /* PBXTargetDependency */,
 			);
 			name = VideoCalls;
 			productName = VideoCalls;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* VideoCalls.app */;
 			productType = "com.apple.product-type.application";
+		};
+		2C3F6AA31FBB1ACC00E2705C /* NotificationServiceExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C3F6AAF1FBB1ACD00E2705C /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */;
+			buildPhases = (
+				BD6E17ECE1FB7C457F620E30 /* [CP] Check Pods Manifest.lock */,
+				2C3F6AA01FBB1ACC00E2705C /* Sources */,
+				2C3F6AA11FBB1ACC00E2705C /* Frameworks */,
+				2C3F6AA21FBB1ACC00E2705C /* Resources */,
+				93097A6DB9AF5BB051C5E3E9 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NotificationServiceExtension;
+			productName = NotificationServiceExtension;
+			productReference = 2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -577,11 +666,30 @@
 						DevelopmentTeam = NKUJUXUJ3B;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
 							com.apple.BackgroundModes = {
 								enabled = 1;
 							};
+							com.apple.Keychain = {
+								enabled = 0;
+							};
 							com.apple.Push = {
 								enabled = 1;
+							};
+						};
+					};
+					2C3F6AA31FBB1ACC00E2705C = {
+						CreatedOnToolsVersion = 9.0.1;
+						DevelopmentTeam = NKUJUXUJ3B;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+							com.apple.Keychain = {
+								enabled = 0;
 							};
 						};
 					};
@@ -601,6 +709,7 @@
 			projectRoot = "";
 			targets = (
 				2C05747C1EDD9E8E00D9E7F2 /* VideoCalls */,
+				2C3F6AA31FBB1ACC00E2705C /* NotificationServiceExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -618,6 +727,13 @@
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C3F6AA21FBB1ACC00E2705C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -673,6 +789,21 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		93097A6DB9AF5BB051C5E3E9 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -689,6 +820,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BD6E17ECE1FB7C457F620E30 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-NotificationServiceExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -732,7 +881,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2C3F6AA01FBB1ACC00E2705C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C3F6AB61FBB47B800E2705C /* NCAPIController.m in Sources */,
+				2C3F6AB91FBB4C9D00E2705C /* NCUser.m in Sources */,
+				2C3F6AA81FBB1ACD00E2705C /* NotificationService.m in Sources */,
+				2C3F6AB31FBB45E600E2705C /* NCSettingsController.m in Sources */,
+				2C3F6AB71FBB47C400E2705C /* UICKeyChainStore.m in Sources */,
+				2C3F6AB81FBB4C9500E2705C /* NCRoom.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2C3F6AAB1FBB1ACD00E2705C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2C3F6AA31FBB1ACC00E2705C /* NotificationServiceExtension */;
+			targetProxy = 2C3F6AAA1FBB1ACD00E2705C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */ = {
@@ -932,6 +1102,80 @@
 			};
 			name = Release;
 		};
+		2C3F6AAD1FBB1ACD00E2705C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5EF849CBD848BB3194C0D885 /* Pods-NotificationServiceExtension.debug.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_C_LANGUAGE_STANDARD = c11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(PROJECT_DIR)/ThirdParty\"/**",
+				);
+				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/ThirdParty/openssl",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2C3F6AAE1FBB1ACD00E2705C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 73D489B0CDBE660CF768BABE /* Pods-NotificationServiceExtension.release.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_C_LANGUAGE_STANDARD = c11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(PROJECT_DIR)/ThirdParty\"/**",
+				);
+				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/ThirdParty/openssl",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -949,6 +1193,15 @@
 			buildConfigurations = (
 				2C0574981EDD9E8E00D9E7F2 /* Debug */,
 				2C0574991EDD9E8E00D9E7F2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2C3F6AAF1FBB1ACD00E2705C /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C3F6AAD1FBB1ACD00E2705C /* Debug */,
+				2C3F6AAE1FBB1ACD00E2705C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
