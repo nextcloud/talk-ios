@@ -42,13 +42,21 @@
     if (decryptedMessage) {
         NSData *data = [decryptedMessage dataUsingEncoding:NSUTF8StringEncoding];
         id messageJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        NSString *app = [messageJSON objectForKey:@"app"];
+        NSString *type = [messageJSON objectForKey:@"type"];
+        NSString *subject = [messageJSON objectForKey:@"subject"];
         
-        decryptedMessage = [messageJSON objectForKey:@"subject"];
-        self.bestAttemptContent.body = decryptedMessage;
-        
-        NSString *appId = [messageJSON objectForKey:@"app"];
-        if ([appId isEqualToString:@"spreed"]) {
-            self.bestAttemptContent.title = @"Talk notification 📞";
+        if ([app isEqualToString:@"spreed"]) {
+            self.bestAttemptContent.title = @"";
+            if ([type isEqualToString:@"call"]) {
+                self.bestAttemptContent.body = [NSString stringWithFormat:@"📞 %@", subject];
+            } else if ([type isEqualToString:@"room"]) {
+                self.bestAttemptContent.body = [NSString stringWithFormat:@"🔔 %@", subject];
+            } else if ([type isEqualToString:@"chat"]) {
+                self.bestAttemptContent.body = [NSString stringWithFormat:@"💬 %@", subject];
+            } else {
+                self.bestAttemptContent.body = subject;
+            }
         }
     }
     
