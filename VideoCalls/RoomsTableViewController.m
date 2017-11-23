@@ -500,7 +500,7 @@
     cell.labelSubTitle.text = [date timeAgoSinceNow];
     
     if (room.lastPing == 0) {
-        cell.labelSubTitle.text = @"Never";
+        cell.labelSubTitle.text = @"Never joined";
     }
     
     // Set room image
