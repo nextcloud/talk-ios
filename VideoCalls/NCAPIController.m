@@ -13,13 +13,13 @@
 
 NSString * const kNCOCSAPIVersion       = @"/ocs/v2.php";
 NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
-NSString * const kNCUserAgent           = @"Video Calls iOS";
 
 @interface NCAPIController ()
 {
     AFHTTPRequestOperationManager *_manager;
     NSString *_serverUrl;
     NSString *_authToken;
+    NSString *_userAgent;
 }
 
 @end
@@ -40,6 +40,9 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
 {
     self = [super init];
     if (self) {
+        _userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
+                      [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
+        
         _manager = [[AFHTTPRequestOperationManager alloc] init];
         _manager.responseSerializer = [[AFJSONResponseSerializer alloc] init];
         _manager.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
@@ -54,7 +57,7 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
         
         [_manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
         [_manager.requestSerializer setValue:@"true" forHTTPHeaderField:@"OCS-APIRequest"];
-        [_manager.requestSerializer setValue:kNCUserAgent forHTTPHeaderField:@"User-Agent"];
+        [_manager.requestSerializer setValue:_userAgent forHTTPHeaderField:@"User-Agent"];
     }
     return self;
 }
@@ -497,6 +500,8 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     manager.securityPolicy.allowInvalidCertificates = YES;
     manager.securityPolicy.validatesDomainName = NO;
     
+    [manager.requestSerializer setValue:_userAgent forHTTPHeaderField:@"User-Agent"];
+    
     NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
     
     NSDictionary *parameters = @{@"pushToken" : [NCSettingsController sharedInstance].ncPushToken,
@@ -525,6 +530,8 @@ NSString * const kNCUserAgent           = @"Video Calls iOS";
     manager.securityPolicy = policy;
     manager.securityPolicy.allowInvalidCertificates = YES;
     manager.securityPolicy.validatesDomainName = NO;
+    
+    [manager.requestSerializer setValue:_userAgent forHTTPHeaderField:@"User-Agent"];
     
     NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
 
