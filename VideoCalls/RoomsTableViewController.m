@@ -15,6 +15,7 @@
 #import "LoginViewController.h"
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
+#import "NCPushNotification.h"
 #import "NCSettingsController.h"
 #import "NSDate+DateTools.h"
 #import "UIImageView+Letters.h"
@@ -48,6 +49,7 @@
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loginHasBeenCompleted:) name:NCLoginCompletedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pushNotificationReceived:) name:NCPushNotificationReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkReachabilityHasChanged:) name:NCNetworkReachabilityHasChangedNotification object:nil];
 }
 
@@ -77,10 +79,40 @@
     }
 }
 
+- (void)pushNotificationReceived:(NSNotification *)notification
+{
+    NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:[notification.userInfo objectForKey:@"message"]];
+    NSLog(@"Push Notification received: %@", pushNotification);
+    if (!_currentCallToken) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self presentPushNotificationAlert:pushNotification];
+        }];
+    }
+}
+
 - (void)networkReachabilityHasChanged:(NSNotification *)notification
 {
     AFNetworkReachabilityStatus status = [[notification.userInfo objectForKey:kNCNetworkReachabilityKey] intValue];
     NSLog(@"Network Status:%ld", (long)status);
+}
+
+#pragma mark - Push Notification Actions
+
+- (void)presentPushNotificationAlert:(NCPushNotification *)pushNotification
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:[pushNotification titleForLocalAlerts]
+                                 message:[pushNotification subject]
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:@"OK"
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 #pragma mark - Interface Builder Actions
@@ -557,6 +589,7 @@
     if (![viewController isBeingDismissed]) {
         [self dismissViewControllerAnimated:YES completion:^{
             NSLog(@"Call view controller dismissed");
+            _currentCallToken = nil;
             // Enable sleep timer
             [UIApplication sharedApplication].idleTimerDisabled = NO;
         }];
