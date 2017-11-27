@@ -24,16 +24,16 @@ extern NSString * const kNCPNTypeRoomKey;
 extern NSString * const kNCPNTypeChatKey;
 
 extern NSString * const NCPushNotificationReceivedNotification;
+extern NSString * const NCPushNotificationJoinCallAcceptedNotification;
 
 @interface NCPushNotification : NSObject
 
 @property (nonatomic, copy) NSString *app;
 @property (nonatomic, assign) NCPushNotificationType type;
 @property (nonatomic, copy) NSString *subject;
-@property (nonatomic, copy) NSString *pnId;
+@property (nonatomic, assign) NSInteger pnId;
 
 + (instancetype)pushNotificationFromDecryptedString:(NSString *)decryptedString;
 - (NSString *)bodyForRemoteAlerts;
-- (NSString *)titleForLocalAlerts;
 
 @end

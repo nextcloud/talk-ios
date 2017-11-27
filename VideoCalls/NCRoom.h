@@ -24,7 +24,7 @@ typedef enum NCParticipantType {
 
 @interface NCRoom : NSObject
 
-@property (nonatomic, copy) NSString *roomId;
+@property (nonatomic, assign) NSInteger roomId;
 @property (nonatomic, copy) NSString *token;
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *displayName;

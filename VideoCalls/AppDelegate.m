@@ -78,9 +78,36 @@
     if (decryptedMessage) {
         NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage];
         if (pushNotification) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationReceivedNotification
-                                                                object:self
-                                                              userInfo:@{@"message":decryptedMessage}];
+            UIApplication *application = [UIApplication sharedApplication];
+            if (application.applicationState == UIApplicationStateInactive) {
+                UIAlertController * alert = [UIAlertController
+                                             alertControllerWithTitle:[pushNotification bodyForRemoteAlerts]
+                                             message:@"Do you want to join this call?"
+                                             preferredStyle:UIAlertControllerStyleAlert];
+                
+                UIAlertAction *joinButton = [UIAlertAction
+                                             actionWithTitle:@"Join call"
+                                             style:UIAlertActionStyleDefault
+                                             handler:^(UIAlertAction * _Nonnull action) {
+                                                 [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationJoinCallAcceptedNotification
+                                                                                                     object:self
+                                                                                                   userInfo:@{@"message":decryptedMessage}];
+                                             }];
+
+                UIAlertAction* cancelButton = [UIAlertAction
+                                               actionWithTitle:@"Cancel"
+                                               style:UIAlertActionStyleCancel
+                                               handler:nil];
+                
+                [alert addAction:joinButton];
+                [alert addAction:cancelButton];
+
+                [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+            } else {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationReceivedNotification
+                                                                    object:self
+                                                                  userInfo:@{@"message":decryptedMessage}];
+            }
         }
     }
     

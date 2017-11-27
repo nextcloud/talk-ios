@@ -19,7 +19,8 @@ NSString * const kNCPNTypeCallKey       = @"call";
 NSString * const kNCPNTypeRoomKey       = @"room";
 NSString * const kNCPNTypeChatKey       = @"chat";
 
-NSString * const NCPushNotificationReceivedNotification   = @"NCPushNotificationReceivedNotification";
+NSString * const NCPushNotificationReceivedNotification             = @"NCPushNotificationReceivedNotification";
+NSString * const NCPushNotificationJoinCallAcceptedNotification     = @"NCPushNotificationJoinCallAcceptedNotification";
 
 
 + (instancetype)pushNotificationFromDecryptedString:(NSString *)decryptedString
@@ -39,7 +40,7 @@ NSString * const NCPushNotificationReceivedNotification   = @"NCPushNotification
     NCPushNotification *pushNotification = [[NCPushNotification alloc] init];
     pushNotification.app = app;
     pushNotification.subject = [jsonDict objectForKey:kNCPNSubjectKey];
-    pushNotification.pnId = [jsonDict objectForKey:kNCPNAppIdKey];
+    pushNotification.pnId = [[jsonDict objectForKey:kNCPNIdKey] integerValue];
     
     NSString *type = [jsonDict objectForKey:kNCPNTypeKey];
     pushNotification.type = NCPushNotificationTypeUnknown;
@@ -68,24 +69,6 @@ NSString * const NCPushNotificationReceivedNotification   = @"NCPushNotification
             break;
         case NCPushNotificationTypeUnknown:
             return _subject;
-            break;
-    }
-}
-
-- (NSString *)titleForLocalAlerts
-{
-    switch (_type) {
-        case NCPushNotificationTypeCall:
-            return [NSString stringWithFormat:@"📞 %@", @"Call notification"];
-            break;
-        case NCPushNotificationTypeRoom:
-            return [NSString stringWithFormat:@"🔔 %@", @"Talk notification"];
-            break;
-        case NCPushNotificationTypeChat:
-            return [NSString stringWithFormat:@"💬 %@", @"Chat notification"];
-            break;
-        case NCPushNotificationTypeUnknown:
-            return @"";
             break;
     }
 }
