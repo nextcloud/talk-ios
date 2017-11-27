@@ -17,7 +17,7 @@
     }
     
     NCRoom *room = [[NCRoom alloc] init];
-    room.roomId = [roomDict objectForKey:@"id"];
+    room.roomId = [[roomDict objectForKey:@"id"] integerValue];
     room.token = [roomDict objectForKey:@"token"];
     room.name = [roomDict objectForKey:@"name"];
     room.displayName = [roomDict objectForKey:@"displayName"];

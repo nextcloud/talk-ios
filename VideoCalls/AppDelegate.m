@@ -16,6 +16,7 @@
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
+#import "NCPushNotification.h"
 #import "NCSettingsController.h"
 
 @interface AppDelegate () <UNUserNotificationCenterDelegate, FIRMessagingDelegate>
@@ -59,8 +60,58 @@
     RTCAudioSessionConfiguration *webRTCConfig = [RTCAudioSessionConfiguration webRTCConfiguration];
     webRTCConfig.categoryOptions = webRTCConfig.categoryOptions | AVAudioSessionCategoryOptionDefaultToSpeaker;
     [RTCAudioSessionConfiguration setWebRTCConfiguration:webRTCConfig];
-
+    
     return YES;
+}
+
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
+{
+    //Called when a notification is delivered to a foreground app.
+    completionHandler(UNNotificationPresentationOptionAlert);
+}
+
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(nonnull UNNotificationResponse *)response withCompletionHandler:(nonnull void (^)(void))completionHandler
+{
+    //Called to let your app know which action was selected by the user for a given notification.
+    NSString *message = [response.notification.request.content.userInfo objectForKey:@"subject"];
+    NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:[NCSettingsController sharedInstance].ncPNPrivateKey];
+    if (decryptedMessage) {
+        NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage];
+        if (pushNotification) {
+            UIApplication *application = [UIApplication sharedApplication];
+            if (application.applicationState == UIApplicationStateInactive) {
+                UIAlertController * alert = [UIAlertController
+                                             alertControllerWithTitle:[pushNotification bodyForRemoteAlerts]
+                                             message:@"Do you want to join this call?"
+                                             preferredStyle:UIAlertControllerStyleAlert];
+                
+                UIAlertAction *joinButton = [UIAlertAction
+                                             actionWithTitle:@"Join call"
+                                             style:UIAlertActionStyleDefault
+                                             handler:^(UIAlertAction * _Nonnull action) {
+                                                 [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationJoinCallAcceptedNotification
+                                                                                                     object:self
+                                                                                                   userInfo:@{@"message":decryptedMessage}];
+                                             }];
+
+                UIAlertAction* cancelButton = [UIAlertAction
+                                               actionWithTitle:@"Cancel"
+                                               style:UIAlertActionStyleCancel
+                                               handler:nil];
+                
+                [alert addAction:joinButton];
+                [alert addAction:cancelButton];
+
+                [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+            } else {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationReceivedNotification
+                                                                    object:self
+                                                                  userInfo:@{@"message":decryptedMessage}];
+            }
+        }
+    }
+    
+    completionHandler();
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

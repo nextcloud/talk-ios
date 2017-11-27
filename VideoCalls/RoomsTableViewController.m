@@ -15,6 +15,7 @@
 #import "LoginViewController.h"
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
+#import "NCPushNotification.h"
 #import "NCSettingsController.h"
 #import "NSDate+DateTools.h"
 #import "UIImageView+Letters.h"
@@ -48,6 +49,8 @@
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loginHasBeenCompleted:) name:NCLoginCompletedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pushNotificationReceived:) name:NCPushNotificationReceivedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinCallAccepted:) name:NCPushNotificationJoinCallAcceptedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkReachabilityHasChanged:) name:NCNetworkReachabilityHasChangedNotification object:nil];
 }
 
@@ -77,10 +80,91 @@
     }
 }
 
+- (void)pushNotificationReceived:(NSNotification *)notification
+{
+    NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:[notification.userInfo objectForKey:@"message"]];
+    NSLog(@"Push Notification received: %@", pushNotification);
+    if (!_currentCallToken) {
+        if (self.presentedViewController) {
+            [self dismissViewControllerAnimated:YES completion:^{
+                [self presentPushNotificationAlert:pushNotification];
+            }];
+        } else {
+            [self presentPushNotificationAlert:pushNotification];
+        }
+    }
+}
+
+- (void)joinCallAccepted:(NSNotification *)notification
+{
+    NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:[notification.userInfo objectForKey:@"message"]];
+    [self joinCallWithCallId:pushNotification.pnId];
+}
+
 - (void)networkReachabilityHasChanged:(NSNotification *)notification
 {
     AFNetworkReachabilityStatus status = [[notification.userInfo objectForKey:kNCNetworkReachabilityKey] intValue];
     NSLog(@"Network Status:%ld", (long)status);
+}
+
+#pragma mark - Push Notification Actions
+
+- (void)presentPushNotificationAlert:(NCPushNotification *)pushNotification
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:[pushNotification bodyForRemoteAlerts]
+                                 message:@"Do you want to join this call?"
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *joinButton = [UIAlertAction
+                                 actionWithTitle:@"Join call"
+                                 style:UIAlertActionStyleDefault
+                                 handler:^(UIAlertAction * _Nonnull action) {
+                                     [self joinCallWithCallId:pushNotification.pnId];
+                                 }];
+    
+    UIAlertAction* cancelButton = [UIAlertAction
+                                   actionWithTitle:@"Cancel"
+                                   style:UIAlertActionStyleCancel
+                                   handler:nil];
+    
+    [alert addAction:joinButton];
+    [alert addAction:cancelButton];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)joinCallWithCallId:(NSInteger)callId
+{
+    NSString *callToken = nil;
+    
+    if (_rooms) {
+        for (NCRoom *room in _rooms) {
+            if (room.roomId == callId) {
+                callToken = room.token;
+                [self presentCallViewControllerForCallToken:callToken];
+            }
+        }
+        
+        if (!callToken) {
+            [self searchForCallInServer:callId];
+        }
+    }
+}
+
+- (void)searchForCallInServer:(NSInteger)callId
+{
+    [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger errorCode) {
+        if (!error) {
+            for (NCRoom *room in rooms) {
+                if (room.roomId == callId) {
+                    [self presentCallViewControllerForCallToken:room.token];
+                }
+            }
+        } else {
+            NSLog(@"Error while searching for call: %@", error);
+        }
+    }];
 }
 
 #pragma mark - Interface Builder Actions
@@ -366,6 +450,18 @@
     }];
 }
 
+#pragma mark - Calls
+
+- (void)presentCallViewControllerForCallToken:(NSString *)token
+{
+    CallViewController *callVC = [[CallViewController alloc] initCallInRoom:token asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
+    callVC.delegate = self;
+    [self presentViewController:callVC animated:YES completion:^{
+        // Disable sleep timer
+        [UIApplication sharedApplication].idleTimerDisabled = YES;
+    }];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -541,13 +637,7 @@
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
     _currentCallToken = room.token;
-    CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room.token asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
-    callVC.delegate = self;
-    [self presentViewController:callVC animated:YES completion:^{
-        // Disable sleep timer
-        [UIApplication sharedApplication].idleTimerDisabled = YES;
-    }];
-    
+    [self presentCallViewControllerForCallToken:_currentCallToken];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
@@ -557,6 +647,7 @@
     if (![viewController isBeingDismissed]) {
         [self dismissViewControllerAnimated:YES completion:^{
             NSLog(@"Call view controller dismissed");
+            _currentCallToken = nil;
             // Enable sleep timer
             [UIApplication sharedApplication].idleTimerDisabled = NO;
         }];
