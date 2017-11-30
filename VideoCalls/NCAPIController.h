@@ -33,6 +33,7 @@ typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
 
 typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error, NSInteger errorCode);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error, NSInteger errorCode);
+typedef void (^GetSignalingSettingsCompletionBlock)(NSDictionary *settings, NSError *error, NSInteger errorCode);
 
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error, NSInteger errorCode);
 
@@ -76,6 +77,7 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error, NSInteger 
 // Signaling Controller
 - (void)sendSignalingMessages:(NSString *)messages withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
 - (void)pullSignalingMessagesWithCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
+- (void)getSignalingSettingsWithCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
 
 // User avatars
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId;

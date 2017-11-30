@@ -56,7 +56,7 @@
 @property (nonatomic, strong) RTCMediaStream *remoteStream;
 @property (nonatomic, assign) NSUInteger iceAttempts;
 
-- (instancetype)initWithSessionId:(NSString *)sessionId;
+- (instancetype)initWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers;
 - (void)addICECandidate:(RTCIceCandidate *)candidate;
 - (void)setRemoteDescription:(RTCSessionDescription *)sessionDescription;
 - (void)sendOffer;

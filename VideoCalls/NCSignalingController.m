@@ -9,16 +9,70 @@
 #import "NCSignalingController.h"
 
 #import "NCAPIController.h"
+#import <WebRTC/RTCIceServer.h>
 
 @interface NCSignalingController()
 {
     BOOL _shouldStopPullingMessages;
     NSTimer *_pingTimer;
+    NSDictionary *_signalingSettings;
 }
 
 @end
 
 @implementation NCSignalingController
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self getSignalingSettings];
+    }
+    return self;
+}
+
+- (void)getSignalingSettings
+{
+    [[NCAPIController sharedInstance] getSignalingSettingsWithCompletionBlock:^(NSDictionary *settings, NSError *error, NSInteger errorCode) {
+        if (error) {
+            //TODO: Error handling
+            NSLog(@"Error getting signaling settings.");
+        }
+        
+        if (settings) {
+            _signalingSettings = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
+        }
+    }];
+}
+
+- (NSArray *)getIceServers
+{
+    NSMutableArray *servers = [[NSMutableArray alloc] init];
+    
+    if (_signalingSettings) {
+        NSArray *stunServers = [_signalingSettings objectForKey:@"stunservers"];
+        for (NSDictionary *stunServer in stunServers) {
+            NSString *stunURL = [stunServer objectForKey:@"url"];
+            RTCIceServer *iceServer = [[RTCIceServer alloc] initWithURLStrings:@[stunURL]
+                                                                     username:@""
+                                                                   credential:@""];
+            [servers addObject:iceServer];
+        }
+        NSArray *turnServers = [_signalingSettings objectForKey:@"turnservers"];
+        for (NSDictionary *turnServer in turnServers) {
+            NSString *turnURL = [turnServer objectForKey:@"url"][0];
+            NSString *turnUserName = [turnServer objectForKey:@"username"];
+            NSString *turnCredential = [turnServer objectForKey:@"credential"];
+            RTCIceServer *iceServer = [[RTCIceServer alloc] initWithURLStrings:@[turnURL]
+                                                                      username:turnUserName
+                                                                    credential:turnCredential];
+            [servers addObject:iceServer];
+        }
+    }
+    
+    NSArray *iceServers = [NSArray arrayWithArray:servers];
+    return iceServers;
+}
 
 - (void)startPullingSignalingMessages
 {

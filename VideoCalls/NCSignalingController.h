@@ -22,6 +22,7 @@
 
 @property (nonatomic, weak) id<NCSignalingControllerObserver> observer;
 
+- (NSArray *)getIceServers;
 - (void)startPullingSignalingMessages;
 - (void)stopPullingSignalingMessages;
 - (void)sendSignalingMessage:(NCSignalingMessage *)message;
