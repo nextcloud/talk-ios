@@ -215,7 +215,8 @@ static NSString * const kNCVideoTrackKind = @"video";
         // Create peer connection.
         NSLog(@"Creating a peer for %@", sessionId);
         
-        peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId];
+        NSArray *iceServers = [_signalingController getIceServers];
+        peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId andICEServers:iceServers];
         peerConnectionWrapper.delegate = self;
         // TODO: Try to get display name here
         [peerConnectionWrapper.peerConnection addStream:_localStream];

@@ -422,6 +422,22 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     }];
 }
 
+- (void)getSignalingSettingsWithCompletionBlock:(GetSignalingSettingsCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:@"signaling/settings"];
+    
+    [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        NSDictionary *responseDict = responseObject;
+        if (block) {
+            block(responseDict, nil, [operation.response statusCode]);
+        }
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error, [operation.response statusCode]);
+        }
+    }];
+}
+
 #pragma mark - User avatars
 
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId

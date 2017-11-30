@@ -17,11 +17,9 @@
 #import <WebRTC/RTCMediaConstraints.h>
 #import <WebRTC/RTCMediaStream.h>
 
-static NSString *kDefaultSTUNServerUrl = @"stun:stun.nextcloud.com:443";
 
 @interface NCPeerConnection () <RTCPeerConnectionDelegate, RTCDataChannelDelegate>
 
-@property (nonatomic, strong) NSMutableArray *iceServers;
 @property (nonatomic, strong) RTCPeerConnectionFactory *peerConnectionFactory;
 @property (nonatomic, strong) NSMutableArray *queuedRemoteCandidates;
 
@@ -29,20 +27,19 @@ static NSString *kDefaultSTUNServerUrl = @"stun:stun.nextcloud.com:443";
 
 @implementation NCPeerConnection
 
-- (instancetype)initWithSessionId:(NSString *)sessionId
+- (instancetype)initWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers
 {
     self = [super init];
     
     if (self) {
         _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] init];
-        _iceServers = [NSMutableArray arrayWithObject:[self defaultSTUNServer]];
         
         RTCMediaConstraints* constraints = [[RTCMediaConstraints alloc]
                                             initWithMandatoryConstraints:nil
                                             optionalConstraints:nil];
         
         RTCConfiguration *config = [[RTCConfiguration alloc] init];
-        [config setIceServers:_iceServers];
+        [config setIceServers:iceServers];
         
         RTCPeerConnection *peerConnection = [_peerConnectionFactory peerConnectionWithConfiguration:config
                                                                                         constraints:constraints
@@ -55,12 +52,6 @@ static NSString *kDefaultSTUNServerUrl = @"stun:stun.nextcloud.com:443";
     }
     
     return self;
-}
-
-- (RTCIceServer *)defaultSTUNServer {
-    return [[RTCIceServer alloc] initWithURLStrings:@[kDefaultSTUNServerUrl]
-                                           username:@""
-                                         credential:@""];
 }
 
 #pragma mark - NSObject
