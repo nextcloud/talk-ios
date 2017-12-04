@@ -9,10 +9,11 @@
 #import "LoginViewController.h"
 
 #import "AuthenticationViewController.h"
+#import "CCCertificate.h"
 #import "NCAPIController.h"
 
 
-@interface LoginViewController () <UITextFieldDelegate>
+@interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate>
 
 @end
 
@@ -24,12 +25,19 @@
     
     self.appLogo.image = [UIImage imageNamed:@"loginLogo"];
     self.login.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    self.activityIndicatorView.color = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    self.activityIndicatorView.hidden = YES;
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskPortrait;
 }
 
 - (IBAction)login:(id)sender
@@ -53,29 +61,51 @@
         [storage deleteCookie:cookie];
     }
     
+    [self.activityIndicatorView startAnimating];
+    self.activityIndicatorView.hidden = NO;
+    
     [[NCAPIController sharedInstance] setNCServer:serverUrl];
-    [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger errorCode) {
-        if (errorCode == 401) {
-            AuthenticationViewController *authVC = [[AuthenticationViewController alloc] initWithServerUrl:serverUrl];
-            [self presentViewController:authVC animated:YES completion:nil];
-        } else {
-            UIAlertController * alert = [UIAlertController
-                                         alertControllerWithTitle:@"Video Calls app not found"
-                                         message:@"Please, check that you enter the correct Nextcloud server url and the Video Calls app is enabled in that instance."
-                                         preferredStyle:UIAlertControllerStyleAlert];
-            
-            
-            
-            UIAlertAction* okButton = [UIAlertAction
-                                       actionWithTitle:@"OK"
-                                       style:UIAlertActionStyleDefault
-                                       handler:nil];
-            
-            [alert addAction:okButton];
-            
-            [self presentViewController:alert animated:YES completion:nil];
+    [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
+        [self.activityIndicatorView stopAnimating];
+        self.activityIndicatorView.hidden = YES;
+        
+        if (error) {
+            // Self signed certificate
+            if ([error code] == NSURLErrorServerCertificateUntrusted) {
+                NSLog(@"Untrusted certificate");
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
+                });
+                
+            } else {
+                if (statusCode == 401) {
+                    AuthenticationViewController *authVC = [[AuthenticationViewController alloc] initWithServerUrl:serverUrl];
+                    [self presentViewController:authVC animated:YES completion:nil];
+                } else {
+                    UIAlertController * alert = [UIAlertController
+                                                 alertControllerWithTitle:@"Nextcloud Talk app not found"
+                                                 message:@"Please, check that you enter the correct Nextcloud server url and the Nextcloud Talk app is enabled in that instance."
+                                                 preferredStyle:UIAlertControllerStyleAlert];
+                    
+                    
+                    
+                    UIAlertAction* okButton = [UIAlertAction
+                                               actionWithTitle:@"OK"
+                                               style:UIAlertActionStyleDefault
+                                               handler:nil];
+                    
+                    [alert addAction:okButton];
+                    
+                    [self presentViewController:alert animated:YES completion:nil];
+                }
+            }
         }
     }];
+}
+
+- (void)trustedCerticateAccepted
+{
+    [self login:self];
 }
 
 -(BOOL) textFieldShouldReturn:(UITextField *)textField

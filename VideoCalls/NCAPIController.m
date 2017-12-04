@@ -8,15 +8,15 @@
 
 #import "NCAPIController.h"
 
-#import "AFNetworking.h"
+#import "NCAPISessionManager.h"
+#import "NCPushProxySessionManager.h"
 #import "NCSettingsController.h"
 
 NSString * const kNCOCSAPIVersion       = @"/ocs/v2.php";
 NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
-@interface NCAPIController ()
+@interface NCAPIController () <NSURLSessionTaskDelegate, NSURLSessionDelegate>
 {
-    AFHTTPRequestOperationManager *_manager;
     NSString *_serverUrl;
     NSString *_authToken;
     NSString *_userAgent;
@@ -36,32 +36,6 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return sharedInstance;
 }
 
-- (id)init
-{
-    self = [super init];
-    if (self) {
-        _userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
-                      [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
-        
-        _manager = [[AFHTTPRequestOperationManager alloc] init];
-        _manager.responseSerializer = [[AFJSONResponseSerializer alloc] init];
-        _manager.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
-        
-        _manager.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
-        _manager.responseSerializer = [[AFJSONResponseSerializer alloc] init];
-        
-        AFSecurityPolicy* policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
-        _manager.securityPolicy = policy;
-        _manager.securityPolicy.allowInvalidCertificates = YES;
-        _manager.securityPolicy.validatesDomainName = NO;
-        
-        [_manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-        [_manager.requestSerializer setValue:@"true" forHTTPHeaderField:@"OCS-APIRequest"];
-        [_manager.requestSerializer setValue:_userAgent forHTTPHeaderField:@"User-Agent"];
-    }
-    return self;
-}
-
 - (void)setNCServer:(NSString *)serverUrl
 {
     _serverUrl = serverUrl;
@@ -74,7 +48,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
     
     NSString *authHeader = [[NSString alloc]initWithFormat:@"Basic %@",base64Encoded];
-    [_manager.requestSerializer setValue:authHeader forHTTPHeaderField:@"Authorization"];
+    [[NCAPISessionManager sharedInstance].requestSerializer setValue:authHeader forHTTPHeaderField:@"Authorization"];
     
     _authToken = token;
 }
@@ -98,8 +72,8 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
                                  @"search" : search ? search : @"",
                                  @"perPage" : @"200",
                                  @"itemType" : @"call"};
-    
-    [_manager GET:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseUsers = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"users"];
         NSArray *responseExtactUsers = [[[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"exact"] objectForKey:@"users"];
         NSArray *responseContacts = [responseUsers arrayByAddingObjectsFromArray:responseExtactUsers];
@@ -111,11 +85,11 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
             }
         }
         if (block) {
-            block(users, nil, [operation.response statusCode]);
+            block(users, nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error, [operation.response statusCode]);
+            block(nil, error);
         }
     }];
 }
@@ -125,26 +99,32 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:@"room"];
-    
-    [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *rooms = [[NSMutableArray alloc] initWithCapacity:responseRooms.count];
         for (NSDictionary *room in responseRooms) {
             NCRoom *ncRoom = [NCRoom roomWithDictionary:room];
             [rooms addObject:ncRoom];
         }
-        
+
         // Sort by lastPing
         NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"lastPing" ascending:NO];
         NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];
         [rooms sortUsingDescriptors:descriptors];
         
+
         if (block) {
-            block(rooms, nil, [operation.response statusCode]);
+            block(rooms, nil, 0);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error, [operation.response statusCode]);
+            NSInteger statusCode = 0;
+            if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
+                NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+                statusCode = httpResponse.statusCode;
+            }
+            block(nil, error, statusCode);
         }
     }];
 }
@@ -152,15 +132,15 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)getRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", token]];
-    
-    [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *room = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
-            block(room, nil, [operation.response statusCode]);
+            block(room, nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error, [operation.response statusCode]);
+            block(nil, error);
         }
     }];
 }
@@ -172,15 +152,15 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     if (invite) {
         parameters = @{@"roomType" : @(type), @"invite" : invite};
     }
-    
-    [_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSString *token = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"token"];
         if (block) {
-            block(token, nil, [operation.response statusCode]);
+            block(token, nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error, [operation.response statusCode]);
+            block(nil, error);
         }
     }];
 }
@@ -189,14 +169,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", token]];
     NSDictionary *parameters = @{@"roomName" : newName};
-    
-    [_manager PUT:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -205,14 +185,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants", token]];
     NSDictionary *parameters = @{@"newParticipant" : user};
-    
-    [_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -220,14 +200,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)removeSelfFromRoom:(NSString *)token withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/self", token]];
-    
-    [_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -235,14 +215,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)makeRoomPublic:(NSString *)token withCompletionBlock:(MakeRoomPublicCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/public", token]];
-    
-    [_manager POST:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -250,14 +230,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)makeRoomPrivate:(NSString *)token withCompletionBlock:(MakeRoomPrivateCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/public", token]];
-    
-    [_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -265,14 +245,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)deleteRoom:(NSString *)token withCompletionBlock:(DeleteRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", token]];
-    
-    [_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -281,14 +261,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/password", token]];
     NSDictionary *parameters = @{@"password" : password};
-    
-    [_manager PUT:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -296,15 +276,15 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)joinRoom:(NSString *)token withCompletionBlock:(JoinRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/active", token]];
-    
-    [_manager POST:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSString *sessionId = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"sessionId"];
         if (block) {
-            block(sessionId, nil, [operation.response statusCode]);
+            block(sessionId, nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error, [operation.response statusCode]);
+            block(nil, error);
         }
     }];
 }
@@ -312,14 +292,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)exitRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/active", token]];
-    
-    [_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -329,16 +309,16 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)getPeersForCall:(NSString *)token withCompletionBlock:(GetPeersForCallCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"call/%@", token]];
-    
-    [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responsePeers = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *peers = [[NSMutableArray alloc] initWithArray:responsePeers];
         if (block) {
-            block(peers, nil, [operation.response statusCode]);
+            block(peers, nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error, [operation.response statusCode]);
+            block(nil, error);
         }
     }];
 }
@@ -346,14 +326,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)joinCall:(NSString *)token withCompletionBlock:(JoinCallCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"call/%@", token]];
-    
-    [_manager POST:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -361,14 +341,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)pingCall:(NSString *)token withCompletionBlock:(PingCallCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"call/%@/ping", token]];
-    
-    [_manager POST:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -376,14 +356,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)leaveCall:(NSString *)token withCompletionBlock:(LeaveCallCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"call/%@", token]];
-    
-    [_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -394,14 +374,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:@"signaling"];
     NSDictionary *parameters = @{@"messages" : messages};
-    
-    [_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
@@ -409,15 +389,15 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)pullSignalingMessagesWithCompletionBlock:(PullSignalingMessagesCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:@"signaling"];
-    
-    [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseDict = responseObject;
         if (block) {
-            block(responseDict, nil, [operation.response statusCode]);
+            block(responseDict, nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error, [operation.response statusCode]);
+            block(nil, error);
         }
     }];
 }
@@ -425,15 +405,15 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)getSignalingSettingsWithCompletionBlock:(GetSignalingSettingsCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:@"signaling/settings"];
-    
-    [_manager GET:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseDict = responseObject;
         if (block) {
-            block(responseDict, nil, [operation.response statusCode]);
+            block(responseDict, nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error, [operation.response statusCode]);
+            block(nil, error);
         }
     }];
 }
@@ -443,7 +423,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId
 {
     #warning TODO - Clear cache from time to time and reload possible new images
-    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/128", _serverUrl, userId];
+    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/144", _serverUrl, userId];
     return [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]
                             cachePolicy:NSURLRequestReturnCacheDataElseLoad
                         timeoutInterval:60];
@@ -455,15 +435,15 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/users/%@", _serverUrl, [NCSettingsController sharedInstance].ncUser];
     NSDictionary *parameters = @{@"fomat" : @"json"};
-    
-    [_manager GET:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *room = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
-            block(room, nil, [operation.response statusCode]);
+            block(room, nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error, [operation.response statusCode]);
+            block(nil, error);
         }
     }];
 }
@@ -474,81 +454,59 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/push", _serverUrl];
     NSString *devicePublicKey = [[NSString alloc] initWithData:[NCSettingsController sharedInstance].ncPNPublicKey encoding:NSUTF8StringEncoding];
-    
+
     NSDictionary *parameters = @{@"pushTokenHash" : [[NCSettingsController sharedInstance] pushTokenSHA512],
                                  @"devicePublicKey" : devicePublicKey,
                                  @"proxyServer" : kNCPushServer
                                  };
-    
-    [_manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
-            block(responseDict, nil, [operation.response statusCode]);
+            block(responseDict, nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error, [operation.response statusCode]);
+            block(nil, error);
         }
     }];
 }
 - (void)unsubscribeToNextcloudServer:(UnsubscribeToNextcloudServerCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/push", _serverUrl];
-    
-    [_manager DELETE:URLString parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
 - (void)subscribeToPushServer:(SubscribeToPushProxyCompletionBlock)block
 {
-    AFHTTPRequestOperationManager *manager = [[AFHTTPRequestOperationManager alloc] init];
-    manager.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
-    manager.responseSerializer = [[AFHTTPResponseSerializer alloc] init];
-    
-    AFSecurityPolicy* policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
-    manager.securityPolicy = policy;
-    manager.securityPolicy.allowInvalidCertificates = YES;
-    manager.securityPolicy.validatesDomainName = NO;
-    
-    [manager.requestSerializer setValue:_userAgent forHTTPHeaderField:@"User-Agent"];
-    
     NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
-    
+
     NSDictionary *parameters = @{@"pushToken" : [NCSettingsController sharedInstance].ncPushToken,
                                  @"deviceIdentifier" : [NCSettingsController sharedInstance].ncDeviceIdentifier,
                                  @"deviceIdentifierSignature" : [NCSettingsController sharedInstance].ncDeviceSignature,
                                  @"userPublicKey" : [NCSettingsController sharedInstance].ncUserPublicKey
                                  };
-    
-    [manager POST:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+
+    [[NCPushProxySessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }
 - (void)unsubscribeToPushServer:(UnsubscribeToPushProxyCompletionBlock)block
-{
-    AFHTTPRequestOperationManager *manager = [[AFHTTPRequestOperationManager alloc] init];
-    manager.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
-    manager.responseSerializer = [[AFHTTPResponseSerializer alloc] init];
-    
-    AFSecurityPolicy* policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
-    manager.securityPolicy = policy;
-    manager.securityPolicy.allowInvalidCertificates = YES;
-    manager.securityPolicy.validatesDomainName = NO;
-    
-    [manager.requestSerializer setValue:_userAgent forHTTPHeaderField:@"User-Agent"];
-    
+{    
     NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
 
     NSDictionary *parameters = @{@"deviceIdentifier" : [NCSettingsController sharedInstance].ncDeviceIdentifier,
@@ -556,13 +514,13 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
                                  @"userPublicKey" : [NCSettingsController sharedInstance].ncUserPublicKey
                                  };
 
-    [manager DELETE:URLString parameters:parameters success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+    [[NCPushProxySessionManager sharedInstance] DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil, [operation.response statusCode]);
+            block(nil);
         }
-    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error, [operation.response statusCode]);
+            block(error);
         }
     }];
 }

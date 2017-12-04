@@ -8,42 +8,46 @@
 
 #import <Foundation/Foundation.h>
 
+#import "AFNetworking.h"
 #import "NCRoom.h"
 #import "NCUser.h"
 
-typedef void (^GetContactsCompletionBlock)(NSMutableArray *contacts, NSError *error, NSInteger errorCode);
+typedef void (^GetContactsCompletionBlock)(NSMutableArray *contacts, NSError *error);
 
-typedef void (^GetRoomsCompletionBlock)(NSMutableArray *rooms, NSError *error, NSInteger errorCode);
-typedef void (^GetRoomCompletionBlock)(NSDictionary *room, NSError *error, NSInteger errorCode);
-typedef void (^CreateRoomCompletionBlock)(NSString *token, NSError *error, NSInteger errorCode);
-typedef void (^RenameRoomCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^AddParticipantCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^RemoveSelfFromRoomCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^MakeRoomPublicCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^MakeRoomPrivateCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^DeleteRoomCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^SetPasswordCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NSError *error, NSInteger errorCode);
-typedef void (^ExitRoomCompletionBlock)(NSError *error, NSInteger errorCode);
+typedef void (^GetRoomsCompletionBlock)(NSMutableArray *rooms, NSError *error, NSInteger statusCode);
+typedef void (^GetRoomCompletionBlock)(NSDictionary *room, NSError *error);
+typedef void (^CreateRoomCompletionBlock)(NSString *token, NSError *error);
+typedef void (^RenameRoomCompletionBlock)(NSError *error);
+typedef void (^AddParticipantCompletionBlock)(NSError *error);
+typedef void (^RemoveSelfFromRoomCompletionBlock)(NSError *error);
+typedef void (^MakeRoomPublicCompletionBlock)(NSError *error);
+typedef void (^MakeRoomPrivateCompletionBlock)(NSError *error);
+typedef void (^DeleteRoomCompletionBlock)(NSError *error);
+typedef void (^SetPasswordCompletionBlock)(NSError *error);
+typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NSError *error);
+typedef void (^ExitRoomCompletionBlock)(NSError *error);
 
-typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *error, NSInteger errorCode);
-typedef void (^JoinCallCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^PingCallCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^LeaveCallCompletionBlock)(NSError *error, NSInteger errorCode);
+typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *error);
+typedef void (^JoinCallCompletionBlock)(NSError *error);
+typedef void (^PingCallCompletionBlock)(NSError *error);
+typedef void (^LeaveCallCompletionBlock)(NSError *error);
 
-typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error, NSInteger errorCode);
-typedef void (^GetSignalingSettingsCompletionBlock)(NSDictionary *settings, NSError *error, NSInteger errorCode);
+typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
+typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);
+typedef void (^GetSignalingSettingsCompletionBlock)(NSDictionary *settings, NSError *error);
 
-typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error, NSInteger errorCode);
+typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
 
-typedef void (^SubscribeToNextcloudServerCompletionBlock)(NSDictionary *responseDict, NSError *error, NSInteger errorCode);
-typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error, NSInteger errorCode);
-typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error, NSInteger errorCode);
+typedef void (^SubscribeToNextcloudServerCompletionBlock)(NSDictionary *responseDict, NSError *error);
+typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
+typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
+typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
 
 @interface NCAPIController : NSObject
+
+@property (nonatomic, strong) AFHTTPSessionManager *manager;
+@property (nonatomic, strong) NSURLSession *session;
 
 + (instancetype)sharedInstance;
 - (void)setNCServer:(NSString *)serverUrl;

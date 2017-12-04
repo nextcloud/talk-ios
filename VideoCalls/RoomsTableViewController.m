@@ -11,17 +11,20 @@
 #import "AFNetworking.h"
 #import "AuthenticationViewController.h"
 #import "CallViewController.h"
+#import "CCCertificate.h"
 #import "RoomTableViewCell.h"
 #import "LoginViewController.h"
 #import "NCAPIController.h"
+#import "NCImageSessionManager.h"
 #import "NCConnectionController.h"
 #import "NCPushNotification.h"
 #import "NCSettingsController.h"
 #import "NSDate+DateTools.h"
 #import "UIImageView+Letters.h"
+#import "AFImageDownloader.h"
 #import "UIImageView+AFNetworking.h"
 
-@interface RoomsTableViewController () <CallViewControllerDelegate>
+@interface RoomsTableViewController () <CallViewControllerDelegate, CCCertificateDelegate>
 {
     NSMutableArray *_rooms;
     BOOL _networkDisconnectedRetry;
@@ -42,6 +45,14 @@
     _networkDisconnectedRetry = NO;
     
     [self createRefreshControl];
+    
+    AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
+                                          initWithSessionManager:[NCImageSessionManager sharedInstance]
+                                          downloadPrioritization:AFImageDownloadPrioritizationFIFO
+                                          maximumActiveDownloads:4
+                                          imageCache:[[AFAutoPurgingImageCache alloc] init]];
+    
+    [UIImageView setSharedImageDownloader:imageDownloader];
     
     UIImage *image = [UIImage imageNamed:@"navigationLogo"];
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:image];
@@ -154,7 +165,7 @@
 
 - (void)searchForCallInServer:(NSInteger)callId
 {
-    [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
         if (!error) {
             for (NCRoom *room in rooms) {
                 if (room.roomId == callId) {
@@ -262,17 +273,29 @@
 
 - (void)getRooms
 {
-    [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
         if (!error) {
             _rooms = rooms;
             [self.tableView reloadData];
             NSLog(@"Rooms updated");
         } else {
             NSLog(@"Error while trying to get rooms: %@", error);
+            if ([error code] == NSURLErrorServerCertificateUntrusted) {
+                NSLog(@"Untrusted certificate");
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
+                });
+                
+            }
         }
         
         [_refreshControl endRefreshing];
     }];
+}
+
+- (void)trustedCerticateAccepted
+{
+    [self getRooms];
 }
 
 - (void)startPingCall
@@ -284,7 +307,7 @@
 - (void)pingCall
 {
     if (_currentCallToken) {
-        [[NCAPIController sharedInstance] pingCall:_currentCallToken withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        [[NCAPIController sharedInstance] pingCall:_currentCallToken withCompletionBlock:^(NSError *error) {
             //TODO: Error handling
         }];
     } else {
@@ -311,7 +334,7 @@
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *newRoomName = [[renameDialog textFields][0] text];
         NSLog(@"New room name %@", newRoomName);
-        [[NCAPIController sharedInstance] renameRoom:room.token withName:newRoomName andCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        [[NCAPIController sharedInstance] renameRoom:room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self getRooms];
             } else {
@@ -355,7 +378,7 @@
 - (void)makePublicRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] makeRoomPublic:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] makeRoomPublic:room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self getRooms];
             [self shareLinkFromRoomAtIndexPath:indexPath];
@@ -369,7 +392,7 @@
 - (void)makePrivateRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] makeRoomPrivate:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] makeRoomPrivate:room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self getRooms];
         } else {
@@ -395,7 +418,7 @@
     
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *password = [[renameDialog textFields][0] text];
-        [[NCAPIController sharedInstance] setPassword:password toRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+        [[NCAPIController sharedInstance] setPassword:password toRoom:room.token withCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self getRooms];
             } else {
@@ -415,7 +438,7 @@
 - (void)leaveRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error) {
         if (error) {
             //TODO: Error handling
         }
@@ -428,7 +451,7 @@
 - (void)deleteRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] deleteRoom:room.token withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] deleteRoom:room.token withCompletionBlock:^(NSError *error) {
         if (error) {
             //TODO: Error handling
         }
@@ -440,7 +463,7 @@
 
 - (void)createNewPublicRoom
 {
-    [[NCAPIController sharedInstance] createRoomWith:nil ofType:kNCRoomTypePublicCall withCompletionBlock:^(NSString *token, NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] createRoomWith:nil ofType:kNCRoomTypePublicCall withCompletionBlock:^(NSString *token, NSError *error) {
         if (!error) {
             [self getRooms];
         } else {
@@ -608,9 +631,7 @@
             
             // Request user avatar to the server and set it if exist
             [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name]
-                                  placeholderImage:nil
-                                           success:nil
-                                           failure:nil];
+                                  placeholderImage:nil success:nil failure:nil];
             
             cell.roomImage.layer.cornerRadius = 24.0;
             cell.roomImage.layer.masksToBounds = YES;

@@ -59,10 +59,10 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)startCall
 {
-    [[NCAPIController sharedInstance] joinRoom:_room withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] joinRoom:_room withCompletionBlock:^(NSString *sessionId, NSError *error) {
         if (!error) {
             self.userSessionId = sessionId;
-            [[NCAPIController sharedInstance] joinCall:_room withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+            [[NCAPIController sharedInstance] joinCall:_room withCompletionBlock:^(NSError *error) {
                 if (!error) {
                     [self createLocalMedia];
                     [self.delegate callControllerDidJoinCall:self];
@@ -95,11 +95,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     _peerConnectionFactory = nil;
     _connectionsDict = nil;
     
-    [[NCAPIController sharedInstance] leaveCall:_room withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] leaveCall:_room withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self stopPingCall];
             [_signalingController stopPullingSignalingMessages];
-            [[NCAPIController sharedInstance] exitRoom:_room withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+            [[NCAPIController sharedInstance] exitRoom:_room withCompletionBlock:^(NSError *error) {
                 if (!error) {
                     [self.delegate callControllerDidEndCall:self];
                 } else {
@@ -153,7 +153,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)pingCall
 {
-    [[NCAPIController sharedInstance] pingCall:_room withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] pingCall:_room withCompletionBlock:^(NSError *error) {
         //TODO: Error handling
     }];
 }

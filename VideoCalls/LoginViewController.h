@@ -14,5 +14,6 @@
 @property (nonatomic, weak) IBOutlet UITextField *serverUrl;
 @property (nonatomic, weak) IBOutlet UIImageView *imageBaseUrl;
 @property (nonatomic, weak) IBOutlet UIButton *login;
+@property (nonatomic, weak) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 
 @end
