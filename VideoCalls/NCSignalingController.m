@@ -33,7 +33,7 @@
 
 - (void)getSignalingSettings
 {
-    [[NCAPIController sharedInstance] getSignalingSettingsWithCompletionBlock:^(NSDictionary *settings, NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] getSignalingSettingsWithCompletionBlock:^(NSDictionary *settings, NSError *error) {
         if (error) {
             //TODO: Error handling
             NSLog(@"Error getting signaling settings.");
@@ -87,7 +87,7 @@
 
 - (void)pullSignalingMessages
 {
-    [[NCAPIController sharedInstance] pullSignalingMessagesWithCompletionBlock:^(NSDictionary *messages, NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] pullSignalingMessagesWithCompletionBlock:^(NSDictionary *messages, NSError *error) {
         if (_shouldStopPullingMessages) {
             return;
         }
@@ -113,7 +113,7 @@
 
 - (void)sendSignalingMessages:(NSArray *)messages
 {
-    [[NCAPIController sharedInstance] sendSignalingMessages:[self messagesJSONSerialization:messages] withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] sendSignalingMessages:[self messagesJSONSerialization:messages] withCompletionBlock:^(NSError *error) {
         NSLog(@"Sent %ld signaling messages", messages.count);
     }];
 }
@@ -122,7 +122,7 @@
 {
     NSArray *messagesArray = [NSArray arrayWithObjects:[message messageDict], nil];
     NSString *JSONSerializedMessages = [self messagesJSONSerialization:messagesArray];
-    [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages withCompletionBlock:^(NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages withCompletionBlock:^(NSError *error) {
         if (error) {
             //TODO: Error handling
             NSLog(@"Error sending signaling message.");

@@ -8,6 +8,7 @@
 
 #import "AuthenticationViewController.h"
 
+#import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCSettingsController.h"
 
@@ -122,7 +123,7 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
         [[NCSettingsController sharedInstance] generatePushNotificationsKeyPair];
         
         // Get user display name
-        [[NCAPIController sharedInstance] getUserProfileWithCompletionBlock:^(NSDictionary *userProfile, NSError *error, NSInteger errorCode) {
+        [[NCAPIController sharedInstance] getUserProfileWithCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
             if (!error) {
                 NSString *userDisplayName = [userProfile objectForKey:@"displayname"];
                 [NCSettingsController sharedInstance].ncUserDisplayName = userDisplayName;
@@ -133,7 +134,7 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
         }];
         
         // Subscribe to NC server
-        [[NCAPIController sharedInstance] subscribeToNextcloudServer:^(NSDictionary *responseDict, NSError *error, NSInteger errorCode) {
+        [[NCAPIController sharedInstance] subscribeToNextcloudServer:^(NSDictionary *responseDict, NSError *error) {
             if (!error) {
                 NSLog(@"Subscribed to NC server successfully.");
                 
@@ -149,7 +150,7 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
                 [keychain setString:deviceIdentifier forKey:kNCDeviceIdentifier];
                 [keychain setString:signature forKey:kNCDeviceSignature];
                 
-                [[NCAPIController sharedInstance] subscribeToPushServer:^(NSError *error, NSInteger errorCode) {
+                [[NCAPIController sharedInstance] subscribeToPushServer:^(NSError *error) {
                     if (!error) {
                         NSLog(@"Subscribed to Push Notification server successfully.");
                     } else {
@@ -176,12 +177,11 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
 
 - (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
 {
-    NSLog(@"Allow all");
-    SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
-    CFDataRef exceptions = SecTrustCopyExceptions (serverTrust);
-    SecTrustSetExceptions (serverTrust, exceptions);
-    CFRelease (exceptions);
-    completionHandler (NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:serverTrust]);
+    if ([[CCCertificate sharedManager] checkTrustedChallenge:challenge]) {
+        completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
+    } else {
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+    }
 }
 
 - (void)webView:(WKWebView *)webView didCommitNavigation:(WKNavigation *)navigation

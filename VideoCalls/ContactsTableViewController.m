@@ -138,7 +138,7 @@
 
 - (void)getContacts
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSMutableArray *contacts, NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSMutableArray *contacts, NSError *error) {
         if (!error) {
             _contacts = contacts;
             [self.tableView reloadData];
@@ -150,7 +150,7 @@
 
 - (void)searchForContactsWithString:(NSString *)searchString
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSMutableArray *contacts, NSError *error, NSInteger errorCode) {
+    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSMutableArray *contacts, NSError *error) {
         if (!error) {
             _resultTableViewController.filteredContacts = contacts;
             [_resultTableViewController.tableView reloadData];
@@ -216,7 +216,7 @@
     
     [[NCAPIController sharedInstance] createRoomWith:contact.userId
                                               ofType:kNCRoomTypeOneToOneCall
-                                 withCompletionBlock:^(NSString *token, NSError *error, NSInteger errorCode) {
+                                 withCompletionBlock:^(NSString *token, NSError *error) {
         if (!error) {
             // Join created room.
             NSLog(@"Room %@ with %@ created", token, contact.name);

@@ -108,14 +108,14 @@ typedef enum SettingsSection {
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == kSettingsSectionLogout) {
         if ([[NCSettingsController sharedInstance] ncDeviceIdentifier]) {
-            [[NCAPIController sharedInstance] unsubscribeToNextcloudServer:^(NSError *error, NSInteger errorCode) {
+            [[NCAPIController sharedInstance] unsubscribeToNextcloudServer:^(NSError *error) {
                 if (!error) {
                     NSLog(@"Unsubscribed from NC server!!!");
                 } else {
                     NSLog(@"Error while unsubscribing from NC server.");
                 }
             }];
-            [[NCAPIController sharedInstance] unsubscribeToPushServer:^(NSError *error, NSInteger errorCode) {
+            [[NCAPIController sharedInstance] unsubscribeToPushServer:^(NSError *error) {
                 if (!error) {
                     NSLog(@"Unsubscribed from Push Notification server!!!");
                 } else {
