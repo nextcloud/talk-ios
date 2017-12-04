@@ -11,6 +11,7 @@
 #import "AFNetworking.h"
 #import "AuthenticationViewController.h"
 #import "CallViewController.h"
+#import "CCCertificate.h"
 #import "RoomTableViewCell.h"
 #import "LoginViewController.h"
 #import "NCAPIController.h"
@@ -23,7 +24,7 @@
 #import "AFImageDownloader.h"
 #import "UIImageView+AFNetworking.h"
 
-@interface RoomsTableViewController () <CallViewControllerDelegate>
+@interface RoomsTableViewController () <CallViewControllerDelegate, CCCertificateDelegate>
 {
     NSMutableArray *_rooms;
     BOOL _networkDisconnectedRetry;
@@ -279,10 +280,22 @@
             NSLog(@"Rooms updated");
         } else {
             NSLog(@"Error while trying to get rooms: %@", error);
+            if ([error code] == NSURLErrorServerCertificateUntrusted) {
+                NSLog(@"Untrusted certificate");
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
+                });
+                
+            }
         }
         
         [_refreshControl endRefreshing];
     }];
+}
+
+- (void)trustedCerticateAccepted
+{
+    [self getRooms];
 }
 
 - (void)startPingCall
