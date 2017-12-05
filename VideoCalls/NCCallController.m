@@ -298,7 +298,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)processUsersInRoom:(NSArray *)users
 {
-    NSMutableArray *newSessions = [self getSessionsFromUsersInRoom:users];
+    NSMutableArray *newSessions = [self getInCallSessionsFromUsersInRoom:users];
     NSMutableArray *oldSessions = [NSMutableArray arrayWithArray:_usersInRoom];
     
     //Save current sessions in call
@@ -337,18 +337,22 @@ static NSString * const kNCVideoTrackKind = @"video";
     }
 }
 
-- (NSMutableArray *)getSessionsFromUsersInRoom:(NSArray *)users
+- (NSMutableArray *)getInCallSessionsFromUsersInRoom:(NSArray *)users
 {
     NSMutableArray *sessions = [[NSMutableArray alloc] init];
-    for (NSDictionary *user in users) {
+    for (NSMutableDictionary *user in users) {
         NSString *sessionId = [user objectForKey:@"sessionId"];
+        BOOL inCall = [[user objectForKey:@"inCall"] boolValue];
         
-        // Ignore user sessionId
-        if([_userSessionId isEqualToString:sessionId]) {
+        // Ignore app user sessionId
+        if ([_userSessionId isEqualToString:sessionId]) {
             continue;
         }
         
-        [sessions addObject:sessionId];
+        // Only add session that are in the call
+        if (inCall) {
+            [sessions addObject:sessionId];
+        }
     }
     return sessions;
 }
