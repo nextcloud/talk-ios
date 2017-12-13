@@ -632,18 +632,19 @@
             // Request user avatar to the server and set it if exist
             [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name]
                                   placeholderImage:nil success:nil failure:nil];
-            
-            cell.roomImage.layer.cornerRadius = 24.0;
-            cell.roomImage.layer.masksToBounds = YES;
         }
             break;
             
         case kNCRoomTypeGroupCall:
             [cell.roomImage setImage:[UIImage imageNamed:@"group"]];
+            cell.roomImage.backgroundColor = [UIColor colorWithRed:0.898 green:0.898 blue:0.898 alpha:1]; /*#e5e5e5*/
+            cell.roomImage.contentMode = UIViewContentModeCenter;
             break;
             
         case kNCRoomTypePublicCall:
             [cell.roomImage setImage:[UIImage imageNamed:@"public"]];
+            cell.roomImage.backgroundColor = [UIColor colorWithRed:0.898 green:0.898 blue:0.898 alpha:1]; /*#e5e5e5*/
+            cell.roomImage.contentMode = UIViewContentModeCenter;
             break;
             
         default:

@@ -14,13 +14,23 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    // Initialization code
+    
+    self.roomImage.layer.cornerRadius = 24.0;
+    self.roomImage.layer.masksToBounds = YES;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
 
     // Configure the view for the selected state
+}
+
+- (void)prepareForReuse
+{
+    [super prepareForReuse];
+    
+    self.roomImage.backgroundColor = [UIColor clearColor];
+    self.roomImage.contentMode = UIViewContentModeScaleToFill;
 }
 
 @end
