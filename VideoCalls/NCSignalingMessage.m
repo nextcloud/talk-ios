@@ -86,7 +86,7 @@ NSString *const kRoomTypeScreen = @"screen";
                [typeString isEqualToString:kNCSignalingMessageTypeAnswerKey]) {
         message = [[NCSessionDescriptionMessage alloc] initWithValues:values];
     } else {
-        RTCLogError(@"Unexpected type: %@", typeString);
+        NSLog(@"Unexpected type: %@", typeString);
     }
     
     return message;
