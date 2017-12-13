@@ -65,11 +65,13 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 
 - (void)setVideoView:(RTCEAGLVideoView *)videoView
 {
-    [_videoView removeFromSuperview];
-    _videoView = nil;
-    _videoView = videoView;
-    [_peerVideoView addSubview:_videoView];
-    [self resizeRemoteVideoView];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_videoView removeFromSuperview];
+        _videoView = nil;
+        _videoView = videoView;
+        [_peerVideoView addSubview:_videoView];
+        [self resizeRemoteVideoView];
+    });
 }
 
 - (void)resizeRemoteVideoView {

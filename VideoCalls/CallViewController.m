@@ -289,8 +289,10 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)updatePeer:(NCPeerConnection *)peer block:(void(^)(CallParticipantViewCell* cell))block {
     NSIndexPath *indexPath = [self indexPathOfPeer:peer];
-    CallParticipantViewCell *cell = (id)[self.collectionView cellForItemAtIndexPath:indexPath];
-    block(cell);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        CallParticipantViewCell *cell = (id)[self.collectionView cellForItemAtIndexPath:indexPath];
+        block(cell);
+    });
 }
 
 @end
