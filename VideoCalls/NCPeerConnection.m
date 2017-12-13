@@ -110,7 +110,8 @@
 - (void)setRemoteDescription:(RTCSessionDescription *)sessionDescription
 {
     __weak NCPeerConnection *weakSelf = self;
-    [_peerConnection setRemoteDescription:sessionDescription completionHandler:^(NSError *error) {
+    RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sessionDescription preferredVideoCodec:@"VP8"];
+    [_peerConnection setRemoteDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
         NCPeerConnection *strongSelf = weakSelf;
         if (strongSelf) {
             [strongSelf peerConnectionDidSetSessionDescriptionWithError:error];
