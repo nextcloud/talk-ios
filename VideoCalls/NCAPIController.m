@@ -15,6 +15,8 @@
 NSString * const kNCOCSAPIVersion       = @"/ocs/v2.php";
 NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
+NSString * const NCRoomCreatedNotification = @"NCRoomCreatedNotification";
+
 @interface NCAPIController () <NSURLSessionTaskDelegate, NSURLSessionDelegate>
 {
     NSString *_serverUrl;

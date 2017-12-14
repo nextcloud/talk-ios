@@ -63,6 +63,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pushNotificationReceived:) name:NCPushNotificationReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinCallAccepted:) name:NCPushNotificationJoinCallAcceptedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkReachabilityHasChanged:) name:NCNetworkReachabilityHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomHasBeenCreated:) name:NCRoomCreatedNotification object:nil];
 }
 
 - (void)dealloc
@@ -116,6 +117,21 @@
 {
     AFNetworkReachabilityStatus status = [[notification.userInfo objectForKey:kNCNetworkReachabilityKey] intValue];
     NSLog(@"Network Status:%ld", (long)status);
+}
+
+- (void)roomHasBeenCreated:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"token"];
+    NSLog(@"Joining to created room: %@", roomToken);
+    if (!_currentCallToken) {
+        if (self.presentedViewController) {
+            [self dismissViewControllerAnimated:YES completion:^{
+                [self presentCallViewControllerForCallToken:roomToken];
+            }];
+        } else {
+            [self presentCallViewControllerForCallToken:roomToken];
+        }
+    }
 }
 
 #pragma mark - Push Notification Actions

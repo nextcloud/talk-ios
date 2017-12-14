@@ -220,12 +220,10 @@
         if (!error) {
             // Join created room.
             NSLog(@"Room %@ with %@ created", token, contact.name);
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil
-                                                            message:[NSString stringWithFormat:@"Room %@ with %@ created", token, contact.name]
-                                                           delegate:nil
-                                                  cancelButtonTitle:@"OK"
-                                                  otherButtonTitles:nil];
-            [alert show];
+            [self.tabBarController setSelectedIndex:0];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomCreatedNotification
+                                                                object:self
+                                                              userInfo:@{@"token":token}];
         } else {
             NSLog(@"Failed creating a room with %@", contact.name);
         }
