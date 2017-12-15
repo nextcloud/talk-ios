@@ -17,6 +17,8 @@
 #import "CallParticipantViewCell.h"
 #import "NBMPeersFlowLayout.h"
 #import "NCCallController.h"
+#import "NCAPIController.h"
+#import "UIImageView+AFNetworking.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
@@ -109,9 +111,11 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)setWaitingScreen
 {
     if (_room.type == kNCRoomTypeOneToOneCall) {
-        self.waitingLabel.text = @"Waiting for user to join call …";
+        self.waitingLabel.text = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
+        [self.waitingImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name]
+                                     placeholderImage:nil success:nil failure:nil];
     } else {
-        self.waitingLabel.text = @"Waiting for others to join call …";
+        self.waitingLabel.text = @"Waiting for others to join call…";
         
         if (_room.type == kNCRoomTypeGroupCall) {
             [self.waitingImageView setImage:[UIImage imageNamed:@"group-white85"]];
