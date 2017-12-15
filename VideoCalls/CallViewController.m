@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 @synthesize delegate = _delegate;
 
-- (instancetype)initCallInRoom:(NSString *)room asUser:(NSString*)displayName
+- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName
 {
     self = [super init];
     if (!self) {
@@ -50,8 +50,9 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     _callController = [[NCCallController alloc] initWithDelegate:self];
-    _callController.room = room;
+    _callController.room = room.token;
     _callController.userDisplayName = displayName;
+    _room = room;
     _peersInCall = [[NSMutableArray alloc] init];
     _renderersDict = [[NSMutableDictionary alloc] init];
     
@@ -64,6 +65,16 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController startCall];
     
     self.collectionView.delegate = self;
+    self.collectionView.backgroundView = self.waitingView;
+    
+    self.waitingLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    self.waitingLabel.numberOfLines = 0;
+    
+    self.waitingImageView.layer.cornerRadius = 64;
+    self.waitingImageView.layer.masksToBounds = YES;
+    
+    [self setWaitingScreen];
+    
     [self.collectionView registerNib:[UINib nibWithNibName:kCallParticipantCellNibName bundle:nil] forCellWithReuseIdentifier:kCallParticipantCellIdentifier];
     
     if (@available(iOS 11.0, *)) {
@@ -76,7 +87,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - Call State
+#pragma mark - User Interface
 
 - (void)setCallState:(CallState)state
 {
@@ -92,6 +103,24 @@ typedef NS_ENUM(NSInteger, CallState) {
             
         default:
             break;
+    }
+}
+
+- (void)setWaitingScreen
+{
+    if (_room.type == kNCRoomTypeOneToOneCall) {
+        self.waitingLabel.text = @"Waiting for user to join call …";
+    } else {
+        self.waitingLabel.text = @"Waiting for others to join call …";
+        
+        if (_room.type == kNCRoomTypeGroupCall) {
+            [self.waitingImageView setImage:[UIImage imageNamed:@"group-white85"]];
+        } else {
+            [self.waitingImageView setImage:[UIImage imageNamed:@"public-white85"]];
+        }
+        
+        self.waitingImageView.backgroundColor = [UIColor colorWithRed:0.898 green:0.898 blue:0.898 alpha:1]; /*#e5e5e5*/
+        self.waitingImageView.contentMode = UIViewContentModeCenter;
     }
 }
 

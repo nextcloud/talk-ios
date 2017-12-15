@@ -122,15 +122,16 @@
 - (void)roomHasBeenCreated:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"token"];
-    NSLog(@"Joining to created room: %@", roomToken);
-    if (!_currentCallToken) {
-        if (self.presentedViewController) {
-            [self dismissViewControllerAnimated:YES completion:^{
-                [self presentCallViewControllerForCallToken:roomToken];
-            }];
-        } else {
-            [self presentCallViewControllerForCallToken:roomToken];
-        }
+    NCRoom *room = [self getRoomForToken:roomToken];
+    if (room) {
+        [self startCallInRoom:room];
+    } else {
+        //TODO: Show spinner?
+        [[NCAPIController sharedInstance] getRoomWithToken:roomToken withCompletionBlock:^(NCRoom *room, NSError *error) {
+            if (!error) {
+                [self startCallInRoom:room];
+            }
+        }];
     }
 }
 
@@ -163,35 +164,17 @@
 
 - (void)joinCallWithCallId:(NSInteger)callId
 {
-    NSString *callToken = nil;
-    
-    if (_rooms) {
-        for (NCRoom *room in _rooms) {
-            if (room.roomId == callId) {
-                callToken = room.token;
-                [self presentCallViewControllerForCallToken:callToken];
+    NCRoom *room = [self getRoomForId:callId];
+    if (room) {
+        [self startCallInRoom:room];
+    } else {
+        //TODO: Show spinner?
+        [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
+            if (!error) {
+                [self startCallInRoom:room];
             }
-        }
-        
-        if (!callToken) {
-            [self searchForCallInServer:callId];
-        }
+        }];
     }
-}
-
-- (void)searchForCallInServer:(NSInteger)callId
-{
-    [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
-        if (!error) {
-            for (NCRoom *room in rooms) {
-                if (room.roomId == callId) {
-                    [self presentCallViewControllerForCallToken:room.token];
-                }
-            }
-        } else {
-            NSLog(@"Error while searching for call: %@", error);
-        }
-    }];
 }
 
 #pragma mark - Interface Builder Actions
@@ -491,14 +474,52 @@
 
 #pragma mark - Calls
 
-- (void)presentCallViewControllerForCallToken:(NSString *)token
+- (NCRoom *)getRoomForToken:(NSString *)token
 {
-    CallViewController *callVC = [[CallViewController alloc] initCallInRoom:token asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
-    callVC.delegate = self;
+    NCRoom *room = nil;
+    for (NCRoom *localRoom in _rooms) {
+        if (localRoom.token == token) {
+            room = localRoom;
+        }
+    }
+    return room;
+}
+
+- (NCRoom *)getRoomForId:(NSInteger)roomId
+{
+    NCRoom *room = nil;
+    for (NCRoom *localRoom in _rooms) {
+        if (localRoom.roomId == roomId) {
+            room = localRoom;
+        }
+    }
+    return room;
+}
+
+- (void)presentCall:(CallViewController *)callVC
+{
     [self presentViewController:callVC animated:YES completion:^{
         // Disable sleep timer
         [UIApplication sharedApplication].idleTimerDisabled = YES;
     }];
+}
+
+- (void)presentCallViewController:(CallViewController *)callVC
+{
+    if (self.presentedViewController) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self presentCall:callVC];
+        }];
+    } else {
+        [self presentCall:callVC];
+    }
+}
+
+- (void)startCallInRoom:(NCRoom *)room
+{
+    CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
+    callVC.delegate = self;
+    [self presentCallViewController:callVC];
 }
 
 #pragma mark - Table view data source
@@ -675,7 +696,7 @@
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
     _currentCallToken = room.token;
-    [self presentCallViewControllerForCallToken:_currentCallToken];
+    [self startCallInRoom:room];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 

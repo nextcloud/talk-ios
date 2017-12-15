@@ -15,7 +15,7 @@
 typedef void (^GetContactsCompletionBlock)(NSMutableArray *contacts, NSError *error);
 
 typedef void (^GetRoomsCompletionBlock)(NSMutableArray *rooms, NSError *error, NSInteger statusCode);
-typedef void (^GetRoomCompletionBlock)(NSDictionary *room, NSError *error);
+typedef void (^GetRoomCompletionBlock)(NCRoom *room, NSError *error);
 typedef void (^CreateRoomCompletionBlock)(NSString *token, NSError *error);
 typedef void (^RenameRoomCompletionBlock)(NSError *error);
 typedef void (^AddParticipantCompletionBlock)(NSError *error);
@@ -61,7 +61,8 @@ extern NSString * const NCRoomCreatedNotification;
 
 // Rooms Controller
 - (void)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block;
-- (void)getRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
+- (void)getRoomWithToken:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
+- (void)getRoomWithId:(NSInteger)roomId withCompletionBlock:(GetRoomCompletionBlock)block;
 - (void)createRoomWith:(NSString *)invite ofType:(NCRoomType)type withCompletionBlock:(CreateRoomCompletionBlock)block;
 - (void)renameRoom:(NSString *)token withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
 - (void)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(AddParticipantCompletionBlock)block;
