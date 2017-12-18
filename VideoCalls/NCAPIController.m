@@ -444,10 +444,10 @@ NSString * const NCRoomCreatedNotification = @"NCRoomCreatedNotification";
 
 #pragma mark - User avatars
 
-- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId
+- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size
 {
     #warning TODO - Clear cache from time to time and reload possible new images
-    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/144", _serverUrl, userId];
+    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/%ld", _serverUrl, userId, (long)size];
     return [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]
                             cachePolicy:NSURLRequestReturnCacheDataElseLoad
                         timeoutInterval:60];

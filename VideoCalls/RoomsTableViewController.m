@@ -667,7 +667,7 @@
             [cell.roomImage setImageWithString:room.displayName color:nil circular:true];
             
             // Request user avatar to the server and set it if exist
-            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name]
+            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96]
                                   placeholderImage:nil success:nil failure:nil];
         }
             break;

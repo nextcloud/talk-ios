@@ -112,7 +112,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     if (_room.type == kNCRoomTypeOneToOneCall) {
         self.waitingLabel.text = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
-        [self.waitingImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name]
+        [self.waitingImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:256]
                                      placeholderImage:nil success:nil failure:nil];
     } else {
         self.waitingLabel.text = @"Waiting for others to join call…";

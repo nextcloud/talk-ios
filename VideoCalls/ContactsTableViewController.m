@@ -195,7 +195,7 @@
     [cell.contactImage setImageWithString:contact.name color:nil circular:true];
     
     // Request user avatar to the server and set it if exist
-    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId]
+    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:64]
                              placeholderImage:nil
                                       success:nil
                                       failure:nil];

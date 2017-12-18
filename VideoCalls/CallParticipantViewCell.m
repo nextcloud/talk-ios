@@ -46,7 +46,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 - (void)setUserAvatar:(NSString *)userId
 {
     if (userId && userId.length > 0) {
-        [self.peerAvatarImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId]
+        [self.peerAvatarImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:256]
                                         placeholderImage:nil success:nil failure:nil];
     } else {
         UIColor *guestAvatarColor = [UIColor colorWithRed:0.73 green:0.73 blue:0.73 alpha:1.0]; /*#B9B9B9*/

@@ -87,7 +87,7 @@ extern NSString * const NCRoomCreatedNotification;
 - (void)getSignalingSettingsWithCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
 
 // User avatars
-- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId;
+- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size;
 
 // User Profile
 - (void)getUserProfileWithCompletionBlock:(GetUserProfileCompletionBlock)block;
