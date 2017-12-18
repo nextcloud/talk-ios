@@ -14,6 +14,8 @@
 @class NCCallController;
 @class RTCCameraVideoCapturer;
 
+typedef void (^GetUserIdForSessionIdCompletionBlock)(NSString *userId, NSError *error);
+
 @protocol NCCallControllerDelegate<NSObject>
 
 - (void)callControllerDidJoinCall:(NCCallController *)callController;
@@ -35,7 +37,7 @@
 @interface NCCallController : NSObject
 
 @property (nonatomic, weak) id<NCCallControllerDelegate> delegate;
-@property (nonatomic, copy) NSString *room;
+@property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, copy) NSString *userSessionId;
 @property (nonatomic, copy) NSString *userDisplayName;
 @property (nonatomic, strong) NSMutableDictionary *connectionsDict;
@@ -50,5 +52,7 @@
 - (BOOL)isAudioEnabled;
 - (void)enableVideo:(BOOL)enable;
 - (void)enableAudio:(BOOL)enable;
+- (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
+- (void)getUserIdInServerFromSessionId:(NSString *)sessionId withCompletionBlock:(GetUserIdForSessionIdCompletionBlock)block;
 
 @end

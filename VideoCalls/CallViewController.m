@@ -52,7 +52,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     _callController = [[NCCallController alloc] initWithDelegate:self];
-    _callController.room = room.token;
+    _callController.room = room;
     _callController.userDisplayName = displayName;
     _room = room;
     _peersInCall = [[NSMutableArray alloc] init];
@@ -200,8 +200,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
     
     [cell setVideoView:[_renderersDict objectForKey:peerConnection.peerId]];
+    [cell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
     [cell setDisplayName:peerConnection.peerName];
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
+    [cell setVideoDisabled:peerConnection.isRemoteVideoDisabled];
     
     return cell;
 }
@@ -288,6 +290,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     if ([message isEqualToString:@"audioOn"] || [message isEqualToString:@"audioOff"]) {
         [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
             [cell setAudioDisabled:peer.isRemoteAudioDisabled];
+        }];
+    } else if ([message isEqualToString:@"videoOn"] || [message isEqualToString:@"videoOff"]) {
+        [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+            [cell setVideoDisabled:peer.isRemoteVideoDisabled];
         }];
     }
 }
