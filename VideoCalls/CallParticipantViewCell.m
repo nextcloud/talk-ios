@@ -10,6 +10,9 @@
 
 #import <WebRTC/RTCAVFoundationVideoSource.h>
 #import <WebRTC/RTCEAGLVideoView.h>
+#import "NCAPIController.h"
+#import "UIImageView+AFNetworking.h"
+#import "UIImageView+Letters.h"
 
 NSString *const kCallParticipantCellIdentifier = @"CallParticipantCellIdentifier";
 NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
@@ -26,6 +29,9 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 - (void)awakeFromNib {
     [super awakeFromNib];
     self.audioOffIndicator.hidden = YES;
+    self.peerAvatarImageView.hidden = YES;
+    self.peerAvatarImageView.layer.cornerRadius = 64;
+    self.peerAvatarImageView.layer.masksToBounds = YES;
 }
 
 - (void)prepareForReuse
@@ -35,6 +41,17 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
     _peerNameLabel.text = nil;
     [_videoView removeFromSuperview];
     _videoView = nil;
+}
+
+- (void)setUserAvatar:(NSString *)userId
+{
+    if (userId && userId.length > 0) {
+        [self.peerAvatarImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:256]
+                                        placeholderImage:nil success:nil failure:nil];
+    } else {
+        UIColor *guestAvatarColor = [UIColor colorWithRed:0.73 green:0.73 blue:0.73 alpha:1.0]; /*#B9B9B9*/
+        [self.peerAvatarImageView setImageWithString:@"?" color:guestAvatarColor circular:true];
+    }
 }
 
 - (void)setDisplayName:(NSString *)displayName
@@ -60,7 +77,11 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 - (void)setVideoDisabled:(BOOL)videoDisabled
 {
     _videoDisabled = videoDisabled;
-    //TODO: Set avatar in the middle of the cell
+    if (videoDisabled) {
+        [_peerAvatarImageView setHidden:NO];
+    } else {
+        [_peerAvatarImageView setHidden:YES];
+    }
 }
 
 - (void)setVideoView:(RTCEAGLVideoView *)videoView

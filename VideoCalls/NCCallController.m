@@ -29,7 +29,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @property (nonatomic, assign) BOOL leavingCall;
 @property (nonatomic, strong) NSTimer *pingTimer;
-@property (nonatomic, strong) NSArray *usersInRoom;;
+@property (nonatomic, strong) NSArray *usersInRoom;
+@property (nonatomic, strong) NSArray *peersInCall;
 @property (nonatomic, strong) RTCMediaStream *localStream;
 @property (nonatomic, strong) RTCAudioTrack *localAudioTrack;
 @property (nonatomic, strong) RTCVideoTrack *localVideoTrack;
@@ -49,6 +50,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] init];
         _connectionsDict = [[NSMutableDictionary alloc] init];
         _usersInRoom = [[NSArray alloc] init];
+        _peersInCall = [[NSArray alloc] init];
         
         _signalingController = [[NCSignalingController alloc] init];
         _signalingController.observer = self;
@@ -59,14 +61,15 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)startCall
 {
-    [[NCAPIController sharedInstance] joinRoom:_room withCompletionBlock:^(NSString *sessionId, NSError *error) {
+    [[NCAPIController sharedInstance] joinRoom:_room.token withCompletionBlock:^(NSString *sessionId, NSError *error) {
         if (!error) {
             self.userSessionId = sessionId;
-            [[NCAPIController sharedInstance] joinCall:_room withCompletionBlock:^(NSError *error) {
+            [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
                 if (!error) {
                     [self createLocalMedia];
                     [self.delegate callControllerDidJoinCall:self];
                     
+                    [self getPeersForCall];
                     [self startPingCall];
                     [_signalingController startPullingSignalingMessages];
                 } else {
@@ -95,11 +98,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     _peerConnectionFactory = nil;
     _connectionsDict = nil;
     
-    [[NCAPIController sharedInstance] leaveCall:_room withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] leaveCall:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self stopPingCall];
             [_signalingController stopPullingSignalingMessages];
-            [[NCAPIController sharedInstance] exitRoom:_room withCompletionBlock:^(NSError *error) {
+            [[NCAPIController sharedInstance] exitRoom:_room.token withCompletionBlock:^(NSError *error) {
                 if (!error) {
                     [self.delegate callControllerDidEndCall:self];
                 } else {
@@ -153,7 +156,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)pingCall
 {
-    [[NCAPIController sharedInstance] pingCall:_room withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] pingCall:_room.token withCompletionBlock:^(NSError *error) {
         //TODO: Error handling
     }];
 }
@@ -168,6 +171,17 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     [_pingTimer invalidate];
     _pingTimer = nil;
+}
+
+#pragma mark - Call participants
+
+- (void)getPeersForCall
+{
+    [[NCAPIController sharedInstance] getPeersForCall:_room.token withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
+        if (!error) {
+            _peersInCall = peers;
+        }
+    }];
 }
 
 #pragma mark - Audio & Video senders
@@ -313,6 +327,10 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     if (_leavingCall) {return;}
     
+    if (newSessions.count > 0) {
+        [self getPeersForCall];
+    }
+    
     for (NSString *sessionId in newSessions) {
         if (![_connectionsDict objectForKey:sessionId]) {
             NSComparisonResult result = [sessionId compare:_userSessionId];
@@ -355,6 +373,40 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
     }
     return sessions;
+}
+
+- (NSString *)getUserIdFromSessionId:(NSString *)sessionId
+{
+    NSString *userId = nil;
+    for (NSMutableDictionary *user in _peersInCall) {
+        NSString *userSessionId = [user objectForKey:@"sessionId"];
+        if ([userSessionId isEqualToString:sessionId]) {
+            userId = [user objectForKey:@"userId"];
+        }
+    }
+    return userId;
+}
+
+- (void)getUserIdInServerFromSessionId:(NSString *)sessionId withCompletionBlock:(GetUserIdForSessionIdCompletionBlock)block
+{
+    [[NCAPIController sharedInstance] getPeersForCall:_room.token withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
+        if (!error) {
+            NSString *userId = nil;
+            for (NSMutableDictionary *user in peers) {
+                NSString *userSessionId = [user objectForKey:@"sessionId"];
+                if ([userSessionId isEqualToString:sessionId]) {
+                    userId = [user objectForKey:@"userId"];
+                }
+            }
+            if (block) {
+                block(userId, nil);
+            }
+        } else {
+            if (block) {
+                block(nil, error);
+            }
+        }
+    }];
 }
 
 #pragma mark - NCPeerConnectionDelegate

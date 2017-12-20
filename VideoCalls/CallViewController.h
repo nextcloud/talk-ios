@@ -21,10 +21,14 @@
 @interface CallViewController : UIViewController
 
 @property (nonatomic, weak) id<CallViewControllerDelegate> delegate;
-@property (nonatomic, copy) NSString *room;
+@property (nonatomic, strong) NCRoom *room;
 
 @property (nonatomic, strong) IBOutlet RTCCameraPreviewView *localVideoView;
+@property (nonatomic, strong) IBOutlet UIImageView *localAvatarView;
+@property (nonatomic, strong) IBOutlet UIView *waitingView;
+@property (nonatomic, strong) IBOutlet UIImageView *waitingImageView;
+@property (nonatomic, strong) IBOutlet UILabel *waitingLabel;
 
-- (instancetype)initCallInRoom:(NSString *)room asUser:(NSString*)displayName;
+- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName;
 
 @end

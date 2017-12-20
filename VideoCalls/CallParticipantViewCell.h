@@ -23,8 +23,10 @@ extern NSString *const kCallParticipantCellNibName;
 
 @property (nonatomic, weak) IBOutlet UIView *peerVideoView;
 @property (nonatomic, weak) IBOutlet UILabel *peerNameLabel;
+@property (nonatomic, weak) IBOutlet UIImageView *peerAvatarImageView;
 @property (nonatomic, weak) IBOutlet UIImageView *audioOffIndicator;
 
 - (void)setVideoView:(RTCEAGLVideoView *)videoView;
+- (void)setUserAvatar:(NSString *)userId;
 
 @end

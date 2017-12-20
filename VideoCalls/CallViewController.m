@@ -17,6 +17,9 @@
 #import "CallParticipantViewCell.h"
 #import "NBMPeersFlowLayout.h"
 #import "NCCallController.h"
+#import "NCAPIController.h"
+#import "NCSettingsController.h"
+#import "UIImageView+AFNetworking.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
@@ -42,7 +45,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 @synthesize delegate = _delegate;
 
-- (instancetype)initCallInRoom:(NSString *)room asUser:(NSString*)displayName
+- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName
 {
     self = [super init];
     if (!self) {
@@ -52,6 +55,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     _callController = [[NCCallController alloc] initWithDelegate:self];
     _callController.room = room;
     _callController.userDisplayName = displayName;
+    _room = room;
     _peersInCall = [[NSMutableArray alloc] init];
     _renderersDict = [[NSMutableDictionary alloc] init];
     
@@ -64,6 +68,24 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController startCall];
     
     self.collectionView.delegate = self;
+    self.collectionView.backgroundView = self.waitingView;
+    
+    self.waitingLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    self.waitingLabel.numberOfLines = 0;
+    
+    self.waitingImageView.layer.cornerRadius = 64;
+    self.waitingImageView.layer.masksToBounds = YES;
+    
+    [self setWaitingScreen];
+    
+    [self.localAvatarView setImageWithURLRequest:[[NCAPIController sharedInstance]
+                                                  createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUser andSize:160]
+                            placeholderImage:nil success:nil failure:nil];
+    self.localAvatarView.layer.cornerRadius = 40;
+    self.localAvatarView.layer.masksToBounds = YES;
+    self.localAvatarView.hidden = YES;
+
+    
     [self.collectionView registerNib:[UINib nibWithNibName:kCallParticipantCellNibName bundle:nil] forCellWithReuseIdentifier:kCallParticipantCellIdentifier];
     
     if (@available(iOS 11.0, *)) {
@@ -76,7 +98,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - Call State
+#pragma mark - User Interface
 
 - (void)setCallState:(CallState)state
 {
@@ -92,6 +114,26 @@ typedef NS_ENUM(NSInteger, CallState) {
             
         default:
             break;
+    }
+}
+
+- (void)setWaitingScreen
+{
+    if (_room.type == kNCRoomTypeOneToOneCall) {
+        self.waitingLabel.text = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
+        [self.waitingImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:256]
+                                     placeholderImage:nil success:nil failure:nil];
+    } else {
+        self.waitingLabel.text = @"Waiting for others to join call…";
+        
+        if (_room.type == kNCRoomTypeGroupCall) {
+            [self.waitingImageView setImage:[UIImage imageNamed:@"group-white85"]];
+        } else {
+            [self.waitingImageView setImage:[UIImage imageNamed:@"public-white85"]];
+        }
+        
+        self.waitingImageView.backgroundColor = [UIColor colorWithRed:0.898 green:0.898 blue:0.898 alpha:1]; /*#e5e5e5*/
+        self.waitingImageView.contentMode = UIViewContentModeCenter;
     }
 }
 
@@ -115,10 +157,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     if ([_callController isVideoEnabled]) {
         [_callController enableVideo:NO];
         [_captureController stopCapture];
+        [_localAvatarView setHidden:NO];
         [videoButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
     } else {
         [_callController enableVideo:YES];
         [_captureController startCapture];
+        [_localAvatarView setHidden:YES];
         [videoButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
     }
 }
@@ -167,8 +211,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
     
     [cell setVideoView:[_renderersDict objectForKey:peerConnection.peerId]];
+    [cell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
     [cell setDisplayName:peerConnection.peerName];
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
+    [cell setVideoDisabled:peerConnection.isRemoteVideoDisabled];
     
     return cell;
 }
@@ -255,6 +301,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     if ([message isEqualToString:@"audioOn"] || [message isEqualToString:@"audioOff"]) {
         [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
             [cell setAudioDisabled:peer.isRemoteAudioDisabled];
+        }];
+    } else if ([message isEqualToString:@"videoOn"] || [message isEqualToString:@"videoOff"]) {
+        [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+            [cell setVideoDisabled:peer.isRemoteVideoDisabled];
         }];
     }
 }

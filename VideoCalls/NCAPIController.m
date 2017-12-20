@@ -131,14 +131,36 @@ NSString * const NCRoomCreatedNotification = @"NCRoomCreatedNotification";
     }];
 }
 
-- (void)getRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block
+- (void)getRoomWithToken:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@", token]];
 
     [[NCAPISessionManager sharedInstance] GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSDictionary *room = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSDictionary *roomDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NCRoom *room = [NCRoom roomWithDictionary:roomDict];
         if (block) {
             block(room, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error);
+        }
+    }];
+}
+
+- (void)getRoomWithId:(NSInteger)roomId withCompletionBlock:(GetRoomCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:@"room"];
+    
+    [[NCAPISessionManager sharedInstance] GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
+        NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        for (NSDictionary *room in responseRooms) {
+            NCRoom *ncRoom = [NCRoom roomWithDictionary:room];
+            if (ncRoom.roomId == roomId) {
+                if (block) {
+                    block(ncRoom, nil);
+                }
+            }
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
@@ -422,10 +444,10 @@ NSString * const NCRoomCreatedNotification = @"NCRoomCreatedNotification";
 
 #pragma mark - User avatars
 
-- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId
+- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size
 {
     #warning TODO - Clear cache from time to time and reload possible new images
-    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/144", _serverUrl, userId];
+    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/%ld", _serverUrl, userId, (long)size];
     return [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]
                             cachePolicy:NSURLRequestReturnCacheDataElseLoad
                         timeoutInterval:60];
