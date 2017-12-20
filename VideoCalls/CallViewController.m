@@ -18,6 +18,7 @@
 #import "NBMPeersFlowLayout.h"
 #import "NCCallController.h"
 #import "NCAPIController.h"
+#import "NCSettingsController.h"
 #import "UIImageView+AFNetworking.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
@@ -76,6 +77,14 @@ typedef NS_ENUM(NSInteger, CallState) {
     self.waitingImageView.layer.masksToBounds = YES;
     
     [self setWaitingScreen];
+    
+    [self.localAvatarView setImageWithURLRequest:[[NCAPIController sharedInstance]
+                                                  createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUser andSize:160]
+                            placeholderImage:nil success:nil failure:nil];
+    self.localAvatarView.layer.cornerRadius = 40;
+    self.localAvatarView.layer.masksToBounds = YES;
+    self.localAvatarView.hidden = YES;
+
     
     [self.collectionView registerNib:[UINib nibWithNibName:kCallParticipantCellNibName bundle:nil] forCellWithReuseIdentifier:kCallParticipantCellIdentifier];
     
@@ -148,10 +157,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     if ([_callController isVideoEnabled]) {
         [_callController enableVideo:NO];
         [_captureController stopCapture];
+        [_localAvatarView setHidden:NO];
         [videoButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
     } else {
         [_callController enableVideo:YES];
         [_captureController startCapture];
+        [_localAvatarView setHidden:YES];
         [videoButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
     }
 }
