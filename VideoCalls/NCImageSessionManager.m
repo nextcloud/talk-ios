@@ -23,7 +23,8 @@
 
 - (id)init
 {
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    // Set ephemeralSessionConfiguration and just use AFAutoPurgingImageCache for caching images.
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     self = [super initWithSessionConfiguration:configuration];
     if (self) {
         _userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
