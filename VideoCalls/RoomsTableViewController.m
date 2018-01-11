@@ -674,13 +674,13 @@
             
         case kNCRoomTypeGroupCall:
             [cell.roomImage setImage:[UIImage imageNamed:@"group-white"]];
-            cell.roomImage.backgroundColor = [UIColor colorWithRed:0.898 green:0.898 blue:0.898 alpha:1]; /*#e5e5e5*/
+            cell.roomImage.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
             cell.roomImage.contentMode = UIViewContentModeCenter;
             break;
             
         case kNCRoomTypePublicCall:
             [cell.roomImage setImage:[UIImage imageNamed:@"public-white"]];
-            cell.roomImage.backgroundColor = [UIColor colorWithRed:0.898 green:0.898 blue:0.898 alpha:1]; /*#e5e5e5*/
+            cell.roomImage.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
             cell.roomImage.contentMode = UIViewContentModeCenter;
             break;
             
