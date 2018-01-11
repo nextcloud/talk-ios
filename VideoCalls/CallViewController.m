@@ -132,7 +132,7 @@ typedef NS_ENUM(NSInteger, CallState) {
             [self.waitingImageView setImage:[UIImage imageNamed:@"public-white85"]];
         }
         
-        self.waitingImageView.backgroundColor = [UIColor colorWithRed:0.898 green:0.898 blue:0.898 alpha:1]; /*#e5e5e5*/
+        self.waitingImageView.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
         self.waitingImageView.contentMode = UIViewContentModeCenter;
     }
 }
