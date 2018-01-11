@@ -10,7 +10,6 @@
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
-		2C0574931EDD9E8E00D9E7F2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C0574911EDD9E8E00D9E7F2 /* LaunchScreen.storyboard */; };
 		2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */; };
 		2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
@@ -73,6 +72,7 @@
 		2CBF82BE1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
 		2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		2CBF82C21FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
+		2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7187D2007A9920055E02C /* LaunchScreen.xib */; };
 		85032FFE8557E8F29A3C79B8 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49EC325ACC97A400B9FAFA27 /* libPods-NotificationServiceExtension.a */; };
 		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
 /* End PBXBuildFile section */
@@ -107,7 +107,6 @@
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		2C05748D1EDD9E8E00D9E7F2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		2C0574921EDD9E8E00D9E7F2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2C0574941EDD9E8E00D9E7F2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2C0574A11EDDA2E300D9E7F2 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
 		2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
@@ -270,6 +269,7 @@
 		2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCImageSessionManager.m; sourceTree = "<group>"; };
 		2CBF82BF1FD5AE3F00636459 /* NCPushProxySessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushProxySessionManager.h; sourceTree = "<group>"; };
 		2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushProxySessionManager.m; sourceTree = "<group>"; };
+		2CC7187E2007A9920055E02C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = VideoCalls/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		2CF6F5E21FC211EC00E4EFAA /* NotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		49EC325ACC97A400B9FAFA27 /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5EF849CBD848BB3194C0D885 /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
@@ -347,7 +347,7 @@
 				2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */,
 				2C0574941EDD9E8E00D9E7F2 /* Info.plist */,
 				2C5435EC1FB1E5E8003D4222 /* GoogleService-Info.plist */,
-				2C0574911EDD9E8E00D9E7F2 /* LaunchScreen.storyboard */,
+				2CC7187D2007A9920055E02C /* LaunchScreen.xib */,
 				2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */,
 				2C0574801EDD9E8E00D9E7F2 /* Supporting Files */,
 			);
@@ -761,7 +761,7 @@
 				2C5435ED1FB1E5E8003D4222 /* GoogleService-Info.plist in Resources */,
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
-				2C0574931EDD9E8E00D9E7F2 /* LaunchScreen.storyboard in Resources */,
+				2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */,
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
@@ -961,12 +961,12 @@
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		2C0574911EDD9E8E00D9E7F2 /* LaunchScreen.storyboard */ = {
+		2CC7187D2007A9920055E02C /* LaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				2C0574921EDD9E8E00D9E7F2 /* Base */,
+				2CC7187E2007A9920055E02C /* Base */,
 			);
-			name = LaunchScreen.storyboard;
+			name = LaunchScreen.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

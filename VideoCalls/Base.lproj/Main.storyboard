@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="49e-Tb-3d3">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="49e-Tb-3d3">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13174"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -121,7 +121,7 @@
                                 <segue destination="tcx-5H-OG9" kind="presentation" id="IGh-Q2-lrk"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="0Gy-30-3im">
+                        <barButtonItem key="rightBarButtonItem" title="Item" image="add" id="0Gy-30-3im">
                             <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <connections>
                                 <action selector="addButtonPressed:" destination="GE9-5J-Ym6" id="DJK-AF-9q7"/>
@@ -216,8 +216,9 @@
         </scene>
     </scenes>
     <resources>
-        <image name="call" width="44" height="44"/>
-        <image name="contact" width="30" height="30"/>
-        <image name="settings" width="25" height="25"/>
+        <image name="add" width="24" height="24"/>
+        <image name="call" width="25" height="25"/>
+        <image name="contact" width="25" height="25"/>
+        <image name="settings" width="24" height="24"/>
     </resources>
 </document>
