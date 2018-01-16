@@ -32,6 +32,8 @@ typedef enum SettingsSection {
 {
     [super viewDidLoad];
     
+    UIImage *image = [UIImage imageNamed:@"navigationLogo"];
+    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:image];
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
@@ -125,7 +127,7 @@ typedef enum SettingsSection {
         }
         
         [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
-        [self dismissViewControllerAnimated:true completion:nil];
+        [self.tabBarController setSelectedIndex:0];
     }
 }
 
