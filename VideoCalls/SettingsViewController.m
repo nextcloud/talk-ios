@@ -105,6 +105,8 @@ typedef enum SettingsSection {
             if (!cell) {
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:LogoutCellIdentifier];
                 cell.textLabel.text = @"Log out";
+                cell.textLabel.textColor = [UIColor redColor];
+                [cell.imageView setImage:[UIImage imageNamed:@"logout"]];
             }
         }
             break;
