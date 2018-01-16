@@ -10,18 +10,20 @@
 
 #import "NCSettingsController.h"
 #import "NCAPIController.h"
+#import "UserSettingsTableViewCell.h"
+#import "NCAPIController.h"
+#import "UIImageView+AFNetworking.h"
 
 typedef enum SettingsSection {
-    kSettingsSectionServer = 0,
-    kSettingsSectionUser,
-    kSettingsSectionLogout
+    kSettingsSectionUser = 0,
+    kSettingsSectionLogout,
+    kSettingsSectionNumber
 } SettingsSection;
 
 @interface SettingsViewController ()
 {
     NSString *_server;
     NSString *_user;
-    NSArray *_settingsSections;
 }
 
 @end
@@ -37,10 +39,10 @@ typedef enum SettingsSection {
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
+    [self.tableView registerNib:[UINib nibWithNibName:kUserSettingsTableCellNibName bundle:nil] forCellReuseIdentifier:kUserSettingsCellIdentifier];
+    
     _server = [[NCSettingsController sharedInstance] ncServer];
     _user = [[NCSettingsController sharedInstance] ncUser];
-    
-    _settingsSections = @[@"Server", @"User", @"Logout"];
 }
 
 - (void)didReceiveMemoryWarning
@@ -56,41 +58,45 @@ typedef enum SettingsSection {
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return [_settingsSections count];
-}
-
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
-{
-    return [_settingsSections objectAtIndex:section];
+    return kSettingsSectionNumber;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return 1;
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section == kSettingsSectionUser) {
+        return 100;
+    }
+    
+    return 48;
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
-    static NSString *ServerCellIdentifier = @"ServerCellIdentifier";
-    static NSString *UserCellIdentifier = @"UserCellIdentifier";
     static NSString *LogoutCellIdentifier = @"LogoutCellIdentifier";
     
     switch (indexPath.section) {
-        case kSettingsSectionServer:
-        {
-            cell = [tableView dequeueReusableCellWithIdentifier:ServerCellIdentifier];
-            if (!cell) {
-                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ServerCellIdentifier];
-                cell.textLabel.text = _server;
-            }
-        }
-            break;
         case kSettingsSectionUser:
         {
-            cell = [tableView dequeueReusableCellWithIdentifier:UserCellIdentifier];
+            UserSettingsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kUserSettingsCellIdentifier];
             if (!cell) {
-                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:UserCellIdentifier];
-                cell.textLabel.text = _user;
+                cell = [[UserSettingsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kUserSettingsCellIdentifier];
             }
+            
+            cell.userDisplayNameLabel.text = [NCSettingsController sharedInstance].ncUserDisplayName;
+            cell.serverAddressLabel.text = _server;
+            [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_user andSize:160]
+                                     placeholderImage:nil
+                                              success:nil
+                                              failure:nil];
+            
+            cell.userImageView.layer.cornerRadius = 40.0;
+            cell.userImageView.layer.masksToBounds = YES;
+            
+            return cell;
         }
             break;
         case kSettingsSectionLogout:
@@ -98,7 +104,7 @@ typedef enum SettingsSection {
             cell = [tableView dequeueReusableCellWithIdentifier:LogoutCellIdentifier];
             if (!cell) {
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:LogoutCellIdentifier];
-                cell.textLabel.text = @"Sign off";
+                cell.textLabel.text = @"Log out";
             }
         }
             break;
