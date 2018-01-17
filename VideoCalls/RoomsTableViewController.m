@@ -24,6 +24,8 @@
 #import "AFImageDownloader.h"
 #import "UIImageView+AFNetworking.h"
 
+typedef void (^FetchRoomsCompletionBlock)(BOOL success);
+
 @interface RoomsTableViewController () <CallViewControllerDelegate, CCCertificateDelegate>
 {
     NSMutableArray *_rooms;
@@ -221,7 +223,7 @@
 
 - (void)refreshControlTarget
 {
-    [self getRooms];
+    [self fetchRoomsWithCompletionBlock:nil];
     
     // Actuate `Peek` feedback (weak boom)
     AudioServicesPlaySystemSound(1519);
@@ -263,20 +265,23 @@
             
         default:
         {
-            [self getRooms];
+            [self fetchRoomsWithCompletionBlock:nil];
             _networkDisconnectedRetry = NO;
         }
             break;
     }
 }
 
-- (void)getRooms
+- (void)fetchRoomsWithCompletionBlock:(FetchRoomsCompletionBlock)block
 {
     [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
         if (!error) {
             _rooms = rooms;
             [self.tableView reloadData];
             NSLog(@"Rooms updated");
+            if (block) {
+                block(YES);
+            }
         } else {
             NSLog(@"Error while trying to get rooms: %@", error);
             if ([error code] == NSURLErrorServerCertificateUntrusted) {
@@ -286,6 +291,9 @@
                 });
                 
             }
+            if (block) {
+                block(NO);
+            }
         }
         
         [_refreshControl endRefreshing];
@@ -294,7 +302,7 @@
 
 - (void)trustedCerticateAccepted
 {
-    [self getRooms];
+    [self fetchRoomsWithCompletionBlock:nil];
 }
 
 - (void)startPingCall
@@ -335,7 +343,7 @@
         NSLog(@"New room name %@", newRoomName);
         [[NCAPIController sharedInstance] renameRoom:room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
             if (!error) {
-                [self getRooms];
+                [self fetchRoomsWithCompletionBlock:nil];
             } else {
                 NSLog(@"Error renaming the room: %@", error.description);
                 //TODO: Error handling
@@ -379,7 +387,7 @@
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     [[NCAPIController sharedInstance] makeRoomPublic:room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [self getRooms];
+            [self fetchRoomsWithCompletionBlock:nil];
             [self shareLinkFromRoomAtIndexPath:indexPath];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
@@ -393,7 +401,7 @@
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     [[NCAPIController sharedInstance] makeRoomPrivate:room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [self getRooms];
+            [self fetchRoomsWithCompletionBlock:nil];
         } else {
             NSLog(@"Error making private the room: %@", error.description);
             //TODO: Error handling
@@ -419,7 +427,7 @@
         NSString *password = [[renameDialog textFields][0] text];
         [[NCAPIController sharedInstance] setPassword:password toRoom:room.token withCompletionBlock:^(NSError *error) {
             if (!error) {
-                [self getRooms];
+                [self fetchRoomsWithCompletionBlock:nil];
             } else {
                 NSLog(@"Error setting room password: %@", error.description);
                 //TODO: Error handling
@@ -464,7 +472,16 @@
 {
     [[NCAPIController sharedInstance] createRoomWith:nil ofType:kNCRoomTypePublicCall andName:roomName withCompletionBlock:^(NSString *token, NSError *error) {
         if (!error) {
-            [self getRooms];
+            [self fetchRoomsWithCompletionBlock:^(BOOL success) {
+                NCRoom *newPublicRoom = [self getRoomForToken:token];
+                NSInteger roomIndex = [_rooms indexOfObject:newPublicRoom];
+                if (roomIndex != NSNotFound) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:roomIndex inSection:0]
+                                              atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+                    });
+                }
+            }];
         } else {
             NSLog(@"Error creating new public room: %@", error.description);
             //TODO: Error handling
