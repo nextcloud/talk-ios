@@ -216,6 +216,7 @@
     
     [[NCAPIController sharedInstance] createRoomWith:contact.userId
                                               ofType:kNCRoomTypeOneToOneCall
+                                             andName:nil
                                  withCompletionBlock:^(NSString *token, NSError *error) {
         if (!error) {
             // Join created room.

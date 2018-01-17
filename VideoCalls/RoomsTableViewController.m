@@ -189,7 +189,7 @@
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"New public call"
                                                            style:UIAlertActionStyleDefault
                                                          handler:^void (UIAlertAction *action) {
-                                                             [self createNewPublicRoom];
+                                                             [self createNewPublicRoomWithName:nil];
                                                          }]];
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
@@ -460,9 +460,9 @@
     [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
 }
 
-- (void)createNewPublicRoom
+- (void)createNewPublicRoomWithName:(NSString *)roomName
 {
-    [[NCAPIController sharedInstance] createRoomWith:nil ofType:kNCRoomTypePublicCall withCompletionBlock:^(NSString *token, NSError *error) {
+    [[NCAPIController sharedInstance] createRoomWith:nil ofType:kNCRoomTypePublicCall andName:roomName withCompletionBlock:^(NSString *token, NSError *error) {
         if (!error) {
             [self getRooms];
         } else {

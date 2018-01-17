@@ -169,12 +169,17 @@ NSString * const NCRoomCreatedNotification = @"NCRoomCreatedNotification";
     }];
 }
 
-- (void)createRoomWith:(NSString *)invite ofType:(NCRoomType)type withCompletionBlock:(CreateRoomCompletionBlock)block
+- (void)createRoomWith:(NSString *)invite ofType:(NCRoomType)type andName:(NSString *)roomName withCompletionBlock:(CreateRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:@"room"];
     NSDictionary *parameters = @{@"roomType" : @(type)};
+    
     if (invite) {
         parameters = @{@"roomType" : @(type), @"invite" : invite};
+    }
+    
+    if (roomName) {
+        parameters = @{@"roomType" : @(type), @"invite" : invite, @"roomName" : roomName};
     }
 
     [[NCAPISessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
