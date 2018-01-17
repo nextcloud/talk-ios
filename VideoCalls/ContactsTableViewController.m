@@ -38,7 +38,7 @@
     _networkDisconnectedRetry = NO;
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 44, 52, 0);
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 60, 0);
     
     _resultTableViewController = [[SearchTableViewController alloc] init];
     
@@ -51,7 +51,7 @@
     _resultTableViewController.tableView.delegate = self;
     _searchController.delegate = self;
     _searchController.searchBar.delegate = self;
-    
+        
     self.definesPresentationContext = YES;
     
     UIImage *image = [UIImage imageNamed:@"navigationLogo"];
@@ -179,7 +179,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 44.0f;
+    return 60.0f;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -195,12 +195,12 @@
     [cell.contactImage setImageWithString:contact.name color:nil circular:true];
     
     // Request user avatar to the server and set it if exist
-    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:64]
+    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:96]
                              placeholderImage:nil
                                       success:nil
                                       failure:nil];
     
-    cell.contactImage.layer.cornerRadius = 16.0;
+    cell.contactImage.layer.cornerRadius = 24.0;
     cell.contactImage.layer.masksToBounds = YES;
     
     return cell;
