@@ -24,6 +24,8 @@
 #import "AFImageDownloader.h"
 #import "UIImageView+AFNetworking.h"
 
+typedef void (^FetchRoomsCompletionBlock)(BOOL success);
+
 @interface RoomsTableViewController () <CallViewControllerDelegate, CCCertificateDelegate>
 {
     NSMutableArray *_rooms;
@@ -189,7 +191,7 @@
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"New public call"
                                                            style:UIAlertActionStyleDefault
                                                          handler:^void (UIAlertAction *action) {
-                                                             [self createNewPublicRoom];
+                                                             [self startPublicCallCreationFlow];
                                                          }]];
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
@@ -221,7 +223,7 @@
 
 - (void)refreshControlTarget
 {
-    [self getRooms];
+    [self fetchRoomsWithCompletionBlock:nil];
     
     // Actuate `Peek` feedback (weak boom)
     AudioServicesPlaySystemSound(1519);
@@ -263,20 +265,23 @@
             
         default:
         {
-            [self getRooms];
+            [self fetchRoomsWithCompletionBlock:nil];
             _networkDisconnectedRetry = NO;
         }
             break;
     }
 }
 
-- (void)getRooms
+- (void)fetchRoomsWithCompletionBlock:(FetchRoomsCompletionBlock)block
 {
     [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
         if (!error) {
             _rooms = rooms;
             [self.tableView reloadData];
             NSLog(@"Rooms updated");
+            if (block) {
+                block(YES);
+            }
         } else {
             NSLog(@"Error while trying to get rooms: %@", error);
             if ([error code] == NSURLErrorServerCertificateUntrusted) {
@@ -286,6 +291,9 @@
                 });
                 
             }
+            if (block) {
+                block(NO);
+            }
         }
         
         [_refreshControl endRefreshing];
@@ -294,7 +302,7 @@
 
 - (void)trustedCerticateAccepted
 {
-    [self getRooms];
+    [self fetchRoomsWithCompletionBlock:nil];
 }
 
 - (void)startPingCall
@@ -335,7 +343,7 @@
         NSLog(@"New room name %@", newRoomName);
         [[NCAPIController sharedInstance] renameRoom:room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
             if (!error) {
-                [self getRooms];
+                [self fetchRoomsWithCompletionBlock:nil];
             } else {
                 NSLog(@"Error renaming the room: %@", error.description);
                 //TODO: Error handling
@@ -379,7 +387,7 @@
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     [[NCAPIController sharedInstance] makeRoomPublic:room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [self getRooms];
+            [self fetchRoomsWithCompletionBlock:nil];
             [self shareLinkFromRoomAtIndexPath:indexPath];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
@@ -393,7 +401,7 @@
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     [[NCAPIController sharedInstance] makeRoomPrivate:room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [self getRooms];
+            [self fetchRoomsWithCompletionBlock:nil];
         } else {
             NSLog(@"Error making private the room: %@", error.description);
             //TODO: Error handling
@@ -419,7 +427,7 @@
         NSString *password = [[renameDialog textFields][0] text];
         [[NCAPIController sharedInstance] setPassword:password toRoom:room.token withCompletionBlock:^(NSError *error) {
             if (!error) {
-                [self getRooms];
+                [self fetchRoomsWithCompletionBlock:nil];
             } else {
                 NSLog(@"Error setting room password: %@", error.description);
                 //TODO: Error handling
@@ -460,16 +468,78 @@
     [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
 }
 
-- (void)createNewPublicRoom
+- (void)createNewPublicRoomWithName:(NSString *)roomName
 {
-    [[NCAPIController sharedInstance] createRoomWith:nil ofType:kNCRoomTypePublicCall withCompletionBlock:^(NSString *token, NSError *error) {
+    [[NCAPIController sharedInstance] createRoomWith:nil ofType:kNCRoomTypePublicCall andName:roomName withCompletionBlock:^(NSString *token, NSError *error) {
         if (!error) {
-            [self getRooms];
+            [self fetchRoomsWithCompletionBlock:^(BOOL success) {
+                NCRoom *newPublicRoom = [self getRoomForToken:token];
+                NSInteger roomIndex = [_rooms indexOfObject:newPublicRoom];
+                if (roomIndex != NSNotFound) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
+                        [self.tableView scrollToRowAtIndexPath:roomIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+                    });
+                    
+                    [self showShareDialogForRoom:newPublicRoom];
+                }
+            }];
         } else {
             NSLog(@"Error creating new public room: %@", error.description);
             //TODO: Error handling
         }
     }];
+}
+
+#pragma mark - Public Calls
+
+- (void)startPublicCallCreationFlow
+{
+    UIAlertController *setNameDialog =
+    [UIAlertController alertControllerWithTitle:@"New public call"
+                                        message:@"Set a name for this call"
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    [setNameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = @"Name";
+    }];
+    
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Create" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *publicCallName = [[setNameDialog textFields][0] text];
+        [self createNewPublicRoomWithName:publicCallName];
+    }];
+    [setNameDialog addAction:confirmAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [setNameDialog addAction:cancelAction];
+    
+    [self presentViewController:setNameDialog animated:YES completion:nil];
+}
+
+- (void)showShareDialogForRoom:(NCRoom *)room
+{
+    NSInteger roomIndex = [_rooms indexOfObject:room];
+    NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
+    NSString *dialogTitle = room.name;
+    
+    if (!dialogTitle || [dialogTitle isEqualToString:@""]) {
+        dialogTitle = @"New public call";
+    }
+    
+    UIAlertController *shareRoomDialog =
+    [UIAlertController alertControllerWithTitle:dialogTitle
+                                        message:@"Do you want to share this room with others?"
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self shareLinkFromRoomAtIndexPath:roomIndexPath];
+    }];
+    [shareRoomDialog addAction:confirmAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Not now" style:UIAlertActionStyleCancel handler:nil];
+    [shareRoomDialog addAction:cancelAction];
+    
+    [self presentViewController:shareRoomDialog animated:YES completion:nil];
 }
 
 #pragma mark - Calls
