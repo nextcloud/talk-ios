@@ -477,9 +477,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                 NSInteger roomIndex = [_rooms indexOfObject:newPublicRoom];
                 if (roomIndex != NSNotFound) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:roomIndex inSection:0]
-                                              atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+                        NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
+                        [self.tableView scrollToRowAtIndexPath:roomIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
                     });
+                    
+                    [self showShareDialogForRoom:newPublicRoom];
                 }
             }];
         } else {
@@ -512,6 +514,32 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [setNameDialog addAction:cancelAction];
     
     [self presentViewController:setNameDialog animated:YES completion:nil];
+}
+
+- (void)showShareDialogForRoom:(NCRoom *)room
+{
+    NSInteger roomIndex = [_rooms indexOfObject:room];
+    NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
+    NSString *dialogTitle = room.name;
+    
+    if (!dialogTitle || [dialogTitle isEqualToString:@""]) {
+        dialogTitle = @"New public call";
+    }
+    
+    UIAlertController *shareRoomDialog =
+    [UIAlertController alertControllerWithTitle:dialogTitle
+                                        message:@"Do you want to share this room with others?"
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self shareLinkFromRoomAtIndexPath:roomIndexPath];
+    }];
+    [shareRoomDialog addAction:confirmAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Not now" style:UIAlertActionStyleCancel handler:nil];
+    [shareRoomDialog addAction:cancelAction];
+    
+    [self presentViewController:shareRoomDialog animated:YES completion:nil];
 }
 
 #pragma mark - Calls
