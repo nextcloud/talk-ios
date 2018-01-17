@@ -189,7 +189,7 @@
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"New public call"
                                                            style:UIAlertActionStyleDefault
                                                          handler:^void (UIAlertAction *action) {
-                                                             [self createNewPublicRoomWithName:nil];
+                                                             [self startPublicCallCreationFlow];
                                                          }]];
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
@@ -470,6 +470,31 @@
             //TODO: Error handling
         }
     }];
+}
+
+#pragma mark - Public Calls
+
+- (void)startPublicCallCreationFlow
+{
+    UIAlertController *setNameDialog =
+    [UIAlertController alertControllerWithTitle:@"New public call"
+                                        message:@"Set a name for this call"
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    [setNameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = @"Name";
+    }];
+    
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Create" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *publicCallName = [[setNameDialog textFields][0] text];
+        [self createNewPublicRoomWithName:publicCallName];
+    }];
+    [setNameDialog addAction:confirmAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [setNameDialog addAction:cancelAction];
+    
+    [self presentViewController:setNameDialog animated:YES completion:nil];
 }
 
 #pragma mark - Calls
