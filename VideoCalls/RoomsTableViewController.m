@@ -620,7 +620,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
-    if (room.canModerate) {
+    if (room.canModerate || room.isPublic) {
         NSString *moreButtonText = @"More";
         return moreButtonText;
     }
@@ -636,58 +636,71 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [UIAlertController alertControllerWithTitle:room.displayName
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
-    // Rename
-    if (room.isNameEditable) {
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Rename"
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-                                                                 [self renameRoomAtIndexPath:indexPath];
-                                                             }]];
-    }
     
-    // Public/Private room options
-    if (room.isPublic) {
-        
-        // Set Password
-        NSString *passwordOptionTitle = @"Set password";
-        if (room.hasPassword) {
-            passwordOptionTitle = @"Change password";
-        }
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:passwordOptionTitle
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-                                                                 [self setPasswordToRoomAtIndexPath:indexPath];
-                                                             }]];
-        
+    // Share link of public calls even if you are not a moderator
+    if (!room.canModerate && room.isPublic) {
         // Share Link
         [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
                                                                style:UIAlertActionStyleDefault
                                                              handler:^void (UIAlertAction *action) {
                                                                  [self shareLinkFromRoomAtIndexPath:indexPath];
                                                              }]];
-        
-        // Make call private
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Make call private"
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-                                                                 [self makePrivateRoomAtIndexPath:indexPath];
-                                                             }]];
+    // Moderator options
     } else {
-        // Make call public
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Make call public"
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-                                                                 [self makePublicRoomAtIndexPath:indexPath];
-                                                             }]];
-    }
-    
-    // Delete room
-    if (room.isDeletable) {
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Delete call"
-                                                               style:UIAlertActionStyleDestructive
-                                                             handler:^void (UIAlertAction *action) {
-                                                                 [self deleteRoomAtIndexPath:indexPath];
-                                                             }]];
+        // Rename
+        if (room.isNameEditable) {
+            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Rename"
+                                                                   style:UIAlertActionStyleDefault
+                                                                 handler:^void (UIAlertAction *action) {
+                                                                     [self renameRoomAtIndexPath:indexPath];
+                                                                 }]];
+        }
+        
+        // Public/Private room options
+        if (room.isPublic) {
+            
+            // Set Password
+            NSString *passwordOptionTitle = @"Set password";
+            if (room.hasPassword) {
+                passwordOptionTitle = @"Change password";
+            }
+            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:passwordOptionTitle
+                                                                   style:UIAlertActionStyleDefault
+                                                                 handler:^void (UIAlertAction *action) {
+                                                                     [self setPasswordToRoomAtIndexPath:indexPath];
+                                                                 }]];
+            
+            // Share Link
+            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
+                                                                   style:UIAlertActionStyleDefault
+                                                                 handler:^void (UIAlertAction *action) {
+                                                                     [self shareLinkFromRoomAtIndexPath:indexPath];
+                                                                 }]];
+            
+            // Make call private
+            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Make call private"
+                                                                   style:UIAlertActionStyleDefault
+                                                                 handler:^void (UIAlertAction *action) {
+                                                                     [self makePrivateRoomAtIndexPath:indexPath];
+                                                                 }]];
+        } else {
+            // Make call public
+            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Make call public"
+                                                                   style:UIAlertActionStyleDefault
+                                                                 handler:^void (UIAlertAction *action) {
+                                                                     [self makePublicRoomAtIndexPath:indexPath];
+                                                                 }]];
+        }
+        
+        // Delete room
+        if (room.isDeletable) {
+            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Delete call"
+                                                                   style:UIAlertActionStyleDestructive
+                                                                 handler:^void (UIAlertAction *action) {
+                                                                     [self deleteRoomAtIndexPath:indexPath];
+                                                                 }]];
+        }
+        
     }
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
