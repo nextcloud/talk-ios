@@ -387,12 +387,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     [[NCAPIController sharedInstance] makeRoomPublic:room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [self fetchRoomsWithCompletionBlock:nil];
             NSString *title = [NSString stringWithFormat:@"%@ is now public", room.name];
-            if (!room.name || [room.name isEqualToString:@""]) {
+            // Room type condition should be removed when we don't set room names by default on OneToOne calls.
+            if (room.type == kNCRoomTypeOneToOneCall || !room.name || [room.name isEqualToString:@""]) {
                 title = @"This call is now public";
             }
             [self showShareDialogForRoom:room withTitle:title];
+            [self fetchRoomsWithCompletionBlock:nil];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
             //TODO: Error handling
