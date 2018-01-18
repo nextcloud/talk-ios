@@ -388,7 +388,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NCAPIController sharedInstance] makeRoomPublic:room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self fetchRoomsWithCompletionBlock:nil];
-            [self shareLinkFromRoomAtIndexPath:indexPath];
+            NSString *title = [NSString stringWithFormat:@"%@ is now public", room.name];
+            if (!room.name || [room.name isEqualToString:@""]) {
+                title = @"This call is now public";
+            }
+            [self showShareDialogForRoom:room withTitle:title];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
             //TODO: Error handling
@@ -481,8 +485,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                         NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
                         [self.tableView scrollToRowAtIndexPath:roomIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
                     });
-                    
-                    [self showShareDialogForRoom:newPublicRoom];
+                    NSString *title = newPublicRoom.name;
+                    if (!title || [title isEqualToString:@""]) {
+                        title = @"New public call";
+                    }
+                    [self showShareDialogForRoom:newPublicRoom withTitle:title];
                 }
             }];
         } else {
@@ -518,18 +525,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self presentViewController:setNameDialog animated:YES completion:nil];
 }
 
-- (void)showShareDialogForRoom:(NCRoom *)room
+- (void)showShareDialogForRoom:(NCRoom *)room withTitle:(NSString *)title
 {
     NSInteger roomIndex = [_rooms indexOfObject:room];
     NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
-    NSString *dialogTitle = room.name;
-    
-    if (!dialogTitle || [dialogTitle isEqualToString:@""]) {
-        dialogTitle = @"New public call";
-    }
     
     UIAlertController *shareRoomDialog =
-    [UIAlertController alertControllerWithTitle:dialogTitle
+    [UIAlertController alertControllerWithTitle:title
                                         message:@"Do you want to share this call with others?"
                                  preferredStyle:UIAlertControllerStyleAlert];
     
