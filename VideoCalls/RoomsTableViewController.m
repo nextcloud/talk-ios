@@ -340,8 +340,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *newRoomName = [[renameDialog textFields][0] text];
-        NSLog(@"New room name %@", newRoomName);
-        [[NCAPIController sharedInstance] renameRoom:room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
+        NSString *trimmedName = [newRoomName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        [[NCAPIController sharedInstance] renameRoom:room.token withName:trimmedName andCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self fetchRoomsWithCompletionBlock:nil];
             } else {
@@ -425,7 +425,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *password = [[renameDialog textFields][0] text];
-        [[NCAPIController sharedInstance] setPassword:password toRoom:room.token withCompletionBlock:^(NSError *error) {
+        NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:room.token withCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self fetchRoomsWithCompletionBlock:nil];
             } else {
@@ -506,7 +507,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Create" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *publicCallName = [[setNameDialog textFields][0] text];
-        [self createNewPublicRoomWithName:publicCallName];
+        NSString *trimmedName = [publicCallName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        [self createNewPublicRoomWithName:trimmedName];
     }];
     [setNameDialog addAction:confirmAction];
     
