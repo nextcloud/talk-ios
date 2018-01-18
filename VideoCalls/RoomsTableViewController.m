@@ -530,7 +530,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     UIAlertController *shareRoomDialog =
     [UIAlertController alertControllerWithTitle:dialogTitle
-                                        message:@"Do you want to share this room with others?"
+                                        message:@"Do you want to share this call with others?"
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
