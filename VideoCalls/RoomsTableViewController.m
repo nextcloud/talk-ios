@@ -667,14 +667,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                              }]];
         
         // Make call private
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Stop sharing call"
-                                                               style:UIAlertActionStyleDestructive
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Make call private"
+                                                               style:UIAlertActionStyleDefault
                                                              handler:^void (UIAlertAction *action) {
                                                                  [self makePrivateRoomAtIndexPath:indexPath];
                                                              }]];
     } else {
         // Make call public
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Make call public"
                                                                style:UIAlertActionStyleDefault
                                                              handler:^void (UIAlertAction *action) {
                                                                  [self makePublicRoomAtIndexPath:indexPath];
