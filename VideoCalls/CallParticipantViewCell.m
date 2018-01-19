@@ -57,12 +57,11 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 - (void)setDisplayName:(NSString *)displayName
 {
     _displayName = displayName;
+    if (!displayName || [displayName isKindOfClass:[NSNull class]] || [displayName isEqualToString:@""]) {
+        _displayName = @"Guest";
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         self.peerNameLabel.text = _displayName;
-        // Only for guests
-        if (!_displayName || [_displayName isEqualToString:@""]) {
-            self.peerNameLabel.text = @"Guest";
-        }
     });
 }
 
