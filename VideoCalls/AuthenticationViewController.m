@@ -53,7 +53,8 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
                                   configuration:configuration];
     
     NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
-    _webView.customUserAgent = appDisplayName;
+    NSString *deviceName = [[UIDevice currentDevice] name];
+    _webView.customUserAgent = [NSString stringWithFormat:@"%@ (%@)", deviceName, appDisplayName];
     _webView.navigationDelegate = self;
     
     [_webView loadRequest:request];
