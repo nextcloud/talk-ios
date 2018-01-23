@@ -39,6 +39,8 @@
 		2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EFA81F87EF39008AFA74 /* NBMPeersFlowLayout.m */; };
 		2C7A1236200E0A5700864818 /* UserSettingsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A1234200E0A5700864818 /* UserSettingsTableViewCell.m */; };
 		2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */; };
+		2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A12402017872600864818 /* AddParticipantsTableViewController.m */; };
+		2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */; };
 		2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5631EDDE0FB0093D85A /* Foundation.framework */; };
 		2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5661EDDE1340093D85A /* CoreGraphics.framework */; };
 		2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5681EDDE13A0093D85A /* UIKit.framework */; };
@@ -151,6 +153,9 @@
 		2C7A1233200E0A5700864818 /* UserSettingsTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UserSettingsTableViewCell.h; sourceTree = "<group>"; };
 		2C7A1234200E0A5700864818 /* UserSettingsTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserSettingsTableViewCell.m; sourceTree = "<group>"; };
 		2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserSettingsTableViewCell.xib; sourceTree = "<group>"; };
+		2C7A123F2017872600864818 /* AddParticipantsTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AddParticipantsTableViewController.h; sourceTree = "<group>"; };
+		2C7A12402017872600864818 /* AddParticipantsTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AddParticipantsTableViewController.m; sourceTree = "<group>"; };
+		2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddParticipantsTableViewController.xib; sourceTree = "<group>"; };
 		2C8B5FF11FB4A9DA006E87EF /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
 		2C8B5FF21FB4A9DA006E87EF /* asn1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asn1.h; sourceTree = "<group>"; };
 		2C8B5FF31FB4A9DA006E87EF /* asn1_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asn1_mac.h; sourceTree = "<group>"; };
@@ -437,6 +442,9 @@
 				2CA1CCCC1F181741002FE6A2 /* NCUser.m */,
 				2CA1CCCE1F1E1779002FE6A2 /* SearchTableViewController.h */,
 				2CA1CCCF1F1E1779002FE6A2 /* SearchTableViewController.m */,
+				2C7A123F2017872600864818 /* AddParticipantsTableViewController.h */,
+				2C7A12402017872600864818 /* AddParticipantsTableViewController.m */,
+				2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */,
 			);
 			name = Contacts;
 			sourceTree = "<group>";
@@ -774,6 +782,7 @@
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
+				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -923,6 +932,7 @@
 				2C7A1236200E0A5700864818 /* UserSettingsTableViewCell.m in Sources */,
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
+				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
 				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
