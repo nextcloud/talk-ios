@@ -47,8 +47,8 @@
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 60, 0);
     
     _resultTableViewController = [[SearchTableViewController alloc] init];
-    
-    _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:_resultTableViewController];
+    _searchController = [[UISearchController alloc] initWithSearchResultsController:navigationController];
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
     self.tableView.tableHeaderView = _searchController.searchBar;
