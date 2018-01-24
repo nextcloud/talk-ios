@@ -11,6 +11,7 @@
 #import "AFNetworking.h"
 #import "AuthenticationViewController.h"
 #import "CallViewController.h"
+#import "AddParticipantsTableViewController.h"
 #import "CCCertificate.h"
 #import "RoomTableViewCell.h"
 #import "LoginViewController.h"
@@ -323,6 +324,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 }
 
 #pragma mark - Room actions
+
+- (void)addParticipantInRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    AddParticipantsTableViewController *addParticipantsVC = [[AddParticipantsTableViewController alloc] initForRoom:room];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:addParticipantsVC];
+    [self presentViewController:navigationController animated:YES completion:nil];
+}
 
 - (void)renameRoomAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -654,6 +663,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                              }]];
     // Moderator options
     } else {
+        // Add participant
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Add participant"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self addParticipantInRoomAtIndexPath:indexPath];
+                                                             }]];
+        
         // Rename
         if (room.isNameEditable) {
             [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Rename"
