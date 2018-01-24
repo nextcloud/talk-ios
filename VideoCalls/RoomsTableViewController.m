@@ -336,6 +336,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [renameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         textField.placeholder = @"Name";
         textField.text = room.displayName;
+        textField.autocapitalizationType = UITextAutocapitalizationTypeSentences;
     }];
     
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
@@ -511,6 +512,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     [setNameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         textField.placeholder = @"Name";
+        textField.autocapitalizationType = UITextAutocapitalizationTypeSentences;
     }];
     
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Create" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
