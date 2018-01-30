@@ -287,7 +287,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 }
 - (void)callController:(NCCallController *)callController iceStatusChanged:(RTCIceConnectionState)state ofPeer:(NCPeerConnection *)peer
 {
-    if (state == RTCIceConnectionStateDisconnected) {
+    if (state == RTCIceConnectionStateClosed) {
         [_peersInCall removeObject:peer];
         [self.collectionView reloadData];
     }
