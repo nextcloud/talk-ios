@@ -36,6 +36,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     ARDCaptureController *_captureController;
 }
 
+@property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
 @property (nonatomic, strong) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) IBOutlet UICollectionViewFlowLayout *flowLayout;
 
@@ -66,6 +67,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     [super viewDidLoad];
     [self setCallState:CallStateJoining];
     [_callController startCall];
+    
+    self.buttonsContainerView.layer.cornerRadius = 8;
     
     self.collectionView.delegate = self;
     self.collectionView.backgroundView = self.waitingView;
