@@ -34,6 +34,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSMutableDictionary *_renderersDict;
     NCCallController *_callController;
     ARDCaptureController *_captureController;
+    NSTimer *_buttonsContainerTimer;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -69,6 +70,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController startCall];
     
     self.buttonsContainerView.layer.cornerRadius = 8;
+    
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleButtonsContainer)];
+    [tapGestureRecognizer setNumberOfTapsRequired:1];
+    [self.view addGestureRecognizer:tapGestureRecognizer];
+    
+    _buttonsContainerTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(toggleButtonsContainer) userInfo:nil repeats:NO];
     
     self.collectionView.delegate = self;
     self.collectionView.backgroundView = self.waitingView;
@@ -138,6 +145,21 @@ typedef NS_ENUM(NSInteger, CallState) {
         self.waitingImageView.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
         self.waitingImageView.contentMode = UIViewContentModeCenter;
     }
+}
+
+- (void)toggleButtonsContainer {
+    CGRect buttonsContainerFrame = self.buttonsContainerView.frame;
+    [UIView animateWithDuration:0.3f animations:^{
+        if (self.buttonsContainerView.frame.origin.x < -8.0f) {
+            self.buttonsContainerView.frame = CGRectMake(-8.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
+            [self.buttonsContainerView setAlpha:1.0f];
+            _buttonsContainerTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(toggleButtonsContainer) userInfo:nil repeats:NO];
+        } else {
+            self.buttonsContainerView.frame = CGRectMake(-72.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
+            [self.buttonsContainerView setAlpha:0.0f];
+        }
+        [self.view layoutIfNeeded];
+    }];
 }
 
 #pragma mark - Call actions
