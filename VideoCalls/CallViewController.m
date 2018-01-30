@@ -69,7 +69,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self setCallState:CallStateJoining];
     [_callController startCall];
     
-    self.buttonsContainerView.layer.cornerRadius = 8;
+    self.buttonsContainerView.layer.cornerRadius = 4;
     
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleButtonsContainer)];
     [tapGestureRecognizer setNumberOfTapsRequired:1];
