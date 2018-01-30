@@ -75,7 +75,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [tapGestureRecognizer setNumberOfTapsRequired:1];
     [self.view addGestureRecognizer:tapGestureRecognizer];
     
-    _buttonsContainerTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(toggleButtonsContainer) userInfo:nil repeats:NO];
+    [self setButtonsContainerTimer];
     
     self.collectionView.delegate = self;
     self.collectionView.backgroundView = self.waitingView;
@@ -153,13 +153,26 @@ typedef NS_ENUM(NSInteger, CallState) {
         if (self.buttonsContainerView.frame.origin.x < -8.0f) {
             self.buttonsContainerView.frame = CGRectMake(-8.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
             [self.buttonsContainerView setAlpha:1.0f];
-            _buttonsContainerTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(toggleButtonsContainer) userInfo:nil repeats:NO];
+            [self setButtonsContainerTimer];
         } else {
             self.buttonsContainerView.frame = CGRectMake(-72.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
             [self.buttonsContainerView setAlpha:0.0f];
+            [self invalidateButtonsContainerTimer];
         }
         [self.view layoutIfNeeded];
     }];
+}
+
+- (void)setButtonsContainerTimer
+{
+    [self invalidateButtonsContainerTimer];
+    _buttonsContainerTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(toggleButtonsContainer) userInfo:nil repeats:NO];
+}
+
+- (void)invalidateButtonsContainerTimer
+{
+    [_buttonsContainerTimer invalidate];
+    _buttonsContainerTimer = nil;
 }
 
 #pragma mark - Call actions
