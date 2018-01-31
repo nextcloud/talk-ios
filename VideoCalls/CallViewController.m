@@ -38,6 +38,9 @@ typedef NS_ENUM(NSInteger, CallState) {
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
+@property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
+@property (nonatomic, strong) IBOutlet UIButton *videoDisableButton;
+@property (nonatomic, strong) IBOutlet UIButton *hangUpButton;
 @property (nonatomic, strong) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) IBOutlet UICollectionViewFlowLayout *flowLayout;
 
@@ -69,11 +72,13 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self setCallState:CallStateJoining];
     [_callController startCall];
     
-    self.buttonsContainerView.layer.cornerRadius = 4;
-    
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleButtonsContainer)];
     [tapGestureRecognizer setNumberOfTapsRequired:1];
     [self.view addGestureRecognizer:tapGestureRecognizer];
+    
+    [self.audioMuteButton.layer setCornerRadius:24.0f];
+    [self.videoDisableButton.layer setCornerRadius:24.0f];
+    [self.hangUpButton.layer setCornerRadius:24.0f];
     
     [self setButtonsContainerTimer];
     
@@ -150,8 +155,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)toggleButtonsContainer {
     CGRect buttonsContainerFrame = self.buttonsContainerView.frame;
     [UIView animateWithDuration:0.3f animations:^{
-        if (self.buttonsContainerView.frame.origin.x < -8.0f) {
-            self.buttonsContainerView.frame = CGRectMake(-8.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
+        if (self.buttonsContainerView.frame.origin.x < 0.0f) {
+            self.buttonsContainerView.frame = CGRectMake(0.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
             [self.buttonsContainerView setAlpha:1.0f];
             [self setButtonsContainerTimer];
         } else {

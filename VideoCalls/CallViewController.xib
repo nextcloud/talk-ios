@@ -12,10 +12,13 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CallViewController">
             <connections>
+                <outlet property="audioMuteButton" destination="kDR-Ds-I7B" id="9NJ-iO-JMY"/>
                 <outlet property="buttonsContainerView" destination="ybF-7q-HlR" id="8Mk-fB-QML"/>
                 <outlet property="collectionView" destination="aUh-Z0-hO6" id="jmc-BV-dTa"/>
+                <outlet property="hangUpButton" destination="Rl8-bS-FJ5" id="jNg-Ly-6wz"/>
                 <outlet property="localAvatarView" destination="eFV-VV-ysH" id="lK3-KI-bFO"/>
                 <outlet property="localVideoView" destination="TXj-7E-NAa" id="nXn-uK-PDD"/>
+                <outlet property="videoDisableButton" destination="5zQ-it-ujU" id="n3u-2y-uqi"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
                 <outlet property="waitingImageView" destination="1c5-9J-hVV" id="cHW-Zs-j0r"/>
                 <outlet property="waitingLabel" destination="ihe-9I-8ts" id="xiL-CE-VVw"/>
@@ -53,20 +56,13 @@
                     </subviews>
                 </view>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-7q-HlR">
-                    <rect key="frame" x="-8" y="237" width="64" height="192"/>
+                    <rect key="frame" x="0.0" y="225" width="72" height="216"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5zQ-it-ujU">
-                            <rect key="frame" x="20" y="16" width="32" height="32"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <state key="normal" title="Button" image="video"/>
-                            <connections>
-                                <action selector="videoButtonPressed:" destination="-1" eventType="touchUpInside" id="5Q5-4w-o5q"/>
-                            </connections>
-                        </button>
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl8-bS-FJ5">
-                            <rect key="frame" x="20" y="144" width="32" height="32"/>
+                            <rect key="frame" x="12" y="156" width="48" height="48"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.25" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <state key="normal" image="hang-up"/>
                             <connections>
@@ -74,15 +70,24 @@
                             </connections>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kDR-Ds-I7B">
-                            <rect key="frame" x="20" y="80" width="32" height="32"/>
+                            <rect key="frame" x="12" y="84" width="48" height="48"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <state key="normal" title="Button" image="audio"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.25" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" image="audio"/>
                             <connections>
                                 <action selector="audioButtonPressed:" destination="-1" eventType="touchUpInside" id="pXz-DO-93v"/>
                             </connections>
                         </button>
+                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5zQ-it-ujU">
+                            <rect key="frame" x="12" y="12" width="48" height="48"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.25" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" image="video"/>
+                            <connections>
+                                <action selector="videoButtonPressed:" destination="-1" eventType="touchUpInside" id="5Q5-4w-o5q"/>
+                            </connections>
+                        </button>
                     </subviews>
-                    <color key="backgroundColor" white="0.0" alpha="0.25" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -110,8 +115,8 @@
         </view>
     </objects>
     <resources>
-        <image name="audio" width="48" height="48"/>
-        <image name="hang-up" width="48" height="48"/>
-        <image name="video" width="48" height="48"/>
+        <image name="audio" width="24" height="24"/>
+        <image name="hang-up" width="24" height="24"/>
+        <image name="video" width="24" height="24"/>
     </resources>
 </document>
