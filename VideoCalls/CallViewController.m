@@ -40,6 +40,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
 @property (nonatomic, strong) IBOutlet UIButton *videoDisableButton;
+@property (nonatomic, strong) IBOutlet UIButton *switchCameraButton;
 @property (nonatomic, strong) IBOutlet UIButton *hangUpButton;
 @property (nonatomic, strong) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) IBOutlet UICollectionViewFlowLayout *flowLayout;
@@ -78,6 +79,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     [self.audioMuteButton.layer setCornerRadius:24.0f];
     [self.videoDisableButton.layer setCornerRadius:24.0f];
+    [self.switchCameraButton.layer setCornerRadius:24.0f];
     [self.hangUpButton.layer setCornerRadius:24.0f];
     
     [self setButtonsContainerTimer];
@@ -219,8 +221,30 @@ typedef NS_ENUM(NSInteger, CallState) {
         [videoButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
     }
 }
+- (IBAction)switchCameraButtonPressed:(id)sender
+{
+    [self switchCamera];
+}
 
-- (IBAction)hangupButtonPressed:(id)sender {
+- (void)switchCamera
+{
+    [_captureController switchCamera];
+    [self flipLocalVideoView];
+}
+
+- (void)flipLocalVideoView
+{
+    CATransition *animation = [CATransition animation];
+    animation.duration = .5f;
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    animation.type = @"oglFlip";
+    animation.subtype = kCATransitionFromRight;
+    
+    [self.localVideoView.layer addAnimation:animation forKey:nil];
+}
+
+- (IBAction)hangupButtonPressed:(id)sender
+{
     [self hangup];
 }
 
