@@ -226,6 +226,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)hangup
 {
+    self.waitingLabel.text = @"Call ended";
+    
     [_localVideoView.captureSession stopRunning];
     _localVideoView.captureSession = nil;
     [_captureController stopCapture];
