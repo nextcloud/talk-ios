@@ -6,16 +6,19 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CallViewController">
             <connections>
+                <outlet property="audioMuteButton" destination="kDR-Ds-I7B" id="9NJ-iO-JMY"/>
+                <outlet property="buttonsContainerView" destination="ybF-7q-HlR" id="8Mk-fB-QML"/>
                 <outlet property="collectionView" destination="aUh-Z0-hO6" id="jmc-BV-dTa"/>
+                <outlet property="hangUpButton" destination="Rl8-bS-FJ5" id="jNg-Ly-6wz"/>
                 <outlet property="localAvatarView" destination="eFV-VV-ysH" id="lK3-KI-bFO"/>
                 <outlet property="localVideoView" destination="TXj-7E-NAa" id="nXn-uK-PDD"/>
+                <outlet property="videoDisableButton" destination="5zQ-it-ujU" id="n3u-2y-uqi"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
                 <outlet property="waitingImageView" destination="1c5-9J-hVV" id="cHW-Zs-j0r"/>
                 <outlet property="waitingLabel" destination="ihe-9I-8ts" id="xiL-CE-VVw"/>
@@ -43,55 +46,51 @@
                     </connections>
                 </collectionView>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TXj-7E-NAa" userLabel="localVideo" customClass="RTCCameraPreviewView">
-                    <rect key="frame" x="239" y="477" width="120" height="170"/>
+                    <rect key="frame" x="269" y="517" width="90" height="130"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
                     <subviews>
-                        <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-7q-HlR">
-                            <rect key="frame" x="20" y="126" width="80" height="36"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <subviews>
-                                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kDR-Ds-I7B">
-                                    <rect key="frame" x="4" y="4" width="28" height="28"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <state key="normal" title="Button" image="audio"/>
-                                    <connections>
-                                        <action selector="audioButtonPressed:" destination="-1" eventType="touchUpInside" id="pXz-DO-93v"/>
-                                    </connections>
-                                </button>
-                                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5zQ-it-ujU">
-                                    <rect key="frame" x="48" y="4" width="28" height="28"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <state key="normal" title="Button" image="video"/>
-                                    <connections>
-                                        <action selector="videoButtonPressed:" destination="-1" eventType="touchUpInside" id="5Q5-4w-o5q"/>
-                                    </connections>
-                                </button>
-                            </subviews>
-                        </view>
                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eFV-VV-ysH">
-                            <rect key="frame" x="20" y="38" width="80" height="80"/>
+                            <rect key="frame" x="5" y="25" width="80" height="80"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                         </imageView>
                     </subviews>
                 </view>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl8-bS-FJ5">
-                    <rect key="frame" x="331" y="32" width="28" height="28"/>
-                    <constraints>
-                        <constraint firstAttribute="width" constant="28" id="G9h-p1-4Vf"/>
-                        <constraint firstAttribute="height" constant="28" id="ymE-Py-hkZ"/>
-                    </constraints>
-                    <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    <state key="normal" backgroundImage="close"/>
-                    <connections>
-                        <action selector="hangupButtonPressed:" destination="-1" eventType="touchUpInside" id="S0I-zJ-AFf"/>
-                    </connections>
-                </button>
+                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-7q-HlR">
+                    <rect key="frame" x="0.0" y="225" width="72" height="216"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl8-bS-FJ5">
+                            <rect key="frame" x="12" y="156" width="48" height="48"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" red="0.83529411764705885" green="0.83529411764705885" blue="0.83529411764705885" alpha="0.50481592465753422" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <state key="normal" image="hang-up"/>
+                            <connections>
+                                <action selector="hangupButtonPressed:" destination="-1" eventType="touchUpInside" id="S0I-zJ-AFf"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kDR-Ds-I7B">
+                            <rect key="frame" x="12" y="84" width="48" height="48"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" red="0.83529411764705885" green="0.83529411764705885" blue="0.83529411764705885" alpha="0.50449486301369861" colorSpace="custom" customColorSpace="sRGB"/>
+                            <state key="normal" image="audio"/>
+                            <connections>
+                                <action selector="audioButtonPressed:" destination="-1" eventType="touchUpInside" id="pXz-DO-93v"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5zQ-it-ujU">
+                            <rect key="frame" x="12" y="12" width="48" height="48"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" red="0.83529411764705885" green="0.83529411764705885" blue="0.83529411764705885" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                            <state key="normal" image="video"/>
+                            <connections>
+                                <action selector="videoButtonPressed:" destination="-1" eventType="touchUpInside" id="5Q5-4w-o5q"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                </view>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-            <constraints>
-                <constraint firstItem="Rl8-bS-FJ5" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" constant="12" id="LA7-22-GtY"/>
-                <constraint firstItem="Rl8-bS-FJ5" firstAttribute="trailing" secondItem="i5M-Pr-FkT" secondAttribute="trailingMargin" id="naV-Sv-URY"/>
-            </constraints>
             <viewLayoutGuide key="safeArea" id="bbs-K4-b33"/>
             <point key="canvasLocation" x="34.5" y="53.5"/>
         </view>
@@ -99,25 +98,25 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Waiting …" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ihe-9I-8ts">
-                    <rect key="frame" x="16" y="296" width="343" height="100"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="24"/>
-                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <nil key="highlightedColor"/>
-                </label>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1c5-9J-hVV">
                     <rect key="frame" x="123" y="110" width="128" height="128"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Waiting …" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ihe-9I-8ts">
+                    <rect key="frame" x="57" y="283" width="260" height="100"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <nil key="highlightedColor"/>
+                </label>
             </subviews>
             <viewLayoutGuide key="safeArea" id="ikW-9Y-8vD"/>
             <point key="canvasLocation" x="582.5" y="53.5"/>
         </view>
     </objects>
     <resources>
-        <image name="audio" width="48" height="48"/>
-        <image name="close" width="48" height="48"/>
-        <image name="video" width="48" height="48"/>
+        <image name="audio" width="24" height="24"/>
+        <image name="hang-up" width="24" height="24"/>
+        <image name="video" width="24" height="24"/>
     </resources>
 </document>

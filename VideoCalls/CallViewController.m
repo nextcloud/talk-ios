@@ -34,8 +34,13 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSMutableDictionary *_renderersDict;
     NCCallController *_callController;
     ARDCaptureController *_captureController;
+    NSTimer *_buttonsContainerTimer;
 }
 
+@property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
+@property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
+@property (nonatomic, strong) IBOutlet UIButton *videoDisableButton;
+@property (nonatomic, strong) IBOutlet UIButton *hangUpButton;
 @property (nonatomic, strong) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) IBOutlet UICollectionViewFlowLayout *flowLayout;
 
@@ -67,8 +72,17 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self setCallState:CallStateJoining];
     [_callController startCall];
     
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleButtonsContainer)];
+    [tapGestureRecognizer setNumberOfTapsRequired:1];
+    [self.view addGestureRecognizer:tapGestureRecognizer];
+    
+    [self.audioMuteButton.layer setCornerRadius:24.0f];
+    [self.videoDisableButton.layer setCornerRadius:24.0f];
+    [self.hangUpButton.layer setCornerRadius:24.0f];
+    
+    [self setButtonsContainerTimer];
+    
     self.collectionView.delegate = self;
-    self.collectionView.backgroundView = self.waitingView;
     
     self.waitingLabel.lineBreakMode = NSLineBreakByWordWrapping;
     self.waitingLabel.numberOfLines = 0;
@@ -135,6 +149,45 @@ typedef NS_ENUM(NSInteger, CallState) {
         self.waitingImageView.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
         self.waitingImageView.contentMode = UIViewContentModeCenter;
     }
+    
+    [self setWaitingScreenVisibility];
+}
+
+- (void)setWaitingScreenVisibility
+{
+    self.collectionView.backgroundView = self.waitingView;
+    
+    if (_peersInCall.count > 0) {
+        self.collectionView.backgroundView = nil;
+    }
+}
+
+- (void)toggleButtonsContainer {
+    CGRect buttonsContainerFrame = self.buttonsContainerView.frame;
+    [UIView animateWithDuration:0.3f animations:^{
+        if (self.buttonsContainerView.frame.origin.x < 0.0f) {
+            self.buttonsContainerView.frame = CGRectMake(0.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
+            [self.buttonsContainerView setAlpha:1.0f];
+            [self setButtonsContainerTimer];
+        } else {
+            self.buttonsContainerView.frame = CGRectMake(-72.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
+            [self.buttonsContainerView setAlpha:0.0f];
+            [self invalidateButtonsContainerTimer];
+        }
+        [self.view layoutIfNeeded];
+    }];
+}
+
+- (void)setButtonsContainerTimer
+{
+    [self invalidateButtonsContainerTimer];
+    _buttonsContainerTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(toggleButtonsContainer) userInfo:nil repeats:NO];
+}
+
+- (void)invalidateButtonsContainerTimer
+{
+    [_buttonsContainerTimer invalidate];
+    _buttonsContainerTimer = nil;
 }
 
 #pragma mark - Call actions
@@ -173,6 +226,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)hangup
 {
+    self.waitingLabel.text = @"Call ended";
+    
     [_localVideoView.captureSession stopRunning];
     _localVideoView.captureSession = nil;
     [_captureController stopCapture];
@@ -202,6 +257,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
+    [self setWaitingScreenVisibility];
     return [_peersInCall count];
 }
 
