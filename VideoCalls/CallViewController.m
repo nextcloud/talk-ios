@@ -229,6 +229,18 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)switchCamera
 {
     [_captureController switchCamera];
+    [self flipLocalVideoView];
+}
+
+- (void)flipLocalVideoView
+{
+    CATransition *animation = [CATransition animation];
+    animation.duration = .5f;
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    animation.type = @"oglFlip";
+    animation.subtype = kCATransitionFromRight;
+    
+    [self.localVideoView.layer addAnimation:animation forKey:nil];
 }
 
 - (IBAction)hangupButtonPressed:(id)sender
