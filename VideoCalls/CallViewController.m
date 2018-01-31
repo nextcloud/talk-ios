@@ -83,7 +83,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self setButtonsContainerTimer];
     
     self.collectionView.delegate = self;
-    self.collectionView.backgroundView = self.waitingView;
     
     self.waitingLabel.lineBreakMode = NSLineBreakByWordWrapping;
     self.waitingLabel.numberOfLines = 0;
@@ -149,6 +148,17 @@ typedef NS_ENUM(NSInteger, CallState) {
         
         self.waitingImageView.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
         self.waitingImageView.contentMode = UIViewContentModeCenter;
+    }
+    
+    [self setWaitingScreenVisibility];
+}
+
+- (void)setWaitingScreenVisibility
+{
+    self.collectionView.backgroundView = self.waitingView;
+    
+    if (_peersInCall.count > 0) {
+        self.collectionView.backgroundView = nil;
     }
 }
 
@@ -245,6 +255,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
+    [self setWaitingScreenVisibility];
     return [_peersInCall count];
 }
 
