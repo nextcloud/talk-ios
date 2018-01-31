@@ -62,7 +62,7 @@
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl8-bS-FJ5">
                             <rect key="frame" x="12" y="156" width="48" height="48"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <color key="backgroundColor" white="0.0" alpha="0.25" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <color key="backgroundColor" red="0.83529411764705885" green="0.83529411764705885" blue="0.83529411764705885" alpha="0.50481592465753422" colorSpace="custom" customColorSpace="sRGB"/>
                             <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <state key="normal" image="hang-up"/>
                             <connections>
@@ -72,7 +72,7 @@
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kDR-Ds-I7B">
                             <rect key="frame" x="12" y="84" width="48" height="48"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <color key="backgroundColor" white="0.0" alpha="0.25" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <color key="backgroundColor" red="0.83529411764705885" green="0.83529411764705885" blue="0.83529411764705885" alpha="0.50449486301369861" colorSpace="custom" customColorSpace="sRGB"/>
                             <state key="normal" image="audio"/>
                             <connections>
                                 <action selector="audioButtonPressed:" destination="-1" eventType="touchUpInside" id="pXz-DO-93v"/>
@@ -81,7 +81,7 @@
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5zQ-it-ujU">
                             <rect key="frame" x="12" y="12" width="48" height="48"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <color key="backgroundColor" white="0.0" alpha="0.25" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <color key="backgroundColor" red="0.83529411764705885" green="0.83529411764705885" blue="0.83529411764705885" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
                             <state key="normal" image="video"/>
                             <connections>
                                 <action selector="videoButtonPressed:" destination="-1" eventType="touchUpInside" id="5Q5-4w-o5q"/>
