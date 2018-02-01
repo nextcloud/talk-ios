@@ -213,11 +213,13 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_callController enableVideo:NO];
         [_captureController stopCapture];
         [_localAvatarView setHidden:NO];
+        [_switchCameraButton setEnabled:NO];
         [videoButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
     } else {
         [_callController enableVideo:YES];
         [_captureController startCapture];
         [_localAvatarView setHidden:YES];
+        [_switchCameraButton setEnabled:YES];
         [videoButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
     }
 }
