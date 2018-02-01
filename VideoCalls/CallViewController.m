@@ -89,9 +89,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     self.collectionView.delegate = self;
     
-    self.waitingLabel.lineBreakMode = NSLineBreakByWordWrapping;
-    self.waitingLabel.numberOfLines = 0;
-    
     self.waitingImageView.layer.cornerRadius = 64;
     self.waitingImageView.layer.masksToBounds = YES;
     
