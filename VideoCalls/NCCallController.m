@@ -17,6 +17,8 @@
 #import <WebRTC/RTCVideoTrack.h>
 #import <WebRTC/RTCVideoCapturer.h>
 #import <WebRTC/RTCCameraVideoCapturer.h>
+#import <WebRTC/RTCAudioSession.h>
+#import <WebRTC/RTCAudioSessionConfiguration.h>
 #import "NCAPIController.h"
 #import "NCSignalingController.h"
 
@@ -54,6 +56,8 @@ static NSString * const kNCVideoTrackKind = @"video";
         
         _signalingController = [[NCSignalingController alloc] init];
         _signalingController.observer = self;
+        
+        [self setAudioSessionToVideoChatMode];
     }
     
     return self;
@@ -97,6 +101,8 @@ static NSString * const kNCVideoTrackKind = @"video";
     _localVideoTrack = nil;
     _peerConnectionFactory = nil;
     _connectionsDict = nil;
+    
+    [self setAudioSessionToVideoChatMode];
     
     [[NCAPIController sharedInstance] leaveCall:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
@@ -217,6 +223,41 @@ static NSString * const kNCVideoTrackKind = @"video";
     self.localStream = localMediaStream;
     [self createLocalAudioTrack];
     [self createLocalVideoTrack];
+}
+
+#pragma mark - Audio session configuration
+
+- (void)setAudioSessionToVoiceChatMode
+{
+    [self changeAudioSessionConfigurationModeTo:AVAudioSessionModeVoiceChat];
+}
+
+- (void)setAudioSessionToVideoChatMode
+{
+    [self changeAudioSessionConfigurationModeTo:AVAudioSessionModeVideoChat];
+}
+
+- (void)changeAudioSessionConfigurationModeTo:(NSString *)mode
+{
+    RTCAudioSessionConfiguration *configuration = [[RTCAudioSessionConfiguration alloc] init];
+    configuration.category = AVAudioSessionCategoryPlayAndRecord;
+    configuration.mode = mode;
+    
+    RTCAudioSession *session = [RTCAudioSession sharedInstance];
+    [session lockForConfiguration];
+    BOOL hasSucceeded = NO;
+    NSError *error = nil;
+    if (session.isActive) {
+        hasSucceeded = [session setConfiguration:configuration error:&error];
+    } else {
+        hasSucceeded = [session setConfiguration:configuration
+                                          active:YES
+                                           error:&error];
+    }
+    if (!hasSucceeded) {
+        NSLog(@"Error setting configuration: %@", error.localizedDescription);
+    }
+    [session unlockForConfiguration];
 }
 
 #pragma mark - Peer Connection Wrapper

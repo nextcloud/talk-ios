@@ -57,9 +57,10 @@
     
     [FIRMessaging messaging].delegate = self;
     
-    RTCAudioSessionConfiguration *webRTCConfig = [RTCAudioSessionConfiguration webRTCConfiguration];
-    webRTCConfig.categoryOptions = webRTCConfig.categoryOptions | AVAudioSessionCategoryOptionDefaultToSpeaker;
-    [RTCAudioSessionConfiguration setWebRTCConfiguration:webRTCConfig];
+    RTCAudioSessionConfiguration *configuration = [RTCAudioSessionConfiguration webRTCConfiguration];
+    configuration.category = AVAudioSessionCategoryPlayAndRecord;
+    configuration.mode = AVAudioSessionModeVideoChat;
+    [RTCAudioSessionConfiguration setWebRTCConfiguration:configuration];
     
     return YES;
 }

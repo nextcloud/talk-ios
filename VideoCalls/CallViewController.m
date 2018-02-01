@@ -126,11 +126,13 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     if ([[UIDevice currentDevice] proximityState] == YES) {
         [self disableLocalVideo];
+        [_callController setAudioSessionToVoiceChatMode];
     } else {
         // Only enable video if it was not disabled by the user.
         if (!_userDisabledVideo) {
             [self enableLocalVideo];
         }
+        [_callController setAudioSessionToVideoChatMode];
     }
 }
 
