@@ -35,6 +35,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NCCallController *_callController;
     ARDCaptureController *_captureController;
     NSTimer *_buttonsContainerTimer;
+    BOOL _userDisabledVideo;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -126,7 +127,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     if ([[UIDevice currentDevice] proximityState] == YES) {
         [self disableLocalVideo];
     } else {
-        [self enableLocalVideo];
+        // Only enable video if it was not disabled by the user.
+        if (!_userDisabledVideo) {
+            [self enableLocalVideo];
+        }
     }
 }
 
@@ -227,9 +231,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     UIButton *videoButton = sender;
     if ([_callController isVideoEnabled]) {
         [self disableLocalVideo];
+        _userDisabledVideo = YES;
         [videoButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
     } else {
         [self enableLocalVideo];
+        _userDisabledVideo = NO;
         [videoButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
     }
 }
