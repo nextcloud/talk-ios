@@ -115,6 +115,17 @@ typedef NS_ENUM(NSInteger, CallState) {
                                                  name:@"UIDeviceProximityStateDidChangeNotification" object:nil];
 }
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [[UIDevice currentDevice] setProximityMonitoringEnabled:NO];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -307,11 +318,6 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     _callController = nil;
     [self.delegate viewControllerDidFinish:self];
-}
-
-- (void)dealloc
-{
-    NSLog(@"CallViewController dealloc");
 }
 
 #pragma mark - UICollectionView Datasource
