@@ -73,6 +73,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self setCallState:CallStateJoining];
     [_callController startCall];
     
+    [[UIDevice currentDevice] setProximityMonitoringEnabled:YES];
+    
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleButtonsContainer)];
     [tapGestureRecognizer setNumberOfTapsRequired:1];
     [self.view addGestureRecognizer:tapGestureRecognizer];
@@ -107,11 +109,25 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (@available(iOS 11.0, *)) {
         [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
+                                                 name:@"UIDeviceProximityStateDidChangeNotification" object:nil];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Proximity sensor
+
+- (void)sensorStateChange:(NSNotificationCenter *)notification
+{
+    if ([[UIDevice currentDevice] proximityState] == YES) {
+        [self disableLocalVideo];
+    } else {
+        [self enableLocalVideo];
+    }
 }
 
 #pragma mark - User Interface
@@ -210,19 +226,30 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     UIButton *videoButton = sender;
     if ([_callController isVideoEnabled]) {
-        [_callController enableVideo:NO];
-        [_captureController stopCapture];
-        [_localAvatarView setHidden:NO];
-        [_switchCameraButton setEnabled:NO];
+        [self disableLocalVideo];
         [videoButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
     } else {
-        [_callController enableVideo:YES];
-        [_captureController startCapture];
-        [_localAvatarView setHidden:YES];
-        [_switchCameraButton setEnabled:YES];
+        [self enableLocalVideo];
         [videoButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
     }
 }
+
+- (void)disableLocalVideo
+{
+    [_callController enableVideo:NO];
+    [_captureController stopCapture];
+    [_localAvatarView setHidden:NO];
+    [_switchCameraButton setEnabled:NO];
+}
+
+- (void)enableLocalVideo
+{
+    [_callController enableVideo:YES];
+    [_captureController startCapture];
+    [_localAvatarView setHidden:YES];
+    [_switchCameraButton setEnabled:YES];
+}
+
 - (IBAction)switchCameraButtonPressed:(id)sender
 {
     [self switchCamera];
