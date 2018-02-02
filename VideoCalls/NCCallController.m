@@ -65,12 +65,13 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)startCall
 {
+    [self createLocalMedia];
+    
     [[NCAPIController sharedInstance] joinRoom:_room.token withCompletionBlock:^(NSString *sessionId, NSError *error) {
         if (!error) {
             self.userSessionId = sessionId;
             [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
                 if (!error) {
-                    [self createLocalMedia];
                     [self.delegate callControllerDidJoinCall:self];
                     
                     [self getPeersForCall];
