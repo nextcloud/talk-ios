@@ -586,10 +586,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)presentCall:(CallViewController *)callVC
 {
-    [self presentViewController:callVC animated:YES completion:^{
-        // Disable sleep timer
-        [UIApplication sharedApplication].idleTimerDisabled = YES;
-    }];
+    [self presentViewController:callVC animated:YES completion:nil];
 }
 
 - (void)presentCallViewController:(CallViewController *)callVC
@@ -815,8 +812,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [self dismissViewControllerAnimated:YES completion:^{
             NSLog(@"Call view controller dismissed");
             _currentCallToken = nil;
-            // Enable sleep timer
-            [UIApplication sharedApplication].idleTimerDisabled = NO;
         }];
     }
 }

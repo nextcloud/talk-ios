@@ -75,6 +75,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController startCall];
     
     [[UIDevice currentDevice] setProximityMonitoringEnabled:YES];
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
     
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleButtonsContainer)];
     [tapGestureRecognizer setNumberOfTapsRequired:1];
@@ -116,6 +117,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [super viewWillDisappear:animated];
     [[UIDevice currentDevice] setProximityMonitoringEnabled:NO];
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
 }
 
 - (void)dealloc
