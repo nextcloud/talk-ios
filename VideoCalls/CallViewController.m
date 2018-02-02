@@ -197,14 +197,11 @@ typedef NS_ENUM(NSInteger, CallState) {
 }
 
 - (void)toggleButtonsContainer {
-    CGRect buttonsContainerFrame = self.buttonsContainerView.frame;
     [UIView animateWithDuration:0.3f animations:^{
-        if (self.buttonsContainerView.frame.origin.x < 0.0f) {
-            self.buttonsContainerView.frame = CGRectMake(0.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
+        if (self.buttonsContainerView.alpha == 0.0) {
             [self.buttonsContainerView setAlpha:1.0f];
             [self setButtonsContainerTimer];
         } else {
-            self.buttonsContainerView.frame = CGRectMake(-72.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
             [self.buttonsContainerView setAlpha:0.0f];
             [self invalidateButtonsContainerTimer];
         }
