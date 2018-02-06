@@ -123,17 +123,6 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
         
         [[NCSettingsController sharedInstance] generatePushNotificationsKeyPair];
         
-        // Get user display name
-        [[NCAPIController sharedInstance] getUserProfileWithCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
-            if (!error) {
-                NSString *userDisplayName = [userProfile objectForKey:@"displayname"];
-                [NCSettingsController sharedInstance].ncUserDisplayName = userDisplayName;
-                [keychain setString:userDisplayName forKey:kNCUserDisplayNameKey];
-            } else {
-                NSLog(@"Error while getting the user profile");
-            }
-        }];
-        
         // Subscribe to NC server
         [[NCAPIController sharedInstance] subscribeToNextcloudServer:^(NSDictionary *responseDict, NSError *error) {
             if (!error) {

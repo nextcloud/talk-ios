@@ -96,7 +96,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self setWaitingScreen];
     
     [self.localAvatarView setImageWithURLRequest:[[NCAPIController sharedInstance]
-                                                  createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUser andSize:160]
+                                                  createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:160]
                             placeholderImage:nil success:nil failure:nil];
     self.localAvatarView.layer.cornerRadius = 40;
     self.localAvatarView.layer.masksToBounds = YES;

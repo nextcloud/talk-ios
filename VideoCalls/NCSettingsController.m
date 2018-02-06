@@ -28,6 +28,7 @@
 
 NSString * const kNCServerKey           = @"ncServer";
 NSString * const kNCUserKey             = @"ncUser";
+NSString * const kNCUserIdKey           = @"ncUserId";
 NSString * const kNCUserDisplayNameKey  = @"ncUserDisplayName";
 NSString * const kNCTokenKey            = @"ncToken";
 NSString * const kNCPushTokenKey        = @"ncPushToken";
@@ -99,6 +100,26 @@ NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
     
 #warning TODO - Restore NCAPIController in a diferent way
     [[NCAPIController sharedInstance] setAuthHeaderWithUser:NULL andToken:NULL];
+}
+
+#pragma mark - User Profile
+
+- (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block
+{
+    [[NCAPIController sharedInstance] getUserProfileWithCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
+        if (!error) {
+            NSString *userDisplayName = [userProfile objectForKey:@"display-name"];
+            _ncUserDisplayName = userDisplayName;
+            [_keychain setString:userDisplayName forKey:kNCUserDisplayNameKey];
+            NSString *userId = [userProfile objectForKey:@"id"];
+            _ncUserId = userId;
+            [_keychain setString:userId forKey:kNCUserIdKey];
+            if (block) block(nil);
+        } else {
+            NSLog(@"Error while getting the user profile");
+            if (block) block(error);
+        }
+    }];
 }
 
 #pragma mark - Push Notifications

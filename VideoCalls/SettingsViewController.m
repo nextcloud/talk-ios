@@ -49,7 +49,9 @@ typedef enum SettingsSection {
     _server = [[NCSettingsController sharedInstance] ncServer];
     _user = [[NCSettingsController sharedInstance] ncUser];
     
-    [self.tableView reloadData];
+    [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
+        [self.tableView reloadData];
+    }];
 }
 
 
@@ -96,7 +98,7 @@ typedef enum SettingsSection {
             
             cell.userDisplayNameLabel.text = [NCSettingsController sharedInstance].ncUserDisplayName;
             cell.serverAddressLabel.text = _server;
-            [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_user andSize:160]
+            [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:160]
                                      placeholderImage:nil
                                               success:nil
                                               failure:nil];
