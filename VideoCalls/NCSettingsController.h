@@ -13,6 +13,7 @@
 
 extern NSString * const kNCServerKey;
 extern NSString * const kNCUserKey;
+extern NSString * const kNCUserIdKey;
 extern NSString * const kNCUserDisplayNameKey;
 extern NSString * const kNCTokenKey;
 extern NSString * const kNCPushTokenKey;
@@ -23,11 +24,14 @@ extern NSString * const kNCDeviceIdentifier;
 extern NSString * const kNCDeviceSignature;
 extern NSString * const kNCUserPublicKey;
 
+typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
+
 
 @interface NCSettingsController : NSObject
 
 @property (nonatomic, copy) NSString *ncServer;
 @property (nonatomic, copy) NSString *ncUser;
+@property (nonatomic, copy) NSString *ncUserId;
 @property (nonatomic, copy) NSString *ncUserDisplayName;
 @property (nonatomic, copy) NSString *ncToken;
 @property (nonatomic, copy) NSString *ncPushToken;
@@ -42,5 +46,6 @@ extern NSString * const kNCUserPublicKey;
 - (BOOL)generatePushNotificationsKeyPair;
 - (NSString *)pushTokenSHA512;
 - (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
+- (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
 
 @end

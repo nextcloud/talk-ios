@@ -464,7 +464,7 @@ NSString * const NCRoomCreatedNotification = @"NCRoomCreatedNotification";
 
 - (void)getUserProfileWithCompletionBlock:(GetUserProfileCompletionBlock)block
 {
-    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/users/%@", _serverUrl, [NCSettingsController sharedInstance].ncUser];
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/user", _serverUrl];
     NSDictionary *parameters = @{@"fomat" : @"json"};
 
     [[NCAPISessionManager sharedInstance] GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {

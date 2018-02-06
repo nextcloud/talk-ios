@@ -250,6 +250,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         }
             break;
             
+        case kConnectionStateMissingUserProfile:
+        {
+            [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
+                [self checkConnectionState];
+            }];
+        }
+            break;
+
         case kConnectionStateNetworkDisconnected:
         {
             NSLog(@"No network connection!");
