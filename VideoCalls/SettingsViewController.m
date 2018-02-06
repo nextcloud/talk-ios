@@ -96,7 +96,7 @@ typedef enum SettingsSection {
             
             cell.userDisplayNameLabel.text = [NCSettingsController sharedInstance].ncUserDisplayName;
             cell.serverAddressLabel.text = _server;
-            [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_user andSize:160]
+            [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:160]
                                      placeholderImage:nil
                                               success:nil
                                               failure:nil];
