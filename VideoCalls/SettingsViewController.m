@@ -49,7 +49,9 @@ typedef enum SettingsSection {
     _server = [[NCSettingsController sharedInstance] ncServer];
     _user = [[NCSettingsController sharedInstance] ncUser];
     
-    [self.tableView reloadData];
+    [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
+        [self.tableView reloadData];
+    }];
 }
 
 
