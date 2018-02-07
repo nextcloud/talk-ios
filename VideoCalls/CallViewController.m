@@ -34,7 +34,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSMutableDictionary *_renderersDict;
     NCCallController *_callController;
     ARDCaptureController *_captureController;
-    NSTimer *_buttonsContainerTimer;
+    NSTimer *_detailedViewTimer;
     BOOL _userDisabledVideo;
 }
 
@@ -77,7 +77,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[UIDevice currentDevice] setProximityMonitoringEnabled:YES];
     [UIApplication sharedApplication].idleTimerDisabled = YES;
     
-    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleButtonsContainer)];
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showDetailedView)];
     [tapGestureRecognizer setNumberOfTapsRequired:1];
     [self.view addGestureRecognizer:tapGestureRecognizer];
     
@@ -86,7 +86,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.switchCameraButton.layer setCornerRadius:24.0f];
     [self.hangUpButton.layer setCornerRadius:24.0f];
     
-    [self setButtonsContainerTimer];
+    [self setDetailedViewTimer];
     
     self.collectionView.delegate = self;
     
@@ -196,32 +196,45 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
-- (void)toggleButtonsContainer {
-    CGRect buttonsContainerFrame = self.buttonsContainerView.frame;
+- (void)showDetailedView
+{
+    [self showButtonsContainer];
+    [self showPeersInfo];
+    [self setDetailedViewTimer];
+}
+
+- (void)hideDetailedView
+{
+    [self hideButtonsContainer];
+    [self hidePeersInfo];
+    [self invalidateDetailedViewTimer];
+}
+
+- (void)showButtonsContainer
+{
     [UIView animateWithDuration:0.3f animations:^{
-        if (self.buttonsContainerView.frame.origin.x < 0.0f) {
-            self.buttonsContainerView.frame = CGRectMake(0.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
-            [self.buttonsContainerView setAlpha:1.0f];
-            [self setButtonsContainerTimer];
-        } else {
-            self.buttonsContainerView.frame = CGRectMake(-72.0f, buttonsContainerFrame.origin.y, buttonsContainerFrame.size.width, buttonsContainerFrame.size.height);
-            [self.buttonsContainerView setAlpha:0.0f];
-            [self invalidateButtonsContainerTimer];
-        }
+        [self.buttonsContainerView setAlpha:1.0f];
         [self.view layoutIfNeeded];
     }];
 }
 
-- (void)setButtonsContainerTimer
-{
-    [self invalidateButtonsContainerTimer];
-    _buttonsContainerTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(toggleButtonsContainer) userInfo:nil repeats:NO];
+- (void)hideButtonsContainer {
+    [UIView animateWithDuration:0.3f animations:^{
+        [self.buttonsContainerView setAlpha:0.0f];
+        [self.view layoutIfNeeded];
+    }];
 }
 
-- (void)invalidateButtonsContainerTimer
+- (void)setDetailedViewTimer
 {
-    [_buttonsContainerTimer invalidate];
-    _buttonsContainerTimer = nil;
+    [self invalidateDetailedViewTimer];
+    _detailedViewTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(hideDetailedView) userInfo:nil repeats:NO];
+}
+
+- (void)invalidateDetailedViewTimer
+{
+    [_detailedViewTimer invalidate];
+    _detailedViewTimer = nil;
 }
 
 #pragma mark - Call actions
@@ -402,6 +415,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_renderersDict setObject:renderView forKey:remotePeer.peerId];
     [_peersInCall addObject:remotePeer];
     [self.collectionView reloadData];
+    [self showDetailedView];
 }
 - (void)callController:(NCCallController *)callController didRemoveStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
@@ -465,6 +479,30 @@ typedef NS_ENUM(NSInteger, CallState) {
         CallParticipantViewCell *cell = (id)[self.collectionView cellForItemAtIndexPath:indexPath];
         block(cell);
     });
+}
+
+- (void)showPeersInfo
+{
+    NSArray *visibleCells = [_collectionView visibleCells];
+    for (CallParticipantViewCell *cell in visibleCells) {
+        [UIView animateWithDuration:0.3f animations:^{
+            [cell.peerNameLabel setAlpha:1.0f];
+            [cell.audioOffIndicator setAlpha:0.5f];
+            [cell layoutIfNeeded];
+        }];
+    }
+}
+
+- (void)hidePeersInfo
+{
+    NSArray *visibleCells = [_collectionView visibleCells];
+    for (CallParticipantViewCell *cell in visibleCells) {
+        [UIView animateWithDuration:0.3f animations:^{
+            [cell.peerNameLabel setAlpha:0.0f];
+            [cell.audioOffIndicator setAlpha:0.0f];
+            [cell layoutIfNeeded];
+        }];
+    }
 }
 
 @end
