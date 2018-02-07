@@ -7,3 +7,5 @@
 */
 
 "NEW_NOTIFICATION" = "Nextcloud notification";
+"NEW_NOTIFICATION_TITLE" = "";
+"NEW_NOTIFICATION_BODY" = "🔔 You have a new notification";
