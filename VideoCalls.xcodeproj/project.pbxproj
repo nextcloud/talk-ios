@@ -41,6 +41,7 @@
 		2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */; };
 		2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A12402017872600864818 /* AddParticipantsTableViewController.m */; };
 		2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */; };
+		2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5631EDDE0FB0093D85A /* Foundation.framework */; };
 		2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5661EDDE1340093D85A /* CoreGraphics.framework */; };
 		2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5681EDDE13A0093D85A /* UIKit.framework */; };
@@ -156,6 +157,7 @@
 		2C7A123F2017872600864818 /* AddParticipantsTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AddParticipantsTableViewController.h; sourceTree = "<group>"; };
 		2C7A12402017872600864818 /* AddParticipantsTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AddParticipantsTableViewController.m; sourceTree = "<group>"; };
 		2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddParticipantsTableViewController.xib; sourceTree = "<group>"; };
+		2C7F47AB20289B9600081CC7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2C8B5FF11FB4A9DA006E87EF /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
 		2C8B5FF21FB4A9DA006E87EF /* asn1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asn1.h; sourceTree = "<group>"; };
 		2C8B5FF31FB4A9DA006E87EF /* asn1_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asn1_mac.h; sourceTree = "<group>"; };
@@ -360,6 +362,7 @@
 				2CC7187D2007A9920055E02C /* LaunchScreen.xib */,
 				2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */,
 				2C0574801EDD9E8E00D9E7F2 /* Supporting Files */,
+				2C7F47AC20289B9600081CC7 /* Localizable.strings */,
 			);
 			path = VideoCalls;
 			sourceTree = "<group>";
@@ -775,6 +778,7 @@
 			files = (
 				2C78EFA11F828C41008AFA74 /* CallViewController.xib in Resources */,
 				2C5435ED1FB1E5E8003D4222 /* GoogleService-Info.plist in Resources */,
+				2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */,
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
 				2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */,
@@ -979,6 +983,14 @@
 				2C05748D1EDD9E8E00D9E7F2 /* Base */,
 			);
 			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		2C7F47AC20289B9600081CC7 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2C7F47AB20289B9600081CC7 /* en */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 		2CC7187D2007A9920055E02C /* LaunchScreen.xib */ = {

@@ -1,0 +1,11 @@
+/* 
+  Localizable.strings
+  VideoCalls
+
+  Created by Ivan Sein on 05.02.18.
+  Copyright © 2018 struktur AG. All rights reserved.
+*/
+
+"NEW_NOTIFICATION" = "Nextcloud notification";
+"NEW_NOTIFICATION_TITLE" = "";
+"NEW_NOTIFICATION_BODY" = "🔔 You have a new notification";
