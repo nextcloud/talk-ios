@@ -95,14 +95,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     [self setWaitingScreen];
     
-    [self.localAvatarView setImageWithURLRequest:[[NCAPIController sharedInstance]
-                                                  createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:160]
-                            placeholderImage:nil success:nil failure:nil];
-    self.localAvatarView.layer.cornerRadius = 40;
-    self.localAvatarView.layer.masksToBounds = YES;
-    self.localAvatarView.hidden = YES;
-
-    
     [self.collectionView registerNib:[UINib nibWithNibName:kCallParticipantCellNibName bundle:nil] forCellWithReuseIdentifier:kCallParticipantCellIdentifier];
     
     if (@available(iOS 11.0, *)) {
@@ -269,7 +261,6 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [_callController enableVideo:NO];
     [_captureController stopCapture];
-    [_localAvatarView setHidden:NO];
     [_switchCameraButton setEnabled:NO];
 }
 
@@ -277,7 +268,6 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [_callController enableVideo:YES];
     [_captureController startCapture];
-    [_localAvatarView setHidden:YES];
     [_switchCameraButton setEnabled:YES];
 }
 
