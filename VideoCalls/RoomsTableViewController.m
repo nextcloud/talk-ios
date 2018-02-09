@@ -795,6 +795,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [cell.roomImage setImage:[UIImage imageNamed:@"public-white"]];
             cell.roomImage.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
             cell.roomImage.contentMode = UIViewContentModeCenter;
+            if (room.hasPassword) {
+                [cell.roomPasswordImage setImage:[UIImage imageNamed:@"password"]];
+            }
             break;
             
         default:
