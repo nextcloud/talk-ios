@@ -44,12 +44,17 @@
                                             <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HP4-mZ-FCq">
+                                            <rect key="frame" x="35" y="35" width="12" height="12"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        </imageView>
                                     </subviews>
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="labelSubTitle" destination="FDH-Ta-zgI" id="NHp-dM-chx"/>
                                     <outlet property="labelTitle" destination="L2w-ad-rRt" id="CNq-cb-Kc7"/>
                                     <outlet property="roomImage" destination="eGM-8o-ipF" id="Ae7-yR-KGf"/>
+                                    <outlet property="roomPasswordImage" destination="HP4-mZ-FCq" id="qJQ-6b-p3H"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -203,6 +208,6 @@
         <image name="add" width="24" height="24"/>
         <image name="call" width="25" height="25"/>
         <image name="contact" width="25" height="25"/>
-        <image name="settings" width="24" height="24"/>
+        <image name="settings" width="25" height="25"/>
     </resources>
 </document>

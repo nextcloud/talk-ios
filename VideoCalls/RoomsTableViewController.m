@@ -437,8 +437,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
+    NSString *alertTitle = room.hasPassword ? @"Set new password:" : @"Set password:";
     UIAlertController *renameDialog =
-    [UIAlertController alertControllerWithTitle:@"Set password:"
+    [UIAlertController alertControllerWithTitle:alertTitle
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
     
@@ -447,7 +448,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         textField.secureTextEntry = YES;
     }];
     
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    NSString *actionTitle = room.hasPassword ? @"Change password" : @"OK";
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *password = [[renameDialog textFields][0] text];
         NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:room.token withCompletionBlock:^(NSError *error) {
@@ -460,6 +462,20 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         }];
     }];
     [renameDialog addAction:confirmAction];
+    
+    if (room.hasPassword) {
+        UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:@"Remove password" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+            [[NCAPIController sharedInstance] setPassword:@"" toRoom:room.token withCompletionBlock:^(NSError *error) {
+                if (!error) {
+                    [self fetchRoomsWithCompletionBlock:nil];
+                } else {
+                    NSLog(@"Error changing room password: %@", error.description);
+                    //TODO: Error handling
+                }
+            }];
+        }];
+        [renameDialog addAction:removePasswordAction];
+    }
     
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
     [renameDialog addAction:cancelAction];
@@ -795,6 +811,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [cell.roomImage setImage:[UIImage imageNamed:@"public-white"]];
             cell.roomImage.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
             cell.roomImage.contentMode = UIViewContentModeCenter;
+            if (room.hasPassword) {
+                [cell.roomPasswordImage setImage:[UIImage imageNamed:@"password"]];
+            }
             break;
             
         default:

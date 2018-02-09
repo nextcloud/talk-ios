@@ -17,6 +17,7 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
     
     self.roomImage.layer.cornerRadius = 24.0;
     self.roomImage.layer.masksToBounds = YES;
+    self.roomPasswordImage.contentMode = UIViewContentModeCenter;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -29,6 +30,8 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
 {
     [super prepareForReuse];
     
+    self.roomPasswordImage.image = nil;
+    self.roomImage.image = nil;
     self.roomImage.backgroundColor = [UIColor clearColor];
     self.roomImage.contentMode = UIViewContentModeScaleToFill;
 }
