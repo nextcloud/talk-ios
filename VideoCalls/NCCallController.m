@@ -31,6 +31,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @property (nonatomic, assign) BOOL leavingCall;
 @property (nonatomic, strong) NSTimer *pingTimer;
+@property (nonatomic, strong) AVAudioRecorder *recorder;
+@property (nonatomic, strong) NSTimer *micAudioLevelTimer;
+@property (nonatomic, assign) BOOL speaking;
 @property (nonatomic, strong) NSArray *usersInRoom;
 @property (nonatomic, strong) NSArray *peersInCall;
 @property (nonatomic, strong) RTCMediaStream *localStream;
@@ -58,6 +61,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         _signalingController.observer = self;
         
         [self setAudioSessionToVideoChatMode];
+        [self initRecorder];
     }
     
     return self;
@@ -76,6 +80,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                     
                     [self getPeersForCall];
                     [self startPingCall];
+                    [self startMonitoringMicrophoneAudioLevel];
                     [_signalingController startPullingSignalingMessages];
                 } else {
                     NSLog(@"Could not join call. Error: %@", error.description);
@@ -108,6 +113,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     [[NCAPIController sharedInstance] leaveCall:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self stopPingCall];
+            [self stopMonitoringMicrophoneAudioLevel];
             [_signalingController stopPullingSignalingMessages];
             [[NCAPIController sharedInstance] exitRoom:_room.token withCompletionBlock:^(NSError *error) {
                 if (!error) {
@@ -157,6 +163,10 @@ static NSString * const kNCVideoTrackKind = @"video";
     RTCAudioTrack *audioTrack = [_localStream.audioTracks firstObject];
     [audioTrack setIsEnabled:enable];
     [self sendDataChannelMessageToAllOfType:enable ? @"audioOn" : @"audioOff" withPayload:nil];
+    if (!enable) {
+        _speaking = NO;
+        [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
+    }
 }
 
 #pragma mark - Ping call
@@ -178,6 +188,58 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     [_pingTimer invalidate];
     _pingTimer = nil;
+}
+
+#pragma mark - Microphone audio level
+
+- (void)startMonitoringMicrophoneAudioLevel
+{
+    _micAudioLevelTimer = [NSTimer scheduledTimerWithTimeInterval:1.0  target:self selector:@selector(checkMicAudioLevel) userInfo:nil repeats:YES];
+}
+
+- (void)stopMonitoringMicrophoneAudioLevel
+{
+    [_micAudioLevelTimer invalidate];
+    _micAudioLevelTimer = nil;
+}
+
+- (void)initRecorder
+{
+    NSURL *url = [NSURL fileURLWithPath:@"/dev/null"];
+    
+    NSDictionary *settings = [NSDictionary dictionaryWithObjectsAndKeys:
+                              [NSNumber numberWithFloat: 44100.0],                 AVSampleRateKey,
+                              [NSNumber numberWithInt: kAudioFormatAppleLossless], AVFormatIDKey,
+                              [NSNumber numberWithInt: 0],                         AVNumberOfChannelsKey,
+                              [NSNumber numberWithInt: AVAudioQualityMax],         AVEncoderAudioQualityKey,
+                              nil];
+    
+    NSError *error;
+    
+    _recorder = [[AVAudioRecorder alloc] initWithURL:url settings:settings error:&error];
+    
+    if (_recorder) {
+        [_recorder prepareToRecord];
+        _recorder.meteringEnabled = YES;
+        [_recorder record];
+    } else {
+        NSLog(@"Failed initializing recorder.");
+    }
+}
+
+- (void)checkMicAudioLevel
+{
+    if ([self isAudioEnabled]) {
+        [_recorder updateMeters];
+        float averagePower = [_recorder averagePowerForChannel:0];
+        if (averagePower >= -50.0f && !_speaking) {
+            _speaking = YES;
+            [self sendDataChannelMessageToAllOfType:@"speaking" withPayload:nil];
+        } else if (averagePower < -50.0f && _speaking) {
+            _speaking = NO;
+            [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
+        }
+    }
 }
 
 #pragma mark - Call participants
