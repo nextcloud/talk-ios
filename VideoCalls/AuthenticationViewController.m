@@ -105,8 +105,6 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
                 token = [[component substringFromIndex:[passPrefix length]] stringByRemovingPercentEncoding];
         }
         
-        NSLog(@"SERVER:%@ USER:%@ TOKEN:%@", _serverUrl, user, token);
-        
         [NCSettingsController sharedInstance].ncServer = _serverUrl;
         [NCSettingsController sharedInstance].ncUser = user;
         [NCSettingsController sharedInstance].ncToken = token;
