@@ -100,9 +100,9 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
         for (NSString *component in components)
         {
             if ([component hasPrefix:userPrefix])
-                user = [component substringFromIndex:[userPrefix length]];
+                user = [[component substringFromIndex:[userPrefix length]] stringByRemovingPercentEncoding];
             if ([component hasPrefix:passPrefix])
-                token = [component substringFromIndex:[passPrefix length]];
+                token = [[component substringFromIndex:[passPrefix length]] stringByRemovingPercentEncoding];
         }
         
         NSLog(@"SERVER:%@ USER:%@ TOKEN:%@", _serverUrl, user, token);
