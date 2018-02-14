@@ -49,9 +49,8 @@ typedef enum SettingsSection {
     _server = [[NCSettingsController sharedInstance] ncServer];
     _user = [[NCSettingsController sharedInstance] ncUser];
     
-    [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
-        [self.tableView reloadData];
-    }];
+    [self refreshUserProfile];
+    [self.tableView reloadData];
 }
 
 
@@ -63,6 +62,15 @@ typedef enum SettingsSection {
 
 - (IBAction)cancelButtonPressed:(id)sender {
     [self dismissViewControllerAnimated:true completion:nil];
+}
+
+#pragma mark - User Profile
+
+- (void)refreshUserProfile
+{
+    [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
+        [self.tableView reloadData];
+    }];
 }
 
 #pragma mark - Table view data source
