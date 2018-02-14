@@ -66,6 +66,7 @@ NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
 {
     _ncServer = [_keychain stringForKey:kNCServerKey];
     _ncUser = [_keychain stringForKey:kNCUserKey];
+    _ncUserId = [_keychain stringForKey:kNCUserIdKey];
     _ncUserDisplayName = [_keychain stringForKey:kNCUserDisplayNameKey];
     _ncToken = [_keychain stringForKey:kNCTokenKey];
     _ncPushToken = [_keychain stringForKey:kNCPushTokenKey];
