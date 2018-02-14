@@ -110,10 +110,9 @@ typedef enum SettingsSection {
                                      placeholderImage:nil
                                               success:nil
                                               failure:nil];
-            
             cell.userImageView.layer.cornerRadius = 40.0;
             cell.userImageView.layer.masksToBounds = YES;
-            
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
             return cell;
         }
             break;
