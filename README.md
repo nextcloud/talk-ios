@@ -1,9 +1,11 @@
 # Nextcloud Talk iOS app
-This is the iOS app for the [Nextcloud Talk](https://github.com/nextcloud/spreed) app.
+
+Video & audio calls through Nextcloud on iOS.
 
 ## Prerequisites
 
-- Nexcloud instance with [Nextcloud Talk](https://github.com/nextcloud/spreed) app installed (Latest [master](https://github.com/nextcloud/spreed/commits/master))
+- [Nextcloud server](https://github.com/nextcloud/server) version 13 or higher.
+- [Nextcloud Talk](https://github.com/nextcloud/spreed) version 3.0 or higher.
 - [CocoaPods](https://cocoapods.org/)
 
 ## Build steps
