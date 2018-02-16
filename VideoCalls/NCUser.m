@@ -17,8 +17,20 @@
     }
     
     NCUser *user = [[NCUser alloc] init];
-    user.userId = [[userDict objectForKey:@"value"] objectForKey:@"shareWith"];
-    user.name = [userDict objectForKey:@"label"];
+    
+    id userId = [[userDict objectForKey:@"value"] objectForKey:@"shareWith"];
+    if ([userId isKindOfClass:[NSString class]]) {
+        user.userId = userId;
+    } else {
+        user.userId = [userId stringValue];
+    }
+    
+    id name = [userDict objectForKey:@"label"];
+    if ([name isKindOfClass:[NSString class]]) {
+        user.name = name;
+    } else {
+        user.name = [name stringValue];
+    }
     
     return user;
 }

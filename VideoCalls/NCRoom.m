@@ -19,8 +19,6 @@
     NCRoom *room = [[NCRoom alloc] init];
     room.roomId = [[roomDict objectForKey:@"id"] integerValue];
     room.token = [roomDict objectForKey:@"token"];
-    room.name = [roomDict objectForKey:@"name"];
-    room.displayName = [roomDict objectForKey:@"displayName"];
     room.type = (NCRoomType)[[roomDict objectForKey:@"type"] integerValue];
     room.count = [[roomDict objectForKey:@"count"] integerValue];
     room.hasPassword = [[roomDict objectForKey:@"hasPassword"] boolValue];
@@ -29,6 +27,20 @@
     room.numGuests = [[roomDict objectForKey:@"numGuests"] integerValue];
     room.guestList = [roomDict objectForKey:@"guestList"];
     room.participants = [roomDict objectForKey:@"participants"];
+    
+    id name = [roomDict objectForKey:@"name"];
+    if ([name isKindOfClass:[NSString class]]) {
+        room.name = name;
+    } else {
+        room.name = [name stringValue];
+    }
+    
+    id displayName = [roomDict objectForKey:@"displayName"];
+    if ([displayName isKindOfClass:[NSString class]]) {
+        room.displayName = displayName;
+    } else {
+        room.displayName = [displayName stringValue];
+    }
     
     return room;
 }
