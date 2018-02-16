@@ -77,9 +77,11 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 {
     _videoDisabled = videoDisabled;
     if (videoDisabled) {
+        [_videoView setHidden:YES];
         [_peerAvatarImageView setHidden:NO];
     } else {
         [_peerAvatarImageView setHidden:YES];
+        [_videoView setHidden:NO];
     }
 }
 
