@@ -20,6 +20,8 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 @interface CallParticipantViewCell()
 {
     UIView<RTCVideoRenderer> *_videoView;
+    CGSize _remoteVideoSize;
+    BOOL _showOriginalSize;
 }
 
 @end
@@ -32,6 +34,11 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
     self.peerAvatarImageView.hidden = YES;
     self.peerAvatarImageView.layer.cornerRadius = 64;
     self.peerAvatarImageView.layer.masksToBounds = YES;
+    
+    _showOriginalSize = NO;
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleZoom)];
+    [tapGestureRecognizer setNumberOfTapsRequired:2];
+    [self.contentView addGestureRecognizer:tapGestureRecognizer];
 }
 
 - (void)prepareForReuse
@@ -41,6 +48,13 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
     _peerNameLabel.text = nil;
     [_videoView removeFromSuperview];
     _videoView = nil;
+    _showOriginalSize = NO;
+}
+
+- (void)toggleZoom
+{
+    _showOriginalSize = !_showOriginalSize;
+    [self resizeRemoteVideoView];
 }
 
 - (void)setUserAvatar:(NSString *)userId
@@ -89,6 +103,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
         [_videoView removeFromSuperview];
         _videoView = nil;
         _videoView = videoView;
+        _remoteVideoSize = videoView.frame.size;
         [_peerVideoView addSubview:_videoView];
         [self resizeRemoteVideoView];
     });
@@ -96,19 +111,20 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 
 - (void)resizeRemoteVideoView {
     CGRect bounds = self.bounds;
-    CGSize videoSize = _videoView.frame.size;
+    CGSize videoSize = _remoteVideoSize;
+    
     if (videoSize.width > 0 && videoSize.height > 0) {
         // Aspect fill remote video into bounds.
-        CGRect remoteVideoFrame =
-        AVMakeRectWithAspectRatioInsideRect(videoSize, bounds);
+        CGRect remoteVideoFrame = AVMakeRectWithAspectRatioInsideRect(videoSize, bounds);
         CGFloat scale = 1;
-        if (remoteVideoFrame.size.width > remoteVideoFrame.size.height) {
-            // Scale by height.
-            scale = bounds.size.height / remoteVideoFrame.size.height;
-        } else {
-            // Scale by width.
-            scale = bounds.size.width / remoteVideoFrame.size.width;
+        
+        if (!_showOriginalSize) {
+            CGFloat scaleHeight = bounds.size.height / remoteVideoFrame.size.height;
+            CGFloat scaleWidth = bounds.size.width / remoteVideoFrame.size.width;
+            // Always grab the bigger scale to make video cover the whole cell
+            scale = (scaleHeight > scaleWidth) ? scaleHeight : scaleWidth;
         }
+        
         remoteVideoFrame.size.height *= scale;
         remoteVideoFrame.size.width *= scale;
         _videoView.frame = remoteVideoFrame;
