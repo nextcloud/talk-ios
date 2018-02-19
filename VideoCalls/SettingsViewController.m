@@ -132,6 +132,18 @@ typedef enum SettingsSection {
     return cell;
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
+{
+    if (section == kSettingsSectionLogout) {
+        NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+        NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
+        NSString *copyright = @"© 2018 Nextcloud GmbH";
+        return [NSString stringWithFormat:@"%@ %@ %@", appName, appVersion, copyright];
+    }
+    
+    return nil;
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == kSettingsSectionLogout) {
         if ([[NCSettingsController sharedInstance] ncDeviceIdentifier]) {
