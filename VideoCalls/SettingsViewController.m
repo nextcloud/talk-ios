@@ -13,12 +13,19 @@
 #import "UserSettingsTableViewCell.h"
 #import "NCAPIController.h"
 #import "UIImageView+AFNetworking.h"
+#import <SafariServices/SafariServices.h>
 
 typedef enum SettingsSection {
     kSettingsSectionUser = 0,
-    kSettingsSectionLogout,
+    kSettingsSectionAbout,
     kSettingsSectionNumber
 } SettingsSection;
+
+typedef enum AboutSection {
+    kAboutSectionPrivacy = 0,
+    kAboutSectionSourceCode,
+    kAboutSectionNumber
+} AboutSection;
 
 @interface SettingsViewController ()
 {
@@ -124,11 +131,17 @@ typedef enum SettingsSection {
 
 #pragma mark - Table view data source
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
     return kSettingsSectionNumber;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (section == kSettingsSectionAbout) {
+        return kAboutSectionNumber;
+    }
+    
     return 1;
 }
 
@@ -141,9 +154,31 @@ typedef enum SettingsSection {
     return 48;
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    if (section == kSettingsSectionAbout) {
+        return @"About";
+    }
+    
+    return nil;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
+{
+    if (section == kSettingsSectionAbout) {
+        NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+        NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
+        NSString *copyright = @"© 2018 Nextcloud GmbH";
+        return [NSString stringWithFormat:@"%@ %@ %@", appName, appVersion, copyright];
+    }
+    
+    return nil;
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
-    static NSString *LogoutCellIdentifier = @"LogoutCellIdentifier";
+    static NSString *privacyCellIdentifier = @"PrivacyCellIdentifier";
+    static NSString *sourceCodeCellIdentifier = @"SourceCodeCellIdentifier";
     
     switch (indexPath.section) {
         case kSettingsSectionUser:
@@ -164,14 +199,27 @@ typedef enum SettingsSection {
             return cell;
         }
             break;
-        case kSettingsSectionLogout:
+        case kSettingsSectionAbout:
         {
-            cell = [tableView dequeueReusableCellWithIdentifier:LogoutCellIdentifier];
-            if (!cell) {
-                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:LogoutCellIdentifier];
-                cell.textLabel.text = @"Log out";
-                cell.textLabel.textColor = [UIColor redColor];
-                [cell.imageView setImage:[UIImage imageNamed:@"logout"]];
+            switch (indexPath.row) {
+                case kAboutSectionPrivacy:
+                {
+                    cell = [tableView dequeueReusableCellWithIdentifier:privacyCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:privacyCellIdentifier];
+                        cell.textLabel.text = @"Privacy";
+                    }
+                }
+                    break;
+                case kAboutSectionSourceCode:
+                {
+                    cell = [tableView dequeueReusableCellWithIdentifier:sourceCodeCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sourceCodeCellIdentifier];
+                        cell.textLabel.text = @"Get source code";
+                    }
+                }
+                    break;
             }
         }
             break;
@@ -180,21 +228,35 @@ typedef enum SettingsSection {
     return cell;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
-{
-    if (section == kSettingsSectionLogout) {
-        NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
-        NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
-        NSString *copyright = @"© 2018 Nextcloud GmbH";
-        return [NSString stringWithFormat:@"%@ %@ %@", appName, appVersion, copyright];
-    }
-    
-    return nil;
-}
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == kSettingsSectionUser) {
-        [self userProfilePressed];
+    switch (indexPath.section) {
+        case kSettingsSectionUser:
+        {
+            [self userProfilePressed];
+        }
+            break;
+        case kSettingsSectionAbout:
+        {
+            switch (indexPath.row) {
+                case kAboutSectionPrivacy:
+                {
+                    SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[NSURL URLWithString:@"https://nextcloud.com/privacy"]];
+                    [self presentViewController:safariVC animated:YES completion:^{
+                        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                    }];
+                }
+                    break;
+                case kAboutSectionSourceCode:
+                {
+                    SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[NSURL URLWithString:@"https://github.com/nextcloud/talk-ios"]];
+                    [self presentViewController:safariVC animated:YES completion:^{
+                        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                    }];
+                }
+                    break;
+            }
+        }
+            break;
     }
 }
 
