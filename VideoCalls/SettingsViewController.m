@@ -73,6 +73,55 @@ typedef enum SettingsSection {
     }];
 }
 
+#pragma mark - Profile actions
+
+- (void)userProfilePressed
+{
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:nil
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Log out"
+                                                           style:UIAlertActionStyleDestructive
+                                                         handler:^void (UIAlertAction *action) {
+                                                             [self logout];
+                                                         }]];
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser]];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:^{
+        [self.tableView deselectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser] animated:YES];
+    }];
+}
+
+- (void)logout
+{
+    if ([[NCSettingsController sharedInstance] ncDeviceIdentifier]) {
+        [[NCAPIController sharedInstance] unsubscribeToNextcloudServer:^(NSError *error) {
+            if (!error) {
+                NSLog(@"Unsubscribed from NC server!!!");
+            } else {
+                NSLog(@"Error while unsubscribing from NC server.");
+            }
+        }];
+        [[NCAPIController sharedInstance] unsubscribeToPushServer:^(NSError *error) {
+            if (!error) {
+                NSLog(@"Unsubscribed from Push Notification server!!!");
+            } else {
+                NSLog(@"Error while unsubscribing from Push Notification server.");
+            }
+        }];
+    }
+    
+    [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
+    [self.tabBarController setSelectedIndex:0];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -112,7 +161,6 @@ typedef enum SettingsSection {
                                               failure:nil];
             cell.userImageView.layer.cornerRadius = 40.0;
             cell.userImageView.layer.masksToBounds = YES;
-            cell.selectionStyle = UITableViewCellSelectionStyleNone;
             return cell;
         }
             break;
@@ -145,26 +193,8 @@ typedef enum SettingsSection {
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == kSettingsSectionLogout) {
-        if ([[NCSettingsController sharedInstance] ncDeviceIdentifier]) {
-            [[NCAPIController sharedInstance] unsubscribeToNextcloudServer:^(NSError *error) {
-                if (!error) {
-                    NSLog(@"Unsubscribed from NC server!!!");
-                } else {
-                    NSLog(@"Error while unsubscribing from NC server.");
-                }
-            }];
-            [[NCAPIController sharedInstance] unsubscribeToPushServer:^(NSError *error) {
-                if (!error) {
-                    NSLog(@"Unsubscribed from Push Notification server!!!");
-                } else {
-                    NSLog(@"Error while unsubscribing from Push Notification server.");
-                }
-            }];
-        }
-        
-        [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
-        [self.tabBarController setSelectedIndex:0];
+    if (indexPath.section == kSettingsSectionUser) {
+        [self userProfilePressed];
     }
 }
 
