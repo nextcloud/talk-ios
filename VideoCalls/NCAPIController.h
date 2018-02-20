@@ -38,6 +38,8 @@ typedef void (^GetSignalingSettingsCompletionBlock)(NSDictionary *settings, NSEr
 
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
 
+typedef void (^GetServerCapabilitiesCompletionBlock)(NSDictionary *serverCapabilities, NSError *error);
+
 typedef void (^SubscribeToNextcloudServerCompletionBlock)(NSDictionary *responseDict, NSError *error);
 typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
 typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
@@ -91,6 +93,9 @@ extern NSString * const NCRoomCreatedNotification;
 
 // User Profile
 - (void)getUserProfileWithCompletionBlock:(GetUserProfileCompletionBlock)block;
+
+// Server capabilities
+- (void)getServerCapabilitiesWithCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;
 
 // Push Notifications
 - (void)subscribeToNextcloudServer:(SubscribeToNextcloudServerCompletionBlock)block;

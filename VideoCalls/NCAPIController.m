@@ -479,6 +479,24 @@ NSString * const NCRoomCreatedNotification = @"NCRoomCreatedNotification";
     }];
 }
 
+- (void)getServerCapabilitiesWithCompletionBlock:(GetServerCapabilitiesCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/capabilities", _serverUrl];
+    NSDictionary *parameters = @{@"fomat" : @"json"};
+    
+    [[NCAPISessionManager sharedInstance] GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *capabilities = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            block(capabilities, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error);
+        }
+    }];
+}
+
+
 #pragma mark - Push Notifications
 
 - (void)subscribeToNextcloudServer:(SubscribeToNextcloudServerCompletionBlock)block
