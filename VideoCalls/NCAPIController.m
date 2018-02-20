@@ -468,9 +468,9 @@ NSString * const NCRoomCreatedNotification = @"NCRoomCreatedNotification";
     NSDictionary *parameters = @{@"fomat" : @"json"};
 
     [[NCAPISessionManager sharedInstance] GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSDictionary *room = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSDictionary *profile = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
-            block(room, nil);
+            block(profile, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
