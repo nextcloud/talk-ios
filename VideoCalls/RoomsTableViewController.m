@@ -202,10 +202,18 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
+    if (_allowEmptyGroupRooms) {
+        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"New group call"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+                                                                 [self startRoomCreationFlowForPublicRoom:NO];
+                                                             }]];
+    }
+    
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"New public call"
                                                            style:UIAlertActionStyleDefault
                                                          handler:^void (UIAlertAction *action) {
-                                                             [self startPublicCallCreationFlow];
+                                                             [self startRoomCreationFlowForPublicRoom:YES];
                                                          }]];
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
@@ -248,7 +256,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)checkConnectionState
 {
     ConnectionState connectionState = [[NCConnectionController sharedInstance] connectionState];
-    
     switch (connectionState) {
         case kConnectionStateNotServerProvided:
         {
@@ -530,27 +537,32 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
 }
 
-- (void)createNewPublicRoomWithName:(NSString *)roomName
+- (void)createNewRoomWithName:(NSString *)roomName public:(BOOL)public
 {
-    [[NCAPIController sharedInstance] createRoomWith:nil ofType:kNCRoomTypePublicCall andName:roomName withCompletionBlock:^(NSString *token, NSError *error) {
+    [[NCAPIController sharedInstance] createRoomWith:nil
+                                              ofType:public ? kNCRoomTypePublicCall : kNCRoomTypeGroupCall
+                                             andName:roomName
+                                 withCompletionBlock:^(NSString *token, NSError *error) {
         if (!error) {
             [self fetchRoomsWithCompletionBlock:^(BOOL success) {
-                NCRoom *newPublicRoom = [self getRoomForToken:token];
-                NSInteger roomIndex = [_rooms indexOfObject:newPublicRoom];
+                NCRoom *newRoom = [self getRoomForToken:token];
+                NSInteger roomIndex = [_rooms indexOfObject:newRoom];
                 if (roomIndex != NSNotFound) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
                         [self.tableView scrollToRowAtIndexPath:roomIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
                     });
-                    NSString *title = newPublicRoom.name;
+                }
+                if (public) {
+                    NSString *title = newRoom.name;
                     if (!title || [title isEqualToString:@""]) {
                         title = @"New public call";
                     }
-                    [self showShareDialogForRoom:newPublicRoom withTitle:title];
+                    [self showShareDialogForRoom:newRoom withTitle:title];
                 }
             }];
         } else {
-            NSLog(@"Error creating new public room: %@", error.description);
+            NSLog(@"Error creating new group room: %@", error.description);
             //TODO: Error handling
         }
     }];
@@ -558,12 +570,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 #pragma mark - Public Calls
 
-- (void)startPublicCallCreationFlow
+- (void)startRoomCreationFlowForPublicRoom:(BOOL)public
 {
-    UIAlertController *setNameDialog =
-    [UIAlertController alertControllerWithTitle:@"New public call"
-                                        message:@"Set a name for this call"
-                                 preferredStyle:UIAlertControllerStyleAlert];
+    NSString *alertTitle = public ? @"New public call" : @"New group call";
+    UIAlertController *setNameDialog = [UIAlertController alertControllerWithTitle:alertTitle
+                                                                           message:@"Set a name for this call"
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
     
     [setNameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         textField.placeholder = @"Name";
@@ -574,7 +586,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Create" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *publicCallName = [[setNameDialog textFields][0] text];
         NSString *trimmedName = [publicCallName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        [self createNewPublicRoomWithName:trimmedName];
+        [self createNewRoomWithName:trimmedName public:public];
     }];
     [setNameDialog addAction:confirmAction];
     
