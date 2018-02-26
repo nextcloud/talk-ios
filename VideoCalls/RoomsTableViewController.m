@@ -34,6 +34,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIRefreshControl *_refreshControl;
     NSTimer *_pingTimer;
     NSString *_currentCallToken;
+    BOOL _allowEmptyGroupRooms;
 }
 
 @end
@@ -63,6 +64,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loginHasBeenCompleted:) name:NCLoginCompletedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pushNotificationReceived:) name:NCPushNotificationReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinCallAccepted:) name:NCPushNotificationJoinCallAcceptedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkReachabilityHasChanged:) name:NCNetworkReachabilityHasChangedNotification object:nil];
@@ -92,6 +94,17 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     if ([notification.userInfo objectForKey:kNCTokenKey]) {
         [self dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
+- (void)serverCapabilitiesReceived:(NSNotification *)notification
+{
+    NSDictionary *talkCapabilities = [NCSettingsController sharedInstance].ncTalkCapabilities;
+    if (talkCapabilities) {
+        NSArray *talkFeatures = [talkCapabilities objectForKey:@"features"];
+        if ([talkFeatures containsObject:@"empty-group-room"]) {
+            _allowEmptyGroupRooms = YES;
+        }
     }
 }
 
