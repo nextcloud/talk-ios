@@ -27,6 +27,8 @@ extern NSString * const kNCUserPublicKey;
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
 
+extern NSString * const NCServerCapabilitiesReceivedNotification;
+
 
 @interface NCSettingsController : NSObject
 

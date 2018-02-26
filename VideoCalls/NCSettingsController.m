@@ -39,6 +39,8 @@ NSString * const kNCDeviceIdentifier    = @"ncDeviceIdentifier";
 NSString * const kNCDeviceSignature     = @"ncDeviceSignature";
 NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
 
+NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabilitiesReceivedNotification";
+
 + (NCSettingsController *)sharedInstance
 {
     static dispatch_once_t once;
@@ -131,6 +133,9 @@ NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
         if (!error) {
             NSDictionary *talkCapabilities = [[serverCapabilities objectForKey:@"capabilities"] objectForKey:@"spreed"];
             _ncTalkCapabilities = talkCapabilities;
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCServerCapabilitiesReceivedNotification
+                                                                object:self
+                                                              userInfo:nil];
             if (block) block(nil);
         } else {
             NSLog(@"Error while getting server capabilities");
