@@ -25,6 +25,7 @@ extern NSString * const kNCDeviceSignature;
 extern NSString * const kNCUserPublicKey;
 
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
+typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
 
 
 @interface NCSettingsController : NSObject
@@ -40,6 +41,7 @@ typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 @property (nonatomic, copy) NSString *ncDeviceIdentifier;
 @property (nonatomic, copy) NSString *ncDeviceSignature;
 @property (nonatomic, copy) NSString *ncUserPublicKey;
+@property (nonatomic, copy) NSDictionary *ncTalkCapabilities;
 
 + (instancetype)sharedInstance;
 - (void)cleanUserAndServerStoredValues;
@@ -47,5 +49,6 @@ typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 - (NSString *)pushTokenSHA512;
 - (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
+- (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
 
 @end

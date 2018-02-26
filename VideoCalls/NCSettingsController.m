@@ -123,6 +123,22 @@ NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
     }];
 }
 
+#pragma mark - Server Capabilities
+
+- (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
+{
+    [[NCAPIController sharedInstance] getServerCapabilitiesWithCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
+        if (!error) {
+            NSDictionary *talkCapabilities = [[serverCapabilities objectForKey:@"capabilities"] objectForKey:@"spreed"];
+            _ncTalkCapabilities = talkCapabilities;
+            if (block) block(nil);
+        } else {
+            NSLog(@"Error while getting server capabilities");
+            if (block) block(error);
+        }
+    }];
+}
+
 #pragma mark - Push Notifications
 
 - (BOOL)generatePushNotificationsKeyPair

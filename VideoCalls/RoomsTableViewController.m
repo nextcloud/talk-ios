@@ -257,6 +257,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             }];
         }
             break;
+            
+        case kConnectionStateMissingServerCapabilities:
+        {
+            [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
+                [self checkConnectionState];
+            }];
+        }
+            break;
 
         case kConnectionStateNetworkDisconnected:
         {
