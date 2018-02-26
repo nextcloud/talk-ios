@@ -13,6 +13,7 @@ typedef enum ConnectionState {
     kConnectionStateNotServerProvided = 0,
     kConnectionStateAuthenticationNeeded,
     kConnectionStateMissingUserProfile,
+    kConnectionStateMissingServerCapabilities,
     kConnectionStateNetworkDisconnected,
     kConnectionStateConnecting,
     kConnectionStateConnected

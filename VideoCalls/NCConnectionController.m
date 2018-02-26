@@ -65,6 +65,8 @@ NSString * const kNCNetworkReachabilityKey                      = @"NetworkReach
             return kConnectionStateAuthenticationNeeded;
         } else if (![NCSettingsController sharedInstance].ncUserId || ![NCSettingsController sharedInstance].ncUserDisplayName) {
             return kConnectionStateMissingUserProfile;
+        } else if (![NCSettingsController sharedInstance].ncTalkCapabilities) {
+            return kConnectionStateMissingServerCapabilities;
         } else {
             return kConnectionStateConnecting;
         }

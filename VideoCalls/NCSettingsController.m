@@ -39,6 +39,8 @@ NSString * const kNCDeviceIdentifier    = @"ncDeviceIdentifier";
 NSString * const kNCDeviceSignature     = @"ncDeviceSignature";
 NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
 
+NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabilitiesReceivedNotification";
+
 + (NCSettingsController *)sharedInstance
 {
     static dispatch_once_t once;
@@ -118,6 +120,25 @@ NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
             if (block) block(nil);
         } else {
             NSLog(@"Error while getting the user profile");
+            if (block) block(error);
+        }
+    }];
+}
+
+#pragma mark - Server Capabilities
+
+- (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
+{
+    [[NCAPIController sharedInstance] getServerCapabilitiesWithCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
+        if (!error) {
+            NSDictionary *talkCapabilities = [[serverCapabilities objectForKey:@"capabilities"] objectForKey:@"spreed"];
+            _ncTalkCapabilities = talkCapabilities;
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCServerCapabilitiesReceivedNotification
+                                                                object:self
+                                                              userInfo:nil];
+            if (block) block(nil);
+        } else {
+            NSLog(@"Error while getting server capabilities");
             if (block) block(error);
         }
     }];
