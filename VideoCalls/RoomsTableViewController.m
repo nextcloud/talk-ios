@@ -407,6 +407,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NSArray *items = @[shareMessage];
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
     
+    NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
+    NSString *emailSubject = [NSString stringWithFormat:@"%@ invitation", appDisplayName];
+    [controller setValue:emailSubject forKey:@"subject"];
+
     // Presentation on iPads
     controller.popoverPresentationController.sourceView = self.tableView;
     controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
