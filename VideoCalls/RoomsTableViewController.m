@@ -398,9 +398,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)shareLinkFromRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    NSString *shareMessage = [NSString stringWithFormat:@"You can join to this call: %@/index.php/call/%@", [[NCAPIController sharedInstance] currentServerUrl], room.token];
+    NSString *shareMessage = [NSString stringWithFormat:@"Join the conversation at %@/index.php/call/%@",
+                              [[NCAPIController sharedInstance] currentServerUrl], room.token];
+    if (room.name && ![room.name isEqualToString:@""]) {
+        shareMessage = [NSString stringWithFormat:@"Join the conversation%@ at %@/index.php/call/%@",
+                        [NSString stringWithFormat:@" \"%@\"", room.name], [[NCAPIController sharedInstance] currentServerUrl], room.token];
+    }
     NSArray *items = @[shareMessage];
-    
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
     
     // Presentation on iPads
