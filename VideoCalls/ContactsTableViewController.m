@@ -21,7 +21,6 @@
 @interface ContactsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
     NSMutableArray *_contacts;
-    BOOL _networkDisconnectedRetry;
     UISearchController *_searchController;
     SearchTableViewController *_resultTableViewController;
 }
@@ -35,7 +34,6 @@
     [super viewDidLoad];
     
     _contacts = [[NSMutableArray alloc] init];
-    _networkDisconnectedRetry = NO;
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 60, 0);
@@ -93,6 +91,7 @@
 {
     AFNetworkReachabilityStatus status = [[notification.userInfo objectForKey:kNCNetworkReachabilityKey] intValue];
     NSLog(@"Network Status:%ld", (long)status);
+    [self checkConnectionState];
 }
 
 - (void)checkConnectionState
@@ -116,21 +115,12 @@
         case kConnectionStateNetworkDisconnected:
         {
             NSLog(@"No network connection!");
-            if (!_networkDisconnectedRetry) {
-                _networkDisconnectedRetry = YES;
-                double delayInSeconds = 1.0;
-                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-                dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-                    [self checkConnectionState];
-                });
-            }
         }
             break;
             
         default:
         {
             [self getContacts];
-            _networkDisconnectedRetry = NO;
         }
             break;
     }

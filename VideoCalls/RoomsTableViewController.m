@@ -30,7 +30,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 @interface RoomsTableViewController () <CallViewControllerDelegate, CCCertificateDelegate>
 {
     NSMutableArray *_rooms;
-    BOOL _networkDisconnectedRetry;
     UIRefreshControl *_refreshControl;
     NSTimer *_pingTimer;
     NSString *_currentCallToken;
@@ -46,7 +45,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [super viewDidLoad];
     
     _rooms = [[NSMutableArray alloc] init];
-    _networkDisconnectedRetry = NO;
     
     [self createRefreshControl];
     
@@ -133,6 +131,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     AFNetworkReachabilityStatus status = [[notification.userInfo objectForKey:kNCNetworkReachabilityKey] intValue];
     NSLog(@"Network Status:%ld", (long)status);
+    [self checkConnectionState];
 }
 
 - (void)roomHasBeenCreated:(NSNotification *)notification
@@ -289,21 +288,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         case kConnectionStateNetworkDisconnected:
         {
             NSLog(@"No network connection!");
-            if (!_networkDisconnectedRetry) {
-                _networkDisconnectedRetry = YES;
-                double delayInSeconds = 1.0;
-                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-                dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-                    [self checkConnectionState];
-                });
-            }
         }
             break;
             
         default:
         {
             [self fetchRoomsWithCompletionBlock:nil];
-            _networkDisconnectedRetry = NO;
         }
             break;
     }
