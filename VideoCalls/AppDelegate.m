@@ -18,6 +18,7 @@
 
 #import "NCPushNotification.h"
 #import "NCSettingsController.h"
+#import "NCUserInterfaceController.h"
 
 @interface AppDelegate () <UNUserNotificationCenterDelegate, FIRMessagingDelegate>
 
@@ -61,6 +62,8 @@
     configuration.category = AVAudioSessionCategoryPlayAndRecord;
     configuration.mode = AVAudioSessionModeVideoChat;
     [RTCAudioSessionConfiguration setWebRTCConfiguration:configuration];
+    
+    [NCUserInterfaceController sharedInstance].mainTabBarController = (UITabBarController *) self.window.rootViewController;
     
     return YES;
 }
