@@ -319,7 +319,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)finishCall
 {
     _callController = nil;
-    [self.delegate viewControllerDidFinish:self];
+    [self.delegate callViewControllerDidFinish:self];
 }
 
 #pragma mark - UICollectionView Datasource

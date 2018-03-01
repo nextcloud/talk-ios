@@ -12,12 +12,16 @@
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 
-
-@interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate>
+@interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate>
+{
+    AuthenticationViewController *_authenticationViewController;
+}
 
 @end
 
 @implementation LoginViewController
+
+@synthesize delegate = _delegate;
 
 - (void)viewDidLoad
 {
@@ -79,8 +83,9 @@
                 
             } else {
                 if (statusCode == 401) {
-                    AuthenticationViewController *authVC = [[AuthenticationViewController alloc] initWithServerUrl:serverUrl];
-                    [self presentViewController:authVC animated:YES completion:nil];
+                    _authenticationViewController = [[AuthenticationViewController alloc] initWithServerUrl:serverUrl];
+                    _authenticationViewController.delegate = self;
+                    [self presentViewController:_authenticationViewController animated:YES completion:nil];
                 } else {
                     UIAlertController * alert = [UIAlertController
                                                  alertControllerWithTitle:@"Nextcloud Talk app not found"
@@ -113,5 +118,15 @@
     [textField resignFirstResponder];
     return YES;
 }
+
+#pragma mark - AuthenticationViewControllerDelegate
+
+- (void)authenticationViewControllerDidFinish:(AuthenticationViewController *)viewController
+{
+    if (viewController == _authenticationViewController) {
+        [self.delegate loginViewControllerDidFinish:self];
+    }
+}
+
 
 @end

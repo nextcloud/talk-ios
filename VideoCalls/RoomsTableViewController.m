@@ -9,17 +9,16 @@
 #import "RoomsTableViewController.h"
 
 #import "AFNetworking.h"
-#import "AuthenticationViewController.h"
 #import "CallViewController.h"
 #import "AddParticipantsTableViewController.h"
-#import "CCCertificate.h"
 #import "RoomTableViewCell.h"
-#import "LoginViewController.h"
+#import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCImageSessionManager.h"
 #import "NCConnectionController.h"
 #import "NCPushNotification.h"
 #import "NCSettingsController.h"
+#import "NCUserInterfaceController.h"
 #import "NSDate+DateTools.h"
 #import "UIImageView+Letters.h"
 #import "AFImageDownloader.h"
@@ -27,12 +26,10 @@
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
-@interface RoomsTableViewController () <CallViewControllerDelegate, CCCertificateDelegate>
+@interface RoomsTableViewController () <CCCertificateDelegate>
 {
     NSMutableArray *_rooms;
     UIRefreshControl *_refreshControl;
-    NSTimer *_pingTimer;
-    NSString *_currentCallToken;
     BOOL _allowEmptyGroupRooms;
 }
 
@@ -61,9 +58,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loginHasBeenCompleted:) name:NCLoginCompletedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pushNotificationReceived:) name:NCPushNotificationReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinCallAccepted:) name:NCPushNotificationJoinCallAcceptedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkReachabilityHasChanged:) name:NCNetworkReachabilityHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomHasBeenCreated:) name:NCRoomCreatedNotification object:nil];
@@ -88,13 +83,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 #pragma mark - Notifications
 
-- (void)loginHasBeenCompleted:(NSNotification *)notification
-{
-    if ([notification.userInfo objectForKey:kNCTokenKey]) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
-}
-
 - (void)serverCapabilitiesReceived:(NSNotification *)notification
 {
     NSDictionary *talkCapabilities = [NCSettingsController sharedInstance].ncTalkCapabilities;
@@ -106,24 +94,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
 }
 
-- (void)pushNotificationReceived:(NSNotification *)notification
-{
-    NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:[notification.userInfo objectForKey:@"message"]];
-    NSLog(@"Push Notification received: %@", pushNotification);
-    if (!_currentCallToken) {
-        if (self.presentedViewController) {
-            [self dismissViewControllerAnimated:YES completion:^{
-                [self presentPushNotificationAlert:pushNotification];
-            }];
-        } else {
-            [self presentPushNotificationAlert:pushNotification];
-        }
-    }
-}
-
 - (void)joinCallAccepted:(NSNotification *)notification
 {
-    NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:[notification.userInfo objectForKey:@"message"]];
+    NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
     [self joinCallWithCallId:pushNotification.pnId];
 }
 
@@ -137,59 +110,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)roomHasBeenCreated:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"token"];
-    NCRoom *room = [self getRoomForToken:roomToken];
-    if (room) {
-        [self startCallInRoom:room];
-    } else {
-        //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithToken:roomToken withCompletionBlock:^(NCRoom *room, NSError *error) {
-            if (!error) {
-                [self startCallInRoom:room];
-            }
-        }];
-    }
-}
-
-#pragma mark - Push Notification Actions
-
-- (void)presentPushNotificationAlert:(NCPushNotification *)pushNotification
-{
-    UIAlertController * alert = [UIAlertController
-                                 alertControllerWithTitle:[pushNotification bodyForRemoteAlerts]
-                                 message:@"Do you want to join this call?"
-                                 preferredStyle:UIAlertControllerStyleAlert];
-    
-    UIAlertAction *joinButton = [UIAlertAction
-                                 actionWithTitle:@"Join call"
-                                 style:UIAlertActionStyleDefault
-                                 handler:^(UIAlertAction * _Nonnull action) {
-                                     [self joinCallWithCallId:pushNotification.pnId];
-                                 }];
-    
-    UIAlertAction* cancelButton = [UIAlertAction
-                                   actionWithTitle:@"Cancel"
-                                   style:UIAlertActionStyleCancel
-                                   handler:nil];
-    
-    [alert addAction:joinButton];
-    [alert addAction:cancelButton];
-    
-    [self presentViewController:alert animated:YES completion:nil];
-}
-
-- (void)joinCallWithCallId:(NSInteger)callId
-{
-    NCRoom *room = [self getRoomForId:callId];
-    if (room) {
-        [self startCallInRoom:room];
-    } else {
-        //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
-            if (!error) {
-                [self startCallInRoom:room];
-            }
-        }];
-    }
+    [self joinCallWithCallToken:roomToken];
 }
 
 #pragma mark - Interface Builder Actions
@@ -258,14 +179,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     switch (connectionState) {
         case kConnectionStateNotServerProvided:
         {
-            LoginViewController *loginVC = [[LoginViewController alloc] init];
-            [self presentViewController:loginVC animated:YES completion:nil];
+            [[NCUserInterfaceController sharedInstance] presentLoginViewController];
         }
             break;
         case kConnectionStateAuthenticationNeeded:
         {
-            AuthenticationViewController *authVC = [[AuthenticationViewController alloc] init];
-            [self presentViewController:authVC animated:YES completion:nil];
+            [[NCUserInterfaceController sharedInstance] presentAuthenticationViewController];
         }
             break;
             
@@ -330,23 +249,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)trustedCerticateAccepted
 {
     [self fetchRoomsWithCompletionBlock:nil];
-}
-
-- (void)startPingCall
-{
-    [self pingCall];
-    _pingTimer = [NSTimer scheduledTimerWithTimeInterval:5.0  target:self selector:@selector(pingCall) userInfo:nil repeats:YES];
-}
-
-- (void)pingCall
-{
-    if (_currentCallToken) {
-        [[NCAPIController sharedInstance] pingCall:_currentCallToken withCompletionBlock:^(NSError *error) {
-            //TODO: Error handling
-        }];
-    } else {
-        NSLog(@"No call token to ping");
-    }
 }
 
 #pragma mark - Room actions
@@ -639,27 +541,40 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     return room;
 }
 
-- (void)presentCall:(CallViewController *)callVC
-{
-    [self presentViewController:callVC animated:YES completion:nil];
-}
-
-- (void)presentCallViewController:(CallViewController *)callVC
-{
-    if (self.presentedViewController) {
-        [self dismissViewControllerAnimated:YES completion:^{
-            [self presentCall:callVC];
-        }];
-    } else {
-        [self presentCall:callVC];
-    }
-}
-
 - (void)startCallInRoom:(NCRoom *)room
 {
     CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
-    callVC.delegate = self;
-    [self presentCallViewController:callVC];
+    [[NCUserInterfaceController sharedInstance] presentCallViewController:callVC];
+}
+
+- (void)joinCallWithCallId:(NSInteger)callId
+{
+    NCRoom *room = [self getRoomForId:callId];
+    if (room) {
+        [self startCallInRoom:room];
+    } else {
+        //TODO: Show spinner?
+        [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
+            if (!error) {
+                [self startCallInRoom:room];
+            }
+        }];
+    }
+}
+
+- (void)joinCallWithCallToken:(NSString *)token
+{
+    NCRoom *room = [self getRoomForToken:token];
+    if (room) {
+        [self startCallInRoom:room];
+    } else {
+        //TODO: Show spinner?
+        [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+            if (!error) {
+                [self startCallInRoom:room];
+            }
+        }];
+    }
 }
 
 #pragma mark - Table view data source
@@ -857,21 +772,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    
-    _currentCallToken = room.token;
     [self startCallInRoom:room];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-}
-
-#pragma mark - CallViewControllerDelegate
-
-- (void)viewControllerDidFinish:(CallViewController *)viewController {
-    if (![viewController isBeingDismissed]) {
-        [self dismissViewControllerAnimated:YES completion:^{
-            NSLog(@"Call view controller dismissed");
-            _currentCallToken = nil;
-        }];
-    }
 }
 
 
