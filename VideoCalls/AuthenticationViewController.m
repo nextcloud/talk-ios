@@ -13,7 +13,6 @@
 #import "NCSettingsController.h"
 
 NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flow";
-NSString * const NCAuthenticationCompletedNotification  = @"NCAuthenticationCompletedNotification";
 
 @interface AuthenticationViewController () <WKNavigationDelegate>
 {
@@ -23,6 +22,8 @@ NSString * const NCAuthenticationCompletedNotification  = @"NCAuthenticationComp
 @end
 
 @implementation AuthenticationViewController
+
+@synthesize delegate = _delegate;
 
 - (id)initWithServerUrl:(NSString *)serverUrl
 {
@@ -150,11 +151,7 @@ NSString * const NCAuthenticationCompletedNotification  = @"NCAuthenticationComp
             }
         }];
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCAuthenticationCompletedNotification
-                                                            object:self
-                                                          userInfo:@{kNCServerKey:_serverUrl,
-                                                                     kNCUserKey:user,
-                                                                     kNCTokenKey:token}];
+        [self.delegate authenticationViewControllerDidFinish:self];
         
         decisionHandler(WKNavigationActionPolicyCancel);
         return;

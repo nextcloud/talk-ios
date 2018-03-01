@@ -12,14 +12,16 @@
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 
-NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification";
-
-
-@interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate>
+@interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate>
+{
+    AuthenticationViewController *_authenticationViewController;
+}
 
 @end
 
 @implementation LoginViewController
+
+@synthesize delegate = _delegate;
 
 - (void)viewDidLoad
 {
@@ -29,8 +31,6 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
     self.login.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.activityIndicatorView.color = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.activityIndicatorView.hidden = YES;
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(authenticationCompleted:) name:NCAuthenticationCompletedNotification object:nil];
 }
 
 - (void)didReceiveMemoryWarning
@@ -83,8 +83,9 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
                 
             } else {
                 if (statusCode == 401) {
-                    AuthenticationViewController *authVC = [[AuthenticationViewController alloc] initWithServerUrl:serverUrl];
-                    [self presentViewController:authVC animated:YES completion:nil];
+                    _authenticationViewController = [[AuthenticationViewController alloc] initWithServerUrl:serverUrl];
+                    _authenticationViewController.delegate = self;
+                    [self presentViewController:_authenticationViewController animated:YES completion:nil];
                 } else {
                     UIAlertController * alert = [UIAlertController
                                                  alertControllerWithTitle:@"Nextcloud Talk app not found"
@@ -118,13 +119,13 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
     return YES;
 }
 
-#pragma mark - Notifications
+#pragma mark - AuthenticationViewControllerDelegate
 
-- (void)authenticationCompleted:(NSNotification *)notification
+- (void)authenticationViewControllerDidFinish:(AuthenticationViewController *)viewController
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:NCLoginCompletedNotification
-                                                        object:self
-                                                      userInfo:nil];
+    if (viewController == _authenticationViewController) {
+        [self.delegate loginViewControllerDidFinish:self];
+    }
 }
 
 

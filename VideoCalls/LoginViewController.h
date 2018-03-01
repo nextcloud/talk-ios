@@ -8,9 +8,16 @@
 
 #import <UIKit/UIKit.h>
 
-extern NSString * const NCLoginCompletedNotification;
+@class LoginViewController;
+@protocol LoginViewControllerDelegate <NSObject>
+
+- (void)loginViewControllerDidFinish:(LoginViewController *)viewController;
+
+@end
 
 @interface LoginViewController : UIViewController
+
+@property (nonatomic, weak) id<LoginViewControllerDelegate> delegate;
 
 @property (nonatomic, weak) IBOutlet UIImageView *appLogo;
 @property (nonatomic, weak) IBOutlet UITextField *serverUrl;

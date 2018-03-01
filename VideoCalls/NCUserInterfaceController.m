@@ -12,7 +12,7 @@
 #import "LoginViewController.h"
 #import "NCSettingsController.h"
 
-@interface NCUserInterfaceController () <CallViewControllerDelegate>
+@interface NCUserInterfaceController () <LoginViewControllerDelegate, AuthenticationViewControllerDelegate, CallViewControllerDelegate>
 {
     LoginViewController *_loginViewController;
     AuthenticationViewController *_authViewController;
@@ -33,21 +33,6 @@
     return sharedInstance;
 }
 
-- (id)init
-{
-    self = [super init];
-    if (self) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loginCompleted:) name:NCLoginCompletedNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(authenticationCompleted:) name:NCAuthenticationCompletedNotification object:nil];
-    }
-    return self;
-}
-
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
 - (void)presentCallsViewController
 {
     [self.mainTabBarController setSelectedIndex:0];
@@ -66,12 +51,14 @@
 - (void)presentLoginViewController
 {
     _loginViewController = [[LoginViewController alloc] init];
+    _loginViewController.delegate = self;
     [self.mainTabBarController presentViewController:_loginViewController animated:YES completion:nil];
 }
 
 - (void)presentAuthenticationViewController
 {
     _authViewController = [[AuthenticationViewController alloc] init];
+    _authViewController.delegate = self;
     _authViewController.serverUrl = [NCSettingsController sharedInstance].ncServer;
     [self.mainTabBarController presentViewController:_authViewController animated:YES completion:nil];
 }
@@ -88,18 +75,20 @@
     [self.mainTabBarController presentViewController:_callViewController animated:YES completion:nil];
 }
 
-#pragma mark - Notifications
+#pragma mark - LoginViewControllerDelegate
 
-- (void)loginCompleted:(NSNotification *)notification
+- (void)loginViewControllerDidFinish:(LoginViewController *)viewController
 {
-    if (self.mainTabBarController.presentedViewController == _loginViewController) {
+    if (viewController == _loginViewController && self.mainTabBarController.presentedViewController == _loginViewController) {
         [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
     }
 }
 
-- (void)authenticationCompleted:(NSNotification *)notification
+#pragma mark - AuthenticationViewControllerDelegate
+
+- (void)authenticationViewControllerDidFinish:(AuthenticationViewController *)viewController
 {
-    if (self.mainTabBarController.presentedViewController == _authViewController) {
+    if (viewController == _authViewController && self.mainTabBarController.presentedViewController == _authViewController) {
         [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
     }
 }
