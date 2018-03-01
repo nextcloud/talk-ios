@@ -321,23 +321,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self fetchRoomsWithCompletionBlock:nil];
 }
 
-- (void)startPingCall
-{
-    [self pingCall];
-    _pingTimer = [NSTimer scheduledTimerWithTimeInterval:5.0  target:self selector:@selector(pingCall) userInfo:nil repeats:YES];
-}
-
-- (void)pingCall
-{
-    if (_currentCallToken) {
-        [[NCAPIController sharedInstance] pingCall:_currentCallToken withCompletionBlock:^(NSError *error) {
-            //TODO: Error handling
-        }];
-    } else {
-        NSLog(@"No call token to ping");
-    }
-}
-
 #pragma mark - Room actions
 
 - (void)addParticipantInRoomAtIndexPath:(NSIndexPath *)indexPath
