@@ -104,6 +104,11 @@
     [alert addAction:joinButton];
     [alert addAction:cancelButton];
     
+    // Do not show join call dialog until we don't handle 'hangup current call'/'join new one' properly.
+    if (self.mainTabBarController.presentedViewController != _callViewController) {
+        [self.mainTabBarController dismissViewControllerAnimated:NO completion:nil];
+    }
+
     [self.mainTabBarController presentViewController:alert animated:YES completion:nil];
 }
 
