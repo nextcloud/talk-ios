@@ -30,8 +30,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NSMutableArray *_rooms;
     UIRefreshControl *_refreshControl;
-    NSTimer *_pingTimer;
-    NSString *_currentCallToken;
     BOOL _allowEmptyGroupRooms;
 }
 
@@ -101,15 +99,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:[notification.userInfo objectForKey:@"message"]];
     NSLog(@"Push Notification received: %@", pushNotification);
-    if (!_currentCallToken) {
-        if (self.presentedViewController) {
-            [self dismissViewControllerAnimated:YES completion:^{
-                [self presentPushNotificationAlert:pushNotification];
-            }];
-        } else {
-            [self presentPushNotificationAlert:pushNotification];
-        }
-    }
+    [self presentPushNotificationAlert:pushNotification];
 }
 
 - (void)joinCallAccepted:(NSNotification *)notification
@@ -828,8 +818,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    
-    _currentCallToken = room.token;
     [self startCallInRoom:room];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
