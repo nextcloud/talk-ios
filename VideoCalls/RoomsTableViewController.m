@@ -113,38 +113,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self joinCallWithCallToken:roomToken];
 }
 
-#pragma mark - Join call
-
-- (void)joinCallWithCallId:(NSInteger)callId
-{
-    NCRoom *room = [self getRoomForId:callId];
-    if (room) {
-        [self startCallInRoom:room];
-    } else {
-        //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
-            if (!error) {
-                [self startCallInRoom:room];
-            }
-        }];
-    }
-}
-
-- (void)joinCallWithCallToken:(NSString *)token
-{
-    NCRoom *room = [self getRoomForToken:token];
-    if (room) {
-        [self startCallInRoom:room];
-    } else {
-        //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
-            if (!error) {
-                [self startCallInRoom:room];
-            }
-        }];
-    }
-}
-
 #pragma mark - Interface Builder Actions
 
 - (IBAction)addButtonPressed:(id)sender
@@ -573,26 +541,40 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     return room;
 }
 
-- (void)presentCall:(CallViewController *)callVC
-{
-    [self presentViewController:callVC animated:YES completion:nil];
-}
-
-- (void)presentCallViewController:(CallViewController *)callVC
-{
-    if (self.presentedViewController) {
-        [self dismissViewControllerAnimated:YES completion:^{
-            [self presentCall:callVC];
-        }];
-    } else {
-        [self presentCall:callVC];
-    }
-}
-
 - (void)startCallInRoom:(NCRoom *)room
 {
     CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
     [[NCUserInterfaceController sharedInstance] presentCallViewController:callVC];
+}
+
+- (void)joinCallWithCallId:(NSInteger)callId
+{
+    NCRoom *room = [self getRoomForId:callId];
+    if (room) {
+        [self startCallInRoom:room];
+    } else {
+        //TODO: Show spinner?
+        [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
+            if (!error) {
+                [self startCallInRoom:room];
+            }
+        }];
+    }
+}
+
+- (void)joinCallWithCallToken:(NSString *)token
+{
+    NCRoom *room = [self getRoomForToken:token];
+    if (room) {
+        [self startCallInRoom:room];
+    } else {
+        //TODO: Show spinner?
+        [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+            if (!error) {
+                [self startCallInRoom:room];
+            }
+        }];
+    }
 }
 
 #pragma mark - Table view data source
