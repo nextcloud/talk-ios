@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 
 #import "CallViewController.h"
+#import "NCPushNotification.h"
 
 @interface NCUserInterfaceController : NSObject
 
@@ -21,6 +22,7 @@
 - (void)presentSettingsViewController;
 - (void)presentLoginViewController;
 - (void)presentAuthenticationViewController;
+- (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification;
 - (void)presentAlertViewController:(UIAlertController *)alertViewController;
 - (void)presentCallViewController:(CallViewController *)callViewController;
 

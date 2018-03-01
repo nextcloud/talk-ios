@@ -59,7 +59,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pushNotificationReceived:) name:NCPushNotificationReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinCallAccepted:) name:NCPushNotificationJoinCallAcceptedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkReachabilityHasChanged:) name:NCNetworkReachabilityHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomHasBeenCreated:) name:NCRoomCreatedNotification object:nil];
@@ -95,16 +94,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
 }
 
-- (void)pushNotificationReceived:(NSNotification *)notification
-{
-    NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:[notification.userInfo objectForKey:@"message"]];
-    NSLog(@"Push Notification received: %@", pushNotification);
-    [self presentPushNotificationAlert:pushNotification];
-}
-
 - (void)joinCallAccepted:(NSNotification *)notification
 {
-    NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:[notification.userInfo objectForKey:@"message"]];
+    NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
     [self joinCallWithCallId:pushNotification.pnId];
 }
 
@@ -132,31 +124,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 }
 
 #pragma mark - Push Notification Actions
-
-- (void)presentPushNotificationAlert:(NCPushNotification *)pushNotification
-{
-    UIAlertController * alert = [UIAlertController
-                                 alertControllerWithTitle:[pushNotification bodyForRemoteAlerts]
-                                 message:@"Do you want to join this call?"
-                                 preferredStyle:UIAlertControllerStyleAlert];
-    
-    UIAlertAction *joinButton = [UIAlertAction
-                                 actionWithTitle:@"Join call"
-                                 style:UIAlertActionStyleDefault
-                                 handler:^(UIAlertAction * _Nonnull action) {
-                                     [self joinCallWithCallId:pushNotification.pnId];
-                                 }];
-    
-    UIAlertAction* cancelButton = [UIAlertAction
-                                   actionWithTitle:@"Cancel"
-                                   style:UIAlertActionStyleCancel
-                                   handler:nil];
-    
-    [alert addAction:joinButton];
-    [alert addAction:cancelButton];
-    
-    [self presentViewController:alert animated:YES completion:nil];
-}
 
 - (void)joinCallWithCallId:(NSInteger)callId
 {

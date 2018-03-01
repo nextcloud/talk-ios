@@ -79,6 +79,34 @@
     [self.mainTabBarController presentViewController:_authViewController animated:YES completion:nil];
 }
 
+- (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:[pushNotification bodyForRemoteAlerts]
+                                 message:@"Do you want to join this call?"
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *joinButton = [UIAlertAction
+                                 actionWithTitle:@"Join call"
+                                 style:UIAlertActionStyleDefault
+                                 handler:^(UIAlertAction * _Nonnull action) {
+                                     NSDictionary *userInfo = [NSDictionary dictionaryWithObject:pushNotification forKey:@"pushNotification"];
+                                     [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationJoinCallAcceptedNotification
+                                                                                         object:self
+                                                                                       userInfo:userInfo];
+                                 }];
+    
+    UIAlertAction* cancelButton = [UIAlertAction
+                                   actionWithTitle:@"Cancel"
+                                   style:UIAlertActionStyleCancel
+                                   handler:nil];
+    
+    [alert addAction:joinButton];
+    [alert addAction:cancelButton];
+    
+    [self.mainTabBarController presentViewController:alert animated:YES completion:nil];
+}
+
 - (void)presentAlertViewController:(UIAlertController *)alertViewController
 {
     [self.mainTabBarController presentViewController:alertViewController animated:YES completion:nil];
