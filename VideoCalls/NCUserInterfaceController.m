@@ -8,8 +8,10 @@
 
 #import "NCUserInterfaceController.h"
 
+#import "AFNetworking.h"
 #import "AuthenticationViewController.h"
 #import "LoginViewController.h"
+#import "NCConnectionController.h"
 #import "NCSettingsController.h"
 
 @interface NCUserInterfaceController () <LoginViewControllerDelegate, AuthenticationViewControllerDelegate, CallViewControllerDelegate>
@@ -31,6 +33,20 @@
         sharedInstance = [[self alloc] init];
     });
     return sharedInstance;
+}
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkReachabilityHasChanged:) name:NCNetworkReachabilityHasChangedNotification object:nil];
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)presentCallsViewController
@@ -73,6 +89,14 @@
     _callViewController = callViewController;
     _callViewController.delegate = self;
     [self.mainTabBarController presentViewController:_callViewController animated:YES completion:nil];
+}
+
+#pragma mark - Notifications
+
+- (void)networkReachabilityHasChanged:(NSNotification *)notification
+{
+    AFNetworkReachabilityStatus status = [[notification.userInfo objectForKey:kNCNetworkReachabilityKey] intValue];
+    NSLog(@"Network Status:%ld", (long)status);
 }
 
 #pragma mark - LoginViewControllerDelegate
