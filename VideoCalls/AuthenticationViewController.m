@@ -12,8 +12,8 @@
 #import "NCAPIController.h"
 #import "NCSettingsController.h"
 
-NSString * const kNCAuthTokenFlowEndpoint       = @"/index.php/login/flow";
-NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification";
+NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flow";
+NSString * const NCAuthenticationCompletedNotification  = @"NCAuthenticationCompletedNotification";
 
 @interface AuthenticationViewController () <WKNavigationDelegate>
 {
@@ -150,7 +150,7 @@ NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification
             }
         }];
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCLoginCompletedNotification
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCAuthenticationCompletedNotification
                                                             object:self
                                                           userInfo:@{kNCServerKey:_serverUrl,
                                                                      kNCUserKey:user,

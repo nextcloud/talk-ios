@@ -9,11 +9,10 @@
 #import "ContactsTableViewController.h"
 
 #import "AFNetworking.h"
-#import "AuthenticationViewController.h"
-#import "LoginViewController.h"
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
 #import "NCSettingsController.h"
+#import "NCUserInterfaceController.h"
 #import "SearchTableViewController.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
@@ -57,7 +56,6 @@
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loginHasBeenCompleted:) name:NCLoginCompletedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkReachabilityHasChanged:) name:NCNetworkReachabilityHasChangedNotification object:nil];
 }
 
@@ -80,13 +78,6 @@
 
 #pragma mark - Notifications
 
-- (void)loginHasBeenCompleted:(NSNotification *)notification
-{
-    if ([notification.userInfo objectForKey:kNCTokenKey]) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
-}
-
 - (void)networkReachabilityHasChanged:(NSNotification *)notification
 {
     AFNetworkReachabilityStatus status = [[notification.userInfo objectForKey:kNCNetworkReachabilityKey] intValue];
@@ -101,14 +92,12 @@
     switch (connectionState) {
         case kConnectionStateNotServerProvided:
         {
-            LoginViewController *loginVC = [[LoginViewController alloc] init];
-            [self presentViewController:loginVC animated:YES completion:nil];
+            [[NCUserInterfaceController sharedInstance] presentLoginViewController];
         }
             break;
         case kConnectionStateAuthenticationNeeded:
         {
-            AuthenticationViewController *authVC = [[AuthenticationViewController alloc] init];
-            [self presentViewController:authVC animated:YES completion:nil];
+            [[NCUserInterfaceController sharedInstance] presentAuthenticationViewController];
         }
             break;
             

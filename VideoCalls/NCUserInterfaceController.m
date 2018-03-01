@@ -12,6 +12,15 @@
 #import "LoginViewController.h"
 #import "NCSettingsController.h"
 
+@interface NCUserInterfaceController () <CallViewControllerDelegate>
+{
+    LoginViewController *_loginViewController;
+    AuthenticationViewController *_authViewController;
+    CallViewController *_callViewController;
+}
+
+@end
+
 @implementation NCUserInterfaceController
 
 + (NCUserInterfaceController *)sharedInstance
@@ -22,6 +31,21 @@
         sharedInstance = [[self alloc] init];
     });
     return sharedInstance;
+}
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loginCompleted:) name:NCLoginCompletedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(authenticationCompleted:) name:NCAuthenticationCompletedNotification object:nil];
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)presentCallsViewController
@@ -41,15 +65,15 @@
 
 - (void)presentLoginViewController
 {
-    LoginViewController *loginVC = [[LoginViewController alloc] init];
-    [self.mainTabBarController presentViewController:loginVC animated:YES completion:nil];
+    _loginViewController = [[LoginViewController alloc] init];
+    [self.mainTabBarController presentViewController:_loginViewController animated:YES completion:nil];
 }
 
 - (void)presentAuthenticationViewController
 {
-    AuthenticationViewController *authVC = [[AuthenticationViewController alloc] init];
-    authVC.serverUrl = [NCSettingsController sharedInstance].ncServer;
-    [self.mainTabBarController presentViewController:authVC animated:YES completion:nil];
+    _authViewController = [[AuthenticationViewController alloc] init];
+    _authViewController.serverUrl = [NCSettingsController sharedInstance].ncServer;
+    [self.mainTabBarController presentViewController:_authViewController animated:YES completion:nil];
 }
 
 - (void)presentAlertViewController:(UIAlertController *)alertViewController
@@ -59,7 +83,33 @@
 
 - (void)presentCallViewController:(CallViewController *)callViewController
 {
-    [self.mainTabBarController presentViewController:callViewController animated:YES completion:nil];
+    _callViewController = callViewController;
+    _callViewController.delegate = self;
+    [self.mainTabBarController presentViewController:_callViewController animated:YES completion:nil];
+}
+
+#pragma mark - Notifications
+
+- (void)loginCompleted:(NSNotification *)notification
+{
+    if (self.mainTabBarController.presentedViewController == _loginViewController) {
+        [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
+- (void)authenticationCompleted:(NSNotification *)notification
+{
+    if (self.mainTabBarController.presentedViewController == _authViewController) {
+        [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
+#pragma mark - CallViewControllerDelegate
+
+- (void)callViewControllerDidFinish:(CallViewController *)viewController {
+    if (![viewController isBeingDismissed]) {
+        [viewController dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 
 @end

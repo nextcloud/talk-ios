@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+extern NSString * const NCLoginCompletedNotification;
+
 @interface LoginViewController : UIViewController
 
 @property (nonatomic, weak) IBOutlet UIImageView *appLogo;

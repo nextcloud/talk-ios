@@ -9,17 +9,16 @@
 #import "RoomsTableViewController.h"
 
 #import "AFNetworking.h"
-#import "AuthenticationViewController.h"
 #import "CallViewController.h"
 #import "AddParticipantsTableViewController.h"
-#import "CCCertificate.h"
 #import "RoomTableViewCell.h"
-#import "LoginViewController.h"
+#import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCImageSessionManager.h"
 #import "NCConnectionController.h"
 #import "NCPushNotification.h"
 #import "NCSettingsController.h"
+#import "NCUserInterfaceController.h"
 #import "NSDate+DateTools.h"
 #import "UIImageView+Letters.h"
 #import "AFImageDownloader.h"
@@ -27,7 +26,7 @@
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
-@interface RoomsTableViewController () <CallViewControllerDelegate, CCCertificateDelegate>
+@interface RoomsTableViewController () <CCCertificateDelegate>
 {
     NSMutableArray *_rooms;
     UIRefreshControl *_refreshControl;
@@ -61,7 +60,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loginHasBeenCompleted:) name:NCLoginCompletedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pushNotificationReceived:) name:NCPushNotificationReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinCallAccepted:) name:NCPushNotificationJoinCallAcceptedNotification object:nil];
@@ -87,13 +85,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 }
 
 #pragma mark - Notifications
-
-- (void)loginHasBeenCompleted:(NSNotification *)notification
-{
-    if ([notification.userInfo objectForKey:kNCTokenKey]) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
-}
 
 - (void)serverCapabilitiesReceived:(NSNotification *)notification
 {
@@ -258,14 +249,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     switch (connectionState) {
         case kConnectionStateNotServerProvided:
         {
-            LoginViewController *loginVC = [[LoginViewController alloc] init];
-            [self presentViewController:loginVC animated:YES completion:nil];
+            [[NCUserInterfaceController sharedInstance] presentLoginViewController];
         }
             break;
         case kConnectionStateAuthenticationNeeded:
         {
-            AuthenticationViewController *authVC = [[AuthenticationViewController alloc] init];
-            [self presentViewController:authVC animated:YES completion:nil];
+            [[NCUserInterfaceController sharedInstance] presentAuthenticationViewController];
         }
             break;
             
@@ -658,8 +647,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)startCallInRoom:(NCRoom *)room
 {
     CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
-    callVC.delegate = self;
-    [self presentCallViewController:callVC];
+    [[NCUserInterfaceController sharedInstance] presentCallViewController:callVC];
 }
 
 #pragma mark - Table view data source
@@ -861,17 +849,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     _currentCallToken = room.token;
     [self startCallInRoom:room];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-}
-
-#pragma mark - CallViewControllerDelegate
-
-- (void)viewControllerDidFinish:(CallViewController *)viewController {
-    if (![viewController isBeingDismissed]) {
-        [self dismissViewControllerAnimated:YES completion:^{
-            NSLog(@"Call view controller dismissed");
-            _currentCallToken = nil;
-        }];
-    }
 }
 
 

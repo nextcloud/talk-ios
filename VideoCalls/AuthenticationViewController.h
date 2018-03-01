@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
 
-extern NSString * const NCLoginCompletedNotification;
+extern NSString * const NCAuthenticationCompletedNotification;
 
 @interface AuthenticationViewController : UIViewController
 

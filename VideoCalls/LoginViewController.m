@@ -12,6 +12,8 @@
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 
+NSString * const NCLoginCompletedNotification   = @"NCLoginCompletedNotification";
+
 
 @interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate>
 
@@ -27,6 +29,8 @@
     self.login.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.activityIndicatorView.color = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.activityIndicatorView.hidden = YES;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(authenticationCompleted:) name:NCAuthenticationCompletedNotification object:nil];
 }
 
 - (void)didReceiveMemoryWarning
@@ -113,5 +117,15 @@
     [textField resignFirstResponder];
     return YES;
 }
+
+#pragma mark - Notifications
+
+- (void)authenticationCompleted:(NSNotification *)notification
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCLoginCompletedNotification
+                                                        object:self
+                                                      userInfo:nil];
+}
+
 
 @end
