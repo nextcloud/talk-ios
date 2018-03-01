@@ -110,20 +110,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)roomHasBeenCreated:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"token"];
-    NCRoom *room = [self getRoomForToken:roomToken];
-    if (room) {
-        [self startCallInRoom:room];
-    } else {
-        //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithToken:roomToken withCompletionBlock:^(NCRoom *room, NSError *error) {
-            if (!error) {
-                [self startCallInRoom:room];
-            }
-        }];
-    }
+    [self joinCallWithCallToken:roomToken];
 }
 
-#pragma mark - Push Notification Actions
+#pragma mark - Join call
 
 - (void)joinCallWithCallId:(NSInteger)callId
 {
@@ -133,6 +123,21 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     } else {
         //TODO: Show spinner?
         [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
+            if (!error) {
+                [self startCallInRoom:room];
+            }
+        }];
+    }
+}
+
+- (void)joinCallWithCallToken:(NSString *)token
+{
+    NCRoom *room = [self getRoomForToken:token];
+    if (room) {
+        [self startCallInRoom:room];
+    } else {
+        //TODO: Show spinner?
+        [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
             if (!error) {
                 [self startCallInRoom:room];
             }

@@ -200,7 +200,6 @@
         if (!error) {
             // Join created room.
             NSLog(@"Room %@ with %@ created", token, contact.name);
-            [self.tabBarController setSelectedIndex:0];
             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomCreatedNotification
                                                                 object:self
                                                               userInfo:@{@"token":token}];
