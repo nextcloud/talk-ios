@@ -136,18 +136,14 @@
 
 - (void)loginViewControllerDidFinish:(LoginViewController *)viewController
 {
-    if (viewController == _loginViewController && self.mainTabBarController.presentedViewController == _loginViewController) {
-        [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
-    }
+    [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - AuthenticationViewControllerDelegate
 
 - (void)authenticationViewControllerDidFinish:(AuthenticationViewController *)viewController
 {
-    if (viewController == _authViewController && self.mainTabBarController.presentedViewController == _authViewController) {
-        [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
-    }
+    [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - CallViewControllerDelegate
