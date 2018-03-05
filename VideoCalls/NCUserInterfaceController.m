@@ -13,6 +13,7 @@
 #import "LoginViewController.h"
 #import "NCConnectionController.h"
 #import "NCSettingsController.h"
+#import "JDStatusBarNotification.h"
 
 @interface NCUserInterfaceController () <LoginViewControllerDelegate, AuthenticationViewControllerDelegate, CallViewControllerDelegate>
 {
@@ -39,7 +40,7 @@
 {
     self = [super init];
     if (self) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkReachabilityHasChanged:) name:NCNetworkReachabilityHasChangedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
     }
     return self;
 }
@@ -77,6 +78,25 @@
     _authViewController.delegate = self;
     _authViewController.serverUrl = [NCSettingsController sharedInstance].ncServer;
     [self.mainTabBarController presentViewController:_authViewController animated:YES completion:nil];
+}
+
+- (void)presentOfflineWarningAlert
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:@"Disconnected"
+                                 message:@"It seems that there is no Internet connection"
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:@"OK"
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    
+    [self.mainTabBarController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification
@@ -126,10 +146,21 @@
 
 #pragma mark - Notifications
 
-- (void)networkReachabilityHasChanged:(NSNotification *)notification
+- (void)connectionStateHasChanged:(NSNotification *)notification
 {
-    AFNetworkReachabilityStatus status = [[notification.userInfo objectForKey:kNCNetworkReachabilityKey] intValue];
-    NSLog(@"Network Status:%ld", (long)status);
+    ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
+    switch (connectionState) {
+        case kConnectionStateDisconnected:
+            [JDStatusBarNotification showWithStatus:@"Network not available" dismissAfter:4.0f styleName:JDStatusBarStyleError];
+            break;
+            
+        case kConnectionStateConnected:
+            [JDStatusBarNotification showWithStatus:@"Network available" dismissAfter:4.0f styleName:JDStatusBarStyleSuccess];
+            break;
+            
+        default:
+            break;
+    }
 }
 
 #pragma mark - LoginViewControllerDelegate

@@ -53,14 +53,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     [UIImageView setSharedImageDownloader:imageDownloader];
     
-    UIImage *image = [UIImage imageNamed:@"navigationLogo"];
-    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:image];
+    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogo"]];
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinCallAccepted:) name:NCPushNotificationJoinCallAcceptedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkReachabilityHasChanged:) name:NCNetworkReachabilityHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomHasBeenCreated:) name:NCRoomCreatedNotification object:nil];
 }
 
@@ -72,7 +72,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [self checkConnectionState];
+    [self adaptInterfaceForAppState:[NCConnectionController sharedInstance].appState];
+    [self adaptInterfaceForConnectionState:[NCConnectionController sharedInstance].connectionState];
 }
 
 - (void)didReceiveMemoryWarning
@@ -100,11 +101,16 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self joinCallWithCallId:pushNotification.pnId];
 }
 
-- (void)networkReachabilityHasChanged:(NSNotification *)notification
+- (void)appStateHasChanged:(NSNotification *)notification
 {
-    AFNetworkReachabilityStatus status = [[notification.userInfo objectForKey:kNCNetworkReachabilityKey] intValue];
-    NSLog(@"Network Status:%ld", (long)status);
-    [self checkConnectionState];
+    AppState appState = [[notification.userInfo objectForKey:@"appState"] intValue];
+    [self adaptInterfaceForAppState:appState];
+}
+
+- (void)connectionStateHasChanged:(NSNotification *)notification
+{
+    ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
+    [self adaptInterfaceForConnectionState:connectionState];
 }
 
 - (void)roomHasBeenCreated:(NSNotification *)notification
@@ -171,52 +177,61 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     AudioServicesPlaySystemSound(1519);
 }
 
-#pragma mark - Rooms
+#pragma mark - User Interface
 
-- (void)checkConnectionState
+- (void)adaptInterfaceForAppState:(AppState)appState
 {
-    ConnectionState connectionState = [[NCConnectionController sharedInstance] connectionState];
-    switch (connectionState) {
-        case kConnectionStateNotServerProvided:
+    switch (appState) {
+        case kAppStateReady:
         {
-            [[NCUserInterfaceController sharedInstance] presentLoginViewController];
-        }
-            break;
-        case kConnectionStateAuthenticationNeeded:
-        {
-            [[NCUserInterfaceController sharedInstance] presentAuthenticationViewController];
-        }
-            break;
-            
-        case kConnectionStateMissingUserProfile:
-        {
-            [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
-                [self checkConnectionState];
-            }];
-        }
-            break;
-            
-        case kConnectionStateMissingServerCapabilities:
-        {
-            [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
-                [self checkConnectionState];
-            }];
-        }
-            break;
-
-        case kConnectionStateNetworkDisconnected:
-        {
-            NSLog(@"No network connection!");
+            NSLog(@"App ready -> Get rooms");
+            [self fetchRoomsWithCompletionBlock:nil];
         }
             break;
             
         default:
         {
-            [self fetchRoomsWithCompletionBlock:nil];
+            NSLog(@"App State: %u", appState);
         }
             break;
     }
 }
+
+- (void)adaptInterfaceForConnectionState:(ConnectionState)connectionState
+{
+    switch (connectionState) {
+        case kConnectionStateConnected:
+        {
+            NSLog(@"Network available");
+            [self setOnlineAppearance];
+        }
+            break;
+            
+        case kConnectionStateDisconnected:
+        {
+            NSLog(@"Network disconnected");
+            [self setOfflineAppearance];
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
+- (void)setOfflineAppearance
+{
+    self.addButton.enabled = NO;
+    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogoOffline"]];
+}
+
+- (void)setOnlineAppearance
+{
+    self.addButton.enabled = YES;
+    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogo"]];
+}
+
+#pragma mark - Rooms
 
 - (void)fetchRoomsWithCompletionBlock:(FetchRoomsCompletionBlock)block
 {
@@ -771,8 +786,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [self startCallInRoom:room];
+    if ([NCConnectionController sharedInstance].connectionState == kConnectionStateDisconnected) {
+        [[NCUserInterfaceController sharedInstance] presentOfflineWarningAlert];
+    } else {
+        NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+        [self startCallInRoom:room];
+    }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 

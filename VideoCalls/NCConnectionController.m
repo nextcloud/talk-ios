@@ -11,11 +11,15 @@
 #import "AFNetworking.h"
 #import "NCAPIController.h"
 #import "NCSettingsController.h"
+#import "NCUserInterfaceController.h"
 
-NSString * const NCNetworkReachabilityHasChangedNotification    = @"NCNetworkingReachabilityHasChangedNotification";
-NSString * const kNCNetworkReachabilityKey                      = @"NetworkReachability";
+NSString * const NCAppStateHasChangedNotification           = @"NCAppStateHasChangedNotification";
+NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStateHasChangedNotification";
 
 @implementation NCConnectionController
+
+@synthesize appState        = _appState;
+@synthesize connectionState = _connectionState;
 
 + (NCConnectionController *)sharedInstance
 {
@@ -31,6 +35,10 @@ NSString * const kNCNetworkReachabilityKey                      = @"NetworkReach
 {
     self = [super init];
     if (self) {
+        
+        self.appState = kAppStateUnknown;
+        self.connectionState = kConnectionStateUnknown;
+        
         NSString *storedServer = [NCSettingsController sharedInstance].ncServer;
         NSString *storedUser = [NCSettingsController sharedInstance].ncUser;
         NSString *storedToken = [NCSettingsController sharedInstance].ncToken;
@@ -42,37 +50,96 @@ NSString * const kNCNetworkReachabilityKey                      = @"NetworkReach
             [[NCAPIController sharedInstance] setAuthHeaderWithUser:storedUser andToken:storedToken];
         }
         
+        [self checkAppState];
+        
         [[AFNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
             NSLog(@"Reachability: %@", AFStringFromNetworkReachabilityStatus(status));
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCNetworkReachabilityHasChangedNotification
-                                                                object:self
-                                                              userInfo:@{kNCNetworkReachabilityKey:@(status)}];
+            [self checkConnectionState];
         }];
     }
     return self;
 }
 
-- (BOOL)connected {
+- (void)notifyAppState
+{
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:@(self.appState) forKey:@"appState"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCAppStateHasChangedNotification
+                                                        object:self
+                                                      userInfo:userInfo];
+}
+
+- (void)notifyConnectionState
+{
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:@(self.connectionState) forKey:@"connectionState"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCConnectionStateHasChangedNotification
+                                                        object:self
+                                                      userInfo:userInfo];
+}
+
+- (BOOL)isNetworkAvailable {
     return [AFNetworkReachabilityManager sharedManager].reachable;
 }
 
-- (ConnectionState)connectionState
+- (void)checkConnectionState
 {
-    if ([self connected]) {
-        if (![NCSettingsController sharedInstance].ncServer) {
-            return kConnectionStateNotServerProvided;
-        } else if (![NCSettingsController sharedInstance].ncUser) {
-            return kConnectionStateAuthenticationNeeded;
-        } else if (![NCSettingsController sharedInstance].ncUserId || ![NCSettingsController sharedInstance].ncUserDisplayName) {
-            return kConnectionStateMissingUserProfile;
-        } else if (![NCSettingsController sharedInstance].ncTalkCapabilities) {
-            return kConnectionStateMissingServerCapabilities;
-        } else {
-            return kConnectionStateConnecting;
+    if (![self isNetworkAvailable]) {
+        [self setConnectionState:kConnectionStateDisconnected];
+        [self notifyConnectionState];
+    } else {
+        ConnectionState previousState = self.connectionState;
+        [self setConnectionState:kConnectionStateConnected];
+        [self checkAppState];
+        if (previousState == kConnectionStateDisconnected) {
+            [self notifyConnectionState];
+        }
+    }
+}
+
+- (void)checkAppState
+{
+    NSString *ncServer                  = [NCSettingsController sharedInstance].ncServer;
+    NSString *ncUser                    = [NCSettingsController sharedInstance].ncUser;
+    NSString *ncUserId                  = [NCSettingsController sharedInstance].ncUserId;
+    NSString *ncUserDisplayName         = [NCSettingsController sharedInstance].ncUserDisplayName;
+    NSDictionary *ncTalkCapabilities    = [NCSettingsController sharedInstance].ncTalkCapabilities;
+    
+    if (!ncServer) {
+        if (self.appState != kAppStateNotServerProvided) {
+            [self setAppState:kAppStateNotServerProvided];
+            [[NCUserInterfaceController sharedInstance] presentLoginViewController];
+        }
+    } else if (!ncUser) {
+        if (self.appState != kAppStateAuthenticationNeeded) {
+            [self setAppState:kAppStateAuthenticationNeeded];
+            [[NCUserInterfaceController sharedInstance] presentAuthenticationViewController];
+        }
+    } else if (!ncUserId || !ncUserDisplayName) {
+        if (self.appState != kAppStateMissingUserProfile) {
+            [self setAppState:kAppStateMissingUserProfile];
+            [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
+                if (error) {
+                    [self setAppState:kAppStateUnknown];
+                } else {
+                    [self checkAppState];
+                }
+            }];
+        }
+    } else if (!ncTalkCapabilities) {
+        if (self.appState != kAppStateMissingServerCapabilities) {
+            [self setAppState:kAppStateMissingServerCapabilities];
+            [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
+                if (error) {
+                    [self setAppState:kAppStateUnknown];
+                } else {
+                    [self checkAppState];
+                }
+            }];
         }
     } else {
-        return kConnectionStateNetworkDisconnected;
+        [self setAppState:kAppStateReady];
     }
+    
+    [self notifyAppState];
 }
 
 

@@ -22,6 +22,7 @@
 - (void)presentSettingsViewController;
 - (void)presentLoginViewController;
 - (void)presentAuthenticationViewController;
+- (void)presentOfflineWarningAlert;
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification;
 - (void)presentAlertViewController:(UIAlertController *)alertViewController;
 - (void)presentCallViewController:(CallViewController *)callViewController;

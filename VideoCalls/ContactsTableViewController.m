@@ -56,7 +56,8 @@
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkReachabilityHasChanged:) name:NCNetworkReachabilityHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
 }
 
 - (void)dealloc
@@ -67,7 +68,8 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [self checkConnectionState];
+    [self adaptInterfaceForAppState:[NCConnectionController sharedInstance].appState];
+    [self adaptInterfaceForConnectionState:[NCConnectionController sharedInstance].connectionState];
 }
 
 - (void)didReceiveMemoryWarning
@@ -78,41 +80,68 @@
 
 #pragma mark - Notifications
 
-- (void)networkReachabilityHasChanged:(NSNotification *)notification
+- (void)appStateHasChanged:(NSNotification *)notification
 {
-    AFNetworkReachabilityStatus status = [[notification.userInfo objectForKey:kNCNetworkReachabilityKey] intValue];
-    NSLog(@"Network Status:%ld", (long)status);
-    [self checkConnectionState];
+    AppState appState = [[notification.userInfo objectForKey:@"appState"] intValue];
+    [self adaptInterfaceForAppState:appState];
 }
 
-- (void)checkConnectionState
+- (void)connectionStateHasChanged:(NSNotification *)notification
 {
-    ConnectionState connectionState = [[NCConnectionController sharedInstance] connectionState];
-    
-    switch (connectionState) {
-        case kConnectionStateNotServerProvided:
+    ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
+    [self adaptInterfaceForConnectionState:connectionState];
+}
+
+#pragma mark - User Interface
+
+- (void)adaptInterfaceForAppState:(AppState)appState
+{
+    switch (appState) {
+        case kAppStateReady:
         {
-            [[NCUserInterfaceController sharedInstance] presentLoginViewController];
-        }
-            break;
-        case kConnectionStateAuthenticationNeeded:
-        {
-            [[NCUserInterfaceController sharedInstance] presentAuthenticationViewController];
-        }
-            break;
-            
-        case kConnectionStateNetworkDisconnected:
-        {
-            NSLog(@"No network connection!");
+            NSLog(@"App ready -> Get contacts");
+            [self getContacts];
         }
             break;
             
         default:
         {
-            [self getContacts];
+            NSLog(@"App State: %u", appState);
         }
             break;
     }
+}
+
+- (void)adaptInterfaceForConnectionState:(ConnectionState)connectionState
+{
+    switch (connectionState) {
+        case kConnectionStateConnected:
+        {
+            NSLog(@"Network available");
+            [self setOnlineAppearance];
+        }
+            break;
+            
+        case kConnectionStateDisconnected:
+        {
+            NSLog(@"Network disconnected");
+            [self setOfflineAppearance];
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
+- (void)setOfflineAppearance
+{
+    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogoOffline"]];
+}
+
+- (void)setOnlineAppearance
+{
+    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogo"]];
 }
 
 - (void)getContacts
@@ -187,26 +216,29 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCUser *contact = [_contacts objectAtIndex:indexPath.row];
-    
-    if (_searchController.active) {
-        contact =  [_resultTableViewController.filteredContacts objectAtIndex:indexPath.row];
-    }
-    
-    [[NCAPIController sharedInstance] createRoomWith:contact.userId
-                                              ofType:kNCRoomTypeOneToOneCall
-                                             andName:nil
-                                 withCompletionBlock:^(NSString *token, NSError *error) {
-        if (!error) {
-            // Join created room.
-            NSLog(@"Room %@ with %@ created", token, contact.name);
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomCreatedNotification
-                                                                object:self
-                                                              userInfo:@{@"token":token}];
-        } else {
-            NSLog(@"Failed creating a room with %@", contact.name);
+    if ([NCConnectionController sharedInstance].connectionState == kConnectionStateDisconnected) {
+        [[NCUserInterfaceController sharedInstance] presentOfflineWarningAlert];
+    } else {
+        NCUser *contact = [_contacts objectAtIndex:indexPath.row];
+        if (_searchController.active) {
+            contact =  [_resultTableViewController.filteredContacts objectAtIndex:indexPath.row];
         }
-    }];
+        
+        [[NCAPIController sharedInstance] createRoomWith:contact.userId
+                                                  ofType:kNCRoomTypeOneToOneCall
+                                                 andName:nil
+                                     withCompletionBlock:^(NSString *token, NSError *error) {
+                                         if (!error) {
+                                             // Join created room.
+                                             NSLog(@"Room %@ with %@ created", token, contact.name);
+                                             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomCreatedNotification
+                                                                                                 object:self
+                                                                                               userInfo:@{@"token":token}];
+                                         } else {
+                                             NSLog(@"Failed creating a room with %@", contact.name);
+                                         }
+                                     }];
+    }
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }

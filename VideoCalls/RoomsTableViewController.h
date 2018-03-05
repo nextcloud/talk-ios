@@ -11,4 +11,6 @@
 
 @interface RoomsTableViewController : UITableViewController
 
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *addButton;
+
 @end
