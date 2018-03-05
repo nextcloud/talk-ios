@@ -167,6 +167,7 @@
 
 - (void)loginViewControllerDidFinish:(LoginViewController *)viewController
 {
+    [[NCConnectionController sharedInstance] checkAppState];
     [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -174,6 +175,7 @@
 
 - (void)authenticationViewControllerDidFinish:(AuthenticationViewController *)viewController
 {
+    [[NCConnectionController sharedInstance] checkAppState];
     [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
 }
 
