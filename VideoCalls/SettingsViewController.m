@@ -12,6 +12,8 @@
 #import "NCAPIController.h"
 #import "UserSettingsTableViewCell.h"
 #import "NCAPIController.h"
+#import "NCUserInterfaceController.h"
+#import "NCConnectionController.h"
 #import "UIImageView+AFNetworking.h"
 #import <SafariServices/SafariServices.h>
 
@@ -47,6 +49,14 @@ typedef enum AboutSection {
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     [self.tableView registerNib:[UINib nibWithNibName:kUserSettingsTableCellNibName bundle:nil] forCellReuseIdentifier:kUserSettingsCellIdentifier];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -56,7 +66,8 @@ typedef enum AboutSection {
     _server = [[NCSettingsController sharedInstance] ncServer];
     _user = [[NCSettingsController sharedInstance] ncUser];
     
-    [self refreshUserProfile];
+    [self adaptInterfaceForAppState:[NCConnectionController sharedInstance].appState];
+    [self adaptInterfaceForConnectionState:[NCConnectionController sharedInstance].connectionState];
     [self.tableView reloadData];
 }
 
@@ -78,6 +89,66 @@ typedef enum AboutSection {
     [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
         [self.tableView reloadData];
     }];
+}
+
+#pragma mark - Notifications
+
+- (void)appStateHasChanged:(NSNotification *)notification
+{
+    AppState appState = [[notification.userInfo objectForKey:@"appState"] intValue];
+    [self adaptInterfaceForAppState:appState];
+}
+
+- (void)connectionStateHasChanged:(NSNotification *)notification
+{
+    ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
+    [self adaptInterfaceForConnectionState:connectionState];
+}
+
+#pragma mark - User Interface
+
+- (void)adaptInterfaceForAppState:(AppState)appState
+{
+    switch (appState) {
+        case kAppStateReady:
+        {
+            [self refreshUserProfile];
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
+- (void)adaptInterfaceForConnectionState:(ConnectionState)connectionState
+{
+    switch (connectionState) {
+        case kConnectionStateConnected:
+        {
+            [self setOnlineAppearance];
+        }
+            break;
+            
+        case kConnectionStateDisconnected:
+        {
+            [self setOfflineAppearance];
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
+- (void)setOfflineAppearance
+{
+    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogoOffline"]];
+}
+
+- (void)setOnlineAppearance
+{
+    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogo"]];
 }
 
 #pragma mark - Profile actions
@@ -126,7 +197,8 @@ typedef enum AboutSection {
     }
     
     [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
-    [self.tabBarController setSelectedIndex:0];
+    [[NCUserInterfaceController sharedInstance] presentCallsViewController];
+    [[NCConnectionController sharedInstance] checkAppState];
 }
 
 #pragma mark - Table view data source

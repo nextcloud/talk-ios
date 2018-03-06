@@ -8,23 +8,31 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString * const NCAppStateHasChangedNotification;
+extern NSString * const NCConnectionStateHasChangedNotification;
+
+typedef enum AppState {
+    kAppStateUnknown = 0,
+    kAppStateNotServerProvided,
+    kAppStateAuthenticationNeeded,
+    kAppStateMissingUserProfile,
+    kAppStateMissingServerCapabilities,
+    kAppStateReady
+} AppState;
 
 typedef enum ConnectionState {
-    kConnectionStateNotServerProvided = 0,
-    kConnectionStateAuthenticationNeeded,
-    kConnectionStateMissingUserProfile,
-    kConnectionStateMissingServerCapabilities,
-    kConnectionStateNetworkDisconnected,
-    kConnectionStateConnecting,
+    kConnectionStateUnknown = 0,
+    kConnectionStateDisconnected,
     kConnectionStateConnected
 } ConnectionState;
 
-extern NSString * const NCNetworkReachabilityHasChangedNotification;
-extern NSString * const kNCNetworkReachabilityKey;
-
 @interface NCConnectionController : NSObject
 
+@property(nonatomic, assign) AppState appState;
+@property(nonatomic, assign) ConnectionState connectionState;
+
 + (instancetype)sharedInstance;
-- (ConnectionState)connectionState;
+- (void)checkAppState;
+- (void)checkConnectionState;
 
 @end
