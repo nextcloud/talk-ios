@@ -184,15 +184,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     switch (appState) {
         case kAppStateReady:
         {
-            NSLog(@"App ready -> Get rooms");
             [self fetchRoomsWithCompletionBlock:nil];
         }
             break;
             
         default:
-        {
-            NSLog(@"App State: %u", appState);
-        }
             break;
     }
 }
@@ -202,14 +198,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     switch (connectionState) {
         case kConnectionStateConnected:
         {
-            NSLog(@"Network available");
             [self setOnlineAppearance];
         }
             break;
             
         case kConnectionStateDisconnected:
         {
-            NSLog(@"Network disconnected");
             [self setOfflineAppearance];
         }
             break;

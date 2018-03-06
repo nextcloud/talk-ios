@@ -99,15 +99,11 @@
     switch (appState) {
         case kAppStateReady:
         {
-            NSLog(@"App ready -> Get contacts");
             [self getContacts];
         }
             break;
             
         default:
-        {
-            NSLog(@"App State: %u", appState);
-        }
             break;
     }
 }
@@ -117,14 +113,12 @@
     switch (connectionState) {
         case kConnectionStateConnected:
         {
-            NSLog(@"Network available");
             [self setOnlineAppearance];
         }
             break;
             
         case kConnectionStateDisconnected:
         {
-            NSLog(@"Network disconnected");
             [self setOfflineAppearance];
         }
             break;

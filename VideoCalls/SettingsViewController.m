@@ -117,9 +117,6 @@ typedef enum AboutSection {
             break;
             
         default:
-        {
-            NSLog(@"App State: %u", appState);
-        }
             break;
     }
 }
@@ -129,14 +126,12 @@ typedef enum AboutSection {
     switch (connectionState) {
         case kConnectionStateConnected:
         {
-            NSLog(@"Network available");
             [self setOnlineAppearance];
         }
             break;
             
         case kConnectionStateDisconnected:
         {
-            NSLog(@"Network disconnected");
             [self setOfflineAppearance];
         }
             break;
