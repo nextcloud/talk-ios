@@ -84,7 +84,7 @@
 {
     UIAlertController * alert = [UIAlertController
                                  alertControllerWithTitle:@"Disconnected"
-                                 message:@"It seems that there is no Internet connection"
+                                 message:@"It seems that there is no Internet connection."
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     
