@@ -139,9 +139,11 @@
 
 - (void)presentCallViewController:(CallViewController *)callViewController
 {
-    _callViewController = callViewController;
-    _callViewController.delegate = self;
-    [self.mainTabBarController presentViewController:_callViewController animated:YES completion:nil];
+    if (!_callViewController) {
+        _callViewController = callViewController;
+        _callViewController.delegate = self;
+        [self.mainTabBarController presentViewController:_callViewController animated:YES completion:nil];
+    }
 }
 
 #pragma mark - Notifications
@@ -181,9 +183,17 @@
 
 #pragma mark - CallViewControllerDelegate
 
-- (void)callViewControllerDidFinish:(CallViewController *)viewController {
-    if (![viewController isBeingDismissed]) {
+- (void)callViewControllerWantsToBeDismissed:(CallViewController *)viewController
+{
+    if (_callViewController == viewController && ![viewController isBeingDismissed]) {
         [viewController dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
+- (void)callViewControllerDidFinish:(CallViewController *)viewController
+{
+    if (_callViewController == viewController) {
+        _callViewController = nil;
     }
 }
 
