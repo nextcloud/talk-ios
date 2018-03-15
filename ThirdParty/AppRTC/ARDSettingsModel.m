@@ -42,6 +42,20 @@ static NSArray<NSString *> *videoCodecsStaticValues() {
   return resolution;
 }
 
+- (NSString *)readableResolution:(NSString *)resolution {
+    NSString *readableResolution = @"Unknown";
+    if ([resolution isEqualToString:videoResolutionsStaticValues()[0]]) {
+        readableResolution = @"Low";
+    } else if ([resolution isEqualToString:videoResolutionsStaticValues()[1]]) {
+        readableResolution = @"Normal";
+    } else if ([resolution isEqualToString:videoResolutionsStaticValues()[2]]) {
+        readableResolution = @"High";
+    } else if ([resolution isEqualToString:videoResolutionsStaticValues()[3]]) {
+        readableResolution = @"HD";
+    }
+    return readableResolution;
+}
+
 - (BOOL)storeVideoResolutionSetting:(NSString *)resolution {
   if (![[self availableVideoResolutions] containsObject:resolution]) {
     return NO;

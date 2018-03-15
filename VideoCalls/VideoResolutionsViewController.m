@@ -57,7 +57,7 @@
     NSString *storedResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
     BOOL isStoredResolution = [resolution isEqualToString:storedResolution];
     
-    cell.textLabel.text = resolution;
+    cell.textLabel.text = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:resolution];
     cell.accessoryType = (isStoredResolution) ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
     
     return cell;

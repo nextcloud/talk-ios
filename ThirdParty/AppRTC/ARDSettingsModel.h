@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
  * When defaulting to value, the default is saved in store for consistency reasons.
  */
 - (NSString *)currentVideoResolutionSettingFromStore;
+- (NSString *)readableResolution:(NSString *)resolution;
 - (int)currentVideoResolutionWidthFromStore;
 - (int)currentVideoResolutionHeightFromStore;
 
