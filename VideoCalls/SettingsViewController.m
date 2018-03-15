@@ -300,7 +300,7 @@ typedef enum AboutSection {
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:videoConfigurationCellIdentifier];
                         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                        cell.textLabel.text = @"Video";
+                        cell.textLabel.text = @"Video settings";
                     }
                 }
                     break;

@@ -147,7 +147,9 @@
                             <outlet property="delegate" destination="rp8-4C-Fhc" id="IrT-7U-CrP"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="BZo-N4-rkW"/>
+                    <navigationItem key="navigationItem" id="BZo-N4-rkW">
+                        <barButtonItem key="backBarButtonItem" title="Settings" id="s3n-1y-1mJ"/>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AAu-UD-uKL" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
