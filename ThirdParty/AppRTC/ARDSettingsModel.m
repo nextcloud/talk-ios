@@ -14,7 +14,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 static NSArray<NSString *> *videoResolutionsStaticValues() {
-  return @[ @"640x480", @"960x540", @"1280x720" ];
+  return @[ @"480x360", @"640x480", @"960x540", @"1280x720" ];
 }
 
 static NSArray<NSString *> *videoCodecsStaticValues() {
@@ -102,7 +102,7 @@ static NSArray<NSString *> *videoCodecsStaticValues() {
 #pragma mark -
 
 - (NSString *)defaultVideoResolutionSetting {
-  return videoResolutionsStaticValues()[0];
+  return videoResolutionsStaticValues()[1];
 }
 
 - (int)videoResolutionComponentAtIndex:(int)index inString:(NSString *)resolution {
