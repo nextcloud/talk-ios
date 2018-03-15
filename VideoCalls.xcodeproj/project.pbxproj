@@ -16,6 +16,7 @@
 		2C063313205A85850043481A /* VideoSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063312205A85850043481A /* VideoSettingsViewController.m */; };
 		2C063314205AB8B90043481A /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
 		2C063315205AB8C40043481A /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
+		2C063318205ACB140043481A /* VideoResolutionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063317205ACB140043481A /* VideoResolutionsViewController.m */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
 		2C3F6AA81FBB1ACD00E2705C /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3F6AA71FBB1ACD00E2705C /* NotificationService.m */; };
 		2C3F6AAC1FBB1ACD00E2705C /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -124,6 +125,8 @@
 		2C06330E2046CC8B0043481A /* NCUserInterfaceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCUserInterfaceController.m; sourceTree = "<group>"; };
 		2C063311205A85850043481A /* VideoSettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoSettingsViewController.h; sourceTree = "<group>"; };
 		2C063312205A85850043481A /* VideoSettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoSettingsViewController.m; sourceTree = "<group>"; };
+		2C063316205ACB140043481A /* VideoResolutionsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoResolutionsViewController.h; sourceTree = "<group>"; };
+		2C063317205ACB140043481A /* VideoResolutionsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoResolutionsViewController.m; sourceTree = "<group>"; };
 		2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSignalingMessage.h; sourceTree = "<group>"; };
 		2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCSignalingMessage.m; sourceTree = "<group>"; };
 		2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -513,6 +516,8 @@
 				2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */,
 				2C063311205A85850043481A /* VideoSettingsViewController.h */,
 				2C063312205A85850043481A /* VideoSettingsViewController.m */,
+				2C063316205ACB140043481A /* VideoResolutionsViewController.h */,
+				2C063317205ACB140043481A /* VideoResolutionsViewController.m */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -959,6 +964,7 @@
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
+				2C063318205ACB140043481A /* VideoResolutionsViewController.m in Sources */,
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
 				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,

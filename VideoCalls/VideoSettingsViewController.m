@@ -9,6 +9,7 @@
 #import "VideoSettingsViewController.h"
 
 #import "NCSettingsController.h"
+#import "VideoResolutionsViewController.h"
 
 typedef enum VideoSettingsSection {
     kVideoSettingsSectionResolution = 0,
@@ -99,6 +100,10 @@ typedef enum VideoSettingsSection {
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     switch (indexPath.section) {
         case kVideoSettingsSectionResolution:
+        {
+            VideoResolutionsViewController *videoResolutionsVC = [[VideoResolutionsViewController alloc] init];
+            [self.navigationController pushViewController:videoResolutionsVC animated:YES];
+        }
             break;
         case kVideoSettingsSectionDefaultVideo:
             break;
