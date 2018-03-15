@@ -15,6 +15,7 @@
 #import "NCUserInterfaceController.h"
 #import "NCConnectionController.h"
 #import "UIImageView+AFNetworking.h"
+#import "VideoSettingsViewController.h"
 #import <SafariServices/SafariServices.h>
 
 typedef enum SettingsSection {
@@ -298,6 +299,7 @@ typedef enum AboutSection {
                     cell = [tableView dequeueReusableCellWithIdentifier:videoConfigurationCellIdentifier];
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:videoConfigurationCellIdentifier];
+                        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                         cell.textLabel.text = @"Video";
                     }
                 }
@@ -346,7 +348,8 @@ typedef enum AboutSection {
             switch (indexPath.row) {
                 case kConfigurationSectionVideo:
                 {
-                    // Present video settings view controller
+                    VideoSettingsViewController *videoSettingsVC = [[VideoSettingsViewController alloc] init];
+                    [self.navigationController pushViewController:videoSettingsVC animated:YES];
                     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                 }
                     break;

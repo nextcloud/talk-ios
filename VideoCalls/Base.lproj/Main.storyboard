@@ -63,7 +63,7 @@
                             <outlet property="delegate" destination="GE9-5J-Ym6" id="gEz-jq-Hgx"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Root View Controller" id="3e2-3x-z0c">
+                    <navigationItem key="navigationItem" id="3e2-3x-z0c">
                         <barButtonItem key="rightBarButtonItem" title="Item" image="add" id="0Gy-30-3im">
                             <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <connections>
@@ -95,7 +95,7 @@
             </objects>
             <point key="canvasLocation" x="678" y="-739"/>
         </scene>
-        <!--Root View Controller-->
+        <!--Contacts Table View Controller-->
         <scene sceneID="2Fv-cG-2wu">
             <objects>
                 <tableViewController extendedLayoutIncludesOpaqueBars="YES" id="0hK-nw-rSf" customClass="ContactsTableViewController" sceneMemberID="viewController">
@@ -118,13 +118,13 @@
                             <outlet property="delegate" destination="0hK-nw-rSf" id="ZzF-AR-yTy"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Root View Controller" id="YTZ-Le-2Pt"/>
+                    <navigationItem key="navigationItem" id="YTZ-Le-2Pt"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Ps-0h-ePX" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1630" y="3"/>
         </scene>
-        <!--Root View Controller-->
+        <!--Settings View Controller-->
         <scene sceneID="IX5-qb-IcO">
             <objects>
                 <tableViewController id="rp8-4C-Fhc" customClass="SettingsViewController" sceneMemberID="viewController">
@@ -147,7 +147,7 @@
                             <outlet property="delegate" destination="rp8-4C-Fhc" id="IrT-7U-CrP"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Root View Controller" id="BZo-N4-rkW"/>
+                    <navigationItem key="navigationItem" id="BZo-N4-rkW"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AAu-UD-uKL" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
