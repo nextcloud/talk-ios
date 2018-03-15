@@ -12,7 +12,6 @@
 #import <WebRTC/RTCMediaStream.h>
 #import <WebRTC/RTCEAGLVideoView.h>
 #import <WebRTC/RTCVideoTrack.h>
-#import "ARDSettingsModel.h"
 #import "ARDCaptureController.h"
 #import "CallParticipantViewCell.h"
 #import "NBMPeersFlowLayout.h"
@@ -385,9 +384,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callController:(NCCallController *)callController didCreateLocalVideoCapturer:(RTCCameraVideoCapturer *)videoCapturer
 {
     _localVideoView.captureSession = videoCapturer.captureSession;
-    
-    ARDSettingsModel *settingsModel = [[ARDSettingsModel alloc] init];
-    _captureController = [[ARDCaptureController alloc] initWithCapturer:videoCapturer settings:settingsModel];
+    _captureController = [[ARDCaptureController alloc] initWithCapturer:videoCapturer settings:[[NCSettingsController sharedInstance] videoSettingsModel]];
     [_captureController startCapture];
 }
 - (void)callController:(NCCallController *)callController didAddLocalStream:(RTCMediaStream *)localStream

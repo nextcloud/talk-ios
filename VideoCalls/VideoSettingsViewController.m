@@ -8,7 +8,7 @@
 
 #import "VideoSettingsViewController.h"
 
-#import "ARDSettingsModel.h"
+#import "NCSettingsController.h"
 
 typedef enum VideoSettingsSection {
     kVideoSettingsSectionResolution = 0,
@@ -77,8 +77,7 @@ typedef enum VideoSettingsSection {
             }
             
             cell.textLabel.text = @"Video resolution";
-            ARDSettingsModel *settingsModel = [[ARDSettingsModel alloc] init];
-            cell.detailTextLabel.text = [settingsModel currentVideoResolutionSettingFromStore];
+            cell.detailTextLabel.text = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
         }
             break;
         case kVideoSettingsSectionDefaultVideo:

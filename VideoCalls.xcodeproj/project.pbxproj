@@ -14,6 +14,8 @@
 		2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */; };
 		2C06330F2046CC8B0043481A /* NCUserInterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06330E2046CC8B0043481A /* NCUserInterfaceController.m */; };
 		2C063313205A85850043481A /* VideoSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063312205A85850043481A /* VideoSettingsViewController.m */; };
+		2C063314205AB8B90043481A /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
+		2C063315205AB8C40043481A /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
 		2C3F6AA81FBB1ACD00E2705C /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3F6AA71FBB1ACD00E2705C /* NotificationService.m */; };
 		2C3F6AAC1FBB1ACD00E2705C /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -974,9 +976,11 @@
 			files = (
 				2C3F6AB61FBB47B800E2705C /* NCAPIController.m in Sources */,
 				2C3F6AB91FBB4C9D00E2705C /* NCUser.m in Sources */,
+				2C063314205AB8B90043481A /* ARDSettingsModel.m in Sources */,
 				2CBF82BA1FD5A1E500636459 /* CCCertificate.m in Sources */,
 				2CBF82B71FD0939600636459 /* NCAPISessionManager.m in Sources */,
 				2CBF82C21FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */,
+				2C063315205AB8C40043481A /* ARDSettingsStore.m in Sources */,
 				2CBF82AF1FC888FC00636459 /* NCPushNotification.m in Sources */,
 				2CBF82BE1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
 				2C3F6AA81FBB1ACD00E2705C /* NotificationService.m in Sources */,

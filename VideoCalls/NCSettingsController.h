@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "ARDSettingsModel.h"
 #import "UICKeyChainStore.h"
 
 
@@ -44,6 +45,7 @@ extern NSString * const NCServerCapabilitiesReceivedNotification;
 @property (nonatomic, copy) NSString *ncDeviceSignature;
 @property (nonatomic, copy) NSString *ncUserPublicKey;
 @property (nonatomic, copy) NSDictionary *ncTalkCapabilities;
+@property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
 
 + (instancetype)sharedInstance;
 - (void)cleanUserAndServerStoredValues;
