@@ -64,6 +64,21 @@ typedef enum VideoSettingsSection {
     return 1;
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    switch (section) {
+        case kVideoSettingsSectionResolution:
+            return @"Quality";
+            break;
+            
+        case kVideoSettingsSectionDefaultVideo:
+            return @"Calls";
+            break;
+    }
+    
+    return nil;
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
     static NSString *kVideoResolutionCellIdentifier = @"VideoResolutionCellIdentifier";
@@ -90,7 +105,7 @@ typedef enum VideoSettingsSection {
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:kDefaultVideoToggleCellIdentifier];
             }
             
-            cell.textLabel.text = @"Start call with video disabled";
+            cell.textLabel.text = @"Start with video disabled";
             cell.detailTextLabel.text = @"NO";
         }
             break;
