@@ -14,7 +14,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 static NSArray<NSString *> *videoResolutionsStaticValues() {
-  return @[ @"640x480", @"960x540", @"1280x720" ];
+  return @[ @"480x360", @"640x480", @"960x540", @"1280x720" ];
 }
 
 static NSArray<NSString *> *videoCodecsStaticValues() {
@@ -42,12 +42,38 @@ static NSArray<NSString *> *videoCodecsStaticValues() {
   return resolution;
 }
 
+- (NSString *)readableResolution:(NSString *)resolution {
+    NSString *readableResolution = @"Unknown";
+    if ([resolution isEqualToString:videoResolutionsStaticValues()[0]]) {
+        readableResolution = @"Low";
+    } else if ([resolution isEqualToString:videoResolutionsStaticValues()[1]]) {
+        readableResolution = @"Normal";
+    } else if ([resolution isEqualToString:videoResolutionsStaticValues()[2]]) {
+        readableResolution = @"High";
+    } else if ([resolution isEqualToString:videoResolutionsStaticValues()[3]]) {
+        readableResolution = @"HD";
+    }
+    return readableResolution;
+}
+
 - (BOOL)storeVideoResolutionSetting:(NSString *)resolution {
   if (![[self availableVideoResolutions] containsObject:resolution]) {
     return NO;
   }
   [[self settingsStore] setVideoResolution:resolution];
   return YES;
+}
+
+- (BOOL)videoDisabledSettingFromStore {
+    BOOL videoDisabled = [[self settingsStore] videoDisabledDefault];
+    if (!videoDisabled) {
+        [[self settingsStore] setVideoDisabledDefault:NO];
+    }
+    return videoDisabled;
+}
+
+- (void)storeVideoDisabledDefault:(BOOL)disabled {
+    [[self settingsStore] setVideoDisabledDefault:disabled];
 }
 
 - (NSArray<NSString *> *)availableVideoCodecs {
@@ -102,7 +128,7 @@ static NSArray<NSString *> *videoCodecsStaticValues() {
 #pragma mark -
 
 - (NSString *)defaultVideoResolutionSetting {
-  return videoResolutionsStaticValues()[0];
+  return videoResolutionsStaticValues()[1];
 }
 
 - (int)videoResolutionComponentAtIndex:(int)index inString:(NSString *)resolution {

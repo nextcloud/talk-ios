@@ -12,6 +12,7 @@
 
 static NSString *const kVideoResolutionKey = @"rtc_video_resolution_key";
 static NSString *const kVideoCodecKey = @"rtc_video_codec_key";
+static NSString *const kVideoDisabledDefaultKey = @"rtc_video_disabled_key";
 static NSString *const kBitrateKey = @"rtc_max_bitrate_key";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -46,6 +47,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setVideoCodec:(NSString *)videoCodec {
   [self.storage setObject:videoCodec forKey:kVideoCodecKey];
   [self.storage synchronize];
+}
+
+- (BOOL)videoDisabledDefault {
+    return [self.storage boolForKey:kVideoDisabledDefaultKey];
+}
+
+- (void)setVideoDisabledDefault:(BOOL)videoDisabledDefault {
+    [self.storage setBool:videoDisabledDefault forKey:kVideoDisabledDefaultKey];
+    [self.storage synchronize];
 }
 
 - (nullable NSNumber *)maxBitrate {

@@ -12,7 +12,6 @@
 #import <WebRTC/RTCMediaStream.h>
 #import <WebRTC/RTCEAGLVideoView.h>
 #import <WebRTC/RTCVideoTrack.h>
-#import "ARDSettingsModel.h"
 #import "ARDCaptureController.h"
 #import "CallParticipantViewCell.h"
 #import "NBMPeersFlowLayout.h"
@@ -94,6 +93,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     self.waitingImageView.layer.masksToBounds = YES;
     
     [self setWaitingScreen];
+    
+    if ([[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore]) {
+        _userDisabledVideo = YES;
+        [self disableLocalVideo];
+    }
     
     [self.collectionView registerNib:[UINib nibWithNibName:kCallParticipantCellNibName bundle:nil] forCellWithReuseIdentifier:kCallParticipantCellIdentifier];
     
@@ -245,15 +249,12 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (IBAction)videoButtonPressed:(id)sender
 {
-    UIButton *videoButton = sender;
     if ([_callController isVideoEnabled]) {
         [self disableLocalVideo];
         _userDisabledVideo = YES;
-        [videoButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
     } else {
         [self enableLocalVideo];
         _userDisabledVideo = NO;
-        [videoButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
     }
 }
 
@@ -262,6 +263,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController enableVideo:NO];
     [_captureController stopCapture];
     [_switchCameraButton setEnabled:NO];
+    [_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
 }
 
 - (void)enableLocalVideo
@@ -269,6 +271,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController enableVideo:YES];
     [_captureController startCapture];
     [_switchCameraButton setEnabled:YES];
+    [_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
 }
 
 - (IBAction)switchCameraButtonPressed:(id)sender
@@ -385,9 +388,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callController:(NCCallController *)callController didCreateLocalVideoCapturer:(RTCCameraVideoCapturer *)videoCapturer
 {
     _localVideoView.captureSession = videoCapturer.captureSession;
-    
-    ARDSettingsModel *settingsModel = [[ARDSettingsModel alloc] init];
-    _captureController = [[ARDCaptureController alloc] initWithCapturer:videoCapturer settings:settingsModel];
+    _captureController = [[ARDCaptureController alloc] initWithCapturer:videoCapturer settings:[[NCSettingsController sharedInstance] videoSettingsModel]];
     [_captureController startCapture];
 }
 - (void)callController:(NCCallController *)callController didAddLocalStream:(RTCMediaStream *)localStream

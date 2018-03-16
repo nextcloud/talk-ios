@@ -15,13 +15,20 @@
 #import "NCUserInterfaceController.h"
 #import "NCConnectionController.h"
 #import "UIImageView+AFNetworking.h"
+#import "VideoSettingsViewController.h"
 #import <SafariServices/SafariServices.h>
 
 typedef enum SettingsSection {
     kSettingsSectionUser = 0,
+    kSettingsSectionConfiguration,
     kSettingsSectionAbout,
     kSettingsSectionNumber
 } SettingsSection;
+
+typedef enum ConfigurationSection {
+    kConfigurationSectionVideo = 0,
+    kConfigurationSectionNumber
+} ConfigurationSection;
 
 typedef enum AboutSection {
     kAboutSectionPrivacy = 0,
@@ -210,8 +217,14 @@ typedef enum AboutSection {
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    if (section == kSettingsSectionAbout) {
-        return kAboutSectionNumber;
+    switch (section) {
+        case kSettingsSectionConfiguration:
+            return kConfigurationSectionNumber;
+            break;
+
+        case kSettingsSectionAbout:
+            return kAboutSectionNumber;
+            break;
     }
     
     return 1;
@@ -228,8 +241,14 @@ typedef enum AboutSection {
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    if (section == kSettingsSectionAbout) {
-        return @"About";
+    switch (section) {
+        case kSettingsSectionConfiguration:
+            return @"Configuration";
+            break;
+
+        case kSettingsSectionAbout:
+            return @"About";
+            break;
     }
     
     return nil;
@@ -249,6 +268,7 @@ typedef enum AboutSection {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
+    static NSString *videoConfigurationCellIdentifier = @"VideoConfigurationCellIdentifier";
     static NSString *privacyCellIdentifier = @"PrivacyCellIdentifier";
     static NSString *sourceCodeCellIdentifier = @"SourceCodeCellIdentifier";
     
@@ -269,6 +289,22 @@ typedef enum AboutSection {
             cell.userImageView.layer.cornerRadius = 40.0;
             cell.userImageView.layer.masksToBounds = YES;
             return cell;
+        }
+            break;
+        case kSettingsSectionConfiguration:
+        {
+            switch (indexPath.row) {
+                case kConfigurationSectionVideo:
+                {
+                    cell = [tableView dequeueReusableCellWithIdentifier:videoConfigurationCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:videoConfigurationCellIdentifier];
+                        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                        cell.textLabel.text = @"Video settings";
+                    }
+                }
+                    break;
+            }
         }
             break;
         case kSettingsSectionAbout:
@@ -305,6 +341,19 @@ typedef enum AboutSection {
         case kSettingsSectionUser:
         {
             [self userProfilePressed];
+        }
+            break;
+        case kSettingsSectionConfiguration:
+        {
+            switch (indexPath.row) {
+                case kConfigurationSectionVideo:
+                {
+                    VideoSettingsViewController *videoSettingsVC = [[VideoSettingsViewController alloc] init];
+                    [self.navigationController pushViewController:videoSettingsVC animated:YES];
+                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                }
+                    break;
+            }
         }
             break;
         case kSettingsSectionAbout:

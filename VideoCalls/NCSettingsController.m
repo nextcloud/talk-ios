@@ -55,6 +55,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 {
     self = [super init];
     if (self) {
+        _videoSettingsModel = [[ARDSettingsModel alloc] init];
         _keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
                                                    accessGroup:@"group.com.nextcloud.Talk"];
         [self readValuesFromKeyChain];

@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
  * When defaulting to value, the default is saved in store for consistency reasons.
  */
 - (NSString *)currentVideoResolutionSettingFromStore;
+- (NSString *)readableResolution:(NSString *)resolution;
 - (int)currentVideoResolutionWidthFromStore;
 - (int)currentVideoResolutionHeightFromStore;
 
@@ -46,6 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @return YES/NO depending on success.
  */
 - (BOOL)storeVideoResolutionSetting:(NSString *)resolution;
+
+/**
+ * Video disabled by default on call starts
+ */
+- (BOOL)videoDisabledSettingFromStore;
+- (void)storeVideoDisabledDefault:(BOOL)disabled;
 
 /**
  * Returns array of available video codecs.
