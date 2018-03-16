@@ -64,6 +64,18 @@ static NSArray<NSString *> *videoCodecsStaticValues() {
   return YES;
 }
 
+- (BOOL)videoDisabledSettingFromStore {
+    BOOL videoDisabled = [[self settingsStore] videoDisabledDefault];
+    if (!videoDisabled) {
+        [[self settingsStore] setVideoDisabledDefault:NO];
+    }
+    return videoDisabled;
+}
+
+- (void)storeVideoDisabledDefault:(BOOL)disabled {
+    [[self settingsStore] setVideoDisabledDefault:disabled];
+}
+
 - (NSArray<NSString *> *)availableVideoCodecs {
   return videoCodecsStaticValues();
 }

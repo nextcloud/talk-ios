@@ -18,6 +18,9 @@ typedef enum VideoSettingsSection {
 } VideoSettingsSection;
 
 @interface VideoSettingsViewController ()
+{
+    UISwitch *_videoDisabledSwitch;
+}
 
 @end
 
@@ -37,6 +40,9 @@ typedef enum VideoSettingsSection {
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    
+    _videoDisabledSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_videoDisabledSwitch addTarget: self action: @selector(videoDisabledValueChanged:) forControlEvents:UIControlEventValueChanged];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -102,11 +108,13 @@ typedef enum VideoSettingsSection {
         {
             cell = [tableView dequeueReusableCellWithIdentifier:kDefaultVideoToggleCellIdentifier];
             if (!cell) {
-                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:kDefaultVideoToggleCellIdentifier];
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDefaultVideoToggleCellIdentifier];
             }
             
-            cell.textLabel.text = @"Start with video disabled";
-            cell.detailTextLabel.text = @"NO";
+            cell.textLabel.text = @"Video disabled by default";
+            BOOL videoDisabled = [[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore];
+            [_videoDisabledSwitch setOn:videoDisabled];
+            cell.accessoryView = _videoDisabledSwitch;
         }
             break;
     }
@@ -126,6 +134,14 @@ typedef enum VideoSettingsSection {
             break;
     }
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+#pragma mark - Video disabled switch
+
+- (void)videoDisabledValueChanged:(id)sender
+{
+    BOOL videoDisable = _videoDisabledSwitch.on;
+    [[[NCSettingsController sharedInstance] videoSettingsModel] storeVideoDisabledDefault:videoDisable];
 }
 
 

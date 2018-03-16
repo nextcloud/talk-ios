@@ -94,6 +94,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     [self setWaitingScreen];
     
+    if ([[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore]) {
+        _userDisabledVideo = YES;
+        [self disableLocalVideo];
+    }
+    
     [self.collectionView registerNib:[UINib nibWithNibName:kCallParticipantCellNibName bundle:nil] forCellWithReuseIdentifier:kCallParticipantCellIdentifier];
     
     if (@available(iOS 11.0, *)) {
@@ -244,15 +249,12 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (IBAction)videoButtonPressed:(id)sender
 {
-    UIButton *videoButton = sender;
     if ([_callController isVideoEnabled]) {
         [self disableLocalVideo];
         _userDisabledVideo = YES;
-        [videoButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
     } else {
         [self enableLocalVideo];
         _userDisabledVideo = NO;
-        [videoButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
     }
 }
 
@@ -261,6 +263,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController enableVideo:NO];
     [_captureController stopCapture];
     [_switchCameraButton setEnabled:NO];
+    [_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
 }
 
 - (void)enableLocalVideo
@@ -268,6 +271,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController enableVideo:YES];
     [_captureController startCapture];
     [_switchCameraButton setEnabled:YES];
+    [_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
 }
 
 - (IBAction)switchCameraButtonPressed:(id)sender

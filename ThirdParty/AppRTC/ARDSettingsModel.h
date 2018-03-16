@@ -49,6 +49,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)storeVideoResolutionSetting:(NSString *)resolution;
 
 /**
+ * Video disabled by default on call starts
+ */
+- (BOOL)videoDisabledSettingFromStore;
+- (void)storeVideoDisabledDefault:(BOOL)disabled;
+
+/**
  * Returns array of available video codecs.
  */
 - (NSArray<NSString *> *)availableVideoCodecs;

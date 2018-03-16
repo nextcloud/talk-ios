@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic) NSString *videoResolution;
 @property(nonatomic) NSString *videoCodec;
+@property(nonatomic) BOOL videoDisabledDefault;
 
 /**
  * Returns current max bitrate number stored in the store.
