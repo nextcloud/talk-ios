@@ -80,6 +80,7 @@ typedef enum VideoSettingsSection {
             cell.textLabel.text = @"Video resolution";
             NSString *resolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
             cell.detailTextLabel.text = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:resolution];
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
             break;
         case kVideoSettingsSectionDefaultVideo:
