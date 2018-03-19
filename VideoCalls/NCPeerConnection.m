@@ -47,8 +47,6 @@
         
         _peerConnection = peerConnection;
         _peerId = sessionId;
-        _isInitiator = YES;
-        _iceAttempts = 0;
     }
     
     return self;

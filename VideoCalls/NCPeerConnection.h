@@ -47,14 +47,12 @@
 @property (nonatomic, copy) NSString *peerId;
 @property (nonatomic, copy) NSString *peerName;
 @property (nonatomic, strong) RTCPeerConnection *peerConnection;
-@property (nonatomic, assign) BOOL isInitiator;
 @property (nonatomic, strong) RTCDataChannel *localDataChannel;
 @property (nonatomic, strong) RTCDataChannel *remoteDataChannel;
 @property (nonatomic, assign) BOOL isRemoteAudioDisabled;
 @property (nonatomic, assign) BOOL isRemoteVideoDisabled;
 @property (nonatomic, strong, readonly) NSMutableArray *queuedRemoteCandidates;
 @property (nonatomic, strong) RTCMediaStream *remoteStream;
-@property (nonatomic, assign) NSUInteger iceAttempts;
 
 - (instancetype)initWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers;
 - (void)addICECandidate:(RTCIceCandidate *)candidate;
