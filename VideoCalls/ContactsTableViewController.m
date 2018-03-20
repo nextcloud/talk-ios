@@ -177,17 +177,23 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Call"
-                                                           style:UIAlertActionStyleDefault
-                                                         handler:^void (UIAlertAction *action) {
-                                                             [self createCallWithContact:contact audioOnly:YES];
-                                                         }]];
+    UIAlertAction *callAction = [UIAlertAction actionWithTitle:@"Call"
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^void (UIAlertAction *action) {
+                                                           [self createCallWithContact:contact audioOnly:YES];
+                                                       }];
     
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Videocall"
-                                                           style:UIAlertActionStyleDefault
-                                                         handler:^void (UIAlertAction *action) {
-                                                             [self createCallWithContact:contact audioOnly:NO];
-                                                         }]];
+    UIAlertAction *videocallAction = [UIAlertAction actionWithTitle:@"Videocall"
+                                                              style:UIAlertActionStyleDefault
+                                                            handler:^void (UIAlertAction *action) {
+                                                                [self createCallWithContact:contact audioOnly:NO];
+                                                            }];
+    
+    [callAction setValue:[[UIImage imageNamed:@"call-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [videocallAction setValue:[[UIImage imageNamed:@"videocall-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    
+    [optionsActionSheet addAction:callAction];
+    [optionsActionSheet addAction:videocallAction];
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     

@@ -513,6 +513,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                            [self startCallInRoom:room audioOnly:NO];
                                                        }];
     
+    [callAction setValue:[[UIImage imageNamed:@"call-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [videocallAction setValue:[[UIImage imageNamed:@"videocall-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    
     [optionsActionSheet addAction:callAction];
     [optionsActionSheet addAction:videocallAction];
     
