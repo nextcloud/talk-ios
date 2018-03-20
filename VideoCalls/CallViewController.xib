@@ -17,6 +17,7 @@
                 <outlet property="collectionView" destination="aUh-Z0-hO6" id="jmc-BV-dTa"/>
                 <outlet property="hangUpButton" destination="Rl8-bS-FJ5" id="jNg-Ly-6wz"/>
                 <outlet property="localVideoView" destination="TXj-7E-NAa" id="nXn-uK-PDD"/>
+                <outlet property="speakerButton" destination="dgz-bL-PRr" id="WdG-PS-8Qa"/>
                 <outlet property="switchCameraButton" destination="Mf3-yk-Olo" id="bJn-Fu-bqF"/>
                 <outlet property="videoDisableButton" destination="5zQ-it-ujU" id="n3u-2y-uqi"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
@@ -86,6 +87,15 @@
                                 <action selector="hangupButtonPressed:" destination="-1" eventType="touchUpInside" id="S0I-zJ-AFf"/>
                             </connections>
                         </button>
+                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dgz-bL-PRr">
+                            <rect key="frame" x="120" y="12" width="48" height="48"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" red="0.83529411760000005" green="0.83529411760000005" blue="0.83529411760000005" alpha="0.50449486300000002" colorSpace="custom" customColorSpace="sRGB"/>
+                            <state key="normal" image="speaker-off"/>
+                            <connections>
+                                <action selector="speakerButtonPressed:" destination="-1" eventType="touchUpInside" id="PPl-wW-y2T"/>
+                            </connections>
+                        </button>
                     </subviews>
                 </view>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TXj-7E-NAa" userLabel="localVideo" customClass="RTCCameraPreviewView">
@@ -126,6 +136,7 @@
     <resources>
         <image name="audio" width="24" height="24"/>
         <image name="hang-up" width="24" height="24"/>
+        <image name="speaker-off" width="24" height="24"/>
         <image name="switch-camera" width="24" height="24"/>
         <image name="video" width="24" height="24"/>
     </resources>

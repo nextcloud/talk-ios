@@ -62,7 +62,12 @@ static NSString * const kNCVideoTrackKind = @"video";
         _signalingController = [[NCSignalingController alloc] init];
         _signalingController.observer = self;
         
-        [self setAudioSessionToVideoChatMode];
+        if (audioOnly) {
+            [self setAudioSessionToVoiceChatMode];
+        } else {
+            [self setAudioSessionToVideoChatMode];
+        }
+        
         [self initRecorder];
     }
     
@@ -109,8 +114,6 @@ static NSString * const kNCVideoTrackKind = @"video";
     _localVideoTrack = nil;
     _peerConnectionFactory = nil;
     _connectionsDict = nil;
-    
-    [self setAudioSessionToVideoChatMode];
     
     [[NCAPIController sharedInstance] leaveCall:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
@@ -306,7 +309,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)changeAudioSessionConfigurationModeTo:(NSString *)mode
 {
-    RTCAudioSessionConfiguration *configuration = [[RTCAudioSessionConfiguration alloc] init];
+    RTCAudioSessionConfiguration *configuration = [RTCAudioSessionConfiguration webRTCConfiguration];
     configuration.category = AVAudioSessionCategoryPlayAndRecord;
     configuration.mode = mode;
     
@@ -325,6 +328,11 @@ static NSString * const kNCVideoTrackKind = @"video";
         NSLog(@"Error setting configuration: %@", error.localizedDescription);
     }
     [session unlockForConfiguration];
+}
+
+- (BOOL)isSpeakerActive
+{
+    return [[RTCAudioSession sharedInstance] mode] == AVAudioSessionModeVideoChat;
 }
 
 #pragma mark - Peer Connection Wrapper

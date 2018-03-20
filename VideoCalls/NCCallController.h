@@ -50,6 +50,7 @@ typedef void (^GetUserIdForSessionIdCompletionBlock)(NSString *userId, NSError *
 - (void)toggleCamera;
 - (BOOL)isVideoEnabled;
 - (BOOL)isAudioEnabled;
+- (BOOL)isSpeakerActive;
 - (void)enableVideo:(BOOL)enable;
 - (void)enableAudio:(BOOL)enable;
 - (void)setAudioSessionToVoiceChatMode;

@@ -40,6 +40,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
+@property (nonatomic, strong) IBOutlet UIButton *speakerButton;
 @property (nonatomic, strong) IBOutlet UIButton *videoDisableButton;
 @property (nonatomic, strong) IBOutlet UIButton *switchCameraButton;
 @property (nonatomic, strong) IBOutlet UIButton *hangUpButton;
@@ -83,10 +84,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.view addGestureRecognizer:tapGestureRecognizer];
     
     [self.audioMuteButton.layer setCornerRadius:24.0f];
+    [self.speakerButton.layer setCornerRadius:24.0f];
     [self.videoDisableButton.layer setCornerRadius:24.0f];
     [self.switchCameraButton.layer setCornerRadius:24.0f];
     [self.hangUpButton.layer setCornerRadius:24.0f];
     
+    [self adjustButtonsConainer];
     [self setDetailedViewTimer];
     
     self.collectionView.delegate = self;
@@ -132,15 +135,17 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)sensorStateChange:(NSNotificationCenter *)notification
 {
-    if ([[UIDevice currentDevice] proximityState] == YES) {
-        [self disableLocalVideo];
-        [_callController setAudioSessionToVoiceChatMode];
-    } else {
-        // Only enable video if it was not disabled by the user.
-        if (!_userDisabledVideo) {
-            [self enableLocalVideo];
+    if (!_isAudioOnly) {
+        if ([[UIDevice currentDevice] proximityState] == YES) {
+            [self disableLocalVideo];
+            [_callController setAudioSessionToVoiceChatMode];
+        } else {
+            // Only enable video if it was not disabled by the user.
+            if (!_userDisabledVideo) {
+                [self enableLocalVideo];
+            }
+            [_callController setAudioSessionToVideoChatMode];
         }
-        [_callController setAudioSessionToVideoChatMode];
     }
 }
 
@@ -216,11 +221,30 @@ typedef NS_ENUM(NSInteger, CallState) {
     }];
 }
 
-- (void)hideButtonsContainer {
+- (void)hideButtonsContainer
+{
     [UIView animateWithDuration:0.3f animations:^{
         [self.buttonsContainerView setAlpha:0.0f];
         [self.view layoutIfNeeded];
     }];
+}
+
+- (void)adjustButtonsConainer
+{
+    if (_isAudioOnly) {
+        _videoDisableButton.hidden = YES;
+        _switchCameraButton.hidden = YES;
+        // Rearrange visible buttons
+        CGRect templateFrame = _audioMuteButton.frame;
+        CGRect audioFrame = CGRectMake(36, templateFrame.origin.y, templateFrame.size.width, templateFrame.size.height);
+        CGRect speakerFrame = CGRectMake(120, templateFrame.origin.y, templateFrame.size.width, templateFrame.size.height);
+        CGRect hangupFrame = CGRectMake(204, templateFrame.origin.y, templateFrame.size.width, templateFrame.size.height);
+        _audioMuteButton.frame = audioFrame;
+        _speakerButton.frame = speakerFrame;
+        _hangUpButton.frame = hangupFrame;
+    } else {
+        _speakerButton.hidden = YES;
+    }
 }
 
 - (void)setDetailedViewTimer
@@ -296,6 +320,27 @@ typedef NS_ENUM(NSInteger, CallState) {
     animation.subtype = kCATransitionFromRight;
     
     [self.localVideoView.layer addAnimation:animation forKey:nil];
+}
+
+- (IBAction)speakerButtonPressed:(id)sender
+{
+    if ([_callController isSpeakerActive]) {
+        [self disableSpeaker];
+    } else {
+        [self enableSpeaker];
+    }
+}
+
+- (void)disableSpeaker
+{
+    [_callController setAudioSessionToVoiceChatMode];
+    [_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
+}
+
+- (void)enableSpeaker
+{
+    [_callController setAudioSessionToVideoChatMode];
+    [_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
 }
 
 - (IBAction)hangupButtonPressed:(id)sender
