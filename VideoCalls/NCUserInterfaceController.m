@@ -106,22 +106,33 @@
                                  message:@"Do you want to join this call?"
                                  preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction *joinButton = [UIAlertAction
-                                 actionWithTitle:@"Join call"
-                                 style:UIAlertActionStyleDefault
-                                 handler:^(UIAlertAction * _Nonnull action) {
-                                     NSDictionary *userInfo = [NSDictionary dictionaryWithObject:pushNotification forKey:@"pushNotification"];
-                                     [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationJoinCallAcceptedNotification
-                                                                                         object:self
-                                                                                       userInfo:userInfo];
-                                 }];
+    UIAlertAction *joinAudioButton = [UIAlertAction
+                                      actionWithTitle:@"Join call (audio only)"
+                                      style:UIAlertActionStyleDefault
+                                      handler:^(UIAlertAction * _Nonnull action) {
+                                          NSDictionary *userInfo = [NSDictionary dictionaryWithObject:pushNotification forKey:@"pushNotification"];
+                                          [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationJoinAudioCallAcceptedNotification
+                                                                                              object:self
+                                                                                            userInfo:userInfo];
+                                      }];
+    
+    UIAlertAction *joinVideoButton = [UIAlertAction
+                                      actionWithTitle:@"Join call with video"
+                                      style:UIAlertActionStyleDefault
+                                      handler:^(UIAlertAction * _Nonnull action) {
+                                          NSDictionary *userInfo = [NSDictionary dictionaryWithObject:pushNotification forKey:@"pushNotification"];
+                                          [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationJoinVideoCallAcceptedNotification
+                                                                                              object:self
+                                                                                            userInfo:userInfo];
+                                      }];
     
     UIAlertAction* cancelButton = [UIAlertAction
                                    actionWithTitle:@"Cancel"
                                    style:UIAlertActionStyleCancel
                                    handler:nil];
     
-    [alert addAction:joinButton];
+    [alert addAction:joinAudioButton];
+    [alert addAction:joinVideoButton];
     [alert addAction:cancelButton];
     
     // Do not show join call dialog until we don't handle 'hangup current call'/'join new one' properly.

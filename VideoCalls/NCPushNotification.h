@@ -23,7 +23,8 @@ extern NSString * const kNCPNTypeCallKey;
 extern NSString * const kNCPNTypeRoomKey;
 extern NSString * const kNCPNTypeChatKey;
 
-extern NSString * const NCPushNotificationJoinCallAcceptedNotification;
+extern NSString * const NCPushNotificationJoinAudioCallAcceptedNotification;
+extern NSString * const NCPushNotificationJoinVideoCallAcceptedNotification;
 
 @interface NCPushNotification : NSObject
 

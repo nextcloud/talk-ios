@@ -19,7 +19,8 @@ NSString * const kNCPNTypeCallKey       = @"call";
 NSString * const kNCPNTypeRoomKey       = @"room";
 NSString * const kNCPNTypeChatKey       = @"chat";
 
-NSString * const NCPushNotificationJoinCallAcceptedNotification     = @"NCPushNotificationJoinCallAcceptedNotification";
+NSString * const NCPushNotificationJoinAudioCallAcceptedNotification     = @"NCPushNotificationJoinAudioCallAcceptedNotification";
+NSString * const NCPushNotificationJoinVideoCallAcceptedNotification     = @"NCPushNotificationJoinVideoCallAcceptedNotification";
 
 
 + (instancetype)pushNotificationFromDecryptedString:(NSString *)decryptedString

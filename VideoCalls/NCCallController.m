@@ -29,6 +29,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @interface NCCallController () <NCPeerConnectionDelegate, NCSignalingControllerObserver>
 
+@property (nonatomic, assign) BOOL isAudioOnly;
 @property (nonatomic, assign) BOOL leavingCall;
 @property (nonatomic, strong) NSTimer *pingTimer;
 @property (nonatomic, strong) AVAudioRecorder *recorder;
@@ -46,12 +47,13 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @implementation NCCallController
 
-- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate
+- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate forAudioOnlyCall:(BOOL)audioOnly
 {
     self = [super init];
     
     if (self) {
         _delegate = delegate;
+        _isAudioOnly = audioOnly;
         _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] init];
         _connectionsDict = [[NSMutableDictionary alloc] init];
         _usersInRoom = [[NSArray alloc] init];
@@ -285,7 +287,9 @@ static NSString * const kNCVideoTrackKind = @"video";
     RTCMediaStream *localMediaStream = [_peerConnectionFactory mediaStreamWithStreamId:kNCMediaStreamId];
     self.localStream = localMediaStream;
     [self createLocalAudioTrack];
-    [self createLocalVideoTrack];
+    if (!_isAudioOnly) {
+        [self createLocalVideoTrack];
+    }
 }
 
 #pragma mark - Audio session configuration
@@ -334,7 +338,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         NSLog(@"Creating a peer for %@", sessionId);
         
         NSArray *iceServers = [_signalingController getIceServers];
-        peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId andICEServers:iceServers];
+        peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:_isAudioOnly];
         peerConnectionWrapper.delegate = self;
         // TODO: Try to get display name here
         [peerConnectionWrapper.peerConnection addStream:_localStream];
@@ -542,7 +546,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     }
     
     // Send current video state
-    if (self.isVideoEnabled) {
+    if (self.isVideoEnabled && !_isAudioOnly) {
         NSLog(@"Send videoOn");
         [peerConnection sendDataChannelMessageOfType:@"videoOn" withPayload:nil];
     } else {

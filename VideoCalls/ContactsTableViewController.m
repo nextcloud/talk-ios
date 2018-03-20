@@ -17,6 +17,9 @@
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
+NSString * const NCSelectedContactForVoiceCallNotification = @"NCSelectedContactForVoiceCallNotification";
+NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContactForVideoCallNotification";
+
 @interface ContactsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
     NSMutableArray *_contacts;
@@ -162,6 +165,62 @@
     }];
 }
 
+- (void)presentJoinCallOptionsForContactAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCUser *contact = [_contacts objectAtIndex:indexPath.row];
+    if (_searchController.active) {
+        contact =  [_resultTableViewController.filteredContacts objectAtIndex:indexPath.row];
+    }
+    
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:contact.name
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Call"
+                                                           style:UIAlertActionStyleDefault
+                                                         handler:^void (UIAlertAction *action) {
+                                                             [self createCallWithContact:contact audioOnly:YES];
+                                                         }]];
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Videocall"
+                                                           style:UIAlertActionStyleDefault
+                                                         handler:^void (UIAlertAction *action) {
+                                                             [self createCallWithContact:contact audioOnly:NO];
+                                                         }]];
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (void)createCallWithContact:(NCUser *)contact audioOnly:(BOOL)audioOnly
+{
+    [[NCAPIController sharedInstance] createRoomWith:contact.userId
+                                              ofType:kNCRoomTypeOneToOneCall
+                                             andName:nil
+                                 withCompletionBlock:^(NSString *token, NSError *error) {
+                                     if (!error) {
+                                         NSLog(@"Room %@ with %@ created", token, contact.name);
+                                         if (audioOnly) {
+                                             [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedContactForVoiceCallNotification
+                                                                                                 object:self
+                                                                                               userInfo:@{@"token":token}];
+                                         } else {
+                                             [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedContactForVideoCallNotification
+                                                                                                 object:self
+                                                                                               userInfo:@{@"token":token}];
+                                         }
+                                     } else {
+                                         NSLog(@"Failed creating a room with %@", contact.name);
+                                     }
+                                 }];
+}
+
 #pragma mark - Search controller
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
@@ -213,25 +272,7 @@
     if ([NCConnectionController sharedInstance].connectionState == kConnectionStateDisconnected) {
         [[NCUserInterfaceController sharedInstance] presentOfflineWarningAlert];
     } else {
-        NCUser *contact = [_contacts objectAtIndex:indexPath.row];
-        if (_searchController.active) {
-            contact =  [_resultTableViewController.filteredContacts objectAtIndex:indexPath.row];
-        }
-        
-        [[NCAPIController sharedInstance] createRoomWith:contact.userId
-                                                  ofType:kNCRoomTypeOneToOneCall
-                                                 andName:nil
-                                     withCompletionBlock:^(NSString *token, NSError *error) {
-                                         if (!error) {
-                                             // Join created room.
-                                             NSLog(@"Room %@ with %@ created", token, contact.name);
-                                             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomCreatedNotification
-                                                                                                 object:self
-                                                                                               userInfo:@{@"token":token}];
-                                         } else {
-                                             NSLog(@"Failed creating a room with %@", contact.name);
-                                         }
-                                     }];
+        [self presentJoinCallOptionsForContactAtIndexPath:indexPath];
     }
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];

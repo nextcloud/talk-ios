@@ -27,7 +27,7 @@
 
 @implementation NCPeerConnection
 
-- (instancetype)initWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers
+- (instancetype)initWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly
 {
     self = [super init];
     
@@ -47,6 +47,7 @@
         
         _peerConnection = peerConnection;
         _peerId = sessionId;
+        _isAudioOnly = audioOnly;
     }
     
     return self;
@@ -375,6 +376,13 @@
                                            @"OfferToReceiveAudio" : @"true",
                                            @"OfferToReceiveVideo" : @"true"
                                            };
+    
+    if (_isAudioOnly) {
+        mandatoryConstraints = @{
+                                 @"OfferToReceiveAudio" : @"true",
+                                 @"OfferToReceiveVideo" : @"false"
+                                 };
+    }
     
     NSDictionary *optionalConstraints = @{
                                           @"internalSctpDataChannels": @"true",

@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
+extern NSString * const NCSelectedContactForVoiceCallNotification;
+extern NSString * const NCSelectedContactForVideoCallNotification;
+
 @interface ContactsTableViewController : UITableViewController
 
 @end

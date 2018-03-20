@@ -34,6 +34,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NCCallController *_callController;
     ARDCaptureController *_captureController;
     NSTimer *_detailedViewTimer;
+    BOOL _isAudioOnly;
     BOOL _userDisabledVideo;
 }
 
@@ -51,17 +52,18 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 @synthesize delegate = _delegate;
 
-- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName
+- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly
 {
     self = [super init];
     if (!self) {
         return nil;
     }
     
-    _callController = [[NCCallController alloc] initWithDelegate:self];
+    _callController = [[NCCallController alloc] initWithDelegate:self forAudioOnlyCall:audioOnly];
     _callController.room = room;
     _callController.userDisplayName = displayName;
     _room = room;
+    _isAudioOnly = audioOnly;
     _peersInCall = [[NSMutableArray alloc] init];
     _renderersDict = [[NSMutableDictionary alloc] init];
     
@@ -94,7 +96,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     [self setWaitingScreen];
     
-    if ([[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore]) {
+    if ([[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore] || _isAudioOnly) {
         _userDisabledVideo = YES;
         [self disableLocalVideo];
     }
@@ -342,7 +344,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [cell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
     [cell setDisplayName:peerConnection.peerName];
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
-    [cell setVideoDisabled:peerConnection.isRemoteVideoDisabled];
+    [cell setVideoDisabled: (_isAudioOnly) ? YES : peerConnection.isRemoteVideoDisabled];
     
     return cell;
 }
@@ -430,9 +432,11 @@ typedef NS_ENUM(NSInteger, CallState) {
             [cell setAudioDisabled:peer.isRemoteAudioDisabled];
         }];
     } else if ([message isEqualToString:@"videoOn"] || [message isEqualToString:@"videoOff"]) {
-        [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
-            [cell setVideoDisabled:peer.isRemoteVideoDisabled];
-        }];
+        if (!_isAudioOnly) {
+            [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+                [cell setVideoDisabled:peer.isRemoteVideoDisabled];
+            }];
+        }
     }
 }
 - (void)callController:(NCCallController *)callController didReceiveNick:(NSString *)nick fromPeer:(NCPeerConnection *)peer

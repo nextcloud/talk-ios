@@ -44,7 +44,7 @@ typedef void (^GetUserIdForSessionIdCompletionBlock)(NSString *userId, NSError *
 @property (nonatomic, strong) NSMutableArray *renderers;
 
 
-- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate;
+- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate forAudioOnlyCall:(BOOL)audioOnly;
 - (void)startCall;
 - (void)leaveCall;
 - (void)toggleCamera;

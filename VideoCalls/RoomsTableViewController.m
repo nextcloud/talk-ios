@@ -10,6 +10,7 @@
 
 #import "AFNetworking.h"
 #import "CallViewController.h"
+#import "ContactsTableViewController.h"
 #import "AddParticipantsTableViewController.h"
 #import "RoomTableViewCell.h"
 #import "CCCertificate.h"
@@ -58,10 +59,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinCallAccepted:) name:NCPushNotificationJoinCallAcceptedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinAudioCallAccepted:) name:NCPushNotificationJoinAudioCallAcceptedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinVideoCallAccepted:) name:NCPushNotificationJoinVideoCallAcceptedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomHasBeenCreated:) name:NCRoomCreatedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForVoiceCall:) name:NCSelectedContactForVoiceCallNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForVideoCall:) name:NCSelectedContactForVideoCallNotification object:nil];
 }
 
 - (void)dealloc
@@ -95,10 +98,16 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
 }
 
-- (void)joinCallAccepted:(NSNotification *)notification
+- (void)joinAudioCallAccepted:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
-    [self joinCallWithCallId:pushNotification.pnId];
+    [self joinCallWithCallId:pushNotification.pnId audioOnly:YES];
+}
+
+- (void)joinVideoCallAccepted:(NSNotification *)notification
+{
+    NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
+    [self joinCallWithCallId:pushNotification.pnId audioOnly:NO];
 }
 
 - (void)appStateHasChanged:(NSNotification *)notification
@@ -113,10 +122,16 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self adaptInterfaceForConnectionState:connectionState];
 }
 
-- (void)roomHasBeenCreated:(NSNotification *)notification
+- (void)userSelectedContactForVoiceCall:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"token"];
-    [self joinCallWithCallToken:roomToken];
+    [self joinCallWithCallToken:roomToken audioOnly:YES];
+}
+
+- (void)userSelectedContactForVideoCall:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"token"];
+    [self joinCallWithCallToken:roomToken audioOnly:NO];
 }
 
 #pragma mark - Interface Builder Actions
@@ -477,6 +492,39 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }];
 }
 
+- (void)presentJoinCallOptionsForRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:room.displayName
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *callAction = [UIAlertAction actionWithTitle:@"Call"
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^void (UIAlertAction *action) {
+                                                           [self startCallInRoom:room audioOnly:YES];
+                                                       }];
+    
+    UIAlertAction *videocallAction = [UIAlertAction actionWithTitle:@"Videocall"
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^void (UIAlertAction *action) {
+                                                           [self startCallInRoom:room audioOnly:NO];
+                                                       }];
+    
+    [optionsActionSheet addAction:callAction];
+    [optionsActionSheet addAction:videocallAction];
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
 #pragma mark - Public Calls
 
 - (void)startRoomCreationFlowForPublicRoom:(BOOL)public
@@ -550,37 +598,37 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     return room;
 }
 
-- (void)startCallInRoom:(NCRoom *)room
+- (void)startCallInRoom:(NCRoom *)room audioOnly:(BOOL)audioOnly
 {
-    CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName]];
+    CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:audioOnly];
     [[NCUserInterfaceController sharedInstance] presentCallViewController:callVC];
 }
 
-- (void)joinCallWithCallId:(NSInteger)callId
+- (void)joinCallWithCallId:(NSInteger)callId audioOnly:(BOOL)audioOnly
 {
     NCRoom *room = [self getRoomForId:callId];
     if (room) {
-        [self startCallInRoom:room];
+        [self startCallInRoom:room audioOnly:audioOnly];
     } else {
         //TODO: Show spinner?
         [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
             if (!error) {
-                [self startCallInRoom:room];
+                [self startCallInRoom:room audioOnly:audioOnly];
             }
         }];
     }
 }
 
-- (void)joinCallWithCallToken:(NSString *)token
+- (void)joinCallWithCallToken:(NSString *)token audioOnly:(BOOL)audioOnly
 {
     NCRoom *room = [self getRoomForToken:token];
     if (room) {
-        [self startCallInRoom:room];
+        [self startCallInRoom:room audioOnly:audioOnly];
     } else {
         //TODO: Show spinner?
         [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
             if (!error) {
-                [self startCallInRoom:room];
+                [self startCallInRoom:room audioOnly:audioOnly];
             }
         }];
     }
@@ -783,8 +831,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     if ([NCConnectionController sharedInstance].connectionState == kConnectionStateDisconnected) {
         [[NCUserInterfaceController sharedInstance] presentOfflineWarningAlert];
     } else {
-        NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-        [self startCallInRoom:room];
+        [self presentJoinCallOptionsForRoomAtIndexPath:indexPath];
     }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
