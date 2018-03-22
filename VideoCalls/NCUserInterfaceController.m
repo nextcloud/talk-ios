@@ -131,6 +131,9 @@
                                    style:UIAlertActionStyleCancel
                                    handler:nil];
     
+    [joinAudioButton setValue:[[UIImage imageNamed:@"call-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [joinVideoButton setValue:[[UIImage imageNamed:@"videocall-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    
     [alert addAction:joinAudioButton];
     [alert addAction:joinVideoButton];
     [alert addAction:cancelButton];
