@@ -683,72 +683,87 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Share link of public calls even if you are not a moderator
     if (!room.canModerate && room.isPublic) {
         // Share Link
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-                                                                 [self shareLinkFromRoomAtIndexPath:indexPath];
-                                                             }]];
+        UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:@"Share link"
+                                                                  style:UIAlertActionStyleDefault
+                                                                handler:^void (UIAlertAction *action) {
+                                                                    [self shareLinkFromRoomAtIndexPath:indexPath];
+                                                                }];
+        [shareLinkAction setValue:[[UIImage imageNamed:@"public-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [optionsActionSheet addAction:shareLinkAction];
     // Moderator options
     } else {
         // Add participant
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Add participant"
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-                                                                 [self addParticipantInRoomAtIndexPath:indexPath];
-                                                             }]];
+        UIAlertAction *addParticipantAction = [UIAlertAction actionWithTitle:@"Add participant"
+                                                                       style:UIAlertActionStyleDefault
+                                                                     handler:^void (UIAlertAction *action) {
+                                                                         [self addParticipantInRoomAtIndexPath:indexPath];
+                                                                     }];
+        [addParticipantAction setValue:[[UIImage imageNamed:@"add-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [optionsActionSheet addAction:addParticipantAction];
         
         // Rename
         if (room.isNameEditable) {
-            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Rename"
+            UIAlertAction *renameAction = [UIAlertAction actionWithTitle:@"Rename"
                                                                    style:UIAlertActionStyleDefault
                                                                  handler:^void (UIAlertAction *action) {
                                                                      [self renameRoomAtIndexPath:indexPath];
-                                                                 }]];
+                                                                 }];
+            [renameAction setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+            [optionsActionSheet addAction:renameAction];
         }
         
         // Public/Private room options
         if (room.isPublic) {
             
             // Set Password
-            NSString *passwordOptionTitle = @"Set password";
+            UIAlertAction *passwordAction = [UIAlertAction actionWithTitle:(room.hasPassword) ? @"Change password" : @"Set password"
+                                                                     style:UIAlertActionStyleDefault
+                                                                   handler:^void (UIAlertAction *action) {
+                                                                       [self setPasswordToRoomAtIndexPath:indexPath];
+                                                                   }];
+            [passwordAction setValue:[[UIImage imageNamed:@"no-password-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
             if (room.hasPassword) {
-                passwordOptionTitle = @"Change password";
+                [passwordAction setValue:[[UIImage imageNamed:@"password-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
             }
-            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:passwordOptionTitle
-                                                                   style:UIAlertActionStyleDefault
-                                                                 handler:^void (UIAlertAction *action) {
-                                                                     [self setPasswordToRoomAtIndexPath:indexPath];
-                                                                 }]];
+            [optionsActionSheet addAction:passwordAction];
             
             // Share Link
-            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Share link"
-                                                                   style:UIAlertActionStyleDefault
-                                                                 handler:^void (UIAlertAction *action) {
-                                                                     [self shareLinkFromRoomAtIndexPath:indexPath];
-                                                                 }]];
+            UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:@"Share link"
+                                                                      style:UIAlertActionStyleDefault
+                                                                    handler:^void (UIAlertAction *action) {
+                                                                        [self shareLinkFromRoomAtIndexPath:indexPath];
+                                                                    }];
+            [shareLinkAction setValue:[[UIImage imageNamed:@"public-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+            [optionsActionSheet addAction:shareLinkAction];
             
             // Make call private
-            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Make call private"
-                                                                   style:UIAlertActionStyleDefault
-                                                                 handler:^void (UIAlertAction *action) {
-                                                                     [self makePrivateRoomAtIndexPath:indexPath];
-                                                                 }]];
+            UIAlertAction *makePrivateAction = [UIAlertAction actionWithTitle:@"Make call private"
+                                                                        style:UIAlertActionStyleDefault
+                                                                      handler:^void (UIAlertAction *action) {
+                                                                          [self makePrivateRoomAtIndexPath:indexPath];
+                                                                      }];
+            [makePrivateAction setValue:[[UIImage imageNamed:@"group-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+            [optionsActionSheet addAction:makePrivateAction];
         } else {
             // Make call public
-            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Make call public"
-                                                                   style:UIAlertActionStyleDefault
-                                                                 handler:^void (UIAlertAction *action) {
-                                                                     [self makePublicRoomAtIndexPath:indexPath];
-                                                                 }]];
+            UIAlertAction *makePublicAction = [UIAlertAction actionWithTitle:@"Make call public"
+                                                                       style:UIAlertActionStyleDefault
+                                                                     handler:^void (UIAlertAction *action) {
+                                                                         [self makePublicRoomAtIndexPath:indexPath];
+                                                                     }];
+            [makePublicAction setValue:[[UIImage imageNamed:@"public-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+            [optionsActionSheet addAction:makePublicAction];
         }
         
         // Delete room
         if (room.isDeletable) {
-            [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Delete call"
-                                                                   style:UIAlertActionStyleDestructive
-                                                                 handler:^void (UIAlertAction *action) {
-                                                                     [self deleteRoomAtIndexPath:indexPath];
-                                                                 }]];
+            UIAlertAction *deleteCallAction = [UIAlertAction actionWithTitle:@"Delete call"
+                                                                       style:UIAlertActionStyleDestructive
+                                                                     handler:^void (UIAlertAction *action) {
+                                                                         [self deleteRoomAtIndexPath:indexPath];
+                                                                     }];
+            [deleteCallAction setValue:[[UIImage imageNamed:@"delete-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+            [optionsActionSheet addAction:deleteCallAction];
         }
         
     }
