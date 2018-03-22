@@ -144,18 +144,22 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
     if (_allowEmptyGroupRooms) {
-        [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"New group call"
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-                                                                 [self startRoomCreationFlowForPublicRoom:NO];
-                                                             }]];
+        UIAlertAction *newGroupCallAction = [UIAlertAction actionWithTitle:@"New group call"
+                                                                     style:UIAlertActionStyleDefault
+                                                                   handler:^void (UIAlertAction *action) {
+                                                                       [self startRoomCreationFlowForPublicRoom:NO];
+                                                                   }];
+        [newGroupCallAction setValue:[[UIImage imageNamed:@"group-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [optionsActionSheet addAction:newGroupCallAction];
     }
     
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"New public call"
-                                                           style:UIAlertActionStyleDefault
-                                                         handler:^void (UIAlertAction *action) {
-                                                             [self startRoomCreationFlowForPublicRoom:YES];
-                                                         }]];
+    UIAlertAction *newPublicCallAction = [UIAlertAction actionWithTitle:@"New public call"
+                                                                  style:UIAlertActionStyleDefault
+                                                                handler:^void (UIAlertAction *action) {
+                                                                    [self startRoomCreationFlowForPublicRoom:YES];
+                                                                }];
+    [newPublicCallAction setValue:[[UIImage imageNamed:@"public-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [optionsActionSheet addAction:newPublicCallAction];
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
