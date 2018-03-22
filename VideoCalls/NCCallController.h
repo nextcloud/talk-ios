@@ -44,12 +44,13 @@ typedef void (^GetUserIdForSessionIdCompletionBlock)(NSString *userId, NSError *
 @property (nonatomic, strong) NSMutableArray *renderers;
 
 
-- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate;
+- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate forAudioOnlyCall:(BOOL)audioOnly;
 - (void)startCall;
 - (void)leaveCall;
 - (void)toggleCamera;
 - (BOOL)isVideoEnabled;
 - (BOOL)isAudioEnabled;
+- (BOOL)isSpeakerActive;
 - (void)enableVideo:(BOOL)enable;
 - (void)enableAudio:(BOOL)enable;
 - (void)setAudioSessionToVoiceChatMode;

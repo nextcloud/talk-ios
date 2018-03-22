@@ -34,11 +34,13 @@ typedef NS_ENUM(NSInteger, CallState) {
     NCCallController *_callController;
     ARDCaptureController *_captureController;
     NSTimer *_detailedViewTimer;
+    BOOL _isAudioOnly;
     BOOL _userDisabledVideo;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
+@property (nonatomic, strong) IBOutlet UIButton *speakerButton;
 @property (nonatomic, strong) IBOutlet UIButton *videoDisableButton;
 @property (nonatomic, strong) IBOutlet UIButton *switchCameraButton;
 @property (nonatomic, strong) IBOutlet UIButton *hangUpButton;
@@ -51,17 +53,18 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 @synthesize delegate = _delegate;
 
-- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName
+- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly
 {
     self = [super init];
     if (!self) {
         return nil;
     }
     
-    _callController = [[NCCallController alloc] initWithDelegate:self];
+    _callController = [[NCCallController alloc] initWithDelegate:self forAudioOnlyCall:audioOnly];
     _callController.room = room;
     _callController.userDisplayName = displayName;
     _room = room;
+    _isAudioOnly = audioOnly;
     _peersInCall = [[NSMutableArray alloc] init];
     _renderersDict = [[NSMutableDictionary alloc] init];
     
@@ -81,10 +84,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.view addGestureRecognizer:tapGestureRecognizer];
     
     [self.audioMuteButton.layer setCornerRadius:24.0f];
+    [self.speakerButton.layer setCornerRadius:24.0f];
     [self.videoDisableButton.layer setCornerRadius:24.0f];
     [self.switchCameraButton.layer setCornerRadius:24.0f];
     [self.hangUpButton.layer setCornerRadius:24.0f];
     
+    [self adjustButtonsConainer];
     [self setDetailedViewTimer];
     
     self.collectionView.delegate = self;
@@ -94,7 +99,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     [self setWaitingScreen];
     
-    if ([[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore]) {
+    if ([[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore] || _isAudioOnly) {
         _userDisabledVideo = YES;
         [self disableLocalVideo];
     }
@@ -130,15 +135,17 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)sensorStateChange:(NSNotificationCenter *)notification
 {
-    if ([[UIDevice currentDevice] proximityState] == YES) {
-        [self disableLocalVideo];
-        [_callController setAudioSessionToVoiceChatMode];
-    } else {
-        // Only enable video if it was not disabled by the user.
-        if (!_userDisabledVideo) {
-            [self enableLocalVideo];
+    if (!_isAudioOnly) {
+        if ([[UIDevice currentDevice] proximityState] == YES) {
+            [self disableLocalVideo];
+            [_callController setAudioSessionToVoiceChatMode];
+        } else {
+            // Only enable video if it was not disabled by the user.
+            if (!_userDisabledVideo) {
+                [self enableLocalVideo];
+            }
+            [_callController setAudioSessionToVideoChatMode];
         }
-        [_callController setAudioSessionToVideoChatMode];
     }
 }
 
@@ -214,11 +221,30 @@ typedef NS_ENUM(NSInteger, CallState) {
     }];
 }
 
-- (void)hideButtonsContainer {
+- (void)hideButtonsContainer
+{
     [UIView animateWithDuration:0.3f animations:^{
         [self.buttonsContainerView setAlpha:0.0f];
         [self.view layoutIfNeeded];
     }];
+}
+
+- (void)adjustButtonsConainer
+{
+    if (_isAudioOnly) {
+        _videoDisableButton.hidden = YES;
+        _switchCameraButton.hidden = YES;
+        // Rearrange visible buttons
+        CGRect templateFrame = _audioMuteButton.frame;
+        CGRect audioFrame = CGRectMake(36, templateFrame.origin.y, templateFrame.size.width, templateFrame.size.height);
+        CGRect speakerFrame = CGRectMake(120, templateFrame.origin.y, templateFrame.size.width, templateFrame.size.height);
+        CGRect hangupFrame = CGRectMake(204, templateFrame.origin.y, templateFrame.size.width, templateFrame.size.height);
+        _audioMuteButton.frame = audioFrame;
+        _speakerButton.frame = speakerFrame;
+        _hangUpButton.frame = hangupFrame;
+    } else {
+        _speakerButton.hidden = YES;
+    }
 }
 
 - (void)setDetailedViewTimer
@@ -296,6 +322,27 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.localVideoView.layer addAnimation:animation forKey:nil];
 }
 
+- (IBAction)speakerButtonPressed:(id)sender
+{
+    if ([_callController isSpeakerActive]) {
+        [self disableSpeaker];
+    } else {
+        [self enableSpeaker];
+    }
+}
+
+- (void)disableSpeaker
+{
+    [_callController setAudioSessionToVoiceChatMode];
+    [_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
+}
+
+- (void)enableSpeaker
+{
+    [_callController setAudioSessionToVideoChatMode];
+    [_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
+}
+
 - (IBAction)hangupButtonPressed:(id)sender
 {
     [self hangup];
@@ -342,7 +389,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [cell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
     [cell setDisplayName:peerConnection.peerName];
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
-    [cell setVideoDisabled:peerConnection.isRemoteVideoDisabled];
+    [cell setVideoDisabled: (_isAudioOnly) ? YES : peerConnection.isRemoteVideoDisabled];
     
     return cell;
 }
@@ -430,9 +477,11 @@ typedef NS_ENUM(NSInteger, CallState) {
             [cell setAudioDisabled:peer.isRemoteAudioDisabled];
         }];
     } else if ([message isEqualToString:@"videoOn"] || [message isEqualToString:@"videoOff"]) {
-        [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
-            [cell setVideoDisabled:peer.isRemoteVideoDisabled];
-        }];
+        if (!_isAudioOnly) {
+            [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+                [cell setVideoDisabled:peer.isRemoteVideoDisabled];
+            }];
+        }
     }
 }
 - (void)callController:(NCCallController *)callController didReceiveNick:(NSString *)nick fromPeer:(NCPeerConnection *)peer
