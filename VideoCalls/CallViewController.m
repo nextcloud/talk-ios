@@ -83,11 +83,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     [tapGestureRecognizer setNumberOfTapsRequired:1];
     [self.view addGestureRecognizer:tapGestureRecognizer];
     
-    [self.audioMuteButton.layer setCornerRadius:24.0f];
-    [self.speakerButton.layer setCornerRadius:24.0f];
-    [self.videoDisableButton.layer setCornerRadius:24.0f];
-    [self.switchCameraButton.layer setCornerRadius:24.0f];
-    [self.hangUpButton.layer setCornerRadius:24.0f];
+    [self.audioMuteButton.layer setCornerRadius:26.0f];
+    [self.speakerButton.layer setCornerRadius:26.0f];
+    [self.videoDisableButton.layer setCornerRadius:26.0f];
+    [self.hangUpButton.layer setCornerRadius:28.0f];
     
     [self adjustButtonsConainer];
     [self setDetailedViewTimer];
@@ -217,6 +216,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [UIView animateWithDuration:0.3f animations:^{
         [self.buttonsContainerView setAlpha:1.0f];
+        [self.switchCameraButton setAlpha:1.0f];
         [self.view layoutIfNeeded];
     }];
 }
@@ -225,6 +225,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [UIView animateWithDuration:0.3f animations:^{
         [self.buttonsContainerView setAlpha:0.0f];
+        [self.switchCameraButton setAlpha:0.0f];
         [self.view layoutIfNeeded];
     }];
 }
@@ -234,14 +235,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (_isAudioOnly) {
         _videoDisableButton.hidden = YES;
         _switchCameraButton.hidden = YES;
-        // Rearrange visible buttons
-        CGRect templateFrame = _audioMuteButton.frame;
-        CGRect audioFrame = CGRectMake(36, templateFrame.origin.y, templateFrame.size.width, templateFrame.size.height);
-        CGRect speakerFrame = CGRectMake(120, templateFrame.origin.y, templateFrame.size.width, templateFrame.size.height);
-        CGRect hangupFrame = CGRectMake(204, templateFrame.origin.y, templateFrame.size.width, templateFrame.size.height);
-        _audioMuteButton.frame = audioFrame;
-        _speakerButton.frame = speakerFrame;
-        _hangUpButton.frame = hangupFrame;
     } else {
         _speakerButton.hidden = YES;
     }
@@ -288,7 +281,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [_callController enableVideo:NO];
     [_captureController stopCapture];
-    [_switchCameraButton setEnabled:NO];
+    [_localVideoView setHidden:YES];
     [_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
 }
 
@@ -296,7 +289,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [_callController enableVideo:YES];
     [_captureController startCapture];
-    [_switchCameraButton setEnabled:YES];
+    [_localVideoView setHidden:NO];
     [_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
 }
 
