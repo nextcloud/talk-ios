@@ -347,6 +347,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     [_localVideoView.captureSession stopRunning];
     _localVideoView.captureSession = nil;
+    [_localVideoView setHidden:YES];
     [_captureController stopCapture];
     _captureController = nil;
     
