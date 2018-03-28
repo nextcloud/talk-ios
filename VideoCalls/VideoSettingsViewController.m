@@ -112,6 +112,7 @@ typedef enum VideoSettingsSection {
             }
             
             cell.textLabel.text = @"Video disabled on start";
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
             BOOL videoDisabled = [[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore];
             [_videoDisabledSwitch setOn:videoDisabled];
             cell.accessoryView = _videoDisabledSwitch;
