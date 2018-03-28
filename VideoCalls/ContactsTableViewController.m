@@ -183,7 +183,7 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
                                                            [self createCallWithContact:contact audioOnly:YES];
                                                        }];
     
-    UIAlertAction *videocallAction = [UIAlertAction actionWithTitle:@"Videocall"
+    UIAlertAction *videocallAction = [UIAlertAction actionWithTitle:@"Video call"
                                                               style:UIAlertActionStyleDefault
                                                             handler:^void (UIAlertAction *action) {
                                                                 [self createCallWithContact:contact audioOnly:NO];
