@@ -36,7 +36,7 @@ typedef enum VideoSettingsSection {
 {
     [super viewDidLoad];
     
-    self.navigationItem.title = @"Video settings";
+    self.navigationItem.title = @"Video calls";
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
@@ -78,7 +78,7 @@ typedef enum VideoSettingsSection {
             break;
             
         case kVideoSettingsSectionDefaultVideo:
-            return @"Calls";
+            return @"Settings";
             break;
     }
     
@@ -111,7 +111,8 @@ typedef enum VideoSettingsSection {
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDefaultVideoToggleCellIdentifier];
             }
             
-            cell.textLabel.text = @"Video disabled by default";
+            cell.textLabel.text = @"Video disabled on start";
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
             BOOL videoDisabled = [[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore];
             [_videoDisabledSwitch setOn:videoDisabled];
             cell.accessoryView = _videoDisabledSwitch;
