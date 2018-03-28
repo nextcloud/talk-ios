@@ -46,12 +46,26 @@
                         <outlet property="delegate" destination="-1" id="rTW-Ir-7cH"/>
                     </connections>
                 </collectionView>
+                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TXj-7E-NAa" userLabel="localVideo" customClass="RTCCameraPreviewView">
+                    <rect key="frame" x="16" y="62" width="90" height="120"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mf3-yk-Olo">
+                            <rect key="frame" x="25" y="80" width="40" height="40"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <state key="normal" image="switch-camera"/>
+                            <connections>
+                                <action selector="switchCameraButtonPressed:" destination="-1" eventType="touchUpInside" id="SJb-T1-tkb"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                </view>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-7q-HlR">
-                    <rect key="frame" x="43" y="575" width="288" height="72"/>
+                    <rect key="frame" x="58" y="567" width="258" height="80"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kDR-Ds-I7B">
-                            <rect key="frame" x="12" y="12" width="48" height="48"/>
+                            <rect key="frame" x="8" y="16" width="48" height="48"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <color key="backgroundColor" red="0.83529411764705885" green="0.83529411764705885" blue="0.83529411764705885" alpha="0.50449486301369861" colorSpace="custom" customColorSpace="sRGB"/>
                             <state key="normal" image="audio"/>
@@ -59,26 +73,8 @@
                                 <action selector="audioButtonPressed:" destination="-1" eventType="touchUpInside" id="pXz-DO-93v"/>
                             </connections>
                         </button>
-                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5zQ-it-ujU">
-                            <rect key="frame" x="84" y="12" width="48" height="48"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <color key="backgroundColor" red="0.83529411764705885" green="0.83529411764705885" blue="0.83529411764705885" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
-                            <state key="normal" image="video"/>
-                            <connections>
-                                <action selector="videoButtonPressed:" destination="-1" eventType="touchUpInside" id="5Q5-4w-o5q"/>
-                            </connections>
-                        </button>
-                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mf3-yk-Olo">
-                            <rect key="frame" x="156" y="12" width="48" height="48"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <color key="backgroundColor" red="0.83529411764705885" green="0.83529411764705885" blue="0.83529411764705885" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
-                            <state key="normal" image="switch-camera"/>
-                            <connections>
-                                <action selector="switchCameraButtonPressed:" destination="-1" eventType="touchUpInside" id="SJb-T1-tkb"/>
-                            </connections>
-                        </button>
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl8-bS-FJ5">
-                            <rect key="frame" x="224" y="12" width="48" height="48"/>
+                            <rect key="frame" x="105" y="16" width="48" height="48"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <color key="backgroundColor" red="0.96450132131576538" green="0.25623476505279541" blue="0.15161091089248657" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -87,9 +83,18 @@
                                 <action selector="hangupButtonPressed:" destination="-1" eventType="touchUpInside" id="S0I-zJ-AFf"/>
                             </connections>
                         </button>
+                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5zQ-it-ujU">
+                            <rect key="frame" x="202" y="16" width="48" height="48"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <color key="backgroundColor" red="0.83529411764705885" green="0.83529411764705885" blue="0.83529411764705885" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                            <state key="normal" image="video"/>
+                            <connections>
+                                <action selector="videoButtonPressed:" destination="-1" eventType="touchUpInside" id="5Q5-4w-o5q"/>
+                            </connections>
+                        </button>
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dgz-bL-PRr">
-                            <rect key="frame" x="120" y="12" width="48" height="48"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <rect key="frame" x="202" y="16" width="48" height="48"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <color key="backgroundColor" red="0.83529411760000005" green="0.83529411760000005" blue="0.83529411760000005" alpha="0.50449486300000002" colorSpace="custom" customColorSpace="sRGB"/>
                             <state key="normal" image="speaker-off"/>
                             <connections>
@@ -97,10 +102,6 @@
                             </connections>
                         </button>
                     </subviews>
-                </view>
-                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TXj-7E-NAa" userLabel="localVideo" customClass="RTCCameraPreviewView">
-                    <rect key="frame" x="16" y="62" width="90" height="130"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
                 </view>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
