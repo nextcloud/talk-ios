@@ -83,7 +83,7 @@
         <scene sceneID="Fcv-fh-Lej">
             <objects>
                 <navigationController id="OKQ-YS-70y" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Calls" image="call" id="Lrt-Tc-cji"/>
+                    <tabBarItem key="tabBarItem" title="Calls" image="call-action" id="Lrt-Tc-cji"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="pVd-L5-3CP">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -211,7 +211,7 @@
     </scenes>
     <resources>
         <image name="add" width="24" height="24"/>
-        <image name="call" width="25" height="25"/>
+        <image name="call-action" width="24" height="24"/>
         <image name="contact" width="25" height="25"/>
         <image name="settings" width="25" height="25"/>
     </resources>
