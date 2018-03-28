@@ -83,10 +83,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     [tapGestureRecognizer setNumberOfTapsRequired:1];
     [self.view addGestureRecognizer:tapGestureRecognizer];
     
-    [self.audioMuteButton.layer setCornerRadius:26.0f];
-    [self.speakerButton.layer setCornerRadius:26.0f];
-    [self.videoDisableButton.layer setCornerRadius:26.0f];
-    [self.hangUpButton.layer setCornerRadius:28.0f];
+    [self.audioMuteButton.layer setCornerRadius:24.0f];
+    [self.speakerButton.layer setCornerRadius:24.0f];
+    [self.videoDisableButton.layer setCornerRadius:24.0f];
+    [self.hangUpButton.layer setCornerRadius:24.0f];
     
     [self adjustButtonsConainer];
     [self setDetailedViewTimer];
