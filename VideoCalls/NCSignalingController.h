@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "NCRoom.h"
 #import "NCSignalingMessage.h"
 
 @class NCSignalingController;
@@ -22,6 +23,7 @@
 
 @property (nonatomic, weak) id<NCSignalingControllerObserver> observer;
 
+- (instancetype)initForRoom:(NCRoom *)room;
 - (NSArray *)getIceServers;
 - (void)startPullingSignalingMessages;
 - (void)stopPullingSignalingMessages;
