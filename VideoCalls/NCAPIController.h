@@ -84,6 +84,8 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 // Signaling Controller
 - (void)sendSignalingMessages:(NSString *)messages withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
 - (void)pullSignalingMessagesWithCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
+- (void)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
+- (void)pullSignalingMessagesFromRoom:(NSString *)token withCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
 - (void)getSignalingSettingsWithCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
 
 // User avatars

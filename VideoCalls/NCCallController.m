@@ -47,19 +47,20 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @implementation NCCallController
 
-- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate forAudioOnlyCall:(BOOL)audioOnly
+- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly
 {
     self = [super init];
     
     if (self) {
         _delegate = delegate;
+        _room = room;
         _isAudioOnly = audioOnly;
         _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] init];
         _connectionsDict = [[NSMutableDictionary alloc] init];
         _usersInRoom = [[NSArray alloc] init];
         _peersInCall = [[NSArray alloc] init];
         
-        _signalingController = [[NCSignalingController alloc] init];
+        _signalingController = [[NCSignalingController alloc] initForRoom:room];
         _signalingController.observer = self;
         
         if (audioOnly) {

@@ -9,10 +9,13 @@
 #import "NCSignalingController.h"
 
 #import "NCAPIController.h"
+#import "NCSettingsController.h"
 #import <WebRTC/RTCIceServer.h>
 
 @interface NCSignalingController()
 {
+    NCRoom *_room;
+    BOOL _multiRoomSupport;
     BOOL _shouldStopPullingMessages;
     NSTimer *_pingTimer;
     NSDictionary *_signalingSettings;
@@ -22,10 +25,12 @@
 
 @implementation NCSignalingController
 
-- (instancetype)init
+- (instancetype)initForRoom:(NCRoom *)room
 {
     self = [super init];
     if (self) {
+        _room = room;
+        [self checkServerCapabilities];
         [self getSignalingSettings];
     }
     return self;
@@ -87,7 +92,8 @@
 
 - (void)pullSignalingMessages
 {
-    [[NCAPIController sharedInstance] pullSignalingMessagesWithCompletionBlock:^(NSDictionary *messages, NSError *error) {
+    PullSignalingMessagesCompletionBlock pullSignalingMessagesBlock = ^(NSDictionary *messages, NSError *error)
+    {
         if (_shouldStopPullingMessages) {
             return;
         }
@@ -108,27 +114,34 @@
             }
         }
         [self pullSignalingMessages];
-    }];
-}
-
-- (void)sendSignalingMessages:(NSArray *)messages
-{
-    [[NCAPIController sharedInstance] sendSignalingMessages:[self messagesJSONSerialization:messages] withCompletionBlock:^(NSError *error) {
-        NSLog(@"Sent %ld signaling messages", messages.count);
-    }];
+    };
+    
+    if (_multiRoomSupport) {
+        [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token withCompletionBlock:pullSignalingMessagesBlock];
+    } else {
+        [[NCAPIController sharedInstance] pullSignalingMessagesWithCompletionBlock:pullSignalingMessagesBlock];
+    }
 }
 
 - (void)sendSignalingMessage:(NCSignalingMessage *)message
 {
     NSArray *messagesArray = [NSArray arrayWithObjects:[message messageDict], nil];
     NSString *JSONSerializedMessages = [self messagesJSONSerialization:messagesArray];
-    [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages withCompletionBlock:^(NSError *error) {
+    
+    SendSignalingMessagesCompletionBlock sendSignalingMessagesBlock = ^(NSError *error)
+    {
         if (error) {
             //TODO: Error handling
             NSLog(@"Error sending signaling message.");
         }
         NSLog(@"Sent %@", JSONSerializedMessages);
-    }];
+    };
+    
+    if (_multiRoomSupport) {
+        [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages toRoom:_room.token withCompletionBlock:sendSignalingMessagesBlock];
+    } else {
+        [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages withCompletionBlock:sendSignalingMessagesBlock];
+    }
 }
 
 - (NSString *)messagesJSONSerialization:(NSArray *)messages
@@ -146,6 +159,17 @@
     }
     
     return jsonString;
+}
+
+- (void)checkServerCapabilities
+{
+    NSDictionary *talkCapabilities = [NCSettingsController sharedInstance].ncTalkCapabilities;
+    if (talkCapabilities) {
+        NSArray *talkFeatures = [talkCapabilities objectForKey:@"features"];
+        if ([talkFeatures containsObject:@"multi-room-users"]) {
+            _multiRoomSupport = YES;
+        }
+    }
 }
 
 @end

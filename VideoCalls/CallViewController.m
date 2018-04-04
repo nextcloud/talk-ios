@@ -60,8 +60,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         return nil;
     }
     
-    _callController = [[NCCallController alloc] initWithDelegate:self forAudioOnlyCall:audioOnly];
-    _callController.room = room;
+    _callController = [[NCCallController alloc] initWithDelegate:self inRoom:room forAudioOnlyCall:audioOnly];
     _callController.userDisplayName = displayName;
     _room = room;
     _isAudioOnly = audioOnly;
