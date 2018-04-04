@@ -26,7 +26,7 @@
 #import <CommonCrypto/CommonDigest.h>
 
 // This multiplier sets the font size based on the view bounds
-static const CGFloat kFontResizingProportion = 0.42f;
+static const CGFloat kFontResizingProportion = 0.5f;
 
 @interface UIImageView (LettersPrivate)
 
@@ -93,7 +93,7 @@ static const CGFloat kFontResizingProportion = 0.42f;
         return [UIFont fontWithName:fontName size:fontSize];
     }
     else {
-        return [UIFont systemFontOfSize:fontSize];
+        return [UIFont boldSystemFontOfSize:fontSize];
     }
     
 }
