@@ -410,7 +410,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (void)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
 {
-    NSString *endpoint = (token) ? [NSString stringWithFormat:@"signaling/messages/%@", token] : @"signaling";
+    NSString *endpoint = (token) ? [NSString stringWithFormat:@"signaling/%@/messages", token] : @"signaling";
     NSString *URLString = [self getRequestURLForSpreedEndpoint:endpoint];
     NSDictionary *parameters = @{@"messages" : messages};
 
@@ -427,7 +427,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (void)pullSignalingMessagesFromRoom:(NSString *)token withCompletionBlock:(PullSignalingMessagesCompletionBlock)block
 {
-    NSString *endpoint = (token) ? [NSString stringWithFormat:@"signaling/messages/%@", token] : @"signaling";
+    NSString *endpoint = (token) ? [NSString stringWithFormat:@"signaling/%@/messages", token] : @"signaling";
     NSString *URLString = [self getRequestURLForSpreedEndpoint:endpoint];
 
     [[NCAPISessionManager sharedInstance] GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
