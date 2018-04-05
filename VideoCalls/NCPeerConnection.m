@@ -109,7 +109,7 @@
 - (void)setRemoteDescription:(RTCSessionDescription *)sessionDescription
 {
     __weak NCPeerConnection *weakSelf = self;
-    RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sessionDescription preferredVideoCodec:@"VP8"];
+    RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sessionDescription preferredVideoCodec:@"H264"];
     [_peerConnection setRemoteDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
         NCPeerConnection *strongSelf = weakSelf;
         if (strongSelf) {
@@ -320,8 +320,8 @@
     
     dispatch_async(dispatch_get_main_queue(), ^{
         NSLog(@"Did create session sescriptionfor peer %@", _peerName);
-        // Set VP8 as preferred codec.
-        RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sdp preferredVideoCodec:@"VP8"];
+        // Set H264 as preferred codec.
+        RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sdp preferredVideoCodec:@"H264"];
         __weak NCPeerConnection *weakSelf = self;
         [_peerConnection setLocalDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
             NCPeerConnection *strongSelf = weakSelf;
