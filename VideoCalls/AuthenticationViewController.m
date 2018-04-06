@@ -101,9 +101,9 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
         for (NSString *component in components)
         {
             if ([component hasPrefix:userPrefix])
-                user = [[component substringFromIndex:[userPrefix length]] stringByRemovingPercentEncoding];
+                user = [[[component substringFromIndex:[userPrefix length]] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByRemovingPercentEncoding];
             if ([component hasPrefix:passPrefix])
-                token = [[component substringFromIndex:[passPrefix length]] stringByRemovingPercentEncoding];
+                token = [[[component substringFromIndex:[passPrefix length]] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByRemovingPercentEncoding];
         }
         
         [NCSettingsController sharedInstance].ncServer = _serverUrl;
