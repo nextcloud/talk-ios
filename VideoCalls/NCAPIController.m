@@ -101,11 +101,11 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
             }
         }
         if (block) {
-            block(users, nil);
+            block(users, indexedContacts, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error);
+            block(nil, nil, error);
         }
     }];
 }

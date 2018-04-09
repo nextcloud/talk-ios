@@ -12,7 +12,7 @@
 #import "NCRoom.h"
 #import "NCUser.h"
 
-typedef void (^GetContactsCompletionBlock)(NSMutableArray *contacts, NSError *error);
+typedef void (^GetContactsCompletionBlock)(NSMutableArray *contacts, NSMutableDictionary *indexedContacts, NSError *error);
 
 typedef void (^GetRoomsCompletionBlock)(NSMutableArray *rooms, NSError *error, NSInteger statusCode);
 typedef void (^GetRoomCompletionBlock)(NCRoom *room, NSError *error);

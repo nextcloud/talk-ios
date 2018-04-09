@@ -114,7 +114,7 @@
 
 - (void)getPossibleParticipants
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSMutableArray *contacts, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSMutableArray *contacts, NSMutableDictionary *indexedContacts, NSError *error) {
         if (!error) {
             _participants = [self filterContacts:contacts];
             [self.tableView reloadData];
@@ -126,7 +126,7 @@
 
 - (void)searchForParticipantsWithString:(NSString *)searchString
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSMutableArray *contacts, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSMutableArray *contacts, NSMutableDictionary *indexedContacts, NSError *error) {
         if (!error) {
             _resultTableViewController.filteredContacts = [self filterContacts:contacts];
             [_resultTableViewController.tableView reloadData];
