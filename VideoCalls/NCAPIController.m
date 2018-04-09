@@ -78,10 +78,26 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         NSArray *responseExtactUsers = [[[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"exact"] objectForKey:@"users"];
         NSArray *responseContacts = [responseUsers arrayByAddingObjectsFromArray:responseExtactUsers];
         NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseContacts.count];
+        NSMutableDictionary *indexedContacts = [[NSMutableDictionary alloc] init];
         for (NSDictionary *user in responseContacts) {
             NCUser *ncUser = [NCUser userWithDictionary:user];
             if (![ncUser.userId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
                 [users addObject:ncUser];
+                // Create index dictionary if no search string (getting all contacts)
+                if (!search || [search isEqualToString:@""]) {
+                    NSString *index = [[ncUser.name substringToIndex:1] uppercaseString];
+                    NSRange first = [ncUser.name rangeOfComposedCharacterSequenceAtIndex:0];
+                    NSRange match = [ncUser.name rangeOfCharacterFromSet:[NSCharacterSet letterCharacterSet] options:0 range:first];
+                    if (match.location == NSNotFound) {
+                        index = @"#";
+                    }
+                    NSMutableArray *contactsForIndex = [indexedContacts valueForKey:index];
+                    if (contactsForIndex == nil) {
+                        contactsForIndex = [[NSMutableArray alloc] init];
+                    }
+                    [contactsForIndex addObject:ncUser];
+                    [indexedContacts setObject:contactsForIndex forKey:index];
+                }
             }
         }
         if (block) {
