@@ -23,7 +23,8 @@
 {
     [super viewDidLoad];
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 60, 0);
+    // Align header's title to ContactsTableViewCell's label
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 62, 0, 0);
 }
 
 - (void)didReceiveMemoryWarning
@@ -33,14 +34,14 @@
 
 #pragma mark - Table view data source
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    return 1;
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return _indexes.count;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    return _filteredContacts.count;
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    NSString *index = [_indexes objectAtIndex:section];
+    NSArray *contacts = [_contacts objectForKey:index];
+    return contacts.count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -48,9 +49,16 @@
     return 60.0f;
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    return [_indexes objectAtIndex:section];
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCUser *contact = [_filteredContacts objectAtIndex:indexPath.row];
+    NSString *index = [_indexes objectAtIndex:indexPath.section];
+    NSArray *contacts = [_contacts objectForKey:index];
+    NCUser *contact = [contacts objectAtIndex:indexPath.row];
     ContactsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kContactCellIdentifier forIndexPath:indexPath];
     if (!cell) {
         cell = [[ContactsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kContactCellIdentifier];

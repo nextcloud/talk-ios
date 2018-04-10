@@ -22,7 +22,8 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
 
 @interface ContactsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
-    NSMutableArray *_contacts;
+    NSDictionary *_contacts;
+    NSArray *_indexes;
     UISearchController *_searchController;
     SearchTableViewController *_resultTableViewController;
 }
@@ -35,24 +36,27 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
 {
     [super viewDidLoad];
     
-    _contacts = [[NSMutableArray alloc] init];
+    _contacts = [[NSDictionary alloc] init];
+    _indexes = [[NSArray alloc] init];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 60, 0);
+    // Align header's title to ContactsTableViewCell's label
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 62, 0, 0);
     
     _resultTableViewController = [[SearchTableViewController alloc] init];
-    
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
+    
     self.tableView.tableHeaderView = _searchController.searchBar;
     
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
     _resultTableViewController.tableView.delegate = self;
     _searchController.delegate = self;
     _searchController.searchBar.delegate = self;
-        
+    
     self.definesPresentationContext = YES;
+    _searchController.hidesNavigationBarDuringPresentation = NO;
     
     UIImage *image = [UIImage imageNamed:@"navigationLogo"];
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:image];
@@ -143,9 +147,10 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
 
 - (void)getContacts
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSMutableArray *contacts, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             _contacts = contacts;
+            _indexes = indexes;
             [self.tableView reloadData];
         } else {
             NSLog(@"Error while trying to get contacts: %@", error);
@@ -155,9 +160,10 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
 
 - (void)searchForContactsWithString:(NSString *)searchString
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSMutableArray *contacts, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            _resultTableViewController.filteredContacts = contacts;
+            _resultTableViewController.contacts = contacts;
+            _resultTableViewController.indexes = indexes;
             [_resultTableViewController.tableView reloadData];
         } else {
             NSLog(@"Error while searching for contacts: %@", error);
@@ -167,10 +173,15 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
 
 - (void)presentJoinCallOptionsForContactAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCUser *contact = [_contacts objectAtIndex:indexPath.row];
+    NSString *index = [_indexes objectAtIndex:indexPath.section];
+    NSArray *contacts = [_contacts objectForKey:index];
+    
     if (_searchController.active) {
-        contact =  [_resultTableViewController.filteredContacts objectAtIndex:indexPath.row];
+        index = [_resultTableViewController.indexes objectAtIndex:indexPath.section];
+        contacts = [_resultTableViewController.contacts objectForKey:index];
     }
+    
+    NCUser *contact = [contacts objectAtIndex:indexPath.row];
     
     UIAlertController *optionsActionSheet =
     [UIAlertController alertControllerWithTitle:contact.name
@@ -237,11 +248,13 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
+    return _indexes.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return _contacts.count;
+    NSString *index = [_indexes objectAtIndex:section];
+    NSArray *contacts = [_contacts objectForKey:index];
+    return contacts.count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -249,8 +262,15 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
     return 60.0f;
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    return [_indexes objectAtIndex:section];
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NCUser *contact = [_contacts objectAtIndex:indexPath.row];
+    NSString *index = [_indexes objectAtIndex:indexPath.section];
+    NSArray *contacts = [_contacts objectForKey:index];
+    NCUser *contact = [contacts objectAtIndex:indexPath.row];
     ContactsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kContactCellIdentifier forIndexPath:indexPath];
     if (!cell) {
         cell = [[ContactsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kContactCellIdentifier];

@@ -84,14 +84,36 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
                 [users addObject:ncUser];
             }
         }
+        NSMutableDictionary *indexedContacts = [self indexedUsersFromUsersArray:users];
+        NSArray *indexes = [[indexedContacts allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
         if (block) {
-            block(users, nil);
+            block(indexes, indexedContacts, users, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error);
+            block(nil, nil, nil, error);
         }
     }];
+}
+
+- (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users
+{
+    NSMutableDictionary *indexedUsers = [[NSMutableDictionary alloc] init];
+    for (NCUser *user in users) {
+        NSString *index = [[user.name substringToIndex:1] uppercaseString];
+        NSRange first = [user.name rangeOfComposedCharacterSequenceAtIndex:0];
+        NSRange match = [user.name rangeOfCharacterFromSet:[NSCharacterSet letterCharacterSet] options:0 range:first];
+        if (match.location == NSNotFound) {
+            index = @"#";
+        }
+        NSMutableArray *usersForIndex = [indexedUsers valueForKey:index];
+        if (usersForIndex == nil) {
+            usersForIndex = [[NSMutableArray alloc] init];
+        }
+        [usersForIndex addObject:user];
+        [indexedUsers setObject:usersForIndex forKey:index];
+    }
+    return indexedUsers;
 }
 
 #pragma mark - Rooms Controller
