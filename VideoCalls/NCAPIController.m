@@ -78,36 +78,42 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         NSArray *responseExtactUsers = [[[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"exact"] objectForKey:@"users"];
         NSArray *responseContacts = [responseUsers arrayByAddingObjectsFromArray:responseExtactUsers];
         NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseContacts.count];
-        NSMutableDictionary *indexedContacts = [[NSMutableDictionary alloc] init];
         for (NSDictionary *user in responseContacts) {
             NCUser *ncUser = [NCUser userWithDictionary:user];
             if (![ncUser.userId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
                 [users addObject:ncUser];
-                // Create index dictionary if no search string (getting all contacts)
-                if (!search || [search isEqualToString:@""]) {
-                    NSString *index = [[ncUser.name substringToIndex:1] uppercaseString];
-                    NSRange first = [ncUser.name rangeOfComposedCharacterSequenceAtIndex:0];
-                    NSRange match = [ncUser.name rangeOfCharacterFromSet:[NSCharacterSet letterCharacterSet] options:0 range:first];
-                    if (match.location == NSNotFound) {
-                        index = @"#";
-                    }
-                    NSMutableArray *contactsForIndex = [indexedContacts valueForKey:index];
-                    if (contactsForIndex == nil) {
-                        contactsForIndex = [[NSMutableArray alloc] init];
-                    }
-                    [contactsForIndex addObject:ncUser];
-                    [indexedContacts setObject:contactsForIndex forKey:index];
-                }
             }
         }
+        NSMutableDictionary *indexedContacts = [self indexedUsersFromUsersArray:users];
+        NSArray *indexes = [[indexedContacts allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
         if (block) {
-            block(users, indexedContacts, nil);
+            block(indexes, indexedContacts, users, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, nil, error);
+            block(nil, nil, nil, error);
         }
     }];
+}
+
+- (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users
+{
+    NSMutableDictionary *indexedUsers = [[NSMutableDictionary alloc] init];
+    for (NCUser *user in users) {
+        NSString *index = [[user.name substringToIndex:1] uppercaseString];
+        NSRange first = [user.name rangeOfComposedCharacterSequenceAtIndex:0];
+        NSRange match = [user.name rangeOfCharacterFromSet:[NSCharacterSet letterCharacterSet] options:0 range:first];
+        if (match.location == NSNotFound) {
+            index = @"#";
+        }
+        NSMutableArray *usersForIndex = [indexedUsers valueForKey:index];
+        if (usersForIndex == nil) {
+            usersForIndex = [[NSMutableArray alloc] init];
+        }
+        [usersForIndex addObject:user];
+        [indexedUsers setObject:usersForIndex forKey:index];
+    }
+    return indexedUsers;
 }
 
 #pragma mark - Rooms Controller

@@ -16,7 +16,8 @@
 @interface AddParticipantsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
     NCRoom *_room;
-    NSMutableArray *_participants;
+    NSMutableDictionary *_participants;
+    NSArray *_indexes;
     NSArray *_alreadyAddedParticipants;
     UISearchController *_searchController;
     SearchTableViewController *_resultTableViewController;
@@ -33,7 +34,8 @@
     }
     
     _room = room;
-    _participants = [[NSMutableArray alloc] init];
+    _participants = [[NSMutableDictionary alloc] init];
+    _indexes = [[NSArray alloc] init];
     _alreadyAddedParticipants = [room.participants allKeys];
     
     return self;
@@ -59,6 +61,7 @@
     _searchController.searchBar.delegate = self;
     
     self.definesPresentationContext = YES;
+    _searchController.hidesNavigationBarDuringPresentation = NO;
     
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
@@ -102,21 +105,22 @@
 - (NSMutableArray *)filterContacts:(NSMutableArray *)contacts
 {
     NSMutableArray *participants = [[NSMutableArray alloc] init];
-    
     for (NCUser *user in contacts) {
         if (![_alreadyAddedParticipants containsObject:user.userId]) {
             [participants addObject:user];
         }
     }
-    
     return participants;
 }
 
 - (void)getPossibleParticipants
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSMutableArray *contacts, NSMutableDictionary *indexedContacts, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            _participants = [self filterContacts:contacts];
+            NSMutableArray *filteredParticipants = [self filterContacts:contactList];
+            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
+            _participants = participants;
+            _indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
             [self.tableView reloadData];
         } else {
             NSLog(@"Error while trying to get participants: %@", error);
@@ -126,9 +130,12 @@
 
 - (void)searchForParticipantsWithString:(NSString *)searchString
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSMutableArray *contacts, NSMutableDictionary *indexedContacts, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            _resultTableViewController.filteredContacts = [self filterContacts:contacts];
+            NSMutableArray *filteredParticipants = [self filterContacts:contactList];
+            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
+            _resultTableViewController.contacts = participants;
+            _resultTableViewController.indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];;
             [_resultTableViewController.tableView reloadData];
         } else {
             NSLog(@"Error while searching for participants: %@", error);
@@ -146,11 +153,13 @@
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
+    return _indexes.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return _participants.count;
+    NSString *index = [_indexes objectAtIndex:section];
+    NSArray *participants = [_participants objectForKey:index];
+    return participants.count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -158,8 +167,15 @@
     return 60.0f;
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    return [_indexes objectAtIndex:section];
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NCUser *participant = [_participants objectAtIndex:indexPath.row];
+    NSString *index = [_indexes objectAtIndex:indexPath.section];
+    NSArray *participants = [_participants objectForKey:index];
+    NCUser *participant = [participants objectAtIndex:indexPath.row];
     ContactsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kContactCellIdentifier forIndexPath:indexPath];
     if (!cell) {
         cell = [[ContactsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kContactCellIdentifier];
@@ -184,11 +200,15 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCUser *participant = [_participants objectAtIndex:indexPath.row];
+    NSString *index = [_indexes objectAtIndex:indexPath.section];
+    NSArray *participants = [_participants objectForKey:index];
     
     if (_searchController.active) {
-        participant =  [_resultTableViewController.filteredContacts objectAtIndex:indexPath.row];
+        index = [_resultTableViewController.indexes objectAtIndex:indexPath.section];
+        participants = [_resultTableViewController.contacts objectForKey:index];
     }
+    
+    NCUser *participant = [participants objectAtIndex:indexPath.row];
     
     self.tableView.allowsSelection = NO;
     _resultTableViewController.tableView.allowsSelection = NO;

@@ -12,7 +12,7 @@
 #import "NCRoom.h"
 #import "NCUser.h"
 
-typedef void (^GetContactsCompletionBlock)(NSMutableArray *contacts, NSMutableDictionary *indexedContacts, NSError *error);
+typedef void (^GetContactsCompletionBlock)(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error);
 
 typedef void (^GetRoomsCompletionBlock)(NSMutableArray *rooms, NSError *error, NSInteger statusCode);
 typedef void (^GetRoomCompletionBlock)(NCRoom *room, NSError *error);
@@ -58,6 +58,7 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
 // Contacts Controller
 - (void)getContactsWithSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
+- (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users;
 
 // Rooms Controller
 - (void)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block;

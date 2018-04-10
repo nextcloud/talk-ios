@@ -12,6 +12,7 @@
 
 @interface SearchTableViewController : UITableViewController
 
-@property (nonatomic, strong) NSArray *filteredContacts;
+@property (nonatomic, strong) NSMutableDictionary *contacts;
+@property (nonatomic, strong) NSArray *indexes;
 
 @end
