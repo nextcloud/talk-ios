@@ -148,7 +148,7 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
     [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSMutableArray *contacts, NSMutableDictionary *indexedContacts, NSError *error) {
         if (!error) {
             _indexedContacts = indexedContacts;
-            _indexes = [indexedContacts allKeys];
+            _indexes = [[indexedContacts allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
             [self.tableView reloadData];
         } else {
             NSLog(@"Error while trying to get contacts: %@", error);
