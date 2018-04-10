@@ -40,7 +40,8 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
     _indexes = [[NSArray alloc] init];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 60, 0);
+    // Align header's title to ContactsTableViewCell's label
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 62, 0, 0);
     
     _resultTableViewController = [[SearchTableViewController alloc] init];
     
