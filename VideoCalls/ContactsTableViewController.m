@@ -47,15 +47,16 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
+    
     self.tableView.tableHeaderView = _searchController.searchBar;
     
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
     _resultTableViewController.tableView.delegate = self;
     _searchController.delegate = self;
     _searchController.searchBar.delegate = self;
-        
+    
     self.definesPresentationContext = YES;
-    _searchController.hidesNavigationBarDuringPresentation = false;
+    _searchController.hidesNavigationBarDuringPresentation = NO;
     
     UIImage *image = [UIImage imageNamed:@"navigationLogo"];
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:image];
