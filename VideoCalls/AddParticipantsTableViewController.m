@@ -46,12 +46,15 @@
     [super viewDidLoad];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 60, 0);
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
     _resultTableViewController = [[SearchTableViewController alloc] init];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:_resultTableViewController];
     _searchController = [[UISearchController alloc] initWithSearchResultsController:navigationController];
     _searchController.searchResultsUpdater = self;
+    _searchController.searchBar.barTintColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
+    _searchController.searchBar.layer.borderWidth = 1;
+    _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
     [_searchController.searchBar sizeToFit];
     self.tableView.tableHeaderView = _searchController.searchBar;
     
@@ -164,7 +167,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 60.0f;
+    return 80.0f;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section

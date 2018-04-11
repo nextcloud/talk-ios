@@ -41,11 +41,14 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     // Align header's title to ContactsTableViewCell's label
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 62, 0, 0);
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
     _resultTableViewController = [[SearchTableViewController alloc] init];
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
+    _searchController.searchBar.barTintColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
+    _searchController.searchBar.layer.borderWidth = 1;
+    _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
     [_searchController.searchBar sizeToFit];
     
     self.tableView.tableHeaderView = _searchController.searchBar;
@@ -259,7 +262,7 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 60.0f;
+    return 80.0f;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
