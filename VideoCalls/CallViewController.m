@@ -112,6 +112,16 @@ typedef NS_ENUM(NSInteger, CallState) {
                                                  name:@"UIDeviceProximityStateDidChangeNotification" object:nil];
 }
 
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [self setLocalVideoRect];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [self setLocalVideoRect];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
@@ -127,6 +137,41 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Local video
+
+- (void)setLocalVideoRect
+{
+    CGSize localVideoSize = CGSizeMake(0, 0);
+    
+    CGFloat width = [UIScreen mainScreen].bounds.size.width / 5;
+    CGFloat height = [UIScreen mainScreen].bounds.size.height / 5;
+    
+    NSString *videoResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
+    NSString *localVideoRes = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:videoResolution];
+    
+    if ([localVideoRes isEqualToString:@"Low"] || [localVideoRes isEqualToString:@"Normal"]) {
+        if (width < height) {
+            localVideoSize = CGSizeMake(height * 3/4, height);
+        } else {
+            localVideoSize = CGSizeMake(height * 4/3, height);
+        }
+    } else {
+        if (width < height) {
+            localVideoSize = CGSizeMake(height * 9/16, height);;
+        } else {
+            localVideoSize = CGSizeMake(height * 16/9, height);
+        }
+    }
+    
+    CGRect localVideoRect = CGRectMake(16, 62, localVideoSize.width, localVideoSize.height);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _localVideoView.frame = localVideoRect;
+        _localVideoView.layer.cornerRadius = 4.0f;
+        _localVideoView.layer.masksToBounds = YES;
+    });
 }
 
 #pragma mark - Proximity sensor
