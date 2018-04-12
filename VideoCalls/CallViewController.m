@@ -419,7 +419,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)hangup
 {
-    self.waitingLabel.text = @"Call ended";
+    [self dismissCallView];
     
     [_localVideoView.captureSession stopRunning];
     _localVideoView.captureSession = nil;
@@ -434,6 +434,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     [_callController leaveCall];
+}
+
+- (void)dismissCallView
+{
+    [self.delegate callViewControllerWantsToBeDismissed:self];
 }
 
 - (void)finishCall

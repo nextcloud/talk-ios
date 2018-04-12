@@ -14,6 +14,7 @@
 @class CallViewController;
 @protocol CallViewControllerDelegate <NSObject>
 
+- (void)callViewControllerWantsToBeDismissed:(CallViewController *)viewController;
 - (void)callViewControllerDidFinish:(CallViewController *)viewController;
 
 @end
