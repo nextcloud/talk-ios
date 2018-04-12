@@ -116,11 +116,12 @@ static NSString * const kNCVideoTrackKind = @"video";
     _peerConnectionFactory = nil;
     _connectionsDict = nil;
     
+    [self stopPingCall];
+    [self stopMonitoringMicrophoneAudioLevel];
+    [_signalingController stopPullingSignalingMessages];
+    
     [[NCAPIController sharedInstance] leaveCall:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [self stopPingCall];
-            [self stopMonitoringMicrophoneAudioLevel];
-            [_signalingController stopPullingSignalingMessages];
             [[NCAPIController sharedInstance] exitRoom:_room.token withCompletionBlock:^(NSError *error) {
                 if (!error) {
                     [self.delegate callControllerDidEndCall:self];
