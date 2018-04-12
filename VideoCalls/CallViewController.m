@@ -193,6 +193,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)setCallState:(CallState)state
 {
+    _callState = state;
     switch (state) {
         case CallStateJoining:
         case CallStateWaitingParticipants:
@@ -215,6 +216,19 @@ typedef NS_ENUM(NSInteger, CallState) {
             
         default:
             break;
+    }
+}
+
+- (void)setCallStateForPeersInCall
+{
+    if ([_peersInCall count] > 0) {
+        if (_callState != CallStateInCall) {
+            [self setCallState:CallStateInCall];
+        }
+    } else {
+        if (_callState == CallStateInCall) {
+            [self setCallState:CallStateWaitingParticipants];
+        }
     }
 }
 
@@ -432,11 +446,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    if ([_peersInCall count] > 0) {
-        [self setCallState:CallStateInCall];
-    } else {
-        [self setCallState:CallStateWaitingParticipants];
-    }
+    [self setCallStateForPeersInCall];
     return [_peersInCall count];
 }
 
