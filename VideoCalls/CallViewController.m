@@ -33,6 +33,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSMutableDictionary *_renderersDict;
     NCCallController *_callController;
     ARDCaptureController *_captureController;
+    UITapGestureRecognizer *_tapGestureForDetailedView;
     NSTimer *_detailedViewTimer;
     BOOL _isAudioOnly;
     BOOL _userDisabledVideo;
@@ -78,9 +79,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[UIDevice currentDevice] setProximityMonitoringEnabled:YES];
     [UIApplication sharedApplication].idleTimerDisabled = YES;
     
-    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showDetailedView)];
-    [tapGestureRecognizer setNumberOfTapsRequired:1];
-    [self.view addGestureRecognizer:tapGestureRecognizer];
+    _tapGestureForDetailedView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showDetailedViewWithTimer)];
+    [_tapGestureForDetailedView setNumberOfTapsRequired:1];
     
     [self.audioMuteButton.layer setCornerRadius:24.0f];
     [self.speakerButton.layer setCornerRadius:24.0f];
@@ -88,14 +88,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.hangUpButton.layer setCornerRadius:24.0f];
     
     [self adjustButtonsConainer];
-    [self setDetailedViewTimer];
     
     self.collectionView.delegate = self;
     
     self.waitingImageView.layer.cornerRadius = 64;
     self.waitingImageView.layer.masksToBounds = YES;
-    
-    [self setWaitingScreen];
     
     if ([[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore] || _isAudioOnly) {
         _userDisabledVideo = YES;
@@ -110,6 +107,16 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
                                                  name:@"UIDeviceProximityStateDidChangeNotification" object:nil];
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [self setLocalVideoRect];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [self setLocalVideoRect];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -127,6 +134,41 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Local video
+
+- (void)setLocalVideoRect
+{
+    CGSize localVideoSize = CGSizeMake(0, 0);
+    
+    CGFloat width = [UIScreen mainScreen].bounds.size.width / 5;
+    CGFloat height = [UIScreen mainScreen].bounds.size.height / 5;
+    
+    NSString *videoResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
+    NSString *localVideoRes = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:videoResolution];
+    
+    if ([localVideoRes isEqualToString:@"Low"] || [localVideoRes isEqualToString:@"Normal"]) {
+        if (width < height) {
+            localVideoSize = CGSizeMake(height * 3/4, height);
+        } else {
+            localVideoSize = CGSizeMake(height * 4/3, height);
+        }
+    } else {
+        if (width < height) {
+            localVideoSize = CGSizeMake(height * 9/16, height);;
+        } else {
+            localVideoSize = CGSizeMake(height * 16/9, height);
+        }
+    }
+    
+    CGRect localVideoRect = CGRectMake(16, 62, localVideoSize.width, localVideoSize.height);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _localVideoView.frame = localVideoRect;
+        _localVideoView.layer.cornerRadius = 4.0f;
+        _localVideoView.layer.masksToBounds = YES;
+    });
 }
 
 #pragma mark - Proximity sensor
@@ -151,14 +193,25 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)setCallState:(CallState)state
 {
+    _callState = state;
     switch (state) {
         case CallStateJoining:
-            break;
-        
         case CallStateWaitingParticipants:
+        {
+            [self showWaitingScreen];
+            [self showDetailedView];
+            [self removeTapGestureForDetailedView];
+        }
             break;
             
         case CallStateInCall:
+        {
+            [self hideWaitingScreen];
+            if (!_isAudioOnly) {
+                [self addTapGestureForDetailedView];
+                [self showDetailedViewWithTimer];
+            }
+        }
             break;
             
         default:
@@ -166,7 +219,20 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
-- (void)setWaitingScreen
+- (void)setCallStateForPeersInCall
+{
+    if ([_peersInCall count] > 0) {
+        if (_callState != CallStateInCall) {
+            [self setCallState:CallStateInCall];
+        }
+    } else {
+        if (_callState == CallStateInCall) {
+            [self setCallState:CallStateWaitingParticipants];
+        }
+    }
+}
+
+- (void)showWaitingScreen
 {
     if (_room.type == kNCRoomTypeOneToOneCall) {
         self.waitingLabel.text = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
@@ -185,22 +251,33 @@ typedef NS_ENUM(NSInteger, CallState) {
         self.waitingImageView.contentMode = UIViewContentModeCenter;
     }
     
-    [self setWaitingScreenVisibility];
+    self.collectionView.backgroundView = self.waitingView;
 }
 
-- (void)setWaitingScreenVisibility
+- (void)hideWaitingScreen
 {
-    self.collectionView.backgroundView = self.waitingView;
-    
-    if (_peersInCall.count > 0) {
-        self.collectionView.backgroundView = nil;
-    }
+    self.collectionView.backgroundView = nil;
+}
+
+- (void)addTapGestureForDetailedView
+{
+    [self.view addGestureRecognizer:_tapGestureForDetailedView];
+}
+
+- (void)removeTapGestureForDetailedView
+{
+    [self.view removeGestureRecognizer:_tapGestureForDetailedView];
 }
 
 - (void)showDetailedView
 {
     [self showButtonsContainer];
     [self showPeersInfo];
+}
+
+- (void)showDetailedViewWithTimer
+{
+    [self showDetailedView];
     [self setDetailedViewTimer];
 }
 
@@ -369,7 +446,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    [self setWaitingScreenVisibility];
+    [self setCallStateForPeersInCall];
     return [_peersInCall count];
 }
 
@@ -446,7 +523,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_renderersDict setObject:renderView forKey:remotePeer.peerId];
     [_peersInCall addObject:remotePeer];
     [self.collectionView reloadData];
-    [self showDetailedView];
 }
 - (void)callController:(NCCallController *)callController didRemoveStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
