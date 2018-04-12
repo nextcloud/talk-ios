@@ -16,7 +16,6 @@
 #import "NCConnectionController.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
-#import "VideoSettingsViewController.h"
 #import <SafariServices/SafariServices.h>
 
 typedef enum SettingsSection {
@@ -209,6 +208,45 @@ typedef enum AboutSection {
     [[NCConnectionController sharedInstance] checkAppState];
 }
 
+#pragma mark - Configuration
+
+- (void)presentVideoResolutionsSelector
+{
+    NSIndexPath *videoConfIndexPath = [NSIndexPath indexPathForRow:kConfigurationSectionVideo inSection:kSettingsSectionConfiguration];
+    NSArray *videoResolutions = [[[NCSettingsController sharedInstance] videoSettingsModel] availableVideoResolutions];
+    NSString *storedResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:@"Video quality"
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    for (NSString *resolution in videoResolutions) {
+        NSString *readableResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:resolution];
+        BOOL isStoredResolution = [resolution isEqualToString:storedResolution];
+        UIAlertAction *action = [UIAlertAction actionWithTitle:readableResolution
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^void (UIAlertAction *action) {
+                                                           [[[NCSettingsController sharedInstance] videoSettingsModel] storeVideoResolutionSetting:resolution];
+                                                           [self.tableView beginUpdates];
+                                                           [self.tableView reloadRowsAtIndexPaths:@[videoConfIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+                                                           [self.tableView endUpdates];
+                                                       }];
+        if (isStoredResolution) {
+            [action setValue:[[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        }
+        
+        [optionsActionSheet addAction:action];
+    }
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:videoConfIndexPath];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -300,11 +338,12 @@ typedef enum AboutSection {
                 {
                     cell = [tableView dequeueReusableCellWithIdentifier:videoConfigurationCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:videoConfigurationCellIdentifier];
-                        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                        cell.textLabel.text = @"Video calls";
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:videoConfigurationCellIdentifier];
+                        cell.textLabel.text = @"Video quality";
                         [cell.imageView setImage:[UIImage imageNamed:@"videocall-settings"]];
                     }
+                    NSString *resolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
+                    cell.detailTextLabel.text = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:resolution];
                 }
                     break;
             }
@@ -353,8 +392,7 @@ typedef enum AboutSection {
             switch (indexPath.row) {
                 case kConfigurationSectionVideo:
                 {
-                    VideoSettingsViewController *videoSettingsVC = [[VideoSettingsViewController alloc] init];
-                    [self.navigationController pushViewController:videoSettingsVC animated:YES];
+                    [self presentVideoResolutionsSelector];
                     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                 }
                     break;
