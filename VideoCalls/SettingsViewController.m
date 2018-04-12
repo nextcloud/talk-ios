@@ -319,6 +319,7 @@ typedef enum AboutSection {
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:privacyCellIdentifier];
                         cell.textLabel.text = @"Privacy";
+                        [cell.imageView setImage:[UIImage imageNamed:@"privacy"]];
                     }
                 }
                     break;
@@ -328,6 +329,7 @@ typedef enum AboutSection {
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sourceCodeCellIdentifier];
                         cell.textLabel.text = @"Get source code";
+                        [cell.imageView setImage:[UIImage imageNamed:@"github"]];
                     }
                 }
                     break;
