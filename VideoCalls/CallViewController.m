@@ -33,6 +33,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSMutableDictionary *_renderersDict;
     NCCallController *_callController;
     ARDCaptureController *_captureController;
+    UITapGestureRecognizer *_tapGestureForDetailedView;
     NSTimer *_detailedViewTimer;
     BOOL _isAudioOnly;
     BOOL _userDisabledVideo;
@@ -78,9 +79,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[UIDevice currentDevice] setProximityMonitoringEnabled:YES];
     [UIApplication sharedApplication].idleTimerDisabled = YES;
     
-    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showDetailedView)];
-    [tapGestureRecognizer setNumberOfTapsRequired:1];
-    [self.view addGestureRecognizer:tapGestureRecognizer];
+    _tapGestureForDetailedView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showDetailedViewWithTimer)];
+    [_tapGestureForDetailedView setNumberOfTapsRequired:1];
     
     [self.audioMuteButton.layer setCornerRadius:24.0f];
     [self.speakerButton.layer setCornerRadius:24.0f];
@@ -88,14 +88,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.hangUpButton.layer setCornerRadius:24.0f];
     
     [self adjustButtonsConainer];
-    [self setDetailedViewTimer];
     
     self.collectionView.delegate = self;
     
     self.waitingImageView.layer.cornerRadius = 64;
     self.waitingImageView.layer.masksToBounds = YES;
-    
-    [self setWaitingScreen];
     
     if ([[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore] || _isAudioOnly) {
         _userDisabledVideo = YES;
@@ -198,12 +195,22 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     switch (state) {
         case CallStateJoining:
-            break;
-        
         case CallStateWaitingParticipants:
+        {
+            [self showWaitingScreen];
+            [self showDetailedView];
+            [self removeTapGestureForDetailedView];
+        }
             break;
             
         case CallStateInCall:
+        {
+            [self hideWaitingScreen];
+            if (!_isAudioOnly) {
+                [self addTapGestureForDetailedView];
+                [self showDetailedViewWithTimer];
+            }
+        }
             break;
             
         default:
@@ -211,7 +218,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
-- (void)setWaitingScreen
+- (void)showWaitingScreen
 {
     if (_room.type == kNCRoomTypeOneToOneCall) {
         self.waitingLabel.text = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
@@ -230,22 +237,33 @@ typedef NS_ENUM(NSInteger, CallState) {
         self.waitingImageView.contentMode = UIViewContentModeCenter;
     }
     
-    [self setWaitingScreenVisibility];
+    self.collectionView.backgroundView = self.waitingView;
 }
 
-- (void)setWaitingScreenVisibility
+- (void)hideWaitingScreen
 {
-    self.collectionView.backgroundView = self.waitingView;
-    
-    if (_peersInCall.count > 0) {
-        self.collectionView.backgroundView = nil;
-    }
+    self.collectionView.backgroundView = nil;
+}
+
+- (void)addTapGestureForDetailedView
+{
+    [self.view addGestureRecognizer:_tapGestureForDetailedView];
+}
+
+- (void)removeTapGestureForDetailedView
+{
+    [self.view removeGestureRecognizer:_tapGestureForDetailedView];
 }
 
 - (void)showDetailedView
 {
     [self showButtonsContainer];
     [self showPeersInfo];
+}
+
+- (void)showDetailedViewWithTimer
+{
+    [self showDetailedView];
     [self setDetailedViewTimer];
 }
 
@@ -414,7 +432,11 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    [self setWaitingScreenVisibility];
+    if ([_peersInCall count] > 0) {
+        [self setCallState:CallStateInCall];
+    } else {
+        [self setCallState:CallStateWaitingParticipants];
+    }
     return [_peersInCall count];
 }
 
@@ -491,7 +513,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_renderersDict setObject:renderView forKey:remotePeer.peerId];
     [_peersInCall addObject:remotePeer];
     [self.collectionView reloadData];
-    [self showDetailedView];
 }
 - (void)callController:(NCCallController *)callController didRemoveStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
