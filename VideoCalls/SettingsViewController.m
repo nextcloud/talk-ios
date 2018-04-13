@@ -167,12 +167,13 @@ typedef enum AboutSection {
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Log out"
-                                                           style:UIAlertActionStyleDestructive
-                                                         handler:^void (UIAlertAction *action) {
-                                                             [self logout];
-                                                         }]];
-    
+    UIAlertAction *logOutAction = [UIAlertAction actionWithTitle:@"Log out"
+                                                     style:UIAlertActionStyleDestructive
+                                                   handler:^void (UIAlertAction *action) {
+                                                       [self logout];
+                                                   }];
+    [logOutAction setValue:[[UIImage imageNamed:@"logout"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [optionsActionSheet addAction:logOutAction];
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
