@@ -240,15 +240,11 @@ typedef NS_ENUM(NSInteger, CallState) {
                                      placeholderImage:nil success:nil failure:nil];
     } else {
         self.waitingLabel.text = @"Waiting for others to join call…";
-        
         if (_room.type == kNCRoomTypeGroupCall) {
-            [self.waitingImageView setImage:[UIImage imageNamed:@"group-white85"]];
+            [self.waitingImageView setImage:[UIImage imageNamed:@"group-bg-128"]];
         } else {
-            [self.waitingImageView setImage:[UIImage imageNamed:@"public-white85"]];
+            [self.waitingImageView setImage:[UIImage imageNamed:@"public-bg-128"]];
         }
-        
-        self.waitingImageView.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
-        self.waitingImageView.contentMode = UIViewContentModeCenter;
     }
     
     self.collectionView.backgroundView = self.waitingView;

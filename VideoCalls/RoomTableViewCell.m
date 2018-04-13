@@ -32,8 +32,6 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
     
     self.roomPasswordImage.image = nil;
     self.roomImage.image = nil;
-    self.roomImage.backgroundColor = [UIColor clearColor];
-    self.roomImage.contentMode = UIViewContentModeScaleToFill;
 }
 
 @end

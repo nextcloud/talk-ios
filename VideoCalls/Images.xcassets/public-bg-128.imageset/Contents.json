@@ -2,17 +2,17 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "group-white85.png",
+      "filename" : "public-bg-128.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
-      "filename" : "group-white85@2x.png",
+      "filename" : "public-bg-128@2x.png",
       "scale" : "2x"
     },
     {
       "idiom" : "universal",
-      "filename" : "group-white85@3x.png",
+      "filename" : "public-bg-128@3x.png",
       "scale" : "3x"
     }
   ],
