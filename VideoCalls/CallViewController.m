@@ -152,13 +152,13 @@ typedef NS_ENUM(NSInteger, CallState) {
         if (width < height) {
             localVideoSize = CGSizeMake(height * 3/4, height);
         } else {
-            localVideoSize = CGSizeMake(height * 4/3, height);
+            localVideoSize = CGSizeMake(width, width * 3/4);
         }
     } else {
         if (width < height) {
-            localVideoSize = CGSizeMake(height * 9/16, height);;
+            localVideoSize = CGSizeMake(height * 9/16, height);
         } else {
-            localVideoSize = CGSizeMake(height * 16/9, height);
+            localVideoSize = CGSizeMake(width, width * 9/16);
         }
     }
     
