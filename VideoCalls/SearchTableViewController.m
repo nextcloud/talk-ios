@@ -24,7 +24,7 @@
     [super viewDidLoad];
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     // Align header's title to ContactsTableViewCell's label
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 62, 0, 0);
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
 }
 
 - (void)didReceiveMemoryWarning
