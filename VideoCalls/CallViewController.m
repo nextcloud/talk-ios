@@ -310,6 +310,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     } else {
         _speakerButton.hidden = YES;
     }
+    
+    // Enable speaker button for iPhones only
+    if(![[UIDevice currentDevice].model isEqualToString:@"iPhone"]) {
+        _speakerButton.enabled = NO;
+    }
 }
 
 - (void)setDetailedViewTimer
