@@ -7,6 +7,7 @@
 //
 
 #import "RoomTableViewCell.h"
+#import "UIImageView+AFNetworking.h"
 
 NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
 
@@ -30,10 +31,11 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
 {
     [super prepareForReuse];
     
-    self.roomPasswordImage.image = nil;
+    // Fix problem of rendering downloaded image in a reused cell
+    [self.roomImage cancelImageDownloadTask];
+    
     self.roomImage.image = nil;
-    self.roomImage.backgroundColor = [UIColor clearColor];
-    self.roomImage.contentMode = UIViewContentModeScaleToFill;
+    self.roomPasswordImage.image = nil;
 }
 
 @end
