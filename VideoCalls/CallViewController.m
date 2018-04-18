@@ -107,6 +107,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
                                                  name:@"UIDeviceProximityStateDidChangeNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(captureSessionInterrupted:)
+                                                 name:@"AVCaptureSessionWasInterruptedNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(captureSessionInterruptionEnded:)
+                                                 name:@"AVCaptureSessionInterruptionEndedNotification" object:nil];
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
@@ -187,6 +191,20 @@ typedef NS_ENUM(NSInteger, CallState) {
             [_callController setAudioSessionToVideoChatMode];
         }
     }
+}
+
+#pragma mark - Capture session
+
+- (void)captureSessionInterrupted:(NSNotificationCenter *)notification
+{
+    [self setVideoDisabledAppearance];
+    [_videoDisableButton setEnabled:NO];
+}
+
+- (void)captureSessionInterruptionEnded:(NSNotificationCenter *)notification
+{
+    [self setVideoEnabledAppearance];
+    [_videoDisableButton setEnabled:YES];
 }
 
 #pragma mark - User Interface
@@ -357,7 +375,12 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)disableLocalVideo
 {
     [_callController enableVideo:NO];
-    [_captureController stopCapture];
+//    [_captureController stopCapture];
+    [self setVideoDisabledAppearance];
+}
+
+ -(void)setVideoDisabledAppearance
+{
     [_localVideoView setHidden:YES];
     [_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
 }
@@ -365,7 +388,12 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)enableLocalVideo
 {
     [_callController enableVideo:YES];
-    [_captureController startCapture];
+//    [_captureController startCapture];
+    [self setVideoEnabledAppearance];
+}
+
+-(void)setVideoEnabledAppearance
+{
     [_localVideoView setHidden:NO];
     [_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
 }
