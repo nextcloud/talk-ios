@@ -49,14 +49,22 @@
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
     _resultTableViewController = [[SearchTableViewController alloc] init];
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:_resultTableViewController];
-    _searchController = [[UISearchController alloc] initWithSearchResultsController:navigationController];
+    _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
-    _searchController.searchBar.barTintColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
-    _searchController.searchBar.layer.borderWidth = 1;
-    _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
     [_searchController.searchBar sizeToFit];
-    self.tableView.tableHeaderView = _searchController.searchBar;
+    
+    if (@available(iOS 11.0, *)) {
+        self.navigationItem.searchController = _searchController;
+        _searchController.searchBar.tintColor = [UIColor whiteColor];
+        UIColor *color = [UIColor colorWithWhite:1.0 alpha:0.9];
+        _searchController.searchBar.tintColor = color;
+        [[UITextField appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]] setDefaultTextAttributes:@{NSForegroundColorAttributeName:color}];
+    } else {
+        self.tableView.tableHeaderView = _searchController.searchBar;
+        _searchController.searchBar.barTintColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
+        _searchController.searchBar.layer.borderWidth = 1;
+        _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
+    }
     
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
     _resultTableViewController.tableView.delegate = self;
@@ -64,7 +72,6 @@
     _searchController.searchBar.delegate = self;
     
     self.definesPresentationContext = YES;
-    _searchController.hidesNavigationBarDuringPresentation = NO;
     
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
@@ -73,9 +80,11 @@
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
-    
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    
+    // Fix uisearchcontroller animation
+    self.extendedLayoutIncludesOpaqueBars = YES;
 }
 
 - (void)dealloc
