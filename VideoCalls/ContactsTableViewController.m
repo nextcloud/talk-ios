@@ -277,6 +277,11 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
     return [_indexes objectAtIndex:section];
 }
 
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
+{
+    return _indexes;
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSString *index = [_indexes objectAtIndex:indexPath.section];
     NSArray *contacts = [_contacts objectForKey:index];
