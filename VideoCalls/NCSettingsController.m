@@ -133,7 +133,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     [[NCAPIController sharedInstance] getServerCapabilitiesWithCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
         if (!error) {
             NSDictionary *talkCapabilities = [[serverCapabilities objectForKey:@"capabilities"] objectForKey:@"spreed"];
-            _ncTalkCapabilities = talkCapabilities;
+            _ncTalkCapabilities = talkCapabilities ? talkCapabilities : @{};
             [[NSNotificationCenter defaultCenter] postNotificationName:NCServerCapabilitiesReceivedNotification
                                                                 object:self
                                                               userInfo:nil];
