@@ -419,6 +419,51 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     }];
 }
 
+#pragma mark - Chat Controller
+
+- (void)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId history:(BOOL)history withCompletionBlock:(GetChatMessagesCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"chat/%@", token]];
+    NSDictionary *parameters = @{@"lookIntoFuture" : history ? @(0) : @(1),
+                                 @"limit" : @(100),
+                                 @"timeout" : @"30",
+                                 @"lastKnownMessageId" : @(messageId)};
+    
+    [[NCAPISessionManager sharedInstance] GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSArray *responseMessages = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSMutableArray *messages = [[NSMutableArray alloc] initWithCapacity:responseMessages.count];
+        for (NSDictionary *message in responseMessages) {
+            NCChatMessage *ncMessage = [NCChatMessage messageWithDictionary:message];
+            [messages addObject:ncMessage];
+        }
+        
+        if (block) {
+            block(messages, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error);
+        }
+    }];
+}
+
+- (void)sendChatMessage:(NSString *)message toRoom:(NSString *)token displayName:(NSString *)displayName withCompletionBlock:(SendChatMessagesCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"chat/%@", token]];
+    NSDictionary *parameters = @{@"message" : message,
+                                 @"token" : token};
+    
+    [[NCAPISessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+}
+
 #pragma mark - Signaling Controller
 
 - (void)sendSignalingMessages:(NSString *)messages withCompletionBlock:(SendSignalingMessagesCompletionBlock)block

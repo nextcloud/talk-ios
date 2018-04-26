@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #import "AFNetworking.h"
+#import "NCChatMessage.h"
 #import "NCRoom.h"
 #import "NCUser.h"
 
@@ -31,6 +32,9 @@ typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *e
 typedef void (^JoinCallCompletionBlock)(NSError *error);
 typedef void (^PingCallCompletionBlock)(NSError *error);
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
+
+typedef void (^GetChatMessagesCompletionBlock)(NSMutableArray *messages, NSError *error);
+typedef void (^SendChatMessagesCompletionBlock)(NSError *error);
 
 typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);
@@ -75,12 +79,15 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 - (void)joinRoom:(NSString *)token withCompletionBlock:(JoinRoomCompletionBlock)block;
 - (void)exitRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block;
 
-
 // Call Controller
 - (void)getPeersForCall:(NSString *)token withCompletionBlock:(GetPeersForCallCompletionBlock)block;
 - (void)joinCall:(NSString *)token withCompletionBlock:(JoinCallCompletionBlock)block;
 - (void)pingCall:(NSString *)token withCompletionBlock:(PingCallCompletionBlock)block;
 - (void)leaveCall:(NSString *)token withCompletionBlock:(LeaveCallCompletionBlock)block;
+
+// Chat Controller
+- (void)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId history:(BOOL)history withCompletionBlock:(GetChatMessagesCompletionBlock)block;
+- (void)sendChatMessage:(NSString *)message toRoom:(NSString *)token displayName:(NSString *)displayName withCompletionBlock:(SendChatMessagesCompletionBlock)block;
 
 // Signaling Controller
 - (void)sendSignalingMessages:(NSString *)messages withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
