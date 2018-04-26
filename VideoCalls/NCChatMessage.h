@@ -15,9 +15,11 @@
 @property (nonatomic, strong) NSString *actorType;
 @property (nonatomic, assign) NSInteger messageId;
 @property (nonatomic, strong) NSString *message;
+@property (nonatomic, strong) NSDictionary *messageParameters;
 @property (nonatomic, assign) NSInteger timestamp;
 @property (nonatomic, strong) NSString *token;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
+- (NSString *)parsedMessage;
 
 @end
