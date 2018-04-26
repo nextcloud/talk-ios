@@ -781,6 +781,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
     cell.labelSubTitle.text = [date timeAgoSinceNow];
     
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    
     if (room.lastPing == 0) {
         cell.labelSubTitle.text = @"Never joined";
     }

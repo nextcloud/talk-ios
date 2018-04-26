@@ -79,11 +79,11 @@
             </objects>
             <point key="canvasLocation" x="1629.5999999999999" y="-739.88005997001505"/>
         </scene>
-        <!--Calls-->
+        <!--Conversations-->
         <scene sceneID="Fcv-fh-Lej">
             <objects>
                 <navigationController id="OKQ-YS-70y" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Calls" image="call-action" id="Lrt-Tc-cji"/>
+                    <tabBarItem key="tabBarItem" title="Conversations" image="conversations" id="Lrt-Tc-cji"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="pVd-L5-3CP">
                         <rect key="frame" x="0.0" y="20" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -216,8 +216,8 @@
     </scenes>
     <resources>
         <image name="add" width="24" height="24"/>
-        <image name="call-action" width="24" height="24"/>
         <image name="contact" width="25" height="25"/>
+        <image name="conversations" width="25" height="25"/>
         <image name="settings" width="25" height="25"/>
     </resources>
 </document>
