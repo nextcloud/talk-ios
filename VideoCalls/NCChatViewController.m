@@ -156,7 +156,7 @@
     NCChatMessage *message = self.messages[indexPath.row];
     
     cell.titleLabel.text = message.actorDisplayName;
-    cell.bodyLabel.text = message.parsedMessage;
+    cell.bodyLabel.attributedText = message.parsedMessage;
     
     cell.indexPath = indexPath;
     cell.usedForMessage = YES;

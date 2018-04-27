@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @interface NCChatMessage : NSObject
 
@@ -20,6 +21,6 @@
 @property (nonatomic, strong) NSString *token;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
-- (NSString *)parsedMessage;
+- (NSAttributedString *)parsedMessage;
 
 @end

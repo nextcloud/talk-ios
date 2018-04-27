@@ -8,6 +8,9 @@
 
 #import "NCChatMessage.h"
 
+#import "NCChatMention.h"
+#import "NCSettingsController.h"
+
 @implementation NCChatMessage
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict
@@ -39,26 +42,60 @@
     return message;
 }
 
-- (NSString *)parsedMessage
+- (NSMutableAttributedString *)parsedMessage
 {
     NSString *originalMessage = _message;
     NSString *parsedMessage = originalMessage;
     NSError *error = nil;
-    NSRegularExpression *mentionRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^}]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
-    NSArray *matches = [mentionRegex matchesInString:originalMessage
-                                             options:0
-                                               range:NSMakeRange(0, [originalMessage length])];
-    for (NSTextCheckingResult *match in matches) {
-        NSString* mention = [originalMessage substringWithRange:match.range];
-        NSString *mentionId = [mention substringFromIndex:1];
-        mentionId = [mentionId substringToIndex:[mentionId length] -1];
-        NSDictionary *parameters = [_messageParameters objectForKey:mentionId];
-        if (parameters) {
-            NSString *mentionDisplayName = [NSString stringWithFormat:@"@%@", [parameters objectForKey:@"name"]];
-            parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:mention withString:mentionDisplayName];
+    
+    NSRegularExpression *parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^}]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
+    NSArray *matches = [parameterRegex matchesInString:originalMessage
+                                               options:0
+                                                 range:NSMakeRange(0, [originalMessage length])];
+    
+    // Find mentions
+    NSMutableArray *mentions = [NSMutableArray arrayWithCapacity:matches.count];
+    for (int i = 0; i < matches.count; i++) {
+        NSTextCheckingResult *match = [matches objectAtIndex:i];
+        NSString* parameter = [originalMessage substringWithRange:match.range];
+        NSString *parameterId = [[parameter stringByReplacingOccurrencesOfString:@"{" withString:@""]
+                                 stringByReplacingOccurrencesOfString:@"}" withString:@""];
+        NSDictionary *parameterDict = [_messageParameters objectForKey:parameterId];
+        if (parameterDict) {
+            NSString *mentionName = [NSString stringWithFormat:@"@%@", [parameterDict objectForKey:@"name"]];
+            NSString *mentionUserId = [parameterDict objectForKey:@"id"];
+            parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:mentionName];
+            
+            NSRange searchRange = NSMakeRange(0,parsedMessage.length);
+            if (i > 0) {
+                NCChatMention *lastMention = [mentions objectAtIndex:i-1];
+                NSInteger newRangeLocation = lastMention.range.location + lastMention.range.length;
+                searchRange = NSMakeRange(newRangeLocation, parsedMessage.length - newRangeLocation);
+            }
+            NSRange foundRange = [parsedMessage rangeOfString:mentionName options:0 range:searchRange];
+            
+            NCChatMention *chatMention = [[NCChatMention alloc] init];
+            chatMention.range = foundRange;
+            chatMention.userId = mentionUserId;
+            chatMention.name = mentionName;
+            chatMention.ownMention = ([[NCSettingsController sharedInstance].ncUserId isEqualToString:mentionUserId]);
+            [mentions insertObject:chatMention atIndex:i];
         }
     }
-    return parsedMessage;
+    
+    // Create attributed strings for mentions
+    NSMutableAttributedString *attributedMessage = [[NSMutableAttributedString alloc] initWithString:parsedMessage];
+    for (NCChatMention *chatMention in mentions) {
+        UIColor *mentionTextColor = [UIColor darkGrayColor];
+        UIColor *mentionColor = [UIColor colorWithRed:0.90 green:0.90 blue:0.90 alpha:1.0]; //#e6e6e6
+        UIColor *ownMentionTextColor = [UIColor whiteColor];
+        UIColor *ownMentionColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        [attributedMessage addAttribute:NSBackgroundColorAttributeName value:(chatMention.ownMention) ? ownMentionColor : mentionColor range:chatMention.range];
+        [attributedMessage addAttribute:NSForegroundColorAttributeName value:(chatMention.ownMention) ? ownMentionTextColor : mentionTextColor range:chatMention.range];
+        [attributedMessage addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:16.0f] range:chatMention.range];
+    }
+    
+    return attributedMessage;
 }
 
 @end

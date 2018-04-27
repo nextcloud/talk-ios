@@ -60,6 +60,8 @@
 		2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */; };
 		2CA1554B208F2E5700CE8EF0 /* NCMessageTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */; };
 		2CA1554E20908E0600CE8EF0 /* NCRoomController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1554D20908E0600CE8EF0 /* NCRoomController.m */; };
+		2CA155522093422200CE8EF0 /* NCChatMention.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA155512093422200CE8EF0 /* NCChatMention.m */; };
+		2CA15553209344A800CE8EF0 /* NCChatMention.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA155512093422200CE8EF0 /* NCChatMention.m */; };
 		2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC901F014354002FE6A2 /* NCConnectionController.m */; };
 		2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */; };
 		2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA1CC961F016117002FE6A2 /* Security.framework */; };
@@ -270,6 +272,8 @@
 		2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCMessageTextView.m; sourceTree = "<group>"; };
 		2CA1554C20908E0600CE8EF0 /* NCRoomController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCRoomController.h; sourceTree = "<group>"; };
 		2CA1554D20908E0600CE8EF0 /* NCRoomController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCRoomController.m; sourceTree = "<group>"; };
+		2CA155502093422200CE8EF0 /* NCChatMention.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatMention.h; sourceTree = "<group>"; };
+		2CA155512093422200CE8EF0 /* NCChatMention.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatMention.m; sourceTree = "<group>"; };
 		2CA1CC8F1F014354002FE6A2 /* NCConnectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCConnectionController.h; sourceTree = "<group>"; };
 		2CA1CC901F014354002FE6A2 /* NCConnectionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCConnectionController.m; sourceTree = "<group>"; };
 		2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSettingsController.h; sourceTree = "<group>"; };
@@ -702,6 +706,8 @@
 			children = (
 				2CA15546208EA1EA00CE8EF0 /* ChatMessageTableViewCell.h */,
 				2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */,
+				2CA155502093422200CE8EF0 /* NCChatMention.h */,
+				2CA155512093422200CE8EF0 /* NCChatMention.m */,
 				2CA1553F208E350300CE8EF0 /* NCChatMessage.h */,
 				2CA15540208E350300CE8EF0 /* NCChatMessage.m */,
 				2CA15543208E41B500CE8EF0 /* NCChatViewController.h */,
@@ -984,6 +990,7 @@
 				2CA1554E20908E0600CE8EF0 /* NCRoomController.m in Sources */,
 				2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */,
 				2C06330F2046CC8B0043481A /* NCUserInterfaceController.m in Sources */,
+				2CA155522093422200CE8EF0 /* NCChatMention.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
@@ -1029,6 +1036,7 @@
 				2C063315205AB8C40043481A /* ARDSettingsStore.m in Sources */,
 				2CBF82AF1FC888FC00636459 /* NCPushNotification.m in Sources */,
 				2CBF82BE1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
+				2CA15553209344A800CE8EF0 /* NCChatMention.m in Sources */,
 				2C3F6AA81FBB1ACD00E2705C /* NotificationService.m in Sources */,
 				2C3F6AB31FBB45E600E2705C /* NCSettingsController.m in Sources */,
 				2C3F6AB71FBB47C400E2705C /* UICKeyChainStore.m in Sources */,
