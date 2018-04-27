@@ -2,6 +2,8 @@
 
 Video & audio calls through Nextcloud on iOS.
 
+[![Available on the AppStore](https://github.com/nextcloud/talk-ios/blob/master/docs/App%20Store/Download_on_the_App_Store_Badge.svg)](https://itunes.apple.com/app/id1296825574)
+
 ## Prerequisites
 
 - [Nextcloud server](https://github.com/nextcloud/server) version 13 or higher.
