@@ -320,15 +320,18 @@ typedef enum AboutSection {
                 cell = [[UserSettingsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kUserSettingsCellIdentifier];
             }
             
-            cell.userDisplayNameLabel.text = [NCSettingsController sharedInstance].ncUserDisplayName;
             cell.serverAddressLabel.text = _server;
-            // Create avatar for display name
-            [cell.userImageView setImageWithString:[NCSettingsController sharedInstance].ncUserDisplayName color:nil circular:true];
-            // Request user avatar to the server and set it if exist
-            [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:160]
-                                     placeholderImage:nil success:nil failure:nil];
-            cell.userImageView.layer.cornerRadius = 40.0;
-            cell.userImageView.layer.masksToBounds = YES;
+            
+            if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
+                cell.userDisplayNameLabel.text = [NCSettingsController sharedInstance].ncUserDisplayName;
+                // Create avatar for display name
+                [cell.userImageView setImageWithString:[NCSettingsController sharedInstance].ncUserDisplayName color:nil circular:true];
+                // Request user avatar to the server and set it if exist
+                [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:160]
+                                          placeholderImage:nil success:nil failure:nil];
+                cell.userImageView.layer.cornerRadius = 40.0;
+                cell.userImageView.layer.masksToBounds = YES;
+            }
             return cell;
         }
             break;
