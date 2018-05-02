@@ -11,6 +11,9 @@
 #import "NCChatMention.h"
 #import "NCSettingsController.h"
 
+NSInteger const kChatMessageMaxGroupNumber      = 10;
+NSInteger const kChatMessageGroupTimeDifference = 15;
+
 @implementation NCChatMessage
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict

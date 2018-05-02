@@ -9,6 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+extern NSInteger const kChatMessageMaxGroupNumber;
+extern NSInteger const kChatMessageGroupTimeDifference;
+
 @interface NCChatMessage : NSObject
 
 @property (nonatomic, strong) NSString *actorDisplayName;
@@ -19,6 +22,9 @@
 @property (nonatomic, strong) NSDictionary *messageParameters;
 @property (nonatomic, assign) NSInteger timestamp;
 @property (nonatomic, strong) NSString *token;
+// Group messages
+@property (nonatomic, assign) BOOL groupMessage;
+@property (nonatomic, assign) NSInteger groupMessageNumber;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 - (NSAttributedString *)parsedMessage;
