@@ -29,7 +29,7 @@
     
     NSDictionary *views = @{@"bodyLabel": self.bodyLabel};
     
-    NSDictionary *metrics = @{@"avatar": @45,
+    NSDictionary *metrics = @{@"avatar": @50,
                               @"right": @10,
                               @"left": @5
                               };
