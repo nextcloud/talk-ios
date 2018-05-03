@@ -144,7 +144,7 @@
     NSMutableArray *sortedMessages = [[NSMutableArray alloc] initWithArray:messages];
     NCChatMessage *firstMessage = [sortedMessages objectAtIndex:0];
     if (_messages.count > 0) {
-        NCChatMessage *lastMessage = [_messages objectAtIndex:messages.count - 1];
+        NCChatMessage *lastMessage = [_messages lastObject];
         if ([self shouldGroupMessage:firstMessage withMessage:lastMessage]) {
             firstMessage.groupMessage = YES;
             firstMessage.groupMessageNumber = lastMessage.groupMessageNumber + 1;
