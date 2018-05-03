@@ -213,22 +213,22 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCChatMessage *message = self.messages[indexPath.row];
-    
-    ChatMessageTableViewCell *cell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
-    cell.titleLabel.text = message.actorDisplayName;
-    cell.bodyLabel.attributedText = message.parsedMessage;
-    NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
-    cell.dateLabel.text = [date timeAgoSinceNow];
-    // Create avatar for every OneToOne call
-    [cell.avatarView setImageWithString:message.actorDisplayName color:nil circular:true];
-    // Request user avatar to the server and set it if exist
-    [cell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
-                           placeholderImage:nil success:nil failure:nil];
+    UITableViewCell *cell = [UITableViewCell new];
     
     if (message.groupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
         groupedCell.bodyLabel.attributedText = message.parsedMessage;
         return groupedCell;
+    } else {
+        ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
+        normalCell.titleLabel.text = message.actorDisplayName;
+        normalCell.bodyLabel.attributedText = message.parsedMessage;
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
+        normalCell.dateLabel.text = [date timeAgoSinceNow];
+        // Request user avatar to the server and set it if exist
+        [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
+                                     placeholderImage:nil success:nil failure:nil];
+        return normalCell;
     }
     
     return cell;
