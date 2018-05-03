@@ -131,17 +131,26 @@
         if (!_messages) {
             _messages = [[NSMutableArray alloc] init];
         }
+        
         NSMutableArray *sortedMessages = [self sortMessages:messages];
+        NSMutableArray *indexPaths = [self createIndexPathArrayForMessages:sortedMessages];
+        
+        UITableViewRowAnimation rowAnimation = UITableViewRowAnimationBottom;
+        UITableViewScrollPosition scrollPosition = UITableViewScrollPositionTop;
+        
+        [self.tableView beginUpdates];
         [_messages addObjectsFromArray:sortedMessages];
-        [self.tableView reloadData];
-        NSIndexPath* lastMessageIP = [NSIndexPath indexPathForRow:_messages.count - 1 inSection:0];
-        [self.tableView scrollToRowAtIndexPath: lastMessageIP atScrollPosition: UITableViewScrollPositionTop animated: YES];
+        [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:rowAnimation];
+        [self.tableView endUpdates];
+        
+        [self.tableView scrollToRowAtIndexPath:[indexPaths lastObject] atScrollPosition:scrollPosition animated:YES];
     }
 }
 
 - (NSMutableArray *)sortMessages:(NSMutableArray *)messages
 {
     NSMutableArray *sortedMessages = [[NSMutableArray alloc] initWithArray:messages];
+    
     NCChatMessage *firstMessage = [sortedMessages objectAtIndex:0];
     if (_messages.count > 0) {
         NCChatMessage *lastMessage = [_messages lastObject];
@@ -149,7 +158,13 @@
             firstMessage.groupMessage = YES;
             firstMessage.groupMessageNumber = lastMessage.groupMessageNumber + 1;
         }
+        firstMessage.indexPath = [NSIndexPath indexPathForRow:lastMessage.indexPath.row + 1 inSection:0];
+    } else {
+        firstMessage.groupMessage = NO;
+        firstMessage.groupMessageNumber = 0;
+        firstMessage.indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
     }
+    
     for (int i = 1; i < messages.count; i++) {
         NCChatMessage *newMessage = [sortedMessages objectAtIndex:i];
         NCChatMessage *beforeMessage = [sortedMessages objectAtIndex:i -1];
@@ -157,8 +172,19 @@
             newMessage.groupMessage = YES;
             newMessage.groupMessageNumber = beforeMessage.groupMessageNumber + 1;
         }
+        newMessage.indexPath = [NSIndexPath indexPathForRow:beforeMessage.indexPath.row + 1 inSection:0];
     }
+    
     return sortedMessages;
+}
+
+- (NSMutableArray *)createIndexPathArrayForMessages:(NSMutableArray *)messages
+{
+    NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:messages.count];
+    for (NCChatMessage *message in messages) {
+        [indexPaths addObject:message.indexPath];
+    }
+    return indexPaths;
 }
 
 - (BOOL)shouldGroupMessage:(NCChatMessage *)newMessage withMessage:(NCChatMessage *)lastMessage

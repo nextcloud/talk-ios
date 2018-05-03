@@ -25,6 +25,8 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 // Group messages
 @property (nonatomic, assign) BOOL groupMessage;
 @property (nonatomic, assign) NSInteger groupMessageNumber;
+// Table view
+@property (nonatomic, strong) NSIndexPath *indexPath;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 - (NSAttributedString *)parsedMessage;
