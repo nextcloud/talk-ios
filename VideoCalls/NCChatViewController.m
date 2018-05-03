@@ -135,15 +135,12 @@
         NSMutableArray *sortedMessages = [self sortMessages:messages];
         NSMutableArray *indexPaths = [self createIndexPathArrayForMessages:sortedMessages];
         
-        UITableViewRowAnimation rowAnimation = UITableViewRowAnimationBottom;
-        UITableViewScrollPosition scrollPosition = UITableViewScrollPositionTop;
-        
         [self.tableView beginUpdates];
         [_messages addObjectsFromArray:sortedMessages];
-        [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:rowAnimation];
+        [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationBottom];
         [self.tableView endUpdates];
         
-        [self.tableView scrollToRowAtIndexPath:[indexPaths lastObject] atScrollPosition:scrollPosition animated:YES];
+        [self.tableView scrollToRowAtIndexPath:[indexPaths lastObject] atScrollPosition:UITableViewScrollPositionTop animated:YES];
     }
 }
 
@@ -220,8 +217,6 @@
     ChatMessageTableViewCell *cell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
     cell.titleLabel.text = message.actorDisplayName;
     cell.bodyLabel.attributedText = message.parsedMessage;
-    cell.indexPath = indexPath;
-    cell.usedForMessage = YES;
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     cell.dateLabel.text = [date timeAgoSinceNow];
     // Create avatar for every OneToOne call
@@ -229,9 +224,6 @@
     // Request user avatar to the server and set it if exist
     [cell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
                            placeholderImage:nil success:nil failure:nil];
-    // Cells must inherit the table view's transform
-    // This is very important, since the main table view may be inverted
-    cell.transform = self.tableView.transform;
     
     if (message.groupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];

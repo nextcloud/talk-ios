@@ -10,7 +10,6 @@
 
 static CGFloat kChatMessageCellMinimumHeight = 50.0;
 static CGFloat kChatMessageCellAvatarHeight = 30.0;
-
 static NSString *ChatMessageCellIdentifier = @"ChatMessageCellIdentifier";
 
 @interface ChatMessageTableViewCell : UITableViewCell
@@ -19,9 +18,6 @@ static NSString *ChatMessageCellIdentifier = @"ChatMessageCellIdentifier";
 @property (nonatomic, strong) UILabel *dateLabel;
 @property (nonatomic, strong) UILabel *bodyLabel;
 @property (nonatomic, strong) UIImageView *avatarView;
-
-@property (nonatomic, strong) NSIndexPath *indexPath;
-@property (nonatomic) BOOL usedForMessage;
 
 + (CGFloat)defaultFontSize;
 
