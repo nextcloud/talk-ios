@@ -65,7 +65,7 @@ NSInteger const kChatMessageGroupTimeDifference = 15;
                                  stringByReplacingOccurrencesOfString:@"}" withString:@""];
         NSDictionary *parameterDict = [_messageParameters objectForKey:parameterId];
         if (parameterDict) {
-            NSString *mentionName = [NSString stringWithFormat:@"@%@", [parameterDict objectForKey:@"name"]];
+            NSString *mentionName = [NSString stringWithFormat:@" @%@ ", [parameterDict objectForKey:@"name"]];
             NSString *mentionUserId = [parameterDict objectForKey:@"id"];
             parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:mentionName];
             
