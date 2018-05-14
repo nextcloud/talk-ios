@@ -25,6 +25,7 @@
 #import "AFImageDownloader.h"
 #import "UIImageView+AFNetworking.h"
 #import "NCChatViewController.h"
+#import "NCRoomsManager.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
@@ -579,8 +580,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)startCallInRoom:(NCRoom *)room audioOnly:(BOOL)audioOnly
 {
-    CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:audioOnly];
-    [[NCUserInterfaceController sharedInstance] presentCallViewController:callVC];
+    [[NCRoomsManager sharedInstance] startCall:!audioOnly inRoom:room];
 }
 
 - (void)joinCallWithCallId:(NSInteger)callId audioOnly:(BOOL)audioOnly

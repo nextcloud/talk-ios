@@ -13,16 +13,15 @@
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
 #import "NCMessageTextView.h"
-#import "NCRoomController.h"
+#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NSDate+DateTools.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
-@interface NCChatViewController () <NCRoomControllerDelegate>
+@interface NCChatViewController ()
 
 @property (nonatomic, strong) NCRoom *room;
-@property (nonatomic, strong) NCRoomController *roomController;
 @property (nonatomic, strong) NSMutableArray *messages;
 
 @end
@@ -35,12 +34,19 @@
     if (self) {
         self.room = room;
         self.title = room.displayName;
-        self.roomController = [[NCRoomController alloc] initWithDelegate:self inRoom:room];
         self.hidesBottomBarWhenPushed = YES;
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCRoomsManagerDidReceiveChatMessagesNotification object:nil];
     }
+    
     return self;
+}
+    
+- (void)dealloc
+{
+    [[NCRoomsManager sharedInstance] leaveRoom:_room];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - View lifecycle
@@ -49,7 +55,7 @@
 {
     [super viewDidLoad];
     
-    [_roomController joinRoomWithCompletionBlock:nil];
+    [[NCRoomsManager sharedInstance] joinRoom:_room];
     [self configureActionItems];
     
     self.bounces = NO;
@@ -80,12 +86,6 @@
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
 }
 
-- (void)viewWillDisappear:(BOOL)animated
-{
-    [super viewWillDisappear:animated];
-    [_roomController leaveRoomWithCompletionBlock:nil];
-}
-
 #pragma mark - Configuration
 
 - (void)configureActionItems
@@ -107,26 +107,27 @@
 
 - (void)videoCallButtonPressed:(id)sender
 {
-    
+    [[NCRoomsManager sharedInstance] startCall:YES inRoom:_room];
 }
 
 - (void)voiceCallButtonPressed:(id)sender
 {
-    
+    [[NCRoomsManager sharedInstance] startCall:NO inRoom:_room];
 }
 
 - (void)didPressRightButton:(id)sender
 {
     // This little trick validates any pending auto-correction or auto-spelling just after hitting the 'Send' button
     [self.textView refreshFirstResponder];
-    [_roomController sendChatMessage:[self.textView.text copy]];
+    [[NCRoomsManager sharedInstance] sendChatMessage:[self.textView.text copy] toRoom:_room];
     [super didPressRightButton:sender];
 }
 
-#pragma mark - Room Controller Delegate
+#pragma mark - Room Manager notifications
 
-- (void)roomController:(NCRoomController *)roomController didReceiveChatMessages:(NSMutableArray *)messages
+- (void)didReceiveChatMessages:(NSNotification *)notification
 {
+    NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
     if (messages.count > 0) {
         if (!_messages) {
             _messages = [[NSMutableArray alloc] init];

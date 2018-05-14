@@ -17,6 +17,7 @@
 		2C063314205AB8B90043481A /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
 		2C063315205AB8C40043481A /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
 		2C063318205ACB140043481A /* VideoResolutionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063317205ACB140043481A /* VideoResolutionsViewController.m */; };
+		2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
 		2C3F6AA81FBB1ACD00E2705C /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3F6AA71FBB1ACD00E2705C /* NotificationService.m */; };
 		2C3F6AAC1FBB1ACD00E2705C /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -136,6 +137,8 @@
 		2C063312205A85850043481A /* VideoSettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoSettingsViewController.m; sourceTree = "<group>"; };
 		2C063316205ACB140043481A /* VideoResolutionsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoResolutionsViewController.h; sourceTree = "<group>"; };
 		2C063317205ACB140043481A /* VideoResolutionsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoResolutionsViewController.m; sourceTree = "<group>"; };
+		2C06BF5B20A89F510031EB46 /* NCRoomsManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCRoomsManager.h; sourceTree = "<group>"; };
+		2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCRoomsManager.m; sourceTree = "<group>"; };
 		2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSignalingMessage.h; sourceTree = "<group>"; };
 		2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCSignalingMessage.m; sourceTree = "<group>"; };
 		2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -476,6 +479,8 @@
 				2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */,
 				2CA1554C20908E0600CE8EF0 /* NCRoomController.h */,
 				2CA1554D20908E0600CE8EF0 /* NCRoomController.m */,
+				2C06BF5B20A89F510031EB46 /* NCRoomsManager.h */,
+				2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */,
 			);
 			name = Rooms;
 			sourceTree = "<group>";
@@ -982,6 +987,7 @@
 				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
+				2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */,
 				2CA1CCA71F026222002FE6A2 /* ContactsTableViewController.m in Sources */,
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,

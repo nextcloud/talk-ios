@@ -31,7 +31,6 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @property (nonatomic, assign) BOOL isAudioOnly;
 @property (nonatomic, assign) BOOL leavingCall;
-@property (nonatomic, strong) NSTimer *pingTimer;
 @property (nonatomic, strong) AVAudioRecorder *recorder;
 @property (nonatomic, strong) NSTimer *micAudioLevelTimer;
 @property (nonatomic, assign) BOOL speaking;
@@ -87,7 +86,6 @@ static NSString * const kNCVideoTrackKind = @"video";
                     [self.delegate callControllerDidJoinCall:self];
                     
                     [self getPeersForCall];
-                    [self startPingCall];
                     [self startMonitoringMicrophoneAudioLevel];
                     [_signalingController startPullingSignalingMessages];
                 } else {
@@ -116,7 +114,6 @@ static NSString * const kNCVideoTrackKind = @"video";
     _peerConnectionFactory = nil;
     _connectionsDict = nil;
     
-    [self stopPingCall];
     [self stopMonitoringMicrophoneAudioLevel];
     [_signalingController stopPullingSignalingMessages];
     
@@ -174,27 +171,6 @@ static NSString * const kNCVideoTrackKind = @"video";
         _speaking = NO;
         [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
     }
-}
-
-#pragma mark - Ping call
-
-- (void)pingCall
-{
-    [[NCAPIController sharedInstance] pingCall:_room.token withCompletionBlock:^(NSError *error) {
-        //TODO: Error handling
-    }];
-}
-
-- (void)startPingCall
-{
-    [self pingCall];
-    _pingTimer = [NSTimer scheduledTimerWithTimeInterval:5.0  target:self selector:@selector(pingCall) userInfo:nil repeats:YES];
-}
-
-- (void)stopPingCall
-{
-    [_pingTimer invalidate];
-    _pingTimer = nil;
 }
 
 #pragma mark - Microphone audio level
