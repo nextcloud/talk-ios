@@ -46,7 +46,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @implementation NCCallController
 
-- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly
+- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId
 {
     self = [super init];
     
@@ -54,6 +54,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         _delegate = delegate;
         _room = room;
         _isAudioOnly = audioOnly;
+        _userSessionId = sessionId;
         _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] init];
         _connectionsDict = [[NSMutableDictionary alloc] init];
         _usersInRoom = [[NSArray alloc] init];
@@ -77,23 +78,14 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)startCall
 {
     [self createLocalMedia];
-    
-    [[NCAPIController sharedInstance] joinRoom:_room.token withCompletionBlock:^(NSString *sessionId, NSError *error) {
+    [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
-            self.userSessionId = sessionId;
-            [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
-                if (!error) {
-                    [self.delegate callControllerDidJoinCall:self];
-                    
-                    [self getPeersForCall];
-                    [self startMonitoringMicrophoneAudioLevel];
-                    [_signalingController startPullingSignalingMessages];
-                } else {
-                    NSLog(@"Could not join call. Error: %@", error.description);
-                }
-            }];
+            [self.delegate callControllerDidJoinCall:self];
+            [self getPeersForCall];
+            [self startMonitoringMicrophoneAudioLevel];
+            [_signalingController startPullingSignalingMessages];
         } else {
-            NSLog(@"Could not join room. Error: %@", error.description);
+            NSLog(@"Could not join call. Error: %@", error.description);
         }
     }];
 }
@@ -119,14 +111,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     [[NCAPIController sharedInstance] leaveCall:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCAPIController sharedInstance] exitRoom:_room.token withCompletionBlock:^(NSError *error) {
-                if (!error) {
-                    [self.delegate callControllerDidEndCall:self];
-                } else {
-                    NSLog(@"Could not leave room. Error: %@", error.description);
-                }
-                
-            }];
+            [self.delegate callControllerDidEndCall:self];
         } else {
             NSLog(@"Could not leave call. Error: %@", error.description);
         }

@@ -24,6 +24,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 @property (nonatomic, strong) NSTimer *pingTimer;
 @property (nonatomic, assign) NSInteger lastMessageId;
 @property (nonatomic, assign) BOOL stopChatMessagesPoll;
+@property (nonatomic, strong) NSURLSessionTask *pingRoomTask;
+@property (nonatomic, strong) NSURLSessionTask *pullMessagesTask;
 
 @end
 
@@ -90,7 +92,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)pingRoom
 {
-    [[NCAPIController sharedInstance] pingCall:_currentRoom.token withCompletionBlock:^(NSError *error) {
+    _pingRoomTask = [[NCAPIController sharedInstance] pingCall:_currentRoom.token withCompletionBlock:^(NSError *error) {
         //TODO: Error handling
     }];
 }
@@ -103,6 +105,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)stopPingRoom
 {
+    [_pingRoomTask cancel];
     [_pingTimer invalidate];
     _pingTimer = nil;
 }
@@ -112,7 +115,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)startReceivingChatMessages
 {
     _stopChatMessagesPoll = NO;
-    [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_currentRoom.token fromLastMessageId:_lastMessageId history:NO withCompletionBlock:^(NSMutableArray *messages, NSError *error) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_currentRoom.token fromLastMessageId:_lastMessageId history:NO withCompletionBlock:^(NSMutableArray *messages, NSError *error) {
         if (_stopChatMessagesPoll) {
             return;
         }
@@ -131,6 +134,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)stopReceivingChatMessages
 {
     _stopChatMessagesPoll = YES;
+    [_pullMessagesTask cancel];
 }
 
 - (void)sendChatMessage:(NSString *)message toRoom:(NCRoom *)room
@@ -142,7 +146,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)startCall:(BOOL)video inRoom:(NCRoom *)room
 {
-    CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:!video];
+    CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:!video withSessionId:_userSessionId];
     [[NCUserInterfaceController sharedInstance] presentCallViewController:callVC];
 }
 
