@@ -117,8 +117,6 @@
 
 - (void)didPressRightButton:(id)sender
 {
-    // This little trick validates any pending auto-correction or auto-spelling just after hitting the 'Send' button
-    [self.textView refreshFirstResponder];
     [[NCRoomsManager sharedInstance] sendChatMessage:[self.textView.text copy] toRoom:_room];
     [super didPressRightButton:sender];
 }
