@@ -61,7 +61,7 @@
     self.bounces = NO;
     self.shakeToClearEnabled = YES;
     self.keyboardPanningEnabled = YES;
-    self.shouldScrollToBottomAfterKeyboardShows = NO;
+    self.shouldScrollToBottomAfterKeyboardShows = YES;
     self.inverted = NO;
     
     [self.rightButton setTitle:NSLocalizedString(@"Send", nil) forState:UIControlStateNormal];
