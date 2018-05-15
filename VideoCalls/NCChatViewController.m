@@ -128,20 +128,27 @@
 - (void)didReceiveChatMessages:(NSNotification *)notification
 {
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
+    BOOL firstMessages = NO;
     if (messages.count > 0) {
         if (!_messages) {
             _messages = [[NSMutableArray alloc] init];
+            firstMessages = YES;
         }
         
         NSMutableArray *sortedMessages = [self sortMessages:messages];
         NSMutableArray *indexPaths = [self createIndexPathArrayForMessages:sortedMessages];
         
-        [self.tableView beginUpdates];
         [_messages addObjectsFromArray:sortedMessages];
-        [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationBottom];
-        [self.tableView endUpdates];
         
-        [self.tableView scrollToRowAtIndexPath:[indexPaths lastObject] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+        if (firstMessages) {
+            [self.tableView reloadData];
+        } else {
+            [self.tableView beginUpdates];
+            [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationBottom];
+            [self.tableView endUpdates];
+        }
+        
+        [self.tableView scrollToRowAtIndexPath:[indexPaths lastObject] atScrollPosition:UITableViewScrollPositionTop animated:!firstMessages];
     }
 }
 
