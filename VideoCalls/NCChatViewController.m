@@ -10,6 +10,7 @@
 
 #import "ChatMessageTableViewCell.h"
 #import "GroupedChatMessageTableViewCell.h"
+#import "DateHeaderView.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
 #import "NCMessageTextView.h"
@@ -22,7 +23,8 @@
 @interface NCChatViewController ()
 
 @property (nonatomic, strong) NCRoom *room;
-@property (nonatomic, strong) NSMutableArray *messages;
+@property (nonatomic, strong) NSMutableDictionary *messages;
+@property (nonatomic, strong) NSMutableArray *dateSections;
 
 @end
 
@@ -57,6 +59,9 @@
     
     [[NCRoomsManager sharedInstance] joinRoom:_room];
     [self configureActionItems];
+    
+    self.messages = [[NSMutableDictionary alloc] init];
+    self.dateSections = [[NSMutableArray alloc] init];
     
     self.bounces = NO;
     self.shakeToClearEnabled = YES;
@@ -103,6 +108,22 @@
     self.navigationItem.rightBarButtonItems = @[videoCallButton, voiceCallButton];
 }
 
+#pragma mark - Utils
+
+- (NSString *)getTimeFromDate:(NSDate *)date
+{
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"HH:mm"];
+    return [formatter stringFromDate:date];
+}
+
+- (NSString *)getHeaderStringFromDate:(NSDate *)date
+{
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateStyle = NSDateFormatterMediumStyle;
+    return [formatter stringFromDate:date];
+}
+
 #pragma mark - Action Methods
 
 - (void)videoCallButtonPressed:(id)sender
@@ -126,68 +147,78 @@
 - (void)didReceiveChatMessages:(NSNotification *)notification
 {
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
-    BOOL firstMessages = NO;
-    if (messages.count > 0) {
-        if (!_messages) {
-            _messages = [[NSMutableArray alloc] init];
-            firstMessages = YES;
-        }
-        
-        NSMutableArray *sortedMessages = [self sortMessages:messages];
-        NSMutableArray *indexPaths = [self createIndexPathArrayForMessages:sortedMessages];
-        
-        [_messages addObjectsFromArray:sortedMessages];
-        
-        if (firstMessages) {
-            [self.tableView reloadData];
+    NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
+    BOOL singleMessage = (messages.count == 1);
+    if (messages.count > 1) {
+        [self sortNewMessages:messages];
+        [self.tableView reloadData];
+    } else if (singleMessage) {
+        [self.tableView beginUpdates];
+        NSMutableArray *indexPaths = [self sortNewMessages:messages];
+        NSIndexPath *newMessageIndexPath = [indexPaths objectAtIndex:0];
+        BOOL newSection = lastSectionBeforeUpdate != newMessageIndexPath.section;
+        if (newSection) {
+            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:newMessageIndexPath.section] withRowAnimation:UITableViewRowAnimationNone];
         } else {
-            [self.tableView beginUpdates];
-            [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationBottom];
-            [self.tableView endUpdates];
+            [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+        }
+        [self.tableView endUpdates];
+    } else {
+        // No new messages received
+        return;
+    }
+    
+    NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
+    NCChatMessage *lastMessage = [messagesForLastDate lastObject];
+    [self.tableView scrollToRowAtIndexPath:lastMessage.indexPath atScrollPosition:UITableViewScrollPositionNone animated:singleMessage];
+}
+
+- (NSDate *)getDictKeyForDate:(NSDate *)date
+{
+    NSDate *keyDate = nil;
+    for (NSDate *key in _messages.allKeys) {
+        if ([[NSCalendar currentCalendar] isDate:date inSameDayAsDate:key]) {
+            keyDate = key;
+        }
+    }
+    return keyDate;
+}
+
+- (NSMutableArray *)sortNewMessages:(NSMutableArray *)newMessages
+{
+    NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:newMessages.count];
+    
+    for (NCChatMessage *newMessage in newMessages) {
+        NSDate *newMessageDate = [NSDate dateWithTimeIntervalSince1970: newMessage.timestamp];
+        NSDate *keyDate = [self getDictKeyForDate:newMessageDate];
+        NSMutableArray *messagesForDate = [_messages objectForKey:keyDate];
+        if (messagesForDate) {
+            NCChatMessage *lastMessage = [messagesForDate lastObject];
+            if ([self shouldGroupMessage:newMessage withMessage:lastMessage]) {
+                newMessage.groupMessage = YES;
+                newMessage.groupMessageNumber = lastMessage.groupMessageNumber + 1;
+            }
+            newMessage.indexPath = [NSIndexPath indexPathForRow:lastMessage.indexPath.row + 1 inSection:[_dateSections indexOfObject:keyDate]];
+            [messagesForDate addObject:newMessage];
+        } else {
+            NSMutableArray *newMessagesInDate = [NSMutableArray new];
+            [_messages setObject:newMessagesInDate forKey:newMessageDate];
+            [self sortDateSections];
+            newMessage.indexPath = [NSIndexPath indexPathForRow:0 inSection:[_dateSections indexOfObject:newMessageDate]];
+            [newMessagesInDate addObject:newMessage];
         }
         
-        [self.tableView scrollToRowAtIndexPath:[indexPaths lastObject] atScrollPosition:UITableViewScrollPositionTop animated:!firstMessages];
-    }
-}
-
-- (NSMutableArray *)sortMessages:(NSMutableArray *)messages
-{
-    NSMutableArray *sortedMessages = [[NSMutableArray alloc] initWithArray:messages];
-    
-    NCChatMessage *firstMessage = [sortedMessages objectAtIndex:0];
-    if (_messages.count > 0) {
-        NCChatMessage *lastMessage = [_messages lastObject];
-        if ([self shouldGroupMessage:firstMessage withMessage:lastMessage]) {
-            firstMessage.groupMessage = YES;
-            firstMessage.groupMessageNumber = lastMessage.groupMessageNumber + 1;
-        }
-        firstMessage.indexPath = [NSIndexPath indexPathForRow:lastMessage.indexPath.row + 1 inSection:0];
-    } else {
-        firstMessage.groupMessage = NO;
-        firstMessage.groupMessageNumber = 0;
-        firstMessage.indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+        [indexPaths addObject:newMessage.indexPath];
     }
     
-    for (int i = 1; i < messages.count; i++) {
-        NCChatMessage *newMessage = [sortedMessages objectAtIndex:i];
-        NCChatMessage *beforeMessage = [sortedMessages objectAtIndex:i -1];
-        if ([self shouldGroupMessage:newMessage withMessage:beforeMessage]) {
-            newMessage.groupMessage = YES;
-            newMessage.groupMessageNumber = beforeMessage.groupMessageNumber + 1;
-        }
-        newMessage.indexPath = [NSIndexPath indexPathForRow:beforeMessage.indexPath.row + 1 inSection:0];
-    }
-    
-    return sortedMessages;
-}
-
-- (NSMutableArray *)createIndexPathArrayForMessages:(NSMutableArray *)messages
-{
-    NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:messages.count];
-    for (NCChatMessage *message in messages) {
-        [indexPaths addObject:message.indexPath];
-    }
+    [indexPaths sortUsingSelector:@selector(compare:)];
     return indexPaths;
+}
+
+- (void)sortDateSections
+{
+    _dateSections = [NSMutableArray arrayWithArray:_messages.allKeys];
+    [_dateSections sortUsingSelector:@selector(compare:)];
 }
 
 - (BOOL)shouldGroupMessage:(NCChatMessage *)newMessage withMessage:(NCChatMessage *)lastMessage
@@ -196,31 +227,50 @@
     BOOL timeDiff = (newMessage.timestamp - lastMessage.timestamp) < kChatMessageGroupTimeDifference;
     BOOL notMaxGroup = lastMessage.groupMessageNumber < kChatMessageMaxGroupNumber;
     
-    // Check day change
-    NSInteger lastMessageDay = [[NSCalendar currentCalendar] component:NSCalendarUnitDay fromDate:[NSDate dateWithTimeIntervalSince1970: lastMessage.timestamp]];
-    NSInteger newMessageDay = [[NSCalendar currentCalendar] component:NSCalendarUnitDay fromDate:[NSDate dateWithTimeIntervalSince1970: newMessage.timestamp]];
-    BOOL sameDay = lastMessageDay == newMessageDay;
-    
-    return sameActor & timeDiff & notMaxGroup & sameDay;
+    return sameActor & timeDiff & notMaxGroup;
 }
 
 #pragma mark - UITableViewDataSource Methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+    return _dateSections.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return self.messages.count;
+    NSDate *date = [_dateSections objectAtIndex:section];
+    NSMutableArray *messages = [_messages objectForKey:date];
+    return messages.count;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    NSDate *date = [_dateSections objectAtIndex:section];
+    return [self getHeaderStringFromDate:date];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return kDateHeaderViewHeight;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    DateHeaderView *headerView = [[DateHeaderView alloc] init];
+    headerView.dateLabel.text = [self tableView:tableView titleForHeaderInSection:section];
+    headerView.dateLabel.layer.cornerRadius = 12;
+    headerView.dateLabel.clipsToBounds = YES;
+    
+    return headerView;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCChatMessage *message = self.messages[indexPath.row];
-    UITableViewCell *cell = [UITableViewCell new];
+    NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+    NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
     
+    UITableViewCell *cell = [UITableViewCell new];
     if (message.groupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
         groupedCell.bodyLabel.attributedText = message.parsedMessage;
@@ -230,7 +280,7 @@
         normalCell.titleLabel.text = message.actorDisplayName;
         normalCell.bodyLabel.attributedText = message.parsedMessage;
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
-        normalCell.dateLabel.text = [date timeAgoSinceNow];
+        normalCell.dateLabel.text = [self getTimeFromDate:date];
         // Request user avatar to the server and set it if exist
         [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
                                      placeholderImage:nil success:nil failure:nil];
@@ -243,7 +293,8 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([tableView isEqual:self.tableView]) {
-        NCChatMessage *message = self.messages[indexPath.row];
+        NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+        NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
         
         NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
         paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;

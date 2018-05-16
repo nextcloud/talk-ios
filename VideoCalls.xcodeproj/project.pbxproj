@@ -18,6 +18,8 @@
 		2C063315205AB8C40043481A /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
 		2C063318205ACB140043481A /* VideoResolutionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063317205ACB140043481A /* VideoResolutionsViewController.m */; };
 		2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */; };
+		2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C06BF6320AC64370031EB46 /* DateHeaderView.xib */; };
+		2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
 		2C3F6AA81FBB1ACD00E2705C /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3F6AA71FBB1ACD00E2705C /* NotificationService.m */; };
 		2C3F6AAC1FBB1ACD00E2705C /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -138,6 +140,9 @@
 		2C063317205ACB140043481A /* VideoResolutionsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoResolutionsViewController.m; sourceTree = "<group>"; };
 		2C06BF5B20A89F510031EB46 /* NCRoomsManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCRoomsManager.h; sourceTree = "<group>"; };
 		2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCRoomsManager.m; sourceTree = "<group>"; };
+		2C06BF6320AC64370031EB46 /* DateHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DateHeaderView.xib; sourceTree = "<group>"; };
+		2C06BF6520AC647A0031EB46 /* DateHeaderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateHeaderView.h; sourceTree = "<group>"; };
+		2C06BF6620AC647A0031EB46 /* DateHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateHeaderView.m; sourceTree = "<group>"; };
 		2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSignalingMessage.h; sourceTree = "<group>"; };
 		2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCSignalingMessage.m; sourceTree = "<group>"; };
 		2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -711,6 +716,9 @@
 				2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */,
 				2CA155542099E07700CE8EF0 /* GroupedChatMessageTableViewCell.h */,
 				2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */,
+				2C06BF6520AC647A0031EB46 /* DateHeaderView.h */,
+				2C06BF6620AC647A0031EB46 /* DateHeaderView.m */,
+				2C06BF6320AC64370031EB46 /* DateHeaderView.xib */,
 				2CA155502093422200CE8EF0 /* NCChatMention.h */,
 				2CA155512093422200CE8EF0 /* NCChatMention.m */,
 				2CA1553F208E350300CE8EF0 /* NCChatMessage.h */,
@@ -851,6 +859,7 @@
 				2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */,
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
+				2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */,
 				2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */,
 				2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */,
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
@@ -978,6 +987,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */,
+				2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */,
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
 				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
