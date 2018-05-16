@@ -24,6 +24,8 @@
 #import "UIImageView+Letters.h"
 #import "AFImageDownloader.h"
 #import "UIImageView+AFNetworking.h"
+#import "NCChatViewController.h"
+#import "NCRoomsManager.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
@@ -496,40 +498,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }];
 }
 
-- (void)presentJoinCallOptionsForRoomAtIndexPath:(NSIndexPath *)indexPath
+- (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    
-    UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:room.displayName
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    UIAlertAction *callAction = [UIAlertAction actionWithTitle:@"Call"
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^void (UIAlertAction *action) {
-                                                           [self startCallInRoom:room audioOnly:YES];
-                                                       }];
-    
-    UIAlertAction *videocallAction = [UIAlertAction actionWithTitle:@"Video call"
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^void (UIAlertAction *action) {
-                                                           [self startCallInRoom:room audioOnly:NO];
-                                                       }];
-    
-    [callAction setValue:[[UIImage imageNamed:@"call-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [videocallAction setValue:[[UIImage imageNamed:@"videocall-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    
-    [optionsActionSheet addAction:callAction];
-    [optionsActionSheet addAction:videocallAction];
-    
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
-    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+    NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
+    [self.navigationController pushViewController:chatVC animated:YES];
 }
 
 #pragma mark - Public Calls
@@ -607,8 +580,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)startCallInRoom:(NCRoom *)room audioOnly:(BOOL)audioOnly
 {
-    CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:audioOnly];
-    [[NCUserInterfaceController sharedInstance] presentCallViewController:callVC];
+    [[NCRoomsManager sharedInstance] startCall:!audioOnly inRoom:room];
 }
 
 - (void)joinCallWithCallId:(NSInteger)callId audioOnly:(BOOL)audioOnly
@@ -809,6 +781,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
     cell.labelSubTitle.text = [date timeAgoSinceNow];
     
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    
     if (room.lastPing == 0) {
         cell.labelSubTitle.text = @"Never joined";
     }
@@ -849,7 +823,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     if ([NCConnectionController sharedInstance].connectionState == kConnectionStateDisconnected) {
         [[NCUserInterfaceController sharedInstance] presentOfflineWarningAlert];
     } else {
-        [self presentJoinCallOptionsForRoomAtIndexPath:indexPath];
+        [self presentChatForRoomAtIndexPath:indexPath];
     }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }

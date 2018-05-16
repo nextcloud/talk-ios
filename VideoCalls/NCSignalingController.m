@@ -19,6 +19,7 @@
     BOOL _shouldStopPullingMessages;
     NSTimer *_pingTimer;
     NSDictionary *_signalingSettings;
+    NSURLSessionTask *_pullSignalingMessagesTask;
 }
 
 @end
@@ -88,6 +89,7 @@
 - (void)stopPullingSignalingMessages
 {
     _shouldStopPullingMessages = YES;
+    [_pullSignalingMessagesTask cancel];
 }
 
 - (void)pullSignalingMessages
@@ -117,9 +119,9 @@
     };
     
     if (_multiRoomSupport) {
-        [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token withCompletionBlock:pullSignalingMessagesBlock];
+        _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token withCompletionBlock:pullSignalingMessagesBlock];
     } else {
-        [[NCAPIController sharedInstance] pullSignalingMessagesWithCompletionBlock:pullSignalingMessagesBlock];
+        _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesWithCompletionBlock:pullSignalingMessagesBlock];
     }
 }
 

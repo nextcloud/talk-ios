@@ -54,14 +54,14 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 @synthesize delegate = _delegate;
 
-- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly
+- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly withSessionId:(NSString *)sessionId
 {
     self = [super init];
     if (!self) {
         return nil;
     }
     
-    _callController = [[NCCallController alloc] initWithDelegate:self inRoom:room forAudioOnlyCall:audioOnly];
+    _callController = [[NCCallController alloc] initWithDelegate:self inRoom:room forAudioOnlyCall:audioOnly withSessionId:sessionId];
     _callController.userDisplayName = displayName;
     _room = room;
     _isAudioOnly = audioOnly;

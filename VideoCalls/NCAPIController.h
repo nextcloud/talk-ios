@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #import "AFNetworking.h"
+#import "NCChatMessage.h"
 #import "NCRoom.h"
 #import "NCUser.h"
 
@@ -31,6 +32,9 @@ typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *e
 typedef void (^JoinCallCompletionBlock)(NSError *error);
 typedef void (^PingCallCompletionBlock)(NSError *error);
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
+
+typedef void (^GetChatMessagesCompletionBlock)(NSMutableArray *messages, NSError *error);
+typedef void (^SendChatMessagesCompletionBlock)(NSError *error);
 
 typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);
@@ -57,52 +61,55 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 - (NSString *)currentServerUrl;
 
 // Contacts Controller
-- (void)getContactsWithSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
+- (NSURLSessionDataTask *)getContactsWithSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
 - (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users;
 
 // Rooms Controller
-- (void)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block;
-- (void)getRoomWithToken:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
-- (void)getRoomWithId:(NSInteger)roomId withCompletionBlock:(GetRoomCompletionBlock)block;
-- (void)createRoomWith:(NSString *)invite ofType:(NCRoomType)type andName:(NSString *)roomName withCompletionBlock:(CreateRoomCompletionBlock)block;
-- (void)renameRoom:(NSString *)token withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
-- (void)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(AddParticipantCompletionBlock)block;
-- (void)removeSelfFromRoom:(NSString *)token withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block;
-- (void)makeRoomPublic:(NSString *)token withCompletionBlock:(MakeRoomPublicCompletionBlock)block;
-- (void)makeRoomPrivate:(NSString *)token withCompletionBlock:(MakeRoomPrivateCompletionBlock)block;
-- (void)deleteRoom:(NSString *)token withCompletionBlock:(DeleteRoomCompletionBlock)block;
-- (void)setPassword:(NSString *)password toRoom:(NSString *)token withCompletionBlock:(SetPasswordCompletionBlock)block;
-- (void)joinRoom:(NSString *)token withCompletionBlock:(JoinRoomCompletionBlock)block;
-- (void)exitRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block;
-
+- (NSURLSessionDataTask *)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block;
+- (NSURLSessionDataTask *)getRoomWithToken:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)getRoomWithId:(NSInteger)roomId withCompletionBlock:(GetRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)createRoomWith:(NSString *)invite ofType:(NCRoomType)type andName:(NSString *)roomName withCompletionBlock:(CreateRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)renameRoom:(NSString *)token withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(AddParticipantCompletionBlock)block;
+- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)makeRoomPublic:(NSString *)token withCompletionBlock:(MakeRoomPublicCompletionBlock)block;
+- (NSURLSessionDataTask *)makeRoomPrivate:(NSString *)token withCompletionBlock:(MakeRoomPrivateCompletionBlock)block;
+- (NSURLSessionDataTask *)deleteRoom:(NSString *)token withCompletionBlock:(DeleteRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)setPassword:(NSString *)password toRoom:(NSString *)token withCompletionBlock:(SetPasswordCompletionBlock)block;
+- (NSURLSessionDataTask *)joinRoom:(NSString *)token withCompletionBlock:(JoinRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)exitRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block;
 
 // Call Controller
-- (void)getPeersForCall:(NSString *)token withCompletionBlock:(GetPeersForCallCompletionBlock)block;
-- (void)joinCall:(NSString *)token withCompletionBlock:(JoinCallCompletionBlock)block;
-- (void)pingCall:(NSString *)token withCompletionBlock:(PingCallCompletionBlock)block;
-- (void)leaveCall:(NSString *)token withCompletionBlock:(LeaveCallCompletionBlock)block;
+- (NSURLSessionDataTask *)getPeersForCall:(NSString *)token withCompletionBlock:(GetPeersForCallCompletionBlock)block;
+- (NSURLSessionDataTask *)joinCall:(NSString *)token withCompletionBlock:(JoinCallCompletionBlock)block;
+- (NSURLSessionDataTask *)pingCall:(NSString *)token withCompletionBlock:(PingCallCompletionBlock)block;
+- (NSURLSessionDataTask *)leaveCall:(NSString *)token withCompletionBlock:(LeaveCallCompletionBlock)block;
+
+// Chat Controller
+- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId history:(BOOL)history withCompletionBlock:(GetChatMessagesCompletionBlock)block;
+- (NSURLSessionDataTask *)sendChatMessage:(NSString *)message toRoom:(NSString *)token displayName:(NSString *)displayName withCompletionBlock:(SendChatMessagesCompletionBlock)block;
 
 // Signaling Controller
-- (void)sendSignalingMessages:(NSString *)messages withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
-- (void)pullSignalingMessagesWithCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
-- (void)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
-- (void)pullSignalingMessagesFromRoom:(NSString *)token withCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
-- (void)getSignalingSettingsWithCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
+- (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
+- (NSURLSessionDataTask *)pullSignalingMessagesWithCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
+- (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
+- (NSURLSessionDataTask *)pullSignalingMessagesFromRoom:(NSString *)token withCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
+- (NSURLSessionDataTask *)getSignalingSettingsWithCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
 
 // User avatars
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size;
 
 // User Profile
-- (void)getUserProfileWithCompletionBlock:(GetUserProfileCompletionBlock)block;
+- (NSURLSessionDataTask *)getUserProfileWithCompletionBlock:(GetUserProfileCompletionBlock)block;
 
 // Server capabilities
-- (void)getServerCapabilitiesWithCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;
+- (NSURLSessionDataTask *)getServerCapabilitiesWithCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;
 
 // Push Notifications
-- (void)subscribeToNextcloudServer:(SubscribeToNextcloudServerCompletionBlock)block;
-- (void)unsubscribeToNextcloudServer:(UnsubscribeToNextcloudServerCompletionBlock)block;
-- (void)subscribeToPushServer:(SubscribeToPushProxyCompletionBlock)block;
-- (void)unsubscribeToPushServer:(UnsubscribeToPushProxyCompletionBlock)block;
+- (NSURLSessionDataTask *)subscribeToNextcloudServer:(SubscribeToNextcloudServerCompletionBlock)block;
+- (NSURLSessionDataTask *)unsubscribeToNextcloudServer:(UnsubscribeToNextcloudServerCompletionBlock)block;
+- (NSURLSessionDataTask *)subscribeToPushServer:(SubscribeToPushProxyCompletionBlock)block;
+- (NSURLSessionDataTask *)unsubscribeToPushServer:(UnsubscribeToPushProxyCompletionBlock)block;
 
 
 //Utils

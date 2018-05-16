@@ -29,6 +29,6 @@
 @property (nonatomic, strong) IBOutlet UIImageView *waitingImageView;
 @property (nonatomic, strong) IBOutlet UILabel *waitingLabel;
 
-- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly;
+- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly withSessionId:(NSString *)sessionId;
 
 @end
