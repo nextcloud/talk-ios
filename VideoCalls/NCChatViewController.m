@@ -13,6 +13,7 @@
 #import "DateHeaderView.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
+#import "NCChatMention.h"
 #import "NCMessageTextView.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
@@ -25,6 +26,7 @@
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) NSMutableDictionary *messages;
 @property (nonatomic, strong) NSMutableArray *dateSections;
+@property (nonatomic, strong) NSMutableArray *mentions;
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
 
 @end
@@ -62,6 +64,7 @@
     [self configureActionItems];
     
     self.messages = [[NSMutableDictionary alloc] init];
+    self.mentions = [[NSMutableArray alloc] init];
     self.dateSections = [[NSMutableArray alloc] init];
     
     self.bounces = NO;
@@ -141,8 +144,19 @@
 
 - (void)didPressRightButton:(id)sender
 {
-    [[NCRoomsManager sharedInstance] sendChatMessage:[self.textView.text copy] toRoom:_room];
+    NSString *sendingText = [self createSendingMessage:self.textView.text];
+    [[NCRoomsManager sharedInstance] sendChatMessage:sendingText toRoom:_room];
     [super didPressRightButton:sender];
+}
+
+- (NSString *)createSendingMessage:(NSString *)text
+{
+    NSString *sendingMessage = [text copy];
+    for (NCChatMention *mention in _mentions) {
+        sendingMessage = [sendingMessage stringByReplacingOccurrencesOfString:mention.name withString:mention.userId];
+    }
+    _mentions = [[NSMutableArray alloc] init];
+    return sendingMessage;
 }
 
 #pragma mark - Room Manager notifications
@@ -396,6 +410,20 @@
     }
     else {
         return kChatMessageCellMinimumHeight;
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([tableView isEqual:self.autoCompletionView]) {
+        NCChatMention *mention = [[NCChatMention alloc] init];
+        mention.userId = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
+        mention.name = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"label"]];
+        [_mentions addObject:mention];
+        
+        NSMutableString *mentionString = [[self.autocompletionUsers[indexPath.row] objectForKey:@"label"] mutableCopy];
+        [mentionString appendString:@" "];
+        [self acceptAutoCompletionWithString:mentionString keepPrefix:YES];
     }
 }
 
