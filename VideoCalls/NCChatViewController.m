@@ -13,6 +13,7 @@
 #import "DateHeaderView.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
+#import "NCChatMention.h"
 #import "NCMessageTextView.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
@@ -25,6 +26,8 @@
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) NSMutableDictionary *messages;
 @property (nonatomic, strong) NSMutableArray *dateSections;
+@property (nonatomic, strong) NSMutableArray *mentions;
+@property (nonatomic, strong) NSMutableArray *autocompletionUsers;
 
 @end
 
@@ -61,6 +64,7 @@
     [self configureActionItems];
     
     self.messages = [[NSMutableDictionary alloc] init];
+    self.mentions = [[NSMutableArray alloc] init];
     self.dateSections = [[NSMutableArray alloc] init];
     
     self.bounces = NO;
@@ -89,6 +93,8 @@
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
+    [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
+    [self registerPrefixesForAutoCompletion:@[@"@"]];
 }
 
 #pragma mark - Configuration
@@ -124,6 +130,16 @@
     return [formatter stringFromDate:date];
 }
 
+- (NSString *)createSendingMessage:(NSString *)text
+{
+    NSString *sendingMessage = [text copy];
+    for (NCChatMention *mention in _mentions) {
+        sendingMessage = [sendingMessage stringByReplacingOccurrencesOfString:mention.name withString:mention.userId];
+    }
+    _mentions = [[NSMutableArray alloc] init];
+    return sendingMessage;
+}
+
 #pragma mark - Action Methods
 
 - (void)videoCallButtonPressed:(id)sender
@@ -138,8 +154,33 @@
 
 - (void)didPressRightButton:(id)sender
 {
-    [[NCRoomsManager sharedInstance] sendChatMessage:[self.textView.text copy] toRoom:_room];
+    NSString *sendingText = [self createSendingMessage:self.textView.text];
+    [[NCRoomsManager sharedInstance] sendChatMessage:sendingText toRoom:_room];
     [super didPressRightButton:sender];
+}
+
+#pragma mark - UITextViewDelegate Methods
+
+- (BOOL)textView:(SLKTextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+    if ([text isEqualToString:@""]) {
+        UITextRange *selectedRange = [textView selectedTextRange];
+        NSInteger cursorOffset = [textView offsetFromPosition:textView.beginningOfDocument toPosition:selectedRange.start];
+        NSString *text = textView.text;
+        NSString *substring = [text substringToIndex:cursorOffset];
+        NSMutableString *lastPossibleMention = [[[substring componentsSeparatedByString:@"@"] lastObject] mutableCopy];
+        [lastPossibleMention insertString:@"@" atIndex:0];
+        for (NCChatMention *mention in _mentions) {
+            if ([lastPossibleMention isEqualToString:mention.name]) {
+                // Delete mention
+                textView.text =  [[self.textView text] stringByReplacingOccurrencesOfString:lastPossibleMention withString:@""];
+                [_mentions removeObject:mention];
+                return NO;
+            }
+        }
+    }
+    
+    return [super textView:textView shouldChangeTextInRange:range replacementText:text];
 }
 
 #pragma mark - Room Manager notifications
@@ -230,15 +271,56 @@
     return sameActor & timeDiff & notMaxGroup;
 }
 
+#pragma mark - Autocompletion
+
+- (void)didChangeAutoCompletionPrefix:(NSString *)prefix andWord:(NSString *)word
+{
+    if ([prefix isEqualToString:@"@"]) {
+        [self showSuggestionsForString:word];
+    }
+}
+
+- (CGFloat)heightForAutoCompletionView
+{
+    return kChatMessageCellMinimumHeight * self.autocompletionUsers.count;
+}
+
+- (void)showSuggestionsForString:(NSString *)string
+{
+    self.autocompletionUsers = nil;
+    [[NCAPIController sharedInstance] getMentionSuggestionsInRoom:_room.token forString:string withCompletionBlock:^(NSMutableArray *mentions, NSError *error) {
+        if (!error) {
+            self.autocompletionUsers = [[NSMutableArray alloc] initWithArray:mentions];
+            BOOL show = (self.autocompletionUsers.count > 0);
+            // Check if the '@' is still there
+            [self.textView lookForPrefixes:self.registeredPrefixes completion:^(NSString *prefix, NSString *word, NSRange wordRange) {
+                if (prefix.length > 0 && word.length > 0) {
+                    [self showAutoCompletionView:show];
+                } else {
+                    [self cancelAutoCompletion];
+                }
+            }];
+        }
+    }];
+}
+
 #pragma mark - UITableViewDataSource Methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
+    if ([tableView isEqual:self.autoCompletionView]) {
+        return 1;
+    }
+    
     return _dateSections.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    if ([tableView isEqual:self.autoCompletionView]) {
+        return _autocompletionUsers.count;
+    }
+    
     NSDate *date = [_dateSections objectAtIndex:section];
     NSMutableArray *messages = [_messages objectForKey:date];
     return messages.count;
@@ -246,17 +328,29 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
+    if ([tableView isEqual:self.autoCompletionView]) {
+        return nil;
+    }
+    
     NSDate *date = [_dateSections objectAtIndex:section];
     return [self getHeaderStringFromDate:date];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
+    if ([tableView isEqual:self.autoCompletionView]) {
+        return 0;
+    }
+    
     return kDateHeaderViewHeight;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
+    if ([tableView isEqual:self.autoCompletionView]) {
+        return nil;
+    }
+    
     DateHeaderView *headerView = [[DateHeaderView alloc] init];
     headerView.dateLabel.text = [self tableView:tableView titleForHeaderInSection:section];
     headerView.dateLabel.layer.cornerRadius = 12;
@@ -267,6 +361,18 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if ([tableView isEqual:self.autoCompletionView]) {
+        NSDictionary *suggestion = [_autocompletionUsers objectAtIndex:indexPath.row];
+        NSString *suggestionId = [suggestion objectForKey:@"id"];
+        NSString *suggestionName = [suggestion objectForKey:@"label"];
+        ChatMessageTableViewCell *suggestionCell = (ChatMessageTableViewCell *)[self.autoCompletionView dequeueReusableCellWithIdentifier:AutoCompletionCellIdentifier];
+        suggestionCell.titleLabel.text = suggestionName;
+        // Request user avatar to the server and set it if exist
+        [suggestionCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:suggestionId andSize:96]
+                                     placeholderImage:nil success:nil failure:nil];
+        return suggestionCell;
+    }
+    
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
     
@@ -335,6 +441,20 @@
     }
     else {
         return kChatMessageCellMinimumHeight;
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([tableView isEqual:self.autoCompletionView]) {
+        NCChatMention *mention = [[NCChatMention alloc] init];
+        mention.userId = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
+        mention.name = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"label"]];
+        [_mentions addObject:mention];
+        
+        NSMutableString *mentionString = [[self.autocompletionUsers[indexPath.row] objectForKey:@"label"] mutableCopy];
+        [mentionString appendString:@" "];
+        [self acceptAutoCompletionWithString:mentionString keepPrefix:YES];
     }
 }
 
