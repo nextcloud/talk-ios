@@ -8,9 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-static CGFloat kChatMessageCellMinimumHeight = 50.0;
-static CGFloat kChatMessageCellAvatarHeight = 30.0;
-static NSString *ChatMessageCellIdentifier = @"ChatMessageCellIdentifier";
+static CGFloat kChatMessageCellMinimumHeight    = 50.0;
+static CGFloat kChatMessageCellAvatarHeight     = 30.0;
+
+static NSString *ChatMessageCellIdentifier      = @"ChatMessageCellIdentifier";
+static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier";
 
 @interface ChatMessageTableViewCell : UITableViewCell
 

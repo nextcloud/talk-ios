@@ -504,6 +504,27 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return task;
 }
 
+- (NSURLSessionDataTask *)getMentionSuggestionsInRoom:(NSString *)token forString:(NSString *)string withCompletionBlock:(GetMentionSuggestionsCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"chat/%@/mentions", token]];
+    NSDictionary *parameters = @{@"limit" : @"20",
+                                 @"search" : string ? string : @""};
+    
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSArray *mentions = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSMutableArray *suggestions = [[NSMutableArray alloc] initWithArray:mentions];;
+        if (block) {
+            block(suggestions, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error);
+        }
+    }];
+    
+    return task;
+}
+
 #pragma mark - Signaling Controller
 
 - (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages withCompletionBlock:(SendSignalingMessagesCompletionBlock)block
