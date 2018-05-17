@@ -130,6 +130,16 @@
     return [formatter stringFromDate:date];
 }
 
+- (NSString *)createSendingMessage:(NSString *)text
+{
+    NSString *sendingMessage = [text copy];
+    for (NCChatMention *mention in _mentions) {
+        sendingMessage = [sendingMessage stringByReplacingOccurrencesOfString:mention.name withString:mention.userId];
+    }
+    _mentions = [[NSMutableArray alloc] init];
+    return sendingMessage;
+}
+
 #pragma mark - Action Methods
 
 - (void)videoCallButtonPressed:(id)sender
@@ -149,14 +159,28 @@
     [super didPressRightButton:sender];
 }
 
-- (NSString *)createSendingMessage:(NSString *)text
+#pragma mark - UITextViewDelegate Methods
+
+- (BOOL)textView:(SLKTextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
-    NSString *sendingMessage = [text copy];
-    for (NCChatMention *mention in _mentions) {
-        sendingMessage = [sendingMessage stringByReplacingOccurrencesOfString:mention.name withString:mention.userId];
+    if ([text isEqualToString:@""]) {
+        UITextRange *selectedRange = [textView selectedTextRange];
+        NSInteger cursorOffset = [textView offsetFromPosition:textView.beginningOfDocument toPosition:selectedRange.start];
+        NSString *text = textView.text;
+        NSString *substring = [text substringToIndex:cursorOffset];
+        NSMutableString *lastPossibleMention = [[[substring componentsSeparatedByString:@"@"] lastObject] mutableCopy];
+        [lastPossibleMention insertString:@"@" atIndex:0];
+        for (NCChatMention *mention in _mentions) {
+            if ([lastPossibleMention isEqualToString:mention.name]) {
+                // Delete mention
+                textView.text =  [[self.textView text] stringByReplacingOccurrencesOfString:lastPossibleMention withString:@""];
+                [_mentions removeObject:mention];
+                return NO;
+            }
+        }
     }
-    _mentions = [[NSMutableArray alloc] init];
-    return sendingMessage;
+    
+    return [super textView:textView shouldChangeTextInRange:range replacementText:text];
 }
 
 #pragma mark - Room Manager notifications
@@ -268,7 +292,14 @@
         if (!error) {
             self.autocompletionUsers = [[NSMutableArray alloc] initWithArray:mentions];
             BOOL show = (self.autocompletionUsers.count > 0);
-            [self showAutoCompletionView:show];
+            // Check if the '@' is still there
+            [self.textView lookForPrefixes:self.registeredPrefixes completion:^(NSString *prefix, NSString *word, NSRange wordRange) {
+                if (prefix.length > 0 && word.length > 0) {
+                    [self showAutoCompletionView:show];
+                } else {
+                    [self cancelAutoCompletion];
+                }
+            }];
         }
     }];
 }
