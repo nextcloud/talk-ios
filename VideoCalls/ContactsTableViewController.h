@@ -10,6 +10,7 @@
 
 extern NSString * const NCSelectedContactForVoiceCallNotification;
 extern NSString * const NCSelectedContactForVideoCallNotification;
+extern NSString * const NCSelectedContactForChatNotification;
 
 @interface ContactsTableViewController : UITableViewController
 
