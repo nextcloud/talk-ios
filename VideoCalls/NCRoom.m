@@ -25,6 +25,7 @@
     room.participantType = (NCParticipantType)[[roomDict objectForKey:@"participantType"] integerValue];
     room.lastPing = [[roomDict objectForKey:@"lastPing"] integerValue];
     room.numGuests = [[roomDict objectForKey:@"numGuests"] integerValue];
+    room.unreadMessages = [[roomDict objectForKey:@"unreadMessages"] integerValue];
     room.guestList = [roomDict objectForKey:@"guestList"];
     room.participants = [roomDict objectForKey:@"participants"];
     

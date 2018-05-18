@@ -34,6 +34,7 @@ typedef enum NCParticipantType {
 @property (nonatomic, assign) NCParticipantType participantType;
 @property (nonatomic, assign) NSInteger lastPing;
 @property (nonatomic, assign) NSInteger numGuests;
+@property (nonatomic, assign) NSInteger unreadMessages;
 @property (nonatomic, copy) NSString *guestList;
 @property (nonatomic, copy) NSDictionary *participants;
 

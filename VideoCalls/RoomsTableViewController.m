@@ -26,6 +26,7 @@
 #import "UIImageView+AFNetworking.h"
 #import "NCChatViewController.h"
 #import "NCRoomsManager.h"
+#import "RoundedNumberView.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
@@ -780,11 +781,18 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Set last ping
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
     cell.labelSubTitle.text = [date timeAgoSinceNow];
-    
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    
     if (room.lastPing == 0) {
         cell.labelSubTitle.text = @"Never joined";
+    }
+    
+    // Set unread messages
+    if (room.unreadMessages > 0) {
+        RoundedNumberView *unreadMessagesView = [[RoundedNumberView alloc] init];
+        unreadMessagesView.number = room.unreadMessages;
+        unreadMessagesView.frame = CGRectMake(cell.unreadMessagesView.frame.size.width - unreadMessagesView.frame.size.width,
+                                              unreadMessagesView.frame.origin.y,
+                                              unreadMessagesView.frame.size.width, unreadMessagesView.frame.size.height);
+        [cell.unreadMessagesView addSubview:unreadMessagesView];
     }
     
     // Set room image
@@ -814,6 +822,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         default:
             break;
     }
+    
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     
     return cell;
 }
