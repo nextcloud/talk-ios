@@ -36,6 +36,10 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
     
     self.roomImage.image = nil;
     self.roomPasswordImage.image = nil;
+    
+    for (UIView *subview in [self.unreadMessagesView subviews]) {
+        [subview removeFromSuperview];
+    }
 }
 
 @end
