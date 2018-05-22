@@ -220,12 +220,15 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString *index = [_indexes objectAtIndex:indexPath.section];
-    NSArray *participants = [_participants objectForKey:index];
+    NSString *index = nil;
+    NSArray *participants = nil;
     
     if (_searchController.active) {
         index = [_resultTableViewController.indexes objectAtIndex:indexPath.section];
         participants = [_resultTableViewController.contacts objectForKey:index];
+    } else {
+        index = [_indexes objectAtIndex:indexPath.section];
+        participants = [_participants objectForKey:index];
     }
     
     NCUser *participant = [participants objectAtIndex:indexPath.row];
