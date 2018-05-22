@@ -184,12 +184,15 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
 
 - (void)presentJoinCallOptionsForContactAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString *index = [_indexes objectAtIndex:indexPath.section];
-    NSArray *contacts = [_contacts objectForKey:index];
+    NSString *index = nil;
+    NSArray *contacts = nil;
     
     if (_searchController.active) {
         index = [_resultTableViewController.indexes objectAtIndex:indexPath.section];
         contacts = [_resultTableViewController.contacts objectForKey:index];
+    } else {
+        index = [_indexes objectAtIndex:indexPath.section];
+        contacts = [_contacts objectForKey:index];
     }
     
     NCUser *contact = [contacts objectAtIndex:indexPath.row];
@@ -220,8 +223,9 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
-    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
+    UITableView *tableView = (_searchController.active) ? _resultTableViewController.tableView : self.tableView;
+    optionsActionSheet.popoverPresentationController.sourceView = tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [tableView rectForRowAtIndexPath:indexPath];
     
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
