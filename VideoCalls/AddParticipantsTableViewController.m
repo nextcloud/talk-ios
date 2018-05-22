@@ -95,7 +95,21 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    
+    if (@available(iOS 11.0, *)) {
+        self.navigationItem.hidesSearchBarWhenScrolling = NO;
+    }
+    
     [self getPossibleParticipants];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    if (@available(iOS 11.0, *)) {
+        self.navigationItem.hidesSearchBarWhenScrolling = NO;
+    }
 }
 
 - (void)didReceiveMemoryWarning
