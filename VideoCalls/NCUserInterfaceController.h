@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 
 #import "CallViewController.h"
+#import "NCChatViewController.h"
 #import "NCPushNotification.h"
 
 @interface NCUserInterfaceController : NSObject
@@ -17,7 +18,7 @@
 @property (nonatomic, strong) UITabBarController *mainTabBarController;
 
 + (instancetype)sharedInstance;
-- (void)presentCallsViewController;
+- (void)presentConversationsViewController;
 - (void)presentContactsViewController;
 - (void)presentSettingsViewController;
 - (void)presentLoginViewController;
@@ -25,6 +26,7 @@
 - (void)presentOfflineWarningAlert;
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification;
 - (void)presentAlertViewController:(UIAlertController *)alertViewController;
+- (void)presentChatViewController:(NCChatViewController *)chatViewController;
 - (void)presentCallViewController:(CallViewController *)callViewController;
 
 @end

@@ -50,7 +50,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)presentCallsViewController
+- (void)presentConversationsViewController
 {
     [self.mainTabBarController setSelectedIndex:0];
 }
@@ -149,6 +149,14 @@
 - (void)presentAlertViewController:(UIAlertController *)alertViewController
 {
     [self.mainTabBarController presentViewController:alertViewController animated:YES completion:nil];
+}
+
+- (void)presentChatViewController:(NCChatViewController *)chatViewController
+{
+    [self presentConversationsViewController];
+    UINavigationController *conversationsNC = [[self.mainTabBarController viewControllers] objectAtIndex:0];
+    [conversationsNC popToRootViewControllerAnimated:NO];
+    [conversationsNC pushViewController:chatViewController animated:YES];
 }
 
 - (void)presentCallViewController:(CallViewController *)callViewController

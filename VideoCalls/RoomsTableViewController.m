@@ -10,7 +10,6 @@
 
 #import "AFNetworking.h"
 #import "CallViewController.h"
-#import "ContactsTableViewController.h"
 #import "AddParticipantsTableViewController.h"
 #import "RoomTableViewCell.h"
 #import "CCCertificate.h"
@@ -44,7 +43,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     _rooms = [[NSMutableArray alloc] init];
     
     [self createRefreshControl];
@@ -62,12 +61,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinAudioCallAccepted:) name:NCPushNotificationJoinAudioCallAcceptedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinVideoCallAccepted:) name:NCPushNotificationJoinVideoCallAcceptedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForVoiceCall:) name:NCSelectedContactForVoiceCallNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForVideoCall:) name:NCSelectedContactForVideoCallNotification object:nil];
 }
 
 - (void)dealloc
@@ -101,18 +96,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
 }
 
-- (void)joinAudioCallAccepted:(NSNotification *)notification
-{
-    NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
-    [self joinCallWithCallId:pushNotification.pnId audioOnly:YES];
-}
-
-- (void)joinVideoCallAccepted:(NSNotification *)notification
-{
-    NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
-    [self joinCallWithCallId:pushNotification.pnId audioOnly:NO];
-}
-
 - (void)appStateHasChanged:(NSNotification *)notification
 {
     AppState appState = [[notification.userInfo objectForKey:@"appState"] intValue];
@@ -123,18 +106,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
     [self adaptInterfaceForConnectionState:connectionState];
-}
-
-- (void)userSelectedContactForVoiceCall:(NSNotification *)notification
-{
-    NSString *roomToken = [notification.userInfo objectForKey:@"token"];
-    [self joinCallWithCallToken:roomToken audioOnly:YES];
-}
-
-- (void)userSelectedContactForVideoCall:(NSNotification *)notification
-{
-    NSString *roomToken = [notification.userInfo objectForKey:@"token"];
-    [self joinCallWithCallToken:roomToken audioOnly:NO];
 }
 
 #pragma mark - Interface Builder Actions
@@ -280,6 +251,28 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)trustedCerticateAccepted
 {
     [self fetchRoomsWithCompletionBlock:nil];
+}
+
+- (NCRoom *)getRoomForToken:(NSString *)token
+{
+    NCRoom *room = nil;
+    for (NCRoom *localRoom in _rooms) {
+        if (localRoom.token == token) {
+            room = localRoom;
+        }
+    }
+    return room;
+}
+
+- (NCRoom *)getRoomForId:(NSInteger)roomId
+{
+    NCRoom *room = nil;
+    for (NCRoom *localRoom in _rooms) {
+        if (localRoom.roomId == roomId) {
+            room = localRoom;
+        }
+    }
+    return room;
 }
 
 #pragma mark - Room actions
@@ -502,8 +495,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
-    [self.navigationController pushViewController:chatVC animated:YES];
+    [[NCRoomsManager sharedInstance] startChatInRoom:room];
 }
 
 #pragma mark - Public Calls
@@ -553,65 +545,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [shareRoomDialog addAction:cancelAction];
     
     [self presentViewController:shareRoomDialog animated:YES completion:nil];
-}
-
-#pragma mark - Calls
-
-- (NCRoom *)getRoomForToken:(NSString *)token
-{
-    NCRoom *room = nil;
-    for (NCRoom *localRoom in _rooms) {
-        if (localRoom.token == token) {
-            room = localRoom;
-        }
-    }
-    return room;
-}
-
-- (NCRoom *)getRoomForId:(NSInteger)roomId
-{
-    NCRoom *room = nil;
-    for (NCRoom *localRoom in _rooms) {
-        if (localRoom.roomId == roomId) {
-            room = localRoom;
-        }
-    }
-    return room;
-}
-
-- (void)startCallInRoom:(NCRoom *)room audioOnly:(BOOL)audioOnly
-{
-    [[NCRoomsManager sharedInstance] startCall:!audioOnly inRoom:room];
-}
-
-- (void)joinCallWithCallId:(NSInteger)callId audioOnly:(BOOL)audioOnly
-{
-    NCRoom *room = [self getRoomForId:callId];
-    if (room) {
-        [self startCallInRoom:room audioOnly:audioOnly];
-    } else {
-        //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
-            if (!error) {
-                [self startCallInRoom:room audioOnly:audioOnly];
-            }
-        }];
-    }
-}
-
-- (void)joinCallWithCallToken:(NSString *)token audioOnly:(BOOL)audioOnly
-{
-    NCRoom *room = [self getRoomForToken:token];
-    if (room) {
-        [self startCallInRoom:room audioOnly:audioOnly];
-    } else {
-        //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
-            if (!error) {
-                [self startCallInRoom:room audioOnly:audioOnly];
-            }
-        }];
-    }
 }
 
 #pragma mark - Table view data source

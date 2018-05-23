@@ -10,22 +10,26 @@
 
 #import "NCRoom.h"
 
+// Room
 extern NSString * const NCRoomsManagerDidJoinRoomNotification;
 extern NSString * const NCRoomsManagerDidLeaveRoomNotification;
+extern NSString * const NCRoomsManagerDidUpdateRoomsNotification;
+// Call
 extern NSString * const NCRoomsManagerDidStartCallNotification;
-extern NSString * const NCRoomsManagerDidReceiveChatMessagesNotification;
 
 @interface NCRoomsManager : NSObject
 
-@property (nonatomic, strong) NCRoom *currentRoom;
-@property (nonatomic, copy) NSString *userSessionId;
-@property (nonatomic, copy) NSString *userDisplayName;
-
 + (instancetype)sharedInstance;
+// Room
 - (void)joinRoom:(NCRoom *)room;
 - (void)leaveRoom:(NCRoom *)room;
+- (void)updateRooms;
+// Chat
+- (void)startChatInRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message toRoom:(NCRoom *)room;
+- (void)startReceivingChatMessagesInRoom:(NCRoom *)room;
+- (void)stopReceivingChatMessagesInRoom:(NCRoom *)room;
+// Call
 - (void)startCall:(BOOL)video inRoom:(NCRoom *)room;
-- (void)endCallInRoom:(NCRoom *)room;
 
 @end
