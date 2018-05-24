@@ -70,12 +70,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)joinRoom:(NCRoom *)room
 {
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
     if (!roomController) {
         [[NCAPIController sharedInstance] joinRoom:room.token withCompletionBlock:^(NSString *sessionId, NSError *error) {
-            NSMutableDictionary *userInfo = [NSMutableDictionary new];
             if (!error) {
                 NCRoomController *controller = [[NCRoomController alloc] initForUser:sessionId inRoom:room.token];
                 [_activeRooms setObject:controller forKey:room.token];
+                [userInfo setObject:controller forKey:@"roomController"];
             } else {
                 [userInfo setObject:error forKey:@"error"];
                 NSLog(@"Could not join room. Error: %@", error.description);
@@ -84,6 +85,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                                                                 object:self
                                                               userInfo:userInfo];
         }];
+    } else {
+        [userInfo setObject:roomController forKey:@"roomController"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
+                                                            object:self
+                                                          userInfo:userInfo];
     }
 }
 
@@ -151,23 +157,12 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)startChatInRoom:(NCRoom *)room
 {
+    NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
+    [[NCUserInterfaceController sharedInstance] presentChatViewController:chatVC];
+    
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (!roomController) {
-        [[NCAPIController sharedInstance] joinRoom:room.token withCompletionBlock:^(NSString *sessionId, NSError *error) {
-            NSMutableDictionary *userInfo = [NSMutableDictionary new];
-            if (!error) {
-                NCRoomController *controller = [[NCRoomController alloc] initForUser:sessionId inRoom:room.token];
-                [_activeRooms setObject:controller forKey:room.token];
-                NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
-                [[NCUserInterfaceController sharedInstance] presentChatViewController:chatVC];
-            } else {
-                [userInfo setObject:error forKey:@"error"];
-                NSLog(@"Could not join room. Error: %@", error.description);
-            }
-        }];
-    } else {
-        NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
-        [[NCUserInterfaceController sharedInstance] presentChatViewController:chatVC];
+        [self joinRoom:room];
     }
 }
 

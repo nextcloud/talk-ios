@@ -43,6 +43,7 @@
         self.hidesBottomBarWhenPushed = YES;
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCRoomControllerDidReceiveChatMessagesNotification object:nil];
     }
     
@@ -95,12 +96,6 @@
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -196,6 +191,16 @@
 }
 
 #pragma mark - Room Manager notifications
+
+- (void)didJoinRoom:(NSNotification *)notification
+{
+    NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
+    if (![roomController.roomToken isEqualToString:_room.token]) {
+        return;
+    }
+    
+    [roomController startReceivingChatMessages];
+}
 
 - (void)didReceiveChatMessages:(NSNotification *)notification
 {
