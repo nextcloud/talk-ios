@@ -50,6 +50,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         _rooms = [[NSMutableArray alloc] init];
         _activeRooms = [[NSMutableDictionary alloc] init];
         
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChat:) name:NCPushNotificationJoinChatNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinAudioCallAccepted:) name:NCPushNotificationJoinAudioCallAcceptedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinVideoCallAccepted:) name:NCPushNotificationJoinVideoCallAcceptedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForVoiceCall:) name:NCSelectedContactForVoiceCallNotification object:nil];
@@ -303,6 +304,12 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"token"];
     [self joinCallWithCallToken:roomToken withVideo:YES];
+}
+
+- (void)joinChat:(NSNotification *)notification
+{
+    NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
+    [self startChatWithRoomId:pushNotification.pnId];
 }
 
 - (void)userSelectedContactForChat:(NSNotification *)notification

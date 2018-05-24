@@ -99,6 +99,14 @@
     [self.mainTabBarController presentViewController:alert animated:YES completion:nil];
 }
 
+- (void)presentChatForPushNotification:(NCPushNotification *)pushNotification
+{
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:pushNotification forKey:@"pushNotification"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationJoinChatNotification
+                                                        object:self
+                                                      userInfo:userInfo];
+}
+
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification
 {
     UIAlertController * alert = [UIAlertController

@@ -24,6 +24,7 @@
 - (void)presentLoginViewController;
 - (void)presentAuthenticationViewController;
 - (void)presentOfflineWarningAlert;
+- (void)presentChatForPushNotification:(NCPushNotification *)pushNotification;
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification;
 - (void)presentAlertViewController:(UIAlertController *)alertViewController;
 - (void)presentChatViewController:(NCChatViewController *)chatViewController;
