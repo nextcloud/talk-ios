@@ -98,6 +98,12 @@
     [self registerPrefixesForAutoCompletion:@[@"@"]];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
