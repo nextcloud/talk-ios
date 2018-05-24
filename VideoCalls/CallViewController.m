@@ -17,6 +17,8 @@
 #import "NBMPeersFlowLayout.h"
 #import "NCCallController.h"
 #import "NCAPIController.h"
+#import "NCRoomController.h"
+#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "UIImageView+AFNetworking.h"
 
@@ -35,6 +37,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     ARDCaptureController *_captureController;
     UITapGestureRecognizer *_tapGestureForDetailedView;
     NSTimer *_detailedViewTimer;
+    NSString *_displayName;
     BOOL _isAudioOnly;
     BOOL _userDisabledVideo;
 }
@@ -54,27 +57,35 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 @synthesize delegate = _delegate;
 
-- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly withSessionId:(NSString *)sessionId
+- (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString *)displayName audioOnly:(BOOL)audioOnly
 {
     self = [super init];
     if (!self) {
         return nil;
     }
     
-    _callController = [[NCCallController alloc] initWithDelegate:self inRoom:room forAudioOnlyCall:audioOnly withSessionId:sessionId];
-    _callController.userDisplayName = displayName;
     _room = room;
+    _displayName = displayName;
     _isAudioOnly = audioOnly;
     _peersInCall = [[NSMutableArray alloc] init];
     _renderersDict = [[NSMutableDictionary alloc] init];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
+    
     return self;
+}
+
+- (void)startCallWithSessionId:(NSString *)sessionId
+{
+    _callController = [[NCCallController alloc] initWithDelegate:self inRoom:_room forAudioOnlyCall:_isAudioOnly withSessionId:sessionId];
+    _callController.userDisplayName = _displayName;
+    
+    [_callController startCall];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setCallState:CallStateJoining];
-    [_callController startCall];
     
     [[UIDevice currentDevice] setProximityMonitoringEnabled:YES];
     [UIApplication sharedApplication].idleTimerDisabled = YES;
@@ -134,6 +145,18 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Rooms manager notifications
+
+- (void)didJoinRoom:(NSNotification *)notification
+{
+    NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
+    if (![roomController.roomToken isEqualToString:_room.token]) {
+        return;
+    }
+    
+    [self startCallWithSessionId:roomController.userSessionId];
 }
 
 #pragma mark - Local video

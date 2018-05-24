@@ -8,7 +8,6 @@
 
 #import "NCRoomsManager.h"
 
-#import "CallViewController.h"
 #import "NCChatViewController.h"
 #import "ContactsTableViewController.h"
 #import "NCAPIController.h"
@@ -23,7 +22,7 @@ NSString * const NCRoomsManagerDidUpdateRoomsNotification           = @"NCRoomsM
 NSString * const NCRoomsManagerDidStartCallNotification             = @"NCRoomsManagerDidStartCallNotification";
 NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMessagesReceivedNotification";
 
-@interface NCRoomsManager ()
+@interface NCRoomsManager () <CallViewControllerDelegate>
 
 @property (nonatomic, strong) NSMutableArray *rooms;
 @property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
@@ -230,23 +229,15 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)startCall:(BOOL)video inRoom:(NCRoom *)room
 {
+    _callViewController = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:!video];
+    _callViewController.delegate = self;
+    [[NCUserInterfaceController sharedInstance] presentCallViewController:_callViewController];
+    
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (!roomController) {
-        [[NCAPIController sharedInstance] joinRoom:room.token withCompletionBlock:^(NSString *sessionId, NSError *error) {
-            NSMutableDictionary *userInfo = [NSMutableDictionary new];
-            if (!error) {
-                NCRoomController *controller = [[NCRoomController alloc] initForUser:sessionId inRoom:room.token];
-                [_activeRooms setObject:controller forKey:room.token];
-                CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:!video withSessionId:sessionId];
-                [[NCUserInterfaceController sharedInstance] presentCallViewController:callVC];
-            } else {
-                [userInfo setObject:error forKey:@"error"];
-                NSLog(@"Could not join room. Error: %@", error.description);
-            }
-        }];
+        [self joinRoom:room];
     } else {
-        CallViewController *callVC = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:!video withSessionId:roomController.userSessionId];
-        [[NCUserInterfaceController sharedInstance] presentCallViewController:callVC];
+        [_callViewController startCallWithSessionId:roomController.userSessionId];
     }
 }
 
@@ -277,6 +268,22 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 [self startCall:video inRoom:room];
             }
         }];
+    }
+}
+
+#pragma mark - CallViewControllerDelegate
+
+- (void)callViewControllerWantsToBeDismissed:(CallViewController *)viewController
+{
+    if (_callViewController == viewController && ![viewController isBeingDismissed]) {
+        [viewController dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
+- (void)callViewControllerDidFinish:(CallViewController *)viewController
+{
+    if (_callViewController == viewController) {
+        _callViewController = nil;
     }
 }
 
