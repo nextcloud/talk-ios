@@ -16,7 +16,9 @@
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
+#import "NCConnectionController.h"
 #import "NCPushNotification.h"
+#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 
@@ -63,7 +65,9 @@
     configuration.mode = AVAudioSessionModeVideoChat;
     [RTCAudioSessionConfiguration setWebRTCConfiguration:configuration];
     
+    [NCRoomsManager sharedInstance];
     [NCUserInterfaceController sharedInstance].mainTabBarController = (UITabBarController *) self.window.rootViewController;
+    [[NCConnectionController sharedInstance] checkAppState];
     
     return YES;
 }
@@ -81,8 +85,23 @@
     NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:[NCSettingsController sharedInstance].ncPNPrivateKey];
     if (decryptedMessage) {
         NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage];
-        if (pushNotification) {
-            [[NCUserInterfaceController sharedInstance] presentAlertForPushNotification:pushNotification];
+        AppState appState = [[NCConnectionController sharedInstance] appState];
+        if (pushNotification && appState > kAppStateAuthenticationNeeded) {
+            switch (pushNotification.type) {
+                case NCPushNotificationTypeCall:
+                {
+                    [[NCUserInterfaceController sharedInstance] presentAlertForPushNotification:pushNotification];
+                }
+                    break;
+                case NCPushNotificationTypeRoom:
+                case NCPushNotificationTypeChat:
+                {
+                    [[NCUserInterfaceController sharedInstance] presentChatForPushNotification:pushNotification];
+                }
+                    break;
+                default:
+                    break;
+            }
         }
     }
     

@@ -16,6 +16,7 @@
 #import "NCChatMention.h"
 #import "NCMessageTextView.h"
 #import "NCRoomsManager.h"
+#import "NCRoomController.h"
 #import "NCSettingsController.h"
 #import "NSDate+DateTools.h"
 #import "UIImageView+Letters.h"
@@ -42,7 +43,8 @@
         self.hidesBottomBarWhenPushed = YES;
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCRoomsManagerDidReceiveChatMessagesNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCRoomControllerDidReceiveChatMessagesNotification object:nil];
     }
     
     return self;
@@ -60,7 +62,6 @@
 {
     [super viewDidLoad];
     
-    [[NCRoomsManager sharedInstance] joinRoom:_room];
     [self configureActionItems];
     
     self.messages = [[NSMutableDictionary alloc] init];
@@ -95,6 +96,18 @@
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [[NCRoomsManager sharedInstance] stopReceivingChatMessagesInRoom:_room];
 }
 
 #pragma mark - Configuration
@@ -185,8 +198,23 @@
 
 #pragma mark - Room Manager notifications
 
+- (void)didJoinRoom:(NSNotification *)notification
+{
+    NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
+    if (![roomController.roomToken isEqualToString:_room.token]) {
+        return;
+    }
+    
+    [roomController startReceivingChatMessages];
+}
+
 - (void)didReceiveChatMessages:(NSNotification *)notification
 {
+    NSString *room = [notification.userInfo objectForKey:@"room"];
+    if (![room isEqualToString:_room.token]) {
+        return;
+    }
+    
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
     NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
     BOOL singleMessage = (messages.count == 1);

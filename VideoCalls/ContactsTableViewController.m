@@ -17,8 +17,9 @@
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
-NSString * const NCSelectedContactForVoiceCallNotification = @"NCSelectedContactForVoiceCallNotification";
-NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContactForVideoCallNotification";
+NSString * const NCSelectedContactForVoiceCallNotification  = @"NCSelectedContactForVoiceCallNotification";
+NSString * const NCSelectedContactForVideoCallNotification  = @"NCSelectedContactForVideoCallNotification";
+NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContactForChatNotification";
 
 @interface ContactsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
@@ -182,7 +183,7 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
     }];
 }
 
-- (void)presentJoinCallOptionsForContactAtIndexPath:(NSIndexPath *)indexPath
+- (void)presentOptionsForContactAtIndexPath:(NSIndexPath *)indexPath
 {
     NSString *index = nil;
     NSArray *contacts = nil;
@@ -202,24 +203,31 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
-    UIAlertAction *callAction = [UIAlertAction actionWithTitle:@"Call"
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^void (UIAlertAction *action) {
-                                                           [self createCallWithContact:contact audioOnly:YES];
-                                                       }];
-    
     UIAlertAction *videocallAction = [UIAlertAction actionWithTitle:@"Video call"
                                                               style:UIAlertActionStyleDefault
                                                             handler:^void (UIAlertAction *action) {
-                                                                [self createCallWithContact:contact audioOnly:NO];
+                                                                [self createRoomWithContact:contact forCall:YES withVideo:YES];
                                                             }];
     
-    [callAction setValue:[[UIImage imageNamed:@"call-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    UIAlertAction *callAction = [UIAlertAction actionWithTitle:@"Call"
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^void (UIAlertAction *action) {
+                                                           [self createRoomWithContact:contact forCall:YES withVideo:NO];
+                                                       }];
+    
+    UIAlertAction *chatAction = [UIAlertAction actionWithTitle:@"Chat"
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^void (UIAlertAction *action) {
+                                                           [self createRoomWithContact:contact forCall:NO withVideo:NO];
+                                                       }];
+    
     [videocallAction setValue:[[UIImage imageNamed:@"videocall-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [callAction setValue:[[UIImage imageNamed:@"call-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [chatAction setValue:[[UIImage imageNamed:@"chat-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     
-    [optionsActionSheet addAction:callAction];
     [optionsActionSheet addAction:videocallAction];
-    
+    [optionsActionSheet addAction:callAction];
+    [optionsActionSheet addAction:chatAction];
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
@@ -230,7 +238,7 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
-- (void)createCallWithContact:(NCUser *)contact audioOnly:(BOOL)audioOnly
+- (void)createRoomWithContact:(NCUser *)contact forCall:(BOOL)call withVideo:(BOOL)video
 {
     [[NCAPIController sharedInstance] createRoomWith:contact.userId
                                               ofType:kNCRoomTypeOneToOneCall
@@ -238,14 +246,20 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
                                  withCompletionBlock:^(NSString *token, NSError *error) {
                                      if (!error) {
                                          NSLog(@"Room %@ with %@ created", token, contact.name);
-                                         if (audioOnly) {
-                                             [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedContactForVoiceCallNotification
+                                         if (!call) {
+                                             [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedContactForChatNotification
                                                                                                  object:self
                                                                                                userInfo:@{@"token":token}];
                                          } else {
-                                             [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedContactForVideoCallNotification
-                                                                                                 object:self
-                                                                                               userInfo:@{@"token":token}];
+                                             if (video) {
+                                                 [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedContactForVideoCallNotification
+                                                                                                     object:self
+                                                                                                   userInfo:@{@"token":token}];
+                                             } else {
+                                                 [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedContactForVoiceCallNotification
+                                                                                                     object:self
+                                                                                                   userInfo:@{@"token":token}];
+                                             }
                                          }
                                      } else {
                                          NSLog(@"Failed creating a room with %@", contact.name);
@@ -318,7 +332,7 @@ NSString * const NCSelectedContactForVideoCallNotification = @"NCSelectedContact
     if ([NCConnectionController sharedInstance].connectionState == kConnectionStateDisconnected) {
         [[NCUserInterfaceController sharedInstance] presentOfflineWarningAlert];
     } else {
-        [self presentJoinCallOptionsForContactAtIndexPath:indexPath];
+        [self presentOptionsForContactAtIndexPath:indexPath];
     }
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];

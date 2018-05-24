@@ -50,7 +50,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)presentCallsViewController
+- (void)presentConversationsViewController
 {
     [self.mainTabBarController setSelectedIndex:0];
 }
@@ -97,6 +97,14 @@
     [alert addAction:okButton];
     
     [self.mainTabBarController presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)presentChatForPushNotification:(NCPushNotification *)pushNotification
+{
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:pushNotification forKey:@"pushNotification"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationJoinChatNotification
+                                                        object:self
+                                                      userInfo:userInfo];
 }
 
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification
@@ -149,6 +157,14 @@
 - (void)presentAlertViewController:(UIAlertController *)alertViewController
 {
     [self.mainTabBarController presentViewController:alertViewController animated:YES completion:nil];
+}
+
+- (void)presentChatViewController:(NCChatViewController *)chatViewController
+{
+    [self presentConversationsViewController];
+    UINavigationController *conversationsNC = [[self.mainTabBarController viewControllers] objectAtIndex:0];
+    [conversationsNC popToRootViewControllerAnimated:NO];
+    [conversationsNC pushViewController:chatViewController animated:YES];
 }
 
 - (void)presentCallViewController:(CallViewController *)callViewController

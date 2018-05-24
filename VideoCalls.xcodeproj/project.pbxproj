@@ -31,6 +31,7 @@
 		2C3F6AB71FBB47C400E2705C /* UICKeyChainStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */; };
 		2C3F6AB81FBB4C9500E2705C /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
 		2C3F6AB91FBB4C9D00E2705C /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
+		2C42ADB420B58E6300296DEA /* NCRoomController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C42ADB320B58E6300296DEA /* NCRoomController.m */; };
 		2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
 		2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
 		2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
@@ -152,6 +153,8 @@
 		2C3F6AA61FBB1ACD00E2705C /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
 		2C3F6AA71FBB1ACD00E2705C /* NotificationService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
 		2C3F6AA91FBB1ACD00E2705C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2C42ADB220B58E6300296DEA /* NCRoomController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCRoomController.h; sourceTree = "<group>"; };
+		2C42ADB320B58E6300296DEA /* NCRoomController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCRoomController.m; sourceTree = "<group>"; };
 		2C4D7D611F2F7C2C00FF4A0D /* ARDCaptureController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDCaptureController.h; sourceTree = "<group>"; };
 		2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDCaptureController.m; sourceTree = "<group>"; };
 		2C4D7D641F2F7DBC00FF4A0D /* ARDSettingsModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSettingsModel.h; sourceTree = "<group>"; };
@@ -486,6 +489,8 @@
 				2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */,
 				2C06BF5B20A89F510031EB46 /* NCRoomsManager.h */,
 				2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */,
+				2C42ADB220B58E6300296DEA /* NCRoomController.h */,
+				2C42ADB320B58E6300296DEA /* NCRoomController.m */,
 			);
 			name = Rooms;
 			sourceTree = "<group>";
@@ -1032,6 +1037,7 @@
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
 				2C063318205ACB140043481A /* VideoResolutionsViewController.m in Sources */,
+				2C42ADB420B58E6300296DEA /* NCRoomController.m in Sources */,
 				2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */,
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
 				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,

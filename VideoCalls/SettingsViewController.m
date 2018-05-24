@@ -205,7 +205,7 @@ typedef enum AboutSection {
     }
     
     [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
-    [[NCUserInterfaceController sharedInstance] presentCallsViewController];
+    [[NCUserInterfaceController sharedInstance] presentConversationsViewController];
     [[NCConnectionController sharedInstance] checkAppState];
 }
 
