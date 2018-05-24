@@ -65,7 +65,7 @@ NSInteger const kChatMessageGroupTimeDifference = 15;
                                  stringByReplacingOccurrencesOfString:@"}" withString:@""];
         NSDictionary *parameterDict = [_messageParameters objectForKey:parameterId];
         if (parameterDict) {
-            NSString *mentionName = [NSString stringWithFormat:@" @%@ ", [parameterDict objectForKey:@"name"]];
+            NSString *mentionName = [NSString stringWithFormat:@"@%@", [parameterDict objectForKey:@"name"]];
             NSString *mentionUserId = [parameterDict objectForKey:@"id"];
             parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:mentionName];
             
@@ -89,12 +89,9 @@ NSInteger const kChatMessageGroupTimeDifference = 15;
     // Create attributed strings for mentions
     NSMutableAttributedString *attributedMessage = [[NSMutableAttributedString alloc] initWithString:parsedMessage];
     for (NCChatMention *chatMention in mentions) {
-        UIColor *mentionTextColor = [UIColor darkGrayColor];
-        UIColor *mentionColor = [UIColor colorWithRed:0.90 green:0.90 blue:0.90 alpha:1.0]; //#e6e6e6
-        UIColor *ownMentionTextColor = [UIColor whiteColor];
+        UIColor *mentionColor = [UIColor darkGrayColor];
         UIColor *ownMentionColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
-        [attributedMessage addAttribute:NSBackgroundColorAttributeName value:(chatMention.ownMention) ? ownMentionColor : mentionColor range:chatMention.range];
-        [attributedMessage addAttribute:NSForegroundColorAttributeName value:(chatMention.ownMention) ? ownMentionTextColor : mentionTextColor range:chatMention.range];
+        [attributedMessage addAttribute:NSForegroundColorAttributeName value:(chatMention.ownMention) ? ownMentionColor : mentionColor range:chatMention.range];
         [attributedMessage addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:16.0f] range:chatMention.range];
     }
     
