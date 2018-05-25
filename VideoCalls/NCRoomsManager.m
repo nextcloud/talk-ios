@@ -67,7 +67,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 #pragma mark - Room
 
-- (void)joinRoom:(NCRoom *)room
+- (void)joinRoom:(NCRoom *)room forCall:(BOOL)call
 {
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
@@ -75,6 +75,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[NCAPIController sharedInstance] joinRoom:room.token withCompletionBlock:^(NSString *sessionId, NSError *error) {
             if (!error) {
                 NCRoomController *controller = [[NCRoomController alloc] initForUser:sessionId inRoom:room.token];
+                controller.inChat = !call;
+                controller.inCall = call;
                 [_activeRooms setObject:controller forKey:room.token];
                 [userInfo setObject:controller forKey:@"roomController"];
             } else {
@@ -86,6 +88,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                                                               userInfo:userInfo];
         }];
     } else {
+        if (call) {
+            roomController.inCall = YES;
+        } else {
+            roomController.inChat = YES;
+        }
         [userInfo setObject:roomController forKey:@"roomController"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
                                                             object:self
@@ -96,7 +103,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)leaveRoom:(NCRoom *)room
 {
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
-    if (roomController) {
+    if (roomController && !roomController.inCall && !roomController.inChat) {
         [roomController stopPingRoom];
         [roomController stopReceivingChatMessages];
         [_activeRooms removeObjectForKey:room.token];
@@ -160,10 +167,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
     [[NCUserInterfaceController sharedInstance] presentChatViewController:chatVC];
     
-    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
-    if (!roomController) {
-        [self joinRoom:room];
-    }
+    [self joinRoom:room forCall:NO];
 }
 
 - (void)startChatWithRoomId:(NSInteger)callId
@@ -225,6 +229,15 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
+- (void)leaveChatInRoom:(NCRoom *)room
+{
+    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
+    if (roomController) {
+        roomController.inChat = NO;
+        [self leaveRoom:room];
+    }
+}
+
 #pragma mark - Call
 
 - (void)startCall:(BOOL)video inRoom:(NCRoom *)room
@@ -233,12 +246,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     _callViewController.delegate = self;
     [[NCUserInterfaceController sharedInstance] presentCallViewController:_callViewController];
     
-    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
-    if (!roomController) {
-        [self joinRoom:room];
-    } else {
-        [_callViewController startCallWithSessionId:roomController.userSessionId];
-    }
+    [self joinRoom:room forCall:YES];
 }
 
 - (void)joinCallWithCallId:(NSInteger)callId withVideo:(BOOL)video
@@ -271,6 +279,15 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
+- (void)callDidEndInRoom:(NCRoom *)room
+{
+    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
+    if (roomController) {
+        roomController.inCall = NO;
+        [self leaveRoom:room];
+    }
+}
+
 #pragma mark - CallViewControllerDelegate
 
 - (void)callViewControllerWantsToBeDismissed:(CallViewController *)viewController
@@ -283,6 +300,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)callViewControllerDidFinish:(CallViewController *)viewController
 {
     if (_callViewController == viewController) {
+        [self callDidEndInRoom:_callViewController.room];
         _callViewController = nil;
     }
 }

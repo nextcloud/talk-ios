@@ -156,7 +156,9 @@ typedef NS_ENUM(NSInteger, CallState) {
         return;
     }
     
-    [self startCallWithSessionId:roomController.userSessionId];
+    if (!_callController) {
+        [self startCallWithSessionId:roomController.userSessionId];
+    }
 }
 
 #pragma mark - Local video

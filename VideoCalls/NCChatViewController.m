@@ -52,7 +52,7 @@
     
 - (void)dealloc
 {
-    [[NCRoomsManager sharedInstance] leaveRoom:_room];
+    [[NCRoomsManager sharedInstance] leaveChatInRoom:_room];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 

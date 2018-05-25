@@ -24,14 +24,13 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 
 + (instancetype)sharedInstance;
 // Room
-- (void)joinRoom:(NCRoom *)room;
-- (void)leaveRoom:(NCRoom *)room;
 - (void)updateRooms;
 // Chat
 - (void)startChatInRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message toRoom:(NCRoom *)room;
 - (void)startReceivingChatMessagesInRoom:(NCRoom *)room;
 - (void)stopReceivingChatMessagesInRoom:(NCRoom *)room;
+- (void)leaveChatInRoom:(NCRoom *)room;
 // Call
 - (void)startCall:(BOOL)video inRoom:(NCRoom *)room;
 
