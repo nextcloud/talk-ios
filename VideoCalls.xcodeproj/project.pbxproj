@@ -95,6 +95,8 @@
 		2CBF82BE1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
 		2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		2CBF82C21FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
+		2CC7158920B837140045C789 /* ChatPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* ChatPlaceholderView.xib */; };
+		2CC7158C20B8394A0045C789 /* ChatPlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */; };
 		2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7187D2007A9920055E02C /* LaunchScreen.xib */; };
 		85032FFE8557E8F29A3C79B8 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49EC325ACC97A400B9FAFA27 /* libPods-NotificationServiceExtension.a */; };
 		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
@@ -326,6 +328,9 @@
 		2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCImageSessionManager.m; sourceTree = "<group>"; };
 		2CBF82BF1FD5AE3F00636459 /* NCPushProxySessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushProxySessionManager.h; sourceTree = "<group>"; };
 		2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushProxySessionManager.m; sourceTree = "<group>"; };
+		2CC7158820B837140045C789 /* ChatPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatPlaceholderView.xib; sourceTree = "<group>"; };
+		2CC7158A20B8394A0045C789 /* ChatPlaceholderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatPlaceholderView.h; sourceTree = "<group>"; };
+		2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatPlaceholderView.m; sourceTree = "<group>"; };
 		2CC7187E2007A9920055E02C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = VideoCalls/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		2CF6F5E21FC211EC00E4EFAA /* NotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		49EC325ACC97A400B9FAFA27 /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -737,6 +742,9 @@
 				2CA15544208E41B500CE8EF0 /* NCChatViewController.m */,
 				2CA15549208F2E5700CE8EF0 /* NCMessageTextView.h */,
 				2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */,
+				2CC7158A20B8394A0045C789 /* ChatPlaceholderView.h */,
+				2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */,
+				2CC7158820B837140045C789 /* ChatPlaceholderView.xib */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -875,6 +883,7 @@
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
+				2CC7158920B837140045C789 /* ChatPlaceholderView.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1046,6 +1055,7 @@
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
 				2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */,
+				2CC7158C20B8394A0045C789 /* ChatPlaceholderView.m in Sources */,
 				2CA1CC9A1F0161EA002FE6A2 /* UICKeyChainStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

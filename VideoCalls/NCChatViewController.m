@@ -11,6 +11,7 @@
 #import "ChatMessageTableViewCell.h"
 #import "GroupedChatMessageTableViewCell.h"
 #import "DateHeaderView.h"
+#import "ChatPlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
 #import "NCChatMention.h"
@@ -96,6 +97,9 @@
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
+    
+    ChatPlaceholderView *placeholder = [[ChatPlaceholderView alloc] init];
+    self.tableView.backgroundView = placeholder;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -351,6 +355,11 @@
     
     NSDate *date = [_dateSections objectAtIndex:section];
     NSMutableArray *messages = [_messages objectForKey:date];
+    
+    if ([tableView isEqual:self.tableView] && messages.count > 0) {
+        self.tableView.backgroundView = nil;
+    }
+    
     return messages.count;
 }
 
