@@ -64,6 +64,7 @@ NSString * const NCRoomControllerDidReceiveChatMessagesNotification = @"NCRoomCo
 - (void)startReceivingChatMessages
 {
     _stopChatMessagesPoll = NO;
+    [_pullMessagesTask cancel];
     _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_lastMessageId history:NO withCompletionBlock:^(NSMutableArray *messages, NSError *error) {
         if (_stopChatMessagesPoll) {
             return;

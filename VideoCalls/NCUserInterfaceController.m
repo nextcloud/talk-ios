@@ -12,14 +12,14 @@
 #import "AuthenticationViewController.h"
 #import "LoginViewController.h"
 #import "NCConnectionController.h"
+#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "JDStatusBarNotification.h"
 
-@interface NCUserInterfaceController () <LoginViewControllerDelegate, AuthenticationViewControllerDelegate, CallViewControllerDelegate>
+@interface NCUserInterfaceController () <LoginViewControllerDelegate, AuthenticationViewControllerDelegate>
 {
     LoginViewController *_loginViewController;
     AuthenticationViewController *_authViewController;
-    CallViewController *_callViewController;
 }
 
 @end
@@ -147,7 +147,7 @@
     [alert addAction:cancelButton];
     
     // Do not show join call dialog until we don't handle 'hangup current call'/'join new one' properly.
-    if (self.mainTabBarController.presentedViewController != _callViewController) {
+    if (![NCRoomsManager sharedInstance].callViewController) {
         [self.mainTabBarController dismissViewControllerAnimated:NO completion:nil];
     }
 
@@ -169,11 +169,7 @@
 
 - (void)presentCallViewController:(CallViewController *)callViewController
 {
-    if (!_callViewController) {
-        _callViewController = callViewController;
-        _callViewController.delegate = self;
-        [self.mainTabBarController presentViewController:_callViewController animated:YES completion:nil];
-    }
+    [self.mainTabBarController presentViewController:callViewController animated:YES completion:nil];
 }
 
 #pragma mark - Notifications
@@ -209,22 +205,6 @@
 {
     [[NCConnectionController sharedInstance] checkAppState];
     [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
-}
-
-#pragma mark - CallViewControllerDelegate
-
-- (void)callViewControllerWantsToBeDismissed:(CallViewController *)viewController
-{
-    if (_callViewController == viewController && ![viewController isBeingDismissed]) {
-        [viewController dismissViewControllerAnimated:YES completion:nil];
-    }
-}
-
-- (void)callViewControllerDidFinish:(CallViewController *)viewController
-{
-    if (_callViewController == viewController) {
-        _callViewController = nil;
-    }
 }
 
 @end

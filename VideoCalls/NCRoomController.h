@@ -16,6 +16,8 @@ extern NSString * const NCRoomControllerDidReceiveChatMessagesNotification;
 
 @property (nonatomic, strong) NSString *userSessionId;
 @property (nonatomic, strong) NSString *roomToken;
+@property (nonatomic, assign) BOOL inCall;
+@property (nonatomic, assign) BOOL inChat;
 
 - (instancetype)initForUser:(NSString *)sessionId inRoom:(NSString *)token;
 - (void)startPingRoom;
