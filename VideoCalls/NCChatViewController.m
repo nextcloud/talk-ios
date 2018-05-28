@@ -26,6 +26,7 @@
 @interface NCChatViewController ()
 
 @property (nonatomic, strong) NCRoom *room;
+@property (nonatomic, strong) ChatPlaceholderView *chatBackgroundView;
 @property (nonatomic, strong) NSMutableDictionary *messages;
 @property (nonatomic, strong) NSMutableArray *dateSections;
 @property (nonatomic, strong) NSMutableArray *mentions;
@@ -98,8 +99,10 @@
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
     
-    ChatPlaceholderView *placeholder = [[ChatPlaceholderView alloc] init];
-    self.tableView.backgroundView = placeholder;
+    _chatBackgroundView = [[ChatPlaceholderView alloc] init];
+    [_chatBackgroundView.placeholderView setHidden:YES];
+    [_chatBackgroundView.loadingView startAnimating];
+    self.tableView.backgroundView = _chatBackgroundView;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -210,6 +213,10 @@
     }
     
     [roomController startReceivingChatMessages];
+    
+    [_chatBackgroundView.loadingView stopAnimating];
+    [_chatBackgroundView.loadingView setHidden:YES];
+    [_chatBackgroundView.placeholderView setHidden:NO];
 }
 
 - (void)didReceiveChatMessages:(NSNotification *)notification

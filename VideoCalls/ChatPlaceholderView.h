@@ -10,4 +10,7 @@
 
 @interface ChatPlaceholderView : UIView
 
+@property (weak, nonatomic) IBOutlet UIView *placeholderView;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *loadingView;
+
 @end
