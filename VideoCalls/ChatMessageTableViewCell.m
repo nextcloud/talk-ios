@@ -8,6 +8,7 @@
 
 #import "ChatMessageTableViewCell.h"
 #import "SLKUIConstants.h"
+#import "UIImageView+AFNetworking.h"
 
 @implementation ChatMessageTableViewCell
 
@@ -70,6 +71,8 @@
     self.titleLabel.text = @"";
     self.bodyLabel.text = @"";
     
+    [self.avatarView cancelImageDownloadTask];
+    self.avatarView.image = nil;
 }
 
 #pragma mark - Getters
