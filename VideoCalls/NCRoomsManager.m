@@ -104,8 +104,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (roomController && !roomController.inCall && !roomController.inChat) {
-        [roomController stopPingRoom];
-        [roomController stopReceivingChatMessages];
+        [roomController stopRoomController];
         [_activeRooms removeObjectForKey:room.token];
     }
     
