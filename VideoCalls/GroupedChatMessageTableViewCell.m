@@ -71,8 +71,8 @@
 {
     CGFloat pointSize = 16.0;
     
-    NSString *contentSizeCategory = [[UIApplication sharedApplication] preferredContentSizeCategory];
-    pointSize += SLKPointSizeDifferenceForCategory(contentSizeCategory);
+//    NSString *contentSizeCategory = [[UIApplication sharedApplication] preferredContentSizeCategory];
+//    pointSize += SLKPointSizeDifferenceForCategory(contentSizeCategory);
     
     return pointSize;
 }

@@ -672,10 +672,10 @@
                                      NSParagraphStyleAttributeName: paragraphStyle};
         
         CGFloat width = CGRectGetWidth(tableView.frame) - kChatMessageCellAvatarHeight;
-        width -= 25.0;
+        width -= 30.0;
         
         CGRect titleBounds = [message.actorDisplayName boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
-        CGRect bodyBounds = [message.message boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
+        CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
         
         if (message.message.length == 0) {
             return 0.0;

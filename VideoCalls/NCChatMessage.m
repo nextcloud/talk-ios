@@ -88,6 +88,7 @@ NSInteger const kChatMessageGroupTimeDifference = 15;
     
     // Create attributed strings for mentions
     NSMutableAttributedString *attributedMessage = [[NSMutableAttributedString alloc] initWithString:parsedMessage];
+    [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0f] range:NSMakeRange(0,parsedMessage.length)];
     for (NCChatMention *chatMention in mentions) {
         UIColor *mentionColor = [UIColor darkGrayColor];
         UIColor *ownMentionColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
