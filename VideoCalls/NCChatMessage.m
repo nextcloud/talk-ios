@@ -32,8 +32,8 @@ NSInteger const kChatMessageGroupTimeDifference = 15;
     message.token = [messageDict objectForKey:@"token"];
     
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
-    if (!actorDisplayName || [actorDisplayName isEqualToString:@""]) {
-        message.actorDisplayName = @"Guest";
+    if (!actorDisplayName) {
+        message.actorDisplayName = @"";
     } else {
         if ([actorDisplayName isKindOfClass:[NSString class]]) {
             message.actorDisplayName = actorDisplayName;

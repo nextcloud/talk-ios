@@ -20,7 +20,6 @@
 #import "NCRoomController.h"
 #import "NCSettingsController.h"
 #import "NSDate+DateTools.h"
-#import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 #import "UnreadMessagesView.h"
 
@@ -647,9 +646,15 @@
         normalCell.messageId = message.messageId;
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
         normalCell.dateLabel.text = [self getTimeFromDate:date];
-        // Request user avatar to the server and set it if exist
-        [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
-                                     placeholderImage:nil success:nil failure:nil];
+        
+        if ([message.actorType isEqualToString:@"guests"]) {
+            normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
+            [normalCell setGuestAvatar:message.actorDisplayName];
+        } else {
+            [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
+                                         placeholderImage:nil success:nil failure:nil];
+        }
+        
         return normalCell;
     }
     

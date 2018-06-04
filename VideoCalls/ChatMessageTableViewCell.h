@@ -23,5 +23,6 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 @property (nonatomic, strong) UIImageView *avatarView;
 
 + (CGFloat)defaultFontSize;
+- (void)setGuestAvatar:(NSString *)displayName;
 
 @end
