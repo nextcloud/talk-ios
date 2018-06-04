@@ -12,6 +12,6 @@ pod 'SlackTextViewController'
 end
 
 target "NotificationServiceExtension" do
-pod 'AFNetworking', '~> 3.0'
+pod 'AFNetworking', "3.1.0"
 end
 
