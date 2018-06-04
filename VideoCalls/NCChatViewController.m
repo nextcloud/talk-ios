@@ -89,8 +89,8 @@
     [self.rightButton setTitle:NSLocalizedString(@"Send", nil) forState:UIControlStateNormal];
     
     self.textInputbar.autoHideRightButton = YES;
-    self.textInputbar.maxCharCount = 256;
-    self.textInputbar.counterStyle = SLKCounterStyleSplit;
+    self.textInputbar.maxCharCount = 1000;
+    self.textInputbar.counterStyle = SLKCounterStyleCountdownReversed;
     self.textInputbar.counterPosition = SLKCounterPositionTop;
     self.textInputbar.translucent = NO;
     self.textInputbar.backgroundColor = [UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1.0]; //f9f9f9
