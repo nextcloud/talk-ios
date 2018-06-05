@@ -65,9 +65,7 @@
     configuration.mode = AVAudioSessionModeVideoChat;
     [RTCAudioSessionConfiguration setWebRTCConfiguration:configuration];
     
-    [NCRoomsManager sharedInstance];
     [NCUserInterfaceController sharedInstance].mainTabBarController = (UITabBarController *) self.window.rootViewController;
-    [[NCConnectionController sharedInstance] checkAppState];
     
     return YES;
 }
@@ -82,29 +80,32 @@
 {
     //Called to let your app know which action was selected by the user for a given notification.
     NSString *message = [response.notification.request.content.userInfo objectForKey:@"subject"];
-    NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:[NCSettingsController sharedInstance].ncPNPrivateKey];
-    if (decryptedMessage) {
-        NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage];
-        AppState appState = [[NCConnectionController sharedInstance] appState];
-        if (pushNotification && appState > kAppStateAuthenticationNeeded) {
-            switch (pushNotification.type) {
-                case NCPushNotificationTypeCall:
-                {
-                    [[NCUserInterfaceController sharedInstance] presentAlertForPushNotification:pushNotification];
+    if (message && [NCSettingsController sharedInstance].ncPNPrivateKey) {
+        NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:[NCSettingsController sharedInstance].ncPNPrivateKey];
+        if (decryptedMessage) {
+            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage];
+            [[NCConnectionController sharedInstance] checkAppState];
+            AppState appState = [[NCConnectionController sharedInstance] appState];
+            if (pushNotification && appState > kAppStateAuthenticationNeeded) {
+                switch (pushNotification.type) {
+                    case NCPushNotificationTypeCall:
+                    {
+                        [[NCUserInterfaceController sharedInstance] presentAlertForPushNotification:pushNotification];
+                    }
+                        break;
+                    case NCPushNotificationTypeRoom:
+                    case NCPushNotificationTypeChat:
+                    {
+                        [NCRoomsManager sharedInstance];
+                        [[NCUserInterfaceController sharedInstance] presentChatForPushNotification:pushNotification];
+                    }
+                        break;
+                    default:
+                        break;
                 }
-                    break;
-                case NCPushNotificationTypeRoom:
-                case NCPushNotificationTypeChat:
-                {
-                    [[NCUserInterfaceController sharedInstance] presentChatForPushNotification:pushNotification];
-                }
-                    break;
-                default:
-                    break;
             }
         }
     }
-    
     completionHandler();
 }
 
