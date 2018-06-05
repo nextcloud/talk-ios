@@ -163,10 +163,19 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)startChatInRoom:(NCRoom *)room
 {
-    NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
-    [[NCUserInterfaceController sharedInstance] presentChatViewController:chatVC];
+    if (_callViewController) {
+        NSLog(@"Not starting chat due to in a call.");
+        return;
+    }
     
-    [self joinRoom:room forCall:NO];
+    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
+    if (roomController && roomController.inChat) {
+        [[NCUserInterfaceController sharedInstance] presentConversationsViewController];
+    } else {
+        NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
+        [[NCUserInterfaceController sharedInstance] presentChatViewController:chatVC];
+        [self joinRoom:room forCall:NO];
+    }
 }
 
 - (void)startChatWithRoomId:(NSInteger)callId
@@ -241,11 +250,15 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)startCall:(BOOL)video inRoom:(NCRoom *)room
 {
-    _callViewController = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:!video];
-    _callViewController.delegate = self;
-    [[NCUserInterfaceController sharedInstance] presentCallViewController:_callViewController];
-    
-    [self joinRoom:room forCall:YES];
+    if (!_callViewController) {
+        _callViewController = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:!video];
+        _callViewController.delegate = self;
+        [[NCUserInterfaceController sharedInstance] presentCallViewController:_callViewController];
+        
+        [self joinRoom:room forCall:YES];
+    } else {
+        NSLog(@"Not starting call due to in another call.");
+    }
 }
 
 - (void)joinCallWithCallId:(NSInteger)callId withVideo:(BOOL)video
