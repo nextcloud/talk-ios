@@ -31,7 +31,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+#if DEBUG
     [AFNetworkActivityIndicatorManager sharedManager].enabled = YES;
+#endif
     [[AFNetworkReachabilityManager sharedManager] startMonitoring];
     
     @try {
