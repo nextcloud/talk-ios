@@ -461,7 +461,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"chat/%@", token]];
     NSDictionary *parameters = @{@"lookIntoFuture" : history ? @(0) : @(1),
-                                 @"limit" : @(100),
+                                 @"limit" : @(200),
                                  @"timeout" : @"30",
                                  @"lastKnownMessageId" : @(messageId)};
     
@@ -472,6 +472,11 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
             NCChatMessage *ncMessage = [NCChatMessage messageWithDictionary:message];
             [messages addObject:ncMessage];
         }
+        
+        // Sort by messageId
+        NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"messageId" ascending:YES];
+        NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];
+        [messages sortUsingDescriptors:descriptors];
         
         if (block) {
             block(messages, nil);

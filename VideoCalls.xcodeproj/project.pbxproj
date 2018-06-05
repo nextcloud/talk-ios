@@ -95,6 +95,11 @@
 		2CBF82BE1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
 		2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		2CBF82C21FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
+		2CC7158920B837140045C789 /* ChatPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* ChatPlaceholderView.xib */; };
+		2CC7158C20B8394A0045C789 /* ChatPlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */; };
+		2CC7158E20C51ABA0045C789 /* UnreadMessagesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158D20C51ABA0045C789 /* UnreadMessagesView.xib */; };
+		2CC7159120C51F7F0045C789 /* UnreadMessagesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159020C51F7F0045C789 /* UnreadMessagesView.m */; };
+		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
 		2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7187D2007A9920055E02C /* LaunchScreen.xib */; };
 		85032FFE8557E8F29A3C79B8 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49EC325ACC97A400B9FAFA27 /* libPods-NotificationServiceExtension.a */; };
 		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
@@ -326,6 +331,14 @@
 		2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCImageSessionManager.m; sourceTree = "<group>"; };
 		2CBF82BF1FD5AE3F00636459 /* NCPushProxySessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushProxySessionManager.h; sourceTree = "<group>"; };
 		2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushProxySessionManager.m; sourceTree = "<group>"; };
+		2CC7158820B837140045C789 /* ChatPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatPlaceholderView.xib; sourceTree = "<group>"; };
+		2CC7158A20B8394A0045C789 /* ChatPlaceholderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatPlaceholderView.h; sourceTree = "<group>"; };
+		2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatPlaceholderView.m; sourceTree = "<group>"; };
+		2CC7158D20C51ABA0045C789 /* UnreadMessagesView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UnreadMessagesView.xib; sourceTree = "<group>"; };
+		2CC7158F20C51F7F0045C789 /* UnreadMessagesView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnreadMessagesView.h; sourceTree = "<group>"; };
+		2CC7159020C51F7F0045C789 /* UnreadMessagesView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnreadMessagesView.m; sourceTree = "<group>"; };
+		2CC7159220C54D080045C789 /* ChatTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatTableViewCell.h; sourceTree = "<group>"; };
+		2CC7159320C54D080045C789 /* ChatTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatTableViewCell.m; sourceTree = "<group>"; };
 		2CC7187E2007A9920055E02C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = VideoCalls/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		2CF6F5E21FC211EC00E4EFAA /* NotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		49EC325ACC97A400B9FAFA27 /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -722,6 +735,8 @@
 		2CF0679E208A2A430070A79B /* Chat */ = {
 			isa = PBXGroup;
 			children = (
+				2CC7159220C54D080045C789 /* ChatTableViewCell.h */,
+				2CC7159320C54D080045C789 /* ChatTableViewCell.m */,
 				2CA15546208EA1EA00CE8EF0 /* ChatMessageTableViewCell.h */,
 				2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */,
 				2CA155542099E07700CE8EF0 /* GroupedChatMessageTableViewCell.h */,
@@ -737,6 +752,12 @@
 				2CA15544208E41B500CE8EF0 /* NCChatViewController.m */,
 				2CA15549208F2E5700CE8EF0 /* NCMessageTextView.h */,
 				2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */,
+				2CC7158A20B8394A0045C789 /* ChatPlaceholderView.h */,
+				2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */,
+				2CC7158820B837140045C789 /* ChatPlaceholderView.xib */,
+				2CC7158F20C51F7F0045C789 /* UnreadMessagesView.h */,
+				2CC7159020C51F7F0045C789 /* UnreadMessagesView.m */,
+				2CC7158D20C51ABA0045C789 /* UnreadMessagesView.xib */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -869,12 +890,14 @@
 				2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */,
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
+				2CC7158E20C51ABA0045C789 /* UnreadMessagesView.xib in Resources */,
 				2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */,
 				2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */,
 				2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */,
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
+				2CC7158920B837140045C789 /* ChatPlaceholderView.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1007,6 +1030,7 @@
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
+				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CBF82BD1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
@@ -1043,9 +1067,11 @@
 				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
 				2CA1CCB51F0D0D5E002FE6A2 /* SettingsViewController.m in Sources */,
+				2CC7159120C51F7F0045C789 /* UnreadMessagesView.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
 				2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */,
+				2CC7158C20B8394A0045C789 /* ChatPlaceholderView.m in Sources */,
 				2CA1CC9A1F0161EA002FE6A2 /* UICKeyChainStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

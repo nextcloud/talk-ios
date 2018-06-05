@@ -11,6 +11,7 @@
 #import "ChatMessageTableViewCell.h"
 #import "GroupedChatMessageTableViewCell.h"
 #import "DateHeaderView.h"
+#import "ChatPlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
 #import "NCChatMention.h"
@@ -19,16 +20,24 @@
 #import "NCRoomController.h"
 #import "NCSettingsController.h"
 #import "NSDate+DateTools.h"
-#import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
+#import "UnreadMessagesView.h"
 
 @interface NCChatViewController ()
 
 @property (nonatomic, strong) NCRoom *room;
+@property (nonatomic, strong) NCRoomController *roomController;
+@property (nonatomic, strong) ChatPlaceholderView *chatBackgroundView;
 @property (nonatomic, strong) NSMutableDictionary *messages;
 @property (nonatomic, strong) NSMutableArray *dateSections;
 @property (nonatomic, strong) NSMutableArray *mentions;
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
+@property (nonatomic, assign) BOOL stopReceivingNewMessages;
+@property (nonatomic, assign) BOOL hasReceiveInitialHistory;
+@property (nonatomic, assign) BOOL retrievingHistory;
+@property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
+@property (nonatomic, assign) NSInteger firstUnreadMessage;
+@property (nonatomic, strong) UnreadMessagesView *unreadMessageView;
 
 @end
 
@@ -44,6 +53,8 @@
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistory:) name:NCRoomControllerDidReceiveInitialChatHistoryNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatHistory:) name:NCRoomControllerDidReceiveChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCRoomControllerDidReceiveChatMessagesNotification object:nil];
     }
     
@@ -77,8 +88,8 @@
     [self.rightButton setTitle:NSLocalizedString(@"Send", nil) forState:UIControlStateNormal];
     
     self.textInputbar.autoHideRightButton = YES;
-    self.textInputbar.maxCharCount = 256;
-    self.textInputbar.counterStyle = SLKCounterStyleSplit;
+    self.textInputbar.maxCharCount = 1000;
+    self.textInputbar.counterStyle = SLKCounterStyleCountdownReversed;
     self.textInputbar.counterPosition = SLKCounterPositionTop;
     self.textInputbar.translucent = NO;
     self.textInputbar.backgroundColor = [UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1.0]; //f9f9f9
@@ -96,18 +107,55 @@
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
+    
+    // Chat placeholder view
+    _chatBackgroundView = [[ChatPlaceholderView alloc] init];
+    [_chatBackgroundView.placeholderView setHidden:YES];
+    [_chatBackgroundView.loadingView startAnimating];
+    self.tableView.backgroundView = _chatBackgroundView;
+    
+    // Unread messages indicator
+    _firstUnreadMessage = -1;
+    _unreadMessageView =  [[UnreadMessagesView alloc] init];
+    _unreadMessageView.center = self.view.center;
+    _unreadMessageView.frame = CGRectMake(_unreadMessageView.frame.origin.x,
+                                          -40,
+                                          _unreadMessageView.frame.size.width,
+                                          _unreadMessageView.frame.size.height);
+    _unreadMessageView.hidden = YES;
+    [self.textInputbar addSubview:_unreadMessageView];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
+    if (_stopReceivingNewMessages) {
+        _stopReceivingNewMessages = NO;
+        [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    _stopReceivingNewMessages = YES;
     [[NCRoomsManager sharedInstance] stopReceivingChatMessagesInRoom:_room];
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    if (_firstUnreadMessage > -1) {
+        [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+            _unreadMessageView.hidden = YES;
+        } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+            _unreadMessageView.center = self.view.center;
+            _unreadMessageView.frame = CGRectMake(_unreadMessageView.frame.origin.x,
+                                                  -40,
+                                                  _unreadMessageView.frame.size.width,
+                                                  _unreadMessageView.frame.size.height);
+            _unreadMessageView.hidden = NO;
+        }];
+    }
 }
 
 #pragma mark - Configuration
@@ -140,6 +188,7 @@
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     formatter.dateStyle = NSDateFormatterMediumStyle;
+    formatter.doesRelativeDateFormatting = YES;
     return [formatter stringFromDate:date];
 }
 
@@ -170,6 +219,27 @@
     NSString *sendingText = [self createSendingMessage:self.textView.text];
     [[NCRoomsManager sharedInstance] sendChatMessage:sendingText toRoom:_room];
     [super didPressRightButton:sender];
+}
+
+#pragma mark - UIScrollViewDelegate Methods
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    [super scrollViewDidScroll:scrollView];
+    
+    if ([scrollView isEqual:self.tableView] && scrollView.contentOffset.y < 0) {
+        if ([self shouldRetireveHistory]) {
+            _retrievingHistory = YES;
+            [self showLoadingHistoryView];
+            NSDate *dateSection = [_dateSections objectAtIndex:0];
+            NCChatMessage *firstMessage = [[_messages objectForKey:dateSection] objectAtIndex:0];
+            [_roomController getChatHistoryFromMessagesId:firstMessage.messageId];
+        }
+    }
+    
+    if (_firstUnreadMessage > -1) {
+        [self checkUnreadMessagesVisibility];
+    }
 }
 
 #pragma mark - UITextViewDelegate Methods
@@ -205,7 +275,51 @@
         return;
     }
     
-    [roomController startReceivingChatMessages];
+    _roomController = roomController;
+    [_roomController getInitialChatHistory];
+}
+
+- (void)didReceiveInitialChatHistory:(NSNotification *)notification
+{
+    NSString *room = [notification.userInfo objectForKey:@"room"];
+    if (![room isEqualToString:_room.token]) {
+        return;
+    }
+    
+    _hasReceiveInitialHistory = YES;
+    
+    [_chatBackgroundView.loadingView stopAnimating];
+    [_chatBackgroundView.loadingView setHidden:YES];
+    
+    NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
+    if (messages) {
+        [self sortMessages:messages inDictionary:_messages];
+        [self.tableView reloadData];
+        NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
+        NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+        [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
+    } else {
+        [_chatBackgroundView.placeholderView setHidden:NO];
+    }
+}
+
+- (void)didReceiveChatHistory:(NSNotification *)notification
+{
+    NSString *room = [notification.userInfo objectForKey:@"room"];
+    if (![room isEqualToString:_room.token]) {
+        return;
+    }
+    
+    NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
+    if (messages) {
+        NSIndexPath *lastHistoryMessageIP = [self sortHistoryMessages:messages];
+        [self.tableView reloadData];
+        [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionNone animated:NO];
+
+    }
+    
+    _retrievingHistory = NO;
+    [self hideLoadingHistoryView];
 }
 
 - (void)didReceiveChatMessages:(NSNotification *)notification
@@ -216,36 +330,46 @@
     }
     
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
-    NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
-    BOOL singleMessage = (messages.count == 1);
-    if (messages.count > 1) {
-        [self sortNewMessages:messages];
-        [self.tableView reloadData];
-    } else if (singleMessage) {
-        [self.tableView beginUpdates];
-        NSMutableArray *indexPaths = [self sortNewMessages:messages];
-        NSIndexPath *newMessageIndexPath = [indexPaths objectAtIndex:0];
-        BOOL newSection = lastSectionBeforeUpdate != newMessageIndexPath.section;
-        if (newSection) {
-            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:newMessageIndexPath.section] withRowAnimation:UITableViewRowAnimationNone];
-        } else {
-            [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+    if (messages.count > 0) {
+        NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
+        BOOL singleMessage = (messages.count == 1);
+        BOOL scroll = [self shouldScrollOnNewMessages];
+        if (!scroll && _firstUnreadMessage < 0) {
+            [self showNewMessagesViewUntilMessage:[messages firstObject]];
         }
-        [self.tableView endUpdates];
-    } else {
-        // No new messages received
-        return;
+        
+        [self sortMessages:messages inDictionary:_messages];
+        
+        NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
+        NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+        
+        if (messages.count > 1) {
+            [self.tableView reloadData];
+        } else if (singleMessage) {
+            [self.tableView beginUpdates];
+            NSInteger newLastSection = _dateSections.count - 1;
+            BOOL newSection = lastSectionBeforeUpdate != newLastSection;
+            if (newSection) {
+                [self.tableView insertSections:[NSIndexSet indexSetWithIndex:newLastSection] withRowAnimation:UITableViewRowAnimationNone];
+            } else {
+                [self.tableView insertRowsAtIndexPaths:@[lastMessageIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+            }
+            [self.tableView endUpdates];
+        }
+        
+        if (scroll) {
+            [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+        }
     }
     
-    NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
-    NCChatMessage *lastMessage = [messagesForLastDate lastObject];
-    [self.tableView scrollToRowAtIndexPath:lastMessage.indexPath atScrollPosition:UITableViewScrollPositionNone animated:singleMessage];
 }
 
-- (NSDate *)getDictKeyForDate:(NSDate *)date
+#pragma mark - Chat functions
+
+- (NSDate *)getKeyForDate:(NSDate *)date inDictionary:(NSDictionary *)dictionary
 {
     NSDate *keyDate = nil;
-    for (NSDate *key in _messages.allKeys) {
+    for (NSDate *key in dictionary.allKeys) {
         if ([[NSCalendar currentCalendar] isDate:date inSameDayAsDate:key]) {
             keyDate = key;
         }
@@ -253,35 +377,85 @@
     return keyDate;
 }
 
-- (NSMutableArray *)sortNewMessages:(NSMutableArray *)newMessages
+- (NSIndexPath *)sortHistoryMessages:(NSMutableArray *)historyMessages
 {
-    NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:newMessages.count];
+    NSMutableDictionary *historyDict = [[NSMutableDictionary alloc] init];
+    [self sortMessages:historyMessages inDictionary:historyDict];
     
-    for (NCChatMessage *newMessage in newMessages) {
+    NSDate *chatSection = nil;
+    NSMutableArray *historyMessagesForSection = nil;
+    // Sort history sections
+    NSMutableArray *historySections = [NSMutableArray arrayWithArray:historyDict.allKeys];
+    [historySections sortUsingSelector:@selector(compare:)];
+    
+    for (NSDate *historySection in historySections) {
+        historyMessagesForSection = [historyDict objectForKey:historySection];
+        chatSection = [self getKeyForDate:historySection inDictionary:_messages];
+        if (!chatSection) {
+            [_messages setObject:historyMessagesForSection forKey:historySection];
+        }
+    }
+    
+    [self sortDateSections];
+    
+    NSMutableArray *lastHistoryMessages = [historyDict objectForKey:[historySections lastObject]];
+    NSIndexPath *lastHistoryMessageIP = [NSIndexPath indexPathForRow:lastHistoryMessages.count - 1 inSection:historySections.count - 1];
+    
+    if (chatSection) {
+        NSMutableArray *chatMessages = [_messages objectForKey:chatSection];
+        NCChatMessage *lastHistoryMessage = [historyMessagesForSection lastObject];
+        NCChatMessage *firstChatMessage = [chatMessages firstObject];
+        
+        BOOL canGroup = [self shouldGroupMessage:firstChatMessage withMessage:lastHistoryMessage];
+        if (canGroup) {
+            firstChatMessage.groupMessage = YES;
+            firstChatMessage.groupMessageNumber = lastHistoryMessage.groupMessageNumber + 1;
+            for (int i = 1; i < chatMessages.count; i++) {
+                NCChatMessage *currentMessage = chatMessages[i];
+                NCChatMessage *messageBefore = chatMessages[i-1];
+                if ([self shouldGroupMessage:currentMessage withMessage:messageBefore]) {
+                    currentMessage.groupMessage = YES;
+                    currentMessage.groupMessageNumber = messageBefore.groupMessageNumber + 1;
+                } else if ([currentMessage.actorId isEqualToString:messageBefore.actorId] &&
+                           (currentMessage.timestamp - messageBefore.timestamp) < kChatMessageGroupTimeDifference &&
+                           messageBefore.groupMessageNumber == kChatMessageMaxGroupNumber) {
+                    // Check if message groups need to be changed
+                    currentMessage.groupMessage = NO;
+                    currentMessage.groupMessageNumber = 0;
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        [historyMessagesForSection addObjectsFromArray:chatMessages];
+        [_messages setObject:historyMessagesForSection forKey:chatSection];
+    }
+    
+    return lastHistoryMessageIP;
+}
+
+- (void)sortMessages:(NSMutableArray *)messages inDictionary:(NSMutableDictionary *)dictionary
+{
+    for (NCChatMessage *newMessage in messages) {
         NSDate *newMessageDate = [NSDate dateWithTimeIntervalSince1970: newMessage.timestamp];
-        NSDate *keyDate = [self getDictKeyForDate:newMessageDate];
-        NSMutableArray *messagesForDate = [_messages objectForKey:keyDate];
+        NSDate *keyDate = [self getKeyForDate:newMessageDate inDictionary:dictionary];
+        NSMutableArray *messagesForDate = [dictionary objectForKey:keyDate];
         if (messagesForDate) {
             NCChatMessage *lastMessage = [messagesForDate lastObject];
             if ([self shouldGroupMessage:newMessage withMessage:lastMessage]) {
                 newMessage.groupMessage = YES;
                 newMessage.groupMessageNumber = lastMessage.groupMessageNumber + 1;
             }
-            newMessage.indexPath = [NSIndexPath indexPathForRow:lastMessage.indexPath.row + 1 inSection:[_dateSections indexOfObject:keyDate]];
             [messagesForDate addObject:newMessage];
         } else {
             NSMutableArray *newMessagesInDate = [NSMutableArray new];
-            [_messages setObject:newMessagesInDate forKey:newMessageDate];
-            [self sortDateSections];
-            newMessage.indexPath = [NSIndexPath indexPathForRow:0 inSection:[_dateSections indexOfObject:newMessageDate]];
+            [dictionary setObject:newMessagesInDate forKey:newMessageDate];
             [newMessagesInDate addObject:newMessage];
         }
-        
-        [indexPaths addObject:newMessage.indexPath];
     }
     
-    [indexPaths sortUsingSelector:@selector(compare:)];
-    return indexPaths;
+    [self sortDateSections];
 }
 
 - (void)sortDateSections
@@ -297,6 +471,58 @@
     BOOL notMaxGroup = lastMessage.groupMessageNumber < kChatMessageMaxGroupNumber;
     
     return sameActor & timeDiff & notMaxGroup;
+}
+
+- (BOOL)shouldRetireveHistory
+{
+    return _hasReceiveInitialHistory && !_retrievingHistory && [_roomController hasHistory];
+}
+
+- (void)showLoadingHistoryView
+{
+    _loadingHistoryView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
+    _loadingHistoryView.color = [UIColor darkGrayColor];
+    [_loadingHistoryView startAnimating];
+    self.tableView.tableHeaderView = _loadingHistoryView;
+}
+
+- (void)hideLoadingHistoryView
+{
+    _loadingHistoryView = nil;
+    self.tableView.tableHeaderView = nil;
+}
+
+- (BOOL)shouldScrollOnNewMessages
+{
+    // Scroll if table view is at the bottom (or 80px up)
+    CGFloat minimumOffset = (self.tableView.contentSize.height - self.tableView.frame.size.height) - 80;
+    if (self.tableView.contentOffset.y >= minimumOffset) {
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (void)showNewMessagesViewUntilMessage:(NCChatMessage *)message
+{
+    _firstUnreadMessage = message.messageId;
+    _unreadMessageView.hidden = NO;
+}
+
+- (void)hideNewMessagesView
+{
+    _firstUnreadMessage = -1;
+    _unreadMessageView.hidden = YES;
+}
+
+- (void)checkUnreadMessagesVisibility
+{
+    NSArray* cells = self.tableView.visibleCells;
+    for (ChatTableViewCell *cell in cells) {
+        if (cell.messageId == _firstUnreadMessage) {
+            [self hideNewMessagesView];
+        }
+    }
 }
 
 #pragma mark - Autocompletion
@@ -351,6 +577,11 @@
     
     NSDate *date = [_dateSections objectAtIndex:section];
     NSMutableArray *messages = [_messages objectForKey:date];
+    
+    if ([tableView isEqual:self.tableView] && messages.count > 0) {
+        self.tableView.backgroundView = nil;
+    }
+    
     return messages.count;
 }
 
@@ -403,21 +634,28 @@
     
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
-    
     UITableViewCell *cell = [UITableViewCell new];
     if (message.groupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
         groupedCell.bodyLabel.attributedText = message.parsedMessage;
+        groupedCell.messageId = message.messageId;
         return groupedCell;
     } else {
         ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
         normalCell.titleLabel.text = message.actorDisplayName;
         normalCell.bodyLabel.attributedText = message.parsedMessage;
+        normalCell.messageId = message.messageId;
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
         normalCell.dateLabel.text = [self getTimeFromDate:date];
-        // Request user avatar to the server and set it if exist
-        [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
-                                     placeholderImage:nil success:nil failure:nil];
+        
+        if ([message.actorType isEqualToString:@"guests"]) {
+            normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
+            [normalCell setGuestAvatar:message.actorDisplayName];
+        } else {
+            [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
+                                         placeholderImage:nil success:nil failure:nil];
+        }
+        
         return normalCell;
     }
     
@@ -440,10 +678,10 @@
                                      NSParagraphStyleAttributeName: paragraphStyle};
         
         CGFloat width = CGRectGetWidth(tableView.frame) - kChatMessageCellAvatarHeight;
-        width -= 25.0;
+        width -= 30.0;
         
         CGRect titleBounds = [message.actorDisplayName boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
-        CGRect bodyBounds = [message.message boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
+        CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
         
         if (message.message.length == 0) {
             return 0.0;

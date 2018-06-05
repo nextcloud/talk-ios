@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ChatTableViewCell.h"
 
 static CGFloat kChatMessageCellMinimumHeight    = 50.0;
 static CGFloat kChatMessageCellAvatarHeight     = 30.0;
@@ -14,7 +15,7 @@ static CGFloat kChatMessageCellAvatarHeight     = 30.0;
 static NSString *ChatMessageCellIdentifier      = @"ChatMessageCellIdentifier";
 static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier";
 
-@interface ChatMessageTableViewCell : UITableViewCell
+@interface ChatMessageTableViewCell : ChatTableViewCell
 
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *dateLabel;
@@ -22,5 +23,6 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 @property (nonatomic, strong) UIImageView *avatarView;
 
 + (CGFloat)defaultFontSize;
+- (void)setGuestAvatar:(NSString *)displayName;
 
 @end

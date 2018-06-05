@@ -7,11 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ChatTableViewCell.h"
 
 static CGFloat kGroupedChatMessageCellMinimumHeight = 30.0;
 static NSString *GroupedChatMessageCellIdentifier = @"GroupedChatMessageCellIdentifier";
 
-@interface GroupedChatMessageTableViewCell : UITableViewCell
+@interface GroupedChatMessageTableViewCell : ChatTableViewCell
 
 @property (nonatomic, strong) UILabel *bodyLabel;
 
