@@ -188,6 +188,7 @@
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     formatter.dateStyle = NSDateFormatterMediumStyle;
+    formatter.doesRelativeDateFormatting = YES;
     return [formatter stringFromDate:date];
 }
 
