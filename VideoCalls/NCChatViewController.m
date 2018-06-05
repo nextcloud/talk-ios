@@ -50,6 +50,9 @@
         self.room = room;
         self.title = room.displayName;
         self.hidesBottomBarWhenPushed = YES;
+        // Fixes problem with tableView contentSize on iOS 11
+        self.tableView.estimatedRowHeight = 0;
+        self.tableView.estimatedSectionHeaderHeight = 0;
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
@@ -315,7 +318,6 @@
         NSIndexPath *lastHistoryMessageIP = [self sortHistoryMessages:messages];
         [self.tableView reloadData];
         [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionNone animated:NO];
-
     }
     
     _retrievingHistory = NO;
