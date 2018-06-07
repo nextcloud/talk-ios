@@ -106,18 +106,18 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (roomController && !roomController.inCall && !roomController.inChat) {
         [roomController stopRoomController];
         [_activeRooms removeObjectForKey:room.token];
+        
+        [[NCAPIController sharedInstance] exitRoom:room.token withCompletionBlock:^(NSError *error) {
+            NSMutableDictionary *userInfo = [NSMutableDictionary new];
+            if (error) {
+                [userInfo setObject:error forKey:@"error"];
+                NSLog(@"Could not exit room. Error: %@", error.description);
+            }
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidLeaveRoomNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+        }];
     }
-    
-    [[NCAPIController sharedInstance] exitRoom:room.token withCompletionBlock:^(NSError *error) {
-        NSMutableDictionary *userInfo = [NSMutableDictionary new];
-        if (error) {
-            [userInfo setObject:error forKey:@"error"];
-            NSLog(@"Could not exit room. Error: %@", error.description);
-        }
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidLeaveRoomNotification
-                                                            object:self
-                                                          userInfo:userInfo];
-    }];
 }
 
 - (void)updateRooms
