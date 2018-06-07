@@ -110,9 +110,8 @@ static NSString * const kNCVideoTrackKind = @"video";
     [_signalingController stopPullingSignalingMessages];
     
     [[NCAPIController sharedInstance] leaveCall:_room.token withCompletionBlock:^(NSError *error) {
-        if (!error) {
-            [self.delegate callControllerDidEndCall:self];
-        } else {
+        [self.delegate callControllerDidEndCall:self];
+        if (error) {
             NSLog(@"Could not leave call. Error: %@", error.description);
         }
     }];
