@@ -278,8 +278,10 @@
         return;
     }
     
-    _roomController = roomController;
-    [_roomController getInitialChatHistory];
+    if (!_roomController) {
+        _roomController = roomController;
+        [_roomController getInitialChatHistory];
+    }
 }
 
 - (void)didReceiveInitialChatHistory:(NSNotification *)notification
