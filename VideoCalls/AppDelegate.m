@@ -69,6 +69,9 @@
     
     [NCUserInterfaceController sharedInstance].mainTabBarController = (UITabBarController *) self.window.rootViewController;
     
+    //Init rooms manager to start receiving NSNotificationCenter notifications
+    [NCRoomsManager sharedInstance];
+    
     return YES;
 }
 
@@ -98,7 +101,6 @@
                     case NCPushNotificationTypeRoom:
                     case NCPushNotificationTypeChat:
                     {
-                        [NCRoomsManager sharedInstance];
                         [[NCUserInterfaceController sharedInstance] presentChatForPushNotification:pushNotification];
                     }
                         break;
