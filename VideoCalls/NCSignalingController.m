@@ -38,6 +38,11 @@
     return self;
 }
 
+- (void)dealloc
+{
+    NSLog(@"NCSignalingController dealloc");
+}
+
 - (void)getSignalingSettings
 {
     _getSignalingSettingsTask = [[NCAPIController sharedInstance] getSignalingSettingsWithCompletionBlock:^(NSDictionary *settings, NSError *error) {
@@ -178,6 +183,8 @@
 - (void)stopAllRequests
 {
     [_getSignalingSettingsTask cancel];
+    _getSignalingSettingsTask = nil;
+    
     [self stopPullingSignalingMessages];
 }
 
