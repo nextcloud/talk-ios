@@ -168,6 +168,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     [_micAudioLevelTimer invalidate];
     _micAudioLevelTimer = nil;
+    [_recorder stop];
+    _recorder = nil;
 }
 
 - (void)initRecorder
