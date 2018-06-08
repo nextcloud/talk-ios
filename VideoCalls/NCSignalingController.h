@@ -26,7 +26,7 @@
 - (instancetype)initForRoom:(NCRoom *)room;
 - (NSArray *)getIceServers;
 - (void)startPullingSignalingMessages;
-- (void)stopPullingSignalingMessages;
 - (void)sendSignalingMessage:(NCSignalingMessage *)message;
+- (void)stopAllRequests;
 
 @end

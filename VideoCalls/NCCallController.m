@@ -30,6 +30,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @interface NCCallController () <NCPeerConnectionDelegate, NCSignalingControllerObserver>
 
 @property (nonatomic, assign) BOOL isAudioOnly;
+@property (nonatomic, assign) BOOL inCall;
 @property (nonatomic, assign) BOOL leavingCall;
 @property (nonatomic, strong) AVAudioRecorder *recorder;
 @property (nonatomic, strong) NSTimer *micAudioLevelTimer;
@@ -41,6 +42,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) RTCVideoTrack *localVideoTrack;
 @property (nonatomic, strong) RTCPeerConnectionFactory *peerConnectionFactory;
 @property (nonatomic, strong) NCSignalingController *signalingController;
+@property (nonatomic, strong) NSURLSessionTask *joinCallTask;
+@property (nonatomic, strong) NSURLSessionTask *getPeersForCallTask;
 
 @end
 
@@ -78,8 +81,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)startCall
 {
     [self createLocalMedia];
-    [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
+            [self setInCall:YES];
             [self.delegate callControllerDidJoinCall:self];
             [self getPeersForCall];
             [self startMonitoringMicrophoneAudioLevel];
@@ -92,7 +96,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)leaveCall
 {
-    _leavingCall = YES;
+    [self setLeavingCall:YES];
     
     for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
         [peerConnectionWrapper close];
@@ -107,14 +111,23 @@ static NSString * const kNCVideoTrackKind = @"video";
     _connectionsDict = nil;
     
     [self stopMonitoringMicrophoneAudioLevel];
-    [_signalingController stopPullingSignalingMessages];
+    [_signalingController stopAllRequests];
     
-    [[NCAPIController sharedInstance] leaveCall:_room.token withCompletionBlock:^(NSError *error) {
+    if (_inCall) {
+        [_getPeersForCallTask cancel];
+        _getPeersForCallTask = nil;
+        
+        [[NCAPIController sharedInstance] leaveCall:_room.token withCompletionBlock:^(NSError *error) {
+            [self.delegate callControllerDidEndCall:self];
+            if (error) {
+                NSLog(@"Could not leave call. Error: %@", error.description);
+            }
+        }];
+    } else {
+        [_joinCallTask cancel];
+        _joinCallTask = nil;
         [self.delegate callControllerDidEndCall:self];
-        if (error) {
-            NSLog(@"Could not leave call. Error: %@", error.description);
-        }
-    }];
+    }
 }
 
 - (void)dealloc
@@ -168,6 +181,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     [_micAudioLevelTimer invalidate];
     _micAudioLevelTimer = nil;
+    [_recorder stop];
+    _recorder = nil;
 }
 
 - (void)initRecorder
@@ -213,7 +228,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)getPeersForCall
 {
-    [[NCAPIController sharedInstance] getPeersForCall:_room.token withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
+    _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCall:_room.token withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
         if (!error) {
             _peersInCall = peers;
         }
