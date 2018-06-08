@@ -19,6 +19,7 @@
     BOOL _shouldStopPullingMessages;
     NSTimer *_pingTimer;
     NSDictionary *_signalingSettings;
+    NSURLSessionTask *_getSignalingSettingsTask;
     NSURLSessionTask *_pullSignalingMessagesTask;
 }
 
@@ -39,7 +40,7 @@
 
 - (void)getSignalingSettings
 {
-    [[NCAPIController sharedInstance] getSignalingSettingsWithCompletionBlock:^(NSDictionary *settings, NSError *error) {
+    _getSignalingSettingsTask = [[NCAPIController sharedInstance] getSignalingSettingsWithCompletionBlock:^(NSDictionary *settings, NSError *error) {
         if (error) {
             //TODO: Error handling
             NSLog(@"Error getting signaling settings.");
@@ -172,6 +173,12 @@
             _multiRoomSupport = YES;
         }
     }
+}
+
+- (void)stopAllRequests
+{
+    [_getSignalingSettingsTask cancel];
+    [self stopPullingSignalingMessages];
 }
 
 @end

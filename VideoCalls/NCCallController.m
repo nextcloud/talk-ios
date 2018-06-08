@@ -107,7 +107,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     _connectionsDict = nil;
     
     [self stopMonitoringMicrophoneAudioLevel];
-    [_signalingController stopPullingSignalingMessages];
+    [_signalingController stopAllRequests];
     
     [[NCAPIController sharedInstance] leaveCall:_room.token withCompletionBlock:^(NSError *error) {
         [self.delegate callControllerDidEndCall:self];
