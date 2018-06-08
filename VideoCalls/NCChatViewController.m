@@ -66,7 +66,6 @@
     
 - (void)dealloc
 {
-    [[NCRoomsManager sharedInstance] leaveChatInRoom:_room];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -132,6 +131,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
     if (_stopReceivingNewMessages) {
         _stopReceivingNewMessages = NO;
         [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
@@ -141,8 +141,13 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    
     _stopReceivingNewMessages = YES;
     [[NCRoomsManager sharedInstance] stopReceivingChatMessagesInRoom:_room];
+    
+    if (self.isMovingFromParentViewController) {
+        [[NCRoomsManager sharedInstance] leaveChatInRoom:_room];
+    }
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
