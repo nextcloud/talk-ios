@@ -118,7 +118,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
     if (_allowEmptyGroupRooms) {
-        UIAlertAction *newGroupCallAction = [UIAlertAction actionWithTitle:@"New group call"
+        UIAlertAction *newGroupCallAction = [UIAlertAction actionWithTitle:@"New group conversation"
                                                                      style:UIAlertActionStyleDefault
                                                                    handler:^void (UIAlertAction *action) {
                                                                        [self startRoomCreationFlowForPublicRoom:NO];
@@ -127,7 +127,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [optionsActionSheet addAction:newGroupCallAction];
     }
     
-    UIAlertAction *newPublicCallAction = [UIAlertAction actionWithTitle:@"New public call"
+    UIAlertAction *newPublicCallAction = [UIAlertAction actionWithTitle:@"New public conversation"
                                                                   style:UIAlertActionStyleDefault
                                                                 handler:^void (UIAlertAction *action) {
                                                                     [self startRoomCreationFlowForPublicRoom:YES];
