@@ -6,8 +6,8 @@ Video & audio calls through Nextcloud on iOS.
 
 ## Prerequisites
 
-- [Nextcloud server](https://github.com/nextcloud/server) version 13 or higher.
-- [Nextcloud Talk](https://github.com/nextcloud/spreed) version 3.0 or higher.
+- [Nextcloud server](https://github.com/nextcloud/server) version 13 or higher (SSL enabled).
+- [Nextcloud Talk](https://github.com/nextcloud/spreed) version 3.2 or higher.
 - [CocoaPods](https://cocoapods.org/)
 
 ## Build steps
