@@ -9,18 +9,20 @@
 #import "AddParticipantsTableViewController.h"
 
 #import "NCAPIController.h"
-#import "SearchTableViewController.h"
+#import "NCUserInterfaceController.h"
+#import "ResultMultiSelectionTableViewController.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
 @interface AddParticipantsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
-    NCRoom *_room;
     NSMutableDictionary *_participants;
     NSArray *_indexes;
-    NSArray *_alreadyAddedParticipants;
+    NCRoom *_room;
+    NSArray *_participantsInRoom;
     UISearchController *_searchController;
-    SearchTableViewController *_resultTableViewController;
+    ResultMultiSelectionTableViewController *_resultTableViewController;
+    NSMutableArray *_selectedParticipants;
 }
 @end
 
@@ -34,9 +36,10 @@
     }
     
     _room = room;
+    _participantsInRoom = [room.participants allKeys];
     _participants = [[NSMutableDictionary alloc] init];
     _indexes = [[NSArray alloc] init];
-    _alreadyAddedParticipants = [room.participants allKeys];
+    _selectedParticipants = [[NSMutableArray alloc] init];
     
     return self;
 }
@@ -49,7 +52,7 @@
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     self.tableView.sectionIndexBackgroundColor = [UIColor clearColor];
     
-    _resultTableViewController = [[SearchTableViewController alloc] init];
+    _resultTableViewController = [[ResultMultiSelectionTableViewController alloc] init];
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
@@ -71,6 +74,8 @@
     _resultTableViewController.tableView.delegate = self;
     _searchController.delegate = self;
     _searchController.searchBar.delegate = self;
+    _searchController.hidesNavigationBarDuringPresentation = NO;
+
     
     self.definesPresentationContext = YES;
     
@@ -130,13 +135,57 @@
     [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
+- (void)addButtonPressed
+{
+    self.tableView.allowsSelection = NO;
+    _resultTableViewController.tableView.allowsSelection = NO;
+    
+    for (NCUser *participant in _selectedParticipants) {
+        [self addParticipantToRoom:participant];
+    }
+    
+    [self close];
+}
+
+- (void)addParticipantToRoom:(NCUser *)participant
+{
+    [[NCAPIController sharedInstance] addParticipant:participant.userId toRoom:_room.token withCompletionBlock:^(NSError *error) {
+        if (error) {
+            UIAlertController * alert = [UIAlertController
+                                         alertControllerWithTitle:@"Could not add participant"
+                                         message:[NSString stringWithFormat:@"An error occurred while adding %@ to the room", participant.name]
+                                         preferredStyle:UIAlertControllerStyleAlert];
+            
+            UIAlertAction* okButton = [UIAlertAction
+                                       actionWithTitle:@"OK"
+                                       style:UIAlertActionStyleDefault
+                                       handler:nil];
+            
+            [alert addAction:okButton];
+            
+            [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+        }
+    }];
+}
+
+- (void)updateCounter
+{
+    if (_selectedParticipants.count > 0) {
+        UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithTitle:[NSString stringWithFormat:@"Add (%lu)", (unsigned long)_selectedParticipants.count]
+                                                                      style:UIBarButtonItemStylePlain target:self action:@selector(addButtonPressed)];
+        self.navigationController.navigationBar.topItem.rightBarButtonItem = addButton;
+    } else {
+        self.navigationController.navigationBar.topItem.rightBarButtonItem = nil;
+    }
+}
+
 #pragma mark - Participants actions
 
 - (NSMutableArray *)filterContacts:(NSMutableArray *)contacts
 {
     NSMutableArray *participants = [[NSMutableArray alloc] init];
     for (NCUser *user in contacts) {
-        if (![_alreadyAddedParticipants containsObject:user.userId]) {
+        if (![_participantsInRoom containsObject:user.userId]) {
             [participants addObject:user];
         }
     }
@@ -173,11 +222,40 @@
     }];
 }
 
+- (BOOL)isParticipantAlreadySelected:(NCUser *)participant
+{
+    for (NCUser *user in _selectedParticipants) {
+        if ([user.userId isEqualToString:participant.userId]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (void)removeSelectedParticipant:(NCUser *)participant
+{
+    NCUser *userToDelete = nil;
+    for (NCUser *user in _selectedParticipants) {
+        if ([user.userId isEqualToString:participant.userId]) {
+            userToDelete = user;
+        }
+    }
+    
+    if (userToDelete) {
+        [_selectedParticipants removeObject:userToDelete];
+    }
+}
+
 #pragma mark - Search controller
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
 {
     [self searchForParticipantsWithString:_searchController.searchBar.text];
+}
+
+- (void)didDismissSearchController:(UISearchController *)searchController
+{
+    [self.tableView reloadData];
 }
 
 #pragma mark - Table view data source
@@ -207,7 +285,8 @@
     return _indexes;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
     NSString *index = [_indexes objectAtIndex:indexPath.section];
     NSArray *participants = [_participants objectForKey:index];
     NCUser *participant = [participants objectAtIndex:indexPath.row];
@@ -229,6 +308,7 @@
     
     cell.contactImage.layer.cornerRadius = 24.0;
     cell.contactImage.layer.masksToBounds = YES;
+    cell.accessoryType = ([self isParticipantAlreadySelected:participant]) ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
     
     return cell;
 }
@@ -247,33 +327,19 @@
     }
     
     NCUser *participant = [participants objectAtIndex:indexPath.row];
+    if (![self isParticipantAlreadySelected:participant]) {
+        [_selectedParticipants addObject:participant];
+    } else {
+        [self removeSelectedParticipant:participant];
+    }
     
-    self.tableView.allowsSelection = NO;
-    _resultTableViewController.tableView.allowsSelection = NO;
+    _resultTableViewController.selectedParticipants = _selectedParticipants;
     
-    [[NCAPIController sharedInstance] addParticipant:participant.userId toRoom:_room.token withCompletionBlock:^(NSError *error) {
-        if (!error) {
-            [self close];
-        } else {
-            self.tableView.allowsSelection = YES;
-            _resultTableViewController.tableView.allowsSelection = YES;
-            UIAlertController * alert = [UIAlertController
-                                         alertControllerWithTitle:@"Could not add participant"
-                                         message:[NSString stringWithFormat:@"An error occurred while adding %@ to the room", participant.name]
-                                         preferredStyle:UIAlertControllerStyleAlert];
-            
-            
-            
-            UIAlertAction* okButton = [UIAlertAction
-                                       actionWithTitle:@"OK"
-                                       style:UIAlertActionStyleDefault
-                                       handler:nil];
-            
-            [alert addAction:okButton];
-            
-            [self presentViewController:alert animated:YES completion:nil];
-        }
-    }];    
+    [tableView beginUpdates];
+    [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+    [tableView endUpdates];
+    
+    [self updateCounter];
 }
 
 @end
