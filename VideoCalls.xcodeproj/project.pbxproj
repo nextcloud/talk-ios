@@ -96,6 +96,12 @@
 		2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		2CBF82C21FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */; };
+		2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */; };
+		2CC007B920D8139D0096D91F /* RoomCreationTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007B720D8139D0096D91F /* RoomCreationTableViewController.xib */; };
+		2CC007BD20D8F24B0096D91F /* RoomCreation2TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007BB20D8F24B0096D91F /* RoomCreation2TableViewController.m */; };
+		2CC007BE20D8F24B0096D91F /* RoomCreation2TableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007BC20D8F24B0096D91F /* RoomCreation2TableViewController.xib */; };
+		2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */; };
+		2CC007C620D90AE50096D91F /* RoomNameTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */; };
 		2CC7158920B837140045C789 /* ChatPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* ChatPlaceholderView.xib */; };
 		2CC7158C20B8394A0045C789 /* ChatPlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */; };
 		2CC7158E20C51ABA0045C789 /* UnreadMessagesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158D20C51ABA0045C789 /* UnreadMessagesView.xib */; };
@@ -334,6 +340,15 @@
 		2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushProxySessionManager.m; sourceTree = "<group>"; };
 		2CC007B220D7AE990096D91F /* ResultMultiSelectionTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResultMultiSelectionTableViewController.h; sourceTree = "<group>"; };
 		2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResultMultiSelectionTableViewController.m; sourceTree = "<group>"; };
+		2CC007B520D8139D0096D91F /* RoomCreationTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomCreationTableViewController.h; sourceTree = "<group>"; };
+		2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomCreationTableViewController.m; sourceTree = "<group>"; };
+		2CC007B720D8139D0096D91F /* RoomCreationTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomCreationTableViewController.xib; sourceTree = "<group>"; };
+		2CC007BA20D8F24B0096D91F /* RoomCreation2TableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomCreation2TableViewController.h; sourceTree = "<group>"; };
+		2CC007BB20D8F24B0096D91F /* RoomCreation2TableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomCreation2TableViewController.m; sourceTree = "<group>"; };
+		2CC007BC20D8F24B0096D91F /* RoomCreation2TableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomCreation2TableViewController.xib; sourceTree = "<group>"; };
+		2CC007C220D90AE50096D91F /* RoomNameTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomNameTableViewCell.h; sourceTree = "<group>"; };
+		2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomNameTableViewCell.m; sourceTree = "<group>"; };
+		2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomNameTableViewCell.xib; sourceTree = "<group>"; };
 		2CC7158820B837140045C789 /* ChatPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatPlaceholderView.xib; sourceTree = "<group>"; };
 		2CC7158A20B8394A0045C789 /* ChatPlaceholderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatPlaceholderView.h; sourceTree = "<group>"; };
 		2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatPlaceholderView.m; sourceTree = "<group>"; };
@@ -507,6 +522,15 @@
 				2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */,
 				2C42ADB220B58E6300296DEA /* NCRoomController.h */,
 				2C42ADB320B58E6300296DEA /* NCRoomController.m */,
+				2CC007B520D8139D0096D91F /* RoomCreationTableViewController.h */,
+				2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */,
+				2CC007B720D8139D0096D91F /* RoomCreationTableViewController.xib */,
+				2CC007BA20D8F24B0096D91F /* RoomCreation2TableViewController.h */,
+				2CC007BB20D8F24B0096D91F /* RoomCreation2TableViewController.m */,
+				2CC007BC20D8F24B0096D91F /* RoomCreation2TableViewController.xib */,
+				2CC007C220D90AE50096D91F /* RoomNameTableViewCell.h */,
+				2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */,
+				2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */,
 			);
 			name = Rooms;
 			sourceTree = "<group>";
@@ -890,10 +914,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CC007BE20D8F24B0096D91F /* RoomCreation2TableViewController.xib in Resources */,
 				2C78EFA11F828C41008AFA74 /* CallViewController.xib in Resources */,
 				2C5435ED1FB1E5E8003D4222 /* GoogleService-Info.plist in Resources */,
+				2CC007B920D8139D0096D91F /* RoomCreationTableViewController.xib in Resources */,
 				2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */,
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
+				2CC007C620D90AE50096D91F /* RoomNameTableViewCell.xib in Resources */,
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
 				2CC7158E20C51ABA0045C789 /* UnreadMessagesView.xib in Resources */,
 				2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */,
@@ -1039,6 +1066,7 @@
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
+				2CC007BD20D8F24B0096D91F /* RoomCreation2TableViewController.m in Sources */,
 				2CBF82BD1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
 				2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */,
 				2CA1554B208F2E5700CE8EF0 /* NCMessageTextView.m in Sources */,
@@ -1047,6 +1075,7 @@
 				2C06330F2046CC8B0043481A /* NCUserInterfaceController.m in Sources */,
 				2CA155522093422200CE8EF0 /* NCChatMention.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
+				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
@@ -1063,6 +1092,7 @@
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
 				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,
 				2C7A1236200E0A5700864818 /* UserSettingsTableViewCell.m in Sources */,
+				2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */,
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
