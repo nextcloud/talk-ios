@@ -312,7 +312,12 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 {
     switch (section) {
         case kCreationSectionParticipants:
+        {
+            if (_participants.count == 0) {
+                return @"";
+            }
             return [NSString stringWithFormat:@"%ld participants", _participants.count];
+        }
             break;
     }
     
