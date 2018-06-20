@@ -111,6 +111,12 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 {
     BOOL isPublic = _publicSwtich.on;
     _roomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    _publicSwtich.enabled = NO;
+    
+    [CATransaction begin];
+    [CATransaction setCompletionBlock:^{
+        _publicSwtich.enabled = YES;
+    }];
     [self.tableView beginUpdates];
     // Reload room name section
     [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
@@ -124,6 +130,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
         [self.tableView deleteRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
     }
     [self.tableView endUpdates];
+    [CATransaction commit];
 }
 
 #pragma mark - Room creation
