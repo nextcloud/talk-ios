@@ -144,7 +144,7 @@
     subTitleLabel.backgroundColor = [UIColor clearColor];
     subTitleLabel.textColor = [UIColor whiteColor];
     subTitleLabel.font = [UIFont systemFontOfSize:12];
-    subTitleLabel.text = [NSString stringWithFormat:@"%ld participants", _selectedParticipants.count];
+    subTitleLabel.text = (_selectedParticipants.count == 1) ? @"1 participant" : [NSString stringWithFormat:@"%ld participants", _selectedParticipants.count];
     [subTitleLabel sizeToFit];
     
     UIView *twoLineTitleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, MAX(subTitleLabel.frame.size.width, titleLabel.frame.size.width), 30)];

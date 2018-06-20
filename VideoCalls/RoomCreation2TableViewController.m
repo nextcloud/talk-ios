@@ -315,6 +315,8 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
         {
             if (_participants.count == 0) {
                 return @"";
+            } else if (_participants.count == 1) {
+                return @"1 participant";
             }
             return [NSString stringWithFormat:@"%ld participants", _participants.count];
         }
