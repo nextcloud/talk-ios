@@ -10,6 +10,7 @@
 
 #import "NCChatViewController.h"
 #import "ContactsTableViewController.h"
+#import "RoomCreation2TableViewController.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
 #import "NCRoomController.h"
@@ -55,6 +56,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForVoiceCall:) name:NCSelectedContactForVoiceCallNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForVideoCall:) name:NCSelectedContactForVideoCallNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForChat:) name:NCSelectedContactForChatNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
     }
     
     return self;
@@ -350,6 +352,12 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 }
 
 - (void)userSelectedContactForChat:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"token"];
+    [self startChatWithRoomToken:roomToken];
+}
+
+- (void)roomCreated:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"token"];
     [self startChatWithRoomToken:roomToken];

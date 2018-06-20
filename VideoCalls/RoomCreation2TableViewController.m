@@ -27,11 +27,20 @@ typedef enum PublicSection {
     kPublicSectionPassword
 } PublicSection;
 
+NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
+
 @interface RoomCreation2TableViewController ()
 
 @property (nonatomic, strong) NSMutableArray *participants;
+@property (nonatomic, strong) NSString *roomName;
+@property (nonatomic, strong) UITextField *roomNameTextField;
 @property (nonatomic, strong) UISwitch *publicSwtich;
 @property (nonatomic, strong) UITextField *passwordTextField;
+@property (nonatomic, strong) UIBarButtonItem *createRoomButton;
+@property (nonatomic, strong) UIActivityIndicatorView *creatingRoomView;
+@property (nonatomic, assign) NSInteger participantsToBeAdded;
+@property (nonatomic, strong) NSString *passwordToBeSet;
+@property (nonatomic, strong) NSString *createdRoomToken;
 
 @end
 
@@ -67,8 +76,27 @@ typedef enum PublicSection {
     _passwordTextField.textColor = [UIColor blackColor];
     _passwordTextField.secureTextEntry = YES;
     
+    _creatingRoomView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    _createRoomButton = [[UIBarButtonItem alloc] initWithTitle:@"Create" style:UIBarButtonItemStyleDone
+                                                        target:self action:@selector(createButtonPressed)];
+    self.navigationItem.rightBarButtonItem = _createRoomButton;
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
+    [self.view addGestureRecognizer:tap];
+    
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:kRoomNameTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomNameCellIdentifier];
+}
+
+- (void)createButtonPressed
+{
+    [self startRoomCreation];
+}
+
+- (void)dismissKeyboard
+{
+    [_roomNameTextField resignFirstResponder];
+    [_passwordTextField resignFirstResponder];
 }
 
 - (void)didReceiveMemoryWarning
@@ -77,11 +105,12 @@ typedef enum PublicSection {
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - Video disabled switch
+#pragma mark - Public switch
 
 - (void)publicValueChanged:(id)sender
 {
     BOOL isPublic = _publicSwtich.on;
+    _roomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     [self.tableView beginUpdates];
     // Reload room name section
     [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
@@ -94,6 +123,159 @@ typedef enum PublicSection {
         [self.tableView deleteRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
     }
     [self.tableView endUpdates];
+}
+
+#pragma mark - Room creation
+
+- (void)startRoomCreation
+{
+    [self disableInteraction];
+    [_creatingRoomView startAnimating];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_creatingRoomView];
+    self.navigationController.navigationBar.userInteractionEnabled = NO;
+    
+    if ([self isOneToOneConversation]) {
+        _passwordToBeSet = nil;
+        _participantsToBeAdded = 0;
+        [self createRoomWithParticipant:[_participants objectAtIndex:0]];
+    } else {
+        NSString *roomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        NSString *password = [_passwordTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if (![password isEqualToString:@""]) {
+            _passwordToBeSet = password;
+        }
+        _participantsToBeAdded = _participants.count;
+        [self createGroupRoomWithName:roomName public:_publicSwtich.on];
+    }
+}
+
+- (void)createRoomWithParticipant:(NCUser *)participant
+{
+    [[NCAPIController sharedInstance] createRoomWith:participant.userId
+                                              ofType:kNCRoomTypeOneToOneCall
+                                             andName:nil
+                                 withCompletionBlock:^(NSString *token, NSError *error) {
+                                     if (!error) {
+                                         _createdRoomToken = token;
+                                         [self checkRoomCreationCompletion];
+                                     } else {
+                                         NSLog(@"Error creating a room with %@", participant.name);
+                                         [self cancelRoomCreation];
+                                     }
+                                 }];
+}
+
+- (void)createGroupRoomWithName:(NSString *)roomName public:(BOOL)public
+{
+    [[NCAPIController sharedInstance] createRoomWith:nil
+                                              ofType:public ? kNCRoomTypePublicCall : kNCRoomTypeGroupCall
+                                             andName:roomName
+                                 withCompletionBlock:^(NSString *token, NSError *error) {
+                                     if (!error) {
+                                         _createdRoomToken = token;
+                                         [self checkRoomCreationCompletion];
+                                     } else {
+                                         NSLog(@"Error creating new room: %@", error.description);
+                                         [self cancelRoomCreation];
+                                     }
+                                 }];
+}
+
+- (void)addParticipants
+{
+    for (NCUser *participant in _participants) {
+        [self addParticipant:participant];
+    }
+}
+
+- (void)addParticipant:(NCUser *)participant
+{
+    [[NCAPIController sharedInstance] addParticipant:participant.userId toRoom:_createdRoomToken withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [self participantHasBeenAdded];
+        } else {
+            NSLog(@"Error creating new room: %@", error.description);
+            [self cancelRoomCreation];
+        }
+    }];
+}
+
+- (void)participantHasBeenAdded
+{
+    _participantsToBeAdded --;
+    if (_participantsToBeAdded == 0) {
+        [self checkRoomCreationCompletion];
+    }
+}
+
+- (void)setPassword
+{
+    [[NCAPIController sharedInstance] setPassword:_passwordToBeSet toRoom:_createdRoomToken withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            _passwordToBeSet = nil;
+            [self checkRoomCreationCompletion];
+        } else {
+            NSLog(@"Error setting room password: %@", error.description);
+            [self cancelRoomCreation];        }
+    }];
+}
+
+- (void)checkRoomCreationCompletion
+{
+    if (_participantsToBeAdded > 0) {
+        [self addParticipants];
+    } else if (_passwordToBeSet) {
+        [self setPassword];
+    } else {
+        [self finishRoomCreation];
+    }
+}
+
+- (void)finishRoomCreation
+{
+    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomCreatedNotification
+                                                        object:self
+                                                      userInfo:@{@"token":_createdRoomToken}];
+}
+
+- (void)cancelRoomCreation
+{
+    [self enableInteraction];
+    [_creatingRoomView stopAnimating];
+    self.navigationItem.rightBarButtonItem = _createRoomButton;
+    
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:@"Could not create conversation"
+                                 message:[NSString stringWithFormat:@"An error occurred while creating the conversation"]
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:@"OK"
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    [alert addAction:okButton];
+    [self.navigationController presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)enableInteraction
+{
+    self.navigationController.navigationBar.userInteractionEnabled = YES;
+    _roomNameTextField.enabled = YES;
+    _passwordTextField.enabled = YES;
+    _publicSwtich.enabled = YES;
+}
+
+- (void)disableInteraction
+{
+    self.navigationController.navigationBar.userInteractionEnabled = NO;
+    _roomNameTextField.enabled = NO;
+    _passwordTextField.enabled = NO;
+    _publicSwtich.enabled = NO;
+}
+
+- (BOOL)isOneToOneConversation
+{
+    return _participants.count == 1 && !_publicSwtich.on;
 }
 
 #pragma mark - Table view data source
@@ -156,7 +338,9 @@ typedef enum PublicSection {
                 [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
             }
             
-            if (_participants.count == 1) {
+            cell.roomNameTextField.text = _roomName;
+            
+            if ([self isOneToOneConversation]) {
                 NCUser *participant = [_participants objectAtIndex:indexPath.row];
                 cell.roomNameTextField.text = participant.name;
                 // Create avatar for every contact
@@ -172,6 +356,8 @@ typedef enum PublicSection {
             cell.roomImage.layer.cornerRadius = 24.0;
             cell.roomImage.layer.masksToBounds = YES;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+            _roomNameTextField = cell.roomNameTextField;
             
             return cell;
         }

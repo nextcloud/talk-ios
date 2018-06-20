@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+extern NSString * const NCRoomCreatedNotification;
+
 @interface RoomCreation2TableViewController : UITableViewController
 
 - (instancetype)initWithParticipants:(NSMutableArray *)participants;

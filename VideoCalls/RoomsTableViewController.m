@@ -434,37 +434,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
 }
 
-- (void)createNewRoomWithName:(NSString *)roomName public:(BOOL)public
-{
-    [[NCAPIController sharedInstance] createRoomWith:nil
-                                              ofType:public ? kNCRoomTypePublicCall : kNCRoomTypeGroupCall
-                                             andName:roomName
-                                 withCompletionBlock:^(NSString *token, NSError *error) {
-        if (!error) {
-            [self fetchRoomsWithCompletionBlock:^(BOOL success) {
-                NCRoom *newRoom = [self getRoomForToken:token];
-                NSInteger roomIndex = [_rooms indexOfObject:newRoom];
-                if (roomIndex != NSNotFound) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
-                        [self.tableView scrollToRowAtIndexPath:roomIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-                    });
-                }
-                if (public) {
-                    NSString *title = newRoom.name;
-                    if (!title || [title isEqualToString:@""]) {
-                        title = @"New public call";
-                    }
-                    [self showShareDialogForRoom:newRoom withTitle:title];
-                }
-            }];
-        } else {
-            NSLog(@"Error creating new group room: %@", error.description);
-            //TODO: Error handling
-        }
-    }];
-}
-
 - (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
