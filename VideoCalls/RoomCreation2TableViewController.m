@@ -331,14 +331,14 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                 cell = [[RoomNameTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomNameCellIdentifier];
             }
             
-            cell.userInteractionEnabled = YES;
             if (_publicSwtich.on) {
                 [cell.roomImage setImage:[UIImage imageNamed:@"public-bg"]];
             } else {
                 [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
             }
-            
             cell.roomNameTextField.text = _roomName;
+            _roomNameTextField = cell.roomNameTextField;
+            cell.userInteractionEnabled = YES;
             
             if ([self isOneToOneConversation]) {
                 NCUser *participant = [_participants objectAtIndex:indexPath.row];
@@ -350,14 +350,13 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                                          placeholderImage:nil
                                                   success:nil
                                                   failure:nil];
+                _roomNameTextField = nil;
                 cell.userInteractionEnabled = NO;
             }
             
             cell.roomImage.layer.cornerRadius = 24.0;
             cell.roomImage.layer.masksToBounds = YES;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
-            
-            _roomNameTextField = cell.roomNameTextField;
             
             return cell;
         }
