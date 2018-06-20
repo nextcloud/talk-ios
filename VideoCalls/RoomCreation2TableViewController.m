@@ -118,6 +118,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     NSIndexPath *passwordIP = [NSIndexPath indexPathForRow:kPublicSectionPassword inSection:kCreationSectionPublic];
     NSArray *indexArray = [NSArray arrayWithObjects:passwordIP,nil];
     if (isPublic) {
+        _passwordTextField.text = @"";
         [self.tableView insertRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
     } else {
         [self.tableView deleteRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
@@ -134,14 +135,15 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_creatingRoomView];
     self.navigationController.navigationBar.userInteractionEnabled = NO;
     
+    _passwordToBeSet = nil;
+    
     if ([self isOneToOneConversation]) {
-        _passwordToBeSet = nil;
         _participantsToBeAdded = 0;
         [self createRoomWithParticipant:[_participants objectAtIndex:0]];
     } else {
         NSString *roomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         NSString *password = [_passwordTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        if (![password isEqualToString:@""]) {
+        if (![password isEqualToString:@""] && _publicSwtich.on) {
             _passwordToBeSet = password;
         }
         _participantsToBeAdded = _participants.count;
