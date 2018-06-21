@@ -41,6 +41,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 @property (nonatomic, assign) NSInteger participantsToBeAdded;
 @property (nonatomic, strong) NSString *passwordToBeSet;
 @property (nonatomic, strong) NSString *createdRoomToken;
+@property (nonatomic, assign) BOOL didFocusRoomNameOnce;
 
 @end
 
@@ -333,6 +334,17 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     }
     
     return nil;
+}
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(nonnull UITableViewCell *)cell forRowAtIndexPath:(nonnull NSIndexPath *)indexPath
+{
+    BOOL isRoomNameCell = indexPath.row == 0 && indexPath.section == kCreationSectionName;
+    BOOL one2one = [self isOneToOneConversation];
+    if (isRoomNameCell && !_didFocusRoomNameOnce && !one2one) {
+        RoomNameTableViewCell *roomNameCell = (RoomNameTableViewCell *)cell;
+        [roomNameCell.roomNameTextField becomeFirstResponder];
+        _didFocusRoomNameOnce = YES;
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
