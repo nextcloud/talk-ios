@@ -243,10 +243,11 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 - (void)finishRoomCreation
 {
-    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomCreatedNotification
-                                                        object:self
-                                                      userInfo:@{@"token":_createdRoomToken}];
+    [self.navigationController dismissViewControllerAnimated:YES completion:^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomCreatedNotification
+                                                            object:self
+                                                          userInfo:@{@"token":_createdRoomToken}];
+    }];
 }
 
 - (void)cancelRoomCreation
