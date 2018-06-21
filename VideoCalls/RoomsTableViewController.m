@@ -25,6 +25,7 @@
 #import "UIImageView+AFNetworking.h"
 #import "NCChatViewController.h"
 #import "NCRoomsManager.h"
+#import "RoomCreationTableViewController.h"
 #import "RoundedNumberView.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
@@ -112,37 +113,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (IBAction)addButtonPressed:(id)sender
 {
-    UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:nil
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    if (_allowEmptyGroupRooms) {
-        UIAlertAction *newGroupCallAction = [UIAlertAction actionWithTitle:@"New group conversation"
-                                                                     style:UIAlertActionStyleDefault
-                                                                   handler:^void (UIAlertAction *action) {
-                                                                       [self startRoomCreationFlowForPublicRoom:NO];
-                                                                   }];
-        [newGroupCallAction setValue:[[UIImage imageNamed:@"group-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-        [optionsActionSheet addAction:newGroupCallAction];
-    }
-    
-    UIAlertAction *newPublicCallAction = [UIAlertAction actionWithTitle:@"New public conversation"
-                                                                  style:UIAlertActionStyleDefault
-                                                                handler:^void (UIAlertAction *action) {
-                                                                    [self startRoomCreationFlowForPublicRoom:YES];
-                                                                }];
-    [newPublicCallAction setValue:[[UIImage imageNamed:@"public-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [optionsActionSheet addAction:newPublicCallAction];
-    
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    UIPopoverPresentationController *popController = [optionsActionSheet popoverPresentationController];
-    popController.permittedArrowDirections = UIPopoverArrowDirectionAny;
-    popController.barButtonItem = self.navigationItem.rightBarButtonItem;
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+    RoomCreationTableViewController *roomCreationVC = [[RoomCreationTableViewController alloc] init];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:roomCreationVC];
+    [self presentViewController:navigationController animated:YES completion:nil];
 }
 
 #pragma mark - Refresh Control
@@ -461,37 +434,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
 }
 
-- (void)createNewRoomWithName:(NSString *)roomName public:(BOOL)public
-{
-    [[NCAPIController sharedInstance] createRoomWith:nil
-                                              ofType:public ? kNCRoomTypePublicCall : kNCRoomTypeGroupCall
-                                             andName:roomName
-                                 withCompletionBlock:^(NSString *token, NSError *error) {
-        if (!error) {
-            [self fetchRoomsWithCompletionBlock:^(BOOL success) {
-                NCRoom *newRoom = [self getRoomForToken:token];
-                NSInteger roomIndex = [_rooms indexOfObject:newRoom];
-                if (roomIndex != NSNotFound) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
-                        [self.tableView scrollToRowAtIndexPath:roomIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-                    });
-                }
-                if (public) {
-                    NSString *title = newRoom.name;
-                    if (!title || [title isEqualToString:@""]) {
-                        title = @"New public call";
-                    }
-                    [self showShareDialogForRoom:newRoom withTitle:title];
-                }
-            }];
-        } else {
-            NSLog(@"Error creating new group room: %@", error.description);
-            //TODO: Error handling
-        }
-    }];
-}
-
 - (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
@@ -499,32 +441,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 }
 
 #pragma mark - Public Calls
-
-- (void)startRoomCreationFlowForPublicRoom:(BOOL)public
-{
-    NSString *alertTitle = public ? @"New public call" : @"New group call";
-    UIAlertController *setNameDialog = [UIAlertController alertControllerWithTitle:alertTitle
-                                                                           message:@"Set a name for this call"
-                                                                    preferredStyle:UIAlertControllerStyleAlert];
-    
-    [setNameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-        textField.placeholder = @"Name";
-        textField.autocapitalizationType = UITextAutocapitalizationTypeSentences;
-        textField.autocorrectionType = UITextAutocorrectionTypeDefault;
-    }];
-    
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Create" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        NSString *publicCallName = [[setNameDialog textFields][0] text];
-        NSString *trimmedName = [publicCallName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        [self createNewRoomWithName:trimmedName public:public];
-    }];
-    [setNameDialog addAction:confirmAction];
-    
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
-    [setNameDialog addAction:cancelAction];
-    
-    [self presentViewController:setNameDialog animated:YES completion:nil];
-}
 
 - (void)showShareDialogForRoom:(NCRoom *)room withTitle:(NSString *)title
 {

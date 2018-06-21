@@ -1,52 +1,38 @@
 //
-//  AddParticipantsTableViewController.m
+//  RoomCreationTableViewController.m
 //  VideoCalls
 //
-//  Created by Ivan Sein on 23.01.18.
+//  Created by Ivan Sein on 18.06.18.
 //  Copyright © 2018 struktur AG. All rights reserved.
 //
 
-#import "AddParticipantsTableViewController.h"
+#import "RoomCreationTableViewController.h"
 
 #import "NCAPIController.h"
-#import "NCUserInterfaceController.h"
 #import "ResultMultiSelectionTableViewController.h"
+#import "RoomCreation2TableViewController.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
-@interface AddParticipantsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
+@interface RoomCreationTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
     NSMutableDictionary *_participants;
     NSArray *_indexes;
-    NCRoom *_room;
-    NSArray *_participantsInRoom;
     UISearchController *_searchController;
     ResultMultiSelectionTableViewController *_resultTableViewController;
     NSMutableArray *_selectedParticipants;
 }
 @end
 
-@implementation AddParticipantsTableViewController
-
-- (instancetype)initForRoom:(NCRoom *)room
-{
-    self = [super init];
-    if (!self) {
-        return nil;
-    }
-    
-    _room = room;
-    _participantsInRoom = [room.participants allKeys];
-    _participants = [[NSMutableDictionary alloc] init];
-    _indexes = [[NSArray alloc] init];
-    _selectedParticipants = [[NSMutableArray alloc] init];
-    
-    return self;
-}
+@implementation RoomCreationTableViewController
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    _participants = [[NSMutableDictionary alloc] init];
+    _indexes = [[NSArray alloc] init];
+    _selectedParticipants = [[NSMutableArray alloc] init];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
@@ -75,19 +61,23 @@
     _searchController.delegate = self;
     _searchController.searchBar.delegate = self;
     _searchController.hidesNavigationBarDuringPresentation = NO;
-
+    
     
     self.definesPresentationContext = YES;
     
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
-    self.navigationItem.title = @"Add participants";
-    [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
+    
+    UIBarButtonItem *nextButton = [[UIBarButtonItem alloc] initWithTitle:@"Next" style:UIBarButtonItemStylePlain
+                                                                  target:self action:@selector(nextButtonPressed)];
+    self.navigationController.navigationBar.topItem.rightBarButtonItem = nextButton;
+    
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    
+    [self updateCounter];
     
     // Fix uisearchcontroller animation
     self.extendedLayoutIncludesOpaqueBars = YES;
@@ -135,69 +125,54 @@
     [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)addButtonPressed
+- (void)nextButtonPressed
 {
-    self.tableView.allowsSelection = NO;
-    _resultTableViewController.tableView.allowsSelection = NO;
-    
-    for (NCUser *participant in _selectedParticipants) {
-        [self addParticipantToRoom:participant];
-    }
-    
-    [self close];
-}
-
-- (void)addParticipantToRoom:(NCUser *)participant
-{
-    [[NCAPIController sharedInstance] addParticipant:participant.userId toRoom:_room.token withCompletionBlock:^(NSError *error) {
-        if (error) {
-            UIAlertController * alert = [UIAlertController
-                                         alertControllerWithTitle:@"Could not add participant"
-                                         message:[NSString stringWithFormat:@"An error occurred while adding %@ to the room", participant.name]
-                                         preferredStyle:UIAlertControllerStyleAlert];
-            
-            UIAlertAction* okButton = [UIAlertAction
-                                       actionWithTitle:@"OK"
-                                       style:UIAlertActionStyleDefault
-                                       handler:nil];
-            
-            [alert addAction:okButton];
-            
-            [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
-        }
-    }];
+    RoomCreation2TableViewController *rc2VC = [[RoomCreation2TableViewController alloc] initWithParticipants:_selectedParticipants];
+    [self.navigationController pushViewController:rc2VC animated:YES];
 }
 
 - (void)updateCounter
 {
-    if (_selectedParticipants.count > 0) {
-        UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithTitle:[NSString stringWithFormat:@"Add (%lu)", (unsigned long)_selectedParticipants.count]
-                                                                      style:UIBarButtonItemStylePlain target:self action:@selector(addButtonPressed)];
-        self.navigationController.navigationBar.topItem.rightBarButtonItem = addButton;
-    } else {
-        self.navigationController.navigationBar.topItem.rightBarButtonItem = nil;
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+    titleLabel.backgroundColor = [UIColor clearColor];
+    titleLabel.textColor = [UIColor whiteColor];
+    titleLabel.font = [UIFont boldSystemFontOfSize:16];
+    titleLabel.text = @"New conversation";
+    [titleLabel sizeToFit];
+    
+    UILabel *subTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 18, 0, 0)];
+    subTitleLabel.backgroundColor = [UIColor clearColor];
+    subTitleLabel.textColor = [UIColor whiteColor];
+    subTitleLabel.font = [UIFont systemFontOfSize:12];
+    subTitleLabel.text = (_selectedParticipants.count == 1) ? @"1 participant" : [NSString stringWithFormat:@"%ld participants", _selectedParticipants.count];
+    [subTitleLabel sizeToFit];
+    
+    UIView *twoLineTitleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, MAX(subTitleLabel.frame.size.width, titleLabel.frame.size.width), 30)];
+    [twoLineTitleView addSubview:titleLabel];
+    [twoLineTitleView addSubview:subTitleLabel];
+    
+    float widthDiff = subTitleLabel.frame.size.width - titleLabel.frame.size.width;
+    
+    if (widthDiff > 0) {
+        CGRect frame = titleLabel.frame;
+        frame.origin.x = widthDiff / 2;
+        titleLabel.frame = CGRectIntegral(frame);
+    }else{
+        CGRect frame = subTitleLabel.frame;
+        frame.origin.x = fabsf(widthDiff) / 2;
+        subTitleLabel.frame = CGRectIntegral(frame);
     }
+    
+    self.navigationItem.titleView = twoLineTitleView;
 }
 
 #pragma mark - Participants actions
-
-- (NSMutableArray *)filterContacts:(NSMutableArray *)contacts
-{
-    NSMutableArray *participants = [[NSMutableArray alloc] init];
-    for (NCUser *user in contacts) {
-        if (![_participantsInRoom containsObject:user.userId]) {
-            [participants addObject:user];
-        }
-    }
-    return participants;
-}
 
 - (void)getPossibleParticipants
 {
     [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            NSMutableArray *filteredParticipants = [self filterContacts:contactList];
-            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
+            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:contactList];
             _participants = participants;
             _indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
             [self.tableView reloadData];
@@ -211,8 +186,7 @@
 {
     [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            NSMutableArray *filteredParticipants = [self filterContacts:contactList];
-            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
+            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:contactList];
             _resultTableViewController.contacts = participants;
             _resultTableViewController.indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];;
             [_resultTableViewController.tableView reloadData];
