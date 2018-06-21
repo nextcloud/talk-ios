@@ -379,6 +379,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                                                   success:nil
                                                   failure:nil];
                 _roomNameTextField = nil;
+                cell.roomNameTextField.textColor = [UIColor grayColor];
                 cell.userInteractionEnabled = NO;
             }
             
@@ -399,9 +400,10 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:publicCellIdentifier];
                         }
                         
-                        cell.textLabel.text = @"Public conversation";
+                        cell.textLabel.text = @"Public";
                         cell.selectionStyle = UITableViewCellSelectionStyleNone;
                         cell.accessoryView = _publicSwtich;
+                        [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
                         
                         return cell;
                     }
@@ -417,6 +419,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                         cell.textLabel.text = @"Password";
                         cell.selectionStyle = UITableViewCellSelectionStyleNone;
                         cell.accessoryView = _passwordTextField;
+                        [cell.imageView setImage:[UIImage imageNamed:@"privacy"]];
                         
                         return cell;
                     }
