@@ -42,6 +42,10 @@ NSInteger const kChatMessageGroupTimeDifference = 15;
         }
     }
     
+    if (![message.messageParameters isKindOfClass:[NSDictionary class]]) {
+        message.messageParameters = @{};
+    }
+    
     return message;
 }
 
