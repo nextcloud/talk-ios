@@ -102,6 +102,8 @@
 		2CC007BE20D8F24B0096D91F /* RoomCreation2TableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007BC20D8F24B0096D91F /* RoomCreation2TableViewController.xib */; };
 		2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */; };
 		2CC007C620D90AE50096D91F /* RoomNameTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */; };
+		2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C820E125C20096D91F /* NewRoomTableViewController.m */; };
+		2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */; };
 		2CC7158920B837140045C789 /* ChatPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* ChatPlaceholderView.xib */; };
 		2CC7158C20B8394A0045C789 /* ChatPlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */; };
 		2CC7158E20C51ABA0045C789 /* UnreadMessagesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158D20C51ABA0045C789 /* UnreadMessagesView.xib */; };
@@ -349,6 +351,9 @@
 		2CC007C220D90AE50096D91F /* RoomNameTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomNameTableViewCell.h; sourceTree = "<group>"; };
 		2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomNameTableViewCell.m; sourceTree = "<group>"; };
 		2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomNameTableViewCell.xib; sourceTree = "<group>"; };
+		2CC007C720E125C20096D91F /* NewRoomTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewRoomTableViewController.h; sourceTree = "<group>"; };
+		2CC007C820E125C20096D91F /* NewRoomTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NewRoomTableViewController.m; sourceTree = "<group>"; };
+		2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NewRoomTableViewController.xib; sourceTree = "<group>"; };
 		2CC7158820B837140045C789 /* ChatPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatPlaceholderView.xib; sourceTree = "<group>"; };
 		2CC7158A20B8394A0045C789 /* ChatPlaceholderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatPlaceholderView.h; sourceTree = "<group>"; };
 		2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatPlaceholderView.m; sourceTree = "<group>"; };
@@ -531,6 +536,9 @@
 				2CC007C220D90AE50096D91F /* RoomNameTableViewCell.h */,
 				2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */,
 				2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */,
+				2CC007C720E125C20096D91F /* NewRoomTableViewController.h */,
+				2CC007C820E125C20096D91F /* NewRoomTableViewController.m */,
+				2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */,
 			);
 			name = Rooms;
 			sourceTree = "<group>";
@@ -923,6 +931,7 @@
 				2CC007C620D90AE50096D91F /* RoomNameTableViewCell.xib in Resources */,
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
 				2CC7158E20C51ABA0045C789 /* UnreadMessagesView.xib in Resources */,
+				2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */,
 				2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */,
 				2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */,
 				2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */,
@@ -1085,6 +1094,7 @@
 				2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */,
 				2C063313205A85850043481A /* VideoSettingsViewController.m in Sources */,
 				2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */,
+				2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */,
 				2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */,
 				2CA155562099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m in Sources */,
 				2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */,

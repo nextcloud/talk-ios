@@ -25,7 +25,7 @@
 #import "UIImageView+AFNetworking.h"
 #import "NCChatViewController.h"
 #import "NCRoomsManager.h"
-#import "RoomCreationTableViewController.h"
+#import "NewRoomTableViewController.h"
 #import "RoundedNumberView.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
@@ -113,8 +113,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (IBAction)addButtonPressed:(id)sender
 {
-    RoomCreationTableViewController *roomCreationVC = [[RoomCreationTableViewController alloc] init];
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:roomCreationVC];
+    NewRoomTableViewController *newRoowVC = [[NewRoomTableViewController alloc] init];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:newRoowVC];
     [self presentViewController:navigationController animated:YES completion:nil];
 }
 

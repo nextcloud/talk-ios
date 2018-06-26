@@ -17,24 +17,18 @@
 
 typedef enum CreationSection {
     kCreationSectionName = 0,
-    kCreationSectionPublic,
-    kCreationSectionParticipants,
+    kCreationSectionParticipantsOrPassword,
     kCreationSectionNumber
 } CreationSection;
-
-typedef enum PublicSection {
-    kPublicSectionToggle = 0,
-    kPublicSectionPassword
-} PublicSection;
 
 NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 @interface RoomCreation2TableViewController ()
 
+@property (nonatomic, assign) BOOL publicRoom;
 @property (nonatomic, strong) NSMutableArray *participants;
 @property (nonatomic, strong) NSString *roomName;
 @property (nonatomic, strong) UITextField *roomNameTextField;
-@property (nonatomic, strong) UISwitch *publicSwtich;
 @property (nonatomic, strong) UITextField *passwordTextField;
 @property (nonatomic, strong) UIBarButtonItem *createRoomButton;
 @property (nonatomic, strong) UIActivityIndicatorView *creatingRoomView;
@@ -47,11 +41,22 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 @implementation RoomCreation2TableViewController
 
-- (instancetype)initWithParticipants:(NSMutableArray *)participants
+- (instancetype)initForGroupRoomWithParticipants:(NSMutableArray *)participants
 {
     self = [super init];
     if (self) {
+        _publicRoom = NO;
         _participants = participants;
+    }
+    return self;
+}
+
+- (instancetype)initForPublicRoom
+{
+    self = [super init];
+    if (self) {
+        _publicRoom = YES;
+        _participants = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -60,15 +65,12 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 {
     [super viewDidLoad];
     
-    self.navigationItem.title = @"New conversation";
+    self.navigationItem.title = (_publicRoom) ? @"New public conversation" : @"New group";
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
-    
-    _publicSwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
-    [_publicSwtich addTarget: self action: @selector(publicValueChanged:) forControlEvents:UIControlEventValueChanged];
     
     _passwordTextField = [[UITextField alloc] initWithFrame:CGRectMake(180, 10, 115, 30)];
     _passwordTextField.textAlignment = NSTextAlignmentRight;
@@ -106,34 +108,6 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - Public switch
-
-- (void)publicValueChanged:(id)sender
-{
-    BOOL isPublic = _publicSwtich.on;
-    _roomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    _publicSwtich.enabled = NO;
-    
-    [CATransaction begin];
-    [CATransaction setCompletionBlock:^{
-        _publicSwtich.enabled = YES;
-    }];
-    [self.tableView beginUpdates];
-    // Reload room name section
-    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
-    // Show/Hide password row
-    NSIndexPath *passwordIP = [NSIndexPath indexPathForRow:kPublicSectionPassword inSection:kCreationSectionPublic];
-    NSArray *indexArray = [NSArray arrayWithObjects:passwordIP,nil];
-    if (isPublic) {
-        _passwordTextField.text = @"";
-        [self.tableView insertRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
-    } else {
-        [self.tableView deleteRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
-    }
-    [self.tableView endUpdates];
-    [CATransaction commit];
-}
-
 #pragma mark - Room creation
 
 - (void)startRoomCreation
@@ -143,36 +117,13 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_creatingRoomView];
     self.navigationController.navigationBar.userInteractionEnabled = NO;
     
-    _passwordToBeSet = nil;
-    
-    if ([self isOneToOneConversation]) {
-        _participantsToBeAdded = 0;
-        [self createRoomWithParticipant:[_participants objectAtIndex:0]];
-    } else {
-        NSString *roomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        NSString *password = [_passwordTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        if (![password isEqualToString:@""] && _publicSwtich.on) {
-            _passwordToBeSet = password;
-        }
-        _participantsToBeAdded = _participants.count;
-        [self createGroupRoomWithName:roomName public:_publicSwtich.on];
+    NSString *roomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    NSString *password = [_passwordTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    if (![password isEqualToString:@""] && _publicRoom) {
+        _passwordToBeSet = password;
     }
-}
-
-- (void)createRoomWithParticipant:(NCUser *)participant
-{
-    [[NCAPIController sharedInstance] createRoomWith:participant.userId
-                                              ofType:kNCRoomTypeOneToOneCall
-                                             andName:nil
-                                 withCompletionBlock:^(NSString *token, NSError *error) {
-                                     if (!error) {
-                                         _createdRoomToken = token;
-                                         [self checkRoomCreationCompletion];
-                                     } else {
-                                         NSLog(@"Error creating a room with %@", participant.name);
-                                         [self cancelRoomCreation];
-                                     }
-                                 }];
+    _participantsToBeAdded = _participants.count;
+    [self createGroupRoomWithName:roomName public:_publicRoom];
 }
 
 - (void)createGroupRoomWithName:(NSString *)roomName public:(BOOL)public
@@ -273,7 +224,6 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     self.navigationController.navigationBar.userInteractionEnabled = YES;
     _roomNameTextField.enabled = YES;
     _passwordTextField.enabled = YES;
-    _publicSwtich.enabled = YES;
 }
 
 - (void)disableInteraction
@@ -281,12 +231,6 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     self.navigationController.navigationBar.userInteractionEnabled = NO;
     _roomNameTextField.enabled = NO;
     _passwordTextField.enabled = NO;
-    _publicSwtich.enabled = NO;
-}
-
-- (BOOL)isOneToOneConversation
-{
-    return _participants.count == 1 && !_publicSwtich.on;
 }
 
 #pragma mark - Table view data source
@@ -298,22 +242,18 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    switch (section) {
-        case kCreationSectionPublic:
-            return (_publicSwtich.on) ? 2 : 1;
-            break;
-            
-        case kCreationSectionParticipants:
-            return _participants.count;
-            break;
+    if (section == kCreationSectionParticipantsOrPassword && !_publicRoom) {
+        return _participants.count;
     }
-    
     return 1;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section != kCreationSectionPublic) {
+    
+    if (indexPath.section == kCreationSectionName) {
+        return 80.0f;
+    } else if (indexPath.section == kCreationSectionParticipantsOrPassword && !_publicRoom) {
         return 80.0f;
     }
     return 48;
@@ -321,17 +261,22 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    switch (section) {
-        case kCreationSectionParticipants:
-        {
-            if (_participants.count == 0) {
-                return @"";
-            } else if (_participants.count == 1) {
-                return @"1 participant";
-            }
-            return [NSString stringWithFormat:@"%ld participants", _participants.count];
+    if (section == kCreationSectionParticipantsOrPassword && !_publicRoom ) {
+        if (_participants.count == 0) {
+            return @"";
+        } else if (_participants.count == 1) {
+            return @"1 participant";
         }
-            break;
+        return [NSString stringWithFormat:@"%ld participants", _participants.count];
+    }
+    
+    return nil;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
+{
+    if (section == kCreationSectionParticipantsOrPassword && _publicRoom ) {
+        return @"Public conversations can be accessed by anyone who owns the link to it. You can protect them by setting a password.";
     }
     
     return nil;
@@ -340,8 +285,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 - (void)tableView:(UITableView *)tableView willDisplayCell:(nonnull UITableViewCell *)cell forRowAtIndexPath:(nonnull NSIndexPath *)indexPath
 {
     BOOL isRoomNameCell = indexPath.row == 0 && indexPath.section == kCreationSectionName;
-    BOOL one2one = [self isOneToOneConversation];
-    if (isRoomNameCell && !_didFocusRoomNameOnce && !one2one) {
+    if (isRoomNameCell && !_didFocusRoomNameOnce) {
         RoomNameTableViewCell *roomNameCell = (RoomNameTableViewCell *)cell;
         [roomNameCell.roomNameTextField becomeFirstResponder];
         _didFocusRoomNameOnce = YES;
@@ -360,7 +304,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                 cell = [[RoomNameTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomNameCellIdentifier];
             }
             
-            if (_publicSwtich.on) {
+            if (_publicRoom) {
                 [cell.roomImage setImage:[UIImage imageNamed:@"public-bg"]];
             } else {
                 [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
@@ -369,21 +313,6 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
             _roomNameTextField = cell.roomNameTextField;
             cell.userInteractionEnabled = YES;
             
-            if ([self isOneToOneConversation]) {
-                NCUser *participant = [_participants objectAtIndex:indexPath.row];
-                cell.roomNameTextField.text = participant.name;
-                // Create avatar for every contact
-                [cell.roomImage setImageWithString:participant.name color:nil circular:true];
-                // Request user avatar to the server and set it if exist
-                [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
-                                         placeholderImage:nil
-                                                  success:nil
-                                                  failure:nil];
-                _roomNameTextField = nil;
-                cell.roomNameTextField.textColor = [UIColor grayColor];
-                cell.userInteractionEnabled = NO;
-            }
-            
             cell.roomImage.layer.cornerRadius = 24.0;
             cell.roomImage.layer.masksToBounds = YES;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -391,64 +320,41 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
             return cell;
         }
             break;
-        case kCreationSectionPublic:
+        case kCreationSectionParticipantsOrPassword:
         {
-            switch (indexPath.row) {
-                case kPublicSectionToggle:
-                    {
-                        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:publicCellIdentifier];
-                        if (!cell) {
-                            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:publicCellIdentifier];
-                        }
-                        
-                        cell.textLabel.text = @"Public";
-                        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                        cell.accessoryView = _publicSwtich;
-                        [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
-                        
-                        return cell;
-                    }
-                    break;
-                    
-                case kPublicSectionPassword:
-                    {
-                        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:publicCellIdentifier];
-                        if (!cell) {
-                            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:publicCellIdentifier];
-                        }
-                        
-                        cell.textLabel.text = @"Password";
-                        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                        cell.accessoryView = _passwordTextField;
-                        [cell.imageView setImage:[UIImage imageNamed:@"privacy"]];
-                        
-                        return cell;
-                    }
-                    break;
+            if (_publicRoom) {
+                UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:publicCellIdentifier];
+                if (!cell) {
+                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:publicCellIdentifier];
+                }
+                
+                cell.textLabel.text = @"Password";
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.accessoryView = _passwordTextField;
+                [cell.imageView setImage:[UIImage imageNamed:@"privacy"]];
+                
+                return cell;
+            } else {
+                NCUser *participant = [_participants objectAtIndex:indexPath.row];
+                ContactsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kContactCellIdentifier forIndexPath:indexPath];
+                if (!cell) {
+                    cell = [[ContactsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kContactCellIdentifier];
+                }
+                
+                cell.labelTitle.text = participant.name;
+                // Create avatar for every contact
+                [cell.contactImage setImageWithString:participant.name color:nil circular:true];
+                // Request user avatar to the server and set it if exist
+                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
+                                         placeholderImage:nil
+                                                  success:nil
+                                                  failure:nil];
+                cell.contactImage.layer.cornerRadius = 24.0;
+                cell.contactImage.layer.masksToBounds = YES;
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                
+                return cell;
             }
-        }
-            break;
-        case kCreationSectionParticipants:
-        {
-            NCUser *participant = [_participants objectAtIndex:indexPath.row];
-            ContactsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kContactCellIdentifier forIndexPath:indexPath];
-            if (!cell) {
-                cell = [[ContactsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kContactCellIdentifier];
-            }
-            
-            cell.labelTitle.text = participant.name;
-            // Create avatar for every contact
-            [cell.contactImage setImageWithString:participant.name color:nil circular:true];
-            // Request user avatar to the server and set it if exist
-            [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
-                                     placeholderImage:nil
-                                              success:nil
-                                              failure:nil];
-            cell.contactImage.layer.cornerRadius = 24.0;
-            cell.contactImage.layer.masksToBounds = YES;
-            cell.selectionStyle = UITableViewCellSelectionStyleNone;
-            
-            return cell;
         }
             break;
     }
