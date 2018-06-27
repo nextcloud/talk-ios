@@ -78,10 +78,10 @@
     cell.contactImage.layer.cornerRadius = 24.0;
     cell.contactImage.layer.masksToBounds = YES;
     
-    cell.accessoryType = UITableViewCellAccessoryNone;
+    cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-unchecked"]];
     for (NCUser *user in _selectedParticipants) {
         if ([user.userId isEqualToString:contact.userId]) {
-            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]];
         }
     }
     

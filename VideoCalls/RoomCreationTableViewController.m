@@ -65,14 +65,9 @@
     
     self.definesPresentationContext = YES;
     
-    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                                                                                  target:self action:@selector(cancelButtonPressed)];
-    self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
-    
     UIBarButtonItem *nextButton = [[UIBarButtonItem alloc] initWithTitle:@"Next" style:UIBarButtonItemStylePlain
                                                                   target:self action:@selector(nextButtonPressed)];
-    self.navigationController.navigationBar.topItem.rightBarButtonItem = nextButton;
-    
+    self.navigationItem.rightBarButtonItem = nextButton;
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
@@ -127,7 +122,7 @@
 
 - (void)nextButtonPressed
 {
-    RoomCreation2TableViewController *rc2VC = [[RoomCreation2TableViewController alloc] initWithParticipants:_selectedParticipants];
+    RoomCreation2TableViewController *rc2VC = [[RoomCreation2TableViewController alloc] initForGroupRoomWithParticipants:_selectedParticipants];
     [self.navigationController pushViewController:rc2VC animated:YES];
 }
 
@@ -137,7 +132,7 @@
     titleLabel.backgroundColor = [UIColor clearColor];
     titleLabel.textColor = [UIColor whiteColor];
     titleLabel.font = [UIFont boldSystemFontOfSize:16];
-    titleLabel.text = @"New conversation";
+    titleLabel.text = @"New group conversation";
     [titleLabel sizeToFit];
     
     UILabel *subTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 18, 0, 0)];
@@ -282,7 +277,10 @@
     
     cell.contactImage.layer.cornerRadius = 24.0;
     cell.contactImage.layer.masksToBounds = YES;
-    cell.accessoryType = ([self isParticipantAlreadySelected:participant]) ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
+    
+    UIImageView *checkboxChecked = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]];
+    UIImageView *checkboxUnchecked = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-unchecked"]];
+    cell.accessoryView = ([self isParticipantAlreadySelected:participant]) ? checkboxChecked : checkboxUnchecked;
     
     return cell;
 }

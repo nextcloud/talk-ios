@@ -12,6 +12,7 @@ extern NSString * const NCRoomCreatedNotification;
 
 @interface RoomCreation2TableViewController : UITableViewController
 
-- (instancetype)initWithParticipants:(NSMutableArray *)participants;
+- (instancetype)initForGroupRoomWithParticipants:(NSMutableArray *)participants;
+- (instancetype)initForPublicRoom;
 
 @end
