@@ -233,12 +233,12 @@ typedef enum HeaderSection {
         }
         switch (indexPath.row) {
             case kHeaderSectionNewGroup:
-                cell.labelTitle.text = @"New group";
+                cell.labelTitle.text = @"New group conversation";
                 [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
                 break;
                 
             case kHeaderSectionNewPublic:
-                cell.labelTitle.text = @"Public conversation";
+                cell.labelTitle.text = @"New public conversation";
                 [cell.contactImage setImage:[UIImage imageNamed:@"public-bg"]];
                 break;
                 

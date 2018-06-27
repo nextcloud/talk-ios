@@ -65,7 +65,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 {
     [super viewDidLoad];
     
-    self.navigationItem.title = (_publicRoom) ? @"New public conversation" : @"New group";
+    self.navigationItem.title = (_publicRoom) ? @"New public conversation" : @"New group conversation";
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];

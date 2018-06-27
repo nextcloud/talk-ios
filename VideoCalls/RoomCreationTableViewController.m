@@ -132,7 +132,7 @@
     titleLabel.backgroundColor = [UIColor clearColor];
     titleLabel.textColor = [UIColor whiteColor];
     titleLabel.font = [UIFont boldSystemFontOfSize:16];
-    titleLabel.text = @"New group";
+    titleLabel.text = @"New group conversation";
     [titleLabel sizeToFit];
     
     UILabel *subTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 18, 0, 0)];
