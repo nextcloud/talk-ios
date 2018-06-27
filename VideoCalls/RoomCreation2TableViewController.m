@@ -276,7 +276,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
     if (section == kCreationSectionParticipantsOrPassword && _publicRoom ) {
-        return @"Public conversations can be accessed by anyone who owns the link to it. You can protect them by setting a password.";
+        return @"Anyone who knows the link to this conversation will be able to access it. You can protect it by setting a password.";
     }
     
     return nil;
