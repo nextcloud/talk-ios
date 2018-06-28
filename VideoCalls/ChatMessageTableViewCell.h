@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "ChatTableViewCell.h"
+#import "MessageBodyTextView.h"
 
 static CGFloat kChatMessageCellMinimumHeight    = 50.0;
 static CGFloat kChatMessageCellAvatarHeight     = 30.0;
@@ -19,7 +20,7 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *dateLabel;
-@property (nonatomic, strong) UITextView *bodyTextView;
+@property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 @property (nonatomic, strong) UIImageView *avatarView;
 
 + (CGFloat)defaultFontSize;

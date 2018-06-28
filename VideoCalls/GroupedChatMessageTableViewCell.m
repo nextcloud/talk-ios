@@ -53,17 +53,10 @@
 
 #pragma mark - Getters
 
-- (UITextView *)bodyTextView
+- (MessageBodyTextView *)bodyTextView
 {
     if (!_bodyTextView) {
-        _bodyTextView = [UITextView new];
-        _bodyTextView.dataDetectorTypes = UIDataDetectorTypeAll;
-        _bodyTextView.textContainer.lineFragmentPadding = 0;
-        _bodyTextView.textContainerInset = UIEdgeInsetsZero;
-        _bodyTextView.translatesAutoresizingMaskIntoConstraints = NO;
-        _bodyTextView.backgroundColor = [UIColor clearColor];
-        _bodyTextView.editable= NO;
-        _bodyTextView.textColor = [UIColor darkGrayColor];
+        _bodyTextView = [MessageBodyTextView new];
         _bodyTextView.font = [UIFont systemFontOfSize:[GroupedChatMessageTableViewCell defaultFontSize]];
     }
     return _bodyTextView;

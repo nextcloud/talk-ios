@@ -8,13 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import "ChatTableViewCell.h"
+#import "MessageBodyTextView.h"
 
 static CGFloat kGroupedChatMessageCellMinimumHeight = 30.0;
 static NSString *GroupedChatMessageCellIdentifier = @"GroupedChatMessageCellIdentifier";
 
 @interface GroupedChatMessageTableViewCell : ChatTableViewCell
 
-@property (nonatomic, strong) UITextView *bodyTextView;
+@property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 
 + (CGFloat)defaultFontSize;
 
