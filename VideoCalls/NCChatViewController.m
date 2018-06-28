@@ -646,13 +646,13 @@
     UITableViewCell *cell = [UITableViewCell new];
     if (message.groupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
-        groupedCell.bodyLabel.attributedText = message.parsedMessage;
+        groupedCell.bodyTextView.attributedText = message.parsedMessage;
         groupedCell.messageId = message.messageId;
         return groupedCell;
     } else {
         ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
         normalCell.titleLabel.text = message.actorDisplayName;
-        normalCell.bodyLabel.attributedText = message.parsedMessage;
+        normalCell.bodyTextView.attributedText = message.parsedMessage;
         normalCell.messageId = message.messageId;
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
         normalCell.dateLabel.text = [self getTimeFromDate:date];

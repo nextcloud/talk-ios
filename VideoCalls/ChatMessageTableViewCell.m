@@ -37,12 +37,12 @@
     
     [self.contentView addSubview:self.titleLabel];
     [self.contentView addSubview:self.dateLabel];
-    [self.contentView addSubview:self.bodyLabel];
+    [self.contentView addSubview:self.bodyTextView];
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"titleLabel": self.titleLabel,
                             @"dateLabel": self.dateLabel,
-                            @"bodyLabel": self.bodyLabel,
+                            @"bodyTextView": self.bodyTextView,
                             };
     
     NSDictionary *metrics = @{@"avatarSize": @(kChatMessageCellAvatarHeight),
@@ -54,9 +54,9 @@
     if ([self.reuseIdentifier isEqualToString:ChatMessageCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"[titleLabel(==dateLabel)]" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyLabel(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[bodyLabel(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[bodyLabel(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
     }
     else {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-right-|" options:0 metrics:metrics views:views]];
@@ -75,10 +75,10 @@
     CGFloat pointSize = [ChatMessageTableViewCell defaultFontSize];
     
     self.titleLabel.font = [UIFont systemFontOfSize:pointSize];
-    self.bodyLabel.font = [UIFont systemFontOfSize:pointSize];
+    self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
     
     self.titleLabel.text = @"";
-    self.bodyLabel.text = @"";
+    self.bodyTextView.text = @"";
     
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
@@ -115,18 +115,13 @@
     return _dateLabel;
 }
 
-- (UILabel *)bodyLabel
+- (MessageBodyTextView *)bodyTextView
 {
-    if (!_bodyLabel) {
-        _bodyLabel = [UILabel new];
-        _bodyLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        _bodyLabel.backgroundColor = [UIColor clearColor];
-        _bodyLabel.userInteractionEnabled = NO;
-        _bodyLabel.numberOfLines = 0;
-        _bodyLabel.textColor = [UIColor darkGrayColor];
-        _bodyLabel.font = [UIFont systemFontOfSize:[ChatMessageTableViewCell defaultFontSize]];
+    if (!_bodyTextView) {
+        _bodyTextView = [MessageBodyTextView new];
+        _bodyTextView.font = [UIFont systemFontOfSize:[ChatMessageTableViewCell defaultFontSize]];
     }
-    return _bodyLabel;
+    return _bodyTextView;
 }
 
 - (void)setGuestAvatar:(NSString *)displayName
