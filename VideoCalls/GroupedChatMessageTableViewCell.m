@@ -25,17 +25,17 @@
 
 - (void)configureSubviews
 {
-    [self.contentView addSubview:self.bodyLabel];
+    [self.contentView addSubview:self.bodyTextView];
     
-    NSDictionary *views = @{@"bodyLabel": self.bodyLabel};
+    NSDictionary *views = @{@"bodyTextView": self.bodyTextView};
     
     NSDictionary *metrics = @{@"avatar": @50,
                               @"right": @10,
                               @"left": @5
                               };
     
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatar-[bodyLabel(>=0)]-right-|" options:0 metrics:metrics views:views]];
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyLabel(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatar-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
 }
 
 - (void)prepareForReuse
@@ -46,25 +46,27 @@
     
     CGFloat pointSize = [GroupedChatMessageTableViewCell defaultFontSize];
     
-    self.bodyLabel.font = [UIFont systemFontOfSize:pointSize];
+    self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
     
-    self.bodyLabel.text = @"";
+    self.bodyTextView.text = @"";
 }
 
 #pragma mark - Getters
 
-- (UILabel *)bodyLabel
+- (UITextView *)bodyTextView
 {
-    if (!_bodyLabel) {
-        _bodyLabel = [UILabel new];
-        _bodyLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        _bodyLabel.backgroundColor = [UIColor clearColor];
-        _bodyLabel.userInteractionEnabled = NO;
-        _bodyLabel.numberOfLines = 0;
-        _bodyLabel.textColor = [UIColor darkGrayColor];
-        _bodyLabel.font = [UIFont systemFontOfSize:[GroupedChatMessageTableViewCell defaultFontSize]];
+    if (!_bodyTextView) {
+        _bodyTextView = [UITextView new];
+        _bodyTextView.dataDetectorTypes = UIDataDetectorTypeAll;
+        _bodyTextView.textContainer.lineFragmentPadding = 0;
+        _bodyTextView.textContainerInset = UIEdgeInsetsZero;
+        _bodyTextView.translatesAutoresizingMaskIntoConstraints = NO;
+        _bodyTextView.backgroundColor = [UIColor clearColor];
+        _bodyTextView.editable= NO;
+        _bodyTextView.textColor = [UIColor darkGrayColor];
+        _bodyTextView.font = [UIFont systemFontOfSize:[GroupedChatMessageTableViewCell defaultFontSize]];
     }
-    return _bodyLabel;
+    return _bodyTextView;
 }
 
 + (CGFloat)defaultFontSize

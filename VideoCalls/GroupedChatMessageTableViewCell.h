@@ -14,7 +14,7 @@ static NSString *GroupedChatMessageCellIdentifier = @"GroupedChatMessageCellIden
 
 @interface GroupedChatMessageTableViewCell : ChatTableViewCell
 
-@property (nonatomic, strong) UILabel *bodyLabel;
+@property (nonatomic, strong) UITextView *bodyTextView;
 
 + (CGFloat)defaultFontSize;
 

@@ -19,7 +19,7 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *dateLabel;
-@property (nonatomic, strong) UILabel *bodyLabel;
+@property (nonatomic, strong) UITextView *bodyTextView;
 @property (nonatomic, strong) UIImageView *avatarView;
 
 + (CGFloat)defaultFontSize;
