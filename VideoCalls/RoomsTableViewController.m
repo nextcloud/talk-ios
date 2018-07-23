@@ -59,9 +59,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     UIImage *navigationLogo = [UIImage imageNamed:@"navigationLogo"];
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:navigationLogo];
-    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithImage:navigationLogo style:UIBarButtonItemStylePlain
-                                                                  target:nil action:nil];
-    self.navigationItem.backBarButtonItem = backButton;
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
