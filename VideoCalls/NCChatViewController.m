@@ -15,6 +15,7 @@
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
 #import "NCChatMention.h"
+#import "NCChatTitleView.h"
 #import "NCMessageTextView.h"
 #import "NCRoomsManager.h"
 #import "NCRoomController.h"
@@ -48,7 +49,6 @@
     self = [super initWithTableViewStyle:UITableViewStylePlain];
     if (self) {
         self.room = room;
-        self.title = room.displayName;
         self.hidesBottomBarWhenPushed = YES;
         // Fixes problem with tableView contentSize on iOS 11
         self.tableView.estimatedRowHeight = 0;
@@ -101,8 +101,6 @@
     [self.textInputbar.editorRightButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
     
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
-    [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
@@ -170,6 +168,32 @@
 
 - (void)configureActionItems
 {
+    NCChatTitleView *titleView = [[NCChatTitleView alloc] init];
+    titleView.frame = CGRectMake(0, 0, 800, 30);
+    titleView.autoresizingMask=UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    [titleView.title setTitle:_room.displayName forState:UIControlStateNormal];
+    
+    // Set room image
+    switch (_room.type) {
+        case kNCRoomTypeOneToOneCall:
+        {
+            // Request user avatar to the server and set it if exist
+            [titleView.image setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
+                                  placeholderImage:nil success:nil failure:nil];
+        }
+            break;
+        case kNCRoomTypeGroupCall:
+            [titleView.image setImage:[UIImage imageNamed:@"group-bg"]];
+            break;
+        case kNCRoomTypePublicCall:
+            [titleView.image setImage:[UIImage imageNamed:@"public-bg"]];
+            break;
+        default:
+            break;
+    }
+    
+    self.navigationItem.titleView = titleView;
+    
     UIBarButtonItem *videoCallButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"videocall-action"]
                                                                         style:UIBarButtonItemStylePlain
                                                                        target:self
