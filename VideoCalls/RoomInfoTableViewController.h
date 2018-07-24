@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NCRoom.h"
 
 @interface RoomInfoTableViewController : UITableViewController
+
+- (instancetype)initForRoom:(NCRoom *)room;
 
 @end

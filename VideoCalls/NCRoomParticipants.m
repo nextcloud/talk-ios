@@ -1,0 +1,37 @@
+//
+//  NCRoomParticipant.m
+//  VideoCalls
+//
+//  Created by Ivan Sein on 24.07.18.
+//  Copyright © 2018 struktur AG. All rights reserved.
+//
+
+#import "NCRoomParticipant.h"
+
+@implementation NCRoomParticipant
+
++ (instancetype)participantWithDictionary:(NSDictionary *)participantDict
+{
+    if (!participantDict) {
+        return nil;
+    }
+    
+    NCRoomParticipant *participant = [[NCRoomParticipant alloc] init];
+    participant.displayName = [participantDict objectForKey:@"displayName"];
+    participant.inCall = [[participantDict objectForKey:@"displayName"] boolValue];
+    participant.lastPing = [[participantDict objectForKey:@"lastPing"] integerValue];
+    participant.participantType = (NCParticipantType)[[participantDict objectForKey:@"participantType"] integerValue];
+    participant.sessionId = [participantDict objectForKey:@"sessionId"];
+    participant.userId = [participantDict objectForKey:@"userId"];
+    
+    id displayName = [participantDict objectForKey:@"displayName"];
+    if ([displayName isKindOfClass:[NSString class]]) {
+        participant.displayName = displayName;
+    } else {
+        participant.displayName = [displayName stringValue];
+    }
+    
+    return participant;
+}
+
+@end

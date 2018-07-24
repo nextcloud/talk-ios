@@ -22,6 +22,8 @@
 		2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
 		2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
+		2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
+		2C3780BE21075161003F9AE8 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
 		2C3F6AA81FBB1ACD00E2705C /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3F6AA71FBB1ACD00E2705C /* NotificationService.m */; };
 		2C3F6AAC1FBB1ACD00E2705C /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2C3F6AB31FBB45E600E2705C /* NCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */; };
@@ -168,6 +170,8 @@
 		2C06BF6B20AEB0030031EB46 /* RoundedNumberView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedNumberView.h; sourceTree = "<group>"; };
 		2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSignalingMessage.h; sourceTree = "<group>"; };
 		2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCSignalingMessage.m; sourceTree = "<group>"; };
+		2C3780BB2107209C003F9AE8 /* NCRoomParticipant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCRoomParticipant.h; sourceTree = "<group>"; };
+		2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCRoomParticipants.m; sourceTree = "<group>"; };
 		2C3F6AA41FBB1ACC00E2705C /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C3F6AA61FBB1ACD00E2705C /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
 		2C3F6AA71FBB1ACD00E2705C /* NotificationService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
@@ -555,6 +559,8 @@
 				2C440D0E20EA4A770005F9BB /* RoomInfoTableViewController.h */,
 				2C440D0F20EA4A770005F9BB /* RoomInfoTableViewController.m */,
 				2C440D1020EA4A770005F9BB /* RoomInfoTableViewController.xib */,
+				2C3780BB2107209C003F9AE8 /* NCRoomParticipant.h */,
+				2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */,
 			);
 			name = Rooms;
 			sourceTree = "<group>";
@@ -1117,6 +1123,7 @@
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
 				2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */,
 				2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */,
+				2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */,
 				2C063313205A85850043481A /* VideoSettingsViewController.m in Sources */,
 				2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */,
 				2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */,
@@ -1167,6 +1174,7 @@
 				2C3F6AB31FBB45E600E2705C /* NCSettingsController.m in Sources */,
 				2C3F6AB71FBB47C400E2705C /* UICKeyChainStore.m in Sources */,
 				2C3F6AB81FBB4C9500E2705C /* NCRoom.m in Sources */,
+				2C3780BE21075161003F9AE8 /* NCRoomParticipants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

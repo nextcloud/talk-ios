@@ -8,19 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
+#import "NCRoomParticipant.h"
+
 typedef enum NCRoomType {
     kNCRoomTypeOneToOneCall = 1,
     kNCRoomTypeGroupCall,
     kNCRoomTypePublicCall
 } NCRoomType;
-
-typedef enum NCParticipantType {
-    kNCParticipantTypeOwner = 1,
-    kNCParticipantTypeModerator,
-    kNCParticipantTypeUser,
-    kNCParticipantTypeGuest,
-    kNCParticipantTypeUserFollowingLink
-} NCParticipantType;
 
 @interface NCRoom : NSObject
 

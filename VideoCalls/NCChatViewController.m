@@ -21,6 +21,7 @@
 #import "NCRoomController.h"
 #import "NCSettingsController.h"
 #import "NSDate+DateTools.h"
+#import "RoomInfoTableViewController.h"
 #import "UIImageView+AFNetworking.h"
 #import "UnreadMessagesView.h"
 
@@ -28,6 +29,7 @@
 
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) NCRoomController *roomController;
+@property (nonatomic, strong) NCChatTitleView *titleView;
 @property (nonatomic, strong) ChatPlaceholderView *chatBackgroundView;
 @property (nonatomic, strong) NSMutableDictionary *messages;
 @property (nonatomic, strong) NSMutableArray *dateSections;
@@ -168,31 +170,32 @@
 
 - (void)configureActionItems
 {
-    NCChatTitleView *titleView = [[NCChatTitleView alloc] init];
-    titleView.frame = CGRectMake(0, 0, 800, 30);
-    titleView.autoresizingMask=UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    [titleView.title setTitle:_room.displayName forState:UIControlStateNormal];
+    _titleView = [[NCChatTitleView alloc] init];
+    _titleView.frame = CGRectMake(0, 0, 800, 30);
+    _titleView.autoresizingMask=UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    [_titleView.title setTitle:_room.displayName forState:UIControlStateNormal];
+    [_titleView.title addTarget:self action:@selector(titleButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
     // Set room image
     switch (_room.type) {
         case kNCRoomTypeOneToOneCall:
         {
             // Request user avatar to the server and set it if exist
-            [titleView.image setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
+            [_titleView.image setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
                                   placeholderImage:nil success:nil failure:nil];
         }
             break;
         case kNCRoomTypeGroupCall:
-            [titleView.image setImage:[UIImage imageNamed:@"group-bg"]];
+            [_titleView.image setImage:[UIImage imageNamed:@"group-bg"]];
             break;
         case kNCRoomTypePublicCall:
-            [titleView.image setImage:[UIImage imageNamed:@"public-bg"]];
+            [_titleView.image setImage:[UIImage imageNamed:@"public-bg"]];
             break;
         default:
             break;
     }
     
-    self.navigationItem.titleView = titleView;
+    self.navigationItem.titleView = _titleView;
     
     UIBarButtonItem *videoCallButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"videocall-action"]
                                                                         style:UIBarButtonItemStylePlain
@@ -235,6 +238,12 @@
 }
 
 #pragma mark - Action Methods
+
+- (void)titleButtonPressed:(id)sender
+{
+    RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room];
+    [self.navigationController pushViewController:roomInfoVC animated:YES];
+}
 
 - (void)videoCallButtonPressed:(id)sender
 {
