@@ -28,7 +28,7 @@ typedef enum PublicSection {
     kPublicSectionPassword
 } PublicSection;
 
-@interface RoomInfoTableViewController ()
+@interface RoomInfoTableViewController () <UITextFieldDelegate>
 
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) NSString *roomName;
@@ -99,11 +99,34 @@ typedef enum PublicSection {
 
 #pragma mark - Utils
 
+- (void)getRoomInfo
+{
+    [[NCAPIController sharedInstance] getRoomWithToken:_room.token withCompletionBlock:^(NCRoom *room, NSError *error) {
+        _room = room;
+        [self.tableView reloadData];
+    }];
+}
+
 - (void)getRoomParticipants
 {
     [[NCAPIController sharedInstance] getParticipantsFromRoom:_room.token withCompletionBlock:^(NSMutableArray *participants, NSError *error) {
         _roomParticipants = participants;
         [self.tableView reloadData];
+    }];
+}
+
+#pragma mark - Room options
+
+- (void)renameRoom
+{
+    NSString *newRoomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    [[NCAPIController sharedInstance] renameRoom:_room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [self getRoomInfo];
+        } else {
+            NSLog(@"Error renaming the room: %@", error.description);
+            //TODO: Error handling
+        }
     }];
 }
 
@@ -135,7 +158,19 @@ typedef enum PublicSection {
     [CATransaction commit];
 }
 
-#pragma mark - Room options
+#pragma mark - UITextField delegate
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [textField resignFirstResponder];
+    return YES;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    if (textField == _roomNameTextField) {
+        [self renameRoom];
+    }
+}
 
 #pragma mark - Table view data source
 
@@ -204,6 +239,8 @@ typedef enum PublicSection {
             }
             cell.roomNameTextField.text = _room.displayName;
             _roomNameTextField = cell.roomNameTextField;
+            _roomNameTextField.delegate = self;
+            [_roomNameTextField setReturnKeyType:UIReturnKeyDone];
             cell.userInteractionEnabled = YES;
             
             if (_room.type == kNCRoomTypeOneToOneCall) {
