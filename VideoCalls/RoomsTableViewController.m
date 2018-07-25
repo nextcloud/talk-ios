@@ -663,10 +663,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             break;
             
         case kNCRoomTypePublicCall:
-            [cell.roomImage setImage:[UIImage imageNamed:@"public-bg"]];
-            if (room.hasPassword) {
-                [cell.roomPasswordImage setImage:[UIImage imageNamed:@"password"]];
-            }
+            [cell.roomImage setImage:(room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
             break;
             
         default:

@@ -189,7 +189,7 @@
             [_titleView.image setImage:[UIImage imageNamed:@"group-bg"]];
             break;
         case kNCRoomTypePublicCall:
-            [_titleView.image setImage:[UIImage imageNamed:@"public-bg"]];
+            [_titleView.image setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
             break;
         default:
             break;

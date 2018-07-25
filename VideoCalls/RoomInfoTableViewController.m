@@ -319,7 +319,7 @@ typedef enum PublicSection {
                 cell.userInteractionEnabled = NO;
             } else {
                 if (_room.type == kNCRoomTypePublicCall) {
-                    [cell.roomImage setImage:[UIImage imageNamed:@"public-bg"]];
+                    [cell.roomImage setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
                 } else {
                     [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
                 }
@@ -365,7 +365,7 @@ typedef enum PublicSection {
                     }
                     
                     cell.textLabel.text = (_room.hasPassword) ? @"Change password" : @"Set password";
-                    [cell.imageView setImage: (_room.hasPassword) ? [UIImage imageNamed:@"privacy"] : [UIImage imageNamed:@"no-password-settings"]];
+                    [cell.imageView setImage:(_room.hasPassword) ? [UIImage imageNamed:@"privacy"] : [UIImage imageNamed:@"no-password-settings"]];
                     
                     return cell;
                 }

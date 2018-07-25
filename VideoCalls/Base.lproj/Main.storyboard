@@ -37,10 +37,6 @@
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HP4-mZ-FCq">
-                                            <rect key="frame" x="41" y="45" width="12" height="12"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        </imageView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FDH-Ta-zgI">
                                             <rect key="frame" x="72" y="45" width="250" height="18"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -58,7 +54,6 @@
                                     <outlet property="labelSubTitle" destination="FDH-Ta-zgI" id="NHp-dM-chx"/>
                                     <outlet property="labelTitle" destination="L2w-ad-rRt" id="CNq-cb-Kc7"/>
                                     <outlet property="roomImage" destination="eGM-8o-ipF" id="Ae7-yR-KGf"/>
-                                    <outlet property="roomPasswordImage" destination="HP4-mZ-FCq" id="qJQ-6b-p3H"/>
                                     <outlet property="unreadMessagesView" destination="5Rh-hW-M4x" id="KyZ-Ei-g4k"/>
                                 </connections>
                             </tableViewCell>
