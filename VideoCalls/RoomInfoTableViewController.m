@@ -365,7 +365,7 @@ typedef enum PublicSection {
                     }
                     
                     cell.textLabel.text = (_room.hasPassword) ? @"Change password" : @"Set password";
-                    [cell.imageView setImage:[UIImage imageNamed:@"privacy"]];
+                    [cell.imageView setImage: (_room.hasPassword) ? [UIImage imageNamed:@"privacy"] : [UIImage imageNamed:@"no-password-settings"]];
                     
                     return cell;
                 }
