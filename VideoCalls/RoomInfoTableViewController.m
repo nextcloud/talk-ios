@@ -25,7 +25,8 @@ typedef enum CreationSection {
 
 typedef enum PublicSection {
     kPublicSectionToggle = 0,
-    kPublicSectionPassword
+    kPublicSectionPassword,
+    kPublicSectionSendLink
 } PublicSection;
 
 @interface RoomInfoTableViewController () <UITextFieldDelegate>
@@ -35,7 +36,6 @@ typedef enum PublicSection {
 @property (nonatomic, strong) NSMutableArray *roomParticipants;
 @property (nonatomic, strong) UITextField *roomNameTextField;
 @property (nonatomic, strong) UISwitch *publicSwtich;
-@property (nonatomic, strong) UITextField *passwordTextField;
 
 @end
 
@@ -66,16 +66,6 @@ typedef enum PublicSection {
     _publicSwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_publicSwtich addTarget: self action: @selector(publicValueChanged:) forControlEvents:UIControlEventValueChanged];
     
-    _passwordTextField = [[UITextField alloc] initWithFrame:CGRectMake(180, 10, 115, 30)];
-    _passwordTextField.textAlignment = NSTextAlignmentRight;
-    _passwordTextField.placeholder = @"No password";
-    _passwordTextField.adjustsFontSizeToFitWidth = YES;
-    _passwordTextField.textColor = [UIColor blackColor];
-    _passwordTextField.secureTextEntry = YES;
-    
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
-    [self.view addGestureRecognizer:tap];
-    
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:kRoomNameTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomNameCellIdentifier];
 }
@@ -83,12 +73,6 @@ typedef enum PublicSection {
 - (void)viewDidAppear:(BOOL)animated
 {
     [self getRoomParticipants];
-}
-
-- (void)dismissKeyboard
-{
-    [_roomNameTextField resignFirstResponder];
-    [_passwordTextField resignFirstResponder];
 }
 
 - (void)didReceiveMemoryWarning
@@ -130,32 +114,122 @@ typedef enum PublicSection {
     }];
 }
 
+- (void)showPasswordOptions
+{
+    NSString *alertTitle = _room.hasPassword ? @"Set new password:" : @"Set password:";
+    UIAlertController *renameDialog =
+    [UIAlertController alertControllerWithTitle:alertTitle
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    [renameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = @"Password";
+        textField.secureTextEntry = YES;
+    }];
+    
+    NSString *actionTitle = _room.hasPassword ? @"Change password" : @"OK";
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *password = [[renameDialog textFields][0] text];
+        NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:_room.token withCompletionBlock:^(NSError *error) {
+            if (!error) {
+                [self getRoomInfo];
+            } else {
+                NSLog(@"Error setting room password: %@", error.description);
+                //TODO: Error handling
+            }
+        }];
+    }];
+    [renameDialog addAction:confirmAction];
+    
+    if (_room.hasPassword) {
+        UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:@"Remove password" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+            [[NCAPIController sharedInstance] setPassword:@"" toRoom:_room.token withCompletionBlock:^(NSError *error) {
+                if (!error) {
+                    [self getRoomInfo];
+                } else {
+                    NSLog(@"Error changing room password: %@", error.description);
+                    //TODO: Error handling
+                }
+            }];
+        }];
+        [renameDialog addAction:removePasswordAction];
+    }
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [renameDialog addAction:cancelAction];
+    
+    [self presentViewController:renameDialog animated:YES completion:nil];
+}
+
+- (void)makeRoomPublic
+{
+    [[NCAPIController sharedInstance] makeRoomPublic:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [self shareRoomLink];
+            [self getRoomInfo];
+        } else {
+            NSLog(@"Error making public the room: %@", error.description);
+            //TODO: Error handling
+        }
+        _publicSwtich.enabled = YES;
+    }];
+}
+
+- (void)makeRoomPrivate
+{
+    [[NCAPIController sharedInstance] makeRoomPrivate:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [self getRoomInfo];
+        } else {
+            NSLog(@"Error making private the room: %@", error.description);
+            //TODO: Error handling
+        }
+        _publicSwtich.enabled = YES;
+    }];
+}
+
+- (void)shareRoomLink
+{
+    NSString *shareMessage = [NSString stringWithFormat:@"Join the conversation at %@/index.php/call/%@",
+                              [[NCAPIController sharedInstance] currentServerUrl], _room.token];
+    if (_room.name && ![_room.name isEqualToString:@""]) {
+        shareMessage = [NSString stringWithFormat:@"Join the conversation%@ at %@/index.php/call/%@",
+                        [NSString stringWithFormat:@" \"%@\"", _room.name], [[NCAPIController sharedInstance] currentServerUrl], _room.token];
+    }
+    NSArray *items = @[shareMessage];
+    UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
+    
+    NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
+    NSString *emailSubject = [NSString stringWithFormat:@"%@ invitation", appDisplayName];
+    [controller setValue:emailSubject forKey:@"subject"];
+    
+    // Presentation on iPads
+    controller.popoverPresentationController.sourceView = self.tableView;
+    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:kPublicSectionSendLink inSection:kCreationSectionPublic]];
+    
+    [self presentViewController:controller animated:YES completion:nil];
+    
+    controller.completionWithItemsHandler = ^(NSString *activityType,
+                                              BOOL completed,
+                                              NSArray *returnedItems,
+                                              NSError *error) {
+        if (error) {
+            NSLog(@"An Error occured sharing room: %@, %@", error.localizedDescription, error.localizedFailureReason);
+        }
+    };
+}
+
 #pragma mark - Public switch
 
 - (void)publicValueChanged:(id)sender
 {
-    BOOL isPublic = _publicSwtich.on;
-    _roomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     _publicSwtich.enabled = NO;
-    
-    [CATransaction begin];
-    [CATransaction setCompletionBlock:^{
-        _publicSwtich.enabled = YES;
-    }];
-    [self.tableView beginUpdates];
-    // Reload room name section
-    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
-    // Show/Hide password row
-    NSIndexPath *passwordIP = [NSIndexPath indexPathForRow:kPublicSectionPassword inSection:kCreationSectionPublic];
-    NSArray *indexArray = [NSArray arrayWithObjects:passwordIP,nil];
-    if (isPublic) {
-        _passwordTextField.text = @"";
-        [self.tableView insertRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+    if (_publicSwtich.on) {
+        [self makeRoomPublic];
     } else {
-        [self.tableView deleteRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self makeRoomPrivate];
     }
-    [self.tableView endUpdates];
-    [CATransaction commit];
 }
 
 #pragma mark - UITextField delegate
@@ -183,7 +257,7 @@ typedef enum PublicSection {
 {
     switch (section) {
         case kCreationSectionPublic:
-            return (_publicSwtich.on) ? 2 : 1;
+            return (_publicSwtich.on) ? 3 : 1;
             break;
             
         case kCreationSectionParticipants:
@@ -222,7 +296,9 @@ typedef enum PublicSection {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
-    static NSString *publicCellIdentifier = @"PublicConversationCellIdentifier";
+    static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
+    static NSString *passwordCellIdentifier = @"PasswordCellIdentifier";
+    static NSString *sendLinkCellIdentifier = @"SendLinkCellIdentifier";
     
     switch (indexPath.section) {
         case kCreationSectionName:
@@ -231,17 +307,6 @@ typedef enum PublicSection {
             if (!cell) {
                 cell = [[RoomNameTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomNameCellIdentifier];
             }
-            
-            if (_publicSwtich.on) {
-                [cell.roomImage setImage:[UIImage imageNamed:@"public-bg"]];
-            } else {
-                [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
-            }
-            cell.roomNameTextField.text = _room.displayName;
-            _roomNameTextField = cell.roomNameTextField;
-            _roomNameTextField.delegate = self;
-            [_roomNameTextField setReturnKeyType:UIReturnKeyDone];
-            cell.userInteractionEnabled = YES;
             
             if (_room.type == kNCRoomTypeOneToOneCall) {
                 // Create avatar for every contact
@@ -252,6 +317,17 @@ typedef enum PublicSection {
                 _roomNameTextField = nil;
                 cell.roomNameTextField.textColor = [UIColor grayColor];
                 cell.userInteractionEnabled = NO;
+            } else {
+                if (_room.type == kNCRoomTypePublicCall) {
+                    [cell.roomImage setImage:[UIImage imageNamed:@"public-bg"]];
+                } else {
+                    [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
+                }
+                cell.roomNameTextField.text = _room.displayName;
+                _roomNameTextField = cell.roomNameTextField;
+                _roomNameTextField.delegate = self;
+                [_roomNameTextField setReturnKeyType:UIReturnKeyDone];
+                cell.userInteractionEnabled = YES;
             }
             
             cell.roomImage.layer.cornerRadius = 24.0;
@@ -266,14 +342,15 @@ typedef enum PublicSection {
             switch (indexPath.row) {
                 case kPublicSectionToggle:
                 {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:publicCellIdentifier];
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:publicCellIdentifier];
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
                     }
                     
                     cell.textLabel.text = @"Share link";
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _publicSwtich;
+                    _publicSwtich.on = (_room.type == kNCRoomTypePublicCall) ? YES : NO;
                     [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
                     
                     return cell;
@@ -282,15 +359,27 @@ typedef enum PublicSection {
                     
                 case kPublicSectionPassword:
                 {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:publicCellIdentifier];
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:passwordCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:publicCellIdentifier];
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:passwordCellIdentifier];
                     }
                     
-                    cell.textLabel.text = @"Password";
-                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                    cell.accessoryView = _passwordTextField;
+                    cell.textLabel.text = (_room.hasPassword) ? @"Change password" : @"Set password";
                     [cell.imageView setImage:[UIImage imageNamed:@"privacy"]];
+                    
+                    return cell;
+                }
+                    break;
+                    
+                case kPublicSectionSendLink:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = @"Send conversation link";
+                    [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
                     
                     return cell;
                 }
@@ -316,7 +405,6 @@ typedef enum PublicSection {
                                               failure:nil];
             cell.contactImage.layer.cornerRadius = 24.0;
             cell.contactImage.layer.masksToBounds = YES;
-            cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
             return cell;
         }
@@ -324,6 +412,32 @@ typedef enum PublicSection {
     }
     
     return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    switch (indexPath.section) {
+        case kCreationSectionName:
+            break;
+        case kCreationSectionPublic:
+        {
+            switch (indexPath.row) {
+                case kPublicSectionToggle:
+                    break;
+                    
+                case kPublicSectionPassword:
+                    [self showPasswordOptions];
+                    break;
+                    
+                case kPublicSectionSendLink:
+                    [self shareRoomLink];
+                    break;
+            }
+        }
+            break;
+        case kCreationSectionParticipants:
+            break;
+    }
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 @end
