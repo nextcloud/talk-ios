@@ -26,5 +26,8 @@ typedef enum NCParticipantType {
 @property (nonatomic, copy) NSString *userId;
 
 + (instancetype)participantWithDictionary:(NSDictionary *)userDict;
+- (BOOL)canModerate;
+- (BOOL)isOffline;
+- (NSString *)participantId;
 
 @end

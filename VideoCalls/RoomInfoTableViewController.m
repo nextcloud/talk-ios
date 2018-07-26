@@ -13,6 +13,7 @@
 #import "RoomNameTableViewCell.h"
 #import "NCAPIController.h"
 #import "NCRoomParticipant.h"
+#import "NCSettingsController.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
@@ -97,6 +98,14 @@ typedef enum PublicSection {
         _roomParticipants = participants;
         [self.tableView reloadData];
     }];
+}
+
+- (BOOL)isAppUser:(NCRoomParticipant *)participant
+{
+    if ([participant.userId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
+        return YES;
+    }
+    return NO;
 }
 
 #pragma mark - Room options
@@ -220,6 +229,102 @@ typedef enum PublicSection {
     };
 }
 
+#pragma mark - Participant options
+
+- (void)showModerationOptionsForParticipantAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
+    
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:participant.displayName
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    if (participant.participantType == kNCParticipantTypeModerator) {
+        UIAlertAction *demoteFromModerator = [UIAlertAction actionWithTitle:@"Demote from moderator"
+                                                                      style:UIAlertActionStyleDefault
+                                                                    handler:^void (UIAlertAction *action) {
+                                                                        [self demoteFromModerator:participant];
+                                                                    }];
+        [demoteFromModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [optionsActionSheet addAction:demoteFromModerator];
+    } else if (participant.participantType == kNCParticipantTypeUser) {
+        UIAlertAction *promoteToModerator = [UIAlertAction actionWithTitle:@"Promote to moderator"
+                                                                     style:UIAlertActionStyleDefault
+                                                                   handler:^void (UIAlertAction *action) {
+                                                                       [self promoteToModerator:participant];
+                                                                   }];
+        [promoteToModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [optionsActionSheet addAction:promoteToModerator];
+    }
+    
+    // Remove participant
+    UIAlertAction *removeParticipant = [UIAlertAction actionWithTitle:@"Remove participant"
+                                                                style:UIAlertActionStyleDestructive
+                                                              handler:^void (UIAlertAction *action) {
+                                                                  [self removeParticipant:participant];
+                                                              }];
+    [removeParticipant setValue:[[UIImage imageNamed:@"delete-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [optionsActionSheet addAction:removeParticipant];
+    
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (void)promoteToModerator:(NCRoomParticipant *)participant
+{
+    [[NCAPIController sharedInstance] promoteParticipant:participant.participantId toModeratorOfRoom:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [self getRoomParticipants];
+        } else {
+            NSLog(@"Error promoting participant to moderator: %@", error.description);
+            //TODO: Error handling
+        }
+    }];
+}
+
+- (void)demoteFromModerator:(NCRoomParticipant *)participant
+{
+    [[NCAPIController sharedInstance] demoteModerator:participant.participantId toParticipantOfRoom:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [self getRoomParticipants];
+        } else {
+            NSLog(@"Error demoting participant from moderator: %@", error.description);
+            //TODO: Error handling
+        }
+    }];
+}
+
+- (void)removeParticipant:(NCRoomParticipant *)participant
+{
+    if (participant.participantType == kNCParticipantTypeGuest) {
+        [[NCAPIController sharedInstance] removeGuest:participant.participantId fromRoom:_room.token withCompletionBlock:^(NSError *error) {
+            if (!error) {
+                [self getRoomParticipants];
+            } else {
+                NSLog(@"Error removing guest from room: %@", error.description);
+                //TODO: Error handling
+            }
+        }];
+    } else {
+        [[NCAPIController sharedInstance] removeParticipant:participant.participantId fromRoom:_room.token withCompletionBlock:^(NSError *error) {
+            if (!error) {
+                [self getRoomParticipants];
+            } else {
+                NSLog(@"Error removing participant from room: %@", error.description);
+                //TODO: Error handling
+            }
+        }];
+    }
+}
+
+
 #pragma mark - Public switch
 
 - (void)publicValueChanged:(id)sender
@@ -257,7 +362,7 @@ typedef enum PublicSection {
 {
     switch (section) {
         case kCreationSectionPublic:
-            return (_publicSwtich.on) ? 3 : 1;
+            return (_room.isPublic && _room.canModerate) ? 3 : 1;
             break;
             
         case kCreationSectionParticipants:
@@ -308,26 +413,39 @@ typedef enum PublicSection {
                 cell = [[RoomNameTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomNameCellIdentifier];
             }
             
-            if (_room.type == kNCRoomTypeOneToOneCall) {
-                // Create avatar for every contact
-                [cell.roomImage setImageWithString:_room.name color:nil circular:true];
-                // Request user avatar to the server and set it if exist
-                [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
-                                      placeholderImage:nil success:nil failure:nil];
-                _roomNameTextField = nil;
-                cell.roomNameTextField.textColor = [UIColor grayColor];
-                cell.userInteractionEnabled = NO;
-            } else {
-                if (_room.type == kNCRoomTypePublicCall) {
-                    [cell.roomImage setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
-                } else {
-                    [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
+            switch (_room.type) {
+                case kNCRoomTypeOneToOneCall:
+                {
+                    // Create avatar for every OneToOne call
+                    [cell.roomImage setImageWithString:_room.displayName color:nil circular:true];
+                    // Request user avatar to the server and set it if exist
+                    [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
+                                          placeholderImage:nil success:nil failure:nil];
                 }
-                cell.roomNameTextField.text = _room.displayName;
+                    break;
+                    
+                case kNCRoomTypeGroupCall:
+                    [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
+                    break;
+                    
+                case kNCRoomTypePublicCall:
+                    [cell.roomImage setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+            cell.roomNameTextField.text = _room.displayName;
+            
+            if (_room.canModerate && _room.type != kNCRoomTypeOneToOneCall) {
                 _roomNameTextField = cell.roomNameTextField;
                 _roomNameTextField.delegate = self;
                 [_roomNameTextField setReturnKeyType:UIReturnKeyDone];
                 cell.userInteractionEnabled = YES;
+            } else {
+                _roomNameTextField = nil;
+                cell.userInteractionEnabled = NO;
             }
             
             cell.roomImage.layer.cornerRadius = 24.0;
@@ -339,51 +457,63 @@ typedef enum PublicSection {
             break;
         case kCreationSectionPublic:
         {
-            switch (indexPath.row) {
-                case kPublicSectionToggle:
-                {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
-                    if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
+            if (_room.canModerate) {
+                switch (indexPath.row) {
+                    case kPublicSectionToggle:
+                    {
+                        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
+                        if (!cell) {
+                            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
+                        }
+                        
+                        cell.textLabel.text = @"Share link";
+                        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                        cell.accessoryView = _publicSwtich;
+                        _publicSwtich.on = (_room.type == kNCRoomTypePublicCall) ? YES : NO;
+                        [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
+                        
+                        return cell;
                     }
-                    
-                    cell.textLabel.text = @"Share link";
-                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                    cell.accessoryView = _publicSwtich;
-                    _publicSwtich.on = (_room.type == kNCRoomTypePublicCall) ? YES : NO;
-                    [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
-                    
-                    return cell;
-                }
-                    break;
-                    
-                case kPublicSectionPassword:
-                {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:passwordCellIdentifier];
-                    if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:passwordCellIdentifier];
+                        break;
+                        
+                    case kPublicSectionPassword:
+                    {
+                        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:passwordCellIdentifier];
+                        if (!cell) {
+                            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:passwordCellIdentifier];
+                        }
+                        
+                        cell.textLabel.text = (_room.hasPassword) ? @"Change password" : @"Set password";
+                        [cell.imageView setImage:(_room.hasPassword) ? [UIImage imageNamed:@"privacy"] : [UIImage imageNamed:@"no-password-settings"]];
+                        
+                        return cell;
                     }
-                    
-                    cell.textLabel.text = (_room.hasPassword) ? @"Change password" : @"Set password";
-                    [cell.imageView setImage:(_room.hasPassword) ? [UIImage imageNamed:@"privacy"] : [UIImage imageNamed:@"no-password-settings"]];
-                    
-                    return cell;
-                }
-                    break;
-                    
-                case kPublicSectionSendLink:
-                {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
-                    if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
+                        break;
+                        
+                    case kPublicSectionSendLink:
+                    {
+                        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
+                        if (!cell) {
+                            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
+                        }
+                        
+                        cell.textLabel.text = @"Send conversation link";
+                        [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
+                        
+                        return cell;
                     }
-                    
-                    cell.textLabel.text = @"Send conversation link";
-                    [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
-                    
-                    return cell;
+                        break;
                 }
-                    break;
+            } else {
+                UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
+                if (!cell) {
+                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
+                }
+                
+                cell.textLabel.text = @"Send conversation link";
+                [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
+                
+                return cell;
             }
         }
             break;
@@ -395,7 +525,13 @@ typedef enum PublicSection {
                 cell = [[ContactsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kContactCellIdentifier];
             }
             
-            cell.labelTitle.text = participant.displayName;
+            NSString *participantName = participant.displayName;
+            NSString *moderatorString = @"(moderator)";
+            if (participant.canModerate) {
+                participantName = [NSString stringWithFormat:@"%@ %@", participantName, moderatorString];
+            }
+            cell.labelTitle.text = participantName;
+            
             // Create avatar for every participant
             [cell.contactImage setImageWithString:participant.displayName color:nil circular:true];
             // Request user avatar to the server and set it if exist
@@ -405,6 +541,15 @@ typedef enum PublicSection {
                                               failure:nil];
             cell.contactImage.layer.cornerRadius = 24.0;
             cell.contactImage.layer.masksToBounds = YES;
+            
+            // Online status
+            if (participant.isOffline) {
+                cell.contactImage.alpha = 0.5;
+                cell.labelTitle.alpha = 0.5;
+            } else {
+                cell.contactImage.alpha = 1;
+                cell.labelTitle.alpha = 1;
+            }
             
             return cell;
         }
@@ -420,21 +565,31 @@ typedef enum PublicSection {
             break;
         case kCreationSectionPublic:
         {
-            switch (indexPath.row) {
-                case kPublicSectionToggle:
-                    break;
-                    
-                case kPublicSectionPassword:
-                    [self showPasswordOptions];
-                    break;
-                    
-                case kPublicSectionSendLink:
-                    [self shareRoomLink];
-                    break;
+            if (_room.canModerate) {
+                switch (indexPath.row) {
+                    case kPublicSectionToggle:
+                        break;
+                        
+                    case kPublicSectionPassword:
+                        [self showPasswordOptions];
+                        break;
+                        
+                    case kPublicSectionSendLink:
+                        [self shareRoomLink];
+                        break;
+                }
+            } else {
+                [self shareRoomLink];
             }
         }
             break;
         case kCreationSectionParticipants:
+        {
+            NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
+            if (participant.participantType != kNCParticipantTypeOwner && ![self isAppUser:participant] && _room.canModerate) {
+                [self showModerationOptionsForParticipantAtIndexPath:indexPath];
+            }
+        }
             break;
     }
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];

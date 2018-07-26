@@ -34,4 +34,19 @@
     return participant;
 }
 
+- (BOOL)canModerate
+{
+    return _participantType == kNCParticipantTypeOwner || _participantType == kNCParticipantTypeModerator;
+}
+
+- (BOOL)isOffline
+{
+    return [_sessionId isEqualToString:@"0"] || [_sessionId isEqualToString:@""];
+}
+
+- (NSString *)participantId
+{
+    return (_participantType == kNCParticipantTypeGuest) ? _sessionId : _userId;
+}
+
 @end
