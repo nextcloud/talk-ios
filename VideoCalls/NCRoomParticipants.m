@@ -49,4 +49,11 @@
     return (_participantType == kNCParticipantTypeGuest) ? _sessionId : _userId;
 }
 
+- (NSString *)displayName
+{
+    if (self.canModerate) {
+        return [NSString stringWithFormat:@"%@ %@", _displayName, @"(moderator)"];
+    }
+    return _displayName;
+}
 @end

@@ -525,22 +525,27 @@ typedef enum PublicSection {
                 cell = [[ContactsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kContactCellIdentifier];
             }
             
-            NSString *participantName = participant.displayName;
-            NSString *moderatorString = @"(moderator)";
-            if (participant.canModerate) {
-                participantName = [NSString stringWithFormat:@"%@ %@", participantName, moderatorString];
-            }
-            cell.labelTitle.text = participantName;
+            // Display name
+            cell.labelTitle.text = participant.displayName;
             
-            // Create avatar for every participant
-            [cell.contactImage setImageWithString:participant.displayName color:nil circular:true];
-            // Request user avatar to the server and set it if exist
-            [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
-                                     placeholderImage:nil
-                                              success:nil
-                                              failure:nil];
-            cell.contactImage.layer.cornerRadius = 24.0;
-            cell.contactImage.layer.masksToBounds = YES;
+            // Avatar
+            if (participant.participantType == kNCParticipantTypeGuest) {
+                UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
+                NSString *avatarName = ([participant.displayName isEqualToString:@""]) ? @"?" : participant.displayName;
+                NSString *guestName = ([participant.displayName isEqualToString:@""]) ? @"Guest" : participant.displayName;
+                cell.labelTitle.text = guestName;
+                [cell.contactImage setImageWithString:avatarName color:guestAvatarColor circular:true];
+            } else {
+                // Create avatar for every participant
+                [cell.contactImage setImageWithString:participant.displayName color:nil circular:true];
+                // Request user avatar to the server and set it if exist
+                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
+                                         placeholderImage:nil
+                                                  success:nil
+                                                  failure:nil];
+                cell.contactImage.layer.cornerRadius = 24.0;
+                cell.contactImage.layer.masksToBounds = YES;
+            }
             
             // Online status
             if (participant.isOffline) {
