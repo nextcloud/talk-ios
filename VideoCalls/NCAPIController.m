@@ -361,6 +361,39 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
             [participants addObject:participant];
         }
         
+        // Sort participants by:
+        // - Moderators first
+        // - Online status
+        // - Users > Guests
+        // - Alphabetic
+        NSSortDescriptor *alphabeticSorting = [[NSSortDescriptor alloc] initWithKey:@"displayName" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
+        NSSortDescriptor *customSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            NCRoomParticipant *first = (NCRoomParticipant*)obj1;
+            NCRoomParticipant *second = (NCRoomParticipant*)obj2;
+            
+            BOOL moderator1 = first.canModerate;
+            BOOL moderator2 = second.canModerate;
+            if (moderator1 != moderator2) {
+                return moderator2 - moderator1;
+            }
+            
+            BOOL online1 = !first.isOffline;
+            BOOL online2 = !second.isOffline;
+            if (online1 != online2) {
+                return online2 - online1;
+            }
+            
+            BOOL guest1 = first.participantType == kNCParticipantTypeGuest;
+            BOOL guest2 = second.participantType == kNCParticipantTypeGuest;
+            if (guest1 != guest2) {
+                return guest1 - guest2;
+            }
+            
+            return NSOrderedSame;
+        }];
+        NSArray *descriptors = [NSArray arrayWithObjects:customSorting, alphabeticSorting, nil];
+        [participants sortUsingDescriptors:descriptors];
+        
         if (block) {
             block(participants, nil);
         }
