@@ -20,6 +20,7 @@
 NSString * const NCRoomsManagerDidJoinRoomNotification              = @"NCRoomsManagerDidJoinRoomNotification";
 NSString * const NCRoomsManagerDidLeaveRoomNotification             = @"NCRoomsManagerDidLeaveRoomNotification";
 NSString * const NCRoomsManagerDidUpdateRoomsNotification           = @"NCRoomsManagerDidUpdateRoomsNotification";
+NSString * const NCRoomsManagerDidUpdateRoomNotification            = @"NCRoomsManagerDidUpdateRoomNotification";
 NSString * const NCRoomsManagerDidStartCallNotification             = @"NCRoomsManagerDidStartCallNotification";
 NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMessagesReceivedNotification";
 
@@ -134,6 +135,22 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             NSLog(@"Could not update rooms. Error: %@", error.description);
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidUpdateRoomsNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+    }];
+}
+
+- (void)updateRoom:(NSString *)token
+{
+    [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary new];
+        if (!error) {
+            [userInfo setObject:room forKey:@"room"];
+        } else {
+            [userInfo setObject:error forKey:@"error"];
+            NSLog(@"Could not update rooms. Error: %@", error.description);
+        }
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidUpdateRoomNotification
                                                             object:self
                                                           userInfo:userInfo];
     }];

@@ -12,6 +12,7 @@
 #import "ContactsTableViewCell.h"
 #import "RoomNameTableViewCell.h"
 #import "NCAPIController.h"
+#import "NCRoomsManager.h"
 #import "NCRoomParticipant.h"
 #import "NCSettingsController.h"
 #import "UIImageView+Letters.h"
@@ -72,6 +73,8 @@ typedef enum PublicSection {
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:kRoomNameTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomNameCellIdentifier];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -85,16 +88,12 @@ typedef enum PublicSection {
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - Utils
-
-- (void)getRoomInfo
+- (void)dealloc
 {
-    [[NCAPIController sharedInstance] getRoomWithToken:_room.token withCompletionBlock:^(NCRoom *room, NSError *error) {
-        _room = room;
-        [self.tableView reloadData];
-        [self removeModifyingRoomUI];
-    }];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
+
+#pragma mark - Utils
 
 - (void)getRoomParticipants
 {
@@ -127,6 +126,21 @@ typedef enum PublicSection {
     self.tableView.userInteractionEnabled = YES;
 }
 
+#pragma mark - Room Manager notifications
+
+- (void)didUpdateRoom:(NSNotification *)notification
+{
+    [self removeModifyingRoomUI];
+    
+    NCRoom *room = [notification.userInfo objectForKey:@"room"];
+    if (!room || ![room.token isEqualToString:_room.token]) {
+        return;
+    }
+    
+    _room = room;
+    [self.tableView reloadData];
+}
+
 #pragma mark - Room options
 
 - (void)renameRoom
@@ -135,7 +149,7 @@ typedef enum PublicSection {
     NSString *newRoomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     [[NCAPIController sharedInstance] renameRoom:_room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
         if (!error) {
-            [self getRoomInfo];
+            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error renaming the room: %@", error.description);
             //TODO: Error handling
@@ -163,7 +177,7 @@ typedef enum PublicSection {
         [self setModifyingRoomUI];
         [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:_room.token withCompletionBlock:^(NSError *error) {
             if (!error) {
-                [self getRoomInfo];
+                [[NCRoomsManager sharedInstance] updateRoom:_room.token];
             } else {
                 NSLog(@"Error setting room password: %@", error.description);
                 //TODO: Error handling
@@ -177,7 +191,7 @@ typedef enum PublicSection {
             [self setModifyingRoomUI];
             [[NCAPIController sharedInstance] setPassword:@"" toRoom:_room.token withCompletionBlock:^(NSError *error) {
                 if (!error) {
-                    [self getRoomInfo];
+                    [[NCRoomsManager sharedInstance] updateRoom:_room.token];
                 } else {
                     NSLog(@"Error changing room password: %@", error.description);
                     //TODO: Error handling
@@ -199,7 +213,7 @@ typedef enum PublicSection {
     [[NCAPIController sharedInstance] makeRoomPublic:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self shareRoomLink];
-            [self getRoomInfo];
+            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
             //TODO: Error handling
@@ -213,7 +227,7 @@ typedef enum PublicSection {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] makeRoomPrivate:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [self getRoomInfo];
+            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error making private the room: %@", error.description);
             //TODO: Error handling

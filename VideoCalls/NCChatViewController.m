@@ -61,6 +61,7 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistory:) name:NCRoomControllerDidReceiveInitialChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatHistory:) name:NCRoomControllerDidReceiveChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCRoomControllerDidReceiveChatMessagesNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
     }
     
     return self;
@@ -77,6 +78,7 @@
 {
     [super viewDidLoad];
     
+    [self setTitleView];
     [self configureActionItems];
     
     self.messages = [[NSMutableDictionary alloc] init];
@@ -168,7 +170,7 @@
 
 #pragma mark - Configuration
 
-- (void)configureActionItems
+- (void)setTitleView
 {
     _titleView = [[NCChatTitleView alloc] init];
     _titleView.frame = CGRectMake(0, 0, 800, 30);
@@ -182,7 +184,7 @@
         {
             // Request user avatar to the server and set it if exist
             [_titleView.image setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
-                                  placeholderImage:nil success:nil failure:nil];
+                                    placeholderImage:nil success:nil failure:nil];
         }
             break;
         case kNCRoomTypeGroupCall:
@@ -196,7 +198,10 @@
     }
     
     self.navigationItem.titleView = _titleView;
-    
+}
+
+- (void)configureActionItems
+{
     UIBarButtonItem *videoCallButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"videocall-action"]
                                                                         style:UIBarButtonItemStylePlain
                                                                        target:self
@@ -308,6 +313,17 @@
 }
 
 #pragma mark - Room Manager notifications
+
+- (void)didUpdateRoom:(NSNotification *)notification
+{
+    NCRoom *room = [notification.userInfo objectForKey:@"room"];
+    if (!room || ![room.token isEqualToString:_room.token]) {
+        return;
+    }
+    
+    _room = room;
+    [self setTitleView];
+}
 
 - (void)didJoinRoom:(NSNotification *)notification
 {
