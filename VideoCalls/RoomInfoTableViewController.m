@@ -9,8 +9,10 @@
 #import "RoomInfoTableViewController.h"
 
 
+#import "AddParticipantsTableViewController.h"
 #import "ContactsTableViewCell.h"
 #import "RoomNameTableViewCell.h"
+#import "HeaderWithButton.h"
 #import "NCAPIController.h"
 #import "NCRoomsManager.h"
 #import "NCRoomParticipant.h"
@@ -47,6 +49,7 @@ typedef enum ModificationError {
 @property (nonatomic, strong) UITextField *roomNameTextField;
 @property (nonatomic, strong) UISwitch *publicSwtich;
 @property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
+@property (nonatomic, strong) HeaderWithButton *headerView;
 
 @end
 
@@ -78,6 +81,10 @@ typedef enum ModificationError {
     [_publicSwtich addTarget: self action: @selector(publicValueChanged:) forControlEvents:UIControlEventValueChanged];
     
     _modifyingRoomView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    
+    _headerView = [[HeaderWithButton alloc] init];
+    [_headerView.button setTitle:@"Add" forState:UIControlStateNormal];
+    [_headerView.button addTarget:self action:@selector(addParticipantsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:kRoomNameTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomNameCellIdentifier];
@@ -315,6 +322,13 @@ typedef enum ModificationError {
 
 #pragma mark - Participant options
 
+- (void)addParticipantsButtonPressed
+{
+    AddParticipantsTableViewController *addParticipantsVC = [[AddParticipantsTableViewController alloc] initForRoom:_room];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:addParticipantsVC];
+    [self presentViewController:navigationController animated:YES completion:nil];
+}
+
 - (void)showModerationOptionsForParticipantAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
@@ -469,22 +483,30 @@ typedef enum ModificationError {
     return 48;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     switch (section) {
         case kCreationSectionParticipants:
         {
-            if (_roomParticipants.count == 0) {
-                return @"";
-            } else if (_roomParticipants.count == 1) {
-                return @"1 participant";
+            NSString *title = [NSString stringWithFormat:@"%ld participants", _roomParticipants.count];
+            if (_roomParticipants.count == 1) {
+                title = @"1 participant";
             }
-            return [NSString stringWithFormat:@"%ld participants", _roomParticipants.count];
+            _headerView.label.text = [title uppercaseString];
+            return _headerView;
         }
             break;
     }
     
     return nil;
+}
+
+- (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    if (section == kCreationSectionParticipants) {
+        return 40.0f;
+    }
+    return 25;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
