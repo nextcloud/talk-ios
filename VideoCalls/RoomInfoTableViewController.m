@@ -37,6 +37,7 @@ typedef enum PublicSection {
 @property (nonatomic, strong) NSMutableArray *roomParticipants;
 @property (nonatomic, strong) UITextField *roomNameTextField;
 @property (nonatomic, strong) UISwitch *publicSwtich;
+@property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
 
 @end
 
@@ -67,6 +68,8 @@ typedef enum PublicSection {
     _publicSwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_publicSwtich addTarget: self action: @selector(publicValueChanged:) forControlEvents:UIControlEventValueChanged];
     
+    _modifyingRoomView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:kRoomNameTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomNameCellIdentifier];
 }
@@ -89,6 +92,7 @@ typedef enum PublicSection {
     [[NCAPIController sharedInstance] getRoomWithToken:_room.token withCompletionBlock:^(NCRoom *room, NSError *error) {
         _room = room;
         [self.tableView reloadData];
+        [self removeModifyingRoomUI];
     }];
 }
 
@@ -97,6 +101,7 @@ typedef enum PublicSection {
     [[NCAPIController sharedInstance] getParticipantsFromRoom:_room.token withCompletionBlock:^(NSMutableArray *participants, NSError *error) {
         _roomParticipants = participants;
         [self.tableView reloadData];
+        [self removeModifyingRoomUI];
     }];
 }
 
@@ -108,10 +113,25 @@ typedef enum PublicSection {
     return NO;
 }
 
+- (void)setModifyingRoomUI
+{
+    [_modifyingRoomView startAnimating];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_modifyingRoomView];
+    self.tableView.userInteractionEnabled = NO;
+}
+
+- (void)removeModifyingRoomUI
+{
+    [_modifyingRoomView stopAnimating];
+    self.navigationItem.rightBarButtonItem = nil;
+    self.tableView.userInteractionEnabled = YES;
+}
+
 #pragma mark - Room options
 
 - (void)renameRoom
 {
+    [self setModifyingRoomUI];
     NSString *newRoomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     [[NCAPIController sharedInstance] renameRoom:_room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
         if (!error) {
@@ -140,6 +160,7 @@ typedef enum PublicSection {
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *password = [[renameDialog textFields][0] text];
         NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        [self setModifyingRoomUI];
         [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:_room.token withCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self getRoomInfo];
@@ -153,6 +174,7 @@ typedef enum PublicSection {
     
     if (_room.hasPassword) {
         UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:@"Remove password" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+            [self setModifyingRoomUI];
             [[NCAPIController sharedInstance] setPassword:@"" toRoom:_room.token withCompletionBlock:^(NSError *error) {
                 if (!error) {
                     [self getRoomInfo];
@@ -173,6 +195,7 @@ typedef enum PublicSection {
 
 - (void)makeRoomPublic
 {
+    [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] makeRoomPublic:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self shareRoomLink];
@@ -187,6 +210,7 @@ typedef enum PublicSection {
 
 - (void)makeRoomPrivate
 {
+    [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] makeRoomPrivate:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self getRoomInfo];
@@ -279,6 +303,7 @@ typedef enum PublicSection {
 
 - (void)promoteToModerator:(NCRoomParticipant *)participant
 {
+    [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] promoteParticipant:participant.participantId toModeratorOfRoom:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self getRoomParticipants];
@@ -291,6 +316,7 @@ typedef enum PublicSection {
 
 - (void)demoteFromModerator:(NCRoomParticipant *)participant
 {
+    [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] demoteModerator:participant.participantId toParticipantOfRoom:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self getRoomParticipants];
@@ -304,6 +330,7 @@ typedef enum PublicSection {
 - (void)removeParticipant:(NCRoomParticipant *)participant
 {
     if (participant.participantType == kNCParticipantTypeGuest) {
+        [self setModifyingRoomUI];
         [[NCAPIController sharedInstance] removeGuest:participant.participantId fromRoom:_room.token withCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self getRoomParticipants];
@@ -313,6 +340,7 @@ typedef enum PublicSection {
             }
         }];
     } else {
+        [self setModifyingRoomUI];
         [[NCAPIController sharedInstance] removeParticipant:participant.participantId fromRoom:_room.token withCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self getRoomParticipants];
