@@ -31,6 +31,14 @@ typedef enum PublicSection {
     kPublicSectionSendLink
 } PublicSection;
 
+typedef enum ModificationError {
+    kModificationErrorRename = 0,
+    kModificationErrorShare,
+    kModificationErrorPassword,
+    kModificationErrorModeration,
+    kModificationErrorRemove
+} ModificationError;
+
 @interface RoomInfoTableViewController () <UITextFieldDelegate>
 
 @property (nonatomic, strong) NCRoom *room;
@@ -126,6 +134,44 @@ typedef enum PublicSection {
     self.tableView.userInteractionEnabled = YES;
 }
 
+- (void)showRoomModificationError:(ModificationError)error
+{
+    [self removeModifyingRoomUI];
+    NSString *errorDescription = @"";
+    switch (error) {
+        case kModificationErrorRename:
+            errorDescription = @"Could not rename the conversation";
+            break;
+            
+        case kModificationErrorShare:
+            errorDescription = @"Could not change sharing permissions of the conversation";
+            break;
+            
+        case kModificationErrorPassword:
+            errorDescription = @"Could not change password protection settings";
+            break;
+            
+        case kModificationErrorModeration:
+            errorDescription = @"Could not change moderation permissions of the participant";
+            break;
+            
+        case kModificationErrorRemove:
+            errorDescription = @"Could not remove participant";
+            break;
+            
+        default:
+            break;
+    }
+    
+    UIAlertController *renameDialog =
+    [UIAlertController alertControllerWithTitle:errorDescription
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    [renameDialog addAction:okAction];
+    [self presentViewController:renameDialog animated:YES completion:nil];
+}
+
 #pragma mark - Room Manager notifications
 
 - (void)didUpdateRoom:(NSNotification *)notification
@@ -152,7 +198,7 @@ typedef enum PublicSection {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error renaming the room: %@", error.description);
-            //TODO: Error handling
+            [self showRoomModificationError:kModificationErrorRename];
         }
     }];
 }
@@ -180,7 +226,7 @@ typedef enum PublicSection {
                 [[NCRoomsManager sharedInstance] updateRoom:_room.token];
             } else {
                 NSLog(@"Error setting room password: %@", error.description);
-                //TODO: Error handling
+                [self showRoomModificationError:kModificationErrorPassword];
             }
         }];
     }];
@@ -194,7 +240,7 @@ typedef enum PublicSection {
                     [[NCRoomsManager sharedInstance] updateRoom:_room.token];
                 } else {
                     NSLog(@"Error changing room password: %@", error.description);
-                    //TODO: Error handling
+                    [self showRoomModificationError:kModificationErrorPassword];
                 }
             }];
         }];
@@ -216,7 +262,7 @@ typedef enum PublicSection {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
-            //TODO: Error handling
+            [self showRoomModificationError:kModificationErrorShare];
         }
         _publicSwtich.enabled = YES;
     }];
@@ -230,7 +276,7 @@ typedef enum PublicSection {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error making private the room: %@", error.description);
-            //TODO: Error handling
+            [self showRoomModificationError:kModificationErrorShare];
         }
         _publicSwtich.enabled = YES;
     }];
@@ -323,7 +369,7 @@ typedef enum PublicSection {
             [self getRoomParticipants];
         } else {
             NSLog(@"Error promoting participant to moderator: %@", error.description);
-            //TODO: Error handling
+            [self showRoomModificationError:kModificationErrorModeration];
         }
     }];
 }
@@ -336,7 +382,7 @@ typedef enum PublicSection {
             [self getRoomParticipants];
         } else {
             NSLog(@"Error demoting participant from moderator: %@", error.description);
-            //TODO: Error handling
+            [self showRoomModificationError:kModificationErrorModeration];
         }
     }];
 }
@@ -350,7 +396,7 @@ typedef enum PublicSection {
                 [self getRoomParticipants];
             } else {
                 NSLog(@"Error removing guest from room: %@", error.description);
-                //TODO: Error handling
+                [self showRoomModificationError:kModificationErrorRemove];
             }
         }];
     } else {
@@ -360,7 +406,7 @@ typedef enum PublicSection {
                 [self getRoomParticipants];
             } else {
                 NSLog(@"Error removing participant from room: %@", error.description);
-                //TODO: Error handling
+                [self showRoomModificationError:kModificationErrorRemove];
             }
         }];
     }
