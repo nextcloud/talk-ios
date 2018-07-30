@@ -268,7 +268,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         if (_room.type == kNCRoomTypeGroupCall) {
             [self.waitingImageView setImage:[UIImage imageNamed:@"group-bg-128"]];
         } else {
-            [self.waitingImageView setImage:[UIImage imageNamed:@"public-bg-128"]];
+            [self.waitingImageView setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg-128"] : [UIImage imageNamed:@"public-bg-128"]];
         }
     }
     

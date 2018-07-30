@@ -15,6 +15,7 @@
 extern NSString * const NCRoomsManagerDidJoinRoomNotification;
 extern NSString * const NCRoomsManagerDidLeaveRoomNotification;
 extern NSString * const NCRoomsManagerDidUpdateRoomsNotification;
+extern NSString * const NCRoomsManagerDidUpdateRoomNotification;
 // Call
 extern NSString * const NCRoomsManagerDidStartCallNotification;
 
@@ -25,6 +26,7 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 + (instancetype)sharedInstance;
 // Room
 - (void)updateRooms;
+- (void)updateRoom:(NSString *)token;
 // Chat
 - (void)startChatInRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message toRoom:(NCRoom *)room;

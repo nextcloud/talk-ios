@@ -244,41 +244,6 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return task;
 }
 
-- (NSURLSessionDataTask *)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(AddParticipantCompletionBlock)block
-{
-    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants", token]];
-    NSDictionary *parameters = @{@"newParticipant" : user};
-
-    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
-- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block
-{
-    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/self", token]];
-
-    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
 - (NSURLSessionDataTask *)makeRoomPublic:(NSString *)token withCompletionBlock:(MakeRoomPublicCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/public", token]];
@@ -371,6 +336,171 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/active", token]];
 
     NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+    
+    return task;
+}
+
+#pragma mark - Participants Controller
+
+- (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants", token]];
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSArray *responseParticipants = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSMutableArray *participants = [[NSMutableArray alloc] initWithCapacity:responseParticipants.count];
+        for (NSDictionary *participantDict in responseParticipants) {
+            NCRoomParticipant *participant = [NCRoomParticipant participantWithDictionary:participantDict];
+            [participants addObject:participant];
+        }
+        
+        // Sort participants by:
+        // - Moderators first
+        // - Online status
+        // - Users > Guests
+        // - Alphabetic
+        NSSortDescriptor *alphabeticSorting = [[NSSortDescriptor alloc] initWithKey:@"displayName" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
+        NSSortDescriptor *customSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            NCRoomParticipant *first = (NCRoomParticipant*)obj1;
+            NCRoomParticipant *second = (NCRoomParticipant*)obj2;
+            
+            BOOL moderator1 = first.canModerate;
+            BOOL moderator2 = second.canModerate;
+            if (moderator1 != moderator2) {
+                return moderator2 - moderator1;
+            }
+            
+            BOOL online1 = !first.isOffline;
+            BOOL online2 = !second.isOffline;
+            if (online1 != online2) {
+                return online2 - online1;
+            }
+            
+            BOOL guest1 = first.participantType == kNCParticipantTypeGuest;
+            BOOL guest2 = second.participantType == kNCParticipantTypeGuest;
+            if (guest1 != guest2) {
+                return guest1 - guest2;
+            }
+            
+            return NSOrderedSame;
+        }];
+        NSArray *descriptors = [NSArray arrayWithObjects:customSorting, alphabeticSorting, nil];
+        [participants sortUsingDescriptors:descriptors];
+        
+        if (block) {
+            block(participants, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error);
+        }
+    }];
+    
+    return task;
+}
+
+- (NSURLSessionDataTask *)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants", token]];
+    NSDictionary *parameters = @{@"newParticipant" : user};
+    
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+    
+    return task;
+}
+
+- (NSURLSessionDataTask *)removeParticipant:(NSString *)user fromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants", token]];
+    NSDictionary *parameters = @{@"participant" : user};
+    
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+    
+    return task;
+}
+
+- (NSURLSessionDataTask *)removeGuest:(NSString *)guest fromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/guests", token]];
+    NSDictionary *parameters = @{@"participant" : guest};
+    
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+    
+    return task;
+}
+
+- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/self", token]];
+    
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+    
+    return task;
+}
+
+- (NSURLSessionDataTask *)promoteParticipant:(NSString *)user toModeratorOfRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/moderators", token]];
+    NSDictionary *parameters = @{@"participant" : user};
+    
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+    
+    return task;
+}
+
+- (NSURLSessionDataTask *)demoteModerator:(NSString *)moderator toParticipantOfRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/moderators", token]];
+    NSDictionary *parameters = @{@"participant" : moderator};
+    
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }

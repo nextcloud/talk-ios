@@ -18,7 +18,6 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
     
     self.roomImage.layer.cornerRadius = 24.0;
     self.roomImage.layer.masksToBounds = YES;
-    self.roomPasswordImage.contentMode = UIViewContentModeCenter;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -35,7 +34,6 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
     [self.roomImage cancelImageDownloadTask];
     
     self.roomImage.image = nil;
-    self.roomPasswordImage.image = nil;
     
     for (UIView *subview in [self.unreadMessagesView subviews]) {
         [subview removeFromSuperview];

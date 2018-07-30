@@ -19,14 +19,15 @@ typedef void (^GetRoomsCompletionBlock)(NSMutableArray *rooms, NSError *error, N
 typedef void (^GetRoomCompletionBlock)(NCRoom *room, NSError *error);
 typedef void (^CreateRoomCompletionBlock)(NSString *token, NSError *error);
 typedef void (^RenameRoomCompletionBlock)(NSError *error);
-typedef void (^AddParticipantCompletionBlock)(NSError *error);
-typedef void (^RemoveSelfFromRoomCompletionBlock)(NSError *error);
 typedef void (^MakeRoomPublicCompletionBlock)(NSError *error);
 typedef void (^MakeRoomPrivateCompletionBlock)(NSError *error);
 typedef void (^DeleteRoomCompletionBlock)(NSError *error);
 typedef void (^SetPasswordCompletionBlock)(NSError *error);
 typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NSError *error);
 typedef void (^ExitRoomCompletionBlock)(NSError *error);
+
+typedef void (^GetParticipantsFromRoomCompletionBlock)(NSMutableArray *participants, NSError *error);
+typedef void (^ParticipantModificationCompletionBlock)(NSError *error);
 
 typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *error);
 typedef void (^JoinCallCompletionBlock)(NSError *error);
@@ -71,14 +72,21 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 - (NSURLSessionDataTask *)getRoomWithId:(NSInteger)roomId withCompletionBlock:(GetRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)createRoomWith:(NSString *)invite ofType:(NCRoomType)type andName:(NSString *)roomName withCompletionBlock:(CreateRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)renameRoom:(NSString *)token withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(AddParticipantCompletionBlock)block;
-- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token withCompletionBlock:(RemoveSelfFromRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)makeRoomPublic:(NSString *)token withCompletionBlock:(MakeRoomPublicCompletionBlock)block;
 - (NSURLSessionDataTask *)makeRoomPrivate:(NSString *)token withCompletionBlock:(MakeRoomPrivateCompletionBlock)block;
 - (NSURLSessionDataTask *)deleteRoom:(NSString *)token withCompletionBlock:(DeleteRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)setPassword:(NSString *)password toRoom:(NSString *)token withCompletionBlock:(SetPasswordCompletionBlock)block;
 - (NSURLSessionDataTask *)joinRoom:(NSString *)token withCompletionBlock:(JoinRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)exitRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block;
+
+// Participants Controller
+- (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)removeParticipant:(NSString *)user fromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)removeGuest:(NSString *)guest fromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)promoteParticipant:(NSString *)user toModeratorOfRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)demoteModerator:(NSString *)moderator toParticipantOfRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 
 // Call Controller
 - (NSURLSessionDataTask *)getPeersForCall:(NSString *)token withCompletionBlock:(GetPeersForCallCompletionBlock)block;
