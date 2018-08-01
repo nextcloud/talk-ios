@@ -31,6 +31,7 @@ typedef enum NCRoomType {
 @property (nonatomic, assign) NSInteger unreadMessages;
 @property (nonatomic, copy) NSString *guestList;
 @property (nonatomic, copy) NSDictionary *participants;
+@property (nonatomic, assign) NSInteger lastActivity;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 
