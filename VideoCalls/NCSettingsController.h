@@ -25,6 +25,12 @@ extern NSString * const kNCDeviceIdentifier;
 extern NSString * const kNCDeviceSignature;
 extern NSString * const kNCUserPublicKey;
 
+extern NSString * const kCapabilityChatV2;
+extern NSString * const kCapabilityFavorites;
+extern NSString * const kCapabilityLastRoomActivity;
+extern NSString * const kCapabilityNoPing;
+extern NSString * const kCapabilitySystemMessages;
+
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
 
@@ -54,5 +60,7 @@ extern NSString * const NCServerCapabilitiesReceivedNotification;
 - (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
+- (BOOL)serverUsesRequiredTalkVersion;
+- (BOOL)serverHasTalkCapability:(NSString *)capability;
 
 @end

@@ -11,10 +11,12 @@
 #import "AuthenticationViewController.h"
 #import "CCCertificate.h"
 #import "NCAPIController.h"
+#import "NCSettingsController.h"
 
 @interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate>
 {
     AuthenticationViewController *_authenticationViewController;
+    NSString *_serverURL;
 }
 
 @end
@@ -46,16 +48,16 @@
 
 - (IBAction)login:(id)sender
 {
-    NSString *serverUrl = self.serverUrl.text;
+    _serverURL = self.serverUrl.text;
     
     // Check whether baseUrl contain protocol. If not add https:// by default.
-    if(![serverUrl hasPrefix:@"https"] && ![serverUrl hasPrefix:@"http"]) {
-        serverUrl = [NSString stringWithFormat:@"https://%@",serverUrl];
+    if(![_serverURL hasPrefix:@"https"] && ![_serverURL hasPrefix:@"http"]) {
+        _serverURL = [NSString stringWithFormat:@"https://%@",_serverURL];
     }
     
     // Remove trailing slash
-    if([serverUrl hasSuffix:@"/"]) {
-        serverUrl = [serverUrl substringToIndex:[serverUrl length] - 1];
+    if([_serverURL hasSuffix:@"/"]) {
+        _serverURL = [_serverURL substringToIndex:[_serverURL length] - 1];
     }
     
     // Remove stored cookies
@@ -68,44 +70,7 @@
     [self.activityIndicatorView startAnimating];
     self.activityIndicatorView.hidden = NO;
     
-    [[NCAPIController sharedInstance] setNCServer:serverUrl];
-    [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
-        [self.activityIndicatorView stopAnimating];
-        self.activityIndicatorView.hidden = YES;
-        
-        if (error) {
-            // Self signed certificate
-            if ([error code] == NSURLErrorServerCertificateUntrusted) {
-                NSLog(@"Untrusted certificate");
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
-                });
-                
-            } else {
-                if (statusCode == 401) {
-                    _authenticationViewController = [[AuthenticationViewController alloc] initWithServerUrl:serverUrl];
-                    _authenticationViewController.delegate = self;
-                    [self presentViewController:_authenticationViewController animated:YES completion:nil];
-                } else {
-                    UIAlertController * alert = [UIAlertController
-                                                 alertControllerWithTitle:@"Nextcloud Talk app not found"
-                                                 message:@"Please, check that you enter the correct Nextcloud server url and the Nextcloud Talk app is enabled in that instance."
-                                                 preferredStyle:UIAlertControllerStyleAlert];
-                    
-                    
-                    
-                    UIAlertAction* okButton = [UIAlertAction
-                                               actionWithTitle:@"OK"
-                                               style:UIAlertActionStyleDefault
-                                               handler:nil];
-                    
-                    [alert addAction:okButton];
-                    
-                    [self presentViewController:alert animated:YES completion:nil];
-                }
-            }
-        }
-    }];
+    [self startLoginProcess];
 }
 
 - (void)trustedCerticateAccepted
@@ -117,6 +82,60 @@
 {
     [textField resignFirstResponder];
     return YES;
+}
+
+#pragma mark - Login
+
+- (void)startLoginProcess
+{
+    [[NCAPIController sharedInstance] setNCServer:_serverURL];
+    [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
+        [self.activityIndicatorView stopAnimating];
+        self.activityIndicatorView.hidden = YES;
+        if (!error) {
+            // Check minimum required version
+            if ([[NCSettingsController sharedInstance] serverUsesRequiredTalkVersion]) {
+                [self presentAuthenticationView];
+            } else {
+                [self showAlertWithTitle:@"Nextcloud Talk version not supported" andMessage:@"Please, update your server with the latest Nextcloud Talk version available."];
+            }
+        } else {
+            // Self signed certificate
+            if ([error code] == NSURLErrorServerCertificateUntrusted) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
+                });
+            } else {
+                [self showAlertWithTitle:@"Nextcloud sever not found" andMessage:@"Please, check that you enter the correct Nextcloud server url."];
+            }
+        }
+    }];
+}
+
+- (void)presentAuthenticationView
+{
+    _authenticationViewController = [[AuthenticationViewController alloc] initWithServerUrl:_serverURL];
+    _authenticationViewController.delegate = self;
+    [self presentViewController:_authenticationViewController animated:YES completion:nil];
+}
+
+#pragma mark - Alerts
+
+- (void)showAlertWithTitle:(NSString *)title andMessage:(NSString *)message
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:title
+                                 message:message
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:@"OK"
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 #pragma mark - AuthenticationViewControllerDelegate

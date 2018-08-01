@@ -39,6 +39,12 @@ NSString * const kNCDeviceIdentifier    = @"ncDeviceIdentifier";
 NSString * const kNCDeviceSignature     = @"ncDeviceSignature";
 NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
 
+NSString * const kCapabilityChatV2              = @"chat-v2";
+NSString * const kCapabilityFavorites           = @"favorites";
+NSString * const kCapabilityLastRoomActivity    = @"last-room-activity";
+NSString * const kCapabilityNoPing              = @"no-ping";
+NSString * const kCapabilitySystemMessages      = @"system-messages";
+
 NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabilitiesReceivedNotification";
 
 + (NCSettingsController *)sharedInstance
@@ -143,6 +149,28 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
             if (block) block(error);
         }
     }];
+}
+
+- (BOOL)serverUsesRequiredTalkVersion
+{
+    if (_ncTalkCapabilities) {
+        NSArray *talkFeatures = [_ncTalkCapabilities objectForKey:@"features"];
+        if ([talkFeatures containsObject:kCapabilityChatV2]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (BOOL)serverHasTalkCapability:(NSString *)capability
+{
+    if (_ncTalkCapabilities) {
+        NSArray *talkFeatures = [_ncTalkCapabilities objectForKey:@"features"];
+        if ([talkFeatures containsObject:capability]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 #pragma mark - Push Notifications
