@@ -89,12 +89,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)serverCapabilitiesReceived:(NSNotification *)notification
 {
-    NSDictionary *talkCapabilities = [NCSettingsController sharedInstance].ncTalkCapabilities;
-    if (talkCapabilities) {
-        NSArray *talkFeatures = [talkCapabilities objectForKey:@"features"];
-        if ([talkFeatures containsObject:@"empty-group-room"]) {
-            _allowEmptyGroupRooms = YES;
-        }
+    // If the logged-in user is using an old NC Talk version on the server then logged the user out.
+    if (![[NCSettingsController sharedInstance] serverUsesRequiredTalkVersion]) {
+        [[NCSettingsController sharedInstance] logoutWithCompletionBlock:^(NSError *error) {
+            [[NCUserInterfaceController sharedInstance] presentConversationsViewController];
+            [[NCConnectionController sharedInstance] checkAppState];
+        }];
     }
 }
 

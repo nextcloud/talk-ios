@@ -32,6 +32,7 @@ extern NSString * const kCapabilityNoPing;
 extern NSString * const kCapabilitySystemMessages;
 
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
+typedef void (^LogoutCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
 
 extern NSString * const NCServerCapabilitiesReceivedNotification;
@@ -59,6 +60,7 @@ extern NSString * const NCServerCapabilitiesReceivedNotification;
 - (NSString *)pushTokenSHA512;
 - (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
+- (void)logoutWithCompletionBlock:(LogoutCompletionBlock)block;
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
 - (BOOL)serverUsesRequiredTalkVersion;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;

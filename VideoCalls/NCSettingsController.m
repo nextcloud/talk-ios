@@ -132,6 +132,29 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     }];
 }
 
+- (void)logoutWithCompletionBlock:(LogoutCompletionBlock)block
+{
+    if ([[NCSettingsController sharedInstance] ncDeviceIdentifier]) {
+        [[NCAPIController sharedInstance] unsubscribeToNextcloudServer:^(NSError *error) {
+            if (!error) {
+                NSLog(@"Unsubscribed from NC server!!!");
+            } else {
+                NSLog(@"Error while unsubscribing from NC server.");
+            }
+        }];
+        [[NCAPIController sharedInstance] unsubscribeToPushServer:^(NSError *error) {
+            if (!error) {
+                NSLog(@"Unsubscribed from Push Notification server!!!");
+            } else {
+                NSLog(@"Error while unsubscribing from Push Notification server.");
+            }
+        }];
+    }
+    
+    [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
+    if (block) block(nil);
+}
+
 #pragma mark - Server Capabilities
 
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
