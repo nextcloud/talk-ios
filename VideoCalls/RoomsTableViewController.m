@@ -628,11 +628,21 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Set room name
     cell.labelTitle.text = room.displayName;
     
-    // Set last ping
-    NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
-    cell.labelSubTitle.text = [date timeAgoSinceNow];
-    if (room.lastPing == 0) {
-        cell.labelSubTitle.text = @"Never joined";
+    if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityLastRoomActivity]) {
+        // Set last activity
+        NSMutableAttributedString *subtitle = [[NSMutableAttributedString alloc] initWithString:@"No activity"];
+        NCChatMessage *lastMessage = room.lastMessage;
+        if (room.lastMessage) {
+            subtitle = lastMessage.lastRoomMessageFormat;
+        }
+        cell.labelSubTitle.attributedText = subtitle;
+    } else {
+        // Set last ping
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
+        cell.labelSubTitle.text = [date timeAgoSinceNow];
+        if (room.lastPing == 0) {
+            cell.labelSubTitle.text = @"Never joined";
+        }
     }
     
     // Set unread messages

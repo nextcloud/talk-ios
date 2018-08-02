@@ -29,6 +29,7 @@
     room.guestList = [roomDict objectForKey:@"guestList"];
     room.participants = [roomDict objectForKey:@"participants"];
     room.lastActivity = [[roomDict objectForKey:@"lastActivity"] integerValue];
+    room.lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"]];
     
     id name = [roomDict objectForKey:@"name"];
     if ([name isKindOfClass:[NSString class]]) {
