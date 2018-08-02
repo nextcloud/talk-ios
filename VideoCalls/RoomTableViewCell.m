@@ -34,6 +34,7 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
     [self.roomImage cancelImageDownloadTask];
     
     self.roomImage.image = nil;
+    self.dateLabel.text = @"";
     
     for (UIView *subview in [self.unreadMessagesView subviews]) {
         [subview removeFromSuperview];

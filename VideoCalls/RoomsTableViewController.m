@@ -441,6 +441,21 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NCRoomsManager sharedInstance] startChatInRoom:room];
 }
 
+#pragma mark - Utils
+
+- (NSString *)getDateLabelStringForDate:(NSDate *)date
+{
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    if ([date isToday]) {
+        [formatter setDateFormat:@"HH:mm"];
+    } else if ([date isYesterday]) {
+        return @"Yesterday";
+    } else {
+        [formatter setDateFormat:@"dd/MM/yy"];
+    }
+    return [formatter stringFromDate:date];
+}
+
 #pragma mark - Public Calls
 
 - (void)showShareDialogForRoom:(NCRoom *)room withTitle:(NSString *)title
@@ -634,6 +649,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         NCChatMessage *lastMessage = room.lastMessage;
         if (room.lastMessage) {
             subtitle = lastMessage.lastRoomMessageFormat;
+            NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:lastMessage.timestamp];
+            cell.dateLabel.text = [self getDateLabelStringForDate:date];
         }
         cell.labelSubTitle.attributedText = subtitle;
     } else {
