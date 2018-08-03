@@ -649,9 +649,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         NCChatMessage *lastMessage = room.lastMessage;
         if (room.lastMessage) {
             subtitle = lastMessage.lastRoomMessageFormat;
-            NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:lastMessage.timestamp];
-            cell.dateLabel.text = [self getDateLabelStringForDate:date];
         }
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastActivity];
+        cell.dateLabel.text = [self getDateLabelStringForDate:date];
         cell.labelSubTitle.attributedText = subtitle;
     } else {
         // Set last ping
