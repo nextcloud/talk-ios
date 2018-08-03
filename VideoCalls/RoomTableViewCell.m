@@ -9,6 +9,9 @@
 #import "RoomTableViewCell.h"
 #import "UIImageView+AFNetworking.h"
 
+#define kTitleOriginY       14
+#define kTitleOnlyOriginY   25
+
 NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
 
 @implementation RoomTableViewCell
@@ -34,11 +37,21 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
     [self.roomImage cancelImageDownloadTask];
     
     self.roomImage.image = nil;
+    self.labelSubTitle.text = @"";
     self.dateLabel.text = @"";
     
     for (UIView *subview in [self.unreadMessagesView subviews]) {
         [subview removeFromSuperview];
     }
+}
+
+- (void)setTitleOnly:(BOOL)titleOnly
+{
+    _titleOnly = titleOnly;
+    
+    CGRect frame = self.labelTitle.frame;
+    frame.origin.y = _titleOnly ? kTitleOnlyOriginY : kTitleOriginY;
+    self.labelTitle.frame = frame;
 }
 
 @end

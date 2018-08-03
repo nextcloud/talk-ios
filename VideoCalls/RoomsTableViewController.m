@@ -645,14 +645,15 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityLastRoomActivity]) {
         // Set last activity
-        NSMutableAttributedString *subtitle = [[NSMutableAttributedString alloc] initWithString:@"No activity"];
         NCChatMessage *lastMessage = room.lastMessage;
-        if (room.lastMessage) {
-            subtitle = lastMessage.lastRoomMessageFormat;
+        if (lastMessage) {
+            cell.titleOnly = NO;
+            cell.labelSubTitle.attributedText = lastMessage.lastRoomMessageFormat;
+        } else {
+            cell.titleOnly = YES;
         }
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastActivity];
         cell.dateLabel.text = [self getDateLabelStringForDate:date];
-        cell.labelSubTitle.attributedText = subtitle;
     } else {
         // Set last ping
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
