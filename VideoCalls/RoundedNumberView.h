@@ -12,5 +12,6 @@
 
 @property (nonatomic, assign) NSInteger number;
 @property (nonatomic, strong) UIColor *numberColor;
+@property (nonatomic, assign) BOOL important;
 
 @end

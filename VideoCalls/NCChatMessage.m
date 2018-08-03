@@ -18,7 +18,7 @@ NSInteger const kChatMessageGroupTimeDifference = 15;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict
 {
-    if (!messageDict) {
+    if (!messageDict || ![messageDict isKindOfClass:[NSDictionary class]]) {
         return nil;
     }
     
@@ -102,6 +102,16 @@ NSInteger const kChatMessageGroupTimeDifference = 15;
     }
     
     return attributedMessage;
+}
+
+- (NSMutableAttributedString *)lastRoomMessageFormat
+{
+    NSString *firstName = [NSString stringWithFormat:@"%@: ", [[_actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0]];
+    NSMutableAttributedString *lastMessage = [[NSMutableAttributedString alloc] initWithString:firstName];
+    [lastMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0 weight:UIFontWeightSemibold] range:NSMakeRange(0,lastMessage.length)];
+    [lastMessage appendAttributedString:[self parsedMessage]];
+    
+    return lastMessage;
 }
 
 @end

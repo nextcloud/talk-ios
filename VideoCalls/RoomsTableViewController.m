@@ -441,6 +441,21 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NCRoomsManager sharedInstance] startChatInRoom:room];
 }
 
+#pragma mark - Utils
+
+- (NSString *)getDateLabelStringForDate:(NSDate *)date
+{
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    if ([date isToday]) {
+        [formatter setDateFormat:@"HH:mm"];
+    } else if ([date isYesterday]) {
+        return @"Yesterday";
+    } else {
+        [formatter setDateFormat:@"dd/MM/yy"];
+    }
+    return [formatter stringFromDate:date];
+}
+
 #pragma mark - Public Calls
 
 - (void)showShareDialogForRoom:(NCRoom *)room withTitle:(NSString *)title
@@ -628,16 +643,31 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Set room name
     cell.labelTitle.text = room.displayName;
     
-    // Set last ping
-    NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
-    cell.labelSubTitle.text = [date timeAgoSinceNow];
-    if (room.lastPing == 0) {
-        cell.labelSubTitle.text = @"Never joined";
+    if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityLastRoomActivity]) {
+        // Set last activity
+        NSMutableAttributedString *subtitle = [[NSMutableAttributedString alloc] initWithString:@"No activity"];
+        NCChatMessage *lastMessage = room.lastMessage;
+        if (room.lastMessage) {
+            subtitle = lastMessage.lastRoomMessageFormat;
+            NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:lastMessage.timestamp];
+            cell.dateLabel.text = [self getDateLabelStringForDate:date];
+        }
+        cell.labelSubTitle.attributedText = subtitle;
+    } else {
+        // Set last ping
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
+        cell.labelSubTitle.text = [date timeAgoSinceNow];
+        if (room.lastPing == 0) {
+            cell.labelSubTitle.text = @"Never joined";
+        }
     }
     
     // Set unread messages
     if (room.unreadMessages > 0) {
         RoundedNumberView *unreadMessagesView = [[RoundedNumberView alloc] init];
+        if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityMentionFlag]) {
+            unreadMessagesView.important = room.unreadMention ? YES : NO;
+        }
         unreadMessagesView.number = room.unreadMessages;
         unreadMessagesView.frame = CGRectMake(cell.unreadMessagesView.frame.size.width - unreadMessagesView.frame.size.width,
                                               unreadMessagesView.frame.origin.y,

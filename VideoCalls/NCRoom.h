@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #import "NCRoomParticipant.h"
+#import "NCChatMessage.h"
 
 typedef enum NCRoomType {
     kNCRoomTypeOneToOneCall = 1,
@@ -29,9 +30,11 @@ typedef enum NCRoomType {
 @property (nonatomic, assign) NSInteger lastPing;
 @property (nonatomic, assign) NSInteger numGuests;
 @property (nonatomic, assign) NSInteger unreadMessages;
+@property (nonatomic, assign) BOOL unreadMention;
 @property (nonatomic, copy) NSString *guestList;
 @property (nonatomic, copy) NSDictionary *participants;
 @property (nonatomic, assign) NSInteger lastActivity;
+@property (nonatomic, strong) NCChatMessage *lastMessage;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 

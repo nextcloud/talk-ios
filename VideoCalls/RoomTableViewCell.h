@@ -16,5 +16,6 @@ extern NSString *const kRoomCellIdentifier;
 @property(nonatomic, weak) IBOutlet UILabel *labelTitle;
 @property(nonatomic, weak) IBOutlet UILabel *labelSubTitle;
 @property (weak, nonatomic) IBOutlet UIView *unreadMessagesView;
+@property (weak, nonatomic) IBOutlet UILabel *dateLabel;
 
 @end

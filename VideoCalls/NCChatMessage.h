@@ -27,6 +27,7 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 @property (nonatomic, assign) NSInteger groupMessageNumber;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
-- (NSAttributedString *)parsedMessage;
+- (NSMutableAttributedString *)parsedMessage;
+- (NSMutableAttributedString *)lastRoomMessageFormat;
 
 @end
