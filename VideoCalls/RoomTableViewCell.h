@@ -12,10 +12,12 @@ extern NSString *const kRoomCellIdentifier;
 
 @interface RoomTableViewCell : UITableViewCell
 
-@property(nonatomic, weak) IBOutlet UIImageView *roomImage;
-@property(nonatomic, weak) IBOutlet UILabel *labelTitle;
-@property(nonatomic, weak) IBOutlet UILabel *labelSubTitle;
-@property (weak, nonatomic) IBOutlet UIView *unreadMessagesView;
-@property (weak, nonatomic) IBOutlet UILabel *dateLabel;
+@property (nonatomic, weak) IBOutlet UIImageView *roomImage;
+@property (nonatomic, weak) IBOutlet UILabel *labelTitle;
+@property (nonatomic, weak) IBOutlet UILabel *labelSubTitle;
+@property (nonatomic, weak) IBOutlet UIView *unreadMessagesView;
+@property (nonatomic, weak) IBOutlet UILabel *dateLabel;
+
+@property (nonatomic, assign) BOOL titleOnly;
 
 @end
