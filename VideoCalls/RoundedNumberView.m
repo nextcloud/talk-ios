@@ -8,8 +8,10 @@
 
 #import "RoundedNumberView.h"
 
-#define kRoundedNumberViewDefaultBackgroundColor    [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
-#define kRoundedNumberViewDefaultTextColor          [UIColor whiteColor]
+#define kRoundedNumberViewImportantBackgroundColor  [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0] //#0082C9
+#define kRoundedNumberViewImportantTextColor        [UIColor whiteColor]
+#define kRoundedNumberViewDefaultBackgroundColor    [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0] //#d5d5d5
+#define kRoundedNumberViewDefaultTextColor          [UIColor blackColor]
 #define kRoundedNumberViewCounterLimit              99
 
 @interface RoundedNumberView ()
@@ -99,6 +101,13 @@
         _numberColor = numberColor;
         self.numberLabel.textColor = _numberColor;
     }
+}
+
+- (void)setImportant:(BOOL)important
+{
+    _important = important;
+    self.backgroundColor = _important ? kRoundedNumberViewImportantBackgroundColor : kRoundedNumberViewDefaultBackgroundColor;
+    _numberColor = _important ? kRoundedNumberViewImportantTextColor : kRoundedNumberViewDefaultTextColor;
 }
 
 @end

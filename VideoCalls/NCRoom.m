@@ -26,6 +26,7 @@
     room.lastPing = [[roomDict objectForKey:@"lastPing"] integerValue];
     room.numGuests = [[roomDict objectForKey:@"numGuests"] integerValue];
     room.unreadMessages = [[roomDict objectForKey:@"unreadMessages"] integerValue];
+    room.unreadMention = [[roomDict objectForKey:@"unreadMention"] boolValue];
     room.guestList = [roomDict objectForKey:@"guestList"];
     room.participants = [roomDict objectForKey:@"participants"];
     room.lastActivity = [[roomDict objectForKey:@"lastActivity"] integerValue];

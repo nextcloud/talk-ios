@@ -665,6 +665,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Set unread messages
     if (room.unreadMessages > 0) {
         RoundedNumberView *unreadMessagesView = [[RoundedNumberView alloc] init];
+        if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityMentionFlag]) {
+            unreadMessagesView.important = room.unreadMention ? YES : NO;
+        }
         unreadMessagesView.number = room.unreadMessages;
         unreadMessagesView.frame = CGRectMake(cell.unreadMessagesView.frame.size.width - unreadMessagesView.frame.size.width,
                                               unreadMessagesView.frame.origin.y,

@@ -44,6 +44,7 @@ NSString * const kCapabilityFavorites           = @"favorites";
 NSString * const kCapabilityLastRoomActivity    = @"last-room-activity";
 NSString * const kCapabilityNoPing              = @"no-ping";
 NSString * const kCapabilitySystemMessages      = @"system-messages";
+NSString * const kCapabilityMentionFlag         = @"mention-flag";
 
 NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabilitiesReceivedNotification";
 
