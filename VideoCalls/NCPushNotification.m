@@ -7,6 +7,7 @@
 //
 
 #import "NCPushNotification.h"
+#import "NCSettingsController.h"
 
 @implementation NCPushNotification
 
@@ -41,7 +42,11 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
     NCPushNotification *pushNotification = [[NCPushNotification alloc] init];
     pushNotification.app = app;
     pushNotification.subject = [jsonDict objectForKey:kNCPNSubjectKey];
-    pushNotification.pnId = [[jsonDict objectForKey:kNCPNIdKey] integerValue];
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNoPing]) {
+        pushNotification.roomToken = [jsonDict objectForKey:kNCPNIdKey];
+    } else {
+        pushNotification.roomId = [[jsonDict objectForKey:kNCPNIdKey] integerValue];
+    }
     
     NSString *type = [jsonDict objectForKey:kNCPNTypeKey];
     pushNotification.type = NCPushNotificationTypeUnknown;

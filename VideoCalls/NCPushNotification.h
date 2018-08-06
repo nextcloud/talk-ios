@@ -32,7 +32,8 @@ extern NSString * const NCPushNotificationJoinVideoCallAcceptedNotification;
 @property (nonatomic, copy) NSString *app;
 @property (nonatomic, assign) NCPushNotificationType type;
 @property (nonatomic, copy) NSString *subject;
-@property (nonatomic, assign) NSInteger pnId;
+@property (nonatomic, copy) NSString *roomToken;
+@property (nonatomic, assign) NSInteger roomId;
 
 + (instancetype)pushNotificationFromDecryptedString:(NSString *)decryptedString;
 - (NSString *)bodyForRemoteAlerts;

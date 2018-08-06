@@ -341,13 +341,21 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)joinAudioCallAccepted:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
-    [self joinCallWithCallId:pushNotification.pnId withVideo:NO];
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNoPing]) {
+        [self joinCallWithCallToken:pushNotification.roomToken withVideo:NO];
+    } else {
+        [self joinCallWithCallId:pushNotification.roomId withVideo:NO];
+    }
 }
 
 - (void)joinVideoCallAccepted:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
-    [self joinCallWithCallId:pushNotification.pnId withVideo:YES];
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNoPing]) {
+        [self joinCallWithCallToken:pushNotification.roomToken withVideo:YES];
+    } else {
+        [self joinCallWithCallId:pushNotification.roomId withVideo:YES];
+    }
 }
 
 - (void)userSelectedContactForVoiceCall:(NSNotification *)notification
@@ -365,7 +373,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)joinChat:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
-    [self startChatWithRoomId:pushNotification.pnId];
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNoPing]) {
+        [self startChatWithRoomToken:pushNotification.roomToken];
+    } else {
+        [self startChatWithRoomId:pushNotification.roomId];
+    }
 }
 
 - (void)userSelectedContactForChat:(NSNotification *)notification
