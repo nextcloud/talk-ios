@@ -22,12 +22,15 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 @property (nonatomic, strong) NSDictionary *messageParameters;
 @property (nonatomic, assign) NSInteger timestamp;
 @property (nonatomic, strong) NSString *token;
+@property (nonatomic, strong) NSString *systemMessage;
 // Group messages
 @property (nonatomic, assign) BOOL groupMessage;
 @property (nonatomic, assign) NSInteger groupMessageNumber;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
+- (BOOL)isSystemMessage;
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)lastRoomMessageFormat;
+- (NSMutableAttributedString *)systemMessageFormat;
 
 @end

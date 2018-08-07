@@ -30,6 +30,7 @@ NSInteger const kChatMessageGroupTimeDifference = 15;
     message.messageParameters = [messageDict objectForKey:@"messageParameters"];
     message.timestamp = [[messageDict objectForKey:@"timestamp"] integerValue];
     message.token = [messageDict objectForKey:@"token"];
+    message.systemMessage = [messageDict objectForKey:@"systemMessage"];
     
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
@@ -47,6 +48,14 @@ NSInteger const kChatMessageGroupTimeDifference = 15;
     }
     
     return message;
+}
+
+- (BOOL)isSystemMessage
+{
+    if (![_systemMessage isEqualToString:@""]) {
+        return YES;
+    }
+    return NO;
 }
 
 - (NSMutableAttributedString *)parsedMessage
@@ -112,6 +121,14 @@ NSInteger const kChatMessageGroupTimeDifference = 15;
     [lastMessage appendAttributedString:[self parsedMessage]];
     
     return lastMessage;
+}
+
+- (NSMutableAttributedString *)systemMessageFormat
+{
+    NSMutableAttributedString *message = [self parsedMessage];
+    [message addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.3] range:NSMakeRange(0,message.length)];
+    
+    return message;
 }
 
 @end
