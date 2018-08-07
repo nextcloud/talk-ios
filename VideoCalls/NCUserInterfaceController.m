@@ -20,6 +20,8 @@
 {
     LoginViewController *_loginViewController;
     AuthenticationViewController *_authViewController;
+    NCPushNotification *_pendingPushNotification;
+    BOOL _waitingForServerCapabilities;
 }
 
 @end
@@ -40,6 +42,7 @@
 {
     self = [super init];
     if (self) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
     }
     return self;
@@ -101,6 +104,11 @@
 
 - (void)presentChatForPushNotification:(NCPushNotification *)pushNotification
 {
+    if ([NCConnectionController sharedInstance].appState != kAppStateReady) {
+        _waitingForServerCapabilities = YES;
+        _pendingPushNotification = pushNotification;
+        return;
+    }
     NSDictionary *userInfo = [NSDictionary dictionaryWithObject:pushNotification forKey:@"pushNotification"];
     [[NSNotificationCenter defaultCenter] postNotificationName:NCPushNotificationJoinChatNotification
                                                         object:self
@@ -109,6 +117,11 @@
 
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification
 {
+    if ([NCConnectionController sharedInstance].appState != kAppStateReady) {
+        _waitingForServerCapabilities = YES;
+        _pendingPushNotification = pushNotification;
+        return;
+    }
     UIAlertController * alert = [UIAlertController
                                  alertControllerWithTitle:[pushNotification bodyForRemoteAlerts]
                                  message:@"Do you want to join this call?"
@@ -173,6 +186,19 @@
 }
 
 #pragma mark - Notifications
+
+- (void)appStateHasChanged:(NSNotification *)notification
+{
+    AppState appState = [[notification.userInfo objectForKey:@"appState"] intValue];
+    if (appState == kAppStateReady && _waitingForServerCapabilities) {
+        _waitingForServerCapabilities = NO;
+        if (_pendingPushNotification.type == NCPushNotificationTypeCall) {
+            [self presentAlertForPushNotification:_pendingPushNotification];
+        } else {
+            [self presentChatForPushNotification:_pendingPushNotification];
+        }
+    }
+}
 
 - (void)connectionStateHasChanged:(NSNotification *)notification
 {
