@@ -12,7 +12,7 @@
 #import "NCSettingsController.h"
 
 NSInteger const kChatMessageMaxGroupNumber      = 10;
-NSInteger const kChatMessageGroupTimeDifference = 15;
+NSInteger const kChatMessageGroupTimeDifference = 30;
 
 @implementation NCChatMessage
 
