@@ -45,6 +45,7 @@
 		2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D701F309DA500FF4A0D /* RTCSessionDescription+JSON.m */; };
 		2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */; };
 		2C5435ED1FB1E5E8003D4222 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C5435EC1FB1E5E8003D4222 /* GoogleService-Info.plist */; };
+		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
 		2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
 		2C738158210613A200CDB8DB /* NCChatTitleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C738157210613A200CDB8DB /* NCChatTitleView.xib */; };
 		2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF941F7E70EB008AFA74 /* NCPeerConnection.m */; };
@@ -200,6 +201,8 @@
 		2C4D7D741F30F7B600FF4A0D /* ARDUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDUtilities.h; sourceTree = "<group>"; };
 		2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDUtilities.m; sourceTree = "<group>"; };
 		2C5435EC1FB1E5E8003D4222 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SystemMessageTableViewCell.h; sourceTree = "<group>"; };
+		2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SystemMessageTableViewCell.m; sourceTree = "<group>"; };
 		2C6085C11FB1063700B36A6E /* VideoCalls.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VideoCalls.entitlements; sourceTree = "<group>"; };
 		2C7381542106136000CDB8DB /* NCChatTitleView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatTitleView.h; sourceTree = "<group>"; };
 		2C7381552106136000CDB8DB /* NCChatTitleView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatTitleView.m; sourceTree = "<group>"; };
@@ -810,6 +813,8 @@
 				2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */,
 				2CA155542099E07700CE8EF0 /* GroupedChatMessageTableViewCell.h */,
 				2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */,
+				2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */,
+				2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */,
 				2C06BF6520AC647A0031EB46 /* DateHeaderView.h */,
 				2C06BF6620AC647A0031EB46 /* DateHeaderView.m */,
 				2C06BF6320AC64370031EB46 /* DateHeaderView.xib */,
@@ -1126,6 +1131,7 @@
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
+				2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,

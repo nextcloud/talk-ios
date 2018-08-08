@@ -10,6 +10,7 @@
 
 #import "ChatMessageTableViewCell.h"
 #import "GroupedChatMessageTableViewCell.h"
+#import "SystemMessageTableViewCell.h"
 #import "DateHeaderView.h"
 #import "ChatPlaceholderView.h"
 #import "NCAPIController.h"
@@ -109,6 +110,7 @@
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
+    [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:SystemMessageCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
     
@@ -525,10 +527,11 @@
 - (BOOL)shouldGroupMessage:(NCChatMessage *)newMessage withMessage:(NCChatMessage *)lastMessage
 {
     BOOL sameActor = [newMessage.actorId isEqualToString:lastMessage.actorId];
+    BOOL sameType = ([newMessage isSystemMessage] == [lastMessage isSystemMessage]);
     BOOL timeDiff = (newMessage.timestamp - lastMessage.timestamp) < kChatMessageGroupTimeDifference;
     BOOL notMaxGroup = lastMessage.groupMessageNumber < kChatMessageMaxGroupNumber;
     
-    return sameActor & timeDiff & notMaxGroup;
+    return sameActor & sameType & timeDiff & notMaxGroup;
 }
 
 - (BOOL)shouldRetireveHistory
@@ -693,6 +696,16 @@
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
     UITableViewCell *cell = [UITableViewCell new];
+    if (message.isSystemMessage) {
+        SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
+        systemCell.bodyLabel.attributedText = message.systemMessageFormat;
+        systemCell.messageId = message.messageId;
+        if (!message.groupMessage) {
+            NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
+            systemCell.dateLabel.text = [self getTimeFromDate:date];
+        }
+        return systemCell;
+    }
     if (message.groupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
         groupedCell.bodyTextView.attributedText = message.parsedMessage;
@@ -736,7 +749,7 @@
                                      NSParagraphStyleAttributeName: paragraphStyle};
         
         CGFloat width = CGRectGetWidth(tableView.frame) - kChatMessageCellAvatarHeight;
-        width -= 30.0;
+        width -= (message.isSystemMessage)? 70.0 : 30.0;
         
         CGRect titleBounds = [message.actorDisplayName boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
         CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
@@ -753,7 +766,7 @@
             height = kChatMessageCellMinimumHeight;
         }
         
-        if (message.groupMessage) {
+        if (message.groupMessage || message.isSystemMessage) {
             height = CGRectGetHeight(bodyBounds) + 20;
             
             if (height < kGroupedChatMessageCellMinimumHeight) {

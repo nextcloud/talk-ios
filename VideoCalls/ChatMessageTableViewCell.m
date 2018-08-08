@@ -52,8 +52,7 @@
                               };
     
     if ([self.reuseIdentifier isEqualToString:ChatMessageCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"[titleLabel(==dateLabel)]" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
@@ -74,11 +73,12 @@
     
     CGFloat pointSize = [ChatMessageTableViewCell defaultFontSize];
     
-    self.titleLabel.font = [UIFont systemFontOfSize:pointSize];
+    self.titleLabel.font = [UIFont systemFontOfSize:pointSize weight:UIFontWeightSemibold];
     self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
     
     self.titleLabel.text = @"";
     self.bodyTextView.text = @"";
+    self.dateLabel.text = @"";
     
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
@@ -94,8 +94,8 @@
         _titleLabel.backgroundColor = [UIColor clearColor];
         _titleLabel.userInteractionEnabled = NO;
         _titleLabel.numberOfLines = 0;
-        _titleLabel.textColor = [UIColor lightGrayColor];
-        _titleLabel.font = [UIFont systemFontOfSize:[ChatMessageTableViewCell defaultFontSize]];
+        _titleLabel.textColor = [UIColor colorWithWhite:0 alpha:0.5];
+        _titleLabel.font = [UIFont systemFontOfSize:[ChatMessageTableViewCell defaultFontSize] weight:UIFontWeightSemibold];
     }
     return _titleLabel;
 }
