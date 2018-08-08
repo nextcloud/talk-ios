@@ -131,13 +131,22 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
             NCRoom *ncRoom = [NCRoom roomWithDictionary:room];
             [rooms addObject:ncRoom];
         }
-
+        // Sort by favorites
+        NSSortDescriptor *favoriteSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            NCRoom *first = (NCRoom*)obj1;
+            NCRoom *second = (NCRoom*)obj2;
+            BOOL favorite1 = first.isFavorite;
+            BOOL favorite2 = second.isFavorite;
+            if (favorite1 != favorite2) {
+                return favorite2 - favorite1;
+            }
+            return NSOrderedSame;
+        }];
         // Sort by lastPing or lastActivity
         NSString *sortKey = ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLastRoomActivity]) ? @"lastActivity" : @"lastPing";
         NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:sortKey ascending:NO];
-        NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];
+        NSArray *descriptors = [NSArray arrayWithObjects:favoriteSorting, valueDescriptor, nil];
         [rooms sortUsingDescriptors:descriptors];
-        
 
         if (block) {
             block(rooms, nil, 0);
@@ -336,6 +345,39 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/active", token]];
 
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+    
+    return task;
+}
+
+- (NSURLSessionDataTask *)addRoomToFavorites:(NSString *)token withCompletionBlock:(FavoriteRoomCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/favorite", token]];
+    
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+    
+    return task;
+}
+- (NSURLSessionDataTask *)removeRoomFromFavorites:(NSString *)token withCompletionBlock:(FavoriteRoomCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/favorite", token]];
+    
     NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);

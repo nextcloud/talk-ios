@@ -35,6 +35,7 @@ typedef enum NCRoomType {
 @property (nonatomic, copy) NSDictionary *participants;
 @property (nonatomic, assign) NSInteger lastActivity;
 @property (nonatomic, strong) NCChatMessage *lastMessage;
+@property (nonatomic, assign) BOOL isFavorite;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 

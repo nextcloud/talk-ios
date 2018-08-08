@@ -409,6 +409,32 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self presentViewController:renameDialog animated:YES completion:nil];
 }
 
+- (void)addRoomToFavoritesAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    [[NCAPIController sharedInstance] addRoomToFavorites:room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [self fetchRoomsWithCompletionBlock:nil];
+        } else {
+            NSLog(@"Error adding room to favorites: %@", error.description);
+            //TODO: Error handling
+        }
+    }];
+}
+
+- (void)removeRoomFromFavoritesAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [self fetchRoomsWithCompletionBlock:nil];
+        } else {
+            NSLog(@"Error removing room from favorites: %@", error.description);
+            //TODO: Error handling
+        }
+    }];
+}
+
 - (void)leaveRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
@@ -522,6 +548,20 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
+    // Add/Remove room to/from favorites
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites]) {
+        UIAlertAction *favoriteAction = [UIAlertAction actionWithTitle:(room.isFavorite) ? @"Remove from favorites" : @"Add to favorites"
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+                                                                   if (room.isFavorite) {
+                                                                       [self removeRoomFromFavoritesAtIndexPath:indexPath];
+                                                                   } else {
+                                                                       [self addRoomToFavoritesAtIndexPath:indexPath];
+                                                                   }
+                                                               }];
+        [favoriteAction setValue:[[UIImage imageNamed:@"favorite-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [optionsActionSheet addAction:favoriteAction];
+    }
     // Share link of public calls even if you are not a moderator
     if (!room.canModerate && room.isPublic) {
         // Share Link
