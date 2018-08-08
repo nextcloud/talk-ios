@@ -38,7 +38,7 @@
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatar-[bodyLabel]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyLabel(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[dateLabel(30)]-left-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[dateLabel(30)]-(>=0)-|" options:0 metrics:metrics views:views]];
 }
 
 - (void)prepareForReuse
