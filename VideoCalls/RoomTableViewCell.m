@@ -21,6 +21,7 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
     
     self.roomImage.layer.cornerRadius = 24.0;
     self.roomImage.layer.masksToBounds = YES;
+    self.favoriteImage.contentMode = UIViewContentModeCenter;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -37,6 +38,7 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
     [self.roomImage cancelImageDownloadTask];
     
     self.roomImage.image = nil;
+    self.favoriteImage.image = nil;
     self.labelSubTitle.text = @"";
     self.dateLabel.text = @"";
     

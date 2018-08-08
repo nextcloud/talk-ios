@@ -31,6 +31,7 @@
     room.participants = [roomDict objectForKey:@"participants"];
     room.lastActivity = [[roomDict objectForKey:@"lastActivity"] integerValue];
     room.lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"]];
+    room.isFavorite = [[roomDict objectForKey:@"isFavorite"] boolValue];
     
     id name = [roomDict objectForKey:@"name"];
     if ([name isKindOfClass:[NSString class]]) {
