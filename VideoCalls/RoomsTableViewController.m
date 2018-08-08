@@ -741,6 +741,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             break;
     }
     
+    // Set favorite image
+    if (room.isFavorite) {
+        [cell.favoriteImage setImage:[UIImage imageNamed:@"favorite-room"]];
+    }
+    
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     
     return cell;

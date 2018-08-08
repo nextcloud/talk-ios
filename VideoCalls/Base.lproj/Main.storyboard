@@ -55,10 +55,15 @@
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dQI-ne-wFt">
+                                            <rect key="frame" x="45" y="8" width="20" height="20"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        </imageView>
                                     </subviews>
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="dateLabel" destination="iMQ-sR-n2H" id="aA6-go-w56"/>
+                                    <outlet property="favoriteImage" destination="dQI-ne-wFt" id="AgV-VE-JLZ"/>
                                     <outlet property="labelSubTitle" destination="FDH-Ta-zgI" id="NHp-dM-chx"/>
                                     <outlet property="labelTitle" destination="L2w-ad-rRt" id="CNq-cb-Kc7"/>
                                     <outlet property="roomImage" destination="eGM-8o-ipF" id="Ae7-yR-KGf"/>
