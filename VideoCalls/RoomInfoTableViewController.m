@@ -542,9 +542,15 @@ typedef enum ModificationError {
 
 - (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    if (section == kRoomInfoSectionParticipants) {
-        return 40.0f;
+    switch (section) {
+        case kRoomInfoSectionActions:
+            return 10;
+            break;
+        case kRoomInfoSectionParticipants:
+            return 40;
+            break;
     }
+    
     return 25;
 }
 
