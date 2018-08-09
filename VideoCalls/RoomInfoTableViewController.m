@@ -17,6 +17,7 @@
 #import "NCRoomsManager.h"
 #import "NCRoomParticipant.h"
 #import "NCSettingsController.h"
+#import "NCUserInterfaceController.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
@@ -24,6 +25,7 @@ typedef enum RoomInfoSection {
     kRoomInfoSectionName = 0,
     kRoomInfoSectionActions,
     kRoomInfoSectionParticipants,
+    kRoomInfoSectionDestructive,
     kRoomInfoSections
 } RoomInfoSection;
 
@@ -34,13 +36,20 @@ typedef enum ActionSections {
     kActionSectionSendLink
 } ActionsSection;
 
+typedef enum DestructiveAction {
+    kDestructiveActionLeave = 0,
+    kDestructiveActionDelete
+} DestructiveAction;
+
 typedef enum ModificationError {
     kModificationErrorRename = 0,
     kModificationErrorFavorite,
     kModificationErrorShare,
     kModificationErrorPassword,
     kModificationErrorModeration,
-    kModificationErrorRemove
+    kModificationErrorRemove,
+    kModificationErrorLeave,
+    kModificationErrorDelete
 } ModificationError;
 
 @interface RoomInfoTableViewController () <UITextFieldDelegate>
@@ -141,6 +150,18 @@ typedef enum ModificationError {
     return [NSArray arrayWithArray:actions];
 }
 
+- (NSArray *)getRoomDestructiveActions
+{
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+    // Leave room
+    [actions addObject:[NSNumber numberWithInt:kDestructiveActionLeave]];
+    // Delete room
+    if (_room.isDeletable) {
+        [actions addObject:[NSNumber numberWithInt:kDestructiveActionDelete]];
+    }
+    return [NSArray arrayWithArray:actions];
+}
+
 - (BOOL)isAppUser:(NCRoomParticipant *)participant
 {
     if ([participant.userId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
@@ -190,6 +211,14 @@ typedef enum ModificationError {
             
         case kModificationErrorRemove:
             errorDescription = @"Could not remove participant";
+            break;
+        
+        case kModificationErrorLeave:
+            errorDescription = @"Could not leave conversation";
+            break;
+            
+        case kModificationErrorDelete:
+            errorDescription = @"Could not delete conversation";
             break;
             
         default:
@@ -372,6 +401,30 @@ typedef enum ModificationError {
     };
 }
 
+- (void)leaveRoom
+{
+    [[NCAPIController sharedInstance] removeSelfFromRoom:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCUserInterfaceController sharedInstance] presentConversationsList];
+        } else {
+            NSLog(@"Error leaving the room: %@", error.description);
+            [self showRoomModificationError:kModificationErrorLeave];
+        }
+    }];
+}
+
+- (void)deleteRoom
+{
+    [[NCAPIController sharedInstance] deleteRoom:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCUserInterfaceController sharedInstance] presentConversationsList];
+        } else {
+            NSLog(@"Error deleting the room: %@", error.description);
+            [self showRoomModificationError:kModificationErrorDelete];
+        }
+    }];
+}
+
 #pragma mark - Participant options
 
 - (void)addParticipantsButtonPressed
@@ -522,6 +575,10 @@ typedef enum ModificationError {
         case kRoomInfoSectionParticipants:
             return _roomParticipants.count;
             break;
+            
+        case kRoomInfoSectionDestructive:
+            return [self getRoomDestructiveActions].count;
+            break;
     }
     
     return 1;
@@ -577,6 +634,8 @@ typedef enum ModificationError {
     static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
     static NSString *passwordCellIdentifier = @"PasswordCellIdentifier";
     static NSString *sendLinkCellIdentifier = @"SendLinkCellIdentifier";
+    static NSString *leaveRoomCellIdentifier = @"LeaveRoomCellIdentifier";
+    static NSString *deleteRoomCellIdentifier = @"DeleteRoomCellIdentifier";
     
     switch (indexPath.section) {
         case kRoomInfoSectionName:
@@ -737,6 +796,42 @@ typedef enum ModificationError {
             return cell;
         }
             break;
+        case kRoomInfoSectionDestructive:
+        {
+            NSArray *actions = [self getRoomDestructiveActions];
+            DestructiveAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kDestructiveActionLeave:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:leaveRoomCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:leaveRoomCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = @"Leave conversation";
+                    cell.textLabel.textColor = [UIColor colorWithRed:1.00 green:0.23 blue:0.19 alpha:1.0]; //#FF3B30
+                    [cell.imageView setImage:[UIImage imageNamed:@"exit-action"]];
+                    
+                    return cell;
+                }
+                    break;
+                case kDestructiveActionDelete:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:deleteRoomCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:deleteRoomCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = @"Delete conversation";
+                    cell.textLabel.textColor = [UIColor colorWithRed:1.00 green:0.23 blue:0.19 alpha:1.0]; //#FF3B30
+                    [cell.imageView setImage:[UIImage imageNamed:@"delete-action"]];
+                    
+                    return cell;
+                }
+                    break;
+            }
+        }
+            break;
     }
     
     return cell;
@@ -774,6 +869,20 @@ typedef enum ModificationError {
             NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
             if (participant.participantType != kNCParticipantTypeOwner && ![self isAppUser:participant] && _room.canModerate) {
                 [self showModerationOptionsForParticipantAtIndexPath:indexPath];
+            }
+        }
+            break;
+        case kRoomInfoSectionDestructive:
+        {
+            NSArray *actions = [self getRoomDestructiveActions];
+            DestructiveAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kDestructiveActionLeave:
+                    [self leaveRoom];
+                    break;
+                case kDestructiveActionDelete:
+                    [self deleteRoom];
+                    break;
             }
         }
             break;

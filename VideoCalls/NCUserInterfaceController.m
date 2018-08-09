@@ -68,6 +68,13 @@
     [self.mainTabBarController setSelectedIndex:2];
 }
 
+- (void)presentConversationsList
+{
+    UINavigationController *conversationsNC = [[self.mainTabBarController viewControllers] objectAtIndex:0];
+    [conversationsNC popToRootViewControllerAnimated:NO];
+    [self presentConversationsViewController];
+}
+
 - (void)presentLoginViewController
 {
     _loginViewController = [[LoginViewController alloc] init];

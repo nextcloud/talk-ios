@@ -639,7 +639,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         
         // Delete room
         if (room.isDeletable) {
-            UIAlertAction *deleteCallAction = [UIAlertAction actionWithTitle:@"Delete call"
+            UIAlertAction *deleteCallAction = [UIAlertAction actionWithTitle:@"Delete conversation"
                                                                        style:UIAlertActionStyleDestructive
                                                                      handler:^void (UIAlertAction *action) {
                                                                          [self deleteRoomAtIndexPath:indexPath];
