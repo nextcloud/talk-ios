@@ -548,6 +548,7 @@ typedef enum ModificationError {
                 title = @"1 participant";
             }
             _headerView.label.text = [title uppercaseString];
+            _headerView.button.hidden = (_room.canModerate) ? NO : YES;
             return _headerView;
         }
             break;
