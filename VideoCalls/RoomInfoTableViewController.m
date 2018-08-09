@@ -121,6 +121,26 @@ typedef enum ModificationError {
     }];
 }
 
+- (NSArray *)getRoomActions
+{
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+    // Favorite action
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites]) {
+        [actions addObject:[NSNumber numberWithInt:kActionSectionFavorite]];
+    }
+    // Public room actions
+    if (_room.canModerate) {
+        [actions addObject:[NSNumber numberWithInt:kActionSectionPublicToggle]];
+        if (_room.isPublic) {
+            [actions addObject:[NSNumber numberWithInt:kActionSectionPassword]];
+            [actions addObject:[NSNumber numberWithInt:kActionSectionSendLink]];
+        }
+    } else if (_room.isPublic) {
+        [actions addObject:[NSNumber numberWithInt:kActionSectionSendLink]];
+    }
+    return [NSArray arrayWithArray:actions];
+}
+
 - (BOOL)isAppUser:(NCRoomParticipant *)participant
 {
     if ([participant.userId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
@@ -496,11 +516,7 @@ typedef enum ModificationError {
 {
     switch (section) {
         case kRoomInfoSectionActions:
-            if (_room.canModerate) {
-                return (_room.isPublic) ? 4 : 2;
-            } else {
-                return (_room.isPublic) ? 2 : 1;
-            }
+            return [self getRoomActions].count;
             break;
             
         case kRoomInfoSectionParticipants:
@@ -615,7 +631,9 @@ typedef enum ModificationError {
             break;
         case kRoomInfoSectionActions:
         {
-            switch (indexPath.row) {
+            NSArray *actions = [self getRoomActions];
+            ActionsSection action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
                 case kActionSectionFavorite:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:favoriteRoomCellIdentifier];
@@ -631,31 +649,18 @@ typedef enum ModificationError {
                     break;
                 case kActionSectionPublicToggle:
                 {
-                    if (_room.canModerate) {
-                        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
-                        if (!cell) {
-                            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
-                        }
-                        
-                        cell.textLabel.text = @"Share link";
-                        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                        cell.accessoryView = _publicSwtich;
-                        _publicSwtich.on = (_room.type == kNCRoomTypePublicCall) ? YES : NO;
-                        [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
-                        
-                        return cell;
-                        
-                    } else {
-                        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
-                        if (!cell) {
-                            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
-                        }
-                        
-                        cell.textLabel.text = @"Send conversation link";
-                        [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
-                        
-                        return cell;
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
                     }
+                    
+                    cell.textLabel.text = @"Share link";
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _publicSwtich;
+                    _publicSwtich.on = (_room.type == kNCRoomTypePublicCall) ? YES : NO;
+                    [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
+                    
+                    return cell;
                 }
                     break;
                     
@@ -742,32 +747,24 @@ typedef enum ModificationError {
             break;
         case kRoomInfoSectionActions:
         {
-            if (_room.canModerate) {
-                switch (indexPath.row) {
-                    case kActionSectionFavorite:
-                        if (_room.isFavorite) {
-                            [self removeRoomFromFavorites];
-                        } else {
-                            [self addRoomToFavorites];
-                        }
-                        break;
-                        
-                    case kActionSectionPublicToggle:
-                        if (!_room.canModerate) {
-                            [self shareRoomLink];
-                        }
-                        break;
-                        
-                    case kActionSectionPassword:
-                        [self showPasswordOptions];
-                        break;
-                        
-                    case kActionSectionSendLink:
-                        [self shareRoomLink];
-                        break;
-                }
-            } else {
-                [self shareRoomLink];
+            NSArray *actions = [self getRoomActions];
+            ActionsSection action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kActionSectionFavorite:
+                    if (_room.isFavorite) {
+                        [self removeRoomFromFavorites];
+                    } else {
+                        [self addRoomToFavorites];
+                    }
+                    break;
+                case kActionSectionPublicToggle:
+                    break;
+                case kActionSectionPassword:
+                    [self showPasswordOptions];
+                    break;
+                case kActionSectionSendLink:
+                    [self shareRoomLink];
+                    break;
             }
         }
             break;
