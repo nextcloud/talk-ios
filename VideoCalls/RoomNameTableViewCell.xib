@@ -30,10 +30,15 @@
                         <fontDescription key="fontDescription" type="system" pointSize="19"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="yes" spellCheckingType="yes"/>
                     </textField>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="COX-Df-tcP">
+                        <rect key="frame" x="45" y="7" width="20" height="20"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    </imageView>
                 </subviews>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="aW0-zy-SZf"/>
             <connections>
+                <outlet property="favoriteImage" destination="COX-Df-tcP" id="Ss9-nl-s82"/>
                 <outlet property="roomImage" destination="IiJ-Ao-EEL" id="r5l-dX-A2L"/>
                 <outlet property="roomNameTextField" destination="WkN-Ku-QtW" id="A3A-Wo-ORi"/>
             </connections>

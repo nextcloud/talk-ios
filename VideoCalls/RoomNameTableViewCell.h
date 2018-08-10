@@ -15,5 +15,6 @@ extern NSString *const kRoomNameTableCellNibName;
 
 @property (weak, nonatomic) IBOutlet UIImageView *roomImage;
 @property (weak, nonatomic) IBOutlet UITextField *roomNameTextField;
+@property (weak, nonatomic) IBOutlet UIImageView *favoriteImage;
 
 @end

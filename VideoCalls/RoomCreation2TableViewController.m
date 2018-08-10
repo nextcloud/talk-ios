@@ -312,9 +312,6 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
             cell.roomNameTextField.text = _roomName;
             _roomNameTextField = cell.roomNameTextField;
             cell.userInteractionEnabled = YES;
-            
-            cell.roomImage.layer.cornerRadius = 24.0;
-            cell.roomImage.layer.masksToBounds = YES;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
             return cell;

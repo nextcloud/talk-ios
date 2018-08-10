@@ -21,6 +21,7 @@
 - (void)presentConversationsViewController;
 - (void)presentContactsViewController;
 - (void)presentSettingsViewController;
+- (void)presentConversationsList;
 - (void)presentLoginViewController;
 - (void)presentAuthenticationViewController;
 - (void)presentOfflineWarningAlert;

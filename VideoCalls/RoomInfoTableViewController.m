@@ -17,28 +17,39 @@
 #import "NCRoomsManager.h"
 #import "NCRoomParticipant.h"
 #import "NCSettingsController.h"
+#import "NCUserInterfaceController.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
-typedef enum CreationSection {
-    kCreationSectionName = 0,
-    kCreationSectionPublic,
-    kCreationSectionParticipants,
-    kCreationSectionNumber
-} CreationSection;
+typedef enum RoomInfoSection {
+    kRoomInfoSectionName = 0,
+    kRoomInfoSectionActions,
+    kRoomInfoSectionParticipants,
+    kRoomInfoSectionDestructive,
+    kRoomInfoSections
+} RoomInfoSection;
 
-typedef enum PublicSection {
-    kPublicSectionToggle = 0,
-    kPublicSectionPassword,
-    kPublicSectionSendLink
-} PublicSection;
+typedef enum ActionSections {
+    kActionSectionFavorite = 0,
+    kActionSectionPublicToggle,
+    kActionSectionPassword,
+    kActionSectionSendLink
+} ActionsSection;
+
+typedef enum DestructiveAction {
+    kDestructiveActionLeave = 0,
+    kDestructiveActionDelete
+} DestructiveAction;
 
 typedef enum ModificationError {
     kModificationErrorRename = 0,
+    kModificationErrorFavorite,
     kModificationErrorShare,
     kModificationErrorPassword,
     kModificationErrorModeration,
-    kModificationErrorRemove
+    kModificationErrorRemove,
+    kModificationErrorLeave,
+    kModificationErrorDelete
 } ModificationError;
 
 @interface RoomInfoTableViewController () <UITextFieldDelegate>
@@ -119,6 +130,38 @@ typedef enum ModificationError {
     }];
 }
 
+- (NSArray *)getRoomActions
+{
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+    // Favorite action
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites]) {
+        [actions addObject:[NSNumber numberWithInt:kActionSectionFavorite]];
+    }
+    // Public room actions
+    if (_room.canModerate) {
+        [actions addObject:[NSNumber numberWithInt:kActionSectionPublicToggle]];
+        if (_room.isPublic) {
+            [actions addObject:[NSNumber numberWithInt:kActionSectionPassword]];
+            [actions addObject:[NSNumber numberWithInt:kActionSectionSendLink]];
+        }
+    } else if (_room.isPublic) {
+        [actions addObject:[NSNumber numberWithInt:kActionSectionSendLink]];
+    }
+    return [NSArray arrayWithArray:actions];
+}
+
+- (NSArray *)getRoomDestructiveActions
+{
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+    // Leave room
+    [actions addObject:[NSNumber numberWithInt:kDestructiveActionLeave]];
+    // Delete room
+    if (_room.isDeletable) {
+        [actions addObject:[NSNumber numberWithInt:kDestructiveActionDelete]];
+    }
+    return [NSArray arrayWithArray:actions];
+}
+
 - (BOOL)isAppUser:(NCRoomParticipant *)participant
 {
     if ([participant.userId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
@@ -150,6 +193,10 @@ typedef enum ModificationError {
             errorDescription = @"Could not rename the conversation";
             break;
             
+        case kModificationErrorFavorite:
+            errorDescription = @"Could not change favorite setting";
+            break;
+            
         case kModificationErrorShare:
             errorDescription = @"Could not change sharing permissions of the conversation";
             break;
@@ -165,6 +212,14 @@ typedef enum ModificationError {
         case kModificationErrorRemove:
             errorDescription = @"Could not remove participant";
             break;
+        
+        case kModificationErrorLeave:
+            errorDescription = @"Could not leave conversation";
+            break;
+            
+        case kModificationErrorDelete:
+            errorDescription = @"Could not delete conversation";
+            break;
             
         default:
             break;
@@ -177,6 +232,43 @@ typedef enum ModificationError {
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
     [renameDialog addAction:okAction];
     [self presentViewController:renameDialog animated:YES completion:nil];
+}
+
+- (void)showConfirmationDialogForDestructiveAction:(DestructiveAction)action
+{
+    NSString *title = @"";
+    NSString *message = @"";
+    UIAlertAction *confirmAction = nil;
+    
+    switch (action) {
+        case kDestructiveActionLeave:
+        {
+            title = @"Leave conversation";
+            message = @"Do you really want to leave this conversation?";
+            confirmAction = [UIAlertAction actionWithTitle:@"Leave" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+                [self leaveRoom];
+            }];
+        }
+            break;
+        case kDestructiveActionDelete:
+        {
+            title = @"Delete conversation";
+            message = @"Do you really want to delete this conversation?";
+            confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+                [self deleteRoom];
+            }];
+        }
+            break;
+    }
+    
+    UIAlertController *confirmDialog =
+    [UIAlertController alertControllerWithTitle:title
+                                        message:message
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    [confirmDialog addAction:confirmAction];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [confirmDialog addAction:cancelAction];
+    [self presentViewController:confirmDialog animated:YES completion:nil];
 }
 
 #pragma mark - Room Manager notifications
@@ -206,6 +298,32 @@ typedef enum ModificationError {
         } else {
             NSLog(@"Error renaming the room: %@", error.description);
             [self showRoomModificationError:kModificationErrorRename];
+        }
+    }];
+}
+
+- (void)addRoomToFavorites
+{
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] addRoomToFavorites:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+        } else {
+            NSLog(@"Error making private the room: %@", error.description);
+            [self showRoomModificationError:kModificationErrorShare];
+        }
+    }];
+}
+
+- (void)removeRoomFromFavorites
+{
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] removeRoomFromFavorites:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+        } else {
+            NSLog(@"Error making private the room: %@", error.description);
+            [self showRoomModificationError:kModificationErrorShare];
         }
     }];
 }
@@ -306,7 +424,7 @@ typedef enum ModificationError {
     
     // Presentation on iPads
     controller.popoverPresentationController.sourceView = self.tableView;
-    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:kPublicSectionSendLink inSection:kCreationSectionPublic]];
+    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:kActionSectionSendLink inSection:kRoomInfoSectionActions]];
     
     [self presentViewController:controller animated:YES completion:nil];
     
@@ -318,6 +436,30 @@ typedef enum ModificationError {
             NSLog(@"An Error occured sharing room: %@, %@", error.localizedDescription, error.localizedFailureReason);
         }
     };
+}
+
+- (void)leaveRoom
+{
+    [[NCAPIController sharedInstance] removeSelfFromRoom:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCUserInterfaceController sharedInstance] presentConversationsList];
+        } else {
+            NSLog(@"Error leaving the room: %@", error.description);
+            [self showRoomModificationError:kModificationErrorLeave];
+        }
+    }];
+}
+
+- (void)deleteRoom
+{
+    [[NCAPIController sharedInstance] deleteRoom:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCUserInterfaceController sharedInstance] presentConversationsList];
+        } else {
+            NSLog(@"Error deleting the room: %@", error.description);
+            [self showRoomModificationError:kModificationErrorDelete];
+        }
+    }];
 }
 
 #pragma mark - Participant options
@@ -457,18 +599,22 @@ typedef enum ModificationError {
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return kCreationSectionNumber;
+    return kRoomInfoSections;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     switch (section) {
-        case kCreationSectionPublic:
-            return (_room.isPublic && _room.canModerate) ? 3 : 1;
+        case kRoomInfoSectionActions:
+            return [self getRoomActions].count;
             break;
             
-        case kCreationSectionParticipants:
+        case kRoomInfoSectionParticipants:
             return _roomParticipants.count;
+            break;
+            
+        case kRoomInfoSectionDestructive:
+            return [self getRoomDestructiveActions].count;
             break;
     }
     
@@ -477,8 +623,11 @@ typedef enum ModificationError {
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section != kCreationSectionPublic) {
-        return 80.0f;
+    switch (indexPath.section) {
+        case kRoomInfoSectionName:
+        case kRoomInfoSectionParticipants:
+            return 80;
+            break;
     }
     return 48;
 }
@@ -486,13 +635,14 @@ typedef enum ModificationError {
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     switch (section) {
-        case kCreationSectionParticipants:
+        case kRoomInfoSectionParticipants:
         {
             NSString *title = [NSString stringWithFormat:@"%ld participants", _roomParticipants.count];
             if (_roomParticipants.count == 1) {
                 title = @"1 participant";
             }
             _headerView.label.text = [title uppercaseString];
+            _headerView.button.hidden = (_room.canModerate) ? NO : YES;
             return _headerView;
         }
             break;
@@ -503,20 +653,29 @@ typedef enum ModificationError {
 
 - (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    if (section == kCreationSectionParticipants) {
-        return 40.0f;
+    switch (section) {
+        case kRoomInfoSectionActions:
+            return 10;
+            break;
+        case kRoomInfoSectionParticipants:
+            return 40;
+            break;
     }
+    
     return 25;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
+    static NSString *favoriteRoomCellIdentifier = @"FavoriteRoomCellIdentifier";
     static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
     static NSString *passwordCellIdentifier = @"PasswordCellIdentifier";
     static NSString *sendLinkCellIdentifier = @"SendLinkCellIdentifier";
+    static NSString *leaveRoomCellIdentifier = @"LeaveRoomCellIdentifier";
+    static NSString *deleteRoomCellIdentifier = @"DeleteRoomCellIdentifier";
     
     switch (indexPath.section) {
-        case kCreationSectionName:
+        case kRoomInfoSectionName:
         {
             RoomNameTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomNameCellIdentifier];
             if (!cell) {
@@ -558,76 +717,81 @@ typedef enum ModificationError {
                 cell.userInteractionEnabled = NO;
             }
             
-            cell.roomImage.layer.cornerRadius = 24.0;
-            cell.roomImage.layer.masksToBounds = YES;
+            if (_room.isFavorite) {
+                [cell.favoriteImage setImage:[UIImage imageNamed:@"favorite-room"]];
+            }
+            
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
             return cell;
         }
             break;
-        case kCreationSectionPublic:
+        case kRoomInfoSectionActions:
         {
-            if (_room.canModerate) {
-                switch (indexPath.row) {
-                    case kPublicSectionToggle:
-                    {
-                        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
-                        if (!cell) {
-                            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
-                        }
-                        
-                        cell.textLabel.text = @"Share link";
-                        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                        cell.accessoryView = _publicSwtich;
-                        _publicSwtich.on = (_room.type == kNCRoomTypePublicCall) ? YES : NO;
-                        [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
-                        
-                        return cell;
+            NSArray *actions = [self getRoomActions];
+            ActionsSection action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kActionSectionFavorite:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:favoriteRoomCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:favoriteRoomCellIdentifier];
                     }
-                        break;
-                        
-                    case kPublicSectionPassword:
-                    {
-                        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:passwordCellIdentifier];
-                        if (!cell) {
-                            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:passwordCellIdentifier];
-                        }
-                        
-                        cell.textLabel.text = (_room.hasPassword) ? @"Change password" : @"Set password";
-                        [cell.imageView setImage:(_room.hasPassword) ? [UIImage imageNamed:@"privacy"] : [UIImage imageNamed:@"no-password-settings"]];
-                        
-                        return cell;
-                    }
-                        break;
-                        
-                    case kPublicSectionSendLink:
-                    {
-                        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
-                        if (!cell) {
-                            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
-                        }
-                        
-                        cell.textLabel.text = @"Send conversation link";
-                        [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
-                        
-                        return cell;
-                    }
-                        break;
+                    
+                    cell.textLabel.text = (_room.isFavorite) ? @"Remove from favorites" : @"Add to favorites";
+                    [cell.imageView setImage:(_room.isFavorite) ? [UIImage imageNamed:@"fav-off-setting"] : [UIImage imageNamed:@"fav-setting"]];
+                    
+                    return cell;
                 }
-            } else {
-                UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
-                if (!cell) {
-                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
+                    break;
+                case kActionSectionPublicToggle:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = @"Share link";
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _publicSwtich;
+                    _publicSwtich.on = (_room.type == kNCRoomTypePublicCall) ? YES : NO;
+                    [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
+                    
+                    return cell;
                 }
-                
-                cell.textLabel.text = @"Send conversation link";
-                [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
-                
-                return cell;
+                    break;
+                    
+                case kActionSectionPassword:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:passwordCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:passwordCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = (_room.hasPassword) ? @"Change password" : @"Set password";
+                    [cell.imageView setImage:(_room.hasPassword) ? [UIImage imageNamed:@"privacy"] : [UIImage imageNamed:@"no-password-settings"]];
+                    
+                    return cell;
+                }
+                    break;
+                    
+                case kActionSectionSendLink:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = @"Send conversation link";
+                    [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
+                    
+                    return cell;
+                }
+                    break;
             }
         }
             break;
-        case kCreationSectionParticipants:
+        case kRoomInfoSectionParticipants:
         {
             NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
             ContactsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kContactCellIdentifier forIndexPath:indexPath];
@@ -669,6 +833,42 @@ typedef enum ModificationError {
             return cell;
         }
             break;
+        case kRoomInfoSectionDestructive:
+        {
+            NSArray *actions = [self getRoomDestructiveActions];
+            DestructiveAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kDestructiveActionLeave:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:leaveRoomCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:leaveRoomCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = @"Leave conversation";
+                    cell.textLabel.textColor = [UIColor colorWithRed:1.00 green:0.23 blue:0.19 alpha:1.0]; //#FF3B30
+                    [cell.imageView setImage:[UIImage imageNamed:@"exit-action"]];
+                    
+                    return cell;
+                }
+                    break;
+                case kDestructiveActionDelete:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:deleteRoomCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:deleteRoomCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = @"Delete conversation";
+                    cell.textLabel.textColor = [UIColor colorWithRed:1.00 green:0.23 blue:0.19 alpha:1.0]; //#FF3B30
+                    [cell.imageView setImage:[UIImage imageNamed:@"delete-action"]];
+                    
+                    return cell;
+                }
+                    break;
+            }
+        }
+            break;
     }
     
     return cell;
@@ -676,34 +876,44 @@ typedef enum ModificationError {
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     switch (indexPath.section) {
-        case kCreationSectionName:
+        case kRoomInfoSectionName:
             break;
-        case kCreationSectionPublic:
+        case kRoomInfoSectionActions:
         {
-            if (_room.canModerate) {
-                switch (indexPath.row) {
-                    case kPublicSectionToggle:
-                        break;
-                        
-                    case kPublicSectionPassword:
-                        [self showPasswordOptions];
-                        break;
-                        
-                    case kPublicSectionSendLink:
-                        [self shareRoomLink];
-                        break;
-                }
-            } else {
-                [self shareRoomLink];
+            NSArray *actions = [self getRoomActions];
+            ActionsSection action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kActionSectionFavorite:
+                    if (_room.isFavorite) {
+                        [self removeRoomFromFavorites];
+                    } else {
+                        [self addRoomToFavorites];
+                    }
+                    break;
+                case kActionSectionPublicToggle:
+                    break;
+                case kActionSectionPassword:
+                    [self showPasswordOptions];
+                    break;
+                case kActionSectionSendLink:
+                    [self shareRoomLink];
+                    break;
             }
         }
             break;
-        case kCreationSectionParticipants:
+        case kRoomInfoSectionParticipants:
         {
             NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
             if (participant.participantType != kNCParticipantTypeOwner && ![self isAppUser:participant] && _room.canModerate) {
                 [self showModerationOptionsForParticipantAtIndexPath:indexPath];
             }
+        }
+            break;
+        case kRoomInfoSectionDestructive:
+        {
+            NSArray *actions = [self getRoomDestructiveActions];
+            DestructiveAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            [self showConfirmationDialogForDestructiveAction:action];
         }
             break;
     }

@@ -438,27 +438,45 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)leaveRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error) {
-        if (error) {
-            //TODO: Error handling
-        }
+    UIAlertController *confirmDialog =
+    [UIAlertController alertControllerWithTitle:@"Leave conversation"
+                                        message:@"Do you really want to leave this conversation?"
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Leave" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error) {
+            if (error) {
+                //TODO: Error handling
+            }
+        }];
+        [_rooms removeObjectAtIndex:indexPath.row];
+        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }];
-    
-    [_rooms removeObjectAtIndex:indexPath.row];
-    [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    [confirmDialog addAction:confirmAction];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [confirmDialog addAction:cancelAction];
+    [self presentViewController:confirmDialog animated:YES completion:nil];
 }
 
 - (void)deleteRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] deleteRoom:room.token withCompletionBlock:^(NSError *error) {
-        if (error) {
-            //TODO: Error handling
-        }
+    UIAlertController *confirmDialog =
+    [UIAlertController alertControllerWithTitle:@"Delete conversation"
+                                        message:@"Do you really want to delete this conversation?"
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        [[NCAPIController sharedInstance] deleteRoom:room.token withCompletionBlock:^(NSError *error) {
+            if (error) {
+                //TODO: Error handling
+            }
+        }];
+        [_rooms removeObjectAtIndex:indexPath.row];
+        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }];
-    
-    [_rooms removeObjectAtIndex:indexPath.row];
-    [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    [confirmDialog addAction:confirmAction];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [confirmDialog addAction:cancelAction];
+    [self presentViewController:confirmDialog animated:YES completion:nil];
 }
 
 - (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
@@ -639,7 +657,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         
         // Delete room
         if (room.isDeletable) {
-            UIAlertAction *deleteCallAction = [UIAlertAction actionWithTitle:@"Delete call"
+            UIAlertAction *deleteCallAction = [UIAlertAction actionWithTitle:@"Delete conversation"
                                                                        style:UIAlertActionStyleDestructive
                                                                      handler:^void (UIAlertAction *action) {
                                                                          [self deleteRoomAtIndexPath:indexPath];
