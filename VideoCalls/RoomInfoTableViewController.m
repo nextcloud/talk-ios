@@ -234,6 +234,43 @@ typedef enum ModificationError {
     [self presentViewController:renameDialog animated:YES completion:nil];
 }
 
+- (void)showConfirmationDialogForDestructiveAction:(DestructiveAction)action
+{
+    NSString *title = @"";
+    NSString *message = @"";
+    UIAlertAction *confirmAction = nil;
+    
+    switch (action) {
+        case kDestructiveActionLeave:
+        {
+            title = @"Leave conversation";
+            message = @"Do you really want to leave this conversation?";
+            confirmAction = [UIAlertAction actionWithTitle:@"Leave" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+                [self leaveRoom];
+            }];
+        }
+            break;
+        case kDestructiveActionDelete:
+        {
+            title = @"Delete conversation";
+            message = @"Do you really want to delete this conversation?";
+            confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+                [self deleteRoom];
+            }];
+        }
+            break;
+    }
+    
+    UIAlertController *confirmDialog =
+    [UIAlertController alertControllerWithTitle:title
+                                        message:message
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    [confirmDialog addAction:confirmAction];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [confirmDialog addAction:cancelAction];
+    [self presentViewController:confirmDialog animated:YES completion:nil];
+}
+
 #pragma mark - Room Manager notifications
 
 - (void)didUpdateRoom:(NSNotification *)notification
@@ -876,14 +913,7 @@ typedef enum ModificationError {
         {
             NSArray *actions = [self getRoomDestructiveActions];
             DestructiveAction action = [[actions objectAtIndex:indexPath.row] intValue];
-            switch (action) {
-                case kDestructiveActionLeave:
-                    [self leaveRoom];
-                    break;
-                case kDestructiveActionDelete:
-                    [self deleteRoom];
-                    break;
-            }
+            [self showConfirmationDialogForDestructiveAction:action];
         }
             break;
     }
