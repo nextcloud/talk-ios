@@ -199,6 +199,7 @@
             break;
     }
     
+    _titleView.userInteractionEnabled = NO;
     self.navigationItem.titleView = _titleView;
 }
 
@@ -348,7 +349,7 @@
     }
     
     _hasReceiveInitialHistory = YES;
-    
+    _titleView.userInteractionEnabled = YES;
     [_chatBackgroundView.loadingView stopAnimating];
     [_chatBackgroundView.loadingView setHidden:YES];
     
