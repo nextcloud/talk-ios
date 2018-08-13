@@ -9,6 +9,7 @@
 #import "NCRoomController.h"
 
 #import "NCAPIController.h"
+#import "NCSettingsController.h"
 
 NSString * const NCRoomControllerDidReceiveInitialChatHistoryNotification   = @"NCRoomControllerDidReceiveInitialChatHistoryNotification";
 NSString * const NCRoomControllerDidReceiveChatHistoryNotification          = @"NCRoomControllerDidReceiveChatHistoryNotification";
@@ -34,7 +35,9 @@ NSString * const NCRoomControllerDidReceiveChatMessagesNotification         = @"
         _userSessionId = sessionId;
         _roomToken = token;
         _lastMessageId = -1;
-        [self startPingRoom];
+        if (![[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNoPing]) {
+            [self startPingRoom];
+        }
     }
     
     return self;
@@ -44,9 +47,7 @@ NSString * const NCRoomControllerDidReceiveChatMessagesNotification         = @"
 
 - (void)pingRoom
 {
-    _pingRoomTask = [[NCAPIController sharedInstance] pingCall:_roomToken withCompletionBlock:^(NSError *error) {
-        //TODO: Error handling
-    }];
+    _pingRoomTask = [[NCAPIController sharedInstance] pingCall:_roomToken withCompletionBlock:nil];
 }
 
 - (void)startPingRoom
