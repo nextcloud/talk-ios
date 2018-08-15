@@ -28,6 +28,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 @property (nonatomic, strong) NSMutableArray *rooms;
 @property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
+@property (nonatomic, strong) NSString *joiningRoom;
+@property (nonatomic, strong) NSURLSessionTask *joinRoomTask;
 
 
 @end
@@ -72,10 +74,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)joinRoom:(NCRoom *)room forCall:(BOOL)call
 {
-    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (!roomController) {
-        [[NCAPIController sharedInstance] joinRoom:room.token withCompletionBlock:^(NSString *sessionId, NSError *error) {
+        _joiningRoom = [room.token copy];
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:room.token withCompletionBlock:^(NSString *sessionId, NSError *error) {
             if (!error) {
                 NCRoomController *controller = [[NCRoomController alloc] initForUser:sessionId inRoom:room.token];
                 controller.inChat = !call;
@@ -86,6 +89,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 [userInfo setObject:error forKey:@"error"];
                 NSLog(@"Could not join room. Error: %@", error.description);
             }
+            _joiningRoom = nil;
             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
                                                                 object:self
                                                               userInfo:userInfo];
@@ -105,6 +109,12 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)leaveRoom:(NCRoom *)room
 {
+    // Check if leaving the room we are joining
+    if ([_joiningRoom isEqualToString:room.token]) {
+        _joiningRoom = nil;
+        [_joinRoomTask cancel];
+    }
+    
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (roomController && !roomController.inCall && !roomController.inChat) {
         [roomController stopRoomController];
@@ -261,8 +271,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (roomController) {
         roomController.inChat = NO;
-        [self leaveRoom:room];
     }
+    [self leaveRoom:room];
 }
 
 #pragma mark - Call
@@ -315,8 +325,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (roomController) {
         roomController.inCall = NO;
-        [self leaveRoom:room];
     }
+    [self leaveRoom:room];
 }
 
 #pragma mark - CallViewControllerDelegate

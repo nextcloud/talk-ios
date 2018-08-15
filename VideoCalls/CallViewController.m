@@ -445,7 +445,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)hangup
 {
-    [self dismissCallView];
+    [self.delegate callViewControllerWantsToBeDismissed:self];
     
     [_localVideoView.captureSession stopRunning];
     _localVideoView.captureSession = nil;
@@ -459,12 +459,11 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_renderersDict removeObjectForKey:peerConnection.peerId];
     }
     
-    [_callController leaveCall];
-}
-
-- (void)dismissCallView
-{
-    [self.delegate callViewControllerWantsToBeDismissed:self];
+    if (_callController) {
+        [_callController leaveCall];
+    } else {
+        [self finishCall];
+    }
 }
 
 - (void)finishCall
