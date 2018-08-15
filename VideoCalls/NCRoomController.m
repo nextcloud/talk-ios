@@ -68,6 +68,9 @@ NSString * const NCRoomControllerDidReceiveChatMessagesNotification         = @"
 - (void)getInitialChatHistory
 {
     _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_lastMessageId history:YES withCompletionBlock:^(NSMutableArray *messages, NSError *error) {
+        if (_stopChatMessagesPoll) {
+            return;
+        }
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         NSInteger messagesCount = messages.count;
         if (messagesCount > 0) {
