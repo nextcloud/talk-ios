@@ -52,7 +52,7 @@ typedef enum ModificationError {
     kModificationErrorDelete
 } ModificationError;
 
-@interface RoomInfoTableViewController () <UITextFieldDelegate>
+@interface RoomInfoTableViewController () <UITextFieldDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) NSString *roomName;
@@ -100,6 +100,10 @@ typedef enum ModificationError {
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:kRoomNameTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomNameCellIdentifier];
     
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
+    tap.delegate = self;
+    [self.view addGestureRecognizer:tap];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
 }
 
@@ -112,6 +116,11 @@ typedef enum ModificationError {
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)dismissKeyboard
+{
+    [_roomNameTextField resignFirstResponder];
 }
 
 - (void)dealloc
@@ -290,8 +299,11 @@ typedef enum ModificationError {
 
 - (void)renameRoom
 {
-    [self setModifyingRoomUI];
     NSString *newRoomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    if ([newRoomName isEqualToString:_room.name]) {
+        return;
+    }
+    [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] renameRoom:_room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
@@ -579,6 +591,20 @@ typedef enum ModificationError {
     } else {
         [self makeRoomPrivate];
     }
+}
+
+#pragma mark - UIGestureRecognizer delegate
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    // Allow click on tableview cells
+    if ([touch.view isDescendantOfView:self.tableView]) {
+        if (![touch.view isDescendantOfView:_roomNameTextField]) {
+            [self dismissKeyboard];
+        }
+        return NO;
+    }
+    return YES;
 }
 
 #pragma mark - UITextField delegate
