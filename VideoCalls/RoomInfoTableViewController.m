@@ -595,6 +595,20 @@ typedef enum ModificationError {
     }
 }
 
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    if (textField == _roomNameTextField) {
+        // Prevent crashing undo bug
+        // https://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield
+        if (range.length + range.location > textField.text.length) {
+            return NO;
+        }
+        // Set maximum character length
+        NSUInteger newLength = [textField.text length] + [string length] - range.length;
+        return newLength <= 200;
+    }
+    return YES;
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
