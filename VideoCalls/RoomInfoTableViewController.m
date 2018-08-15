@@ -125,7 +125,7 @@ typedef enum ModificationError {
 {
     [[NCAPIController sharedInstance] getParticipantsFromRoom:_room.token withCompletionBlock:^(NSMutableArray *participants, NSError *error) {
         _roomParticipants = participants;
-        [self.tableView reloadData];
+        [self.tableView reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(kRoomInfoSectionParticipants, 1)] withRowAnimation:UITableViewRowAnimationNone];
         [self removeModifyingRoomUI];
     }];
 }
