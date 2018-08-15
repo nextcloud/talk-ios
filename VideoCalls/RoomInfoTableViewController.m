@@ -696,9 +696,12 @@ typedef enum ModificationError {
                 cell = [[RoomNameTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomNameCellIdentifier];
             }
             
+            cell.roomNameTextField.text = _room.name;
+            
             switch (_room.type) {
                 case kNCRoomTypeOneToOneCall:
                 {
+                    cell.roomNameTextField.text = _room.displayName;
                     // Create avatar for every OneToOne call
                     [cell.roomImage setImageWithString:_room.displayName color:nil circular:true];
                     // Request user avatar to the server and set it if exist
@@ -719,9 +722,7 @@ typedef enum ModificationError {
                     break;
             }
             
-            cell.roomNameTextField.text = _room.displayName;
-            
-            if (_room.canModerate && _room.type != kNCRoomTypeOneToOneCall) {
+            if (_room.isNameEditable) {
                 _roomNameTextField = cell.roomNameTextField;
                 _roomNameTextField.delegate = self;
                 [_roomNameTextField setReturnKeyType:UIReturnKeyDone];

@@ -264,13 +264,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
     UIAlertController *renameDialog =
-    [UIAlertController alertControllerWithTitle:@"Enter new name:"
+    [UIAlertController alertControllerWithTitle:@"Enter conversation name:"
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     [renameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-        textField.placeholder = @"Name";
-        textField.text = room.displayName;
+        textField.placeholder = @"Conversation name";
+        textField.text = room.name;
         textField.autocapitalizationType = UITextAutocapitalizationTypeSentences;
         textField.autocorrectionType = UITextAutocorrectionTypeDefault;
     }];
