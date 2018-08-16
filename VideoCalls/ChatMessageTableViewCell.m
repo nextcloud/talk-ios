@@ -73,7 +73,7 @@
     
     CGFloat pointSize = [ChatMessageTableViewCell defaultFontSize];
     
-    self.titleLabel.font = [UIFont systemFontOfSize:pointSize weight:UIFontWeightSemibold];
+    self.titleLabel.font = [UIFont systemFontOfSize:pointSize];
     self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
     
     self.titleLabel.text = @"";
@@ -94,8 +94,8 @@
         _titleLabel.backgroundColor = [UIColor clearColor];
         _titleLabel.userInteractionEnabled = NO;
         _titleLabel.numberOfLines = 0;
-        _titleLabel.textColor = [UIColor colorWithWhite:0 alpha:0.5];
-        _titleLabel.font = [UIFont systemFontOfSize:[ChatMessageTableViewCell defaultFontSize] weight:UIFontWeightSemibold];
+        _titleLabel.textColor = [UIColor lightGrayColor];
+        _titleLabel.font = [UIFont systemFontOfSize:[ChatMessageTableViewCell defaultFontSize]];
     }
     return _titleLabel;
 }
