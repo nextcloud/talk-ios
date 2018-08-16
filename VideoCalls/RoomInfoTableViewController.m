@@ -29,12 +29,12 @@ typedef enum RoomInfoSection {
     kRoomInfoSections
 } RoomInfoSection;
 
-typedef enum ActionSections {
-    kActionSectionFavorite = 0,
-    kActionSectionPublicToggle,
-    kActionSectionPassword,
-    kActionSectionSendLink
-} ActionsSection;
+typedef enum RoomAction {
+    kRoomActionFavorite = 0,
+    kRoomActionPublicToggle,
+    kRoomActionPassword,
+    kRoomActionSendLink
+} RoomAction;
 
 typedef enum DestructiveAction {
     kDestructiveActionLeave = 0,
@@ -144,17 +144,17 @@ typedef enum ModificationError {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     // Favorite action
     if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites]) {
-        [actions addObject:[NSNumber numberWithInt:kActionSectionFavorite]];
+        [actions addObject:[NSNumber numberWithInt:kRoomActionFavorite]];
     }
     // Public room actions
     if (_room.canModerate) {
-        [actions addObject:[NSNumber numberWithInt:kActionSectionPublicToggle]];
+        [actions addObject:[NSNumber numberWithInt:kRoomActionPublicToggle]];
         if (_room.isPublic) {
-            [actions addObject:[NSNumber numberWithInt:kActionSectionPassword]];
-            [actions addObject:[NSNumber numberWithInt:kActionSectionSendLink]];
+            [actions addObject:[NSNumber numberWithInt:kRoomActionPassword]];
+            [actions addObject:[NSNumber numberWithInt:kRoomActionSendLink]];
         }
     } else if (_room.isPublic) {
-        [actions addObject:[NSNumber numberWithInt:kActionSectionSendLink]];
+        [actions addObject:[NSNumber numberWithInt:kRoomActionSendLink]];
     }
     return [NSArray arrayWithArray:actions];
 }
@@ -436,7 +436,7 @@ typedef enum ModificationError {
     
     // Presentation on iPads
     controller.popoverPresentationController.sourceView = self.tableView;
-    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:kActionSectionSendLink inSection:kRoomInfoSectionActions]];
+    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:kRoomActionSendLink inSection:kRoomInfoSectionActions]];
     
     [self presentViewController:controller animated:YES completion:nil];
     
@@ -770,9 +770,9 @@ typedef enum ModificationError {
         case kRoomInfoSectionActions:
         {
             NSArray *actions = [self getRoomActions];
-            ActionsSection action = [[actions objectAtIndex:indexPath.row] intValue];
+            RoomAction action = [[actions objectAtIndex:indexPath.row] intValue];
             switch (action) {
-                case kActionSectionFavorite:
+                case kRoomActionFavorite:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:favoriteRoomCellIdentifier];
                     if (!cell) {
@@ -785,7 +785,7 @@ typedef enum ModificationError {
                     return cell;
                 }
                     break;
-                case kActionSectionPublicToggle:
+                case kRoomActionPublicToggle:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
                     if (!cell) {
@@ -802,7 +802,7 @@ typedef enum ModificationError {
                 }
                     break;
                     
-                case kActionSectionPassword:
+                case kRoomActionPassword:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:passwordCellIdentifier];
                     if (!cell) {
@@ -816,7 +816,7 @@ typedef enum ModificationError {
                 }
                     break;
                     
-                case kActionSectionSendLink:
+                case kRoomActionSendLink:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
                     if (!cell) {
@@ -922,21 +922,21 @@ typedef enum ModificationError {
         case kRoomInfoSectionActions:
         {
             NSArray *actions = [self getRoomActions];
-            ActionsSection action = [[actions objectAtIndex:indexPath.row] intValue];
+            RoomAction action = [[actions objectAtIndex:indexPath.row] intValue];
             switch (action) {
-                case kActionSectionFavorite:
+                case kRoomActionFavorite:
                     if (_room.isFavorite) {
                         [self removeRoomFromFavorites];
                     } else {
                         [self addRoomToFavorites];
                     }
                     break;
-                case kActionSectionPublicToggle:
+                case kRoomActionPublicToggle:
                     break;
-                case kActionSectionPassword:
+                case kRoomActionPassword:
                     [self showPasswordOptions];
                     break;
-                case kActionSectionSendLink:
+                case kRoomActionSendLink:
                     [self shareRoomLink];
                     break;
             }
