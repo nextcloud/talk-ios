@@ -115,8 +115,9 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
 
 - (NSMutableAttributedString *)lastRoomMessageFormat
 {
-    NSString *firstName = [NSString stringWithFormat:@"%@: ", [[_actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0]];
-    NSMutableAttributedString *lastMessage = [[NSMutableAttributedString alloc] initWithString:firstName];
+    NSString *displayName = ([_actorDisplayName isEqualToString:@""]) ? @"Guest" : _actorDisplayName;
+    NSString *messageActor = [NSString stringWithFormat:@"%@: ", [[displayName componentsSeparatedByString:@" "] objectAtIndex:0]];
+    NSMutableAttributedString *lastMessage = [[NSMutableAttributedString alloc] initWithString:messageActor];
     [lastMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0 weight:UIFontWeightSemibold] range:NSMakeRange(0,lastMessage.length)];
     [lastMessage appendAttributedString:[self parsedMessage]];
     
