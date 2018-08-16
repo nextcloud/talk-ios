@@ -52,7 +52,7 @@ typedef enum ModificationError {
     kModificationErrorDelete
 } ModificationError;
 
-@interface RoomInfoTableViewController () <UITextFieldDelegate>
+@interface RoomInfoTableViewController () <UITextFieldDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) NSString *roomName;
@@ -100,6 +100,10 @@ typedef enum ModificationError {
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:kRoomNameTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomNameCellIdentifier];
     
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
+    tap.delegate = self;
+    [self.view addGestureRecognizer:tap];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
 }
 
@@ -114,6 +118,11 @@ typedef enum ModificationError {
     // Dispose of any resources that can be recreated.
 }
 
+- (void)dismissKeyboard
+{
+    [_roomNameTextField resignFirstResponder];
+}
+
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -125,7 +134,7 @@ typedef enum ModificationError {
 {
     [[NCAPIController sharedInstance] getParticipantsFromRoom:_room.token withCompletionBlock:^(NSMutableArray *participants, NSError *error) {
         _roomParticipants = participants;
-        [self.tableView reloadData];
+        [self.tableView reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(kRoomInfoSectionParticipants, 1)] withRowAnimation:UITableViewRowAnimationNone];
         [self removeModifyingRoomUI];
     }];
 }
@@ -290,8 +299,11 @@ typedef enum ModificationError {
 
 - (void)renameRoom
 {
-    [self setModifyingRoomUI];
     NSString *newRoomName = [_roomNameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    if ([newRoomName isEqualToString:_room.name]) {
+        return;
+    }
+    [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] renameRoom:_room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
@@ -581,6 +593,20 @@ typedef enum ModificationError {
     }
 }
 
+#pragma mark - UIGestureRecognizer delegate
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    // Allow click on tableview cells
+    if ([touch.view isDescendantOfView:self.tableView]) {
+        if (![touch.view isDescendantOfView:_roomNameTextField]) {
+            [self dismissKeyboard];
+        }
+        return NO;
+    }
+    return YES;
+}
+
 #pragma mark - UITextField delegate
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -593,6 +619,20 @@ typedef enum ModificationError {
     if (textField == _roomNameTextField) {
         [self renameRoom];
     }
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    if (textField == _roomNameTextField) {
+        // Prevent crashing undo bug
+        // https://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield
+        if (range.length + range.location > textField.text.length) {
+            return NO;
+        }
+        // Set maximum character length
+        NSUInteger newLength = [textField.text length] + [string length] - range.length;
+        return newLength <= 200;
+    }
+    return YES;
 }
 
 #pragma mark - Table view data source
@@ -682,9 +722,12 @@ typedef enum ModificationError {
                 cell = [[RoomNameTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomNameCellIdentifier];
             }
             
+            cell.roomNameTextField.text = _room.name;
+            
             switch (_room.type) {
                 case kNCRoomTypeOneToOneCall:
                 {
+                    cell.roomNameTextField.text = _room.displayName;
                     // Create avatar for every OneToOne call
                     [cell.roomImage setImageWithString:_room.displayName color:nil circular:true];
                     // Request user avatar to the server and set it if exist
@@ -705,9 +748,7 @@ typedef enum ModificationError {
                     break;
             }
             
-            cell.roomNameTextField.text = _room.displayName;
-            
-            if (_room.canModerate && _room.type != kNCRoomTypeOneToOneCall) {
+            if (_room.isNameEditable) {
                 _roomNameTextField = cell.roomNameTextField;
                 _roomNameTextField.delegate = self;
                 [_roomNameTextField setReturnKeyType:UIReturnKeyDone];

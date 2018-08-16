@@ -82,6 +82,9 @@
     [self setTitleView];
     [self configureActionItems];
     
+    // Disable room info until receiving first chat history
+    _titleView.userInteractionEnabled = NO;
+    
     self.messages = [[NSMutableDictionary alloc] init];
     self.mentions = [[NSMutableArray alloc] init];
     self.dateSections = [[NSMutableArray alloc] init];
@@ -199,7 +202,6 @@
             break;
     }
     
-    _titleView.userInteractionEnabled = NO;
     self.navigationItem.titleView = _titleView;
 }
 
