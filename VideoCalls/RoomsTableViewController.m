@@ -335,7 +335,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             NSString *title = [NSString stringWithFormat:@"%@ is now public", room.name];
             // Room type condition should be removed when we don't set room names by default on OneToOne calls.
             if (room.type == kNCRoomTypeOneToOneCall || !room.name || [room.name isEqualToString:@""]) {
-                title = @"This call is now public";
+                title = @"This conversation is now public";
             }
             [self showShareDialogForRoom:room withTitle:title];
             [self fetchRoomsWithCompletionBlock:nil];
@@ -509,7 +509,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     UIAlertController *shareRoomDialog =
     [UIAlertController alertControllerWithTitle:title
-                                        message:@"Do you want to share this call with others?"
+                                        message:@"Do you want to share this conversation with others?"
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
@@ -637,7 +637,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [optionsActionSheet addAction:shareLinkAction];
             
             // Make call private
-            UIAlertAction *makePrivateAction = [UIAlertAction actionWithTitle:@"Make call private"
+            UIAlertAction *makePrivateAction = [UIAlertAction actionWithTitle:@"Make conversation private"
                                                                         style:UIAlertActionStyleDefault
                                                                       handler:^void (UIAlertAction *action) {
                                                                           [self makePrivateRoomAtIndexPath:indexPath];
@@ -646,7 +646,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [optionsActionSheet addAction:makePrivateAction];
         } else {
             // Make call public
-            UIAlertAction *makePublicAction = [UIAlertAction actionWithTitle:@"Make call public"
+            UIAlertAction *makePublicAction = [UIAlertAction actionWithTitle:@"Make conversation public"
                                                                        style:UIAlertActionStyleDefault
                                                                      handler:^void (UIAlertAction *action) {
                                                                          [self makePublicRoomAtIndexPath:indexPath];
