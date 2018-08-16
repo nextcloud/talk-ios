@@ -30,7 +30,6 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 - (BOOL)isSystemMessage;
 - (NSMutableAttributedString *)parsedMessage;
-- (NSMutableAttributedString *)lastRoomMessageFormat;
 - (NSMutableAttributedString *)systemMessageFormat;
 
 @end

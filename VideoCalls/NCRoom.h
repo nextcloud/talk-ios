@@ -43,5 +43,6 @@ typedef enum NCRoomType {
 - (BOOL)canModerate;
 - (BOOL)isNameEditable;
 - (BOOL)isDeletable;
+- (NSMutableAttributedString *)lastMessageString;
 
 @end

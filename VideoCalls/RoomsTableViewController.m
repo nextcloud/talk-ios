@@ -706,7 +706,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         NCChatMessage *lastMessage = room.lastMessage;
         if (lastMessage) {
             cell.titleOnly = NO;
-            cell.labelSubTitle.attributedText = lastMessage.lastRoomMessageFormat;
+            cell.labelSubTitle.attributedText = room.lastMessageString;
         } else {
             cell.titleOnly = YES;
         }
