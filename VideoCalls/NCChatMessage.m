@@ -52,7 +52,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
 
 - (BOOL)isSystemMessage
 {
-    if (![_systemMessage isEqualToString:@""]) {
+    if (_systemMessage && ![_systemMessage isEqualToString:@""]) {
         return YES;
     }
     return NO;
