@@ -8,7 +8,7 @@
 
 #import "NCChatMessage.h"
 
-#import "NCChatMention.h"
+#import "NCMessageParameter.h"
 #import "NCSettingsController.h"
 
 NSInteger const kChatMessageMaxGroupNumber      = 10;
@@ -69,45 +69,51 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
                                                options:0
                                                  range:NSMakeRange(0, [originalMessage length])];
     
-    // Find mentions
-    NSMutableArray *mentions = [NSMutableArray arrayWithCapacity:matches.count];
+    // Find message parameters
+    NSMutableArray *parameters = [NSMutableArray arrayWithCapacity:matches.count];
     for (int i = 0; i < matches.count; i++) {
         NSTextCheckingResult *match = [matches objectAtIndex:i];
         NSString* parameter = [originalMessage substringWithRange:match.range];
-        NSString *parameterId = [[parameter stringByReplacingOccurrencesOfString:@"{" withString:@""]
+        NSString *parameterKey = [[parameter stringByReplacingOccurrencesOfString:@"{" withString:@""]
                                  stringByReplacingOccurrencesOfString:@"}" withString:@""];
-        NSDictionary *parameterDict = [_messageParameters objectForKey:parameterId];
+        NSDictionary *parameterDict = [_messageParameters objectForKey:parameterKey];
         if (parameterDict) {
-            NSString *mentionName = [NSString stringWithFormat:@"@%@", [parameterDict objectForKey:@"name"]];
-            NSString *mentionUserId = [parameterDict objectForKey:@"id"];
-            parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:mentionName];
-            
+            NCMessageParameter *messageParameter = [NCMessageParameter parameterWithDictionary:parameterDict] ;
+            // Default replacement string is the parameter name
+            NSString *replaceString = messageParameter.name;
+            // Format mentions
+            if ([messageParameter.type isEqualToString:@"user"]) {
+                replaceString = [NSString stringWithFormat:@"@%@", [parameterDict objectForKey:@"name"]];
+            }
+            parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:replaceString];
+            // Calculate parameter range
             NSRange searchRange = NSMakeRange(0,parsedMessage.length);
             if (i > 0) {
-                NCChatMention *lastMention = [mentions objectAtIndex:i-1];
-                NSInteger newRangeLocation = lastMention.range.location + lastMention.range.length;
+                NCMessageParameter *lastParameter = [parameters objectAtIndex:i-1];
+                NSInteger newRangeLocation = lastParameter.range.location + lastParameter.range.length;
                 searchRange = NSMakeRange(newRangeLocation, parsedMessage.length - newRangeLocation);
             }
-            NSRange foundRange = [parsedMessage rangeOfString:mentionName options:0 range:searchRange];
-            
-            NCChatMention *chatMention = [[NCChatMention alloc] init];
-            chatMention.range = foundRange;
-            chatMention.userId = mentionUserId;
-            chatMention.name = mentionName;
-            chatMention.ownMention = ([[NCSettingsController sharedInstance].ncUserId isEqualToString:mentionUserId]);
-            [mentions insertObject:chatMention atIndex:i];
+            messageParameter.range = [parsedMessage rangeOfString:replaceString options:0 range:searchRange];
+            [parameters insertObject:messageParameter atIndex:i];
         }
     }
     
-    // Create attributed strings for mentions
     NSMutableAttributedString *attributedMessage = [[NSMutableAttributedString alloc] initWithString:parsedMessage];
     [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0f] range:NSMakeRange(0,parsedMessage.length)];
     [attributedMessage addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:NSMakeRange(0,parsedMessage.length)];
-    for (NCChatMention *chatMention in mentions) {
-        UIColor *mentionColor = [UIColor darkGrayColor];
-        UIColor *ownMentionColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
-        [attributedMessage addAttribute:NSForegroundColorAttributeName value:(chatMention.ownMention) ? ownMentionColor : mentionColor range:chatMention.range];
-        [attributedMessage addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:16.0f] range:chatMention.range];
+    
+    for (NCMessageParameter *param in parameters) {
+        //Set color for mentions
+        if ([param.type isEqualToString:@"user"]) {
+            UIColor *mentionColor = [UIColor darkGrayColor];
+            UIColor *ownMentionColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+            [attributedMessage addAttribute:NSForegroundColorAttributeName value:(param.isOwnMention) ? ownMentionColor : mentionColor range:param.range];
+            [attributedMessage addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:16.0f] range:param.range];
+        }
+        //Create a link if parameter contains a link
+        else if (param.link) {
+            [attributedMessage addAttribute: NSLinkAttributeName value:param.link range:param.range];
+        }
     }
     
     return attributedMessage;

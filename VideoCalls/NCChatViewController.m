@@ -15,7 +15,7 @@
 #import "ChatPlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
-#import "NCChatMention.h"
+#import "NCMessageParameter.h"
 #import "NCChatTitleView.h"
 #import "NCMessageTextView.h"
 #import "NCRoomsManager.h"
@@ -240,8 +240,8 @@
 - (NSString *)createSendingMessage:(NSString *)text
 {
     NSString *sendingMessage = [text copy];
-    for (NCChatMention *mention in _mentions) {
-        sendingMessage = [sendingMessage stringByReplacingOccurrencesOfString:mention.name withString:mention.userId];
+    for (NCMessageParameter *mention in _mentions) {
+        sendingMessage = [sendingMessage stringByReplacingOccurrencesOfString:mention.name withString:mention.parameterId];
     }
     _mentions = [[NSMutableArray alloc] init];
     return sendingMessage;
@@ -304,7 +304,7 @@
         NSString *substring = [text substringToIndex:cursorOffset];
         NSMutableString *lastPossibleMention = [[[substring componentsSeparatedByString:@"@"] lastObject] mutableCopy];
         [lastPossibleMention insertString:@"@" atIndex:0];
-        for (NCChatMention *mention in _mentions) {
+        for (NCMessageParameter *mention in _mentions) {
             if ([lastPossibleMention isEqualToString:mention.name]) {
                 // Delete mention
                 textView.text =  [[self.textView text] stringByReplacingOccurrencesOfString:lastPossibleMention withString:@""];
@@ -701,7 +701,7 @@
     UITableViewCell *cell = [UITableViewCell new];
     if (message.isSystemMessage) {
         SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
-        systemCell.bodyLabel.attributedText = message.systemMessageFormat;
+        systemCell.bodyTextView.attributedText = message.systemMessageFormat;
         systemCell.messageId = message.messageId;
         if (!message.groupMessage) {
             NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
@@ -787,8 +787,8 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([tableView isEqual:self.autoCompletionView]) {
-        NCChatMention *mention = [[NCChatMention alloc] init];
-        mention.userId = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
+        NCMessageParameter *mention = [[NCMessageParameter alloc] init];
+        mention.parameterId = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
         mention.name = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"label"]];
         [_mentions addObject:mention];
         
