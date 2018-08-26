@@ -25,10 +25,10 @@
 - (void)configureSubviews
 {
     [self.contentView addSubview:self.dateLabel];
-    [self.contentView addSubview:self.bodyLabel];
+    [self.contentView addSubview:self.bodyTextView];
     
     NSDictionary *views = @{@"dateLabel": self.dateLabel,
-                            @"bodyLabel": self.bodyLabel,
+                            @"bodyTextView": self.bodyTextView,
                             };
     
     NSDictionary *metrics = @{@"avatar": @50,
@@ -36,9 +36,9 @@
                               @"left": @5
                               };
     
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatar-[bodyLabel]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyLabel(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[dateLabel(30)]-(>=0)-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatar-[bodyTextView]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[dateLabel(20)]-(>=0)-|" options:0 metrics:metrics views:views]];
 }
 
 - (void)prepareForReuse
@@ -47,24 +47,20 @@
     
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     CGFloat pointSize = [SystemMessageTableViewCell defaultFontSize];
-    self.bodyLabel.font = [UIFont systemFontOfSize:pointSize];
-    self.bodyLabel.text = @"";
+    self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
+    self.bodyTextView.text = @"";
     self.dateLabel.text = @"";
 }
 
 #pragma mark - Getters
 
-- (UILabel *)bodyLabel
+- (MessageBodyTextView *)bodyTextView
 {
-    if (!_bodyLabel) {
-        _bodyLabel = [UILabel new];
-        _bodyLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        _bodyLabel.backgroundColor = [UIColor clearColor];
-        _bodyLabel.userInteractionEnabled = NO;
-        _bodyLabel.numberOfLines = 0;
-        _bodyLabel.font = [UIFont systemFontOfSize:[SystemMessageTableViewCell defaultFontSize]];
+    if (!_bodyTextView) {
+        _bodyTextView = [MessageBodyTextView new];
+        _bodyTextView.font = [UIFont systemFontOfSize:[SystemMessageTableViewCell defaultFontSize]];
     }
-    return _bodyLabel;
+    return _bodyTextView;
 }
 
 - (UILabel *)dateLabel

@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 #import "ChatTableViewCell.h"
+#import "MessageBodyTextView.h"
 
 static CGFloat kSystemMessageCellMinimumHeight  = 30.0;
 
@@ -17,7 +18,7 @@ static NSString *SystemMessageCellIdentifier    = @"SystemMessageCellIdentifier"
 @interface SystemMessageTableViewCell : ChatTableViewCell
 
 @property (nonatomic, strong) UILabel *dateLabel;
-@property (nonatomic, strong) UILabel *bodyLabel;
+@property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 
 + (CGFloat)defaultFontSize;
 
