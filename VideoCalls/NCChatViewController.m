@@ -10,6 +10,7 @@
 
 #import "ChatMessageTableViewCell.h"
 #import "GroupedChatMessageTableViewCell.h"
+#import "FileMessageTableViewCell.h"
 #import "SystemMessageTableViewCell.h"
 #import "DateHeaderView.h"
 #import "ChatPlaceholderView.h"
@@ -18,6 +19,7 @@
 #import "NCMessageParameter.h"
 #import "NCChatTitleView.h"
 #import "NCMessageTextView.h"
+#import "NCFilePreviewSessionManager.h"
 #import "NCRoomsManager.h"
 #import "NCRoomController.h"
 #import "NCSettingsController.h"
@@ -113,6 +115,7 @@
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
+    [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:FileMessageCellIdentifier];
     [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:SystemMessageCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
@@ -709,6 +712,21 @@
         }
         return systemCell;
     }
+    
+    if (message.filePreview) {
+        FileMessageTableViewCell *fileCell = (FileMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:FileMessageCellIdentifier];
+        fileCell.titleLabel.text = message.actorDisplayName;
+        fileCell.bodyTextView.attributedText = message.parsedMessage;
+        fileCell.messageId = message.messageId;
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
+        fileCell.dateLabel.text = [self getTimeFromDate:date];
+        [fileCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
+                                   placeholderImage:nil success:nil failure:nil];
+        [[NCFilePreviewSessionManager sharedInstance] getFilePreview:message.filePreview width:120 height:120 withCompletionBlock:^(UIImage *preview, NSError *error) {
+            [fileCell.previewImageView setImage:preview];
+        }];
+        return fileCell;
+    }
     if (message.groupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
         groupedCell.bodyTextView.attributedText = message.parsedMessage;
@@ -775,6 +793,10 @@
             if (height < kGroupedChatMessageCellMinimumHeight) {
                 height = kGroupedChatMessageCellMinimumHeight;
             }
+        }
+        
+        if (message.filePreview) {
+            height += kFileMessageCellFilePreviewHeight + 10;
         }
         
         return height;

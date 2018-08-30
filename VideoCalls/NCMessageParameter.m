@@ -25,6 +25,13 @@
     messageParameter.path = [parameterDict objectForKey:@"path"];
     messageParameter.link = [parameterDict objectForKey:@"link"];
     
+    id parameterId = [parameterDict objectForKey:@"id"];
+    if ([parameterId isKindOfClass:[NSString class]]) {
+        messageParameter.parameterId = parameterId;
+    } else {
+        messageParameter.parameterId = [parameterId stringValue];
+    }
+    
     return messageParameter;
 }
 
