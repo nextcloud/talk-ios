@@ -131,7 +131,9 @@
     UIAlertAction* okButton = [UIAlertAction
                                actionWithTitle:@"OK"
                                style:UIAlertActionStyleDefault
-                               handler:nil];
+                               handler:^(UIAlertAction * _Nonnull action) {
+                                   [_serverUrl becomeFirstResponder];
+                               }];
     
     [alert addAction:okButton];
     
