@@ -97,7 +97,7 @@
             if ([[NCSettingsController sharedInstance] serverUsesRequiredTalkVersion]) {
                 [self presentAuthenticationView];
             } else {
-                [self showAlertWithTitle:@"Nextcloud Talk version not supported" andMessage:@"Please, update your server with the latest Nextcloud Talk version available."];
+                [self showAlertWithTitle:@"Nextcloud Talk version not supported" andMessage:@"Please update your server with the latest Nextcloud Talk version available."];
             }
         } else {
             // Self signed certificate
@@ -106,7 +106,7 @@
                     [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
                 });
             } else {
-                [self showAlertWithTitle:@"Nextcloud sever not found" andMessage:@"Please, check that you enter the correct Nextcloud server url."];
+                [self showAlertWithTitle:@"Nextcloud server not found" andMessage:@"Please check that you entered the correct Nextcloud server address."];
             }
         }
     }];
