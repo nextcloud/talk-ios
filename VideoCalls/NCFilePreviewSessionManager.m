@@ -12,7 +12,7 @@
 @interface NCFilePreviewSessionManager () <NSURLSessionTaskDelegate, NSURLSessionDelegate>
 {
     NSString *_serverUrl;
-    NSString *_authToken;
+    NSString *_authHeader;
     NSString *_userAgent;
 }
 
@@ -44,7 +44,7 @@
     NSString *authHeader = [[NSString alloc]initWithFormat:@"Basic %@",base64Encoded];
     [[NCFilePreviewSessionManager sharedInstance].requestSerializer setValue:authHeader forHTTPHeaderField:@"Authorization"];
         
-    _authToken = token;
+    _authHeader = authHeader;
 }
 
 - (id)init
@@ -92,9 +92,9 @@
 - (NSURLRequest *)createPreviewRequestForFile:(NSString *)fileId width:(NSInteger)width height:(NSInteger)height
 {
     NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=%ld&y=%ld&forceIcon=1", _serverUrl, fileId, (long)width, (long)height];
-    return [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]
-                            cachePolicy:NSURLRequestReturnCacheDataElseLoad
-                        timeoutInterval:60];
+    NSMutableURLRequest *previewRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
+    [previewRequest setValue:_authHeader forHTTPHeaderField:@"Authorization"];
+    return previewRequest;
 }
 
 -(void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler

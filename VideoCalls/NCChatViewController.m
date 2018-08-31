@@ -8,6 +8,7 @@
 
 #import "NCChatViewController.h"
 
+#import "AFImageDownloader.h"
 #import "ChatMessageTableViewCell.h"
 #import "GroupedChatMessageTableViewCell.h"
 #import "FileMessageTableViewCell.h"
@@ -60,6 +61,13 @@
         self.tableView.estimatedSectionHeaderHeight = 0;
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
+        // Set image downloader to file preview imageviews.
+        AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
+                                              initWithSessionManager:[NCFilePreviewSessionManager sharedInstance]
+                                              downloadPrioritization:AFImageDownloadPrioritizationFIFO
+                                              maximumActiveDownloads:4
+                                              imageCache:[[AFAutoPurgingImageCache alloc] init]];
+        [FilePreviewImageView setSharedImageDownloader:imageDownloader];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistory:) name:NCRoomControllerDidReceiveInitialChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatHistory:) name:NCRoomControllerDidReceiveChatHistoryNotification object:nil];
@@ -722,13 +730,8 @@
         fileCell.dateLabel.text = [self getTimeFromDate:date];
         [fileCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
                                    placeholderImage:nil success:nil failure:nil];
-        [[NCFilePreviewSessionManager sharedInstance] getFilePreview:message.filePreview width:120 height:120 withCompletionBlock:^(UIImage *preview, NSError *error) {
-            if (!error) {
-                [fileCell.previewImageView setImage:preview];
-            } else {
-                [fileCell.previewImageView setImage:[UIImage imageNamed:@"file-default-preview"]];
-            }
-        }];
+        [fileCell.previewImageView setImageWithURLRequest:[[NCFilePreviewSessionManager sharedInstance] createPreviewRequestForFile:message.filePreview width:120 height:120]
+                                         placeholderImage:[UIImage imageNamed:@"file-default-preview"] success:nil failure:nil];
         return fileCell;
     }
     if (message.groupMessage) {
