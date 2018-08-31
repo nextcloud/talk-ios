@@ -9,6 +9,7 @@
 #import "NCAPIController.h"
 
 #import "NCAPISessionManager.h"
+#import "NCFilePreviewSessionManager.h"
 #import "NCPushProxySessionManager.h"
 #import "NCSettingsController.h"
 
@@ -39,6 +40,9 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (void)setNCServer:(NSString *)serverUrl
 {
     _serverUrl = serverUrl;
+    
+    //Set NC server in managers that requires it
+    [[NCFilePreviewSessionManager sharedInstance] setNCServer:serverUrl];
 }
 
 - (void)setAuthHeaderWithUser:(NSString *)user andToken:(NSString *)token
@@ -51,6 +55,9 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     [[NCAPISessionManager sharedInstance].requestSerializer setValue:authHeader forHTTPHeaderField:@"Authorization"];
     
     _authToken = token;
+    
+    //Set auth header in managers that requires authentication
+    [[NCFilePreviewSessionManager sharedInstance] setAuthHeaderWithUser:user andToken:token];
 }
 
 - (NSString *)currentServerUrl

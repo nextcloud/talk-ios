@@ -58,6 +58,24 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     return NO;
 }
 
+- (NSString *)filePreview;
+{
+    NSString *fileId = nil;
+    for (NSDictionary *parameterDict in _messageParameters.allValues) {
+        NCMessageParameter *parameter = [NCMessageParameter parameterWithDictionary:parameterDict] ;
+        if ([parameter.type isEqualToString:@"file"]) {
+            if (!fileId) {
+                fileId = parameter.parameterId;
+            } else {
+                // If there is more than one file in the message,
+                // we don't display any preview.
+                return nil;
+            }
+        }
+    }
+    return fileId;
+}
+
 - (NSMutableAttributedString *)parsedMessage
 {
     NSString *originalMessage = _message;
