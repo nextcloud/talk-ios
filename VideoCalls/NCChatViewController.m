@@ -723,7 +723,11 @@
         [fileCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
                                    placeholderImage:nil success:nil failure:nil];
         [[NCFilePreviewSessionManager sharedInstance] getFilePreview:message.filePreview width:120 height:120 withCompletionBlock:^(UIImage *preview, NSError *error) {
-            [fileCell.previewImageView setImage:preview];
+            if (!error) {
+                [fileCell.previewImageView setImage:preview];
+            } else {
+                [fileCell.previewImageView setImage:[UIImage imageNamed:@"file-default-preview"]];
+            }
         }];
         return fileCell;
     }

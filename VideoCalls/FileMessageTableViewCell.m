@@ -43,9 +43,9 @@
     _previewImageView = [[FilePreviewImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellFilePreviewHeight, kFileMessageCellFilePreviewHeight)];
     _previewImageView.translatesAutoresizingMaskIntoConstraints = NO;
     _previewImageView.userInteractionEnabled = NO;
-    _previewImageView.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
     _previewImageView.layer.cornerRadius = 4.0;
     _previewImageView.layer.masksToBounds = YES;
+    [_previewImageView setImage:[UIImage imageNamed:@"file-default-preview"]];
     [self.contentView addSubview:_previewImageView];
     
     [self.contentView addSubview:self.titleLabel];
@@ -91,6 +91,8 @@
     
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
+    
+    self.previewImageView.image = nil;
 }
 
 #pragma mark - Getters
