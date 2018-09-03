@@ -83,7 +83,7 @@
     BOOL ownMessage = [_lastMessage.actorId isEqualToString:[NCSettingsController sharedInstance].ncUserId];
     NSMutableAttributedString *lastMessage = _lastMessage.parsedMessage;
     
-    if (_type == kNCRoomTypeOneToOneCall && !ownMessage) {
+    if ((_type == kNCRoomTypeOneToOneCall && !ownMessage) || _lastMessage.systemMessage) {
         return lastMessage;
     } else {
         NSString *displayName = _lastMessage.actorDisplayName;
