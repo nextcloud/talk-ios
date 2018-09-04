@@ -1,5 +1,5 @@
 //
-//  ChatPlaceholderView.h
+//  PlaceholderView.h
 //  VideoCalls
 //
 //  Created by Ivan Sein on 25.05.18.
@@ -8,9 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ChatPlaceholderView : UIView
+@interface PlaceholderView : UIView
 
 @property (weak, nonatomic) IBOutlet UIView *placeholderView;
+@property (weak, nonatomic) IBOutlet UIImageView *placeholderImage;
+@property (weak, nonatomic) IBOutlet UILabel *placeholderText;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *loadingView;
 
 @end

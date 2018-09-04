@@ -14,7 +14,7 @@
 #import "FileMessageTableViewCell.h"
 #import "SystemMessageTableViewCell.h"
 #import "DateHeaderView.h"
-#import "ChatPlaceholderView.h"
+#import "PlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
 #import "NCMessageParameter.h"
@@ -34,7 +34,7 @@
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) NCRoomController *roomController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
-@property (nonatomic, strong) ChatPlaceholderView *chatBackgroundView;
+@property (nonatomic, strong) PlaceholderView *chatBackgroundView;
 @property (nonatomic, strong) NSMutableDictionary *messages;
 @property (nonatomic, strong) NSMutableArray *dateSections;
 @property (nonatomic, strong) NSMutableArray *mentions;
@@ -129,7 +129,7 @@
     [self registerPrefixesForAutoCompletion:@[@"@"]];
     
     // Chat placeholder view
-    _chatBackgroundView = [[ChatPlaceholderView alloc] init];
+    _chatBackgroundView = [[PlaceholderView alloc] init];
     [_chatBackgroundView.placeholderView setHidden:YES];
     [_chatBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _chatBackgroundView;
