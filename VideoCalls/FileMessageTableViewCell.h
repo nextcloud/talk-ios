@@ -14,7 +14,8 @@ static CGFloat kFileMessageCellMinimumHeight        = 50.0;
 static CGFloat kFileMessageCellAvatarHeight         = 30.0;
 static CGFloat kFileMessageCellFilePreviewHeight    = 120.0;
 
-static NSString *FileMessageCellIdentifier    = @"FileMessageCellIdentifier";
+static NSString *FileMessageCellIdentifier          = @"FileMessageCellIdentifier";
+static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellIdentifier";
 
 @interface FilePreviewImageView : UIImageView
 @end

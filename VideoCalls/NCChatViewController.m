@@ -124,6 +124,7 @@
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:FileMessageCellIdentifier];
+    [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:GroupedFileMessageCellIdentifier];
     [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:SystemMessageCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
@@ -720,9 +721,9 @@
         }
         return systemCell;
     }
-    
     if (message.filePreview) {
-        FileMessageTableViewCell *fileCell = (FileMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:FileMessageCellIdentifier];
+        NSString *fileCellIdentifier = (message.groupMessage) ? GroupedFileMessageCellIdentifier : FileMessageCellIdentifier;
+        FileMessageTableViewCell *fileCell = (FileMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:fileCellIdentifier];
         fileCell.titleLabel.text = message.actorDisplayName;
         fileCell.bodyTextView.attributedText = message.parsedMessage;
         fileCell.messageId = message.messageId;
