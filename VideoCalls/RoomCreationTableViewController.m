@@ -9,6 +9,7 @@
 #import "RoomCreationTableViewController.h"
 
 #import "NCAPIController.h"
+#import "PlaceholderView.h"
 #import "ResultMultiSelectionTableViewController.h"
 #import "RoomCreation2TableViewController.h"
 #import "UIImageView+Letters.h"
@@ -21,6 +22,7 @@
     UISearchController *_searchController;
     ResultMultiSelectionTableViewController *_resultTableViewController;
     NSMutableArray *_selectedParticipants;
+    PlaceholderView *_roomCreationBackgroundView;
 }
 @end
 
@@ -62,6 +64,15 @@
     _searchController.searchBar.delegate = self;
     _searchController.hidesNavigationBarDuringPresentation = NO;
     
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    // Room creation placeholder view
+    _roomCreationBackgroundView = [[PlaceholderView alloc] init];
+    [_roomCreationBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"contacts-placeholder"]];
+    [_roomCreationBackgroundView.placeholderText setText:@"No participants found."];
+    [_roomCreationBackgroundView.placeholderView setHidden:YES];
+    [_roomCreationBackgroundView.loadingView startAnimating];
+    self.tableView.backgroundView = _roomCreationBackgroundView;
     
     self.definesPresentationContext = YES;
     
@@ -170,6 +181,9 @@
             NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:contactList];
             _participants = participants;
             _indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+            [_roomCreationBackgroundView.loadingView stopAnimating];
+            [_roomCreationBackgroundView.loadingView setHidden:YES];
+            [_roomCreationBackgroundView.placeholderView setHidden:(participants.count > 0)];
             [self.tableView reloadData];
         } else {
             NSLog(@"Error while trying to get participants: %@", error);
