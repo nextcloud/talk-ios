@@ -10,6 +10,7 @@
 
 #import "NCAPIController.h"
 #import "NCUserInterfaceController.h"
+#import "PlaceholderView.h"
 #import "ResultMultiSelectionTableViewController.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
@@ -23,6 +24,7 @@
     UISearchController *_searchController;
     ResultMultiSelectionTableViewController *_resultTableViewController;
     NSMutableArray *_selectedParticipants;
+    PlaceholderView *_participantsBackgroundView;
 }
 @end
 
@@ -69,6 +71,15 @@
         _searchController.searchBar.layer.borderWidth = 1;
         _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
     }
+    
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    // Contacts placeholder view
+    _participantsBackgroundView = [[PlaceholderView alloc] init];
+    [_participantsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"contacts-placeholder"]];
+    [_participantsBackgroundView.placeholderText setText:@"No participants found."];
+    [_participantsBackgroundView.placeholderView setHidden:YES];
+    [_participantsBackgroundView.loadingView startAnimating];
+    self.tableView.backgroundView = _participantsBackgroundView;
     
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
     _resultTableViewController.tableView.delegate = self;
@@ -200,6 +211,9 @@
             NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
             _participants = participants;
             _indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+            [_participantsBackgroundView.loadingView stopAnimating];
+            [_participantsBackgroundView.loadingView setHidden:YES];
+            [_participantsBackgroundView.placeholderView setHidden:(participants.count > 0)];
             [self.tableView reloadData];
         } else {
             NSLog(@"Error while trying to get participants: %@", error);
