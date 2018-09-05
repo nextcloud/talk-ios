@@ -13,6 +13,7 @@
 #import "NCConnectionController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
+#import "PlaceholderView.h"
 #import "SearchTableViewController.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
@@ -27,6 +28,7 @@ NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContac
     NSArray *_indexes;
     UISearchController *_searchController;
     SearchTableViewController *_resultTableViewController;
+    PlaceholderView *_contactsBackgroundView;
 }
 
 @end
@@ -74,6 +76,16 @@ NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContac
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:image];
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    // Contacts placeholder view
+    _contactsBackgroundView = [[PlaceholderView alloc] init];
+    [_contactsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"contacts-placeholder"]];
+    [_contactsBackgroundView.placeholderText setText:@"No contacts found."];
+    [_contactsBackgroundView.placeholderView setHidden:YES];
+    [_contactsBackgroundView.loadingView startAnimating];
+    self.tableView.backgroundView = _contactsBackgroundView;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
@@ -163,6 +175,9 @@ NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContac
         if (!error) {
             _contacts = contacts;
             _indexes = indexes;
+            [_contactsBackgroundView.loadingView stopAnimating];
+            [_contactsBackgroundView.loadingView setHidden:YES];
+            [_contactsBackgroundView.placeholderView setHidden:(contacts.count > 0)];
             [self.tableView reloadData];
         } else {
             NSLog(@"Error while trying to get contacts: %@", error);

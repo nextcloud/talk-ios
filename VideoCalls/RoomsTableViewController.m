@@ -27,6 +27,7 @@
 #import "NCRoomsManager.h"
 #import "NewRoomTableViewController.h"
 #import "RoundedNumberView.h"
+#import "PlaceholderView.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
@@ -35,6 +36,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NSMutableArray *_rooms;
     UIRefreshControl *_refreshControl;
     BOOL _allowEmptyGroupRooms;
+    PlaceholderView *_roomsBackgroundView;
 }
 
 @end
@@ -61,6 +63,16 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:navigationLogo];
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    // Rooms placeholder view
+    _roomsBackgroundView = [[PlaceholderView alloc] init];
+    [_roomsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
+    [_roomsBackgroundView.placeholderText setText:@"You are not part of any conversation. Press + to start a new one."];
+    [_roomsBackgroundView.placeholderView setHidden:YES];
+    [_roomsBackgroundView.loadingView startAnimating];
+    self.tableView.backgroundView = _roomsBackgroundView;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
@@ -199,6 +211,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
         if (!error) {
             _rooms = rooms;
+            [_roomsBackgroundView.loadingView stopAnimating];
+            [_roomsBackgroundView.loadingView setHidden:YES];
+            [_roomsBackgroundView.placeholderView setHidden:(rooms.count > 0)];
             [self.tableView reloadData];
             NSLog(@"Rooms updated");
             if (block) {
@@ -443,13 +458,16 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                         message:@"Do you really want to leave this conversation?"
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Leave" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        [_rooms removeObjectAtIndex:indexPath.row];
+        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error) {
-            if (error) {
+            if (!error) {
+                [self fetchRoomsWithCompletionBlock:nil];
+            } else {
+                NSLog(@"Error leaving room: %@", error.description);
                 //TODO: Error handling
             }
         }];
-        [_rooms removeObjectAtIndex:indexPath.row];
-        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }];
     [confirmDialog addAction:confirmAction];
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
@@ -465,13 +483,16 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                         message:@"Do you really want to delete this conversation?"
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        [_rooms removeObjectAtIndex:indexPath.row];
+        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [[NCAPIController sharedInstance] deleteRoom:room.token withCompletionBlock:^(NSError *error) {
-            if (error) {
+            if (!error) {
+                [self fetchRoomsWithCompletionBlock:nil];
+            } else {
+                NSLog(@"Error deleting room: %@", error.description);
                 //TODO: Error handling
             }
         }];
-        [_rooms removeObjectAtIndex:indexPath.row];
-        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }];
     [confirmDialog addAction:confirmAction];
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];

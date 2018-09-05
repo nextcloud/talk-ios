@@ -13,6 +13,7 @@
 #import "ContactsTableViewController.h"
 #import "NCAPIController.h"
 #import "NCUserInterfaceController.h"
+#import "PlaceholderView.h"
 #import "SearchTableViewController.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
@@ -28,6 +29,7 @@ typedef enum HeaderSection {
     NSDictionary *_contacts;
     NSMutableArray *_indexes;
     UISearchController *_searchController;
+    PlaceholderView *_newRoomBackgroundView;
     SearchTableViewController *_resultTableViewController;
 }
 @end
@@ -63,6 +65,14 @@ typedef enum HeaderSection {
         _searchController.searchBar.layer.borderWidth = 1;
         _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
     }
+    
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    // New room placeholder view
+    _newRoomBackgroundView = [[PlaceholderView alloc] init];
+    [_newRoomBackgroundView.placeholderView setHidden:YES];
+    [_newRoomBackgroundView.loadingView startAnimating];
+    self.tableView.backgroundView = _newRoomBackgroundView;
     
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
     _resultTableViewController.tableView.delegate = self;
@@ -165,6 +175,8 @@ typedef enum HeaderSection {
             _contacts = contacts;
             _indexes = [NSMutableArray arrayWithArray:indexes];
             [_indexes insertObject:@"" atIndex:0];
+            [_newRoomBackgroundView.loadingView stopAnimating];
+            [_newRoomBackgroundView.loadingView setHidden:YES];
             [self.tableView reloadData];
         } else {
             NSLog(@"Error while trying to get contacts: %@", error);

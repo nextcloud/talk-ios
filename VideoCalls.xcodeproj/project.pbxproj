@@ -117,8 +117,8 @@
 		2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C820E125C20096D91F /* NewRoomTableViewController.m */; };
 		2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */; };
 		2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
-		2CC7158920B837140045C789 /* ChatPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* ChatPlaceholderView.xib */; };
-		2CC7158C20B8394A0045C789 /* ChatPlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */; };
+		2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* PlaceholderView.xib */; };
+		2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
 		2CC7158E20C51ABA0045C789 /* UnreadMessagesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158D20C51ABA0045C789 /* UnreadMessagesView.xib */; };
 		2CC7159120C51F7F0045C789 /* UnreadMessagesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159020C51F7F0045C789 /* UnreadMessagesView.m */; };
 		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
@@ -386,9 +386,9 @@
 		2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NewRoomTableViewController.xib; sourceTree = "<group>"; };
 		2CC007CC20E50B0A0096D91F /* MessageBodyTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageBodyTextView.h; sourceTree = "<group>"; };
 		2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageBodyTextView.m; sourceTree = "<group>"; };
-		2CC7158820B837140045C789 /* ChatPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatPlaceholderView.xib; sourceTree = "<group>"; };
-		2CC7158A20B8394A0045C789 /* ChatPlaceholderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatPlaceholderView.h; sourceTree = "<group>"; };
-		2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatPlaceholderView.m; sourceTree = "<group>"; };
+		2CC7158820B837140045C789 /* PlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PlaceholderView.xib; sourceTree = "<group>"; };
+		2CC7158A20B8394A0045C789 /* PlaceholderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaceholderView.h; sourceTree = "<group>"; };
+		2CC7158B20B8394A0045C789 /* PlaceholderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlaceholderView.m; sourceTree = "<group>"; };
 		2CC7158D20C51ABA0045C789 /* UnreadMessagesView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UnreadMessagesView.xib; sourceTree = "<group>"; };
 		2CC7158F20C51F7F0045C789 /* UnreadMessagesView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnreadMessagesView.h; sourceTree = "<group>"; };
 		2CC7159020C51F7F0045C789 /* UnreadMessagesView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnreadMessagesView.m; sourceTree = "<group>"; };
@@ -509,6 +509,9 @@
 				2C3780C1210F49DC003F9AE8 /* HeaderWithButton.h */,
 				2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */,
 				2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */,
+				2CC7158A20B8394A0045C789 /* PlaceholderView.h */,
+				2CC7158B20B8394A0045C789 /* PlaceholderView.m */,
+				2CC7158820B837140045C789 /* PlaceholderView.xib */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -840,9 +843,6 @@
 				2C738157210613A200CDB8DB /* NCChatTitleView.xib */,
 				2CA15549208F2E5700CE8EF0 /* NCMessageTextView.h */,
 				2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */,
-				2CC7158A20B8394A0045C789 /* ChatPlaceholderView.h */,
-				2CC7158B20B8394A0045C789 /* ChatPlaceholderView.m */,
-				2CC7158820B837140045C789 /* ChatPlaceholderView.xib */,
 				2CC7158F20C51F7F0045C789 /* UnreadMessagesView.h */,
 				2CC7159020C51F7F0045C789 /* UnreadMessagesView.m */,
 				2CC7158D20C51ABA0045C789 /* UnreadMessagesView.xib */,
@@ -992,7 +992,7 @@
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
-				2CC7158920B837140045C789 /* ChatPlaceholderView.xib in Resources */,
+				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1179,7 +1179,7 @@
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
 				2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */,
-				2CC7158C20B8394A0045C789 /* ChatPlaceholderView.m in Sources */,
+				2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */,
 				2CA1CC9A1F0161EA002FE6A2 /* UICKeyChainStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

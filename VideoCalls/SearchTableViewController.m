@@ -10,11 +10,14 @@
 
 #import "NCUser.h"
 #import "NCAPIController.h"
+#import "PlaceholderView.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
 @interface SearchTableViewController ()
-
+{
+    PlaceholderView *_contactsBackgroundView;
+}
 @end
 
 @implementation SearchTableViewController
@@ -25,11 +28,27 @@
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    // Contacts placeholder view
+    _contactsBackgroundView = [[PlaceholderView alloc] init];
+    [_contactsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"contacts-placeholder"]];
+    [_contactsBackgroundView.placeholderText setText:@"No results found."];
+    [_contactsBackgroundView.placeholderView setHidden:YES];
+    [_contactsBackgroundView.loadingView startAnimating];
+    self.tableView.backgroundView = _contactsBackgroundView;
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
+}
+
+- (void)setContacts:(NSMutableDictionary *)contacts
+{
+    _contacts = contacts;
+    [_contactsBackgroundView.loadingView stopAnimating];
+    [_contactsBackgroundView.loadingView setHidden:YES];
+    [_contactsBackgroundView.placeholderView setHidden:(contacts.count > 0)];
 }
 
 #pragma mark - Table view data source
