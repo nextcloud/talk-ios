@@ -12,6 +12,9 @@
 #import "NCAPIController.h"
 #import "NCSettingsController.h"
 
+static NSTimeInterval kInitialReconnectInterval = 1;
+static NSTimeInterval kMaxReconnectInterval     = 16;
+
 @interface NCExternalSignalingController () <SRWebSocketDelegate>
 
 @property (nonatomic, strong) SRWebSocket *webSocket;
@@ -20,6 +23,8 @@
 @property (nonatomic, strong) NSString* ticket;
 @property (nonatomic, strong) NSString* resumeId;
 @property (nonatomic, assign) BOOL mcuSupport;
+@property (nonatomic, assign) NSInteger reconnectInterval;
+@property (nonatomic, strong) NSTimer *reconnectTimer;
 @property (nonatomic, assign) BOOL reconnecting;
 
 @end
@@ -46,6 +51,7 @@
     _serverUrl = [self getWebSocketUrlForServer:serverUrl];
     _ticket = ticket;
     _processingQueue = dispatch_queue_create("com.nextcloud.Talk.websocket.processing", DISPATCH_QUEUE_SERIAL);
+    _reconnectInterval = kInitialReconnectInterval;
     
     [self connect];
 }
@@ -71,6 +77,7 @@
 
 - (void)connect
 {
+    [self invalidateReconnectionTimer];
     NSLog(@"Connecting to: %@",  _serverUrl);
     NSURL *url = [NSURL URLWithString:_serverUrl];
     NSURLRequest *wsRequest = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60];
@@ -84,9 +91,37 @@
 
 - (void)reconnect
 {
-    NSLog(@"Reconnecting...");
+    if (_reconnectTimer) {
+        return;
+    }
+    
+    [_webSocket close];
+    _webSocket = nil;
     _reconnecting = YES;
-    [self connect];
+    
+    [self setReconnectionTimer];
+}
+
+- (void)setReconnectionTimer
+{
+    [self invalidateReconnectionTimer];
+    // Wiggle interval a little bit to prevent all clients from connecting
+    // simultaneously in case the server connection is interrupted.
+    NSInteger interval = _reconnectInterval - (_reconnectInterval / 2) + arc4random_uniform((int)_reconnectInterval);
+    NSLog(@"Reconnecting in %ld", (long)interval);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _reconnectTimer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(connect) userInfo:nil repeats:NO];
+    });
+    _reconnectInterval = _reconnectInterval * 2;
+    if (_reconnectInterval > kMaxReconnectInterval) {
+        _reconnectInterval = kMaxReconnectInterval;
+    }
+}
+
+- (void)invalidateReconnectionTimer
+{
+    [_reconnectTimer invalidate];
+    _reconnectTimer = nil;
 }
 
 #pragma mark - WebSocket messages
@@ -132,6 +167,15 @@
     // Get server features
 }
 
+- (void)errorResponseReceived:(NSDictionary *)errorDict
+{
+    NSString *errorCode = [errorDict objectForKey:@"code"];
+    if ([errorCode isEqualToString:@"no_such_session"]) {
+        _resumeId = nil;
+        [self reconnect];
+    }
+}
+
 - (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId
 {
     NSDictionary *messageDict = @{
@@ -167,6 +211,7 @@
 {
     if (webSocket == _webSocket) {
         NSLog(@"WebSocket Connected!");
+        _reconnectInterval = kInitialReconnectInterval;
         [self sendHello];
     }
 }
@@ -180,6 +225,8 @@
         NSString *messageType = [messageDict objectForKey:@"type"];
         if ([messageType isEqualToString:@"hello"]) {
             [self helloResponseReceived:[messageDict objectForKey:@"hello"]];
+        } else if ([messageType isEqualToString:@"error"]) {
+            [self errorResponseReceived:[messageDict objectForKey:@"error"]];
         }
     }
 }
