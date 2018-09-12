@@ -11,6 +11,7 @@
 #import "AFNetworking.h"
 #import "NCAPIController.h"
 #import "NCSettingsController.h"
+#import "NCExternalSignalingController.h"
 #import "NCUserInterfaceController.h"
 
 NSString * const NCAppStateHasChangedNotification           = @"NCAppStateHasChangedNotification";
@@ -102,6 +103,7 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
     NSString *ncUserId                  = [NCSettingsController sharedInstance].ncUserId;
     NSString *ncUserDisplayName         = [NCSettingsController sharedInstance].ncUserDisplayName;
     NSDictionary *ncTalkCapabilities    = [NCSettingsController sharedInstance].ncTalkCapabilities;
+    NSDictionary *ncSignalingConfig     = [NCSettingsController sharedInstance].ncSignalingConfiguration;
     
     if (!ncServer) {
         if (self.appState != kAppStateNotServerProvided) {
@@ -131,6 +133,19 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
                 if (error) {
                     [self setAppState:kAppStateUnknown];
                 } else {
+                    [self checkAppState];
+                }
+            }];
+        }
+    } else if (!ncSignalingConfig) {
+        if (self.appState != kAppStateMissingSignalingConfiguration) {
+            [self setAppState:kAppStateMissingSignalingConfiguration];
+            [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
+                if (error) {
+                    [self setAppState:kAppStateUnknown];
+                } else {
+                    // SetSignalingConfiguration should be called just once
+                    [[NCSettingsController sharedInstance] setSignalingConfiguration];
                     [self checkAppState];
                 }
             }];

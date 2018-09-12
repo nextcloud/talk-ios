@@ -108,6 +108,7 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 - (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
 - (NSURLSessionDataTask *)pullSignalingMessagesFromRoom:(NSString *)token withCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
 - (NSURLSessionDataTask *)getSignalingSettingsWithCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
+- (NSString *)authenticationBackendUrl;
 
 // User avatars
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size;

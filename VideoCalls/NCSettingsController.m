@@ -16,6 +16,7 @@
 #import <openssl/err.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "NCAPIController.h"
+#import "NCExternalSignalingController.h"
 
 @interface NCSettingsController ()
 {
@@ -160,10 +161,36 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     if (block) block(nil);
 }
 
+
 - (void)setDefaultBrowser:(NSString *)defaultBrowser
 {
     _defaultBrowser = defaultBrowser;
     [_keychain setString:defaultBrowser forKey:kNCUserDefaultBrowser];
+}
+
+#pragma mark - Signaling Configuration
+
+- (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block
+{
+    [[NCAPIController sharedInstance] getSignalingSettingsWithCompletionBlock:^(NSDictionary *settings, NSError *error) {
+        if (!error) {
+            _ncSignalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
+            if (block) block(nil);
+        } else {
+            NSLog(@"Error while getting signaling configuration");
+            if (block) block(error);
+        }
+    }];
+}
+
+// SetSignalingConfiguration should be called just once
+- (void)setSignalingConfiguration
+{
+    NSString *externalSignalingServer = [_ncSignalingConfiguration objectForKey:@"server"];
+    NSString *externalSignalingTicket = [_ncSignalingConfiguration objectForKey:@"ticket"];
+    if (externalSignalingServer && externalSignalingTicket) {
+        [[NCExternalSignalingController sharedInstance] setServer:externalSignalingServer andTicket:externalSignalingTicket];
+    }
 }
 
 #pragma mark - Server Capabilities

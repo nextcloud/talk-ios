@@ -17,6 +17,7 @@ typedef enum AppState {
     kAppStateAuthenticationNeeded,
     kAppStateMissingUserProfile,
     kAppStateMissingServerCapabilities,
+    kAppStateMissingSignalingConfiguration,
     kAppStateReady
 } AppState;
 
