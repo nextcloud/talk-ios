@@ -148,6 +148,7 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
                 }];
             } else {
                 NSLog(@"Error while subscribing to NC server.");
+                NSLog([error localizedDescription]);
             }
         }];
         
