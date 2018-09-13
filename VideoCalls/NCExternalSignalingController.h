@@ -14,5 +14,6 @@
 - (BOOL)isEnabled;
 - (void)setServer:(NSString *)serverUrl andTicket:(NSString *)ticket;
 - (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId;
+- (void)leaveRoom:(NSString *)roomId;
 
 @end

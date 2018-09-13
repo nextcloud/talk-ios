@@ -195,9 +195,9 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     [_webSocket send:jsonString];
 }
 
-- (void)leaveRoom:(NSString *)roomId withSessionId:(NSString *)sessionId
+- (void)leaveRoom:(NSString *)roomId
 {
-    [self joinRoom:@"" withSessionId:sessionId];
+    [self joinRoom:@"" withSessionId:@""];
 }
 
 - (void)joinResponseReceived:(NSDictionary *)joinDict

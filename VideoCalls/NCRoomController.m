@@ -10,7 +10,6 @@
 
 #import "NCAPIController.h"
 #import "NCSettingsController.h"
-#import "NCExternalSignalingController.h"
 
 NSString * const NCRoomControllerDidReceiveInitialChatHistoryNotification   = @"NCRoomControllerDidReceiveInitialChatHistoryNotification";
 NSString * const NCRoomControllerDidReceiveChatHistoryNotification          = @"NCRoomControllerDidReceiveChatHistoryNotification";
@@ -38,9 +37,6 @@ NSString * const NCRoomControllerDidReceiveChatMessagesNotification         = @"
         _lastMessageId = -1;
         if (![[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNoPing]) {
             [self startPingRoom];
-        }
-        if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-            [[NCExternalSignalingController sharedInstance] joinRoom:token withSessionId:sessionId];
         }
     }
     

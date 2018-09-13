@@ -13,6 +13,7 @@
 #import "RoomCreation2TableViewController.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
+#import "NCExternalSignalingController.h"
 #import "NCRoomController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
@@ -85,6 +86,9 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 controller.inCall = call;
                 [_activeRooms setObject:controller forKey:room.token];
                 [userInfo setObject:controller forKey:@"roomController"];
+                if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+                    [[NCExternalSignalingController sharedInstance] joinRoom:room.token withSessionId:sessionId];
+                }
             } else {
                 [userInfo setObject:error forKey:@"error"];
                 NSLog(@"Could not join room. Error: %@", error.description);
@@ -122,7 +126,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         
         [[NCAPIController sharedInstance] exitRoom:room.token withCompletionBlock:^(NSError *error) {
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
-            if (error) {
+            if (!error) {
+                if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+                    [[NCExternalSignalingController sharedInstance] leaveRoom:room.token];
+                }
+            } else {
                 [userInfo setObject:error forKey:@"error"];
                 NSLog(@"Could not exit room. Error: %@", error.description);
             }
