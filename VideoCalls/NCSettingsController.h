@@ -24,6 +24,7 @@ extern NSString * const kNCPNPrivateKey;
 extern NSString * const kNCDeviceIdentifier;
 extern NSString * const kNCDeviceSignature;
 extern NSString * const kNCUserPublicKey;
+extern NSString * const kNCUserDefaultBrowser;
 
 extern NSString * const kCapabilityChatV2;
 extern NSString * const kCapabilityFavorites;
@@ -53,6 +54,8 @@ extern NSString * const NCServerCapabilitiesReceivedNotification;
 @property (nonatomic, copy) NSString *ncDeviceSignature;
 @property (nonatomic, copy) NSString *ncUserPublicKey;
 @property (nonatomic, copy) NSDictionary *ncTalkCapabilities;
+@property (nonatomic, copy) NSString *defaultBrowser;
+@property (nonatomic, copy) NSMutableArray *supportedBrowsers;
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
 
 + (instancetype)sharedInstance;

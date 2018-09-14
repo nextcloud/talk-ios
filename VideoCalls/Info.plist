@@ -67,5 +67,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>firefox</string>
+	</array>
 </dict>
 </plist>

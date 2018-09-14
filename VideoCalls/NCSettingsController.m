@@ -38,6 +38,7 @@ NSString * const kNCPNPrivateKey        = @"ncPNPrivateKey";
 NSString * const kNCDeviceIdentifier    = @"ncDeviceIdentifier";
 NSString * const kNCDeviceSignature     = @"ncDeviceSignature";
 NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
+NSString * const kNCUserDefaultBrowser  = @"ncUserDefaultBrowser";
 
 NSString * const kCapabilityChatV2              = @"chat-v2";
 NSString * const kCapabilityFavorites           = @"favorites";
@@ -85,6 +86,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     _ncDeviceIdentifier = [_keychain stringForKey:kNCDeviceIdentifier];
     _ncDeviceSignature = [_keychain stringForKey:kNCDeviceSignature];
     _ncUserPublicKey = [_keychain stringForKey:kNCUserPublicKey];
+    _defaultBrowser = [_keychain stringForKey:kNCUserDefaultBrowser];
 }
 
 - (void)cleanUserAndServerStoredValues
@@ -98,6 +100,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     _ncUserPublicKey = nil;
     _ncDeviceIdentifier = nil;
     _ncDeviceSignature = nil;
+    _defaultBrowser = nil;
     
     [_keychain removeItemForKey:kNCServerKey];
     [_keychain removeItemForKey:kNCUserKey];
@@ -108,6 +111,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     [_keychain removeItemForKey:kNCDeviceIdentifier];
     [_keychain removeItemForKey:kNCDeviceSignature];
     [_keychain removeItemForKey:kNCUserPublicKey];
+    [_keychain removeItemForKey:kNCUserDefaultBrowser];
     
 #warning TODO - Restore NCAPIController in a diferent way
     [[NCAPIController sharedInstance] setAuthHeaderWithUser:NULL andToken:NULL];
@@ -154,6 +158,12 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     
     [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
     if (block) block(nil);
+}
+
+- (void)setDefaultBrowser:(NSString *)defaultBrowser
+{
+    _defaultBrowser = defaultBrowser;
+    [_keychain setString:defaultBrowser forKey:kNCUserDefaultBrowser];
 }
 
 #pragma mark - Server Capabilities

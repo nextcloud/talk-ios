@@ -7,9 +7,14 @@
 //
 
 #import "ChatMessageTableViewCell.h"
+#import "OpenInFirefoxControllerObjC.h"
 #import "SLKUIConstants.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
+#import "NCSettingsController.h"
+
+@interface ChatMessageTableViewCell () <UITextViewDelegate>
+@end
 
 @implementation ChatMessageTableViewCell
 
@@ -119,6 +124,7 @@
 {
     if (!_bodyTextView) {
         _bodyTextView = [MessageBodyTextView new];
+        _bodyTextView.delegate = self;
         _bodyTextView.font = [UIFont systemFontOfSize:[ChatMessageTableViewCell defaultFontSize]];
     }
     return _bodyTextView;
@@ -139,6 +145,17 @@
 //    pointSize += SLKPointSizeDifferenceForCategory(contentSizeCategory);
     
     return pointSize;
+}
+
+#pragma mark - UITextView delegate
+
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(nonnull NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction
+{
+    if ([[NCSettingsController sharedInstance].defaultBrowser isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
+        [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:URL];
+        return NO;
+    }
+    return YES;
 }
 
 @end
