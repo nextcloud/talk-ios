@@ -16,6 +16,7 @@
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
+#import "OpenInFirefoxControllerObjC.h"
 #import "NCConnectionController.h"
 #import "NCPushNotification.h"
 #import "NCRoomsManager.h"
@@ -66,6 +67,16 @@
     configuration.category = AVAudioSessionCategoryPlayAndRecord;
     configuration.mode = AVAudioSessionModeVideoChat;
     [RTCAudioSessionConfiguration setWebRTCConfiguration:configuration];
+    
+    // Check supported browsers
+    NSMutableArray *supportedBrowsers = [[NSMutableArray alloc] initWithObjects:@"Safari", nil];
+    if ([[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
+        [supportedBrowsers addObject:@"Firefox"];
+    }
+    [NCSettingsController sharedInstance].supportedBrowsers = supportedBrowsers;
+    if (![supportedBrowsers containsObject:[NCSettingsController sharedInstance].defaultBrowser]) {
+        [NCSettingsController sharedInstance].defaultBrowser = @"Safari";
+    }
     
     [NCUserInterfaceController sharedInstance].mainTabBarController = (UITabBarController *) self.window.rootViewController;
     

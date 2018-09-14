@@ -14,6 +14,7 @@
 #import "NCAPIController.h"
 #import "NCUserInterfaceController.h"
 #import "NCConnectionController.h"
+#import "OpenInFirefoxControllerObjC.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 #import <SafariServices/SafariServices.h>
@@ -27,6 +28,7 @@ typedef enum SettingsSection {
 
 typedef enum ConfigurationSection {
     kConfigurationSectionVideo = 0,
+    kConfigurationSectionBrowser,// Keep it always as last option
     kConfigurationSectionNumber
 } ConfigurationSection;
 
@@ -232,6 +234,42 @@ typedef enum AboutSection {
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
+- (void)presentBrowserSelector
+{
+    NSIndexPath *browserConfIndexPath = [NSIndexPath indexPathForRow:kConfigurationSectionBrowser inSection:kSettingsSectionConfiguration];
+    NSArray *supportedBrowsers = [[NCSettingsController sharedInstance] supportedBrowsers];
+    NSString *defaultBrowser = [[NCSettingsController sharedInstance] defaultBrowser];
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:@"Open links in"
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    for (NSString *browser in supportedBrowsers) {
+        BOOL isDefaultBrowser = [browser isEqualToString:defaultBrowser];
+        UIAlertAction *action = [UIAlertAction actionWithTitle:browser
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^void (UIAlertAction *action) {
+                                                           [NCSettingsController sharedInstance].defaultBrowser = browser;
+                                                           [self.tableView beginUpdates];
+                                                           [self.tableView reloadRowsAtIndexPaths:@[browserConfIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+                                                           [self.tableView endUpdates];
+                                                       }];
+        if (isDefaultBrowser) {
+            [action setValue:[[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        }
+        
+        [optionsActionSheet addAction:action];
+    }
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:browserConfIndexPath];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -243,7 +281,10 @@ typedef enum AboutSection {
 {
     switch (section) {
         case kSettingsSectionConfiguration:
-            return kConfigurationSectionNumber;
+        {
+            NSUInteger numberOfSupportedBrowsers = [NCSettingsController sharedInstance].supportedBrowsers.count;
+            return (numberOfSupportedBrowsers > 1) ? kConfigurationSectionNumber : kConfigurationSectionNumber - 1;
+        }
             break;
 
         case kSettingsSectionAbout:
@@ -293,6 +334,7 @@ typedef enum AboutSection {
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
     static NSString *videoConfigurationCellIdentifier = @"VideoConfigurationCellIdentifier";
+    static NSString *browserConfigurationCellIdentifier = @"BrowserConfigurationCellIdentifier";
     static NSString *privacyCellIdentifier = @"PrivacyCellIdentifier";
     static NSString *sourceCodeCellIdentifier = @"SourceCodeCellIdentifier";
     
@@ -332,6 +374,18 @@ typedef enum AboutSection {
                     }
                     NSString *resolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
                     cell.detailTextLabel.text = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:resolution];
+                }
+                    break;
+                case kConfigurationSectionBrowser:
+                {
+                    cell = [tableView dequeueReusableCellWithIdentifier:browserConfigurationCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:browserConfigurationCellIdentifier];
+                        cell.textLabel.text = @"Open links in";
+                        cell.imageView.contentMode = UIViewContentModeCenter;
+                        [cell.imageView setImage:[UIImage imageNamed:@"browser-settings"]];
+                    }
+                    cell.detailTextLabel.text = [[NCSettingsController sharedInstance] defaultBrowser];
                 }
                     break;
             }
@@ -381,6 +435,12 @@ typedef enum AboutSection {
                 case kConfigurationSectionVideo:
                 {
                     [self presentVideoResolutionsSelector];
+                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                }
+                    break;
+                case kConfigurationSectionBrowser:
+                {
+                    [self presentBrowserSelector];
                     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                 }
                     break;
