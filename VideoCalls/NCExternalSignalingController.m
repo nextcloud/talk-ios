@@ -200,9 +200,67 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     [self joinRoom:@"" withSessionId:@""];
 }
 
-- (void)joinResponseReceived:(NSDictionary *)joinDict
+- (void)roomMessageReceived:(NSDictionary *)roomDict
 {
-    NSLog(@"Join response received");
+    NSLog(@"Room message received");
+}
+
+- (void)eventMessageReceived:(NSDictionary *)eventDict
+{
+    NSString *eventTarget = [eventDict objectForKey:@"target"];
+    if ([eventTarget isEqualToString:@"room"]) {
+        [self processRoomEvent:eventDict];
+    } else if ([eventTarget isEqualToString:@"roomlist"]) {
+        [self processRoomListEvent:eventDict];
+    } else if ([eventTarget isEqualToString:@"participants"]) {
+        [self processRoomParticipantsEvent:eventDict];
+    } else {
+        NSLog(@"Unsupported event target: %@", eventDict);
+    }
+}
+
+- (void)processRoomEvent:(NSDictionary *)eventDict
+{
+    NSString *eventType = [eventDict objectForKey:@"type"];
+    if ([eventType isEqualToString:@"join"]) {
+        NSLog(@"Participant joined room.");
+    } else if ([eventType isEqualToString:@"leave"]) {
+        NSLog(@"Participant left room.");
+    } else if ([eventType isEqualToString:@"message"]) {
+        [self processRoomMessageEvent:[eventDict objectForKey:@"message"]];
+    } else {
+        NSLog(@"Unknown room event: %@", eventDict);
+    }
+}
+
+- (void)processRoomMessageEvent:(NSDictionary *)messageDict
+{
+    NSString *messageType = [[messageDict objectForKey:@"data"] objectForKey:@"type"];
+    if ([messageType isEqualToString:@"chat"]) {
+        NSLog(@"Chat message received.");
+    } else {
+        NSLog(@"Unknown room message type: %@", messageDict);
+    }
+}
+
+- (void)processRoomListEvent:(NSDictionary *)eventDict
+{
+    NSLog(@"Refresh room list.");
+}
+
+- (void)processRoomParticipantsEvent:(NSDictionary *)eventDict
+{
+    NSString *eventType = [eventDict objectForKey:@"type"];
+    if ([eventType isEqualToString:@"update"]) {
+        NSLog(@"Participant list changed.");
+    } else {
+        NSLog(@"Unknown room event: %@", eventDict);
+    }
+}
+
+- (void)messageReceived:(NSDictionary *)messageDict
+{
+    NSLog(@"Message received");
 }
 
 #pragma mark - SRWebSocketDelegate
@@ -227,6 +285,12 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
             [self helloResponseReceived:[messageDict objectForKey:@"hello"]];
         } else if ([messageType isEqualToString:@"error"]) {
             [self errorResponseReceived:[messageDict objectForKey:@"error"]];
+        } else if ([messageType isEqualToString:@"room"]) {
+            [self roomMessageReceived:[messageDict objectForKey:@"room"]];
+        } else if ([messageType isEqualToString:@"event"]) {
+            [self eventMessageReceived:[messageDict objectForKey:@"event"]];
+        } else if ([messageType isEqualToString:@"message"]) {
+            [self messageReceived:[messageDict objectForKey:@"message"]];
         }
     }
 }
