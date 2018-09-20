@@ -78,13 +78,17 @@ NSString *const kRoomTypeScreen = @"screen";
         return nil;
     }
     
-    NSString *typeString = values[kNCSignalingMessageTypeKey];
+    return [self messageFromJSONDictionary:values];
+}
+
++ (NCSignalingMessage *)messageFromJSONDictionary:(NSDictionary *)jsonDict {
+    NSString *typeString = [jsonDict objectForKey:kNCSignalingMessageTypeKey];
     NCSignalingMessage *message = nil;
     if ([typeString isEqualToString:kNCSignalingMessageTypeCandidateKey]) {
-        message = [[NCICECandidateMessage alloc] initWithValues:values];
+        message = [[NCICECandidateMessage alloc] initWithValues:jsonDict];
     } else if ([typeString isEqualToString:kNCSignalingMessageTypeOfferKey] ||
                [typeString isEqualToString:kNCSignalingMessageTypeAnswerKey]) {
-        message = [[NCSessionDescriptionMessage alloc] initWithValues:values];
+        message = [[NCSessionDescriptionMessage alloc] initWithValues:jsonDict];
     } else {
         NSLog(@"Unexpected type: %@", typeString);
     }
@@ -97,7 +101,11 @@ NSString *const kRoomTypeScreen = @"screen";
 }
 
 - (NSDictionary *)messageDict {
-    return nil;
+    return @{};
+}
+
+- (NSDictionary *)functionDict {
+    return @{};
 }
 
 - (NCSignalingMessageType)messageType {

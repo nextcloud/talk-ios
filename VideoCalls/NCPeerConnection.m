@@ -53,6 +53,17 @@
     return self;
 }
 
+- (instancetype)initForMCUWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly
+{
+    self = [self initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:audioOnly];
+    
+    if (self) {
+        _isMCUPeer = YES;
+    }
+    
+    return self;
+}
+
 #pragma mark - NSObject
 
 - (BOOL)isEqual:(id)object
@@ -126,6 +137,24 @@
     _localDataChannel = [_peerConnection dataChannelForLabel:@"status" configuration:config];
     _localDataChannel.delegate = self;
     [_peerConnection offerForConstraints:[self defaultOfferConstraints] completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
+        __weak NCPeerConnection *weakSelf = self;
+        [_peerConnection setLocalDescription:sdp completionHandler:^(NSError *error) {
+            NCPeerConnection *strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf.delegate peerConnection:strongSelf needsToSendSessionDescription:sdp];
+            }
+        }];
+    }];
+}
+
+- (void)sendPublishOfferToMCU
+{
+    //Create data channel before creating the offer to enable data channels
+    RTCDataChannelConfiguration* config = [[RTCDataChannelConfiguration alloc] init];
+    config.isNegotiated = NO;
+    _localDataChannel = [_peerConnection dataChannelForLabel:@"status" configuration:config];
+    _localDataChannel.delegate = self;
+    [_peerConnection offerForConstraints:[self mcuOfferConstraints] completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
         __weak NCPeerConnection *weakSelf = self;
         [_peerConnection setLocalDescription:sdp completionHandler:^(NSError *error) {
             NCPeerConnection *strongSelf = weakSelf;
@@ -383,6 +412,24 @@
                                  @"OfferToReceiveVideo" : @"false"
                                  };
     }
+    
+    NSDictionary *optionalConstraints = @{
+                                          @"internalSctpDataChannels": @"true",
+                                          @"DtlsSrtpKeyAgreement": @"true"
+                                          };
+    
+    RTCMediaConstraints* constraints = [[RTCMediaConstraints alloc]
+                                        initWithMandatoryConstraints:mandatoryConstraints
+                                        optionalConstraints:optionalConstraints];
+    return constraints;
+}
+
+- (RTCMediaConstraints *)mcuOfferConstraints
+{
+    NSDictionary *mandatoryConstraints = @{
+                                           @"OfferToReceiveAudio" : @"false",
+                                           @"OfferToReceiveVideo" : @"false"
+                                           };
     
     NSDictionary *optionalConstraints = @{
                                           @"internalSctpDataChannels": @"true",

@@ -40,14 +40,11 @@ typedef void (^GetUserIdForSessionIdCompletionBlock)(NSString *userId, NSError *
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, copy) NSString *userSessionId;
 @property (nonatomic, copy) NSString *userDisplayName;
-@property (nonatomic, strong) NSMutableDictionary *connectionsDict;
-@property (nonatomic, strong) NSMutableArray *renderers;
 
 
 - (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId;
 - (void)startCall;
 - (void)leaveCall;
-- (void)toggleCamera;
 - (BOOL)isVideoEnabled;
 - (BOOL)isAudioEnabled;
 - (BOOL)isSpeakerActive;

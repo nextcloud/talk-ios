@@ -8,12 +8,20 @@
 
 #import <Foundation/Foundation.h>
 
+#import "NCSignalingMessage.h"
+
+extern NSString * const NCESReceivedSignalingMessageNotification;
+extern NSString * const NCESReceivedParticipantListMessageNotification;
+
 @interface NCExternalSignalingController : NSObject
 
 + (instancetype)sharedInstance;
 - (BOOL)isEnabled;
+- (NSString *)sessionId;
 - (void)setServer:(NSString *)serverUrl andTicket:(NSString *)ticket;
 - (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId;
 - (void)leaveRoom:(NSString *)roomId;
+- (void)sendCallMessage:(NCSignalingMessage *)message;
+- (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
 
 @end

@@ -22,6 +22,7 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 @property (nonatomic, strong) NSString* serverUrl;
 @property (nonatomic, strong) NSString* ticket;
 @property (nonatomic, strong) NSString* resumeId;
+@property (nonatomic, strong) NSString* sessionId;
 @property (nonatomic, assign) BOOL mcuSupport;
 @property (nonatomic, assign) NSInteger reconnectInterval;
 @property (nonatomic, strong) NSTimer *reconnectTimer;
@@ -30,6 +31,9 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 @end
 
 @implementation NCExternalSignalingController
+
+NSString * const NCESReceivedSignalingMessageNotification = @"NCESReceivedSignalingMessageNotification";
+NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceivedParticipantListMessageNotification";
 
 + (NCExternalSignalingController *)sharedInstance
 {
@@ -44,6 +48,11 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 - (BOOL)isEnabled
 {
     return (_serverUrl) ? YES : NO;
+}
+
+- (NSString *)sessionId
+{
+    return _sessionId;
 }
 
 - (void)setServer:(NSString *)serverUrl andTicket:(NSString *)ticket
@@ -200,9 +209,58 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     [self joinRoom:@"" withSessionId:@""];
 }
 
-- (void)roomMessageReceived:(NSDictionary *)roomDict
+- (void)sendCallMessage:(NCSignalingMessage *)message
 {
-    NSLog(@"Room message received");
+    NSDictionary *messageDict = @{
+                                  @"type": @"message",
+                                  @"message": @{
+                                          @"recipient": @{
+                                                  @"type": @"session",
+                                                  @"sessionid": message.to
+                                                  },
+                                          @"data": [message functionDict]
+                                          }
+                                  };
+    
+    NSString *jsonString = [self createWebSocketMessage:messageDict];
+    if (!jsonString) {
+        NSLog(@"Error creating join message");
+        return;
+    }
+    
+    NSLog(@"Sending: %@", jsonString);
+    
+    [_webSocket send:jsonString];
+}
+
+- (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType
+{
+    NSDictionary *messageDict = @{
+                                  @"type": @"message",
+                                  @"message": @{
+                                          @"recipient": @{
+                                                  @"type": @"session",
+                                                  @"sessionid": sessionId
+                                                  },
+                                          @"data": @{
+                                                  @"type": @"requestoffer",
+                                                  @"roomType": roomType
+                                                  }
+                                          }
+                                  };
+    
+    NSString *jsonString = [self createWebSocketMessage:messageDict];
+    if (!jsonString) {
+        NSLog(@"Error creating join message");
+        return;
+    }
+    
+    [_webSocket send:jsonString];
+}
+
+- (void)roomMessageReceived:(NSDictionary *)messageDict
+{
+    NSLog(@"Room message received.");
 }
 
 - (void)eventMessageReceived:(NSDictionary *)eventDict
@@ -223,6 +281,13 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 {
     NSString *eventType = [eventDict objectForKey:@"type"];
     if ([eventType isEqualToString:@"join"]) {
+        NSArray *joins = [eventDict objectForKey:@"join"];
+        for (NSDictionary *participant in joins) {
+            if ([[participant objectForKey:@"userid"] isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
+                _sessionId = [participant objectForKey:@"sessionid"];
+                NSLog(@"App user joined room.");
+            }
+        }
         NSLog(@"Participant joined room.");
     } else if ([eventType isEqualToString:@"leave"]) {
         NSLog(@"Participant left room.");
@@ -253,6 +318,9 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     NSString *eventType = [eventDict objectForKey:@"type"];
     if ([eventType isEqualToString:@"update"]) {
         NSLog(@"Participant list changed.");
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCESReceivedParticipantListMessageNotification
+                                                            object:self
+                                                          userInfo:[eventDict objectForKey:@"update"]];
     } else {
         NSLog(@"Unknown room event: %@", eventDict);
     }
@@ -261,6 +329,9 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 - (void)messageReceived:(NSDictionary *)messageDict
 {
     NSLog(@"Message received");
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCESReceivedSignalingMessageNotification
+                                                        object:self
+                                                      userInfo:messageDict];
 }
 
 #pragma mark - SRWebSocketDelegate
