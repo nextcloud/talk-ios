@@ -50,6 +50,11 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
     return (_serverUrl) ? YES : NO;
 }
 
+- (BOOL)hasMCU
+{
+    return _mcuSupport;
+}
+
 - (NSString *)sessionId
 {
     return _sessionId;
@@ -173,7 +178,12 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
 - (void)helloResponseReceived:(NSDictionary *)helloDict
 {
     _resumeId = [helloDict objectForKey:@"resumeid"];
-    // Get server features
+    NSArray *serverFeatures = [[helloDict objectForKey:@"server"] objectForKey:@"features"];
+    for (NSString *feature in serverFeatures) {
+        if ([feature isEqualToString:@"mcu"]) {
+            _mcuSupport = YES;
+        }
+    }
 }
 
 - (void)errorResponseReceived:(NSDictionary *)errorDict

@@ -17,6 +17,7 @@ extern NSString * const NCESReceivedParticipantListMessageNotification;
 
 + (instancetype)sharedInstance;
 - (BOOL)isEnabled;
+- (BOOL)hasMCU;
 - (NSString *)sessionId;
 - (void)setServer:(NSString *)serverUrl andTicket:(NSString *)ticket;
 - (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId;

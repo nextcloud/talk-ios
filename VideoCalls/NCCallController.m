@@ -98,7 +98,9 @@ static NSString * const kNCVideoTrackKind = @"video";
             [self startMonitoringMicrophoneAudioLevel];
             if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
                 _userSessionId = [[NCExternalSignalingController sharedInstance] sessionId];
-                [self createOwnPublishPeerConnection];
+                if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+                    [self createOwnPublishPeerConnection];
+                }
             } else {
                 [_signalingController startPullingSignalingMessages];
             }
@@ -336,7 +338,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:_isAudioOnly];
         peerConnectionWrapper.delegate = self;
         // TODO: Try to get display name here
-        if (![[NCExternalSignalingController sharedInstance] isEnabled]) {
+        if (![[NCExternalSignalingController sharedInstance] hasMCU]) {
             [peerConnectionWrapper.peerConnection addStream:_localStream];
         }
         
@@ -469,7 +471,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     for (NSString *sessionId in newSessions) {
         if (![_connectionsDict objectForKey:sessionId]) {
-            if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+            if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
                 NSLog(@"Requesting offer to the MCU");
                 [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:sessionId andRoomType:@"video"];
             } else {
