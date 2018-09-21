@@ -24,5 +24,6 @@ extern NSString * const NCESReceivedParticipantListMessageNotification;
 - (void)leaveRoom:(NSString *)roomId;
 - (void)sendCallMessage:(NCSignalingMessage *)message;
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
+- (void)disconnect;
 
 @end

@@ -102,6 +102,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     _ncDeviceIdentifier = nil;
     _ncDeviceSignature = nil;
     _defaultBrowser = nil;
+    _ncSignalingConfiguration = nil;
     
     [_keychain removeItemForKey:kNCServerKey];
     [_keychain removeItemForKey:kNCUserKey];
@@ -156,7 +157,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
             }
         }];
     }
-    
+    [[NCExternalSignalingController sharedInstance] disconnect];
     [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
     if (block) block(nil);
 }

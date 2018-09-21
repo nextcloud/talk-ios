@@ -116,6 +116,13 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
     [self setReconnectionTimer];
 }
 
+- (void)disconnect
+{
+    [self invalidateReconnectionTimer];
+    [_webSocket close];
+    _webSocket = nil;
+}
+
 - (void)setReconnectionTimer
 {
     [self invalidateReconnectionTimer];
