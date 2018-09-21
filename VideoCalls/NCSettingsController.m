@@ -102,6 +102,8 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     _ncDeviceIdentifier = nil;
     _ncDeviceSignature = nil;
     _defaultBrowser = nil;
+    // Also remove values that are not stored in the keychain
+    _ncTalkCapabilities = nil;
     _ncSignalingConfiguration = nil;
     
     [_keychain removeItemForKey:kNCServerKey];
