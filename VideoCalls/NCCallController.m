@@ -20,6 +20,7 @@
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 #import "NCAPIController.h"
+#import "NCSettingsController.h"
 #import "NCSignalingController.h"
 #import "NCExternalSignalingController.h"
 
@@ -36,6 +37,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) AVAudioRecorder *recorder;
 @property (nonatomic, strong) NSTimer *micAudioLevelTimer;
 @property (nonatomic, assign) BOOL speaking;
+@property (nonatomic, strong) NSTimer *sendNickTimer;
 @property (nonatomic, strong) NSArray *usersInRoom;
 @property (nonatomic, strong) NSArray *peersInCall;
 @property (nonatomic, strong) NCPeerConnection *ownPeerConnection;
@@ -113,6 +115,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)leaveCall
 {
     [self setLeavingCall:YES];
+    [self stopSendingNick];
     
     for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
         [peerConnectionWrapper close];
@@ -367,10 +370,13 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)sendDataChannelMessageToAllOfType:(NSString *)type withPayload:(NSString *)payload
 {
-    NSArray *connectionWrappers = [self.connectionsDict allValues];
-    
-    for (NCPeerConnection *peerConnection in connectionWrappers) {
-        [peerConnection sendDataChannelMessageOfType:type withPayload:payload];
+    if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+        [_ownPeerConnection sendDataChannelMessageOfType:type withPayload:payload];
+    } else {
+        NSArray *connectionWrappers = [self.connectionsDict allValues];
+        for (NCPeerConnection *peerConnection in connectionWrappers) {
+            [peerConnection sendDataChannelMessageOfType:type withPayload:payload];
+        }
     }
 }
 
@@ -399,6 +405,24 @@ static NSString * const kNCVideoTrackKind = @"video";
     NSLog(@"External participants message received: %@", notification);
     NSArray *usersInRoom = [notification.userInfo objectForKey:@"users"];
     [self processUsersInRoom:usersInRoom];
+}
+
+- (void)sendNick
+{
+    [self sendDataChannelMessageToAllOfType:@"nickChanged" withPayload:[NCSettingsController sharedInstance].ncUserDisplayName];
+}
+
+- (void)startSendingNick
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _sendNickTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(sendNick) userInfo:nil repeats:YES];
+    });
+}
+
+- (void)stopSendingNick
+{
+    [_sendNickTimer invalidate];
+    _sendNickTimer = nil;
 }
 
 #pragma mark - Signaling Controller Delegate
@@ -587,6 +611,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     } else {
         NSLog(@"Send videoOff");
         [peerConnection sendDataChannelMessageOfType:@"videoOff" withPayload:nil];
+    }
+    
+    // Send nick using mcu
+    if (peerConnection.isMCUPeer) {
+        [self startSendingNick];
     }
 }
 
