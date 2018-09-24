@@ -24,6 +24,8 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 @property (nonatomic, strong) NSString* resumeId;
 @property (nonatomic, strong) NSString* sessionId;
 @property (nonatomic, assign) BOOL mcuSupport;
+@property (nonatomic, strong) NSMutableDictionary* participantsMap;
+@property (nonatomic, strong) NSString* currentRoom;
 @property (nonatomic, assign) NSInteger reconnectInterval;
 @property (nonatomic, strong) NSTimer *reconnectTimer;
 @property (nonatomic, assign) BOOL reconnecting;
@@ -277,6 +279,8 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
 
 - (void)roomMessageReceived:(NSDictionary *)messageDict
 {
+    _participantsMap = [NSMutableDictionary new];
+    _currentRoom = [messageDict objectForKey:@"roomid"];
     NSLog(@"Room message received.");
 }
 
@@ -300,12 +304,19 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
     if ([eventType isEqualToString:@"join"]) {
         NSArray *joins = [eventDict objectForKey:@"join"];
         for (NSDictionary *participant in joins) {
-            if ([[participant objectForKey:@"userid"] isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
-                _sessionId = [participant objectForKey:@"sessionid"];
-                NSLog(@"App user joined room.");
+            NSString *participantId = [participant objectForKey:@"userid"];
+            if (!participantId || [participantId isEqualToString:@""]) {
+                NSLog(@"Guest joined room.");
+            } else {
+                if ([participantId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
+                    _sessionId = [participant objectForKey:@"sessionid"];
+                    NSLog(@"App user joined room.");
+                } else {
+                    [_participantsMap setObject:[[participant objectForKey:@"user"] objectForKey:@"displayname"] forKey:participantId];
+                    NSLog(@"Participant joined room.");
+                }
             }
         }
-        NSLog(@"Participant joined room.");
     } else if ([eventType isEqualToString:@"leave"]) {
         NSLog(@"Participant left room.");
     } else if ([eventType isEqualToString:@"message"]) {
