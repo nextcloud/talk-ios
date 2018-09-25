@@ -368,7 +368,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     return peerConnectionWrapper;
 }
 
-- (void)sendDataChannelMessageToAllOfType:(NSString *)type withPayload:(NSString *)payload
+- (void)sendDataChannelMessageToAllOfType:(NSString *)type withPayload:(id)payload
 {
     if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
         [_ownPeerConnection sendDataChannelMessageOfType:type withPayload:payload];
@@ -409,7 +409,11 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)sendNick
 {
-    [self sendDataChannelMessageToAllOfType:@"nickChanged" withPayload:[NCSettingsController sharedInstance].ncUserDisplayName];
+    NSDictionary *payload = @{
+                              @"userid":[NCSettingsController sharedInstance].ncUserId,
+                              @"name":[NCSettingsController sharedInstance].ncUserDisplayName
+                              };
+    [self sendDataChannelMessageToAllOfType:@"nickChanged" withPayload:payload];
 }
 
 - (void)startSendingNick

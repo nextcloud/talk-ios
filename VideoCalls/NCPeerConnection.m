@@ -321,7 +321,7 @@
     return jsonData;
 }
 
-- (void)sendDataChannelMessageOfType:(NSString *)type withPayload:(NSString *)payload
+- (void)sendDataChannelMessageOfType:(NSString *)type withPayload:(id)payload
 {
     NSDictionary *message = @{@"type": type};
     

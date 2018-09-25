@@ -62,7 +62,7 @@
 - (void)setRemoteDescription:(RTCSessionDescription *)sessionDescription;
 - (void)sendPublishOfferToMCU;
 - (void)sendOffer;
-- (void)sendDataChannelMessageOfType:(NSString *)type withPayload:(NSString *)payload;
+- (void)sendDataChannelMessageOfType:(NSString *)type withPayload:(id)payload;
 - (void)drainRemoteCandidates;
 - (void)removeRemoteCandidates;
 - (void)close;
