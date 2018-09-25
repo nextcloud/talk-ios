@@ -189,7 +189,11 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 // SetSignalingConfiguration should be called just once
 - (void)setSignalingConfiguration
 {
-    NSString *externalSignalingServer = [_ncSignalingConfiguration objectForKey:@"server"];
+    NSString *externalSignalingServer = nil;
+    id server = [_ncSignalingConfiguration objectForKey:@"server"];
+    if ([server isKindOfClass:[NSString class]]) {
+        externalSignalingServer = server;
+    }
     NSString *externalSignalingTicket = [_ncSignalingConfiguration objectForKey:@"ticket"];
     if (externalSignalingServer && externalSignalingTicket) {
         [[NCExternalSignalingController sharedInstance] setServer:externalSignalingServer andTicket:externalSignalingTicket];
