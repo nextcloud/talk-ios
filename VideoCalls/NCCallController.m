@@ -587,7 +587,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didAddStream:(RTCMediaStream *)stream
 {
-    [self.delegate callController:self didAddStream:stream ofPeer:peerConnection];
+    if (!peerConnection.isMCUPublisherPeer) {
+        [self.delegate callController:self didAddStream:stream ofPeer:peerConnection];
+    }
 }
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didRemoveStream:(RTCMediaStream *)stream
@@ -621,7 +623,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     }
     
     // Send nick using mcu
-    if (peerConnection.isMCUPeer) {
+    if (peerConnection.isMCUPublisherPeer) {
         [self startSendingNick];
     }
 }

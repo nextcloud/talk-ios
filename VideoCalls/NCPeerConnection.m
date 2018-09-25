@@ -58,7 +58,7 @@
     self = [self initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:audioOnly];
     
     if (self) {
-        _isMCUPeer = YES;
+        _isMCUPublisherPeer = YES;
     }
     
     return self;
