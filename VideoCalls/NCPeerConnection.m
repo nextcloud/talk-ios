@@ -268,9 +268,15 @@
     NSLog(@"Data channel '%@' did receive message: %@", dataChannel.label, messageType);
     
     if ([messageType isEqualToString:@"nickChanged"]) {
-        NSString *messagePayload = [message objectForKey:@"payload"];
-        _peerName = messagePayload;
-        [self.delegate peerConnection:self didReceivePeerNick:messagePayload];
+        id messagePayload = [message objectForKey:@"payload"];
+        NSString *nick = @"";
+        if ([messagePayload isKindOfClass:[NSString class]]) {
+            nick = messagePayload;
+        } else {
+            nick = [messagePayload objectForKey:@"name"];
+        }
+        _peerName = nick;
+        [self.delegate peerConnection:self didReceivePeerNick:nick];
     } else {
         // Check remote audio/video status
         if ([messageType isEqualToString:@"audioOn"]) {
@@ -378,6 +384,11 @@
             NSLog(@"Creating local description for peer %@", _peerName);
             RTCMediaConstraints *constraints = [self defaultAnswerConstraints];
             __weak NCPeerConnection *weakSelf = self;
+            //Create data channel before sending answer
+            RTCDataChannelConfiguration* config = [[RTCDataChannelConfiguration alloc] init];
+            config.isNegotiated = NO;
+            _localDataChannel = [_peerConnection dataChannelForLabel:@"status" configuration:config];
+            _localDataChannel.delegate = self;
             [_peerConnection answerForConstraints:constraints completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
                 NCPeerConnection *strongSelf = weakSelf;
                 if (strongSelf) {
