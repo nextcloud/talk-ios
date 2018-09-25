@@ -529,7 +529,9 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[peer.remoteStream.videoTracks firstObject] removeRenderer:renderer];
     [_renderersDict removeObjectForKey:peer.peerId];
     [_peersInCall removeObject:peer];
-    [self.collectionView reloadData];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.collectionView reloadData];
+    });
 }
 
 - (void)callController:(NCCallController *)callController didCreateLocalVideoCapturer:(RTCCameraVideoCapturer *)videoCapturer
