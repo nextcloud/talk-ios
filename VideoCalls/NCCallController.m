@@ -544,6 +544,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId
 {
+    if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+        return [[NCExternalSignalingController sharedInstance] getUserIdFromSessionId:sessionId];
+    }
     NSString *userId = nil;
     for (NSMutableDictionary *user in _peersInCall) {
         NSString *userSessionId = [user objectForKey:@"sessionId"];

@@ -312,7 +312,7 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
                     _sessionId = [participant objectForKey:@"sessionid"];
                     NSLog(@"App user joined room.");
                 } else {
-                    [_participantsMap setObject:[[participant objectForKey:@"user"] objectForKey:@"displayname"] forKey:participantId];
+                    [_participantsMap setObject:participant forKey:[participant objectForKey:@"sessionid"]];
                     NSLog(@"Participant joined room.");
                 }
             }
@@ -411,6 +411,16 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
 }
 
 #pragma mark - Utils
+
+- (NSString *)getUserIdFromSessionId:(NSString *)sessionId
+{
+    NSString *userId = nil;
+    NSDictionary *user = [_participantsMap objectForKey:sessionId];
+    if (user) {
+        userId = [user objectForKey:@"userid"];
+    }
+    return userId;
+}
 
 - (NSDictionary *)getWebSocketMessageFromJSONData:(NSData *)jsonData
 {
