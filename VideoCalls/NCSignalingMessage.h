@@ -32,8 +32,10 @@ typedef enum {
 @property(nonatomic, readonly) NSString *roomType;
 
 + (NCSignalingMessage *)messageFromJSONString:(NSString *)jsonString;
++ (NCSignalingMessage *)messageFromJSONDictionary:(NSDictionary *)jsonDict;
 + (NSString *)getMessageSid;
 - (NSDictionary *)messageDict;
+- (NSDictionary *)functionDict;
 - (NCSignalingMessageType)messageType;
 
 @end

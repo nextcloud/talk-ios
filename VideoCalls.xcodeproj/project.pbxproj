@@ -124,6 +124,8 @@
 		2CC7159120C51F7F0045C789 /* UnreadMessagesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159020C51F7F0045C789 /* UnreadMessagesView.m */; };
 		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
 		2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7187D2007A9920055E02C /* LaunchScreen.xib */; };
+		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
+		2CD5F3252142B3B9006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
 		85032FFE8557E8F29A3C79B8 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49EC325ACC97A400B9FAFA27 /* libPods-NotificationServiceExtension.a */; };
 		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
 /* End PBXBuildFile section */
@@ -398,6 +400,8 @@
 		2CC7159220C54D080045C789 /* ChatTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatTableViewCell.h; sourceTree = "<group>"; };
 		2CC7159320C54D080045C789 /* ChatTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatTableViewCell.m; sourceTree = "<group>"; };
 		2CC7187E2007A9920055E02C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = VideoCalls/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		2CD5F3222142781A006B71BF /* NCExternalSignalingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCExternalSignalingController.h; sourceTree = "<group>"; };
+		2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCExternalSignalingController.m; sourceTree = "<group>"; };
 		2CF6F5E21FC211EC00E4EFAA /* NotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		49EC325ACC97A400B9FAFA27 /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5EF849CBD848BB3194C0D885 /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
@@ -698,6 +702,8 @@
 				2C78EF981F80F81E008AFA74 /* NCSignalingController.m */,
 				2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */,
 				2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */,
+				2CD5F3222142781A006B71BF /* NCExternalSignalingController.h */,
+				2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */,
 			);
 			name = WebRTC;
 			sourceTree = "<group>";
@@ -1130,6 +1136,7 @@
 			files = (
 				2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */,
 				2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */,
+				2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */,
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
 				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
@@ -1217,6 +1224,7 @@
 				2CBF82BE1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
 				2C3F6AA81FBB1ACD00E2705C /* NotificationService.m in Sources */,
 				2C3F6AB31FBB45E600E2705C /* NCSettingsController.m in Sources */,
+				2CD5F3252142B3B9006B71BF /* NCExternalSignalingController.m in Sources */,
 				2C3F6AB71FBB47C400E2705C /* UICKeyChainStore.m in Sources */,
 				2C3F6AB81FBB4C9500E2705C /* NCRoom.m in Sources */,
 				2C3780BE21075161003F9AE8 /* NCRoomParticipants.m in Sources */,

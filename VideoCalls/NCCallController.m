@@ -20,7 +20,9 @@
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 #import "NCAPIController.h"
+#import "NCSettingsController.h"
 #import "NCSignalingController.h"
+#import "NCExternalSignalingController.h"
 
 static NSString * const kNCMediaStreamId = @"NCMS";
 static NSString * const kNCAudioTrackId = @"NCa0";
@@ -35,8 +37,11 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) AVAudioRecorder *recorder;
 @property (nonatomic, strong) NSTimer *micAudioLevelTimer;
 @property (nonatomic, assign) BOOL speaking;
+@property (nonatomic, strong) NSTimer *sendNickTimer;
 @property (nonatomic, strong) NSArray *usersInRoom;
 @property (nonatomic, strong) NSArray *peersInCall;
+@property (nonatomic, strong) NCPeerConnection *ownPeerConnection;
+@property (nonatomic, strong) NSMutableDictionary *connectionsDict;
 @property (nonatomic, strong) RTCMediaStream *localStream;
 @property (nonatomic, strong) RTCAudioTrack *localAudioTrack;
 @property (nonatomic, strong) RTCVideoTrack *localVideoTrack;
@@ -58,6 +63,9 @@ static NSString * const kNCVideoTrackKind = @"video";
         _room = room;
         _isAudioOnly = audioOnly;
         _userSessionId = sessionId;
+        if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+            _userSessionId = [[NCExternalSignalingController sharedInstance] sessionId];
+        }
         _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] init];
         _connectionsDict = [[NSMutableDictionary alloc] init];
         _usersInRoom = [[NSArray alloc] init];
@@ -73,6 +81,9 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
         
         [self initRecorder];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(externalSignalingMessageReceived:) name:NCESReceivedSignalingMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(externalParticipantListMessageReceived:) name:NCESReceivedParticipantListMessageNotification object:nil];
     }
     
     return self;
@@ -87,7 +98,14 @@ static NSString * const kNCVideoTrackKind = @"video";
             [self.delegate callControllerDidJoinCall:self];
             [self getPeersForCall];
             [self startMonitoringMicrophoneAudioLevel];
-            [_signalingController startPullingSignalingMessages];
+            if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+                _userSessionId = [[NCExternalSignalingController sharedInstance] sessionId];
+                if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+                    [self createOwnPublishPeerConnection];
+                }
+            } else {
+                [_signalingController startPullingSignalingMessages];
+            }
         } else {
             NSLog(@"Could not join call. Error: %@", error.description);
         }
@@ -97,6 +115,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)leaveCall
 {
     [self setLeavingCall:YES];
+    [self stopSendingNick];
     
     for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
         [peerConnectionWrapper close];
@@ -132,12 +151,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     NSLog(@"NCCallController dealloc");
-}
-
-- (void)toggleCamera
-{
-    // TODO
 }
 
 - (BOOL)isVideoEnabled
@@ -326,7 +341,9 @@ static NSString * const kNCVideoTrackKind = @"video";
         peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:_isAudioOnly];
         peerConnectionWrapper.delegate = self;
         // TODO: Try to get display name here
-        [peerConnectionWrapper.peerConnection addStream:_localStream];
+        if (![[NCExternalSignalingController sharedInstance] hasMCU]) {
+            [peerConnectionWrapper.peerConnection addStream:_localStream];
+        }
         
         [_connectionsDict setObject:peerConnectionWrapper forKey:sessionId];
         NSLog(@"Peer joined: %@", sessionId);
@@ -351,13 +368,65 @@ static NSString * const kNCVideoTrackKind = @"video";
     return peerConnectionWrapper;
 }
 
-- (void)sendDataChannelMessageToAllOfType:(NSString *)type withPayload:(NSString *)payload
+- (void)sendDataChannelMessageToAllOfType:(NSString *)type withPayload:(id)payload
 {
-    NSArray *connectionWrappers = [self.connectionsDict allValues];
-    
-    for (NCPeerConnection *peerConnection in connectionWrappers) {
-        [peerConnection sendDataChannelMessageOfType:type withPayload:payload];
+    if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+        [_ownPeerConnection sendDataChannelMessageOfType:type withPayload:payload];
+    } else {
+        NSArray *connectionWrappers = [self.connectionsDict allValues];
+        for (NCPeerConnection *peerConnection in connectionWrappers) {
+            [peerConnection sendDataChannelMessageOfType:type withPayload:payload];
+        }
     }
+}
+
+#pragma mark - External signaling support
+
+- (void)createOwnPublishPeerConnection
+{
+    NSLog(@"Creating own pusblish peer connection");
+    NSArray *iceServers = [_signalingController getIceServers];
+    _ownPeerConnection = [[NCPeerConnection alloc] initForMCUWithSessionId:_userSessionId andICEServers:iceServers forAudioOnlyCall:YES];
+    _ownPeerConnection.delegate = self;
+    [_connectionsDict setObject:_ownPeerConnection forKey:_userSessionId];
+    [_ownPeerConnection.peerConnection addStream:_localStream];
+    [_ownPeerConnection sendPublishOfferToMCU];
+}
+
+- (void)externalSignalingMessageReceived:(NSNotification *)notification
+{
+    NSLog(@"External signaling message received: %@", notification);
+    NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromJSONDictionary:[notification.userInfo objectForKey:@"data"]];
+    [self processSignalingMessage:signalingMessage];
+}
+
+- (void)externalParticipantListMessageReceived:(NSNotification *)notification
+{
+    NSLog(@"External participants message received: %@", notification);
+    NSArray *usersInRoom = [notification.userInfo objectForKey:@"users"];
+    [self processUsersInRoom:usersInRoom];
+}
+
+- (void)sendNick
+{
+    NSDictionary *payload = @{
+                              @"userid":[NCSettingsController sharedInstance].ncUserId,
+                              @"name":[NCSettingsController sharedInstance].ncUserDisplayName
+                              };
+    [self sendDataChannelMessageToAllOfType:@"nickChanged" withPayload:payload];
+}
+
+- (void)startSendingNick
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _sendNickTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(sendNick) userInfo:nil repeats:YES];
+    });
+}
+
+- (void)stopSendingNick
+{
+    [_sendNickTimer invalidate];
+    _sendNickTimer = nil;
 }
 
 #pragma mark - Signaling Controller Delegate
@@ -372,36 +441,40 @@ static NSString * const kNCVideoTrackKind = @"video";
         [self processUsersInRoom:[message objectForKey:@"data"]];
     } else if ([messageType isEqualToString:@"message"]) {
         NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromJSONString:[message objectForKey:@"data"]];
-        if (signalingMessage && [signalingMessage.roomType isEqualToString:kRoomTypeVideo]) {
-            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from];            
-            switch (signalingMessage.messageType) {
-                case kNCSignalingMessageTypeOffer:
-                case kNCSignalingMessageTypeAnswer:
-                {
-                    NCSessionDescriptionMessage *sdpMessage = (NCSessionDescriptionMessage *)signalingMessage;
-                    RTCSessionDescription *description = sdpMessage.sessionDescription;
-                    [peerConnectionWrapper setPeerName:sdpMessage.nick];
-                    [peerConnectionWrapper setRemoteDescription:description];
-                    break;
-                }
-                case kNCSignalingMessageTypeCandidate:
-                {
-                    NCICECandidateMessage *candidateMessage = (NCICECandidateMessage *)signalingMessage;
-                    [peerConnectionWrapper addICECandidate:candidateMessage.candidate];
-                    break;
-                }
-                    
-                case kNCSignalingMessageTypeUknown:
-                    NSLog(@"Received an unknown signaling message: %@", message);
-                    break;
-            }
-        }
+        [self processSignalingMessage:signalingMessage];
     } else {
         NSLog(@"Uknown message: %@", [message objectForKey:@"data"]);
     }
 }
 
 #pragma mark - Signaling functions
+
+- (void)processSignalingMessage:(NCSignalingMessage *)signalingMessage
+{
+    if (signalingMessage && [signalingMessage.roomType isEqualToString:kRoomTypeVideo]) {
+        NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from];
+        switch (signalingMessage.messageType) {
+            case kNCSignalingMessageTypeOffer:
+            case kNCSignalingMessageTypeAnswer:
+            {
+                NCSessionDescriptionMessage *sdpMessage = (NCSessionDescriptionMessage *)signalingMessage;
+                RTCSessionDescription *description = sdpMessage.sessionDescription;
+                [peerConnectionWrapper setPeerName:sdpMessage.nick];
+                [peerConnectionWrapper setRemoteDescription:description];
+                break;
+            }
+            case kNCSignalingMessageTypeCandidate:
+            {
+                NCICECandidateMessage *candidateMessage = (NCICECandidateMessage *)signalingMessage;
+                [peerConnectionWrapper addICECandidate:candidateMessage.candidate];
+                break;
+            }
+            case kNCSignalingMessageTypeUknown:
+                NSLog(@"Received an unknown signaling message: %@", signalingMessage);
+                break;
+        }
+    }
+}
 
 - (void)processUsersInRoom:(NSArray *)users
 {
@@ -426,13 +499,18 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     for (NSString *sessionId in newSessions) {
         if (![_connectionsDict objectForKey:sessionId]) {
-            NSComparisonResult result = [sessionId compare:_userSessionId];
-            if (result == NSOrderedAscending) {
-                NSLog(@"Creating offer...");
-                NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId];
-                [peerConnectionWrapper sendOffer];
+            if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+                NSLog(@"Requesting offer to the MCU");
+                [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:sessionId andRoomType:@"video"];
             } else {
-                NSLog(@"Waiting for offer...");
+                NSComparisonResult result = [sessionId compare:_userSessionId];
+                if (result == NSOrderedAscending) {
+                    NSLog(@"Creating offer...");
+                    NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId];
+                    [peerConnectionWrapper sendOffer];
+                } else {
+                    NSLog(@"Waiting for offer...");
+                }
             }
         }
     }
@@ -470,6 +548,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId
 {
+    if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+        return [[NCExternalSignalingController sharedInstance] getUserIdFromSessionId:sessionId];
+    }
     NSString *userId = nil;
     for (NSMutableDictionary *user in _peersInCall) {
         NSString *userSessionId = [user objectForKey:@"sessionId"];
@@ -506,7 +587,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didAddStream:(RTCMediaStream *)stream
 {
-    [self.delegate callController:self didAddStream:stream ofPeer:peerConnection];
+    if (!peerConnection.isMCUPublisherPeer) {
+        [self.delegate callController:self didAddStream:stream ofPeer:peerConnection];
+    }
 }
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didRemoveStream:(RTCMediaStream *)stream
@@ -538,6 +621,11 @@ static NSString * const kNCVideoTrackKind = @"video";
         NSLog(@"Send videoOff");
         [peerConnection sendDataChannelMessageOfType:@"videoOff" withPayload:nil];
     }
+    
+    // Send nick using mcu
+    if (peerConnection.isMCUPublisherPeer) {
+        [self startSendingNick];
+    }
 }
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didGenerateIceCandidate:(RTCIceCandidate *)candidate
@@ -548,7 +636,11 @@ static NSString * const kNCVideoTrackKind = @"video";
                                                                                   sid:nil
                                                                              roomType:@"video"];
     
-    [_signalingController sendSignalingMessage:message];
+    if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+        [[NCExternalSignalingController sharedInstance] sendCallMessage:message];
+    } else {
+        [_signalingController sendSignalingMessage:message];
+    }
 }
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection needsToSendSessionDescription:(RTCSessionDescription *)sessionDescription
@@ -561,7 +653,11 @@ static NSString * const kNCVideoTrackKind = @"video";
                                             roomType:@"video"
                                             nick:_userDisplayName];
     
-    [_signalingController sendSignalingMessage:message];
+    if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+        [[NCExternalSignalingController sharedInstance] sendCallMessage:message];
+    } else {
+        [_signalingController sendSignalingMessage:message];
+    }
 }
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didReceiveStatusDataChannelMessage:(NSString *)type

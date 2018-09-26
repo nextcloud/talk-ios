@@ -779,6 +779,11 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return task;
 }
 
+- (NSString *)authenticationBackendUrl
+{
+    return [self getRequestURLForSpreedEndpoint:@"signaling/backend"];
+}
+
 #pragma mark - User avatars
 
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size

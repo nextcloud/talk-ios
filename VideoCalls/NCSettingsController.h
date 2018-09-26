@@ -36,6 +36,7 @@ extern NSString * const kCapabilityMentionFlag;
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
+typedef void (^GetSignalingConfigCompletionBlock)(NSError *error);
 
 extern NSString * const NCServerCapabilitiesReceivedNotification;
 
@@ -56,6 +57,7 @@ extern NSString * const NCServerCapabilitiesReceivedNotification;
 @property (nonatomic, copy) NSDictionary *ncTalkCapabilities;
 @property (nonatomic, copy) NSString *defaultBrowser;
 @property (nonatomic, copy) NSMutableArray *supportedBrowsers;
+@property (nonatomic, copy) NSDictionary *ncSignalingConfiguration;
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
 
 + (instancetype)sharedInstance;
@@ -66,6 +68,8 @@ extern NSString * const NCServerCapabilitiesReceivedNotification;
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
 - (void)logoutWithCompletionBlock:(LogoutCompletionBlock)block;
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
+- (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block;
+- (void)setSignalingConfiguration;
 - (BOOL)serverUsesRequiredTalkVersion;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
 

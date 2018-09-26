@@ -47,6 +47,7 @@
 @property (nonatomic, copy) NSString *peerId;
 @property (nonatomic, copy) NSString *peerName;
 @property (nonatomic, assign) BOOL isAudioOnly;
+@property (nonatomic, assign) BOOL isMCUPublisherPeer;
 @property (nonatomic, strong) RTCPeerConnection *peerConnection;
 @property (nonatomic, strong) RTCDataChannel *localDataChannel;
 @property (nonatomic, strong) RTCDataChannel *remoteDataChannel;
@@ -56,10 +57,12 @@
 @property (nonatomic, strong) RTCMediaStream *remoteStream;
 
 - (instancetype)initWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;
+- (instancetype)initForMCUWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;
 - (void)addICECandidate:(RTCIceCandidate *)candidate;
 - (void)setRemoteDescription:(RTCSessionDescription *)sessionDescription;
+- (void)sendPublishOfferToMCU;
 - (void)sendOffer;
-- (void)sendDataChannelMessageOfType:(NSString *)type withPayload:(NSString *)payload;
+- (void)sendDataChannelMessageOfType:(NSString *)type withPayload:(id)payload;
 - (void)drainRemoteCandidates;
 - (void)removeRemoteCandidates;
 - (void)close;
