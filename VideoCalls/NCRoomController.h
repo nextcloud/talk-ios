@@ -13,6 +13,7 @@
 extern NSString * const NCRoomControllerDidReceiveInitialChatHistoryNotification;
 extern NSString * const NCRoomControllerDidReceiveChatHistoryNotification;
 extern NSString * const NCRoomControllerDidReceiveChatMessagesNotification;
+extern NSString * const NCRoomControllerDidSendChatMessageNotification;
 
 @interface NCRoomController : NSObject
 

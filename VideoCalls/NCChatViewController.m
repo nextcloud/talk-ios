@@ -24,6 +24,7 @@
 #import "NCRoomsManager.h"
 #import "NCRoomController.h"
 #import "NCSettingsController.h"
+#import "NCUserInterfaceController.h"
 #import "NSDate+DateTools.h"
 #import "RoomInfoTableViewController.h"
 #import "UIImageView+AFNetworking.h"
@@ -72,6 +73,7 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistory:) name:NCRoomControllerDidReceiveInitialChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatHistory:) name:NCRoomControllerDidReceiveChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCRoomControllerDidReceiveChatMessagesNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCRoomControllerDidSendChatMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
     }
     
@@ -437,6 +439,28 @@
         }
     }
     
+}
+
+- (void)didSendChatMessage:(NSNotification *)notification
+{
+    NSError *error = [notification.userInfo objectForKey:@"error"];
+    NSString *message = [notification.userInfo objectForKey:@"message"];
+    if (error) {
+        self.textView.text = message;
+        UIAlertController * alert = [UIAlertController
+                                     alertControllerWithTitle:@"Could not send the message"
+                                     message:@"An error occurred while sending the message"
+                                     preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction* okButton = [UIAlertAction
+                                   actionWithTitle:@"OK"
+                                   style:UIAlertActionStyleDefault
+                                   handler:nil];
+        
+        [alert addAction:okButton];
+        
+        [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+    }
 }
 
 #pragma mark - Chat functions

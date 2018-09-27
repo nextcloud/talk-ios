@@ -14,6 +14,7 @@
 NSString * const NCRoomControllerDidReceiveInitialChatHistoryNotification   = @"NCRoomControllerDidReceiveInitialChatHistoryNotification";
 NSString * const NCRoomControllerDidReceiveChatHistoryNotification          = @"NCRoomControllerDidReceiveChatHistoryNotification";
 NSString * const NCRoomControllerDidReceiveChatMessagesNotification         = @"NCRoomControllerDidReceiveChatMessagesNotification";
+NSString * const NCRoomControllerDidSendChatMessageNotification             = @"NCRoomControllerDidSendChatMessageNotification";
 
 @interface NCRoomController ()
 
@@ -138,8 +139,16 @@ NSString * const NCRoomControllerDidReceiveChatMessagesNotification         = @"
 
 - (void)sendChatMessage:(NSString *)message
 {
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    [userInfo setObject:message forKey:@"message"];
     [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_roomToken displayName:nil withCompletionBlock:^(NSError *error) {
-        //TODO: Error handling
+        if (error) {
+            [userInfo setObject:error forKey:@"error"];
+            NSLog(@"Could not join room. Error: %@", error.description);
+        }
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidSendChatMessageNotification
+                                                            object:self
+                                                          userInfo:userInfo];
     }];
 }
 
