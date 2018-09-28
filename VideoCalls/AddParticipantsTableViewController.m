@@ -62,9 +62,12 @@
     if (@available(iOS 11.0, *)) {
         self.navigationItem.searchController = _searchController;
         _searchController.searchBar.tintColor = [UIColor whiteColor];
-        UIColor *color = [UIColor colorWithWhite:1.0 alpha:0.9];
-        _searchController.searchBar.tintColor = color;
-        [[UITextField appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]] setDefaultTextAttributes:@{NSForegroundColorAttributeName:color}];
+        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+        searchTextField.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        UIView *backgroundview = [searchTextField.subviews firstObject];
+        backgroundview.backgroundColor = [UIColor whiteColor];
+        backgroundview.layer.cornerRadius = 8;
+        backgroundview.clipsToBounds = YES;
     } else {
         self.tableView.tableHeaderView = _searchController.searchBar;
         _searchController.searchBar.barTintColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
