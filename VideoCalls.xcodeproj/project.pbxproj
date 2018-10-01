@@ -73,6 +73,8 @@
 		2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5CE1EDF23A00093D85A /* WebKit.framework */; };
 		2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */; };
 		2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
+		2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */; };
+		2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */; };
 		2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */; };
 		2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
 		2CA15542208E3B7B00CE8EF0 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
@@ -325,6 +327,9 @@
 		2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthenticationViewController.m; sourceTree = "<group>"; };
 		2C92195A1F58530B008AC1A3 /* UIImageView+Letters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+Letters.h"; sourceTree = "<group>"; };
 		2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+Letters.m"; sourceTree = "<group>"; };
+		2C98F77721622445001A6A73 /* RoomSearchTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomSearchTableViewController.h; sourceTree = "<group>"; };
+		2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomSearchTableViewController.m; sourceTree = "<group>"; };
+		2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomTableViewCell.xib; sourceTree = "<group>"; };
 		2C9E6CCC1F6F34F000399B7A /* ARDSDPUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSDPUtils.h; sourceTree = "<group>"; };
 		2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDSDPUtils.m; sourceTree = "<group>"; };
 		2CA1553F208E350300CE8EF0 /* NCChatMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatMessage.h; sourceTree = "<group>"; };
@@ -579,6 +584,7 @@
 				2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */,
 				2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */,
 				2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */,
+				2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */,
 				2C06BF5B20A89F510031EB46 /* NCRoomsManager.h */,
 				2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */,
 				2C42ADB220B58E6300296DEA /* NCRoomController.h */,
@@ -600,6 +606,8 @@
 				2C440D1020EA4A770005F9BB /* RoomInfoTableViewController.xib */,
 				2C3780BB2107209C003F9AE8 /* NCRoomParticipant.h */,
 				2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */,
+				2C98F77721622445001A6A73 /* RoomSearchTableViewController.h */,
+				2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */,
 			);
 			name = Rooms;
 			sourceTree = "<group>";
@@ -1005,6 +1013,7 @@
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
 				2CC7158E20C51ABA0045C789 /* UnreadMessagesView.xib in Resources */,
 				2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */,
+				2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */,
 				2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */,
 				2C440D1220EA4A770005F9BB /* RoomInfoTableViewController.xib in Resources */,
 				2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */,
@@ -1168,6 +1177,7 @@
 				2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
+				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
 				2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */,
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,

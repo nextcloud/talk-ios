@@ -13,6 +13,7 @@
 #define kTitleOnlyOriginY   25
 
 NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
+NSString *const kRoomTableCellNibName = @"RoomTableViewCell";
 
 @implementation RoomTableViewCell
 
@@ -39,9 +40,9 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
     
     self.roomImage.image = nil;
     self.favoriteImage.image = nil;
-    self.labelSubTitle.text = @"";
+    self.subtitleLabel.text = @"";
     self.dateLabel.text = @"";
-    
+
     for (UIView *subview in [self.unreadMessagesView subviews]) {
         [subview removeFromSuperview];
     }
@@ -51,9 +52,9 @@ NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
 {
     _titleOnly = titleOnly;
     
-    CGRect frame = self.labelTitle.frame;
+    CGRect frame = self.titleLabel.frame;
     frame.origin.y = _titleOnly ? kTitleOnlyOriginY : kTitleOriginY;
-    self.labelTitle.frame = frame;
+    self.titleLabel.frame = frame;
 }
 
 @end

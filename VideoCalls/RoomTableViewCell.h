@@ -9,12 +9,13 @@
 #import <UIKit/UIKit.h>
 
 extern NSString *const kRoomCellIdentifier;
+extern NSString *const kRoomTableCellNibName;
 
 @interface RoomTableViewCell : UITableViewCell
 
 @property (nonatomic, weak) IBOutlet UIImageView *roomImage;
-@property (nonatomic, weak) IBOutlet UILabel *labelTitle;
-@property (nonatomic, weak) IBOutlet UILabel *labelSubTitle;
+@property (nonatomic, weak) IBOutlet UILabel *titleLabel;
+@property (nonatomic, weak) IBOutlet UILabel *subtitleLabel;
 @property (nonatomic, weak) IBOutlet UIView *unreadMessagesView;
 @property (nonatomic, weak) IBOutlet UILabel *dateLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *favoriteImage;
