@@ -268,6 +268,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [_roomsBackgroundView.loadingView setHidden:YES];
             [_roomsBackgroundView.placeholderView setHidden:(rooms.count > 0)];
             [self.tableView reloadData];
+            if (_searchController.isActive) {
+                [self searchForRoomsWithString:_searchController.searchBar.text];
+            }
             NSLog(@"Rooms updated");
             if (block) {
                 block(YES);
