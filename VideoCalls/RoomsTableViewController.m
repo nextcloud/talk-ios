@@ -26,16 +26,18 @@
 #import "NCChatViewController.h"
 #import "NCRoomsManager.h"
 #import "NewRoomTableViewController.h"
-#import "RoundedNumberView.h"
+#import "RoomSearchTableViewController.h"
 #import "PlaceholderView.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
-@interface RoomsTableViewController () <CCCertificateDelegate>
+@interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
     NSMutableArray *_rooms;
     UIRefreshControl *_refreshControl;
     BOOL _allowEmptyGroupRooms;
+    UISearchController *_searchController;
+    RoomSearchTableViewController *_resultTableViewController;
     PlaceholderView *_roomsBackgroundView;
 }
 
@@ -48,6 +50,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [super viewDidLoad];
 
     _rooms = [[NSMutableArray alloc] init];
+    
+    [self.tableView registerNib:[UINib nibWithNibName:kRoomTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomCellIdentifier];
+    // Align header's title to ContactsTableViewCell's label
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
     [self createRefreshControl];
     
@@ -65,6 +71,34 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    _resultTableViewController = [[RoomSearchTableViewController alloc] init];
+    _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
+    _searchController.searchResultsUpdater = self;
+    [_searchController.searchBar sizeToFit];
+    
+    if (@available(iOS 11.0, *)) {
+        self.navigationItem.searchController = _searchController;
+        _searchController.searchBar.tintColor = [UIColor whiteColor];
+        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+        searchTextField.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        UIView *backgroundview = [searchTextField.subviews firstObject];
+        backgroundview.backgroundColor = [UIColor whiteColor];
+        backgroundview.layer.cornerRadius = 8;
+        backgroundview.clipsToBounds = YES;
+    } else {
+        self.tableView.tableHeaderView = _searchController.searchBar;
+        _searchController.searchBar.barTintColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
+        _searchController.searchBar.layer.borderWidth = 1;
+        _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
+    }
+    
+    // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
+    _resultTableViewController.tableView.delegate = self;
+    _searchController.delegate = self;
+    _searchController.searchBar.delegate = self;
+    
+    self.definesPresentationContext = YES;
     
     // Rooms placeholder view
     _roomsBackgroundView = [[PlaceholderView alloc] init];
@@ -136,10 +170,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)createRefreshControl
 {
     _refreshControl = [UIRefreshControl new];
-    _refreshControl.tintColor = [UIColor colorWithWhite:0 alpha:0.3];
-    _refreshControl.backgroundColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
+    if (@available(iOS 11.0, *)) {
+        _refreshControl.tintColor = [UIColor whiteColor];
+    } else {
+        _refreshControl.tintColor = [UIColor colorWithWhite:0 alpha:0.3];
+        _refreshControl.backgroundColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
+    }
     [_refreshControl addTarget:self action:@selector(refreshControlTarget) forControlEvents:UIControlEventValueChanged];
-    [self setRefreshControl:_refreshControl];
+    self.tableView.refreshControl = _refreshControl;
 }
 
 - (void)deleteRefreshControl
@@ -154,6 +192,25 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     // Actuate `Peek` feedback (weak boom)
     AudioServicesPlaySystemSound(1519);
+}
+
+#pragma mark - Search controller
+
+- (void)updateSearchResultsForSearchController:(UISearchController *)searchController
+{
+    [self searchForRoomsWithString:_searchController.searchBar.text];
+}
+
+- (void)searchForRoomsWithString:(NSString *)searchString
+{
+    _resultTableViewController.rooms = [self filterRoomsWithString:searchString];
+    [_resultTableViewController.tableView reloadData];
+}
+
+- (NSArray *)filterRoomsWithString:(NSString *)searchString
+{
+    NSPredicate *sPredicate = [NSPredicate predicateWithFormat:@"displayName CONTAINS[c] %@", searchString];
+    return [_rooms filteredArrayUsingPredicate:sPredicate];
 }
 
 #pragma mark - User Interface
@@ -215,6 +272,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [_roomsBackgroundView.loadingView setHidden:YES];
             [_roomsBackgroundView.placeholderView setHidden:(rooms.count > 0)];
             [self.tableView reloadData];
+            if (_searchController.isActive) {
+                [self searchForRoomsWithString:_searchController.searchBar.text];
+            }
             NSLog(@"Rooms updated");
             if (block) {
                 block(YES);
@@ -503,6 +563,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    if (_searchController.active) {
+        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
+    }
+    
     [[NCRoomsManager sharedInstance] startChatInRoom:room];
 }
 
@@ -720,14 +785,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     
     // Set room name
-    cell.labelTitle.text = room.displayName;
+    cell.titleLabel.text = room.displayName;
     
     if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityLastRoomActivity]) {
         // Set last activity
         NCChatMessage *lastMessage = room.lastMessage;
         if (lastMessage) {
             cell.titleOnly = NO;
-            cell.labelSubTitle.attributedText = room.lastMessageString;
+            cell.subtitleLabel.attributedText = room.lastMessageString;
         } else {
             cell.titleOnly = YES;
         }
@@ -736,24 +801,18 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     } else {
         // Set last ping
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
-        cell.labelSubTitle.text = [date timeAgoSinceNow];
+        cell.subtitleLabel.text = [date timeAgoSinceNow];
         if (room.lastPing == 0) {
-            cell.labelSubTitle.text = @"Never joined";
+            cell.subtitleLabel.text = @"Never joined";
         }
     }
     
     // Set unread messages
-    if (room.unreadMessages > 0) {
-        RoundedNumberView *unreadMessagesView = [[RoundedNumberView alloc] init];
-        if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityMentionFlag]) {
-            unreadMessagesView.important = room.unreadMention ? YES : NO;
-        }
-        unreadMessagesView.number = room.unreadMessages;
-        unreadMessagesView.frame = CGRectMake(cell.unreadMessagesView.frame.size.width - unreadMessagesView.frame.size.width,
-                                              unreadMessagesView.frame.origin.y,
-                                              unreadMessagesView.frame.size.width, unreadMessagesView.frame.size.height);
-        [cell.unreadMessagesView addSubview:unreadMessagesView];
+    BOOL mentioned = NO;
+    if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityMentionFlag]) {
+        mentioned = room.unreadMention ? YES : NO;
     }
+    [cell setUnreadMessages:room.unreadMessages mentioned:mentioned];
     
     // Set room image
     switch (room.type) {
