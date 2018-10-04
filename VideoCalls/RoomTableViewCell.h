@@ -22,4 +22,6 @@ extern NSString *const kRoomTableCellNibName;
 
 @property (nonatomic, assign) BOOL titleOnly;
 
+- (void)setUnreadMessages:(NSInteger)number mentioned:(BOOL)mentioned;
+
 @end

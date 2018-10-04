@@ -14,7 +14,6 @@
 #import "NSDate+DateTools.h"
 #import "PlaceholderView.h"
 #import "RoomTableViewCell.h"
-#import "RoundedNumberView.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
@@ -122,17 +121,11 @@
     }
     
     // Set unread messages
-    if (room.unreadMessages > 0) {
-        RoundedNumberView *unreadMessagesView = [[RoundedNumberView alloc] init];
-        if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityMentionFlag]) {
-            unreadMessagesView.important = room.unreadMention ? YES : NO;
-        }
-        unreadMessagesView.number = room.unreadMessages;
-        unreadMessagesView.frame = CGRectMake(cell.unreadMessagesView.frame.size.width - unreadMessagesView.frame.size.width,
-                                              unreadMessagesView.frame.origin.y,
-                                              unreadMessagesView.frame.size.width, unreadMessagesView.frame.size.height);
-        [cell.unreadMessagesView addSubview:unreadMessagesView];
+    BOOL mentioned = NO;
+    if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityMentionFlag]) {
+        mentioned = room.unreadMention ? YES : NO;
     }
+    [cell setUnreadMessages:room.unreadMessages mentioned:mentioned];
     
     // Set room image
     switch (room.type) {

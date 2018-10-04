@@ -7,6 +7,7 @@
 //
 
 #import "RoomTableViewCell.h"
+#import "RoundedNumberView.h"
 #import "UIImageView+AFNetworking.h"
 
 #define kTitleOriginY       14
@@ -14,6 +15,14 @@
 
 NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
 NSString *const kRoomTableCellNibName = @"RoomTableViewCell";
+
+@interface RoomTableViewCell ()
+{
+    RoundedNumberView *_unreadMessagesBadge;
+    NSInteger _unreadMessages;
+    BOOL _metioned;
+}
+@end
 
 @implementation RoomTableViewCell
 
@@ -23,6 +32,22 @@ NSString *const kRoomTableCellNibName = @"RoomTableViewCell";
     self.roomImage.layer.cornerRadius = 24.0;
     self.roomImage.layer.masksToBounds = YES;
     self.favoriteImage.contentMode = UIViewContentModeCenter;
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    
+    if (_unreadMessages > 0) {
+        _unreadMessagesBadge = [[RoundedNumberView alloc] init];
+        _unreadMessagesBadge.important = _metioned;
+        _unreadMessagesBadge.number = _unreadMessages;
+        _unreadMessagesBadge.frame = CGRectMake(self.unreadMessagesView.frame.size.width - _unreadMessagesBadge.frame.size.width,
+                                                _unreadMessagesBadge.frame.origin.y,
+                                                _unreadMessagesBadge.frame.size.width, _unreadMessagesBadge.frame.size.height);
+        
+        [self.unreadMessagesView addSubview:_unreadMessagesBadge];
+    }
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -55,6 +80,12 @@ NSString *const kRoomTableCellNibName = @"RoomTableViewCell";
     CGRect frame = self.titleLabel.frame;
     frame.origin.y = _titleOnly ? kTitleOnlyOriginY : kTitleOriginY;
     self.titleLabel.frame = frame;
+}
+
+- (void)setUnreadMessages:(NSInteger)number mentioned:(BOOL)mentioned
+{
+    _unreadMessages = number;
+    _metioned = mentioned;
 }
 
 @end
