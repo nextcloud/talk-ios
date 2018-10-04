@@ -171,7 +171,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)createRefreshControl
 {
     _refreshControl = [UIRefreshControl new];
-    _refreshControl.tintColor = [UIColor whiteColor];
+    if (@available(iOS 11.0, *)) {
+        _refreshControl.tintColor = [UIColor whiteColor];
+    } else {
+        _refreshControl.tintColor = [UIColor colorWithWhite:0 alpha:0.3];
+        _refreshControl.backgroundColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
+    }
     [_refreshControl addTarget:self action:@selector(refreshControlTarget) forControlEvents:UIControlEventValueChanged];
     self.tableView.refreshControl = _refreshControl;
 }
