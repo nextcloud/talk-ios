@@ -23,8 +23,10 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 @property (nonatomic, strong) NSString* ticket;
 @property (nonatomic, strong) NSString* resumeId;
 @property (nonatomic, strong) NSString* sessionId;
+@property (nonatomic, assign) BOOL connected;
 @property (nonatomic, assign) BOOL mcuSupport;
 @property (nonatomic, strong) NSMutableDictionary* participantsMap;
+@property (nonatomic, strong) NSMutableArray* pendingMessages;
 @property (nonatomic, strong) NSString* currentRoom;
 @property (nonatomic, assign) NSInteger reconnectInterval;
 @property (nonatomic, strong) NSTimer *reconnectTimer;
@@ -68,6 +70,7 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
     _ticket = ticket;
     _processingQueue = dispatch_queue_create("com.nextcloud.Talk.websocket.processing", DISPATCH_QUEUE_SERIAL);
     _reconnectInterval = kInitialReconnectInterval;
+    _pendingMessages = [NSMutableArray new];
     
     [self connect];
 }
@@ -94,6 +97,7 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
 - (void)connect
 {
     [self invalidateReconnectionTimer];
+    _connected = NO;
     NSLog(@"Connecting to: %@",  _serverUrl);
     NSURL *url = [NSURL URLWithString:_serverUrl];
     NSURLRequest *wsRequest = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60];
@@ -149,6 +153,23 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
 
 #pragma mark - WebSocket messages
 
+- (void)sendMessage:(NSDictionary *)jsonDict
+{
+    if (!_connected && ![[jsonDict objectForKey:@"type"] isEqualToString:@"hello"]) {
+        [_pendingMessages addObject:jsonDict];
+        return;
+    }
+    
+    NSString *jsonString = [self createWebSocketMessage:jsonDict];
+    if (!jsonString) {
+        NSLog(@"Error creating websobket message");
+        return;
+    }
+    
+    NSLog(@"Sending: %@", jsonString);
+    [_webSocket send:jsonString];
+}
+
 - (void)sendHello
 {
     NSDictionary *helloDict = @{
@@ -175,17 +196,12 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
                       };
     }
     
-    NSString *jsonString = [self createWebSocketMessage:helloDict];
-    if (!jsonString) {
-        NSLog(@"Error creating hello message");
-        return;
-    }
-    
-    [_webSocket send:jsonString];
+    [self sendMessage:helloDict];
 }
 
 - (void)helloResponseReceived:(NSDictionary *)helloDict
 {
+    _connected = YES;
     _resumeId = [helloDict objectForKey:@"resumeid"];
     NSArray *serverFeatures = [[helloDict objectForKey:@"server"] objectForKey:@"features"];
     for (NSString *feature in serverFeatures) {
@@ -193,6 +209,12 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
             _mcuSupport = YES;
         }
     }
+    
+    // Send pending messages
+    for (NSDictionary *message in _pendingMessages) {
+        [self sendMessage:message];
+    }
+    _pendingMessages = [NSMutableArray new];
 }
 
 - (void)errorResponseReceived:(NSDictionary *)errorDict
@@ -214,13 +236,7 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
                                           }
                                   };
     
-    NSString *jsonString = [self createWebSocketMessage:messageDict];
-    if (!jsonString) {
-        NSLog(@"Error creating join message");
-        return;
-    }
-    
-    [_webSocket send:jsonString];
+    [self sendMessage:messageDict];
 }
 
 - (void)leaveRoom:(NSString *)roomId
@@ -241,15 +257,7 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
                                           }
                                   };
     
-    NSString *jsonString = [self createWebSocketMessage:messageDict];
-    if (!jsonString) {
-        NSLog(@"Error creating join message");
-        return;
-    }
-    
-    NSLog(@"Sending: %@", jsonString);
-    
-    [_webSocket send:jsonString];
+    [self sendMessage:messageDict];
 }
 
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType
@@ -268,13 +276,7 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
                                           }
                                   };
     
-    NSString *jsonString = [self createWebSocketMessage:messageDict];
-    if (!jsonString) {
-        NSLog(@"Error creating join message");
-        return;
-    }
-    
-    [_webSocket send:jsonString];
+    [self sendMessage:messageDict];
 }
 
 - (void)roomMessageReceived:(NSDictionary *)messageDict
