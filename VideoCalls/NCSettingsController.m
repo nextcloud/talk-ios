@@ -101,7 +101,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     _ncUserPublicKey = nil;
     _ncDeviceIdentifier = nil;
     _ncDeviceSignature = nil;
-    _defaultBrowser = nil;
+    _defaultBrowser = @"Safari";
     // Also remove values that are not stored in the keychain
     _ncTalkCapabilities = nil;
     _ncSignalingConfiguration = nil;

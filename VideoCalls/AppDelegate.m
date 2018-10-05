@@ -74,7 +74,9 @@
         [supportedBrowsers addObject:@"Firefox"];
     }
     [NCSettingsController sharedInstance].supportedBrowsers = supportedBrowsers;
-    if (![supportedBrowsers containsObject:[NCSettingsController sharedInstance].defaultBrowser]) {
+    // Set default browser
+    NSString *defaultBrowser = [NCSettingsController sharedInstance].defaultBrowser;
+    if (!defaultBrowser || ![supportedBrowsers containsObject:defaultBrowser]) {
         [NCSettingsController sharedInstance].defaultBrowser = @"Safari";
     }
     
