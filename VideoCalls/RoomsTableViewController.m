@@ -370,6 +370,49 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self presentViewController:renameDialog animated:YES completion:nil];
 }
 
+- (void)setNotificationLevelForRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:@"Notifications"
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelAlways forRoom:room]];
+    [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelMention forRoom:room]];
+    [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelNever forRoom:room]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (UIAlertAction *)actionForNotificationLevel:(NCRoomNotificationLevel)level forRoom:(NCRoom *)room
+{
+    UIAlertAction *action = [UIAlertAction actionWithTitle:[room stringForNotificationLevel:level]
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:^void (UIAlertAction *action) {
+                                                       if (level == room.notificationLevel) {
+                                                           return;
+                                                       }
+                                                       [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:room.token withCompletionBlock:^(NSError *error) {
+                                                           if (!error) {
+                                                               [self fetchRoomsWithCompletionBlock:nil];
+                                                           } else {
+                                                               NSLog(@"Error renaming the room: %@", error.description);
+                                                               //TODO: Error handling
+                                                           }
+                                                       }];
+                                                   }];
+    if (room.notificationLevel == level) {
+        [action setValue:[[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    }
+    return action;
+}
+
 - (void)shareLinkFromRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
@@ -665,6 +708,16 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                }];
         [favoriteAction setValue:[[UIImage imageNamed:@"favorite-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:favoriteAction];
+    }
+    // Notification levels
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+        UIAlertAction *notificationsAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"Notifications: %@", room.notificationLevelString]
+                                                                      style:UIAlertActionStyleDefault
+                                                                    handler:^void (UIAlertAction *action) {
+                                                                        [self setNotificationLevelForRoomAtIndexPath:indexPath];
+                                                                    }];
+        [notificationsAction setValue:[[UIImage imageNamed:@"notifications-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [optionsActionSheet addAction:notificationsAction];
     }
     // Share link of public calls even if you are not a moderator
     if (!room.canModerate && room.isPublic) {

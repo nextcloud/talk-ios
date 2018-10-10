@@ -17,6 +17,13 @@ typedef enum NCRoomType {
     kNCRoomTypePublicCall
 } NCRoomType;
 
+typedef enum NCRoomNotificationLevel {
+    kNCRoomNotificationLevelDefault = 0,
+    kNCRoomNotificationLevelAlways,
+    kNCRoomNotificationLevelMention,
+    kNCRoomNotificationLevelNever
+} NCRoomNotificationLevel;
+
 @interface NCRoom : NSObject
 
 @property (nonatomic, assign) NSInteger roomId;
@@ -36,6 +43,7 @@ typedef enum NCRoomType {
 @property (nonatomic, assign) NSInteger lastActivity;
 @property (nonatomic, strong) NCChatMessage *lastMessage;
 @property (nonatomic, assign) BOOL isFavorite;
+@property (nonatomic, assign) NCRoomNotificationLevel notificationLevel;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 
@@ -43,6 +51,8 @@ typedef enum NCRoomType {
 - (BOOL)canModerate;
 - (BOOL)isNameEditable;
 - (BOOL)isDeletable;
+- (NSString *)notificationLevelString;
+- (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level;
 - (NSMutableAttributedString *)lastMessageString;
 
 @end

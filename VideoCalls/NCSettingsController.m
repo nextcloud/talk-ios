@@ -47,6 +47,7 @@ NSString * const kCapabilityLastRoomActivity    = @"last-room-activity";
 NSString * const kCapabilityNoPing              = @"no-ping";
 NSString * const kCapabilitySystemMessages      = @"system-messages";
 NSString * const kCapabilityMentionFlag         = @"mention-flag";
+NSString * const kCapabilityNotificationLevels  = @"notification-levels";
 
 NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabilitiesReceivedNotification";
 
