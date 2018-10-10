@@ -34,6 +34,7 @@
     room.lastActivity = [[roomDict objectForKey:@"lastActivity"] integerValue];
     room.lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"]];
     room.isFavorite = [[roomDict objectForKey:@"isFavorite"] boolValue];
+    room.notificationLevel = (NCRoomNotificationLevel)[[roomDict objectForKey:@"notificationLevel"] integerValue];
     
     id name = [roomDict objectForKey:@"name"];
     if ([name isKindOfClass:[NSString class]]) {
@@ -76,6 +77,30 @@
         return  YES;
     }
     return NO;
+}
+
+- (NSString *)notificationLevelString
+{
+    return [self stringForNotificationLevel:_notificationLevel];
+}
+
+- (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level
+{
+    NSString *levelString = @"Default";
+    switch (level) {
+        case kNCRoomNotificationLevelAlways:
+            levelString = @"Always";
+            break;
+        case kNCRoomNotificationLevelMention:
+            levelString = @"On mention";
+            break;
+        case kNCRoomNotificationLevelNever:
+            levelString = @"Never";
+            break;
+        default:
+            break;
+    }
+    return levelString;
 }
 
 - (NSMutableAttributedString *)lastMessageString

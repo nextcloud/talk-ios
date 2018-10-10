@@ -53,13 +53,6 @@ typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
 typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
 typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
-typedef enum NCRoomNotificationLevel {
-    kNCRoomNotificationLevelDefault = 0,
-    kNCRoomNotificationLevelAlways,
-    kNCRoomNotificationLevelMention,
-    kNCRoomNotificationLevelNever
-} NCRoomNotificationLevel;
-
 
 @interface NCAPIController : NSObject
 

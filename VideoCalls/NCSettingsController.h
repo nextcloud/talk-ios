@@ -32,6 +32,7 @@ extern NSString * const kCapabilityLastRoomActivity;
 extern NSString * const kCapabilityNoPing;
 extern NSString * const kCapabilitySystemMessages;
 extern NSString * const kCapabilityMentionFlag;
+extern NSString * const kCapabilityNotificationLevels;
 
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);

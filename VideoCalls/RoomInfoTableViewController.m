@@ -31,6 +31,7 @@ typedef enum RoomInfoSection {
 
 typedef enum RoomAction {
     kRoomActionFavorite = 0,
+    kRoomActionNotifications,
     kRoomActionPublicToggle,
     kRoomActionPassword,
     kRoomActionSendLink
@@ -44,6 +45,7 @@ typedef enum DestructiveAction {
 typedef enum ModificationError {
     kModificationErrorRename = 0,
     kModificationErrorFavorite,
+    kModificationErrorNotifications,
     kModificationErrorShare,
     kModificationErrorPassword,
     kModificationErrorModeration,
@@ -146,6 +148,10 @@ typedef enum ModificationError {
     if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites]) {
         [actions addObject:[NSNumber numberWithInt:kRoomActionFavorite]];
     }
+    // Notification levels action
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+        [actions addObject:[NSNumber numberWithInt:kRoomActionNotifications]];
+    }
     // Public room actions
     if (_room.canModerate) {
         [actions addObject:[NSNumber numberWithInt:kRoomActionPublicToggle]];
@@ -157,6 +163,16 @@ typedef enum ModificationError {
         [actions addObject:[NSNumber numberWithInt:kRoomActionSendLink]];
     }
     return [NSArray arrayWithArray:actions];
+}
+
+- (NSIndexPath *)getIndexPathForRoomAction:(RoomAction)action
+{
+    NSIndexPath *actionIndexPath = [NSIndexPath indexPathForRow:0 inSection:kRoomInfoSectionActions];
+    NSInteger actionRow = [[self getRoomActions] indexOfObject:[NSNumber numberWithInt:action]];
+    if(NSNotFound != actionRow) {
+        actionIndexPath = [NSIndexPath indexPathForRow:actionRow inSection:kRoomInfoSectionActions];
+    }
+    return actionIndexPath;
 }
 
 - (NSArray *)getRoomDestructiveActions
@@ -204,6 +220,10 @@ typedef enum ModificationError {
             
         case kModificationErrorFavorite:
             errorDescription = @"Could not change favorite setting";
+            break;
+            
+        case kModificationErrorNotifications:
+            errorDescription = @"Could not change notifications setting";
             break;
             
         case kModificationErrorShare:
@@ -280,6 +300,37 @@ typedef enum ModificationError {
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
 
+- (void)presentNotificationLevelSelector
+{
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:@"Notifications"
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelAlways]];
+    [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelMention]];
+    [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelNever]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[self getIndexPathForRoomAction:kRoomActionNotifications]];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (UIAlertAction *)actionForNotificationLevel:(NCRoomNotificationLevel)level
+{
+    UIAlertAction *action = [UIAlertAction actionWithTitle:[_room stringForNotificationLevel:level]
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:^void (UIAlertAction *action) {
+                                                       [self setNotificationLevel:level];
+                                                   }];
+    if (_room.notificationLevel == level) {
+        [action setValue:[[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    }
+    return action;
+}
+
 #pragma mark - Room Manager notifications
 
 - (void)didUpdateRoom:(NSNotification *)notification
@@ -336,6 +387,22 @@ typedef enum ModificationError {
         } else {
             NSLog(@"Error making private the room: %@", error.description);
             [self showRoomModificationError:kModificationErrorShare];
+        }
+    }];
+}
+
+- (void)setNotificationLevel:(NCRoomNotificationLevel)level
+{
+    if (level == _room.notificationLevel) {
+        return;
+    }
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+        } else {
+            NSLog(@"Error making private the room: %@", error.description);
+            [self showRoomModificationError:kModificationErrorNotifications];
         }
     }];
 }
@@ -436,7 +503,7 @@ typedef enum ModificationError {
     
     // Presentation on iPads
     controller.popoverPresentationController.sourceView = self.tableView;
-    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:kRoomActionSendLink inSection:kRoomInfoSectionActions]];
+    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[self getIndexPathForRoomAction:kRoomActionSendLink]];
     
     [self presentViewController:controller animated:YES completion:nil];
     
@@ -708,6 +775,7 @@ typedef enum ModificationError {
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
     static NSString *favoriteRoomCellIdentifier = @"FavoriteRoomCellIdentifier";
+    static NSString *notificationLevelCellIdentifier = @"NotificationLevelCellIdentifier";
     static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
     static NSString *passwordCellIdentifier = @"PasswordCellIdentifier";
     static NSString *sendLinkCellIdentifier = @"SendLinkCellIdentifier";
@@ -781,6 +849,20 @@ typedef enum ModificationError {
                     
                     cell.textLabel.text = (_room.isFavorite) ? @"Remove from favorites" : @"Add to favorites";
                     [cell.imageView setImage:(_room.isFavorite) ? [UIImage imageNamed:@"fav-off-setting"] : [UIImage imageNamed:@"fav-setting"]];
+                    
+                    return cell;
+                }
+                    break;
+                case kRoomActionNotifications:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:notificationLevelCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:notificationLevelCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = @"Notifications";
+                    cell.detailTextLabel.text = _room.notificationLevelString;
+                    [cell.imageView setImage:[UIImage imageNamed:@"notifications-settings"]];
                     
                     return cell;
                 }
@@ -930,6 +1012,9 @@ typedef enum ModificationError {
                     } else {
                         [self addRoomToFavorites];
                     }
+                    break;
+                case kRoomActionNotifications:
+                    [self presentNotificationLevelSelector];
                     break;
                 case kRoomActionPublicToggle:
                     break;
