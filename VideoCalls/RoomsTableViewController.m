@@ -677,8 +677,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (NSString *)tableView:(UITableView *)tableView titleForSwipeAccessoryButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    
-    if (room.canModerate || room.isPublic) {
+    BOOL canFavorite = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites];
+    BOOL canChangeNotifications = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels];
+    if (room.canModerate || room.isPublic || canFavorite || canChangeNotifications) {
         NSString *moreButtonText = @"More";
         return moreButtonText;
     }
@@ -730,7 +731,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [shareLinkAction setValue:[[UIImage imageNamed:@"public-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:shareLinkAction];
     // Moderator options
-    } else {
+    } else if (room.canModerate) {
         // Add participant
         UIAlertAction *addParticipantAction = [UIAlertAction actionWithTitle:@"Add participant"
                                                                        style:UIAlertActionStyleDefault
