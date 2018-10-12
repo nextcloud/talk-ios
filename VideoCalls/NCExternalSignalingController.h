@@ -15,6 +15,8 @@ extern NSString * const NCESReceivedParticipantListMessageNotification;
 
 @interface NCExternalSignalingController : NSObject
 
+@property (nonatomic, strong) NSString* currentRoom;
+
 + (instancetype)sharedInstance;
 - (BOOL)isEnabled;
 - (BOOL)hasMCU;

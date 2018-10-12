@@ -27,7 +27,6 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 @property (nonatomic, assign) BOOL mcuSupport;
 @property (nonatomic, strong) NSMutableDictionary* participantsMap;
 @property (nonatomic, strong) NSMutableArray* pendingMessages;
-@property (nonatomic, strong) NSString* currentRoom;
 @property (nonatomic, assign) NSInteger reconnectInterval;
 @property (nonatomic, strong) NSTimer *reconnectTimer;
 @property (nonatomic, assign) BOOL reconnecting;
@@ -241,7 +240,9 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
 
 - (void)leaveRoom:(NSString *)roomId
 {
-    [self joinRoom:@"" withSessionId:@""];
+    if ([_currentRoom isEqualToString:roomId]) {
+        [self joinRoom:@"" withSessionId:@""];
+    }
 }
 
 - (void)sendCallMessage:(NCSignalingMessage *)message

@@ -167,7 +167,7 @@
     [[NCRoomsManager sharedInstance] stopReceivingChatMessagesInRoom:_room];
     
     if (self.isMovingFromParentViewController) {
-        [[NCRoomsManager sharedInstance] leaveChatInRoom:_room];
+        [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
     }
 }
 

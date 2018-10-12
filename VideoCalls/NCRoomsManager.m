@@ -111,24 +111,24 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
-- (void)leaveRoom:(NCRoom *)room
+- (void)leaveRoom:(NSString *)token
 {
     // Check if leaving the room we are joining
-    if ([_joiningRoom isEqualToString:room.token]) {
+    if ([_joiningRoom isEqualToString:token]) {
         _joiningRoom = nil;
         [_joinRoomTask cancel];
     }
     
-    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
+    NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (roomController && !roomController.inCall && !roomController.inChat) {
         [roomController stopRoomController];
-        [_activeRooms removeObjectForKey:room.token];
+        [_activeRooms removeObjectForKey:token];
         
-        [[NCAPIController sharedInstance] exitRoom:room.token withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] exitRoom:token withCompletionBlock:^(NSError *error) {
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
             if (!error) {
                 if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-                    [[NCExternalSignalingController sharedInstance] leaveRoom:room.token];
+                    [[NCExternalSignalingController sharedInstance] leaveRoom:token];
                 }
             } else {
                 [userInfo setObject:error forKey:@"error"];
@@ -209,6 +209,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (roomController && roomController.inChat) {
         [[NCUserInterfaceController sharedInstance] presentConversationsViewController];
     } else {
+        // Workaround until external signaling supports multi-room
+        if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+            NSString *currentRoom = [NCExternalSignalingController sharedInstance].currentRoom;
+            if (![currentRoom isEqualToString:room.token]) {
+                [NCExternalSignalingController sharedInstance].currentRoom = nil;
+            }
+        }
         NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
         [[NCUserInterfaceController sharedInstance] presentChatViewController:chatVC];
         [self joinRoom:room forCall:NO];
@@ -274,13 +281,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
-- (void)leaveChatInRoom:(NCRoom *)room
+- (void)leaveChatInRoom:(NSString *)token;
 {
-    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
+    NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (roomController) {
         roomController.inChat = NO;
     }
-    [self leaveRoom:room];
+    [self leaveRoom:token];
 }
 
 #pragma mark - Call
@@ -290,8 +297,18 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (!_callViewController) {
         _callViewController = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:!video];
         _callViewController.delegate = self;
+        // Workaround until external signaling supports multi-room
+        if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+            NSString *currentRoom = [NCExternalSignalingController sharedInstance].currentRoom;
+            if (![currentRoom isEqualToString:room.token]) {
+                [[NCUserInterfaceController sharedInstance] presentConversationsList];
+                if (currentRoom) {
+                    [self leaveChatInRoom:currentRoom];
+                }
+                [NCExternalSignalingController sharedInstance].currentRoom = nil;
+            }
+        }
         [[NCUserInterfaceController sharedInstance] presentCallViewController:_callViewController];
-        
         [self joinRoom:room forCall:YES];
     } else {
         NSLog(@"Not starting call due to in another call.");
@@ -334,7 +351,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (roomController) {
         roomController.inCall = NO;
     }
-    [self leaveRoom:room];
+    [self leaveRoom:room.token];
 }
 
 #pragma mark - CallViewControllerDelegate
