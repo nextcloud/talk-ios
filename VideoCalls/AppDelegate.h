@@ -7,10 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <PushKit/PushKit.h>
 #import <UserNotifications/UserNotifications.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
-
+@interface AppDelegate : UIResponder <UIApplicationDelegate, PKPushRegistryDelegate>
+{
+    PKPushRegistry *pushRegistry;
+}
 @property (strong, nonatomic) UIWindow *window;
 
 

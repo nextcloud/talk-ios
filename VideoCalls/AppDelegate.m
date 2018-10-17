@@ -61,6 +61,10 @@
     
     [application registerForRemoteNotifications];
     
+    pushRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
+    pushRegistry.delegate = self;
+    pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
+    
     [FIRMessaging messaging].delegate = self;
     
     RTCAudioSessionConfiguration *configuration = [RTCAudioSessionConfiguration webRTCConfiguration];
@@ -87,6 +91,23 @@
     
     return YES;
 }
+
+// Handle remote notification registration.
+- (void)application:(UIApplication *)app didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)devToken
+{
+    // Forward the token to your provider, using a custom method.
+//    [self enableRemoteNotificationFeatures];
+//    [self forwardTokenToServer:devTokenBytes];
+    NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken: %@", [self stringWithDeviceToken:devToken]);
+}
+
+- (void)application:(UIApplication *)app didFailToRegisterForRemoteNotificationsWithError:(NSError *)err
+{
+    // The token is not currently available.
+    NSLog(@"Remote notification support is unavailable due to error: %@", err);
+//    [self disableRemoteNotificationFeatures];
+}
+
 
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
@@ -155,6 +176,40 @@
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+#pragma mark - PushKit Delegate Methods
+
+- (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type
+{
+    if([credentials.token length] == 0) {
+        NSLog(@"Failed to create PushKit token.");
+        return;
+    }
+    NSLog(@"PushCredentials: %@", [self stringWithDeviceToken:credentials.token]);
+}
+
+- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
+{
+    // Dummy local notification
+    UILocalNotification *localNotification = [[UILocalNotification alloc] init];
+    localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:1];
+    localNotification.alertBody =  @"PushKit notification";
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+    
+    NSLog(@"didReceiveIncomingPushWithPayload");
+}
+
+- (NSString *)stringWithDeviceToken:(NSData *)deviceToken
+{
+    const char *data = [deviceToken bytes];
+    NSMutableString *token = [NSMutableString string];
+    
+    for (NSUInteger i = 0; i < [deviceToken length]; i++) {
+        [token appendFormat:@"%02.2hhX", data[i]];
+    }
+    
+    return [token copy];
 }
 
 #pragma mark - Firebase
