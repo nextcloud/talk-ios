@@ -195,9 +195,7 @@ NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContac
     [_searchContactsTask cancel];
     _searchContactsTask = [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            _resultTableViewController.contacts = contacts;
-            _resultTableViewController.indexes = indexes;
-            [_resultTableViewController.tableView reloadData];
+            [_resultTableViewController setSearchResultContacts:contacts withIndexes:indexes];
         } else {
             if (error.code != -999) {
                 NSLog(@"Error while searching for contacts: %@", error);
@@ -296,6 +294,7 @@ NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContac
 {
     [_searchTimer invalidate];
     _searchTimer = nil;
+    [_resultTableViewController showSearchingUI];
     dispatch_async(dispatch_get_main_queue(), ^{
         _searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForContacts) userInfo:nil repeats:NO];
     });

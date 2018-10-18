@@ -202,9 +202,8 @@
     _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:contactList];
-            _resultTableViewController.contacts = participants;
-            _resultTableViewController.indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];;
-            [_resultTableViewController.tableView reloadData];
+            NSArray *sortedIndexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+            [_resultTableViewController setSearchResultContacts:participants withIndexes:sortedIndexes];
         } else {
             if (error.code != -999) {
                 NSLog(@"Error while searching for participants: %@", error);
@@ -243,6 +242,7 @@
 {
     [_searchTimer invalidate];
     _searchTimer = nil;
+    [_resultTableViewController showSearchingUI];
     dispatch_async(dispatch_get_main_queue(), ^{
         _searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForParticipants) userInfo:nil repeats:NO];
     });
