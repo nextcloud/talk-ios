@@ -250,7 +250,10 @@
 
 - (void)searchForParticipants
 {
-    [self searchForParticipantsWithString:_searchController.searchBar.text];
+    NSString *searchString = _searchController.searchBar.text;
+    if (![searchString isEqualToString:@""]) {
+        [self searchForParticipantsWithString:searchString];
+    }
 }
 
 - (void)didDismissSearchController:(UISearchController *)searchController

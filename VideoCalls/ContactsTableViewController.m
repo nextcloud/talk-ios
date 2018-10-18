@@ -303,7 +303,10 @@ NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContac
 
 - (void)searchForContacts
 {
-    [self searchForContactsWithString:_searchController.searchBar.text];
+    NSString *searchString = _searchController.searchBar.text;
+    if (![searchString isEqualToString:@""]) {
+        [self searchForContactsWithString:searchString];
+    }
 }
 
 #pragma mark - Table view data source
