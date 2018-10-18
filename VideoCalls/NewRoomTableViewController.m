@@ -31,6 +31,8 @@ typedef enum HeaderSection {
     UISearchController *_searchController;
     PlaceholderView *_newRoomBackgroundView;
     SearchTableViewController *_resultTableViewController;
+    NSTimer *_searchTimer;
+    NSURLSessionTask *_searchContactsTask;
 }
 @end
 
@@ -189,13 +191,16 @@ typedef enum HeaderSection {
 
 - (void)searchForContactsWithString:(NSString *)searchString
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    [_searchContactsTask cancel];
+    _searchContactsTask = [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             _resultTableViewController.contacts = contacts;
             _resultTableViewController.indexes = indexes;
             [_resultTableViewController.tableView reloadData];
         } else {
-            NSLog(@"Error while searching for contacts: %@", error);
+            if (error.code != -999) {
+                NSLog(@"Error while searching for contacts: %@", error);
+            }
         }
     }];
 }
@@ -203,6 +208,15 @@ typedef enum HeaderSection {
 #pragma mark - Search controller
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
+{
+    [_searchTimer invalidate];
+    _searchTimer = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForContacts) userInfo:nil repeats:NO];
+    });
+}
+
+- (void)searchForContacts
 {
     [self searchForContactsWithString:_searchController.searchBar.text];
 }

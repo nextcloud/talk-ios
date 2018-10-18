@@ -25,6 +25,8 @@
     ResultMultiSelectionTableViewController *_resultTableViewController;
     NSMutableArray *_selectedParticipants;
     PlaceholderView *_participantsBackgroundView;
+    NSTimer *_searchTimer;
+    NSURLSessionTask *_searchParticipantsTask;
 }
 @end
 
@@ -226,7 +228,8 @@
 
 - (void)searchForParticipantsWithString:(NSString *)searchString
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    [_searchParticipantsTask cancel];
+    _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             NSMutableArray *filteredParticipants = [self filterContacts:contactList];
             NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
@@ -234,7 +237,9 @@
             _resultTableViewController.indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];;
             [_resultTableViewController.tableView reloadData];
         } else {
-            NSLog(@"Error while searching for participants: %@", error);
+            if (error.code != -999) {
+                NSLog(@"Error while searching for participants: %@", error);
+            }
         }
     }];
 }
@@ -266,6 +271,15 @@
 #pragma mark - Search controller
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
+{
+    [_searchTimer invalidate];
+    _searchTimer = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForParticipants) userInfo:nil repeats:NO];
+    });
+}
+
+- (void)searchForParticipants
 {
     [self searchForParticipantsWithString:_searchController.searchBar.text];
 }
