@@ -29,6 +29,7 @@ NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContac
     UISearchController *_searchController;
     SearchTableViewController *_resultTableViewController;
     PlaceholderView *_contactsBackgroundView;
+    NSTimer *_searchTimer;
     NSURLSessionTask *_searchContactsTask;
 }
 
@@ -292,6 +293,15 @@ NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContac
 #pragma mark - Search controller
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
+{
+    [_searchTimer invalidate];
+    _searchTimer = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForContacts) userInfo:nil repeats:NO];
+    });
+}
+
+- (void)searchForContacts
 {
     [self searchForContactsWithString:_searchController.searchBar.text];
 }
