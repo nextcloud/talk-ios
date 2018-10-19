@@ -33,8 +33,7 @@
     _contactsBackgroundView = [[PlaceholderView alloc] init];
     [_contactsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"contacts-placeholder"]];
     [_contactsBackgroundView.placeholderText setText:@"No results found."];
-    [_contactsBackgroundView.placeholderView setHidden:YES];
-    [_contactsBackgroundView.loadingView startAnimating];
+    [self showSearchingUI];
     self.tableView.backgroundView = _contactsBackgroundView;
 }
 
@@ -43,12 +42,32 @@
     [super didReceiveMemoryWarning];
 }
 
-- (void)setContacts:(NSMutableDictionary *)contacts
+- (void)showSearchingUI
 {
-    _contacts = contacts;
+    [self setContacts:nil withIndexes:nil];
+    [_contactsBackgroundView.placeholderView setHidden:YES];
+    [_contactsBackgroundView.loadingView startAnimating];
+    [_contactsBackgroundView.loadingView setHidden:NO];
+}
+
+- (void)hideSearchingUI
+{
     [_contactsBackgroundView.loadingView stopAnimating];
     [_contactsBackgroundView.loadingView setHidden:YES];
+}
+
+- (void)setContacts:(NSMutableDictionary *)contacts withIndexes:(NSArray *)indexes
+{
+    _contacts = contacts;
+    _indexes = indexes;
+    [self.tableView reloadData];
+}
+
+- (void)setSearchResultContacts:(NSMutableDictionary *)contacts withIndexes:(NSArray *)indexes
+{
+    [self hideSearchingUI];
     [_contactsBackgroundView.placeholderView setHidden:(contacts.count > 0)];
+    [self setContacts:contacts withIndexes:indexes];
 }
 
 #pragma mark - Table view data source

@@ -25,6 +25,8 @@
     ResultMultiSelectionTableViewController *_resultTableViewController;
     NSMutableArray *_selectedParticipants;
     PlaceholderView *_participantsBackgroundView;
+    NSTimer *_searchTimer;
+    NSURLSessionTask *_searchParticipantsTask;
 }
 @end
 
@@ -226,15 +228,17 @@
 
 - (void)searchForParticipantsWithString:(NSString *)searchString
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    [_searchParticipantsTask cancel];
+    _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             NSMutableArray *filteredParticipants = [self filterContacts:contactList];
             NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
-            _resultTableViewController.contacts = participants;
-            _resultTableViewController.indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];;
-            [_resultTableViewController.tableView reloadData];
+            NSArray *sortedIndexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+            [_resultTableViewController setSearchResultContacts:participants withIndexes:sortedIndexes];
         } else {
-            NSLog(@"Error while searching for participants: %@", error);
+            if (error.code != -999) {
+                NSLog(@"Error while searching for participants: %@", error);
+            }
         }
     }];
 }
@@ -267,7 +271,20 @@
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
 {
-    [self searchForParticipantsWithString:_searchController.searchBar.text];
+    [_searchTimer invalidate];
+    _searchTimer = nil;
+    [_resultTableViewController showSearchingUI];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForParticipants) userInfo:nil repeats:NO];
+    });
+}
+
+- (void)searchForParticipants
+{
+    NSString *searchString = _searchController.searchBar.text;
+    if (![searchString isEqualToString:@""]) {
+        [self searchForParticipantsWithString:searchString];
+    }
 }
 
 - (void)didDismissSearchController:(UISearchController *)searchController

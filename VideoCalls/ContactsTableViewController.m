@@ -29,6 +29,8 @@ NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContac
     UISearchController *_searchController;
     SearchTableViewController *_resultTableViewController;
     PlaceholderView *_contactsBackgroundView;
+    NSTimer *_searchTimer;
+    NSURLSessionTask *_searchContactsTask;
 }
 
 @end
@@ -190,13 +192,14 @@ NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContac
 
 - (void)searchForContactsWithString:(NSString *)searchString
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    [_searchContactsTask cancel];
+    _searchContactsTask = [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            _resultTableViewController.contacts = contacts;
-            _resultTableViewController.indexes = indexes;
-            [_resultTableViewController.tableView reloadData];
+            [_resultTableViewController setSearchResultContacts:contacts withIndexes:indexes];
         } else {
-            NSLog(@"Error while searching for contacts: %@", error);
+            if (error.code != -999) {
+                NSLog(@"Error while searching for contacts: %@", error);
+            }
         }
     }];
 }
@@ -289,7 +292,20 @@ NSString * const NCSelectedContactForChatNotification       = @"NCSelectedContac
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
 {
-    [self searchForContactsWithString:_searchController.searchBar.text];
+    [_searchTimer invalidate];
+    _searchTimer = nil;
+    [_resultTableViewController showSearchingUI];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForContacts) userInfo:nil repeats:NO];
+    });
+}
+
+- (void)searchForContacts
+{
+    NSString *searchString = _searchController.searchBar.text;
+    if (![searchString isEqualToString:@""]) {
+        [self searchForContactsWithString:searchString];
+    }
 }
 
 #pragma mark - Table view data source

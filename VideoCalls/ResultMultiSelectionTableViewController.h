@@ -16,4 +16,7 @@
 @property (nonatomic, strong) NSArray *indexes;
 @property (nonatomic, strong) NSMutableArray *selectedParticipants;
 
+- (void)setSearchResultContacts:(NSMutableDictionary *)contacts withIndexes:(NSArray *)indexes;
+- (void)showSearchingUI;
+
 @end
