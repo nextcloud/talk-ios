@@ -836,6 +836,8 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return task;
 }
 
+#pragma mark - Server capabilities
+
 - (NSURLSessionDataTask *)getServerCapabilitiesWithCompletionBlock:(GetServerCapabilitiesCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/capabilities", _serverUrl];
@@ -845,6 +847,26 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         NSDictionary *capabilities = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(capabilities, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error);
+        }
+    }];
+    
+    return task;
+}
+
+#pragma mark - Server notifications
+
+- (NSURLSessionDataTask *)getServerNotification:(NSInteger)notificationId withCompletionBlock:(GetServerNotificationCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/notifications/%ld", _serverUrl, (long)notificationId];
+    
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *notification = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            block(notification, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
