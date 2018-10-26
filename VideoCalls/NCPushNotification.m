@@ -56,6 +56,8 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
         pushNotification.type = NCPushNotificationTypeChat;
     }
     
+    pushNotification.jsonString = decryptedString;
+    
     return pushNotification;
 }
 

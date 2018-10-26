@@ -76,6 +76,9 @@
 		2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
 		2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */; };
 		2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */; };
+		2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */; };
+		2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
+		2C9B0B9D217F761100A4752C /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
 		2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */; };
 		2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
 		2CA15542208E3B7B00CE8EF0 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
@@ -100,7 +103,6 @@
 		2CB5D0531FB4D1FD00D7A5B7 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60141FB4A9DA006E87EF /* libssl.a */; };
 		2CB5D0541FB4D20B00D7A5B7 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60131FB4A9DA006E87EF /* libcrypto.a */; };
 		2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
-		2CBF82AF1FC888FC00636459 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
 		2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
 		2CBF82B71FD0939600636459 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
@@ -331,6 +333,10 @@
 		2C98F77721622445001A6A73 /* RoomSearchTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomSearchTableViewController.h; sourceTree = "<group>"; };
 		2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomSearchTableViewController.m; sourceTree = "<group>"; };
 		2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomTableViewCell.xib; sourceTree = "<group>"; };
+		2C9B0B96217F6DBA00A4752C /* NCNotificationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCNotificationController.h; sourceTree = "<group>"; };
+		2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNotificationController.m; sourceTree = "<group>"; };
+		2C9B0B9A217F756B00A4752C /* NCNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCNotification.h; sourceTree = "<group>"; };
+		2C9B0B9B217F756B00A4752C /* NCNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNotification.m; sourceTree = "<group>"; };
 		2C9E6CCC1F6F34F000399B7A /* ARDSDPUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSDPUtils.h; sourceTree = "<group>"; };
 		2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDSDPUtils.m; sourceTree = "<group>"; };
 		2CA1553F208E350300CE8EF0 /* NCChatMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatMessage.h; sourceTree = "<group>"; };
@@ -474,6 +480,7 @@
 				2C5521671F7D47BA0077E587 /* Contacts */,
 				2C5521681F7D481C0077E587 /* Login */,
 				2C55216B1F7D48970077E587 /* Network */,
+				2C9B0B99217F6E3400A4752C /* Notifications */,
 				2C5521661F7D47A50077E587 /* Rooms */,
 				2CBF82B31FCC7DC100636459 /* Security */,
 				2C55216A1F7D48850077E587 /* Settings */,
@@ -819,6 +826,19 @@
 			path = "ThirdParty/UIImageView+Letters";
 			sourceTree = "<group>";
 		};
+		2C9B0B99217F6E3400A4752C /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				2C9B0B9A217F756B00A4752C /* NCNotification.h */,
+				2C9B0B9B217F756B00A4752C /* NCNotification.m */,
+				2C9B0B96217F6DBA00A4752C /* NCNotificationController.h */,
+				2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */,
+				2CBF82AC1FC888FC00636459 /* NCPushNotification.h */,
+				2CBF82AD1FC888FC00636459 /* NCPushNotification.m */,
+			);
+			name = Notifications;
+			sourceTree = "<group>";
+		};
 		2CA1CC9B1F0161FB002FE6A2 /* UICKeyChainStore */ = {
 			isa = PBXGroup;
 			children = (
@@ -1157,6 +1177,7 @@
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
 				2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
+				2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */,
 				2CC007BD20D8F24B0096D91F /* RoomCreation2TableViewController.m in Sources */,
 				2CBF82BD1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
 				2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */,
@@ -1171,6 +1192,7 @@
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
 				2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
+				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
 				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
@@ -1224,12 +1246,12 @@
 				2C43BA7A2130BB2A00B3068A /* NCMessageParameter.m in Sources */,
 				2CBF82C21FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */,
 				2C063315205AB8C40043481A /* ARDSettingsStore.m in Sources */,
-				2CBF82AF1FC888FC00636459 /* NCPushNotification.m in Sources */,
 				2CBF82BE1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
 				2C3F6AA81FBB1ACD00E2705C /* NotificationService.m in Sources */,
 				2C3F6AB31FBB45E600E2705C /* NCSettingsController.m in Sources */,
 				2CD5F3252142B3B9006B71BF /* NCExternalSignalingController.m in Sources */,
 				2C3F6AB71FBB47C400E2705C /* UICKeyChainStore.m in Sources */,
+				2C9B0B9D217F761100A4752C /* NCPushNotification.m in Sources */,
 				2C3F6AB81FBB4C9500E2705C /* NCRoom.m in Sources */,
 				2C3780BE21075161003F9AE8 /* NCRoomParticipants.m in Sources */,
 			);
