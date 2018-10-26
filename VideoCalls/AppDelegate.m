@@ -193,13 +193,14 @@
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
 {
-    // Dummy local notification
-    UILocalNotification *localNotification = [[UILocalNotification alloc] init];
-    localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:1];
-    localNotification.alertBody =  @"PushKit notification";
-    [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
-    
-    NSLog(@"didReceiveIncomingPushWithPayload");
+    NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
+    if (message && [NCSettingsController sharedInstance].ncPNPrivateKey) {
+        NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:[NCSettingsController sharedInstance].ncPNPrivateKey];
+        if (decryptedMessage) {
+            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage];
+            [[NCNotificationController sharedInstance] processIncomingPushNotification:pushNotification];
+        }
+    }
 }
 
 - (NSString *)stringWithDeviceToken:(NSData *)deviceToken
