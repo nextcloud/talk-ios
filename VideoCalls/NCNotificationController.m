@@ -62,6 +62,8 @@
         } else {
             [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
         }
+        
+        [self updateAppIconBadgeNumber];
     }
 }
 
@@ -81,6 +83,19 @@
     UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
     [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
+}
+
+- (void)updateAppIconBadgeNumber
+{
+    if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
+        [UIApplication sharedApplication].applicationIconBadgeNumber += 1;
+    }
+}
+
+- (void)cleanNotifications
+{
+    [_notificationCenter removeAllDeliveredNotifications];
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
 #pragma mark - UNUserNotificationCenter delegate

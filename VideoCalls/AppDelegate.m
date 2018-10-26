@@ -18,6 +18,7 @@
 
 #import "OpenInFirefoxControllerObjC.h"
 #import "NCConnectionController.h"
+#import "NCNotificationController.h"
 #import "NCPushNotification.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
@@ -170,6 +171,7 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    [[NCNotificationController sharedInstance] cleanNotifications];
 }
 
 

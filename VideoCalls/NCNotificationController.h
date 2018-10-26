@@ -14,5 +14,6 @@
 
 + (instancetype)sharedInstance;
 - (void)processIncomingPushNotification:(NCPushNotification *)pushNotification;
+- (void)cleanNotifications;
 
 @end
