@@ -18,7 +18,7 @@
     
     NCRoomParticipant *participant = [[NCRoomParticipant alloc] init];
     participant.displayName = [participantDict objectForKey:@"displayName"];
-    participant.inCall = [[participantDict objectForKey:@"displayName"] boolValue];
+    participant.inCall = [[participantDict objectForKey:@"inCall"] boolValue];
     participant.lastPing = [[participantDict objectForKey:@"lastPing"] integerValue];
     participant.participantType = (NCParticipantType)[[participantDict objectForKey:@"participantType"] integerValue];
     participant.sessionId = [participantDict objectForKey:@"sessionId"];
