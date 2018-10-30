@@ -953,6 +953,13 @@ typedef enum ModificationError {
                 cell.labelTitle.alpha = 1;
             }
             
+            // InCall status
+            if (participant.inCall) {
+                cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"videocall-indicator"]];
+            } else {
+                cell.accessoryView = nil;
+            }
+            
             return cell;
         }
             break;
