@@ -188,7 +188,20 @@
         NSLog(@"Failed to create PushKit token.");
         return;
     }
-    NSLog(@"PushCredentials: %@", [self stringWithDeviceToken:credentials.token]);
+    
+    UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
+                                                                accessGroup:@"group.com.nextcloud.Talk"];
+    NSString *pushKitToken = [self stringWithDeviceToken:credentials.token];
+    NSString *savedPushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
+    NSString *subscribed = [NCSettingsController sharedInstance].pushNotificationSubscribed;
+    
+    // Re-subscribe if new push token has been generated
+    if (!subscribed || ![savedPushKitToken isEqualToString:pushKitToken]) {
+        [keychain removeItemForKey:kNCPushSubscribedKey];
+        [[NCConnectionController sharedInstance] reSubscribeForPushNotifications];
+    }
+    
+    [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
 }
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type

@@ -160,5 +160,12 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
     [self notifyAppState];
 }
 
+- (void)reSubscribeForPushNotifications
+{
+    if (_appState > kAppStateNotServerProvided) {
+        [[NCSettingsController sharedInstance] subscribeForPushNotifications];
+    }
+}
+
 
 @end

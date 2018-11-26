@@ -120,36 +120,7 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
         [[NCAPIController sharedInstance] setNCServer:_serverUrl];
         [[NCAPIController sharedInstance] setAuthHeaderWithUser:user andToken:token];
         
-        [[NCSettingsController sharedInstance] generatePushNotificationsKeyPair];
-        
-        // Subscribe to NC server
-        [[NCAPIController sharedInstance] subscribeToNextcloudServer:^(NSDictionary *responseDict, NSError *error) {
-            if (!error) {
-                NSLog(@"Subscribed to NC server successfully.");
-                
-                NSString *publicKey = [responseDict objectForKey:@"publicKey"];
-                NSString *deviceIdentifier = [responseDict objectForKey:@"deviceIdentifier"];
-                NSString *signature = [responseDict objectForKey:@"signature"];
-
-                [NCSettingsController sharedInstance].ncUserPublicKey = publicKey;
-                [NCSettingsController sharedInstance].ncDeviceIdentifier = deviceIdentifier;
-                [NCSettingsController sharedInstance].ncDeviceSignature = signature;
-                
-                [keychain setString:publicKey forKey:kNCUserPublicKey];
-                [keychain setString:deviceIdentifier forKey:kNCDeviceIdentifier];
-                [keychain setString:signature forKey:kNCDeviceSignature];
-                
-                [[NCAPIController sharedInstance] subscribeToPushServer:^(NSError *error) {
-                    if (!error) {
-                        NSLog(@"Subscribed to Push Notification server successfully.");
-                    } else {
-                        NSLog(@"Error while subscribing to Push Notification server.");
-                    }
-                }];
-            } else {
-                NSLog(@"Error while subscribing to NC server.");
-            }
-        }];
+        [[NCSettingsController sharedInstance] subscribeForPushNotifications];
         
         [self.delegate authenticationViewControllerDidFinish:self];
         
