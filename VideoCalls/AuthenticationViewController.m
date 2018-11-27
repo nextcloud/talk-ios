@@ -52,8 +52,10 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
     
     _webView = [[WKWebView alloc] initWithFrame:self.view.frame
                                   configuration:configuration];
-    _webView.customUserAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
-                                [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
+    NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
+    NSString *deviceName = [[UIDevice currentDevice] name];
+    NSString *userAgent = [NSString stringWithFormat:@"%@ (%@)", deviceName, appDisplayName];
+    _webView.customUserAgent = [[NSString alloc] initWithCString:[userAgent UTF8String] encoding:NSASCIIStringEncoding];
     _webView.navigationDelegate = self;
     
     [_webView loadRequest:request];
