@@ -23,10 +23,12 @@
 #import "UIImageView+Letters.h"
 #import "AFImageDownloader.h"
 #import "UIImageView+AFNetworking.h"
+#import "UIButton+AFNetworking.h"
 #import "NCChatViewController.h"
 #import "NCRoomsManager.h"
 #import "NewRoomTableViewController.h"
 #import "RoomSearchTableViewController.h"
+#import "SettingsViewController.h"
 #import "PlaceholderView.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
@@ -39,6 +41,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UISearchController *_searchController;
     RoomSearchTableViewController *_resultTableViewController;
     PlaceholderView *_roomsBackgroundView;
+    UINavigationController *_settingsNC;
 }
 
 @end
@@ -64,6 +67,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                           imageCache:[[AFAutoPurgingImageCache alloc] init]];
     
     [UIImageView setSharedImageDownloader:imageDownloader];
+    [UIButton setSharedImageDownloader:imageDownloader];
     
     UIImage *navigationLogo = [UIImage imageNamed:@"navigationLogo"];
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:navigationLogo];
@@ -108,6 +112,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [_roomsBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _roomsBackgroundView;
     
+    // Settings navigation controller
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    _settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
@@ -138,7 +146,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // If the logged-in user is using an old NC Talk version on the server then logged the user out.
     if (![[NCSettingsController sharedInstance] serverUsesRequiredTalkVersion]) {
         [[NCSettingsController sharedInstance] logoutWithCompletionBlock:^(NSError *error) {
-            [[NCUserInterfaceController sharedInstance] presentConversationsViewController];
+            [[NCUserInterfaceController sharedInstance] presentConversationsList];
             [[NCConnectionController sharedInstance] checkAppState];
         }];
     }
@@ -220,6 +228,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     switch (appState) {
         case kAppStateReady:
         {
+            [self setProfileButton];
             [self fetchRoomsWithCompletionBlock:nil];
         }
             break;
@@ -259,6 +268,39 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     self.addButton.enabled = YES;
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogo"]];
+}
+
+#pragma mark - User profile
+
+- (void)setProfileButton
+{
+    UIButton *profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [profileButton addTarget:self action:@selector(showUserProfile) forControlEvents:UIControlEventTouchUpInside];
+    profileButton.frame = CGRectMake(0, 0, 30, 30);
+    profileButton.layer.masksToBounds = YES;
+    profileButton.layer.cornerRadius = 15;
+    profileButton.layer.borderWidth = 1.0f;
+    profileButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+    
+    [profileButton setBackgroundImageForState:UIControlStateNormal
+                                withURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:60]
+                              placeholderImage:nil success:nil failure:nil];
+    
+    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithCustomView:profileButton];
+    
+    if (@available(iOS 11.0, *)) {
+        NSLayoutConstraint *width = [leftButton.customView.widthAnchor constraintEqualToConstant:30];
+        width.active = YES;
+        NSLayoutConstraint *height = [leftButton.customView.heightAnchor constraintEqualToConstant:30];
+        height.active = YES;
+    }
+    
+    [self.navigationItem setLeftBarButtonItem:leftButton];
+}
+
+- (void)showUserProfile
+{
+    [self presentViewController:_settingsNC animated:YES completion:nil];
 }
 
 #pragma mark - Rooms

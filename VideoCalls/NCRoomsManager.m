@@ -207,7 +207,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (roomController && roomController.inChat) {
-        [[NCUserInterfaceController sharedInstance] presentConversationsViewController];
+        // User is already in that room
+        return;
     } else {
         // Workaround until external signaling supports multi-room
         if ([[NCExternalSignalingController sharedInstance] isEnabled]) {

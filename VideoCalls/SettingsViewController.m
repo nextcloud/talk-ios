@@ -52,15 +52,16 @@ typedef enum AboutSection {
 {
     [super viewDidLoad];
     
-    UIImage *image = [UIImage imageNamed:@"navigationLogo"];
-    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:image];
+    self.navigationItem.title = @"Profile";
+    [self.navigationController.navigationBar setTitleTextAttributes:
+     @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
+    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     [self.tableView registerNib:[UINib nibWithNibName:kUserSettingsTableCellNibName bundle:nil] forCellReuseIdentifier:kUserSettingsCellIdentifier];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
 }
 
 - (void)dealloc
@@ -76,7 +77,6 @@ typedef enum AboutSection {
     _user = [[NCSettingsController sharedInstance] ncUser];
     
     [self adaptInterfaceForAppState:[NCConnectionController sharedInstance].appState];
-    [self adaptInterfaceForConnectionState:[NCConnectionController sharedInstance].connectionState];
     [self.tableView reloadData];
 }
 
@@ -108,12 +108,6 @@ typedef enum AboutSection {
     [self adaptInterfaceForAppState:appState];
 }
 
-- (void)connectionStateHasChanged:(NSNotification *)notification
-{
-    ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
-    [self adaptInterfaceForConnectionState:connectionState];
-}
-
 #pragma mark - User Interface
 
 - (void)adaptInterfaceForAppState:(AppState)appState
@@ -128,36 +122,6 @@ typedef enum AboutSection {
         default:
             break;
     }
-}
-
-- (void)adaptInterfaceForConnectionState:(ConnectionState)connectionState
-{
-    switch (connectionState) {
-        case kConnectionStateConnected:
-        {
-            [self setOnlineAppearance];
-        }
-            break;
-            
-        case kConnectionStateDisconnected:
-        {
-            [self setOfflineAppearance];
-        }
-            break;
-            
-        default:
-            break;
-    }
-}
-
-- (void)setOfflineAppearance
-{
-    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogoOffline"]];
-}
-
-- (void)setOnlineAppearance
-{
-    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogo"]];
 }
 
 #pragma mark - Profile actions
@@ -190,7 +154,7 @@ typedef enum AboutSection {
 - (void)logout
 {
     [[NCSettingsController sharedInstance] logoutWithCompletionBlock:^(NSError *error) {
-        [[NCUserInterfaceController sharedInstance] presentConversationsViewController];
+        [[NCUserInterfaceController sharedInstance] presentConversationsList];
         [[NCConnectionController sharedInstance] checkAppState];
     }];
 }

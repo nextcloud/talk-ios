@@ -64,6 +64,7 @@
 		2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */; };
 		2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A12402017872600864818 /* AddParticipantsTableViewController.m */; };
 		2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */; };
+		2C7C106221AF199300461817 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7C106021AF199300461817 /* SettingsViewController.m */; };
 		2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		2C86DB8B2135B910008770C3 /* NCFilePreviewSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C86DB8A2135B910008770C3 /* NCFilePreviewSessionManager.m */; };
 		2C86DB8C2135BBE6008770C3 /* NCFilePreviewSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C86DB8A2135B910008770C3 /* NCFilePreviewSessionManager.m */; };
@@ -90,7 +91,6 @@
 		2CA1CCA71F026222002FE6A2 /* ContactsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */; };
 		2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
 		2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
-		2CA1CCB51F0D0D5E002FE6A2 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCB41F0D0D5E002FE6A2 /* SettingsViewController.m */; };
 		2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
 		2CA1CCCA1F17C503002FE6A2 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */; };
 		2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
@@ -241,6 +241,8 @@
 		2C7A123F2017872600864818 /* AddParticipantsTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AddParticipantsTableViewController.h; sourceTree = "<group>"; };
 		2C7A12402017872600864818 /* AddParticipantsTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AddParticipantsTableViewController.m; sourceTree = "<group>"; };
 		2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddParticipantsTableViewController.xib; sourceTree = "<group>"; };
+		2C7C105F21AF199300461817 /* SettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
+		2C7C106021AF199300461817 /* SettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
 		2C7F47AB20289B9600081CC7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2C86DB892135B910008770C3 /* NCFilePreviewSessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCFilePreviewSessionManager.h; sourceTree = "<group>"; };
 		2C86DB8A2135B910008770C3 /* NCFilePreviewSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCFilePreviewSessionManager.m; sourceTree = "<group>"; };
@@ -356,8 +358,6 @@
 		2CA1CCA81F02D1A4002FE6A2 /* NCAPIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCAPIController.h; sourceTree = "<group>"; };
 		2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCAPIController.m; sourceTree = "<group>"; };
 		2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		2CA1CCB31F0D0D5E002FE6A2 /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
-		2CA1CCB41F0D0D5E002FE6A2 /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
 		2CA1CCC11F166CC5002FE6A2 /* NCRoom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCRoom.h; sourceTree = "<group>"; };
 		2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCRoom.m; sourceTree = "<group>"; };
 		2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -667,8 +667,8 @@
 			children = (
 				2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */,
 				2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */,
-				2CA1CCB31F0D0D5E002FE6A2 /* SettingsViewController.h */,
-				2CA1CCB41F0D0D5E002FE6A2 /* SettingsViewController.m */,
+				2C7C105F21AF199300461817 /* SettingsViewController.h */,
+				2C7C106021AF199300461817 /* SettingsViewController.m */,
 				2CBF82AC1FC888FC00636459 /* NCPushNotification.h */,
 				2CBF82AD1FC888FC00636459 /* NCPushNotification.m */,
 				2C7A1233200E0A5700864818 /* UserSettingsTableViewCell.h */,
@@ -1143,6 +1143,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C7C106221AF199300461817 /* SettingsViewController.m in Sources */,
 				2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */,
 				2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */,
 				2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */,
@@ -1205,7 +1206,6 @@
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
 				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
-				2CA1CCB51F0D0D5E002FE6A2 /* SettingsViewController.m in Sources */,
 				2CC7159120C51F7F0045C789 /* UnreadMessagesView.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
