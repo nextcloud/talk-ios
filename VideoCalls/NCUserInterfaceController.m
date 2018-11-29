@@ -53,33 +53,17 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)presentConversationsViewController
-{
-    [self.mainTabBarController setSelectedIndex:0];
-}
-
-- (void)presentContactsViewController
-{
-    [self.mainTabBarController setSelectedIndex:1];
-}
-
-- (void)presentSettingsViewController
-{
-    [self.mainTabBarController setSelectedIndex:2];
-}
-
 - (void)presentConversationsList
 {
-    UINavigationController *conversationsNC = [[self.mainTabBarController viewControllers] objectAtIndex:0];
-    [conversationsNC popToRootViewControllerAnimated:NO];
-    [self presentConversationsViewController];
+    [_mainNavigationController dismissViewControllerAnimated:NO completion:nil];
+    [_mainNavigationController popToRootViewControllerAnimated:NO];
 }
 
 - (void)presentLoginViewController
 {
     _loginViewController = [[LoginViewController alloc] init];
     _loginViewController.delegate = self;
-    [self.mainTabBarController presentViewController:_loginViewController animated:YES completion:nil];
+    [_mainNavigationController presentViewController:_loginViewController animated:YES completion:nil];
 }
 
 - (void)presentAuthenticationViewController
@@ -87,7 +71,7 @@
     _authViewController = [[AuthenticationViewController alloc] init];
     _authViewController.delegate = self;
     _authViewController.serverUrl = [NCSettingsController sharedInstance].ncServer;
-    [self.mainTabBarController presentViewController:_authViewController animated:YES completion:nil];
+    [_mainNavigationController presentViewController:_authViewController animated:YES completion:nil];
 }
 
 - (void)presentOfflineWarningAlert
@@ -106,7 +90,7 @@
     
     [alert addAction:okButton];
     
-    [self.mainTabBarController presentViewController:alert animated:YES completion:nil];
+    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)presentChatForPushNotification:(NCPushNotification *)pushNotification
@@ -168,28 +152,26 @@
     
     // Do not show join call dialog until we don't handle 'hangup current call'/'join new one' properly.
     if (![NCRoomsManager sharedInstance].callViewController) {
-        [self.mainTabBarController dismissViewControllerAnimated:NO completion:nil];
+        [_mainNavigationController dismissViewControllerAnimated:NO completion:nil];
     }
 
-    [self.mainTabBarController presentViewController:alert animated:YES completion:nil];
+    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)presentAlertViewController:(UIAlertController *)alertViewController
 {
-    [self.mainTabBarController presentViewController:alertViewController animated:YES completion:nil];
+    [_mainNavigationController presentViewController:alertViewController animated:YES completion:nil];
 }
 
 - (void)presentChatViewController:(NCChatViewController *)chatViewController
 {
-    [self presentConversationsViewController];
-    UINavigationController *conversationsNC = [[self.mainTabBarController viewControllers] objectAtIndex:0];
-    [conversationsNC popToRootViewControllerAnimated:NO];
-    [conversationsNC pushViewController:chatViewController animated:YES];
+    [self presentConversationsList];
+    [_mainNavigationController pushViewController:chatViewController animated:YES];
 }
 
 - (void)presentCallViewController:(CallViewController *)callViewController
 {
-    [self.mainTabBarController presentViewController:callViewController animated:YES completion:nil];
+    [_mainNavigationController presentViewController:callViewController animated:YES completion:nil];
 }
 
 #pragma mark - Notifications
@@ -229,7 +211,7 @@
 - (void)loginViewControllerDidFinish:(LoginViewController *)viewController
 {
     [[NCConnectionController sharedInstance] checkAppState];
-    [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
+    [_mainNavigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - AuthenticationViewControllerDelegate
@@ -237,7 +219,7 @@
 - (void)authenticationViewControllerDidFinish:(AuthenticationViewController *)viewController
 {
     [[NCConnectionController sharedInstance] checkAppState];
-    [self.mainTabBarController dismissViewControllerAnimated:YES completion:nil];
+    [_mainNavigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end

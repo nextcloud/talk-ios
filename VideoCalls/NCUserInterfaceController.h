@@ -15,12 +15,9 @@
 
 @interface NCUserInterfaceController : NSObject
 
-@property (nonatomic, strong) UITabBarController *mainTabBarController;
+@property (nonatomic, strong) UINavigationController *mainNavigationController;
 
 + (instancetype)sharedInstance;
-- (void)presentConversationsViewController;
-- (void)presentContactsViewController;
-- (void)presentSettingsViewController;
 - (void)presentConversationsList;
 - (void)presentLoginViewController;
 - (void)presentAuthenticationViewController;

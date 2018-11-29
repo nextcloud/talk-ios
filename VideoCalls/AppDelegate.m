@@ -80,7 +80,7 @@
         [NCSettingsController sharedInstance].defaultBrowser = @"Safari";
     }
     
-    [NCUserInterfaceController sharedInstance].mainTabBarController = (UITabBarController *) self.window.rootViewController;
+    [NCUserInterfaceController sharedInstance].mainNavigationController = (UINavigationController *) self.window.rootViewController;
     
     //Init rooms manager to start receiving NSNotificationCenter notifications
     [NCRoomsManager sharedInstance];

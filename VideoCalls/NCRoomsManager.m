@@ -9,7 +9,7 @@
 #import "NCRoomsManager.h"
 
 #import "NCChatViewController.h"
-#import "ContactsTableViewController.h"
+#import "NewRoomTableViewController.h"
 #import "RoomCreation2TableViewController.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
@@ -57,8 +57,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChat:) name:NCPushNotificationJoinChatNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinAudioCallAccepted:) name:NCPushNotificationJoinAudioCallAcceptedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinVideoCallAccepted:) name:NCPushNotificationJoinVideoCallAcceptedNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForVoiceCall:) name:NCSelectedContactForVoiceCallNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForVideoCall:) name:NCSelectedContactForVideoCallNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForChat:) name:NCSelectedContactForChatNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
     }
@@ -207,7 +205,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (roomController && roomController.inChat) {
-        [[NCUserInterfaceController sharedInstance] presentConversationsViewController];
+        // User is already in that room
+        return;
     } else {
         // Workaround until external signaling supports multi-room
         if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
@@ -391,18 +390,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     } else {
         [self joinCallWithCallId:pushNotification.roomId withVideo:YES];
     }
-}
-
-- (void)userSelectedContactForVoiceCall:(NSNotification *)notification
-{
-    NSString *roomToken = [notification.userInfo objectForKey:@"token"];
-    [self joinCallWithCallToken:roomToken withVideo:NO];
-}
-
-- (void)userSelectedContactForVideoCall:(NSNotification *)notification
-{
-    NSString *roomToken = [notification.userInfo objectForKey:@"token"];
-    [self joinCallWithCallToken:roomToken withVideo:YES];
 }
 
 - (void)joinChat:(NSNotification *)notification
