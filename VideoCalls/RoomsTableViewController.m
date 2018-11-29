@@ -279,8 +279,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     profileButton.frame = CGRectMake(0, 0, 30, 30);
     profileButton.layer.masksToBounds = YES;
     profileButton.layer.cornerRadius = 15;
-    profileButton.layer.borderWidth = 1.0f;
-    profileButton.layer.borderColor = [[UIColor whiteColor] CGColor];
     
     [profileButton setBackgroundImageForState:UIControlStateNormal
                                 withURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:60]
