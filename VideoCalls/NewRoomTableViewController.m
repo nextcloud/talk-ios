@@ -10,7 +10,6 @@
 
 #import "RoomCreationTableViewController.h"
 #import "RoomCreation2TableViewController.h"
-#import "ContactsTableViewController.h"
 #import "NCAPIController.h"
 #import "NCUserInterfaceController.h"
 #import "PlaceholderView.h"
@@ -23,6 +22,8 @@ typedef enum HeaderSection {
     kHeaderSectionNewPublic,
     kHeaderSectionNumber
 } HeaderSection;
+
+NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForChatNotification";
 
 @interface NewRoomTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {

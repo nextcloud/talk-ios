@@ -88,7 +88,6 @@
 		2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA1CC961F016117002FE6A2 /* Security.framework */; };
 		2CA1CC9A1F0161EA002FE6A2 /* UICKeyChainStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */; };
 		2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */; };
-		2CA1CCA71F026222002FE6A2 /* ContactsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */; };
 		2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
 		2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
 		2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
@@ -353,8 +352,6 @@
 		2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UICKeyChainStore.m; path = ThirdParty/UICKeyChainStore/UICKeyChainStore.m; sourceTree = "<group>"; };
 		2CA1CCA21F025F64002FE6A2 /* RoomsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoomsTableViewController.h; sourceTree = "<group>"; };
 		2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoomsTableViewController.m; sourceTree = "<group>"; };
-		2CA1CCA51F026222002FE6A2 /* ContactsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactsTableViewController.h; sourceTree = "<group>"; };
-		2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactsTableViewController.m; sourceTree = "<group>"; };
 		2CA1CCA81F02D1A4002FE6A2 /* NCAPIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCAPIController.h; sourceTree = "<group>"; };
 		2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCAPIController.m; sourceTree = "<group>"; };
 		2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -618,8 +615,6 @@
 				2CA1CCD31F1E664C002FE6A2 /* ContactsTableViewCell.h */,
 				2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */,
 				2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */,
-				2CA1CCA51F026222002FE6A2 /* ContactsTableViewController.h */,
-				2CA1CCA61F026222002FE6A2 /* ContactsTableViewController.m */,
 				2CA1CCCB1F181741002FE6A2 /* NCUser.h */,
 				2CA1CCCC1F181741002FE6A2 /* NCUser.m */,
 				2CA1CCCE1F1E1779002FE6A2 /* SearchTableViewController.h */,
@@ -1153,7 +1148,6 @@
 				2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */,
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
 				2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */,
-				2CA1CCA71F026222002FE6A2 /* ContactsTableViewController.m in Sources */,
 				2C415F9B2136BDD6005F7F37 /* FileMessageTableViewCell.m in Sources */,
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
