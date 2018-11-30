@@ -120,8 +120,8 @@
     }
     NSString *messageActor = [NSString stringWithFormat:@"%@: ", displayName];
     NSMutableAttributedString *actorDisplayName = [[NSMutableAttributedString alloc] initWithString:messageActor];
-    [actorDisplayName addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:14.0 weight:UIFontWeightRegular] range:NSMakeRange(0,actorDisplayName.length)];
-    [actorDisplayName addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.8] range:NSMakeRange(0,actorDisplayName.length)];
+    [actorDisplayName addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:15.0 weight:UIFontWeightRegular] range:NSMakeRange(0,actorDisplayName.length)];
+    [actorDisplayName addAttribute:NSForegroundColorAttributeName value:[UIColor darkTextColor] range:NSMakeRange(0,actorDisplayName.length)];
     
     return actorDisplayName;
 }
@@ -129,7 +129,7 @@
 - (NSMutableAttributedString *)lastMessageString
 {
     NSMutableAttributedString *lastMessage = _lastMessage.parsedMessage;
-    [lastMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:14.0 weight:UIFontWeightRegular] range:NSMakeRange(0,lastMessage.length)];
+    [lastMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:15.0 weight:UIFontWeightRegular] range:NSMakeRange(0,lastMessage.length)];
     [lastMessage addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.4] range:NSMakeRange(0,lastMessage.length)];
     
     return lastMessage;

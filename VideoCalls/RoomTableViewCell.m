@@ -10,7 +10,7 @@
 #import "RoundedNumberView.h"
 #import "UIImageView+AFNetworking.h"
 
-#define kTitleOriginY       15
+#define kTitleOriginY       12
 #define kTitleOnlyOriginY   25
 
 NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
