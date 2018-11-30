@@ -886,7 +886,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         NCChatMessage *lastMessage = room.lastMessage;
         if (lastMessage) {
             cell.titleOnly = NO;
-            cell.subtitleLabel.attributedText = room.lastMessageString;
+            if (room.shouldShowLastMessageActorName) {
+                cell.actorNameLabel.attributedText = room.lastMessageActorString;
+                cell.lastGroupMessageLabel.attributedText = room.lastMessageString;
+            } else {
+                cell.subtitleLabel.attributedText = room.lastMessageString;
+            }
         } else {
             cell.titleOnly = YES;
         }

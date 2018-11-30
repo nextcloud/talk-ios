@@ -79,6 +79,11 @@
     return NO;
 }
 
+- (BOOL)shouldShowLastMessageActorName
+{
+    return _type != kNCRoomTypeOneToOneCall && !_lastMessage.isSystemMessage;
+}
+
 - (NSString *)notificationLevelString
 {
     return [self stringForNotificationLevel:_notificationLevel];
@@ -103,27 +108,29 @@
     return levelString;
 }
 
+- (NSMutableAttributedString *)lastMessageActorString
+{
+    if (![self shouldShowLastMessageActorName]) {
+        return nil;
+    }
+    
+    NSString *displayName = _lastMessage.actorDisplayName;
+    if ([_lastMessage.actorDisplayName isEqualToString:@""]) {
+        displayName = @"Guest";
+    }
+    NSString *messageActor = [NSString stringWithFormat:@"%@: ", [[displayName componentsSeparatedByString:@" "] objectAtIndex:0]];
+    NSMutableAttributedString *actorDisplayName = [[NSMutableAttributedString alloc] initWithString:messageActor];
+    [actorDisplayName addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:14.0 weight:UIFontWeightRegular] range:NSMakeRange(0,actorDisplayName.length)];
+    [actorDisplayName addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.8] range:NSMakeRange(0,actorDisplayName.length)];
+    
+    return actorDisplayName;
+}
+
 - (NSMutableAttributedString *)lastMessageString
 {
-    BOOL ownMessage = [_lastMessage.actorId isEqualToString:[NCSettingsController sharedInstance].ncUserId];
     NSMutableAttributedString *lastMessage = _lastMessage.parsedMessage;
-    
-    if ((_type == kNCRoomTypeOneToOneCall && !ownMessage) || _lastMessage.isSystemMessage) {
-        return lastMessage;
-    } else {
-        NSString *displayName = _lastMessage.actorDisplayName;
-        if (ownMessage) {
-            displayName = @"You";
-        }
-        if ([_lastMessage.actorDisplayName isEqualToString:@""]) {
-            displayName = @"Guest";
-        }
-        NSString *messageActor = [NSString stringWithFormat:@"%@: ", [[displayName componentsSeparatedByString:@" "] objectAtIndex:0]];
-        lastMessage = [[NSMutableAttributedString alloc] initWithString:messageActor];
-        [lastMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0 weight:UIFontWeightSemibold] range:NSMakeRange(0,lastMessage.length)];
-        [lastMessage addAttribute:NSForegroundColorAttributeName value:[UIColor lightGrayColor] range:NSMakeRange(0,lastMessage.length)];
-        [lastMessage appendAttributedString:_lastMessage.parsedMessage];
-    }
+    [lastMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:14.0 weight:UIFontWeightRegular] range:NSMakeRange(0,lastMessage.length)];
+    [lastMessage addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.4] range:NSMakeRange(0,lastMessage.length)];
     
     return lastMessage;
 }
