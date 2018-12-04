@@ -10,7 +10,7 @@
 #import "RoundedNumberView.h"
 #import "UIImageView+AFNetworking.h"
 
-#define kTitleOriginY       14
+#define kTitleOriginY       12
 #define kTitleOnlyOriginY   25
 
 NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
@@ -67,6 +67,8 @@ NSString *const kRoomTableCellNibName = @"RoomTableViewCell";
     self.favoriteImage.image = nil;
     self.subtitleLabel.text = @"";
     self.dateLabel.text = @"";
+    self.actorNameLabel.text = @"";
+    self.lastGroupMessageLabel.text = @"";
 
     for (UIView *subview in [self.unreadMessagesView subviews]) {
         [subview removeFromSuperview];

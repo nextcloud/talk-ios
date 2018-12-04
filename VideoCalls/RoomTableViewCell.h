@@ -19,6 +19,8 @@ extern NSString *const kRoomTableCellNibName;
 @property (nonatomic, weak) IBOutlet UIView *unreadMessagesView;
 @property (nonatomic, weak) IBOutlet UILabel *dateLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *favoriteImage;
+@property (weak, nonatomic) IBOutlet UILabel *actorNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *lastGroupMessageLabel;
 
 @property (nonatomic, assign) BOOL titleOnly;
 

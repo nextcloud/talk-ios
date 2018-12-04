@@ -51,8 +51,10 @@ typedef enum NCRoomNotificationLevel {
 - (BOOL)canModerate;
 - (BOOL)isNameEditable;
 - (BOOL)isDeletable;
+- (BOOL)shouldShowLastMessageActorName;
 - (NSString *)notificationLevelString;
 - (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level;
+- (NSMutableAttributedString *)lastMessageActorString;
 - (NSMutableAttributedString *)lastMessageString;
 
 @end
