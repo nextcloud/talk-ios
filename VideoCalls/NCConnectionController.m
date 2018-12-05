@@ -121,6 +121,7 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
             [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
                 if (error) {
                     [self setAppState:kAppStateUnknown];
+                    [self notifyAppState];
                 } else {
                     [self checkAppState];
                 }
@@ -132,6 +133,7 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
             [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
                 if (error) {
                     [self setAppState:kAppStateUnknown];
+                    [self notifyAppState];
                 } else {
                     [self checkAppState];
                 }
@@ -143,6 +145,7 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
             [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
                 if (error) {
                     [self setAppState:kAppStateUnknown];
+                    [self notifyAppState];
                 } else {
                     // SetSignalingConfiguration should be called just once
                     [[NCSettingsController sharedInstance] setSignalingConfiguration];
