@@ -226,9 +226,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)adaptInterfaceForAppState:(AppState)appState
 {
     switch (appState) {
+        case kAppStateUnknown:
+        {
+            [self setProfileButtonWithUserImage:NO];
+        }
+            break;
         case kAppStateReady:
         {
-            [self setProfileButton];
+            [self setProfileButtonWithUserImage:YES];
             [self fetchRoomsWithCompletionBlock:nil];
         }
             break;
@@ -272,7 +277,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 #pragma mark - User profile
 
-- (void)setProfileButton
+- (void)setProfileButtonWithUserImage:(BOOL)userImage
 {
     UIButton *profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [profileButton addTarget:self action:@selector(showUserProfile) forControlEvents:UIControlEventTouchUpInside];
@@ -280,9 +285,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     profileButton.layer.masksToBounds = YES;
     profileButton.layer.cornerRadius = 15;
     
-    [profileButton setBackgroundImageForState:UIControlStateNormal
-                                withURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:60]
-                              placeholderImage:nil success:nil failure:nil];
+    if (userImage) {
+        [profileButton setBackgroundImageForState:UIControlStateNormal
+                                   withURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:60]
+                                 placeholderImage:nil success:nil failure:nil];
+    } else {
+        [profileButton setImage:[UIImage imageNamed:@"settings-white"] forState:UIControlStateNormal];
+        profileButton.contentMode = UIViewContentModeCenter;
+    }
     
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithCustomView:profileButton];
     
