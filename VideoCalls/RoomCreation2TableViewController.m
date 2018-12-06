@@ -254,7 +254,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     if (indexPath.section == kCreationSectionName) {
         return 80.0f;
     } else if (indexPath.section == kCreationSectionParticipantsOrPassword && !_publicRoom) {
-        return 80.0f;
+        return kContactsTableCellHeight;
     }
     return 48;
 }

@@ -11,6 +11,9 @@
 extern NSString *const kContactCellIdentifier;
 extern NSString *const kContactsTableCellNibName;
 
+extern CGFloat const kContactsTableCellHeight;
+extern CGFloat const kContactsTableCellTitleFontSize;
+
 @interface ContactsTableViewCell : UITableViewCell
 
 @property(nonatomic, weak) IBOutlet UIImageView *contactImage;

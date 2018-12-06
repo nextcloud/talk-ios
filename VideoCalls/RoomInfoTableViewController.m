@@ -732,8 +732,10 @@ typedef enum ModificationError {
 {
     switch (indexPath.section) {
         case kRoomInfoSectionName:
-        case kRoomInfoSectionParticipants:
             return 80;
+            break;
+        case kRoomInfoSectionParticipants:
+            return kContactsTableCellHeight;
             break;
     }
     return 48;

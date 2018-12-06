@@ -241,7 +241,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 80.0f;
+    return kContactsTableCellHeight;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
@@ -266,11 +266,13 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         switch (indexPath.row) {
             case kHeaderSectionNewGroup:
                 cell.labelTitle.text = @"Group conversation";
+                cell.labelTitle.font = [UIFont systemFontOfSize:kContactsTableCellTitleFontSize weight:UIFontWeightSemibold];
                 [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
                 break;
                 
             case kHeaderSectionNewPublic:
                 cell.labelTitle.text = @"Public conversation";
+                cell.labelTitle.font = [UIFont systemFontOfSize:kContactsTableCellTitleFontSize weight:UIFontWeightSemibold];
                 [cell.contactImage setImage:[UIImage imageNamed:@"public-bg"]];
                 break;
                 
