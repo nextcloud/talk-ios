@@ -10,11 +10,13 @@
 #import "RoundedNumberView.h"
 #import "UIImageView+AFNetworking.h"
 
-#define kTitleOriginY       12
-#define kTitleOnlyOriginY   25
+#define kTitleOriginY       10
+#define kTitleOnlyOriginY   28
 
 NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
 NSString *const kRoomTableCellNibName = @"RoomTableViewCell";
+
+CGFloat const kRoomTableCellHeight = 76.0f;
 
 @interface RoomTableViewCell ()
 {
