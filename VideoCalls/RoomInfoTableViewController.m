@@ -732,8 +732,10 @@ typedef enum ModificationError {
 {
     switch (indexPath.section) {
         case kRoomInfoSectionName:
-        case kRoomInfoSectionParticipants:
             return 80;
+            break;
+        case kRoomInfoSectionParticipants:
+            return kContactsTableCellHeight;
             break;
     }
     return 48;
@@ -959,6 +961,8 @@ typedef enum ModificationError {
             } else {
                 cell.accessoryView = nil;
             }
+            
+            cell.layoutMargins = UIEdgeInsetsMake(0, 72, 0, 0);
             
             return cell;
         }

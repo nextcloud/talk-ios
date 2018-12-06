@@ -254,7 +254,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     if (indexPath.section == kCreationSectionName) {
         return 80.0f;
     } else if (indexPath.section == kCreationSectionParticipantsOrPassword && !_publicRoom) {
-        return 80.0f;
+        return kContactsTableCellHeight;
     }
     return 48;
 }
@@ -349,6 +349,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                 cell.contactImage.layer.cornerRadius = 24.0;
                 cell.contactImage.layer.masksToBounds = YES;
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.layoutMargins = UIEdgeInsetsMake(0, 72, 0, 0);
                 
                 return cell;
             }

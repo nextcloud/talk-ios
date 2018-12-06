@@ -11,6 +11,8 @@
 extern NSString *const kRoomCellIdentifier;
 extern NSString *const kRoomTableCellNibName;
 
+extern CGFloat const kRoomTableCellHeight;
+
 @interface RoomTableViewCell : UITableViewCell
 
 @property (nonatomic, weak) IBOutlet UIImageView *roomImage;
