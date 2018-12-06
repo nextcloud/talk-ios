@@ -349,6 +349,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                 cell.contactImage.layer.cornerRadius = 24.0;
                 cell.contactImage.layer.masksToBounds = YES;
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.layoutMargins = UIEdgeInsetsMake(0, 72, 0, 0);
                 
                 return cell;
             }

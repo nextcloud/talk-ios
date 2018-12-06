@@ -962,6 +962,8 @@ typedef enum ModificationError {
                 cell.accessoryView = nil;
             }
             
+            cell.layoutMargins = UIEdgeInsetsMake(0, 72, 0, 0);
+            
             return cell;
         }
             break;
