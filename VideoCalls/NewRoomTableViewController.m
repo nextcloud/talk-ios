@@ -266,13 +266,13 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         switch (indexPath.row) {
             case kHeaderSectionNewGroup:
                 cell.labelTitle.text = @"Group conversation";
-                cell.labelTitle.font = [UIFont systemFontOfSize:kContactsTableCellTitleFontSize weight:UIFontWeightSemibold];
+                cell.labelTitle.textColor = [UIColor colorWithRed:0.00 green:0.48 blue:1.00 alpha:1.0]; //#007AFF
                 [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
                 break;
                 
             case kHeaderSectionNewPublic:
                 cell.labelTitle.text = @"Public conversation";
-                cell.labelTitle.font = [UIFont systemFontOfSize:kContactsTableCellTitleFontSize weight:UIFontWeightSemibold];
+                cell.labelTitle.textColor = [UIColor colorWithRed:0.00 green:0.48 blue:1.00 alpha:1.0]; //#007AFF
                 [cell.contactImage setImage:[UIImage imageNamed:@"public-bg"]];
                 break;
                 
