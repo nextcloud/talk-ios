@@ -120,6 +120,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationWillBePresented:) name:NCNotificationControllerWillPresentNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
 - (void)dealloc
@@ -168,6 +169,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)notificationWillBePresented:(NSNotification *)notification
 {
     [self fetchRoomsWithCompletionBlock:nil];
+}
+
+- (void)appWillEnterForeground:(NSNotification *)notification
+{
+    if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
+        [self fetchRoomsWithCompletionBlock:nil];
+    }
 }
 
 #pragma mark - Interface Builder Actions
