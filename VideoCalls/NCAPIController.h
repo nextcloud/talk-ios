@@ -47,6 +47,7 @@ typedef void (^GetSignalingSettingsCompletionBlock)(NSDictionary *settings, NSEr
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
 
 typedef void (^GetServerCapabilitiesCompletionBlock)(NSDictionary *serverCapabilities, NSError *error);
+typedef void (^GetServerNotificationCompletionBlock)(NSDictionary *notification, NSError *error);
 
 typedef void (^SubscribeToNextcloudServerCompletionBlock)(NSDictionary *responseDict, NSError *error);
 typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
@@ -120,6 +121,9 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
 // Server capabilities
 - (NSURLSessionDataTask *)getServerCapabilitiesWithCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;
+
+// Server notifications
+- (NSURLSessionDataTask *)getServerNotification:(NSInteger)notificationId withCompletionBlock:(GetServerNotificationCompletionBlock)block;
 
 // Push Notifications
 - (NSURLSessionDataTask *)subscribeToNextcloudServer:(SubscribeToNextcloudServerCompletionBlock)block;

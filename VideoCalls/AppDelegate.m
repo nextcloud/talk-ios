@@ -11,19 +11,18 @@
 #import "AFNetworkReachabilityManager.h"
 #import "AFNetworkActivityIndicatorManager.h"
 
-#import "Firebase.h"
-
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
 #import "OpenInFirefoxControllerObjC.h"
 #import "NCConnectionController.h"
+#import "NCNotificationController.h"
 #import "NCPushNotification.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 
-@interface AppDelegate () <UNUserNotificationCenterDelegate, FIRMessagingDelegate>
+@interface AppDelegate ()
 
 @end
 
@@ -37,31 +36,13 @@
 #endif
     [[AFNetworkReachabilityManager sharedManager] startMonitoring];
     
-    @try {
-        // Use Firebase library to configure APIs
-        [FIRApp configure];
-    } @catch (NSException *exception) {
-        NSLog(@"Firebase could not be configured.");
-    }
-    
-    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_9_x_Max) {
-        UIUserNotificationType allNotificationTypes = (UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge);
-        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:allNotificationTypes categories:nil];
-        [application registerUserNotificationSettings:settings];
-    } else {
-        // iOS 10 or later
-#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-        // For iOS 10 display notification (sent via APNS)
-        [UNUserNotificationCenter currentNotificationCenter].delegate = self;
-        UNAuthorizationOptions authOptions = UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge;
-        [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:authOptions completionHandler:^(BOOL granted, NSError * _Nullable error) {
-        }];
-#endif
-    }
+    [[NCNotificationController sharedInstance] requestAuthorization];
     
     [application registerForRemoteNotifications];
     
-    [FIRMessaging messaging].delegate = self;
+    pushRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
+    pushRegistry.delegate = self;
+    pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
     
     RTCAudioSessionConfiguration *configuration = [RTCAudioSessionConfiguration webRTCConfiguration];
     configuration.category = AVAudioSessionCategoryPlayAndRecord;
@@ -88,44 +69,6 @@
     return YES;
 }
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
-{
-    //Called when a notification is delivered to a foreground app.
-    completionHandler(UNNotificationPresentationOptionAlert);
-}
-
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(nonnull UNNotificationResponse *)response withCompletionHandler:(nonnull void (^)(void))completionHandler
-{
-    //Called to let your app know which action was selected by the user for a given notification.
-    NSString *message = [response.notification.request.content.userInfo objectForKey:@"subject"];
-    if (message && [NCSettingsController sharedInstance].ncPNPrivateKey) {
-        NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:[NCSettingsController sharedInstance].ncPNPrivateKey];
-        if (decryptedMessage) {
-            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage];
-            [[NCConnectionController sharedInstance] checkAppState];
-            AppState appState = [[NCConnectionController sharedInstance] appState];
-            if (pushNotification && appState > kAppStateAuthenticationNeeded) {
-                switch (pushNotification.type) {
-                    case NCPushNotificationTypeCall:
-                    {
-                        [[NCUserInterfaceController sharedInstance] presentAlertForPushNotification:pushNotification];
-                    }
-                        break;
-                    case NCPushNotificationTypeRoom:
-                    case NCPushNotificationTypeChat:
-                    {
-                        [[NCUserInterfaceController sharedInstance] presentChatForPushNotification:pushNotification];
-                    }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    }
-    completionHandler();
-}
-
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -149,6 +92,7 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    [[NCNotificationController sharedInstance] cleanNotifications];
 }
 
 
@@ -157,15 +101,52 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
-#pragma mark - Firebase
+#pragma mark - PushKit Delegate Methods
 
-- (void)messaging:(FIRMessaging *)messaging didRefreshRegistrationToken:(NSString *)fcmToken
+- (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type
 {
-    NSLog(@"FCM registration token: %@", fcmToken);
-    [NCSettingsController sharedInstance].ncPushToken = fcmToken;
+    if([credentials.token length] == 0) {
+        NSLog(@"Failed to create PushKit token.");
+        return;
+    }
+    
     UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
                                                                 accessGroup:@"group.com.nextcloud.Talk"];
-    [keychain setString:fcmToken forKey:kNCPushTokenKey];
+    NSString *pushKitToken = [self stringWithDeviceToken:credentials.token];
+    NSString *savedPushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
+    NSString *subscribed = [NCSettingsController sharedInstance].pushNotificationSubscribed;
+    
+    // Re-subscribe if new push token has been generated
+    if (!subscribed || ![savedPushKitToken isEqualToString:pushKitToken]) {
+        [keychain removeItemForKey:kNCPushSubscribedKey];
+        [[NCConnectionController sharedInstance] reSubscribeForPushNotifications];
+    }
+    
+    [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
+}
+
+- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
+{
+    NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
+    if (message && [NCSettingsController sharedInstance].ncPNPrivateKey) {
+        NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:[NCSettingsController sharedInstance].ncPNPrivateKey];
+        if (decryptedMessage) {
+            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage];
+            [[NCNotificationController sharedInstance] processIncomingPushNotification:pushNotification];
+        }
+    }
+}
+
+- (NSString *)stringWithDeviceToken:(NSData *)deviceToken
+{
+    const char *data = [deviceToken bytes];
+    NSMutableString *token = [NSMutableString string];
+    
+    for (NSUInteger i = 0; i < [deviceToken length]; i++) {
+        [token appendFormat:@"%02.2hhX", data[i]];
+    }
+    
+    return [token copy];
 }
 
 

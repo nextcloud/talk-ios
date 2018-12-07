@@ -35,5 +35,6 @@ typedef enum ConnectionState {
 + (instancetype)sharedInstance;
 - (void)checkAppState;
 - (void)checkConnectionState;
+- (void)reSubscribeForPushNotifications;
 
 @end

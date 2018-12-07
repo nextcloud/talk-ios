@@ -15,6 +15,7 @@ NSString * const kNCPNAppIdKey          = @"spreed";
 NSString * const kNCPNTypeKey           = @"type";
 NSString * const kNCPNSubjectKey        = @"subject";
 NSString * const kNCPNIdKey             = @"id";
+NSString * const kNCPNNotifIdKey        = @"nid";
 NSString * const kNCPNTypeCallKey       = @"call";
 NSString * const kNCPNTypeRoomKey       = @"room";
 NSString * const kNCPNTypeChatKey       = @"chat";
@@ -43,6 +44,7 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
     pushNotification.subject = [jsonDict objectForKey:kNCPNSubjectKey];
     pushNotification.roomToken = [jsonDict objectForKey:kNCPNIdKey];
     pushNotification.roomId = [[jsonDict objectForKey:kNCPNIdKey] integerValue];
+    pushNotification.notificationId = [[jsonDict objectForKey:kNCPNNotifIdKey] integerValue];
     
     NSString *type = [jsonDict objectForKey:kNCPNTypeKey];
     pushNotification.type = NCPushNotificationTypeUnknown;
@@ -53,6 +55,8 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
     } else if ([type isEqualToString:kNCPNTypeChatKey]) {
         pushNotification.type = NCPushNotificationTypeChat;
     }
+    
+    pushNotification.jsonString = decryptedString;
     
     return pushNotification;
 }

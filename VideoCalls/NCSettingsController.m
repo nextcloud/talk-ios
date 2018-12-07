@@ -33,6 +33,8 @@ NSString * const kNCUserIdKey           = @"ncUserId";
 NSString * const kNCUserDisplayNameKey  = @"ncUserDisplayName";
 NSString * const kNCTokenKey            = @"ncToken";
 NSString * const kNCPushTokenKey        = @"ncPushToken";
+NSString * const kNCPushKitTokenKey     = @"ncPushKitToken";
+NSString * const kNCPushSubscribedKey   = @"ncPushSubscribed";
 NSString * const kNCPushServer          = @"https://push-notifications.nextcloud.com";
 NSString * const kNCPNPublicKey         = @"ncPNPublicKey";
 NSString * const kNCPNPrivateKey        = @"ncPNPrivateKey";
@@ -83,6 +85,8 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     _ncUserDisplayName = [_keychain stringForKey:kNCUserDisplayNameKey];
     _ncToken = [_keychain stringForKey:kNCTokenKey];
     _ncPushToken = [_keychain stringForKey:kNCPushTokenKey];
+    _ncPushKitToken = [_keychain stringForKey:kNCPushKitTokenKey];
+    _pushNotificationSubscribed = [_keychain stringForKey:kNCPushSubscribedKey];
     _ncPNPublicKey = [_keychain dataForKey:kNCPNPublicKey];
     _ncPNPrivateKey = [_keychain dataForKey:kNCPNPrivateKey];
     _ncDeviceIdentifier = [_keychain stringForKey:kNCDeviceIdentifier];
@@ -103,6 +107,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     _ncDeviceIdentifier = nil;
     _ncDeviceSignature = nil;
     _defaultBrowser = @"Safari";
+    _pushNotificationSubscribed = nil;
     // Also remove values that are not stored in the keychain
     _ncTalkCapabilities = nil;
     _ncSignalingConfiguration = nil;
@@ -111,6 +116,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     [_keychain removeItemForKey:kNCUserKey];
     [_keychain removeItemForKey:kNCUserDisplayNameKey];
     [_keychain removeItemForKey:kNCTokenKey];
+    [_keychain removeItemForKey:kNCPushSubscribedKey];
     [_keychain removeItemForKey:kNCPNPublicKey];
     [_keychain removeItemForKey:kNCPNPrivateKey];
     [_keychain removeItemForKey:kNCDeviceIdentifier];
@@ -244,6 +250,45 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 
 #pragma mark - Push Notifications
 
+- (void)subscribeForPushNotifications
+{
+    UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
+                                                                accessGroup:@"group.com.nextcloud.Talk"];
+    
+    if ([self generatePushNotificationsKeyPair]) {
+        [[NCAPIController sharedInstance] subscribeToNextcloudServer:^(NSDictionary *responseDict, NSError *error) {
+            if (!error) {
+                NSLog(@"Subscribed to NC server successfully.");
+                
+                NSString *publicKey = [responseDict objectForKey:@"publicKey"];
+                NSString *deviceIdentifier = [responseDict objectForKey:@"deviceIdentifier"];
+                NSString *signature = [responseDict objectForKey:@"signature"];
+                
+                [NCSettingsController sharedInstance].ncUserPublicKey = publicKey;
+                [NCSettingsController sharedInstance].ncDeviceIdentifier = deviceIdentifier;
+                [NCSettingsController sharedInstance].ncDeviceSignature = signature;
+                
+                [keychain setString:publicKey forKey:kNCUserPublicKey];
+                [keychain setString:deviceIdentifier forKey:kNCDeviceIdentifier];
+                [keychain setString:signature forKey:kNCDeviceSignature];
+                
+                [[NCAPIController sharedInstance] subscribeToPushServer:^(NSError *error) {
+                    if (!error) {
+                        NSString *subscribedValue = @"subscribed";
+                        [NCSettingsController sharedInstance].pushNotificationSubscribed = subscribedValue;
+                        [keychain setString:subscribedValue forKey:kNCPushSubscribedKey];
+                        NSLog(@"Subscribed to Push Notification server successfully.");
+                    } else {
+                        NSLog(@"Error while subscribing to Push Notification server.");
+                    }
+                }];
+            } else {
+                NSLog(@"Error while subscribing to NC server.");
+            }
+        }];
+    }
+}
+
 - (BOOL)generatePushNotificationsKeyPair
 {
     EVP_PKEY *pkey;
@@ -353,7 +398,7 @@ cleanup:
 
 - (NSString *)pushTokenSHA512
 {
-    return [self createSHA512:_ncPushToken];
+    return [self createSHA512:_ncPushKitToken];
 }
 
 #pragma mark - Utils
