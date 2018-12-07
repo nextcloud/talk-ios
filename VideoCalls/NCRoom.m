@@ -115,6 +115,11 @@
     }
     
     NSString *displayName = _lastMessage.actorDisplayName;
+    // For own messages
+    if ([_lastMessage.actorId isEqualToString:[NCSettingsController sharedInstance].ncUserId]) {
+        displayName = @"You";
+    }
+    // For guests
     if ([_lastMessage.actorDisplayName isEqualToString:@""]) {
         displayName = @"Guest";
     }
