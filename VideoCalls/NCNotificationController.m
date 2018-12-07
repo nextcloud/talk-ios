@@ -14,6 +14,8 @@
 #import "NCNotification.h"
 #import "NCUserInterfaceController.h"
 
+NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotificationControllerWillPresentNotification";
+
 @interface NCNotificationController () <UNUserNotificationCenterDelegate>
 
 @property (nonatomic, strong) UNUserNotificationCenter *notificationCenter;
@@ -95,6 +97,7 @@
     UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
     [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
 }
 
 - (void)updateAppIconBadgeNumber

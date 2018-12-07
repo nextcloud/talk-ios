@@ -16,7 +16,7 @@
 #import "NCAPIController.h"
 #import "NCImageSessionManager.h"
 #import "NCConnectionController.h"
-#import "NCPushNotification.h"
+#import "NCNotificationController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NSDate+DateTools.h"
@@ -119,6 +119,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationWillBePresented:) name:NCNotificationControllerWillPresentNotification object:nil];
 }
 
 - (void)dealloc
@@ -162,6 +163,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
     [self adaptInterfaceForConnectionState:connectionState];
+}
+
+- (void)notificationWillBePresented:(NSNotification *)notification
+{
+    [self fetchRoomsWithCompletionBlock:nil];
 }
 
 #pragma mark - Interface Builder Actions

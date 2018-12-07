@@ -10,6 +10,8 @@
 
 #import "NCPushNotification.h"
 
+extern NSString * const NCNotificationControllerWillPresentNotification;
+
 @interface NCNotificationController : NSObject
 
 + (instancetype)sharedInstance;
