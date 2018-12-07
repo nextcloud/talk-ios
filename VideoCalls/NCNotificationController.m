@@ -43,6 +43,18 @@
     return self;
 }
 
+- (void)requestAuthorization
+{
+    UNAuthorizationOptions authOptions = UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge;
+    [_notificationCenter requestAuthorizationWithOptions:authOptions completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        if (granted) {
+            NSLog(@"User notifications permission granted.");
+        } else {
+            NSLog(@"User notifications permission denied.");
+        }
+    }];
+}
+
 - (void)processIncomingPushNotification:(NCPushNotification *)pushNotification
 {
     if (pushNotification) {

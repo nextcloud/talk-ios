@@ -13,6 +13,7 @@
 @interface NCNotificationController : NSObject
 
 + (instancetype)sharedInstance;
+- (void)requestAuthorization;
 - (void)processIncomingPushNotification:(NCPushNotification *)pushNotification;
 - (void)cleanNotifications;
 
