@@ -272,7 +272,7 @@
         NSString *nick = @"";
         if ([messagePayload isKindOfClass:[NSString class]]) {
             nick = messagePayload;
-        } else {
+        } else if ([messagePayload isKindOfClass:[NSDictionary class]]) {
             nick = [messagePayload objectForKey:@"name"];
         }
         _peerName = nick;
