@@ -52,6 +52,10 @@
 - (NSString *)chatMessageTitle
 {
     NSString *title = [[_subjectRichParameters objectForKey:@"user"] objectForKey:@"name"];
+    // Guests
+    if (!title) {
+        title = @"Guest";
+    }
     // Check if the room has a name
     NSArray *parameters = [self getParametersFromRichText:_subjectRich];
     for (int i = 0; i < parameters.count; i++) {
