@@ -44,6 +44,8 @@ typedef enum NCRoomNotificationLevel {
 @property (nonatomic, strong) NCChatMessage *lastMessage;
 @property (nonatomic, assign) BOOL isFavorite;
 @property (nonatomic, assign) NCRoomNotificationLevel notificationLevel;
+@property (nonatomic, copy) NSString *objectType;
+@property (nonatomic, copy) NSString *objectId;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 
