@@ -216,6 +216,13 @@
             break;
     }
     
+    // Set objectType image
+    if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
+        [_titleView.image setImage:[UIImage imageNamed:@"file-bg"]];
+    } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
+        [_titleView.image setImage:[UIImage imageNamed:@"password-bg"]];
+    }
+    
     self.navigationItem.titleView = _titleView;
 }
 

@@ -24,6 +24,9 @@ typedef enum NCRoomNotificationLevel {
     kNCRoomNotificationLevelNever
 } NCRoomNotificationLevel;
 
+extern NSString * const NCRoomObjectTypeFile;
+extern NSString * const NCRoomObjectTypeSharePassword;
+
 @interface NCRoom : NSObject
 
 @property (nonatomic, assign) NSInteger roomId;

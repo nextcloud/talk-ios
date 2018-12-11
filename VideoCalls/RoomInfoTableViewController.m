@@ -818,6 +818,13 @@ typedef enum ModificationError {
                     break;
             }
             
+            // Set objectType image
+            if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
+                [cell.roomImage setImage:[UIImage imageNamed:@"file-bg"]];
+            } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
+                [cell.roomImage setImage:[UIImage imageNamed:@"password-bg"]];
+            }
+            
             if (_room.isNameEditable) {
                 _roomNameTextField = cell.roomNameTextField;
                 _roomNameTextField.delegate = self;

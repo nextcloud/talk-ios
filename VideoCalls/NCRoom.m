@@ -10,6 +10,9 @@
 
 #import "NCSettingsController.h"
 
+NSString * const NCRoomObjectTypeFile           = @"file";
+NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
+
 @implementation NCRoom
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict
