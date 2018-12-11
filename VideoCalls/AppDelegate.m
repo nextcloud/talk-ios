@@ -118,11 +118,14 @@
     
     // Re-subscribe if new push token has been generated
     if (!subscribed || ![savedPushKitToken isEqualToString:pushKitToken]) {
+        // Remove subscribed flag
         [keychain removeItemForKey:kNCPushSubscribedKey];
+        // Store new PushKit token
+        [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
+        [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
+        
         [[NCConnectionController sharedInstance] reSubscribeForPushNotifications];
     }
-    
-    [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
 }
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
