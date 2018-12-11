@@ -152,6 +152,13 @@
             break;
     }
     
+    // Set objectType image
+    if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {
+        [cell.roomImage setImage:[UIImage imageNamed:@"file-bg"]];
+    } else if ([room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
+        [cell.roomImage setImage:[UIImage imageNamed:@"password-bg"]];
+    }
+    
     // Set favorite image
     if (room.isFavorite) {
         [cell.favoriteImage setImage:[UIImage imageNamed:@"favorite-room"]];

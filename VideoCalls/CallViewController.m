@@ -272,6 +272,12 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
     }
     
+    if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
+        [self.waitingImageView setImage:[UIImage imageNamed:@"file-bg-128"]];
+    } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
+        [self.waitingImageView setImage:[UIImage imageNamed:@"password-bg-128"]];
+    }
+    
     self.collectionView.backgroundView = self.waitingView;
 }
 
