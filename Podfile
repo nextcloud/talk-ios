@@ -8,5 +8,6 @@ pod 'GoogleWebRTC', "1.1.20266"
 pod 'JDStatusBarNotification'
 pod 'SlackTextViewController'
 pod 'SocketRocket'
+pod 'DBImageColorPicker'
 end
 
