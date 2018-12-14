@@ -10,6 +10,8 @@
 
 #import <WebRTC/RTCAVFoundationVideoSource.h>
 #import <WebRTC/RTCEAGLVideoView.h>
+#import "DBImageColorPicker.h"
+#import "CallViewController.h"
 #import "NCAPIController.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
@@ -22,6 +24,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
     UIView<RTCVideoRenderer> *_videoView;
     CGSize _remoteVideoSize;
     BOOL _showOriginalSize;
+    AvatarBackgroundImageView *_backgroundImageView;
 }
 
 @end
@@ -45,6 +48,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 {
     [super prepareForReuse];
     _displayName = nil;
+    _backgroundImageView = nil;
     _peerNameLabel.text = nil;
     [_videoView removeFromSuperview];
     _videoView = nil;
@@ -59,6 +63,38 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 
 - (void)setUserAvatar:(NSString *)userId
 {
+    if (!_backgroundImageView) {
+        _backgroundImageView = [[AvatarBackgroundImageView alloc] initWithFrame:self.bounds];
+        __weak UIImageView *weakBGView = _backgroundImageView;
+        self.backgroundView = _backgroundImageView;
+        [_backgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:256]
+                                    placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+                                        if ([response statusCode] == 200) {
+                                            CIContext *context = [CIContext contextWithOptions:nil];
+                                            CIImage *inputImage = [[CIImage alloc] initWithImage:image];
+                                            CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
+                                            [filter setValue:inputImage forKey:kCIInputImageKey];
+                                            [filter setValue:[NSNumber numberWithFloat:8.0f] forKey:@"inputRadius"];
+                                            CIImage *result = [filter valueForKey:kCIOutputImageKey];
+                                            CGImageRef cgImage = [context createCGImage:result fromRect:[inputImage extent]];
+                                            UIImage *finalImage = [UIImage imageWithCGImage:cgImage];
+                                            [weakBGView setImage:finalImage];
+                                            weakBGView.contentMode = UIViewContentModeScaleAspectFill;
+                                        } else if ([response statusCode] == 201) {
+                                            DBImageColorPicker *colorPicker = [[DBImageColorPicker alloc] initFromImage:image withBackgroundType:DBImageColorPickerBackgroundTypeDefault];
+                                            [weakBGView setBackgroundColor:colorPicker.backgroundColor];
+                                            weakBGView.backgroundColor = [weakBGView.backgroundColor colorWithAlphaComponent:0.8];
+                                        }
+                                    } failure:nil];
+        
+        if (!userId || userId.length == 0) {
+            UIImage *avatarImage = [UIImage imageNamed:@"group-bg"];
+            DBImageColorPicker *colorPicker = [[DBImageColorPicker alloc] initFromImage:avatarImage withBackgroundType:DBImageColorPickerBackgroundTypeDefault];
+            [weakBGView setBackgroundColor:colorPicker.backgroundColor];
+            weakBGView.backgroundColor = [weakBGView.backgroundColor colorWithAlphaComponent:0.8];
+        }
+    }
+    
     if (userId && userId.length > 0) {
         [self.peerAvatarImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:256]
                                         placeholderImage:nil success:nil failure:nil];
@@ -107,6 +143,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
         _videoView = videoView;
         _remoteVideoSize = videoView.frame.size;
         [_peerVideoView addSubview:_videoView];
+        [_videoView setHidden:_videoDisabled];
         [self resizeRemoteVideoView];
     });
 }

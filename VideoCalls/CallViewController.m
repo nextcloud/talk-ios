@@ -134,6 +134,10 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [self setLocalVideoRect];
+    for (UICollectionViewCell *cell in _collectionView.visibleCells) {
+        CallParticipantViewCell * participantCell = (CallParticipantViewCell *) cell;
+        [participantCell resizeRemoteVideoView];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -541,11 +545,6 @@ typedef NS_ENUM(NSInteger, CallState) {
                                                              row:indexPath.row
                                                      contentSize:self.collectionView.frame.size];
     return frame.size;
-}
-
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-    [self.collectionView reloadData];
 }
 
 #pragma mark - Call Controller delegate
