@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 #import <WebRTC/RTCCameraPreviewView.h>
+#import "AvatarBackgroundImageView.h"
 #import "NCRoom.h"
 
 @class CallViewController;
@@ -26,7 +27,7 @@
 
 @property (nonatomic, strong) IBOutlet RTCCameraPreviewView *localVideoView;
 @property (nonatomic, strong) IBOutlet UIView *waitingView;
-@property (nonatomic, strong) IBOutlet UIImageView *waitingImageView;
+@property (nonatomic, strong) IBOutlet AvatarBackgroundImageView *avatarBackgroundImageView;
 @property (nonatomic, strong) IBOutlet UILabel *waitingLabel;
 
 - (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly;

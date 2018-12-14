@@ -14,6 +14,9 @@
 #import <WebRTC/RTCVideoTrack.h>
 #import "ARDCaptureController.h"
 #import "CallParticipantViewCell.h"
+#import "DBImageColorPicker.h"
+#import "AFImageDownloader.h"
+#import "NCImageSessionManager.h"
 #import "NBMPeersFlowLayout.h"
 #import "NCCallController.h"
 #import "NCAPIController.h"
@@ -70,6 +73,15 @@ typedef NS_ENUM(NSInteger, CallState) {
     _peersInCall = [[NSMutableArray alloc] init];
     _renderersDict = [[NSMutableDictionary alloc] init];
     
+    // Set image downloader to avatar background imageviews.
+    // Do not cache images so I can get 200 or 201 from the avatar requests.
+    AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
+                                          initWithSessionManager:[NCImageSessionManager sharedInstance]
+                                          downloadPrioritization:AFImageDownloadPrioritizationFIFO
+                                          maximumActiveDownloads:4
+                                          imageCache:nil];
+    [AvatarBackgroundImageView setSharedImageDownloader:imageDownloader];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
     
     return self;
@@ -102,8 +114,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     self.collectionView.delegate = self;
     
-    self.waitingImageView.layer.cornerRadius = 64;
-    self.waitingImageView.layer.masksToBounds = YES;
+    [self createWaitingScreen];
     
     if ([[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore] || _isAudioOnly) {
         _userDisabledVideo = YES;
@@ -187,7 +198,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
     }
     
-    CGRect localVideoRect = CGRectMake(16, 62, localVideoSize.width, localVideoSize.height);
+    CGRect localVideoRect = CGRectMake(16, 80, localVideoSize.width, localVideoSize.height);
     
     dispatch_async(dispatch_get_main_queue(), ^{
         _localVideoView.frame = localVideoRect;
@@ -257,27 +268,51 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
-- (void)showWaitingScreen
+- (void)createWaitingScreen
 {
     if (_room.type == kNCRoomTypeOneToOneCall) {
         self.waitingLabel.text = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
-        [self.waitingImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:256]
-                                     placeholderImage:nil success:nil failure:nil];
+        __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
+        [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:256]
+                                              placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+                                                  if ([response statusCode] == 200) {
+                                                      CIContext *context = [CIContext contextWithOptions:nil];
+                                                      CIImage *inputImage = [[CIImage alloc] initWithImage:image];
+                                                      CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
+                                                      [filter setValue:inputImage forKey:kCIInputImageKey];
+                                                      [filter setValue:[NSNumber numberWithFloat:2.0f] forKey:@"inputRadius"];
+                                                      CIImage *result = [filter valueForKey:kCIOutputImageKey];
+                                                      CGImageRef cgImage = [context createCGImage:result fromRect:[inputImage extent]];
+                                                      UIImage *finalImage = [UIImage imageWithCGImage:cgImage];
+                                                      [weakBGView setImage:finalImage];
+                                                      weakBGView.contentMode = UIViewContentModeScaleAspectFill;
+                                                  } else if ([response statusCode] == 201) {
+                                                      DBImageColorPicker *colorPicker = [[DBImageColorPicker alloc] initFromImage:image withBackgroundType:DBImageColorPickerBackgroundTypeDefault];
+                                                      [weakBGView setBackgroundColor:colorPicker.backgroundColor];
+                                                      weakBGView.backgroundColor = [weakBGView.backgroundColor colorWithAlphaComponent:0.8];
+                                                  }
+                                              } failure:nil];
     } else {
         self.waitingLabel.text = @"Waiting for others to join call…";
-        if (_room.type == kNCRoomTypeGroupCall) {
-            [self.waitingImageView setImage:[UIImage imageNamed:@"group-bg-128"]];
-        } else {
-            [self.waitingImageView setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg-128"] : [UIImage imageNamed:@"public-bg-128"]];
+        UIImage *avatarImage = [UIImage imageNamed:@"group-bg"];
+        if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
+            avatarImage = [UIImage imageNamed:@"file-bg"];
+        } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
+            avatarImage = [UIImage imageNamed:@"password-bg"];
+        } else if (_room.type == kNCRoomTypeGroupCall) {
+            avatarImage = [UIImage imageNamed:@"group-bg"];
+        } else if (_room.type == kNCRoomTypePublicCall){
+            avatarImage = (_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"];
         }
+        
+        DBImageColorPicker *colorPicker = [[DBImageColorPicker alloc] initFromImage:avatarImage withBackgroundType:DBImageColorPickerBackgroundTypeDefault];
+        [self.avatarBackgroundImageView setBackgroundColor:colorPicker.backgroundColor];
+        self.avatarBackgroundImageView.backgroundColor = [self.avatarBackgroundImageView.backgroundColor colorWithAlphaComponent:0.8];
     }
-    
-    if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [self.waitingImageView setImage:[UIImage imageNamed:@"file-bg-128"]];
-    } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [self.waitingImageView setImage:[UIImage imageNamed:@"password-bg-128"]];
-    }
-    
+}
+
+- (void)showWaitingScreen
+{
     self.collectionView.backgroundView = self.waitingView;
 }
 
