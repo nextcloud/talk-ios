@@ -667,91 +667,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
 
-- (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
-{
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    
-    if (_searchController.active) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
-    
-    [[NCRoomsManager sharedInstance] startChatInRoom:room];
-}
-
-#pragma mark - Utils
-
-- (NSString *)getDateLabelStringForDate:(NSDate *)date
-{
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    if ([date isToday]) {
-        [formatter setDateFormat:@"HH:mm"];
-    } else if ([date isYesterday]) {
-        return @"Yesterday";
-    } else {
-        [formatter setDateFormat:@"dd/MM/yy"];
-    }
-    return [formatter stringFromDate:date];
-}
-
-#pragma mark - Public Calls
-
-- (void)showShareDialogForRoom:(NCRoom *)room withTitle:(NSString *)title
-{
-    NSInteger roomIndex = [_rooms indexOfObject:room];
-    NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
-    
-    UIAlertController *shareRoomDialog =
-    [UIAlertController alertControllerWithTitle:title
-                                        message:@"Do you want to share this conversation with others?"
-                                 preferredStyle:UIAlertControllerStyleAlert];
-    
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self shareLinkFromRoomAtIndexPath:roomIndexPath];
-    }];
-    [shareRoomDialog addAction:confirmAction];
-    
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Not now" style:UIAlertActionStyleCancel handler:nil];
-    [shareRoomDialog addAction:cancelAction];
-    
-    [self presentViewController:shareRoomDialog animated:YES completion:nil];
-}
-
-#pragma mark - Table view data source
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    return 1;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    return _rooms.count;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return kRoomTableCellHeight;
-}
-
-- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return UITableViewCellEditingStyleDelete;
-}
-
-- (NSString *)tableView:(UITableView *)tableView titleForSwipeAccessoryButtonForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    BOOL canFavorite = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites];
-    BOOL canChangeNotifications = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels];
-    if (room.canModerate || room.isPublic || canFavorite || canChangeNotifications) {
-        NSString *moreButtonText = @"More";
-        return moreButtonText;
-    }
-    
-    return nil;
-}
-
-- (void)tableView:(UITableView *)tableView swipeAccessoryButtonPushedForRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)presentMoreActionsForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
@@ -875,10 +791,99 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.sourceView = tableView;
-    optionsActionSheet.popoverPresentationController.sourceRect = [tableView rectForRowAtIndexPath:indexPath];
+    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
     
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    
+    if (_searchController.active) {
+        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
+    }
+    
+    [[NCRoomsManager sharedInstance] startChatInRoom:room];
+}
+
+#pragma mark - Utils
+
+- (NSString *)getDateLabelStringForDate:(NSDate *)date
+{
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    if ([date isToday]) {
+        [formatter setDateFormat:@"HH:mm"];
+    } else if ([date isYesterday]) {
+        return @"Yesterday";
+    } else {
+        [formatter setDateFormat:@"dd/MM/yy"];
+    }
+    return [formatter stringFromDate:date];
+}
+
+#pragma mark - Public Calls
+
+- (void)showShareDialogForRoom:(NCRoom *)room withTitle:(NSString *)title
+{
+    NSInteger roomIndex = [_rooms indexOfObject:room];
+    NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
+    
+    UIAlertController *shareRoomDialog =
+    [UIAlertController alertControllerWithTitle:title
+                                        message:@"Do you want to share this conversation with others?"
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self shareLinkFromRoomAtIndexPath:roomIndexPath];
+    }];
+    [shareRoomDialog addAction:confirmAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Not now" style:UIAlertActionStyleCancel handler:nil];
+    [shareRoomDialog addAction:cancelAction];
+    
+    [self presentViewController:shareRoomDialog animated:YES completion:nil];
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return _rooms.count;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return kRoomTableCellHeight;
+}
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewCellEditingStyleDelete;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForSwipeAccessoryButtonForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    BOOL canFavorite = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites];
+    BOOL canChangeNotifications = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels];
+    if (room.canModerate || room.isPublic || canFavorite || canChangeNotifications) {
+        NSString *moreButtonText = @"More";
+        return moreButtonText;
+    }
+    
+    return nil;
+}
+
+- (void)tableView:(UITableView *)tableView swipeAccessoryButtonPushedForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self presentMoreActionsForRoomAtIndexPath:indexPath];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -892,6 +897,25 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         [self leaveRoomAtIndexPath:indexPath];
     }
+}
+
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
+API_AVAILABLE(ios(11.0)){
+    UIContextualAction *moreAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
+                                                                            handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+                                                                                [self presentMoreActionsForRoomAtIndexPath:indexPath];
+                                                                                completionHandler(false);
+                                                                            }];
+    moreAction.image = [UIImage imageNamed:@"more-action"];
+    
+    UIContextualAction *leaveAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
+                                                                            handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+                                                                                [self leaveRoomAtIndexPath:indexPath];
+                                                                                completionHandler(false);
+                                                                            }];
+    leaveAction.image = [UIImage imageNamed:@"exit-action"];
+    
+    return [UISwipeActionsConfiguration configurationWithActions:@[leaveAction, moreAction]];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
