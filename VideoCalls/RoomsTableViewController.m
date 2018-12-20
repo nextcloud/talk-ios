@@ -915,7 +915,15 @@ API_AVAILABLE(ios(11.0)){
                                                                             }];
     leaveAction.image = [UIImage imageNamed:@"exit-action"];
     
-    return [UISwipeActionsConfiguration configurationWithActions:@[leaveAction, moreAction]];
+    NSArray *actions = @[leaveAction];
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    BOOL canFavorite = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites];
+    BOOL canChangeNotifications = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels];
+    if (room.canModerate || room.isPublic || canFavorite || canChangeNotifications) {
+        actions = @[leaveAction, moreAction];
+    }
+    
+    return [UISwipeActionsConfiguration configurationWithActions:actions];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
