@@ -239,6 +239,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         case CallStateWaitingParticipants:
         {
             [self showWaitingScreen];
+            [self invalidateDetailedViewTimer];
             [self showDetailedView];
             [self removeTapGestureForDetailedView];
         }
