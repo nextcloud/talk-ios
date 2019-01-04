@@ -291,9 +291,10 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 #pragma mark - Peer Connection Wrapper
 
-- (NCPeerConnection *)getPeerConnectionWrapperForSessionId:(NSString *)sessionId
+- (NCPeerConnection *)getPeerConnectionWrapperForSessionId:(NSString *)sessionId ofType:(NSString *)roomType
 {
-    NCPeerConnection *peerConnectionWrapper = [_connectionsDict objectForKey:sessionId];
+    NSString *peerKey = [sessionId stringByAppendingString:roomType];
+    NCPeerConnection *peerConnectionWrapper = [_connectionsDict objectForKey:peerKey];
     
     if (!peerConnectionWrapper) {
         // Create peer connection.
@@ -301,13 +302,14 @@ static NSString * const kNCVideoTrackKind = @"video";
         
         NSArray *iceServers = [_signalingController getIceServers];
         peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:_isAudioOnly];
+        peerConnectionWrapper.roomType = roomType;
         peerConnectionWrapper.delegate = self;
         // TODO: Try to get display name here
-        if (![[NCExternalSignalingController sharedInstance] hasMCU]) {
+        if (![[NCExternalSignalingController sharedInstance] hasMCU] || ![roomType isEqualToString:@"screen"]) {
             [peerConnectionWrapper.peerConnection addStream:_localStream];
         }
         
-        [_connectionsDict setObject:peerConnectionWrapper forKey:sessionId];
+        [_connectionsDict setObject:peerConnectionWrapper forKey:peerKey];
         NSLog(@"Peer joined: %@", sessionId);
         [self.delegate callController:self peerJoined:peerConnectionWrapper];
     }
@@ -349,6 +351,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     NSLog(@"Creating own pusblish peer connection");
     NSArray *iceServers = [_signalingController getIceServers];
     _ownPeerConnection = [[NCPeerConnection alloc] initForMCUWithSessionId:_userSessionId andICEServers:iceServers forAudioOnlyCall:YES];
+    _ownPeerConnection.roomType = kRoomTypeVideo;
     _ownPeerConnection.delegate = self;
     [_connectionsDict setObject:_ownPeerConnection forKey:_userSessionId];
     [_ownPeerConnection.peerConnection addStream:_localStream];
@@ -419,8 +422,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)processSignalingMessage:(NCSignalingMessage *)signalingMessage
 {
-    if (signalingMessage && [signalingMessage.roomType isEqualToString:kRoomTypeVideo]) {
-        NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from];
+    if (signalingMessage) {
+        NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
         switch (signalingMessage.messageType) {
             case kNCSignalingMessageTypeOffer:
             case kNCSignalingMessageTypeAnswer:
@@ -474,7 +477,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                 NSComparisonResult result = [sessionId compare:_userSessionId];
                 if (result == NSOrderedAscending) {
                     NSLog(@"Creating offer...");
-                    NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId];
+                    NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId ofType:kRoomTypeVideo];
                     [peerConnectionWrapper sendOffer];
                 } else {
                     NSLog(@"Waiting for offer...");
@@ -596,7 +599,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                                                                                  from:_userSessionId
                                                                                    to:peerConnection.peerId
                                                                                   sid:nil
-                                                                             roomType:@"video"];
+                                                                             roomType:peerConnection.roomType];
     
     if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
         [[NCExternalSignalingController sharedInstance] sendCallMessage:message];
@@ -612,7 +615,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                                             from:_userSessionId
                                             to:peerConnection.peerId
                                             sid:nil
-                                            roomType:@"video"
+                                            roomType:peerConnection.roomType
                                             nick:_userDisplayName];
     
     if ([[NCExternalSignalingController sharedInstance] isEnabled]) {

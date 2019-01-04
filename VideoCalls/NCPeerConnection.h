@@ -46,6 +46,7 @@
 
 @property (nonatomic, copy) NSString *peerId;
 @property (nonatomic, copy) NSString *peerName;
+@property (nonatomic, copy) NSString *roomType;
 @property (nonatomic, assign) BOOL isAudioOnly;
 @property (nonatomic, assign) BOOL isMCUPublisherPeer;
 @property (nonatomic, strong) RTCPeerConnection *peerConnection;
