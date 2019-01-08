@@ -926,6 +926,29 @@ API_AVAILABLE(ios(11.0)){
     return [UISwipeActionsConfiguration configurationWithActions:actions];
 }
 
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
+API_AVAILABLE(ios(11.0)){
+    NSArray *actions = @[];
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites]) {
+        UIContextualAction *favoriteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
+                                                                                   handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+                                                                                       if (room.isFavorite) {
+                                                                                           [self removeRoomFromFavoritesAtIndexPath:indexPath];
+                                                                                       } else {
+                                                                                           [self addRoomToFavoritesAtIndexPath:indexPath];
+                                                                                       }
+                                                                                       completionHandler(true);
+                                                                                   }];
+        favoriteAction.image = [UIImage imageNamed:@"fav-setting"];
+        favoriteAction.backgroundColor = [UIColor colorWithRed:0.97 green:0.80 blue:0.27 alpha:1.0]; // Favorite yellow
+        actions = @[favoriteAction];
+    }
+    
+    return [UISwipeActionsConfiguration configurationWithActions:actions];
+}
+
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
