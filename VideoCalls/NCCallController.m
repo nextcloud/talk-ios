@@ -38,6 +38,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) NSTimer *micAudioLevelTimer;
 @property (nonatomic, assign) BOOL speaking;
 @property (nonatomic, strong) NSTimer *sendNickTimer;
+@property (nonatomic, strong) NSArray *pendingUsersInRoom;
 @property (nonatomic, strong) NSArray *usersInRoom;
 @property (nonatomic, strong) NSArray *peersInCall;
 @property (nonatomic, strong) NCPeerConnection *ownPeerConnection;
@@ -63,9 +64,6 @@ static NSString * const kNCVideoTrackKind = @"video";
         _room = room;
         _isAudioOnly = audioOnly;
         _userSessionId = sessionId;
-        if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-            _userSessionId = [[NCExternalSignalingController sharedInstance] sessionId];
-        }
         _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] init];
         _connectionsDict = [[NSMutableDictionary alloc] init];
         _usersInRoom = [[NSArray alloc] init];
@@ -100,6 +98,9 @@ static NSString * const kNCVideoTrackKind = @"video";
             [self startMonitoringMicrophoneAudioLevel];
             if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
                 _userSessionId = [[NCExternalSignalingController sharedInstance] sessionId];
+                if (_pendingUsersInRoom) {
+                    [self processUsersInRoom:_pendingUsersInRoom];
+                }
                 if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
                     [self createOwnPublishPeerConnection];
                 }
@@ -404,7 +405,13 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     NSLog(@"External participants message received: %@", notification);
     NSArray *usersInRoom = [notification.userInfo objectForKey:@"users"];
-    [self processUsersInRoom:usersInRoom];
+    if (_inCall) {
+        [self processUsersInRoom:usersInRoom];
+    } else {
+        // Store pending usersInRoom since this websocket message could
+        // arrive before NCCallController knows that it's in the call.
+        _pendingUsersInRoom = usersInRoom;
+    }
 }
 
 - (void)sendNick
@@ -500,7 +507,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     for (NSString *sessionId in newSessions) {
         if (![_connectionsDict objectForKey:sessionId]) {
             if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
-                NSLog(@"Requesting offer to the MCU");
+                NSLog(@"Requesting offer to the MCU for session: %@", sessionId);
                 [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:sessionId andRoomType:@"video"];
             } else {
                 NSComparisonResult result = [sessionId compare:_userSessionId];
@@ -532,17 +539,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     for (NSMutableDictionary *user in users) {
         NSString *sessionId = [user objectForKey:@"sessionId"];
         BOOL inCall = [[user objectForKey:@"inCall"] boolValue];
-        
-        // Ignore app user sessionId
-        if ([_userSessionId isEqualToString:sessionId]) {
-            continue;
-        }
-        
-        // Only add session that are in the call
-        if (inCall) {
+        if (inCall && ![_userSessionId isEqualToString:sessionId]) {
             [sessions addObject:sessionId];
         }
     }
+    NSLog(@"InCall sessions: %@", sessions);
     return sessions;
 }
 
