@@ -532,17 +532,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     for (NSMutableDictionary *user in users) {
         NSString *sessionId = [user objectForKey:@"sessionId"];
         BOOL inCall = [[user objectForKey:@"inCall"] boolValue];
-        
-        // Ignore app user sessionId
-        if ([_userSessionId isEqualToString:sessionId]) {
-            continue;
-        }
-        
-        // Only add session that are in the call
-        if (inCall) {
+        if (inCall && ![_userSessionId isEqualToString:sessionId]) {
             [sessions addObject:sessionId];
         }
     }
+    NSLog(@"InCall sessions: %@", sessions);
     return sessions;
 }
 
