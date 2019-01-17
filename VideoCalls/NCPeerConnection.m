@@ -183,7 +183,7 @@
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didChangeSignalingState:(RTCSignalingState)stateChanged
 {
-    NSLog(@"Signaling state with '%@' changed to: %@", self.peerName, [self stringForSignalingState:stateChanged]);
+    NSLog(@"Signaling state with '%@' changed to: %@", self.peerId, [self stringForSignalingState:stateChanged]);
 }
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didAddStream:(RTCMediaStream *)stream
@@ -192,7 +192,7 @@
         NSLog(@"Received %lu video tracks and %lu audio tracks from %@",
               (unsigned long)stream.videoTracks.count,
               (unsigned long)stream.audioTracks.count,
-              self.peerName);
+              self.peerId);
         
         self.remoteStream = stream;
         [self.delegate peerConnection:self didAddStream:stream];
@@ -202,7 +202,7 @@
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didRemoveStream:(RTCMediaStream *)stream
 {
-    NSLog(@"Stream was removed from %@.", self.peerName);
+    NSLog(@"Stream was removed from %@.", self.peerId);
 #warning Check if if is the same stream?
     self.remoteStream = nil;
     [self.delegate peerConnection:self didRemoveStream:stream];
@@ -215,7 +215,7 @@
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didChangeIceConnectionState:(RTCIceConnectionState)newState
 {
-    NSLog(@"ICE state with '%@' changed to: %@", self.peerName, [self stringForConnectionState:newState]);
+    NSLog(@"ICE state with '%@' changed to: %@", self.peerId, [self stringForConnectionState:newState]);
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate peerConnection:self didChangeIceConnectionState:newState];
     });
@@ -223,12 +223,12 @@
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didChangeIceGatheringState:(RTCIceGatheringState)newState
 {
-    NSLog(@"ICE gathering state with '%@' changed to : %@", self.peerName, [self stringForGatheringState:newState]);
+    NSLog(@"ICE gathering state with '%@' changed to : %@", self.peerId, [self stringForGatheringState:newState]);
 }
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didGenerateIceCandidate:(RTCIceCandidate *)candidate
 {
-    NSLog(@"Peer '%@' did generate Ice Candidate: %@", self.peerName, candidate);
+    NSLog(@"Peer '%@' did generate Ice Candidate: %@", self.peerId, candidate);
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate peerConnection:self didGenerateIceCandidate:candidate];
     });
@@ -349,12 +349,12 @@
 - (void)peerConnectionForSessionDidCreateSessionDescription:(RTCSessionDescription *)sdp error:(NSError *)error
 {
     if (error) {
-        NSLog(@"Failed to create session description for peer %@. Error: %@", _peerName, error);
+        NSLog(@"Failed to create session description for peer %@. Error: %@", _peerId, error);
         return;
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"Did create session sescriptionfor peer %@", _peerName);
+        NSLog(@"Did create session sescriptionfor peer %@", _peerId);
         // Set H264 as preferred codec.
         RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sdp preferredVideoCodec:@"H264"];
         __weak NCPeerConnection *weakSelf = self;
@@ -372,16 +372,16 @@
 - (void)peerConnectionDidSetSessionDescriptionWithError:(NSError *)error
 {
     if (error) {
-        NSLog(@"Failed to set session description for peer %@. Error: %@", _peerName, error);
+        NSLog(@"Failed to set session description for peer %@. Error: %@", _peerId, error);
         return;
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
         // If we're answering and we've just set the remote offer we need to create
         // an answer and set the local description.
-        NSLog(@"Did set session description for peer %@", _peerName);
+        NSLog(@"Did set session description for peer %@", _peerId);
         if (!_peerConnection.localDescription) {
-            NSLog(@"Creating local description for peer %@", _peerName);
+            NSLog(@"Creating local description for peer %@", _peerId);
             RTCMediaConstraints *constraints = [self defaultAnswerConstraints];
             __weak NCPeerConnection *weakSelf = self;
             //Create data channel before sending answer
