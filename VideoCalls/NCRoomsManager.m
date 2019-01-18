@@ -17,6 +17,7 @@
 #import "NCRoomController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
+#import "CallKitManager.h"
 
 NSString * const NCRoomsManagerDidJoinRoomNotification              = @"NCRoomsManagerDidJoinRoomNotification";
 NSString * const NCRoomsManagerDidLeaveRoomNotification             = @"NCRoomsManagerDidLeaveRoomNotification";
@@ -59,6 +60,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinVideoCallAccepted:) name:NCPushNotificationJoinVideoCallAcceptedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForChat:) name:NCSelectedContactForChatNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(acceptCallForRoom:) name:CallKitManagerDidAnswerCallNotification object:nil];
     }
     
     return self;
@@ -370,6 +372,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (roomController) {
         roomController.inCall = NO;
     }
+    [[CallKitManager sharedInstance] endCurrentCall];
     [self leaveRoom:room.token];
 }
 
@@ -391,6 +394,12 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 }
 
 #pragma mark - Notifications
+
+- (void)acceptCallForRoom:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    [self joinCallWithCallToken:roomToken withVideo:YES];
+}
 
 - (void)joinAudioCallAccepted:(NSNotification *)notification
 {
