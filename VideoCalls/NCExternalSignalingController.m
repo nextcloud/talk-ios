@@ -202,6 +202,7 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
 {
     _connected = YES;
     _resumeId = [helloDict objectForKey:@"resumeid"];
+    _sessionId = [helloDict objectForKey:@"sessionid"];
     NSArray *serverFeatures = [[helloDict objectForKey:@"server"] objectForKey:@"features"];
     for (NSString *feature in serverFeatures) {
         if ([feature isEqualToString:@"mcu"]) {
@@ -312,7 +313,6 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
                 NSLog(@"Guest joined room.");
             } else {
                 if ([participantId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
-                    _sessionId = [participant objectForKey:@"sessionid"];
                     NSLog(@"App user joined room.");
                 } else {
                     [_participantsMap setObject:participant forKey:[participant objectForKey:@"sessionid"]];
