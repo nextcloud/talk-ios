@@ -10,6 +10,7 @@
 #import <CallKit/CallKit.h>
 #import <CallKit/CXError.h>
 
+#import "NCAudioController.h"
 #import "NCRoomsManager.h"
 
 NSString * const CallKitManagerDidAnswerCallNotification  = @"CallKitManagerDidAnswerCallNotification";
@@ -122,7 +123,14 @@ NSString * const CallKitManagerDidAnswerCallNotification  = @"CallKitManagerDidA
 
 - (void)provider:(CXProvider *)provider didActivateAudioSession:(AVAudioSession *)audioSession
 {
-    NSLog(@"Provider:didActivateAudioSession");
+    NSLog(@"Provider:didActivateAudioSession - %@", audioSession);
+    [[NCAudioController sharedInstance] providerDidActivateAudioSession:audioSession];
+}
+
+- (void)provider:(CXProvider *)provider didDeactivateAudioSession:(nonnull AVAudioSession *)audioSession
+{
+    NSLog(@"Provider:didDeactivateAudioSession - %@", audioSession);
+    [[NCAudioController sharedInstance] providerDidDeactivateAudioSession:audioSession];
 }
 
 - (void)provider:(CXProvider *)provider performStartCallAction:(nonnull CXStartCallAction *)action

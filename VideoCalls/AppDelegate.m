@@ -15,6 +15,7 @@
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
 #import "OpenInFirefoxControllerObjC.h"
+#import "NCAudioController.h"
 #import "NCConnectionController.h"
 #import "NCNotificationController.h"
 #import "NCPushNotification.h"
@@ -44,10 +45,8 @@
     pushRegistry.delegate = self;
     pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
     
-    RTCAudioSessionConfiguration *configuration = [RTCAudioSessionConfiguration webRTCConfiguration];
-    configuration.category = AVAudioSessionCategoryPlayAndRecord;
-    configuration.mode = AVAudioSessionModeVideoChat;
-    [RTCAudioSessionConfiguration setWebRTCConfiguration:configuration];
+    NSLog(@"Configure Audio Session");
+    [NCAudioController sharedInstance];
     
     // Check supported browsers
     NSMutableArray *supportedBrowsers = [[NSMutableArray alloc] initWithObjects:@"Safari", nil];

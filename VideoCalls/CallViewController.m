@@ -20,6 +20,7 @@
 #import "NBMPeersFlowLayout.h"
 #import "NCCallController.h"
 #import "NCAPIController.h"
+#import "NCAudioController.h"
 #import "NCRoomController.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
@@ -218,13 +219,13 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (!_isAudioOnly) {
         if ([[UIDevice currentDevice] proximityState] == YES) {
             [self disableLocalVideo];
-            [_callController setAudioSessionToVoiceChatMode];
+            [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
         } else {
             // Only enable video if it was not disabled by the user.
             if (!_userDisabledVideo) {
                 [self enableLocalVideo];
             }
-            [_callController setAudioSessionToVideoChatMode];
+            [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
         }
     }
 }
@@ -465,7 +466,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (IBAction)speakerButtonPressed:(id)sender
 {
-    if ([_callController isSpeakerActive]) {
+    if ([[NCAudioController sharedInstance] isSpeakerActive]) {
         [self disableSpeaker];
     } else {
         [self enableSpeaker];
@@ -474,13 +475,13 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)disableSpeaker
 {
-    [_callController setAudioSessionToVoiceChatMode];
+    [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
     [_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
 }
 
 - (void)enableSpeaker
 {
-    [_callController setAudioSessionToVideoChatMode];
+    [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
     [_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
 }
 
