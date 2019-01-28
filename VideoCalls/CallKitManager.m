@@ -41,6 +41,7 @@ NSString * const CallKitManagerDidAnswerCallNotification  = @"CallKitManagerDidA
     if (!_provider) {
         CXProviderConfiguration *configuration = [[CXProviderConfiguration alloc] initWithLocalizedName:@"Nextcloud Talk"];
         configuration.supportsVideo = YES;
+        configuration.maximumCallGroups = 1;
         configuration.maximumCallsPerCallGroup = 1;
         configuration.supportedHandleTypes = [NSSet setWithObjects:@(CXHandleTypePhoneNumber), @(CXHandleTypeEmailAddress), @(CXHandleTypeGeneric), nil];
         _provider = [[CXProvider alloc] initWithConfiguration:configuration];
@@ -62,6 +63,9 @@ NSString * const CallKitManagerDidAnswerCallNotification  = @"CallKitManagerDidA
 - (void)reportIncomingCallForRoom:(NSString *)token withDisplayName:(NSString *)displayName
 {
     CXCallUpdate *update = [[CXCallUpdate alloc] init];
+    update.supportsHolding = NO;
+    update.supportsGrouping = NO;
+    update.supportsUngrouping = NO;
     update.remoteHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:token];
     update.localizedCallerName = displayName;
     update.hasVideo = YES;
