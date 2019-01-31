@@ -165,7 +165,13 @@
     
     _stopReceivingNewMessages = YES;
     [[NCRoomsManager sharedInstance] stopReceivingChatMessagesInRoom:_room];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
     
+    // Leave chat when the view controller has been removed from its parent view.
     if (self.isMovingFromParentViewController) {
         [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
     }
