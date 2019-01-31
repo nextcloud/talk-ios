@@ -109,6 +109,26 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
+- (void)rejoinRoom:(NSString *)token
+{
+    NCRoomController *roomController = [_activeRooms objectForKey:token];
+    if (roomController) {
+        _joiningRoom = [token copy];
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token withCompletionBlock:^(NSString *sessionId, NSError *error) {
+            if (!error) {
+                roomController.userSessionId = sessionId;
+                roomController.inChat = YES;
+                if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
+                    [[NCExternalSignalingController sharedInstance] joinRoom:token withSessionId:sessionId];
+                }
+            } else {
+                NSLog(@"Could not re-join room. Error: %@", error.description);
+            }
+            _joiningRoom = nil;
+        }];
+    }
+}
+
 - (void)leaveRoom:(NSString *)token
 {
     // Check if leaving the room we are joining

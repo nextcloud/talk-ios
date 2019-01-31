@@ -10,6 +10,7 @@
 
 #import "SRWebSocket.h"
 #import "NCAPIController.h"
+#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 
 static NSTimeInterval kInitialReconnectInterval = 1;
@@ -215,6 +216,11 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
         [self sendMessage:message];
     }
     _pendingMessages = [NSMutableArray new];
+    
+    // Re-join if user was in a room
+    if (_currentRoom && _sessionId) {
+        [[NCRoomsManager sharedInstance] rejoinRoom:_currentRoom];
+    }
 }
 
 - (void)errorResponseReceived:(NSDictionary *)errorDict
@@ -242,6 +248,7 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
 - (void)leaveRoom:(NSString *)roomId
 {
     if ([_currentRoom isEqualToString:roomId]) {
+        _currentRoom = nil;
         [self joinRoom:@"" withSessionId:@""];
     }
 }
