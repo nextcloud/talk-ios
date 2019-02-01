@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 extern NSString * const CallKitManagerDidAnswerCallNotification;
+extern NSString * const CallKitManagerDidEndCallNotification;
 
 @interface CallKitManager : NSObject
 

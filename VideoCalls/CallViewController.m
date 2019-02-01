@@ -25,6 +25,7 @@
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "UIImageView+AFNetworking.h"
+#import "CallKitManager.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
@@ -84,6 +85,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [AvatarBackgroundImageView setSharedImageDownloader:imageDownloader];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidEndCall:) name:CallKitManagerDidEndCallNotification object:nil];
     
     return self;
 }
@@ -175,6 +177,16 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (!_callController) {
         [self startCallWithSessionId:roomController.userSessionId];
     }
+}
+
+- (void)providerDidEndCall:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    if (![roomToken isEqualToString:_room.token]) {
+        return;
+    }
+    
+    [self hangup];
 }
 
 #pragma mark - Local video

@@ -13,7 +13,8 @@
 #import "NCAudioController.h"
 #import "NCRoomsManager.h"
 
-NSString * const CallKitManagerDidAnswerCallNotification  = @"CallKitManagerDidAnswerCallNotification";
+NSString * const CallKitManagerDidAnswerCallNotification    = @"CallKitManagerDidAnswerCallNotification";
+NSString * const CallKitManagerDidEndCallNotification       = @"CallKitManagerDidEndCallNotification";
 
 @interface CallKitManager () <CXProviderDelegate>
 
@@ -116,6 +117,10 @@ NSString * const CallKitManagerDidAnswerCallNotification  = @"CallKitManagerDidA
 
 - (void)provider:(CXProvider *)provider performEndCallAction:(CXEndCallAction *)action
 {
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidEndCallNotification
+                                                        object:self
+                                                      userInfo:userInfo];
     self.currentCallUUID = nil;
     self.currentCallToken = nil;
     [action fulfill];
