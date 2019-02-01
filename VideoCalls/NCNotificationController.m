@@ -88,8 +88,6 @@ NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotifica
         } else {
             [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
         }
-        
-        [self updateAppIconBadgeNumber];
     }
 }
 
@@ -110,6 +108,8 @@ NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotifica
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
     [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
     [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
+    
+    [self updateAppIconBadgeNumber];
 }
 
 - (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification withServerNotification:(NCNotification *)serverNotification
