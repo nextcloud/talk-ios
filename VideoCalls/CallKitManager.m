@@ -15,6 +15,7 @@
 
 NSString * const CallKitManagerDidAnswerCallNotification    = @"CallKitManagerDidAnswerCallNotification";
 NSString * const CallKitManagerDidEndCallNotification       = @"CallKitManagerDidEndCallNotification";
+NSString * const CallKitManagerDidStartCallNotification     = @"CallKitManagerDidStartCallNotification";
 
 @interface CallKitManager () <CXProviderDelegate>
 
@@ -85,6 +86,25 @@ NSString * const CallKitManagerDidEndCallNotification       = @"CallKitManagerDi
     }];
 }
 
+- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName
+{
+    if (!_currentCallUUID) {
+        _currentCallUUID = [NSUUID new];
+        _currentCallToken = token;
+        CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:token];
+        CXStartCallAction *startCallAction = [[CXStartCallAction alloc] initWithCallUUID:_currentCallUUID handle:handle];
+        startCallAction.video = videoEnabled;
+        startCallAction.contactIdentifier = displayName;
+        CXTransaction *transaction = [[CXTransaction alloc] init];
+        [transaction addAction:startCallAction];
+        [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
+            if (error) {
+                NSLog(@"%@", error.localizedDescription);
+            }
+        }];
+    }
+}
+
 - (void)endCurrentCall
 {
     if (_currentCallUUID) {
@@ -104,6 +124,21 @@ NSString * const CallKitManagerDidEndCallNotification       = @"CallKitManagerDi
 - (void)providerDidReset:(CXProvider *)provider
 {
     NSLog(@"Provider:didReset");
+}
+
+- (void)provider:(CXProvider *)provider performStartCallAction:(nonnull CXStartCallAction *)action
+{
+    CXCallUpdate *update = [[CXCallUpdate alloc] init];
+    [update setLocalizedCallerName:action.contactIdentifier];
+    [_provider reportCallWithUUID:action.callUUID updated:update];
+    
+    [provider reportOutgoingCallWithUUID:action.callUUID connectedAtDate:[NSDate new]];
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:action.callUUID forKey:@"roomToken"];
+    [userInfo setValue:@(action.isVideo) forKey:@"isVideoEnabled"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
+                                                        object:self
+                                                      userInfo:userInfo];
+    [action fulfill];
 }
 
 - (void)provider:(CXProvider *)provider performAnswerCallAction:(CXAnswerCallAction *)action
@@ -136,11 +171,6 @@ NSString * const CallKitManagerDidEndCallNotification       = @"CallKitManagerDi
 {
     NSLog(@"Provider:didDeactivateAudioSession - %@", audioSession);
     [[NCAudioController sharedInstance] providerDidDeactivateAudioSession:audioSession];
-}
-
-- (void)provider:(CXProvider *)provider performStartCallAction:(nonnull CXStartCallAction *)action
-{
-    NSLog(@"Provider:performStartCallAction");
 }
 
 

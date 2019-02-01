@@ -61,6 +61,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForChat:) name:NCSelectedContactForChatNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(acceptCallForRoom:) name:CallKitManagerDidAnswerCallNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startCallForRoom:) name:CallKitManagerDidStartCallNotification object:nil];
     }
     
     return self;
@@ -340,18 +341,33 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NCRoom *room = [self getRoomForId:callId];
     if (room) {
-        [self startCall:video inRoom:room];
+        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
     } else {
         //TODO: Show spinner?
         [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
             if (!error) {
-                [self startCall:video inRoom:room];
+                [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
             }
         }];
     }
 }
 
 - (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video
+{
+    NCRoom *room = [self getRoomForToken:token];
+    if (room) {
+        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
+    } else {
+        //TODO: Show spinner?
+        [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+            if (!error) {
+                [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
+            }
+        }];
+    }
+}
+
+- (void)startCallWithCallToken:(NSString *)token withVideo:(BOOL)video
 {
     NCRoom *room = [self getRoomForToken:token];
     if (room) {
@@ -399,6 +415,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
     [self joinCallWithCallToken:roomToken withVideo:NO];
+}
+
+- (void)startCallForRoom:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    BOOL isVideoEnabled = [[notification.userInfo objectForKey:@"isVideoEnabled"] boolValue];
+    [self startCallWithCallToken:roomToken withVideo:isVideoEnabled];
 }
 
 - (void)joinAudioCallAccepted:(NSNotification *)notification

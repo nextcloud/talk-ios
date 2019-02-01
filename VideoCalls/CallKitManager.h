@@ -10,6 +10,7 @@
 
 extern NSString * const CallKitManagerDidAnswerCallNotification;
 extern NSString * const CallKitManagerDidEndCallNotification;
+extern NSString * const CallKitManagerDidStartCallNotification;
 
 @interface CallKitManager : NSObject
 
@@ -18,6 +19,7 @@ extern NSString * const CallKitManagerDidEndCallNotification;
 
 + (instancetype)sharedInstance;
 - (void)reportIncomingCallForRoom:(NSString *)token withDisplayName:(NSString *)displayName;
+- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName;
 - (void)endCurrentCall;
 
 
