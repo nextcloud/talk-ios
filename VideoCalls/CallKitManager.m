@@ -133,7 +133,7 @@ NSString * const CallKitManagerDidStartCallNotification     = @"CallKitManagerDi
     [_provider reportCallWithUUID:action.callUUID updated:update];
     
     [provider reportOutgoingCallWithUUID:action.callUUID connectedAtDate:[NSDate new]];
-    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:action.callUUID forKey:@"roomToken"];
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:action.handle.value forKey:@"roomToken"];
     [userInfo setValue:@(action.isVideo) forKey:@"isVideoEnabled"];
     [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
                                                         object:self
