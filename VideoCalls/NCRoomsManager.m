@@ -414,7 +414,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)acceptCallForRoom:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
-    [self joinCallWithCallToken:roomToken withVideo:NO];
+    [self startCallWithCallToken:roomToken withVideo:NO];
 }
 
 - (void)startCallForRoom:(NSNotification *)notification
