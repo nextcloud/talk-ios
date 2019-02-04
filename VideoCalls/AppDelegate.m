@@ -11,6 +11,8 @@
 #import "AFNetworkReachabilityManager.h"
 #import "AFNetworkActivityIndicatorManager.h"
 
+#import <Intents/Intents.h>
+
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
@@ -65,6 +67,18 @@
     //Init rooms manager to start receiving NSNotificationCenter notifications
     [NCRoomsManager sharedInstance];
     
+    return YES;
+}
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
+{
+    BOOL audioCallIntent = [userActivity.interaction.intent isKindOfClass:[INStartAudioCallIntent class]];
+    BOOL videoCallIntent = [userActivity.interaction.intent isKindOfClass:[INStartVideoCallIntent class]];
+    if (audioCallIntent || videoCallIntent) {
+        INPerson *person = [[(INStartAudioCallIntent*)userActivity.interaction.intent contacts] firstObject];
+        NSString *roomToken = person.personHandle.value;
+        [[NCUserInterfaceController sharedInstance] presentCallKitCallInRoom:roomToken withVideoEnabled:videoCallIntent];
+    }
     return YES;
 }
 

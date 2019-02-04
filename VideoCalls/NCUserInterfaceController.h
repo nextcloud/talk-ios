@@ -27,5 +27,6 @@
 - (void)presentAlertViewController:(UIAlertController *)alertViewController;
 - (void)presentChatViewController:(NCChatViewController *)chatViewController;
 - (void)presentCallViewController:(CallViewController *)callViewController;
+- (void)presentCallKitCallInRoom:(NSString *)token withVideoEnabled:(BOOL)video;
 
 @end
