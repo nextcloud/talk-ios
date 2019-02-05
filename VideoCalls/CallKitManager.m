@@ -48,6 +48,7 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
         configuration.maximumCallGroups = 1;
         configuration.maximumCallsPerCallGroup = 1;
         configuration.supportedHandleTypes = [NSSet setWithObjects:@(CXHandleTypePhoneNumber), @(CXHandleTypeEmailAddress), @(CXHandleTypeGeneric), nil];
+        configuration.iconTemplateImageData = UIImagePNGRepresentation([UIImage imageNamed:@"app-logo-callkit"]);
         _provider = [[CXProvider alloc] initWithConfiguration:configuration];
         [_provider setDelegate:self queue:nil];
     }
