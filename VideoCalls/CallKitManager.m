@@ -13,9 +13,10 @@
 #import "NCAudioController.h"
 #import "NCRoomsManager.h"
 
-NSString * const CallKitManagerDidAnswerCallNotification    = @"CallKitManagerDidAnswerCallNotification";
-NSString * const CallKitManagerDidEndCallNotification       = @"CallKitManagerDidEndCallNotification";
-NSString * const CallKitManagerDidStartCallNotification     = @"CallKitManagerDidStartCallNotification";
+NSString * const CallKitManagerDidAnswerCallNotification        = @"CallKitManagerDidAnswerCallNotification";
+NSString * const CallKitManagerDidEndCallNotification           = @"CallKitManagerDidEndCallNotification";
+NSString * const CallKitManagerDidStartCallNotification         = @"CallKitManagerDidStartCallNotification";
+NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManagerDidChangeAudioMuteNotification";
 
 @interface CallKitManager () <CXProviderDelegate>
 
@@ -143,21 +144,40 @@ NSString * const CallKitManagerDidStartCallNotification     = @"CallKitManagerDi
 
 - (void)provider:(CXProvider *)provider performAnswerCallAction:(CXAnswerCallAction *)action
 {
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidAnswerCallNotification
-                                                        object:self
-                                                      userInfo:userInfo];
+    if (_currentCallToken) {
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidAnswerCallNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+    }
+    
     [action fulfill];
 }
 
 - (void)provider:(CXProvider *)provider performEndCallAction:(CXEndCallAction *)action
 {
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidEndCallNotification
-                                                        object:self
-                                                      userInfo:userInfo];
-    self.currentCallUUID = nil;
-    self.currentCallToken = nil;
+    if (_currentCallToken) {
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidEndCallNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+        self.currentCallUUID = nil;
+        self.currentCallToken = nil;
+    }
+    
+    [action fulfill];
+}
+
+- (void)provider:(CXProvider *)provider performSetMutedCallAction:(CXSetMutedCallAction *)action
+{
+    if (_currentCallToken) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
+        [userInfo setValue:@(action.isMuted) forKey:@"isMuted"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidChangeAudioMuteNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+    }
+    
     [action fulfill];
 }
 

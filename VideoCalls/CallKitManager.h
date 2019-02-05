@@ -11,6 +11,7 @@
 extern NSString * const CallKitManagerDidAnswerCallNotification;
 extern NSString * const CallKitManagerDidEndCallNotification;
 extern NSString * const CallKitManagerDidStartCallNotification;
+extern NSString * const CallKitManagerDidChangeAudioMuteNotification;
 
 @interface CallKitManager : NSObject
 

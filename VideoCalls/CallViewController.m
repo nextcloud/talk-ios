@@ -86,6 +86,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidEndCall:) name:CallKitManagerDidEndCallNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidChangeAudioMute:) name:CallKitManagerDidChangeAudioMuteNotification object:nil];
     
     return self;
 }
@@ -176,6 +177,21 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     if (!_callController) {
         [self startCallWithSessionId:roomController.userSessionId];
+    }
+}
+
+- (void)providerDidChangeAudioMute:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    if (![roomToken isEqualToString:_room.token]) {
+        return;
+    }
+    
+    BOOL isMuted = [[notification.userInfo objectForKey:@"isMuted"] boolValue];
+    if (isMuted) {
+        [self muteAudio];
+    } else {
+        [self unmuteAudio];
     }
 }
 
@@ -417,14 +433,23 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (IBAction)audioButtonPressed:(id)sender
 {
-    UIButton *audioButton = sender;
     if ([_callController isAudioEnabled]) {
-        [_callController enableAudio:NO];
-        [audioButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+        [self muteAudio];
     } else {
-        [_callController enableAudio:YES];
-        [audioButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+        [self unmuteAudio];
     }
+}
+
+- (void)muteAudio
+{
+    [_callController enableAudio:NO];
+    [_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+}
+
+- (void)unmuteAudio
+{
+    [_callController enableAudio:YES];
+    [_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
 }
 
 - (IBAction)videoButtonPressed:(id)sender
