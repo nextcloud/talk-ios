@@ -22,6 +22,7 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
 
 @property (nonatomic, strong) CXProvider *provider;
 @property (nonatomic, strong) CXCallController *callController;
+@property (nonatomic, strong) NSTimer *hangUpTimer;
 
 @end
 
@@ -77,6 +78,7 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
     
     _currentCallUUID = [NSUUID new];
     _currentCallToken = token;
+    _hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(endCurrentCall) userInfo:nil repeats:NO];
     
     __weak CallKitManager *weakSelf = self;
     [self.provider reportNewIncomingCallWithUUID:_currentCallUUID update:update completion:^(NSError * _Nullable error) {
@@ -86,6 +88,12 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
             weakSelf.currentCallToken = nil;
         }
     }];
+}
+
+- (void)stopHangUpTimer
+{
+    [_hangUpTimer invalidate];
+    _hangUpTimer = nil;
 }
 
 - (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName
@@ -146,6 +154,7 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
 - (void)provider:(CXProvider *)provider performAnswerCallAction:(CXAnswerCallAction *)action
 {
     if (_currentCallToken) {
+        [self stopHangUpTimer];
         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidAnswerCallNotification
                                                             object:self
