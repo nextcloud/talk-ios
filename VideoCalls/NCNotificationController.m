@@ -112,6 +112,31 @@ NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotifica
     [self updateAppIconBadgeNumber];
 }
 
+- (void)showLocalNotification:(NCLocalNotificationType)type withUserInfo:(NSDictionary *)userInfo
+{
+    UNMutableNotificationContent *content = [UNMutableNotificationContent new];
+    
+    switch (type) {
+        case kNCLocalNotificationTypeMissedCall:
+            {
+                content.body = [NSString stringWithFormat:@"☎️ Missed call from %@", [userInfo objectForKey:@"displayName"]];
+                content.userInfo = userInfo;
+            }
+            break;
+            
+        default:
+            break;
+    }
+    
+    NSString *identifier = [NSString stringWithFormat:@"Notification-%f", [[NSDate date] timeIntervalSince1970]];
+    UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
+    [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
+    
+    [self updateAppIconBadgeNumber];
+}
+
 - (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification withServerNotification:(NCNotification *)serverNotification
 {
     NSString *roomToken = serverNotification.objectId;

@@ -11,6 +11,7 @@
 #import <CallKit/CXError.h>
 
 #import "NCAudioController.h"
+#import "NCNotificationController.h"
 #import "NCRoomsManager.h"
 
 NSString * const CallKitManagerDidAnswerCallNotification        = @"CallKitManagerDidAnswerCallNotification";
@@ -78,7 +79,8 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
     
     _currentCallUUID = [NSUUID new];
     _currentCallToken = token;
-    _hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(endCurrentCall) userInfo:nil repeats:NO];
+    _currentCallDisplayName = displayName;
+    _hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(hangUpCurrentCall) userInfo:nil repeats:NO];
     
     __weak CallKitManager *weakSelf = self;
     [self.provider reportNewIncomingCallWithUUID:_currentCallUUID update:update completion:^(NSError * _Nullable error) {
@@ -86,6 +88,7 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
             NSLog(@"Provider could not present incoming call view.");
             weakSelf.currentCallUUID = nil;
             weakSelf.currentCallToken = nil;
+            weakSelf.currentCallDisplayName = nil;
         }
     }];
 }
@@ -94,6 +97,17 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
 {
     [_hangUpTimer invalidate];
     _hangUpTimer = nil;
+}
+
+- (void)hangUpCurrentCall
+{
+    if (_currentCallUUID && _currentCallToken && _currentCallDisplayName) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
+        [userInfo setValue:_currentCallDisplayName forKey:@"displayName"];
+        [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeMissedCall withUserInfo:userInfo];
+    }
+    
+    [self endCurrentCall];
 }
 
 - (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName
@@ -173,6 +187,7 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
                                                           userInfo:userInfo];
         self.currentCallUUID = nil;
         self.currentCallToken = nil;
+        self.currentCallDisplayName = nil;
     }
     
     [action fulfill];

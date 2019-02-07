@@ -17,6 +17,7 @@ extern NSString * const CallKitManagerDidChangeAudioMuteNotification;
 
 @property (nonatomic, strong) NSUUID *currentCallUUID;
 @property (nonatomic, strong) NSString *currentCallToken;
+@property (nonatomic, strong) NSString *currentCallDisplayName;
 
 + (instancetype)sharedInstance;
 - (void)reportIncomingCallForRoom:(NSString *)token withDisplayName:(NSString *)displayName;
