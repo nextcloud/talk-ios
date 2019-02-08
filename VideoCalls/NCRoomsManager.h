@@ -36,5 +36,6 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 - (void)leaveChatInRoom:(NSString *)token;
 // Call
 - (void)startCall:(BOOL)video inRoom:(NCRoom *)room;
+- (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video;
 
 @end

@@ -9,6 +9,7 @@
 #import "NCChatViewController.h"
 
 #import "AFImageDownloader.h"
+#import "CallKitManager.h"
 #import "ChatMessageTableViewCell.h"
 #import "GroupedChatMessageTableViewCell.h"
 #import "FileMessageTableViewCell.h"
@@ -284,12 +285,12 @@
 
 - (void)videoCallButtonPressed:(id)sender
 {
-    [[NCRoomsManager sharedInstance] startCall:YES inRoom:_room];
+    [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:YES andDisplayName:_room.displayName];
 }
 
 - (void)voiceCallButtonPressed:(id)sender
 {
-    [[NCRoomsManager sharedInstance] startCall:NO inRoom:_room];
+    [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:NO andDisplayName:_room.displayName];
 }
 
 - (void)didPressRightButton:(id)sender

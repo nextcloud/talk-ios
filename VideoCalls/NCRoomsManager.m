@@ -17,6 +17,7 @@
 #import "NCRoomController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
+#import "CallKitManager.h"
 
 NSString * const NCRoomsManagerDidJoinRoomNotification              = @"NCRoomsManagerDidJoinRoomNotification";
 NSString * const NCRoomsManagerDidLeaveRoomNotification             = @"NCRoomsManagerDidLeaveRoomNotification";
@@ -54,11 +55,14 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         _rooms = [[NSMutableArray alloc] init];
         _activeRooms = [[NSMutableDictionary alloc] init];
         
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChatWithLocalNotification:) name:NCLocalNotificationJoinChatNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChat:) name:NCPushNotificationJoinChatNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinAudioCallAccepted:) name:NCPushNotificationJoinAudioCallAcceptedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinVideoCallAccepted:) name:NCPushNotificationJoinVideoCallAcceptedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForChat:) name:NCSelectedContactForChatNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(acceptCallForRoom:) name:CallKitManagerDidAnswerCallNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startCallForRoom:) name:CallKitManagerDidStartCallNotification object:nil];
     }
     
     return self;
@@ -315,6 +319,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     if (!_callViewController) {
         _callViewController = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:!video];
+        [_callViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
         _callViewController.delegate = self;
         // Workaround until external signaling supports multi-room
         if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
@@ -338,18 +343,33 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NCRoom *room = [self getRoomForId:callId];
     if (room) {
-        [self startCall:video inRoom:room];
+        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
     } else {
         //TODO: Show spinner?
         [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
             if (!error) {
-                [self startCall:video inRoom:room];
+                [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
             }
         }];
     }
 }
 
 - (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video
+{
+    NCRoom *room = [self getRoomForToken:token];
+    if (room) {
+        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
+    } else {
+        //TODO: Show spinner?
+        [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+            if (!error) {
+                [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
+            }
+        }];
+    }
+}
+
+- (void)startCallWithCallToken:(NSString *)token withVideo:(BOOL)video
 {
     NCRoom *room = [self getRoomForToken:token];
     if (room) {
@@ -370,6 +390,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (roomController) {
         roomController.inCall = NO;
     }
+    [[CallKitManager sharedInstance] endCurrentCall];
     [self leaveRoom:room.token];
 }
 
@@ -391,6 +412,19 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 }
 
 #pragma mark - Notifications
+
+- (void)acceptCallForRoom:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    [self startCallWithCallToken:roomToken withVideo:NO];
+}
+
+- (void)startCallForRoom:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    BOOL isVideoEnabled = [[notification.userInfo objectForKey:@"isVideoEnabled"] boolValue];
+    [self startCallWithCallToken:roomToken withVideo:isVideoEnabled];
+}
 
 - (void)joinAudioCallAccepted:(NSNotification *)notification
 {
@@ -419,6 +453,14 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [self startChatWithRoomToken:pushNotification.roomToken];
     } else {
         [self startChatWithRoomId:pushNotification.roomId];
+    }
+}
+
+- (void)joinChatWithLocalNotification:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    if (roomToken) {
+        [self startChatWithRoomToken:roomToken];
     }
 }
 

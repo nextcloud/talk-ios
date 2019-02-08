@@ -21,6 +21,8 @@
     LoginViewController *_loginViewController;
     AuthenticationViewController *_authViewController;
     NCPushNotification *_pendingPushNotification;
+    NSMutableDictionary *_pendingCallKitCall;
+    NSDictionary *_pendingLocalNotification;
     BOOL _waitingForServerCapabilities;
 }
 
@@ -91,6 +93,18 @@
     [alert addAction:okButton];
     
     [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)presentChatForLocalNotification:(NSDictionary *)userInfo
+{
+    if ([NCConnectionController sharedInstance].appState != kAppStateReady) {
+        _waitingForServerCapabilities = YES;
+        _pendingLocalNotification = userInfo;
+        return;
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCLocalNotificationJoinChatNotification
+                                                        object:self
+                                                      userInfo:userInfo];
 }
 
 - (void)presentChatForPushNotification:(NCPushNotification *)pushNotification
@@ -174,6 +188,25 @@
     [_mainNavigationController presentViewController:callViewController animated:YES completion:nil];
 }
 
+- (void)presentCallKitCallInRoom:(NSString *)token withVideoEnabled:(BOOL)video
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:token forKey:@"roomToken"];
+    [userInfo setValue:@(video) forKey:@"isVideoEnabled"];
+    if ([NCConnectionController sharedInstance].appState != kAppStateReady) {
+        _waitingForServerCapabilities = YES;
+        _pendingCallKitCall = userInfo;
+        return;
+    }
+    [self startCallKitCall:userInfo];
+}
+
+- (void)startCallKitCall:(NSMutableDictionary *)callDict
+{
+    NSString *roomToken = [callDict objectForKey:@"roomToken"];
+    BOOL video = [[callDict objectForKey:@"isVideoEnabled"] boolValue];
+    [[NCRoomsManager sharedInstance] joinCallWithCallToken:roomToken withVideo:video];
+}
+
 #pragma mark - Notifications
 
 - (void)appStateHasChanged:(NSNotification *)notification
@@ -181,10 +214,14 @@
     AppState appState = [[notification.userInfo objectForKey:@"appState"] intValue];
     if (appState == kAppStateReady && _waitingForServerCapabilities) {
         _waitingForServerCapabilities = NO;
-        if (_pendingPushNotification.type == NCPushNotificationTypeCall) {
-            [self presentAlertForPushNotification:_pendingPushNotification];
-        } else {
-            [self presentChatForPushNotification:_pendingPushNotification];
+        if (_pendingPushNotification) {
+            if (_pendingPushNotification.type == NCPushNotificationTypeCall) {
+                [self presentAlertForPushNotification:_pendingPushNotification];
+            } else {
+                [self presentChatForPushNotification:_pendingPushNotification];
+            }
+        } else if (_pendingCallKitCall) {
+            [self startCallKitCall:_pendingCallKitCall];
         }
     }
 }

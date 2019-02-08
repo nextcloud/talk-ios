@@ -11,10 +11,13 @@
 #import "AFNetworkReachabilityManager.h"
 #import "AFNetworkActivityIndicatorManager.h"
 
+#import <Intents/Intents.h>
+
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
 #import "OpenInFirefoxControllerObjC.h"
+#import "NCAudioController.h"
 #import "NCConnectionController.h"
 #import "NCNotificationController.h"
 #import "NCPushNotification.h"
@@ -44,10 +47,8 @@
     pushRegistry.delegate = self;
     pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
     
-    RTCAudioSessionConfiguration *configuration = [RTCAudioSessionConfiguration webRTCConfiguration];
-    configuration.category = AVAudioSessionCategoryPlayAndRecord;
-    configuration.mode = AVAudioSessionModeVideoChat;
-    [RTCAudioSessionConfiguration setWebRTCConfiguration:configuration];
+    NSLog(@"Configure Audio Session");
+    [NCAudioController sharedInstance];
     
     // Check supported browsers
     NSMutableArray *supportedBrowsers = [[NSMutableArray alloc] initWithObjects:@"Safari", nil];
@@ -66,6 +67,18 @@
     //Init rooms manager to start receiving NSNotificationCenter notifications
     [NCRoomsManager sharedInstance];
     
+    return YES;
+}
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
+{
+    BOOL audioCallIntent = [userActivity.interaction.intent isKindOfClass:[INStartAudioCallIntent class]];
+    BOOL videoCallIntent = [userActivity.interaction.intent isKindOfClass:[INStartVideoCallIntent class]];
+    if (audioCallIntent || videoCallIntent) {
+        INPerson *person = [[(INStartAudioCallIntent*)userActivity.interaction.intent contacts] firstObject];
+        NSString *roomToken = person.personHandle.value;
+        [[NCUserInterfaceController sharedInstance] presentCallKitCallInRoom:roomToken withVideoEnabled:videoCallIntent];
+    }
     return YES;
 }
 

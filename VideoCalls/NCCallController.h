@@ -47,11 +47,8 @@ typedef void (^GetUserIdForSessionIdCompletionBlock)(NSString *userId, NSError *
 - (void)leaveCall;
 - (BOOL)isVideoEnabled;
 - (BOOL)isAudioEnabled;
-- (BOOL)isSpeakerActive;
 - (void)enableVideo:(BOOL)enable;
 - (void)enableAudio:(BOOL)enable;
-- (void)setAudioSessionToVoiceChatMode;
-- (void)setAudioSessionToVideoChatMode;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 - (void)getUserIdInServerFromSessionId:(NSString *)sessionId withCompletionBlock:(GetUserIdForSessionIdCompletionBlock)block;
 

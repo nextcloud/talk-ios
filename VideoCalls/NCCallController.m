@@ -17,9 +17,8 @@
 #import <WebRTC/RTCVideoTrack.h>
 #import <WebRTC/RTCVideoCapturer.h>
 #import <WebRTC/RTCCameraVideoCapturer.h>
-#import <WebRTC/RTCAudioSession.h>
-#import <WebRTC/RTCAudioSessionConfiguration.h>
 #import "NCAPIController.h"
+#import "NCAudioController.h"
 #import "NCSettingsController.h"
 #import "NCSignalingController.h"
 #import "NCExternalSignalingController.h"
@@ -73,9 +72,9 @@ static NSString * const kNCVideoTrackKind = @"video";
         _signalingController.observer = self;
         
         if (audioOnly) {
-            [self setAudioSessionToVoiceChatMode];
+            [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
         } else {
-            [self setAudioSessionToVideoChatMode];
+            [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
         }
         
         [self initRecorder];
@@ -148,6 +147,8 @@ static NSString * const kNCVideoTrackKind = @"video";
         _joinCallTask = nil;
         [self.delegate callControllerDidEndCall:self];
     }
+    
+    [[NCAudioController sharedInstance] disableAudioSession];
 }
 
 - (void)dealloc
@@ -286,46 +287,6 @@ static NSString * const kNCVideoTrackKind = @"video";
     if (!_isAudioOnly) {
         [self createLocalVideoTrack];
     }
-}
-
-#pragma mark - Audio session configuration
-
-- (void)setAudioSessionToVoiceChatMode
-{
-    [self changeAudioSessionConfigurationModeTo:AVAudioSessionModeVoiceChat];
-}
-
-- (void)setAudioSessionToVideoChatMode
-{
-    [self changeAudioSessionConfigurationModeTo:AVAudioSessionModeVideoChat];
-}
-
-- (void)changeAudioSessionConfigurationModeTo:(NSString *)mode
-{
-    RTCAudioSessionConfiguration *configuration = [RTCAudioSessionConfiguration webRTCConfiguration];
-    configuration.category = AVAudioSessionCategoryPlayAndRecord;
-    configuration.mode = mode;
-    
-    RTCAudioSession *session = [RTCAudioSession sharedInstance];
-    [session lockForConfiguration];
-    BOOL hasSucceeded = NO;
-    NSError *error = nil;
-    if (session.isActive) {
-        hasSucceeded = [session setConfiguration:configuration error:&error];
-    } else {
-        hasSucceeded = [session setConfiguration:configuration
-                                          active:YES
-                                           error:&error];
-    }
-    if (!hasSucceeded) {
-        NSLog(@"Error setting configuration: %@", error.localizedDescription);
-    }
-    [session unlockForConfiguration];
-}
-
-- (BOOL)isSpeakerActive
-{
-    return [[RTCAudioSession sharedInstance] mode] == AVAudioSessionModeVideoChat;
 }
 
 #pragma mark - Peer Connection Wrapper

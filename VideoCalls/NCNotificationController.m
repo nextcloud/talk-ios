@@ -13,8 +13,10 @@
 #import "NCConnectionController.h"
 #import "NCNotification.h"
 #import "NCUserInterfaceController.h"
+#import "CallKitManager.h"
 
-NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotificationControllerWillPresentNotification";
+NSString * const NCNotificationControllerWillPresentNotification    = @"NCNotificationControllerWillPresentNotification";
+NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalNotificationJoinChatNotification";
 
 @interface NCNotificationController () <UNUserNotificationCenterDelegate>
 
@@ -60,13 +62,24 @@ NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotifica
 - (void)processIncomingPushNotification:(NCPushNotification *)pushNotification
 {
     if (pushNotification) {
-        if (pushNotification.type == NCPushNotificationTypeChat) {
+        if (pushNotification.type == NCPushNotificationTypeChat || pushNotification.type == NCPushNotificationTypeCall) {
             NSInteger notificationId = pushNotification.notificationId;
             if (notificationId) {
                 [[NCAPIController sharedInstance] getServerNotification:notificationId withCompletionBlock:^(NSDictionary *notification, NSError *error) {
                     if (!error) {
                         NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
-                        [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
+                        if (serverNotification) {
+                            if (serverNotification.notificationType == kNCNotificationTypeChat) {
+                                [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
+                            } else if (serverNotification.notificationType == kNCNotificationTypeCall) {
+                                NSString *callType = [[serverNotification.subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
+                                if (![[CallKitManager sharedInstance] currentCallUUID] && [callType isEqualToString:@"one2one"]) {
+                                    [self showIncomingCallForPushNotification:pushNotification withServerNotification:serverNotification];
+                                } else {
+                                    [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
+                                }
+                            }
+                        }
                     } else {
                         NSLog(@"Could not retrieve server notification.");
                         [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
@@ -76,8 +89,6 @@ NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotifica
         } else {
             [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
         }
-        
-        [self updateAppIconBadgeNumber];
     }
 }
 
@@ -98,6 +109,40 @@ NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotifica
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
     [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
     [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
+    
+    [self updateAppIconBadgeNumber];
+}
+
+- (void)showLocalNotification:(NCLocalNotificationType)type withUserInfo:(NSDictionary *)userInfo
+{
+    UNMutableNotificationContent *content = [UNMutableNotificationContent new];
+    
+    switch (type) {
+        case kNCLocalNotificationTypeMissedCall:
+            {
+                content.body = [NSString stringWithFormat:@"☎️ Missed call from %@", [userInfo objectForKey:@"displayName"]];
+                content.userInfo = userInfo;
+            }
+            break;
+            
+        default:
+            break;
+    }
+    
+    NSString *identifier = [NSString stringWithFormat:@"Notification-%f", [[NSDate date] timeIntervalSince1970]];
+    UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
+    [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
+    
+    [self updateAppIconBadgeNumber];
+}
+
+- (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification withServerNotification:(NCNotification *)serverNotification
+{
+    NSString *roomToken = serverNotification.objectId;
+    NSString *displayName = serverNotification.callDisplayName;
+    [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName];
 }
 
 - (void)updateAppIconBadgeNumber
@@ -124,6 +169,7 @@ NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotifica
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler
 {
     UNNotificationRequest *notificationRequest = response.notification.request;
+    NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notificationRequest.content.userInfo objectForKey:@"localNotificationType"] integerValue];
     NSString *notificationString = [notificationRequest.content.userInfo objectForKey:@"pushNotification"];
     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString];
     
@@ -140,6 +186,17 @@ NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotifica
                 [[NCUserInterfaceController sharedInstance] presentChatForPushNotification:pushNotification];
             }
                 break;
+            default:
+                break;
+        }
+    } else if (localNotificationType > 0) {
+        switch (localNotificationType) {
+            case kNCLocalNotificationTypeMissedCall:
+                {
+                    [[NCUserInterfaceController sharedInstance] presentChatForLocalNotification:notificationRequest.content.userInfo];
+                }
+                break;
+                
             default:
                 break;
         }

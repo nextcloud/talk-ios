@@ -28,12 +28,14 @@
 		2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
 		2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C440D0F20EA4A770005F9BB /* RoomInfoTableViewController.m */; };
 		2C440D1220EA4A770005F9BB /* RoomInfoTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C440D1020EA4A770005F9BB /* RoomInfoTableViewController.xib */; };
+		2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4987BC21E640E20060AC27 /* CallKitManager.m */; };
 		2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
 		2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
 		2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
 		2C4D7D721F309DA500FF4A0D /* RTCIceCandidate+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D6E1F309DA500FF4A0D /* RTCIceCandidate+JSON.m */; };
 		2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D701F309DA500FF4A0D /* RTCSessionDescription+JSON.m */; };
 		2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */; };
+		2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4DE9F121F732B40096940D /* NCAudioController.m */; };
 		2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
 		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
 		2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
@@ -163,6 +165,8 @@
 		2C440D0E20EA4A770005F9BB /* RoomInfoTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomInfoTableViewController.h; sourceTree = "<group>"; };
 		2C440D0F20EA4A770005F9BB /* RoomInfoTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomInfoTableViewController.m; sourceTree = "<group>"; };
 		2C440D1020EA4A770005F9BB /* RoomInfoTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomInfoTableViewController.xib; sourceTree = "<group>"; };
+		2C4987BB21E640E20060AC27 /* CallKitManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CallKitManager.h; sourceTree = "<group>"; };
+		2C4987BC21E640E20060AC27 /* CallKitManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CallKitManager.m; sourceTree = "<group>"; };
 		2C4D7D611F2F7C2C00FF4A0D /* ARDCaptureController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDCaptureController.h; sourceTree = "<group>"; };
 		2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDCaptureController.m; sourceTree = "<group>"; };
 		2C4D7D641F2F7DBC00FF4A0D /* ARDSettingsModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSettingsModel.h; sourceTree = "<group>"; };
@@ -176,6 +180,8 @@
 		2C4D7D701F309DA500FF4A0D /* RTCSessionDescription+JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RTCSessionDescription+JSON.m"; sourceTree = "<group>"; };
 		2C4D7D741F30F7B600FF4A0D /* ARDUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDUtilities.h; sourceTree = "<group>"; };
 		2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDUtilities.m; sourceTree = "<group>"; };
+		2C4DE9F021F732B40096940D /* NCAudioController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCAudioController.h; sourceTree = "<group>"; };
+		2C4DE9F121F732B40096940D /* NCAudioController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAudioController.m; sourceTree = "<group>"; };
 		2C4E758D214B942D003910D5 /* OpenInFirefoxControllerObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenInFirefoxControllerObjC.h; sourceTree = "<group>"; };
 		2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenInFirefoxControllerObjC.m; sourceTree = "<group>"; };
 		2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SystemMessageTableViewCell.h; sourceTree = "<group>"; };
@@ -598,6 +604,10 @@
 				2C78EF9B1F826B22008AFA74 /* NCCallController.m */,
 				2C8CDD0421C2EDE8004E2997 /* AvatarBackgroundImageView.h */,
 				2C8CDD0521C2EDE8004E2997 /* AvatarBackgroundImageView.m */,
+				2C4987BB21E640E20060AC27 /* CallKitManager.h */,
+				2C4987BC21E640E20060AC27 /* CallKitManager.m */,
+				2C4DE9F021F732B40096940D /* NCAudioController.h */,
+				2C4DE9F121F732B40096940D /* NCAudioController.m */,
 			);
 			name = Calls;
 			sourceTree = "<group>";
@@ -1021,6 +1031,7 @@
 				2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */,
 				2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */,
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
+				2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */,
 				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
 				2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */,
@@ -1076,6 +1087,7 @@
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
 				2C063318205ACB140043481A /* VideoResolutionsViewController.m in Sources */,
 				2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */,
+				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				2C42ADB420B58E6300296DEA /* NCRoomController.m in Sources */,
 				2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */,
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,

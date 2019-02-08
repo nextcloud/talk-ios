@@ -20,10 +20,12 @@
 #import "NBMPeersFlowLayout.h"
 #import "NCCallController.h"
 #import "NCAPIController.h"
+#import "NCAudioController.h"
 #import "NCRoomController.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "UIImageView+AFNetworking.h"
+#import "CallKitManager.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
@@ -83,6 +85,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     [AvatarBackgroundImageView setSharedImageDownloader:imageDownloader];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidEndCall:) name:CallKitManagerDidEndCallNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidChangeAudioMute:) name:CallKitManagerDidChangeAudioMuteNotification object:nil];
     
     return self;
 }
@@ -176,6 +180,31 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
+- (void)providerDidChangeAudioMute:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    if (![roomToken isEqualToString:_room.token]) {
+        return;
+    }
+    
+    BOOL isMuted = [[notification.userInfo objectForKey:@"isMuted"] boolValue];
+    if (isMuted) {
+        [self muteAudio];
+    } else {
+        [self unmuteAudio];
+    }
+}
+
+- (void)providerDidEndCall:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    if (![roomToken isEqualToString:_room.token]) {
+        return;
+    }
+    
+    [self hangup];
+}
+
 #pragma mark - Local video
 
 - (void)setLocalVideoRect
@@ -218,13 +247,13 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (!_isAudioOnly) {
         if ([[UIDevice currentDevice] proximityState] == YES) {
             [self disableLocalVideo];
-            [_callController setAudioSessionToVoiceChatMode];
+            [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
         } else {
             // Only enable video if it was not disabled by the user.
             if (!_userDisabledVideo) {
                 [self enableLocalVideo];
             }
-            [_callController setAudioSessionToVideoChatMode];
+            [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
         }
     }
 }
@@ -404,14 +433,23 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (IBAction)audioButtonPressed:(id)sender
 {
-    UIButton *audioButton = sender;
     if ([_callController isAudioEnabled]) {
-        [_callController enableAudio:NO];
-        [audioButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+        [self muteAudio];
     } else {
-        [_callController enableAudio:YES];
-        [audioButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+        [self unmuteAudio];
     }
+}
+
+- (void)muteAudio
+{
+    [_callController enableAudio:NO];
+    [_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+}
+
+- (void)unmuteAudio
+{
+    [_callController enableAudio:YES];
+    [_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
 }
 
 - (IBAction)videoButtonPressed:(id)sender
@@ -465,7 +503,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (IBAction)speakerButtonPressed:(id)sender
 {
-    if ([_callController isSpeakerActive]) {
+    if ([[NCAudioController sharedInstance] isSpeakerActive]) {
         [self disableSpeaker];
     } else {
         [self enableSpeaker];
@@ -474,13 +512,13 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)disableSpeaker
 {
-    [_callController setAudioSessionToVoiceChatMode];
+    [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
     [_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
 }
 
 - (void)enableSpeaker
 {
-    [_callController setAudioSessionToVideoChatMode];
+    [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
     [_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
 }
 
