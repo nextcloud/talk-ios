@@ -75,7 +75,7 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
     update.supportsUngrouping = NO;
     update.remoteHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:token];
     update.localizedCallerName = displayName;
-    update.hasVideo = YES;
+    update.hasVideo = NO;
     
     _currentCallUUID = [NSUUID new];
     _currentCallToken = token;
