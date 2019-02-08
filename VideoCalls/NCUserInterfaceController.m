@@ -22,6 +22,7 @@
     AuthenticationViewController *_authViewController;
     NCPushNotification *_pendingPushNotification;
     NSMutableDictionary *_pendingCallKitCall;
+    NSDictionary *_pendingLocalNotification;
     BOOL _waitingForServerCapabilities;
 }
 
@@ -92,6 +93,18 @@
     [alert addAction:okButton];
     
     [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)presentChatForLocalNotification:(NSDictionary *)userInfo
+{
+    if ([NCConnectionController sharedInstance].appState != kAppStateReady) {
+        _waitingForServerCapabilities = YES;
+        _pendingLocalNotification = userInfo;
+        return;
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCLocalNotificationJoinChatNotification
+                                                        object:self
+                                                      userInfo:userInfo];
 }
 
 - (void)presentChatForPushNotification:(NCPushNotification *)pushNotification

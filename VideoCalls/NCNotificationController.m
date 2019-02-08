@@ -15,7 +15,8 @@
 #import "NCUserInterfaceController.h"
 #import "CallKitManager.h"
 
-NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotificationControllerWillPresentNotification";
+NSString * const NCNotificationControllerWillPresentNotification    = @"NCNotificationControllerWillPresentNotification";
+NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalNotificationJoinChatNotification";
 
 @interface NCNotificationController () <UNUserNotificationCenterDelegate>
 
@@ -168,6 +169,7 @@ NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotifica
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler
 {
     UNNotificationRequest *notificationRequest = response.notification.request;
+    NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notificationRequest.content.userInfo objectForKey:@"localNotificationType"] integerValue];
     NSString *notificationString = [notificationRequest.content.userInfo objectForKey:@"pushNotification"];
     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString];
     
@@ -184,6 +186,17 @@ NSString * const NCNotificationControllerWillPresentNotification  = @"NCNotifica
                 [[NCUserInterfaceController sharedInstance] presentChatForPushNotification:pushNotification];
             }
                 break;
+            default:
+                break;
+        }
+    } else if (localNotificationType > 0) {
+        switch (localNotificationType) {
+            case kNCLocalNotificationTypeMissedCall:
+                {
+                    [[NCUserInterfaceController sharedInstance] presentChatForLocalNotification:notificationRequest.content.userInfo];
+                }
+                break;
+                
             default:
                 break;
         }

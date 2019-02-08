@@ -11,9 +11,10 @@
 #import "NCPushNotification.h"
 
 extern NSString * const NCNotificationControllerWillPresentNotification;
+extern NSString * const NCLocalNotificationJoinChatNotification;
 
 typedef enum {
-    kNCLocalNotificationTypeMissedCall,
+    kNCLocalNotificationTypeMissedCall = 1,
 } NCLocalNotificationType;
 
 @interface NCNotificationController : NSObject

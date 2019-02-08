@@ -104,6 +104,7 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
     if (_currentCallUUID && _currentCallToken && _currentCallDisplayName) {
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
         [userInfo setValue:_currentCallDisplayName forKey:@"displayName"];
+        [userInfo setValue:@(kNCLocalNotificationTypeMissedCall) forKey:@"localNotificationType"];
         [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeMissedCall withUserInfo:userInfo];
     }
     

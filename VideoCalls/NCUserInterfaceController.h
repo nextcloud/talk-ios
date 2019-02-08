@@ -11,6 +11,7 @@
 
 #import "CallViewController.h"
 #import "NCChatViewController.h"
+#import "NCNotificationController.h"
 #import "NCPushNotification.h"
 
 @interface NCUserInterfaceController : NSObject
@@ -22,6 +23,7 @@
 - (void)presentLoginViewController;
 - (void)presentAuthenticationViewController;
 - (void)presentOfflineWarningAlert;
+- (void)presentChatForLocalNotification:(NSDictionary *)userInfo;
 - (void)presentChatForPushNotification:(NCPushNotification *)pushNotification;
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification;
 - (void)presentAlertViewController:(UIAlertController *)alertViewController;
