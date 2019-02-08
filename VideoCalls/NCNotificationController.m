@@ -62,31 +62,36 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 - (void)processIncomingPushNotification:(NCPushNotification *)pushNotification
 {
     if (pushNotification) {
-        if (pushNotification.type == NCPushNotificationTypeChat || pushNotification.type == NCPushNotificationTypeCall) {
-            NSInteger notificationId = pushNotification.notificationId;
-            if (notificationId) {
-                [[NCAPIController sharedInstance] getServerNotification:notificationId withCompletionBlock:^(NSDictionary *notification, NSError *error) {
-                    if (!error) {
-                        NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
-                        if (serverNotification) {
-                            if (serverNotification.notificationType == kNCNotificationTypeChat) {
+        NSInteger notificationId = pushNotification.notificationId;
+        if (notificationId) {
+            [[NCAPIController sharedInstance] getServerNotification:notificationId withCompletionBlock:^(NSDictionary *notification, NSError *error) {
+                if (!error) {
+                    NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
+                    if (serverNotification) {
+                        if (serverNotification.notificationType == kNCNotificationTypeChat) {
+                            [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
+                        } else if (serverNotification.notificationType == kNCNotificationTypeCall) {
+                            NSString *callType = [[serverNotification.subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
+                            if (![[CallKitManager sharedInstance] currentCallUUID] && [callType isEqualToString:@"one2one"]) {
+                                [self showIncomingCallForPushNotification:pushNotification withServerNotification:serverNotification];
+                            } else {
                                 [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
-                            } else if (serverNotification.notificationType == kNCNotificationTypeCall) {
-                                NSString *callType = [[serverNotification.subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
-                                if (![[CallKitManager sharedInstance] currentCallUUID] && [callType isEqualToString:@"one2one"]) {
-                                    [self showIncomingCallForPushNotification:pushNotification withServerNotification:serverNotification];
-                                } else {
-                                    [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
-                                }
+                            }
+                        } else if (serverNotification.notificationType == kNCNotificationTypeRoom) {
+                            NSString *callType = [[serverNotification.subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
+                            // Only present invitation notifications for group conversations
+                            if (![callType isEqualToString:@"one2one"]) {
+                                [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
                             }
                         }
-                    } else {
-                        NSLog(@"Could not retrieve server notification.");
-                        [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
                     }
-                }];
-            }
+                } else {
+                    NSLog(@"Could not retrieve server notification.");
+                    [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
+                }
+            }];
         } else {
+            NSLog(@"No notification id.");
             [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
         }
     }
