@@ -45,6 +45,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSString *_displayName;
     BOOL _isAudioOnly;
     BOOL _userDisabledVideo;
+    BOOL _videoCallUpgrade;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -53,6 +54,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 @property (nonatomic, strong) IBOutlet UIButton *videoDisableButton;
 @property (nonatomic, strong) IBOutlet UIButton *switchCameraButton;
 @property (nonatomic, strong) IBOutlet UIButton *hangUpButton;
+@property (nonatomic, strong) IBOutlet UIButton *videoCallButton;
 @property (nonatomic, strong) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) IBOutlet UICollectionViewFlowLayout *flowLayout;
 
@@ -113,6 +115,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.speakerButton.layer setCornerRadius:30.0f];
     [self.videoDisableButton.layer setCornerRadius:30.0f];
     [self.hangUpButton.layer setCornerRadius:30.0f];
+    [self.videoCallButton.layer setCornerRadius:30.0f];
     
     [self adjustButtonsConainer];
     
@@ -389,6 +392,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [UIView animateWithDuration:0.3f animations:^{
         [self.buttonsContainerView setAlpha:1.0f];
         [self.switchCameraButton setAlpha:1.0f];
+        [self.videoCallButton setAlpha:1.0f];
         [self.view layoutIfNeeded];
     }];
 }
@@ -398,6 +402,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [UIView animateWithDuration:0.3f animations:^{
         [self.buttonsContainerView setAlpha:0.0f];
         [self.switchCameraButton setAlpha:0.0f];
+        [self.videoCallButton setAlpha:0.0f];
         [self.view layoutIfNeeded];
     }];
 }
@@ -407,8 +412,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (_isAudioOnly) {
         _videoDisableButton.hidden = YES;
         _switchCameraButton.hidden = YES;
+        _videoCallButton.hidden = NO;
     } else {
         _speakerButton.hidden = YES;
+        _videoCallButton.hidden = YES;
     }
     
     // Enable speaker button for iPhones only
@@ -550,10 +557,20 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
+- (IBAction)videoCallButtonPressed:(id)sender
+{
+    _videoCallUpgrade = YES;
+    [self hangup];
+}
+
 - (void)finishCall
 {
     _callController = nil;
-    [self.delegate callViewControllerDidFinish:self];
+    if (_videoCallUpgrade) {
+        [self.delegate callViewControllerWantsVideoCallUpgrade:self];
+    } else {
+        [self.delegate callViewControllerDidFinish:self];
+    }
 }
 
 #pragma mark - UICollectionView Datasource

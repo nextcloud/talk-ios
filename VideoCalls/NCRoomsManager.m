@@ -384,6 +384,16 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
+- (void)upgradeCallToVideoCall:(NCRoom *)room
+{
+    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
+    if (roomController) {
+        roomController.inCall = NO;
+    }
+    [[CallKitManager sharedInstance] endCurrentCall];
+    [self joinCallWithCallToken:room.token withVideo:YES];
+}
+
 - (void)callDidEndInRoom:(NCRoom *)room
 {
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
@@ -400,6 +410,15 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     if (_callViewController == viewController && ![viewController isBeingDismissed]) {
         [viewController dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
+- (void)callViewControllerWantsVideoCallUpgrade:(CallViewController *)viewController
+{
+    NCRoom *room = _callViewController.room;
+    if (_callViewController == viewController) {
+        _callViewController = nil;
+        [self upgradeCallToVideoCall:room];
     }
 }
 
