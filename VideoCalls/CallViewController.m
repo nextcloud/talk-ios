@@ -45,6 +45,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSString *_displayName;
     BOOL _isAudioOnly;
     BOOL _userDisabledVideo;
+    BOOL _videoCallUpgrade;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -53,6 +54,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 @property (nonatomic, strong) IBOutlet UIButton *videoDisableButton;
 @property (nonatomic, strong) IBOutlet UIButton *switchCameraButton;
 @property (nonatomic, strong) IBOutlet UIButton *hangUpButton;
+@property (nonatomic, strong) IBOutlet UIButton *videoCallButton;
 @property (nonatomic, strong) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) IBOutlet UICollectionViewFlowLayout *flowLayout;
 
@@ -87,6 +89,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidEndCall:) name:CallKitManagerDidEndCallNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidChangeAudioMute:) name:CallKitManagerDidChangeAudioMuteNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerWantsToUpgradeToVideoCall:) name:CallKitManagerWantsToUpgradeToVideoCall object:nil];
     
     return self;
 }
@@ -113,6 +116,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.speakerButton.layer setCornerRadius:30.0f];
     [self.videoDisableButton.layer setCornerRadius:30.0f];
     [self.hangUpButton.layer setCornerRadius:30.0f];
+    [self.videoCallButton.layer setCornerRadius:30.0f];
     
     [self adjustButtonsConainer];
     
@@ -203,6 +207,18 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     [self hangup];
+}
+
+- (void)providerWantsToUpgradeToVideoCall:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    if (![roomToken isEqualToString:_room.token]) {
+        return;
+    }
+    
+    if (_isAudioOnly) {
+        [self showUpgradeToVideoCallDialog];
+    }
 }
 
 #pragma mark - Local video
@@ -389,6 +405,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [UIView animateWithDuration:0.3f animations:^{
         [self.buttonsContainerView setAlpha:1.0f];
         [self.switchCameraButton setAlpha:1.0f];
+        [self.videoCallButton setAlpha:1.0f];
         [self.view layoutIfNeeded];
     }];
 }
@@ -398,6 +415,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [UIView animateWithDuration:0.3f animations:^{
         [self.buttonsContainerView setAlpha:0.0f];
         [self.switchCameraButton setAlpha:0.0f];
+        [self.videoCallButton setAlpha:0.0f];
         [self.view layoutIfNeeded];
     }];
 }
@@ -407,8 +425,17 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (_isAudioOnly) {
         _videoDisableButton.hidden = YES;
         _switchCameraButton.hidden = YES;
+        _videoCallButton.hidden = NO;
+        // Align audio - video - speaker buttons
+        CGRect audioButtonFrame = _audioMuteButton.frame;
+        audioButtonFrame.origin.y = 10;
+        _audioMuteButton.frame = audioButtonFrame;
+        CGRect speakerButtonFrame = _speakerButton.frame;
+        speakerButtonFrame.origin.y = 10;
+        _speakerButton.frame = speakerButtonFrame;
     } else {
         _speakerButton.hidden = YES;
+        _videoCallButton.hidden = YES;
     }
     
     // Enable speaker button for iPhones only
@@ -550,10 +577,40 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
+- (IBAction)videoCallButtonPressed:(id)sender
+{
+    [self showUpgradeToVideoCallDialog];
+}
+
+- (void)showUpgradeToVideoCallDialog
+{
+    UIAlertController *confirmDialog =
+    [UIAlertController alertControllerWithTitle:@"Do you want to enable your video?"
+                                        message:@"If you enable your video, this call will be interrupted for a few seconds."
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Enable" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self upgradeToVideoCall];
+    }];
+    [confirmDialog addAction:confirmAction];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [confirmDialog addAction:cancelAction];
+    [self presentViewController:confirmDialog animated:YES completion:nil];
+}
+
+- (void)upgradeToVideoCall
+{
+    _videoCallUpgrade = YES;
+    [self hangup];
+}
+
 - (void)finishCall
 {
     _callController = nil;
-    [self.delegate callViewControllerDidFinish:self];
+    if (_videoCallUpgrade) {
+        [self.delegate callViewControllerWantsVideoCallUpgrade:self];
+    } else {
+        [self.delegate callViewControllerDidFinish:self];
+    }
 }
 
 #pragma mark - UICollectionView Datasource

@@ -16,6 +16,7 @@
 @protocol CallViewControllerDelegate <NSObject>
 
 - (void)callViewControllerWantsToBeDismissed:(CallViewController *)viewController;
+- (void)callViewControllerWantsVideoCallUpgrade:(CallViewController *)viewController;
 - (void)callViewControllerDidFinish:(CallViewController *)viewController;
 
 @end
