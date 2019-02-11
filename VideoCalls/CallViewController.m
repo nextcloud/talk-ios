@@ -413,6 +413,13 @@ typedef NS_ENUM(NSInteger, CallState) {
         _videoDisableButton.hidden = YES;
         _switchCameraButton.hidden = YES;
         _videoCallButton.hidden = NO;
+        // Align audio - video - speaker buttons
+        CGRect audioButtonFrame = _audioMuteButton.frame;
+        audioButtonFrame.origin.y = 10;
+        _audioMuteButton.frame = audioButtonFrame;
+        CGRect speakerButtonFrame = _speakerButton.frame;
+        speakerButtonFrame.origin.y = 10;
+        _speakerButton.frame = speakerButtonFrame;
     } else {
         _speakerButton.hidden = YES;
         _videoCallButton.hidden = YES;
