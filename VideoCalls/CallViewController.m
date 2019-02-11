@@ -89,6 +89,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidEndCall:) name:CallKitManagerDidEndCallNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidChangeAudioMute:) name:CallKitManagerDidChangeAudioMuteNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerWantsToUpgradeToVideoCall:) name:CallKitManagerWantsToUpgradeToVideoCall object:nil];
     
     return self;
 }
@@ -206,6 +207,18 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     [self hangup];
+}
+
+- (void)providerWantsToUpgradeToVideoCall:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    if (![roomToken isEqualToString:_room.token]) {
+        return;
+    }
+    
+    if (_isAudioOnly) {
+        [self showUpgradeToVideoCallDialog];
+    }
 }
 
 #pragma mark - Local video

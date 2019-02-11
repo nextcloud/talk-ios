@@ -18,6 +18,7 @@ NSString * const CallKitManagerDidAnswerCallNotification        = @"CallKitManag
 NSString * const CallKitManagerDidEndCallNotification           = @"CallKitManagerDidEndCallNotification";
 NSString * const CallKitManagerDidStartCallNotification         = @"CallKitManagerDidStartCallNotification";
 NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManagerDidChangeAudioMuteNotification";
+NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManagerWantsToUpgradeToVideoCall";
 
 @interface CallKitManager () <CXProviderDelegate>
 
@@ -128,6 +129,11 @@ NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManag
                 NSLog(@"%@", error.localizedDescription);
             }
         }];
+    } else if (videoEnabled) {
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:token forKey:@"roomToken"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerWantsToUpgradeToVideoCall
+                                                            object:self
+                                                          userInfo:userInfo];
     }
 }
 
