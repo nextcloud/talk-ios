@@ -566,6 +566,26 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (IBAction)videoCallButtonPressed:(id)sender
 {
+    [self showUpgradeToVideoCallDialog];
+}
+
+- (void)showUpgradeToVideoCallDialog
+{
+    UIAlertController *confirmDialog =
+    [UIAlertController alertControllerWithTitle:@"Do you want to enable your video?"
+                                        message:@"If you enable your video, this call will be interrupted for a few seconds."
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Enable" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self upgradeToVideoCall];
+    }];
+    [confirmDialog addAction:confirmAction];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [confirmDialog addAction:cancelAction];
+    [self presentViewController:confirmDialog animated:YES completion:nil];
+}
+
+- (void)upgradeToVideoCall
+{
     _videoCallUpgrade = YES;
     [self hangup];
 }
