@@ -8,6 +8,8 @@
 
 #import "NCAudioController.h"
 
+#import "CallKitManager.h"
+
 @interface NCAudioController () <RTCAudioSessionDelegate>
 
 @property (nonatomic, strong) RTCAudioSession *rtcAudioSession;
@@ -43,7 +45,11 @@
             NSLog(@"Error setting configuration: %@", error.localizedDescription);
         }
         [_rtcAudioSession unlockForConfiguration];
-        _rtcAudioSession.useManualAudio = YES;
+        
+        if ([CallKitManager isCallKitAvailable]) {
+            _rtcAudioSession.useManualAudio = YES;
+        }
+        
         [_rtcAudioSession addDelegate:self];
     }
     return self;

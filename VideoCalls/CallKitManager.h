@@ -21,6 +21,7 @@ extern NSString * const CallKitManagerWantsToUpgradeToVideoCall;
 @property (nonatomic, strong) NSString *currentCallDisplayName;
 
 + (instancetype)sharedInstance;
++ (BOOL)isCallKitAvailable;
 - (void)reportIncomingCallForRoom:(NSString *)token withDisplayName:(NSString *)displayName;
 - (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName;
 - (void)endCurrentCall;

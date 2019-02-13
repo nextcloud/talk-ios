@@ -41,6 +41,12 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     return sharedInstance;
 }
 
++ (BOOL)isCallKitAvailable
+{
+    // CallKit should be deactivated in China as requested by Apple
+    return ![NSLocale.currentLocale.countryCode isEqual: @"CN"];
+}
+
 #pragma mark - Getters
 
 - (CXProvider *)provider
@@ -115,6 +121,15 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 
 - (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName
 {
+    if (![CallKitManager isCallKitAvailable]) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:token forKey:@"roomToken"];
+        [userInfo setValue:@(videoEnabled) forKey:@"isVideoEnabled"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+        return;
+    }
+    
     if (!_currentCallUUID) {
         _currentCallUUID = [NSUUID new];
         _currentCallToken = token;
