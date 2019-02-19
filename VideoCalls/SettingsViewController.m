@@ -288,7 +288,7 @@ typedef enum AboutSection {
     if (section == kSettingsSectionAbout) {
         NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
         NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
-        NSString *copyright = @"© 2018 Nextcloud GmbH";
+        NSString *copyright = @"© 2019 Nextcloud GmbH";
         return [NSString stringWithFormat:@"%@ %@ %@", appName, appVersion, copyright];
     }
     
