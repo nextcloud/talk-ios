@@ -10,7 +10,7 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 
 ## Prerequisites
 
-- [Nextcloud server](https://github.com/nextcloud/server) version 13 or higher (SSL enabled).
+- [Nextcloud server](https://github.com/nextcloud/server) version 13 or higher (that fulfills [ATS requirements](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW57)).
 - [Nextcloud Talk](https://github.com/nextcloud/spreed) version 3.2 or higher.
 - [CocoaPods](https://cocoapods.org/)
 
