@@ -35,9 +35,11 @@
     return messageParameter;
 }
 
-- (BOOL)isOwnMention
+- (BOOL)shouldBeHighlighted
 {
-    return [_type isEqualToString:@"user"] && [[NCSettingsController sharedInstance].ncUserId isEqualToString:_parameterId];
+    // Own mentions
+    // Call mentions
+    return ([_type isEqualToString:@"user"] && [[NCSettingsController sharedInstance].ncUserId isEqualToString:_parameterId]) || [_type isEqualToString:@"call"];
 }
 
 @end
