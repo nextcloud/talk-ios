@@ -18,6 +18,6 @@
 @property (nonatomic, assign) NSRange range;
 
 + (instancetype)parameterWithDictionary:(NSDictionary *)parameterDict;
-- (BOOL)isOwnMention;
+- (BOOL)shouldBeHighlighted;
 
 @end

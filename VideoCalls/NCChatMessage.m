@@ -99,8 +99,8 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
             NCMessageParameter *messageParameter = [NCMessageParameter parameterWithDictionary:parameterDict] ;
             // Default replacement string is the parameter name
             NSString *replaceString = messageParameter.name;
-            // Format mentions
-            if ([messageParameter.type isEqualToString:@"user"]) {
+            // Format user and call mentions
+            if ([messageParameter.type isEqualToString:@"user"] || [messageParameter.type isEqualToString:@"call"]) {
                 replaceString = [NSString stringWithFormat:@"@%@", [parameterDict objectForKey:@"name"]];
             }
             parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:replaceString];
@@ -122,10 +122,10 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     
     for (NCMessageParameter *param in parameters) {
         //Set color for mentions
-        if ([param.type isEqualToString:@"user"]) {
-            UIColor *mentionColor = [UIColor darkGrayColor];
-            UIColor *ownMentionColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
-            [attributedMessage addAttribute:NSForegroundColorAttributeName value:(param.isOwnMention) ? ownMentionColor : mentionColor range:param.range];
+        if ([param.type isEqualToString:@"user"] || [param.type isEqualToString:@"call"]) {
+            UIColor *defaultColor = [UIColor darkGrayColor];
+            UIColor *highlightedColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+            [attributedMessage addAttribute:NSForegroundColorAttributeName value:(param.shouldBeHighlighted) ? highlightedColor : defaultColor range:param.range];
             [attributedMessage addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:16.0f] range:param.range];
         }
         //Create a link if parameter contains a link

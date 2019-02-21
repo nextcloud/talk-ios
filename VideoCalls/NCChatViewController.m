@@ -740,9 +740,12 @@
         NSString *suggestionName = [suggestion objectForKey:@"label"];
         ChatMessageTableViewCell *suggestionCell = (ChatMessageTableViewCell *)[self.autoCompletionView dequeueReusableCellWithIdentifier:AutoCompletionCellIdentifier];
         suggestionCell.titleLabel.text = suggestionName;
-        // Request user avatar to the server and set it if exist
-        [suggestionCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:suggestionId andSize:96]
-                                     placeholderImage:nil success:nil failure:nil];
+        if ([suggestionId isEqualToString:@"all"]) {
+            [suggestionCell.avatarView setImage:[UIImage imageNamed:@"group-bg"]];
+        } else {
+            [suggestionCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:suggestionId andSize:96]
+                                             placeholderImage:nil success:nil failure:nil];
+        }
         return suggestionCell;
     }
     
