@@ -792,6 +792,8 @@
         if ([message.actorType isEqualToString:@"guests"]) {
             normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
             [normalCell setGuestAvatar:message.actorDisplayName];
+        } else if ([message.actorType isEqualToString:@"bots"]) {
+            [normalCell setBotAvatar];
         } else {
             [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
                                          placeholderImage:nil success:nil failure:nil];

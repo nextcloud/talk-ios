@@ -137,6 +137,12 @@
     [_avatarView setImageWithString:name color:guestAvatarColor circular:true];
 }
 
+- (void)setBotAvatar
+{
+    UIColor *guestAvatarColor = [UIColor colorWithRed:0.21 green:0.21 blue:0.21 alpha:1.0]; /*#363636*/
+    [_avatarView setImageWithString:@">" color:guestAvatarColor circular:true];
+}
+
 + (CGFloat)defaultFontSize
 {
     CGFloat pointSize = 16.0;
