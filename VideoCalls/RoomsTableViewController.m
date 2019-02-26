@@ -31,9 +31,11 @@
 #import "SettingsViewController.h"
 #import "PlaceholderView.h"
 
+#define k_rename_textfield_tag  99
+
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
-@interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
+@interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UITextFieldDelegate>
 {
     NSMutableArray *_rooms;
     UIRefreshControl *_refreshControl;
@@ -42,6 +44,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     RoomSearchTableViewController *_resultTableViewController;
     PlaceholderView *_roomsBackgroundView;
     UINavigationController *_settingsNC;
+    NSString *_renamimgRoomName;
+    UIAlertAction *_confirmAction;
 }
 
 @end
@@ -403,21 +407,26 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
     UIAlertController *renameDialog =
-    [UIAlertController alertControllerWithTitle:@"Enter conversation name:"
+    [UIAlertController alertControllerWithTitle:@"Set new conversation name:"
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
     
+    __weak typeof(self) weakSelf = self;
     [renameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         textField.placeholder = @"Conversation name";
         textField.text = room.name;
+        textField.delegate = weakSelf;
+        textField.tag = k_rename_textfield_tag;
         textField.autocapitalizationType = UITextAutocapitalizationTypeSentences;
         textField.autocorrectionType = UITextAutocorrectionTypeDefault;
     }];
     
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        NSString *newRoomName = [[renameDialog textFields][0] text];
-        NSString *trimmedName = [newRoomName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        [[NCAPIController sharedInstance] renameRoom:room.token withName:trimmedName andCompletionBlock:^(NSError *error) {
+    _confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *newRoomName = [[[renameDialog textFields][0] text] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if ([newRoomName isEqualToString:room.name] || [newRoomName isEqualToString:@""]) {
+            return;
+        }
+        [[NCAPIController sharedInstance] renameRoom:room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self fetchRoomsWithCompletionBlock:nil];
             } else {
@@ -426,7 +435,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             }
         }];
     }];
-    [renameDialog addAction:confirmAction];
+    _confirmAction.enabled = NO;
+    _renamimgRoomName = room.name;
+    [renameDialog addAction:_confirmAction];
     
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
     [renameDialog addAction:cancelAction];
@@ -821,6 +832,28 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [formatter setDateFormat:@"dd/MM/yy"];
     }
     return [formatter stringFromDate:date];
+}
+
+#pragma mark - UITextField delegate
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    if (textField.tag == k_rename_textfield_tag) {
+        // Prevent crashing undo bug
+        // https://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield
+        if (range.length + range.location > textField.text.length) {
+            return NO;
+        }
+        // Set maximum character length
+        NSUInteger newLength = [textField.text length] + [string length] - range.length;
+        BOOL hasAllowedLength = newLength <= 200;
+        // Enable/Disable rename button
+        if (hasAllowedLength) {
+            NSString * newRoomName = [[textField.text stringByReplacingCharactersInRange:range withString:string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            _confirmAction.enabled = (newRoomName.length > 0) && ![_renamimgRoomName isEqualToString:newRoomName];
+        }
+        return hasAllowedLength;
+    }
+    return YES;
 }
 
 #pragma mark - Public Calls
