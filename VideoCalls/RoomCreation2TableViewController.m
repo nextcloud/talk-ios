@@ -23,7 +23,7 @@ typedef enum CreationSection {
 
 NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
-@interface RoomCreation2TableViewController ()
+@interface RoomCreation2TableViewController () <UITextFieldDelegate>
 
 @property (nonatomic, assign) BOOL publicRoom;
 @property (nonatomic, strong) NSMutableArray *participants;
@@ -82,6 +82,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     _creatingRoomView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     _createRoomButton = [[UIBarButtonItem alloc] initWithTitle:@"Create" style:UIBarButtonItemStyleDone
                                                         target:self action:@selector(createButtonPressed)];
+    _createRoomButton.enabled = NO;
     self.navigationItem.rightBarButtonItem = _createRoomButton;
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
@@ -233,6 +234,28 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     _passwordTextField.enabled = NO;
 }
 
+#pragma mark - UITextField delegate
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    if (textField == _roomNameTextField) {
+        // Prevent crashing undo bug
+        // https://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield
+        if (range.length + range.location > textField.text.length) {
+            return NO;
+        }
+        // Set maximum character length
+        NSUInteger newLength = [textField.text length] + [string length] - range.length;
+        BOOL hasAllowedLength = newLength <= 200;
+        // Enable/Disable create button
+        if (hasAllowedLength) {
+            NSString *roomName = [[textField.text stringByReplacingCharactersInRange:range withString:string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            _createRoomButton.enabled = roomName.length > 0;
+        }
+        return hasAllowedLength;
+    }
+    return YES;
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -275,7 +298,9 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
-    if (section == kCreationSectionParticipantsOrPassword && _publicRoom ) {
+    if (section == kCreationSectionName) {
+        return @"Please, set a name for this conversation.";
+    } else if (section == kCreationSectionParticipantsOrPassword && _publicRoom ) {
         return @"Anyone who knows the link to this conversation will be able to access it. You can protect it by setting a password.";
     }
     
@@ -311,6 +336,8 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
             }
             cell.roomNameTextField.text = _roomName;
             _roomNameTextField = cell.roomNameTextField;
+            _roomNameTextField.delegate = self;
+            [_roomNameTextField setReturnKeyType:UIReturnKeyDone];
             cell.userInteractionEnabled = YES;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             

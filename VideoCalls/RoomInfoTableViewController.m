@@ -354,6 +354,10 @@ typedef enum ModificationError {
     if ([newRoomName isEqualToString:_room.name]) {
         return;
     }
+    if ([newRoomName isEqualToString:@""]) {
+        _roomNameTextField.text = _room.name;
+        return;
+    }
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] renameRoom:_room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
         if (!error) {
