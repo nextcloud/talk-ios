@@ -848,7 +848,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         BOOL hasAllowedLength = newLength <= 200;
         // Enable/Disable rename button
         if (hasAllowedLength) {
-            NSString * newRoomName = [[textField.text stringByReplacingCharactersInRange:range withString:string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            NSString *newRoomName = [[textField.text stringByReplacingCharactersInRange:range withString:string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
             _confirmAction.enabled = (newRoomName.length > 0) && ![_renamimgRoomName isEqualToString:newRoomName];
         }
         return hasAllowedLength;

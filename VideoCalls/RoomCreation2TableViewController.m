@@ -247,7 +247,10 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
         NSUInteger newLength = [textField.text length] + [string length] - range.length;
         BOOL hasAllowedLength = newLength <= 200;
         // Enable/Disable create button
-        _createRoomButton.enabled = newLength > 0 && hasAllowedLength;
+        if (hasAllowedLength) {
+            NSString *roomName = [[textField.text stringByReplacingCharactersInRange:range withString:string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            _createRoomButton.enabled = roomName.length > 0;
+        }
         return hasAllowedLength;
     }
     return YES;
