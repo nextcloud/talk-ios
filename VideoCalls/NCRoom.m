@@ -78,7 +78,10 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (BOOL)isLeavable
 {
-    if (_type != kNCRoomTypeOneToOneCall && [_participants count] > 1) {
+    // Allow users to leave when there are no moderators in the room
+    // (No need to check room type because in one2one rooms users will always be moderators)
+    // or when in a group call and there are other participants.
+    if (![self canModerate] || (_type != kNCRoomTypeOneToOneCall && [_participants count] > 1)) {
         return  YES;
     }
     return NO;
