@@ -55,7 +55,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 - (BOOL)isPublic;
 - (BOOL)canModerate;
 - (BOOL)isNameEditable;
-- (BOOL)isDeletable;
+- (BOOL)isLeavable;
 - (BOOL)shouldShowLastMessageActorName;
 - (NSString *)notificationLevelString;
 - (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level;

@@ -76,9 +76,9 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return NO;
 }
 
-- (BOOL)isDeletable
+- (BOOL)isLeavable
 {
-    if ([self canModerate] && ([_participants count] > 2 || _numGuests > 0)) {
+    if (_type != kNCRoomTypeOneToOneCall && ([_participants count] > 1 || _numGuests > 0)) {
         return  YES;
     }
     return NO;

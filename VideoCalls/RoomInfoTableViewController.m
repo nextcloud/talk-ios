@@ -182,9 +182,11 @@ typedef enum ModificationError {
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     // Leave room
-    [actions addObject:[NSNumber numberWithInt:kDestructiveActionLeave]];
+    if (_room.isLeavable) {
+        [actions addObject:[NSNumber numberWithInt:kDestructiveActionLeave]];
+    }
     // Delete room
-    if (_room.isDeletable) {
+    if (_room.canModerate) {
         [actions addObject:[NSNumber numberWithInt:kDestructiveActionDelete]];
     }
     return [NSArray arrayWithArray:actions];
