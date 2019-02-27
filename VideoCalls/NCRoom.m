@@ -92,6 +92,18 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return _type != kNCRoomTypeOneToOneCall && !_lastMessage.isSystemMessage;
 }
 
+- (NSString *)deletionMessage
+{
+    NSString *message = @"Do you really want to delete this conversation?";
+    if (_type == kNCRoomTypeOneToOneCall) {
+        message = [NSString stringWithFormat:@"If you delete the conversation, it will also be deleted for %@", _displayName];
+    } else if ([_participants count] > 1) {
+        message = @"If you delete the conversation, it will also be deleted for all other participants.";
+    }
+    
+    return message;
+}
+
 - (NSString *)notificationLevelString
 {
     return [self stringForNotificationLevel:_notificationLevel];

@@ -287,7 +287,7 @@ typedef enum ModificationError {
         case kDestructiveActionDelete:
         {
             title = @"Delete conversation";
-            message = @"Do you really want to delete this conversation?";
+            message = _room.deletionMessage;
             confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
                 [self deleteRoom];
             }];

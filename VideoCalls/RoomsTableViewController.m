@@ -664,7 +664,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     UIAlertController *confirmDialog =
     [UIAlertController alertControllerWithTitle:@"Delete conversation"
-                                        message:@"Do you really want to delete this conversation?"
+                                        message:room.deletionMessage
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [_rooms removeObjectAtIndex:indexPath.row];
