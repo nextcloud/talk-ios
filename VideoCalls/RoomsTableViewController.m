@@ -31,7 +31,8 @@
 #import "SettingsViewController.h"
 #import "PlaceholderView.h"
 
-#define k_rename_textfield_tag  99
+#define k_rename_textfield_tag          99
+#define k_set_password_textfield_tag    98
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
@@ -45,7 +46,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     PlaceholderView *_roomsBackgroundView;
     UINavigationController *_settingsNC;
     NSString *_renamimgRoomName;
-    UIAlertAction *_confirmAction;
+    UIAlertAction *_renameAction;
+    UIAlertAction *_setPasswordAction;
 }
 
 @end
@@ -421,7 +423,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         textField.autocorrectionType = UITextAutocorrectionTypeDefault;
     }];
     
-    _confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    _renameAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *newRoomName = [[[renameDialog textFields][0] text] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if ([newRoomName isEqualToString:room.name] || [newRoomName isEqualToString:@""]) {
             return;
@@ -435,9 +437,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             }
         }];
     }];
-    _confirmAction.enabled = NO;
+    _renameAction.enabled = NO;
     _renamimgRoomName = room.name;
-    [renameDialog addAction:_confirmAction];
+    [renameDialog addAction:_renameAction];
     
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
     [renameDialog addAction:cancelAction];
@@ -557,19 +559,22 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
     NSString *alertTitle = room.hasPassword ? @"Set new password:" : @"Set password:";
-    UIAlertController *renameDialog =
+    UIAlertController *passwordDialog =
     [UIAlertController alertControllerWithTitle:alertTitle
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
     
-    [renameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+    __weak typeof(self) weakSelf = self;
+    [passwordDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         textField.placeholder = @"Password";
         textField.secureTextEntry = YES;
+        textField.delegate = weakSelf;
+        textField.tag = k_set_password_textfield_tag;
     }];
     
     NSString *actionTitle = room.hasPassword ? @"Change password" : @"OK";
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        NSString *password = [[renameDialog textFields][0] text];
+    _setPasswordAction = [UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *password = [[passwordDialog textFields][0] text];
         NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:room.token withCompletionBlock:^(NSError *error) {
             if (!error) {
@@ -580,7 +585,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             }
         }];
     }];
-    [renameDialog addAction:confirmAction];
+    _setPasswordAction.enabled = NO;
+    [passwordDialog addAction:_setPasswordAction];
     
     if (room.hasPassword) {
         UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:@"Remove password" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
@@ -593,13 +599,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                 }
             }];
         }];
-        [renameDialog addAction:removePasswordAction];
+        [passwordDialog addAction:removePasswordAction];
     }
     
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
-    [renameDialog addAction:cancelAction];
+    [passwordDialog addAction:cancelAction];
     
-    [self presentViewController:renameDialog animated:YES completion:nil];
+    [self presentViewController:passwordDialog animated:YES completion:nil];
 }
 
 - (void)addRoomToFavoritesAtIndexPath:(NSIndexPath *)indexPath
@@ -837,7 +843,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 #pragma mark - UITextField delegate
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-    if (textField.tag == k_rename_textfield_tag) {
+    if (textField.tag == k_rename_textfield_tag || textField.tag == k_set_password_textfield_tag) {
         // Prevent crashing undo bug
         // https://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield
         if (range.length + range.location > textField.text.length) {
@@ -846,10 +852,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         // Set maximum character length
         NSUInteger newLength = [textField.text length] + [string length] - range.length;
         BOOL hasAllowedLength = newLength <= 200;
-        // Enable/Disable rename button
+        // Enable/Disable confirmation buttons
         if (hasAllowedLength) {
-            NSString *newRoomName = [[textField.text stringByReplacingCharactersInRange:range withString:string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            _confirmAction.enabled = (newRoomName.length > 0) && ![_renamimgRoomName isEqualToString:newRoomName];
+            NSString *newValue = [[textField.text stringByReplacingCharactersInRange:range withString:string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            _renameAction.enabled = (newValue.length > 0) && ![_renamimgRoomName isEqualToString:newValue];
+            _setPasswordAction.enabled = (newValue.length > 0);
         }
         return hasAllowedLength;
     }

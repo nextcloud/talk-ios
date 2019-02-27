@@ -54,6 +54,8 @@ typedef enum ModificationError {
     kModificationErrorDelete
 } ModificationError;
 
+#define k_set_password_textfield_tag    98
+
 @interface RoomInfoTableViewController () <UITextFieldDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) NCRoom *room;
@@ -63,6 +65,7 @@ typedef enum ModificationError {
 @property (nonatomic, strong) UISwitch *publicSwtich;
 @property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
 @property (nonatomic, strong) HeaderWithButton *headerView;
+@property (nonatomic, strong) UIAlertAction *setPasswordAction;
 
 @end
 
@@ -414,19 +417,22 @@ typedef enum ModificationError {
 - (void)showPasswordOptions
 {
     NSString *alertTitle = _room.hasPassword ? @"Set new password:" : @"Set password:";
-    UIAlertController *renameDialog =
+    UIAlertController *passwordDialog =
     [UIAlertController alertControllerWithTitle:alertTitle
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
     
-    [renameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+    __weak typeof(self) weakSelf = self;
+    [passwordDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         textField.placeholder = @"Password";
         textField.secureTextEntry = YES;
+        textField.delegate = weakSelf;
+        textField.tag = k_set_password_textfield_tag;
     }];
     
     NSString *actionTitle = _room.hasPassword ? @"Change password" : @"OK";
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        NSString *password = [[renameDialog textFields][0] text];
+    _setPasswordAction = [UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *password = [[passwordDialog textFields][0] text];
         NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         [self setModifyingRoomUI];
         [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:_room.token withCompletionBlock:^(NSError *error) {
@@ -438,7 +444,8 @@ typedef enum ModificationError {
             }
         }];
     }];
-    [renameDialog addAction:confirmAction];
+    _setPasswordAction.enabled = NO;
+    [passwordDialog addAction:_setPasswordAction];
     
     if (_room.hasPassword) {
         UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:@"Remove password" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
@@ -452,13 +459,13 @@ typedef enum ModificationError {
                 }
             }];
         }];
-        [renameDialog addAction:removePasswordAction];
+        [passwordDialog addAction:removePasswordAction];
     }
     
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
-    [renameDialog addAction:cancelAction];
+    [passwordDialog addAction:cancelAction];
     
-    [self presentViewController:renameDialog animated:YES completion:nil];
+    [self presentViewController:passwordDialog animated:YES completion:nil];
 }
 
 - (void)makeRoomPublic
@@ -693,7 +700,7 @@ typedef enum ModificationError {
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-    if (textField == _roomNameTextField) {
+    if (textField == _roomNameTextField || textField.tag == k_set_password_textfield_tag) {
         // Prevent crashing undo bug
         // https://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield
         if (range.length + range.location > textField.text.length) {
@@ -701,7 +708,13 @@ typedef enum ModificationError {
         }
         // Set maximum character length
         NSUInteger newLength = [textField.text length] + [string length] - range.length;
-        return newLength <= 200;
+        BOOL hasAllowedLength = newLength <= 200;
+        // Enable/Disable password confirmation button
+        if (hasAllowedLength) {
+            NSString *newValue = [[textField.text stringByReplacingCharactersInRange:range withString:string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            _setPasswordAction.enabled = (newValue.length > 0);
+        }
+        return hasAllowedLength;
     }
     return YES;
 }
