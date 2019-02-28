@@ -182,9 +182,11 @@ typedef enum ModificationError {
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     // Leave room
-    [actions addObject:[NSNumber numberWithInt:kDestructiveActionLeave]];
+    if (_room.isLeavable) {
+        [actions addObject:[NSNumber numberWithInt:kDestructiveActionLeave]];
+    }
     // Delete room
-    if (_room.isDeletable) {
+    if (_room.canModerate) {
         [actions addObject:[NSNumber numberWithInt:kDestructiveActionDelete]];
     }
     return [NSArray arrayWithArray:actions];
@@ -285,7 +287,7 @@ typedef enum ModificationError {
         case kDestructiveActionDelete:
         {
             title = @"Delete conversation";
-            message = @"Do you really want to delete this conversation?";
+            message = _room.deletionMessage;
             confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
                 [self deleteRoom];
             }];

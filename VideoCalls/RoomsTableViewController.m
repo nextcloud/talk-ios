@@ -664,7 +664,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     UIAlertController *confirmDialog =
     [UIAlertController alertControllerWithTitle:@"Delete conversation"
-                                        message:@"Do you really want to delete this conversation?"
+                                        message:room.deletionMessage
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [_rooms removeObjectAtIndex:indexPath.row];
@@ -792,8 +792,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [optionsActionSheet addAction:makePublicAction];
         }
         
-        // Delete room
-        if (room.isDeletable) {
+        // Delete room (Only add this option when the room is leavable)
+        if (room.isLeavable) {
             UIAlertAction *deleteCallAction = [UIAlertAction actionWithTitle:@"Delete conversation"
                                                                        style:UIAlertActionStyleDestructive
                                                                      handler:^void (UIAlertAction *action) {
@@ -928,14 +928,23 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString *deleteButtonText = @"Leave";
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    NSString *deleteButtonText = @"Delete";
+    if (room.isLeavable) {
+        deleteButtonText = @"Leave";
+    }
     return deleteButtonText;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        [self leaveRoomAtIndexPath:indexPath];
+        NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+        if (room.isLeavable) {
+            [self leaveRoomAtIndexPath:indexPath];
+        } else {
+            [self deleteRoomAtIndexPath:indexPath];
+        }
     }
 }
 
@@ -948,19 +957,28 @@ API_AVAILABLE(ios(11.0)){
                                                                             }];
     moreAction.image = [UIImage imageNamed:@"more-action"];
     
-    UIContextualAction *leaveAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
+    UIContextualAction *deleteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
                                                                             handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
-                                                                                [self leaveRoomAtIndexPath:indexPath];
+                                                                                [self deleteRoomAtIndexPath:indexPath];
                                                                                 completionHandler(false);
                                                                             }];
-    leaveAction.image = [UIImage imageNamed:@"exit-action"];
+    deleteAction.image = [UIImage imageNamed:@"delete-action"];
     
-    NSArray *actions = @[leaveAction];
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    if (room.isLeavable) {
+        deleteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
+                                                             handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+                                                                 [self leaveRoomAtIndexPath:indexPath];
+                                                                 completionHandler(false);
+                                                             }];
+        deleteAction.image = [UIImage imageNamed:@"exit-action"];
+    }
+    
+    NSArray *actions = @[deleteAction];
     BOOL canFavorite = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites];
     BOOL canChangeNotifications = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels];
     if (room.canModerate || room.isPublic || canFavorite || canChangeNotifications) {
-        actions = @[leaveAction, moreAction];
+        actions = @[deleteAction, moreAction];
     }
     
     return [UISwipeActionsConfiguration configurationWithActions:actions];

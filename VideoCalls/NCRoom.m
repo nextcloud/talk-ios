@@ -76,9 +76,12 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return NO;
 }
 
-- (BOOL)isDeletable
+- (BOOL)isLeavable
 {
-    if ([self canModerate] && ([_participants count] > 2 || _numGuests > 0)) {
+    // Allow users to leave when there are no moderators in the room
+    // (No need to check room type because in one2one rooms users will always be moderators)
+    // or when in a group call and there are other participants.
+    if (![self canModerate] || (_type != kNCRoomTypeOneToOneCall && [_participants count] > 1)) {
         return  YES;
     }
     return NO;
@@ -87,6 +90,18 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 - (BOOL)shouldShowLastMessageActorName
 {
     return _type != kNCRoomTypeOneToOneCall && !_lastMessage.isSystemMessage;
+}
+
+- (NSString *)deletionMessage
+{
+    NSString *message = @"Do you really want to delete this conversation?";
+    if (_type == kNCRoomTypeOneToOneCall) {
+        message = [NSString stringWithFormat:@"If you delete the conversation, it will also be deleted for %@", _displayName];
+    } else if ([_participants count] > 1) {
+        message = @"If you delete the conversation, it will also be deleted for all other participants.";
+    }
+    
+    return message;
 }
 
 - (NSString *)notificationLevelString
