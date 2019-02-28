@@ -644,13 +644,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Leave" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [_rooms removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSError *error) {
-            if (!error) {
-                [self fetchRoomsWithCompletionBlock:nil];
+        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSInteger errorCode, NSError *error) {
+            if (errorCode == 400) {
+                [self showLeaveRoomLastModeratorErrorForRoom:room];
             } else {
                 NSLog(@"Error leaving room: %@", error.description);
-                //TODO: Error handling
             }
+            [self fetchRoomsWithCompletionBlock:nil];
         }];
     }];
     [confirmDialog addAction:confirmAction];
@@ -838,6 +838,19 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [formatter setDateFormat:@"dd/MM/yy"];
     }
     return [formatter stringFromDate:date];
+}
+
+- (void)showLeaveRoomLastModeratorErrorForRoom:(NCRoom *)room
+{
+    UIAlertController *leaveRoomFailedDialog =
+    [UIAlertController alertControllerWithTitle:@"Could not leave conversation"
+                                        message:[NSString stringWithFormat:@"You need to promote a new moderator before you can leave %@.", room.displayName]
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    [leaveRoomFailedDialog addAction:okAction];
+    
+    [self presentViewController:leaveRoomFailedDialog animated:YES completion:nil];
 }
 
 #pragma mark - UITextField delegate

@@ -529,17 +529,18 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return task;
 }
 
-- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block
+- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token withCompletionBlock:(LeaveRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/participants/self", token]];
     
     NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil);
+            block(0, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(error);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            block(httpResponse.statusCode, error);
         }
     }];
     

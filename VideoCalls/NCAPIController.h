@@ -29,6 +29,7 @@ typedef void (^FavoriteRoomCompletionBlock)(NSError *error);
 typedef void (^NotificationLevelCompletionBlock)(NSError *error);
 
 typedef void (^GetParticipantsFromRoomCompletionBlock)(NSMutableArray *participants, NSError *error);
+typedef void (^LeaveRoomCompletionBlock)(NSInteger errorCode, NSError *error);
 typedef void (^ParticipantModificationCompletionBlock)(NSError *error);
 
 typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *error);
@@ -90,7 +91,7 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 - (NSURLSessionDataTask *)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 - (NSURLSessionDataTask *)removeParticipant:(NSString *)user fromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 - (NSURLSessionDataTask *)removeGuest:(NSString *)guest fromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
-- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token withCompletionBlock:(LeaveRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)promoteParticipant:(NSString *)user toModeratorOfRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 - (NSURLSessionDataTask *)demoteModerator:(NSString *)moderator toParticipantOfRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 
