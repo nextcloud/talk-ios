@@ -51,6 +51,7 @@ typedef enum ModificationError {
     kModificationErrorModeration,
     kModificationErrorRemove,
     kModificationErrorLeave,
+    kModificationErrorLeaveModeration,
     kModificationErrorDelete
 } ModificationError;
 
@@ -249,6 +250,10 @@ typedef enum ModificationError {
         
         case kModificationErrorLeave:
             errorDescription = @"Could not leave conversation";
+            break;
+            
+        case kModificationErrorLeaveModeration:
+            errorDescription = @"You need to promote a new moderator before you can leave this conversation";
             break;
             
         case kModificationErrorDelete:
@@ -532,9 +537,11 @@ typedef enum ModificationError {
 
 - (void)leaveRoom
 {
-    [[NCAPIController sharedInstance] removeSelfFromRoom:_room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] removeSelfFromRoom:_room.token withCompletionBlock:^(NSInteger errorCode, NSError *error) {
         if (!error) {
             [[NCUserInterfaceController sharedInstance] presentConversationsList];
+        } else if (errorCode == 400) {
+            [self showRoomModificationError:kModificationErrorLeaveModeration];
         } else {
             NSLog(@"Error leaving the room: %@", error.description);
             [self showRoomModificationError:kModificationErrorLeave];
