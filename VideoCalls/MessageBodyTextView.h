@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MessageBodyTextView : UITextView
+@interface MessageBodyTextView : UITextView <UITextViewDelegate>
 
 @end
