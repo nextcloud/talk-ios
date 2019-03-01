@@ -762,17 +762,18 @@
         }
         return systemCell;
     }
-    if (message.filePreview) {
+    if (message.file) {
         NSString *fileCellIdentifier = (message.groupMessage) ? GroupedFileMessageCellIdentifier : FileMessageCellIdentifier;
         FileMessageTableViewCell *fileCell = (FileMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:fileCellIdentifier];
         fileCell.titleLabel.text = message.actorDisplayName;
         fileCell.bodyTextView.attributedText = message.parsedMessage;
         fileCell.messageId = message.messageId;
+        fileCell.fileLink = message.file.link;
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
         fileCell.dateLabel.text = [self getTimeFromDate:date];
         [fileCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
                                    placeholderImage:nil success:nil failure:nil];
-        [fileCell.previewImageView setImageWithURLRequest:[[NCFilePreviewSessionManager sharedInstance] createPreviewRequestForFile:message.filePreview width:120 height:120]
+        [fileCell.previewImageView setImageWithURLRequest:[[NCFilePreviewSessionManager sharedInstance] createPreviewRequestForFile:message.file.parameterId width:120 height:120]
                                          placeholderImage:[UIImage imageNamed:@"file-default-preview"] success:nil failure:nil];
         return fileCell;
     }
@@ -846,8 +847,8 @@
             }
         }
         
-        if (message.filePreview) {
-            height += kFileMessageCellFilePreviewHeight + 10;
+        if (message.file) {
+            height += kFileMessageCellFilePreviewHeight + 15;
         }
         
         return height;
