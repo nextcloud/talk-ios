@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "NCMessageParameter.h"
 
 extern NSInteger const kChatMessageMaxGroupNumber;
 extern NSInteger const kChatMessageGroupTimeDifference;
@@ -29,7 +30,7 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 - (BOOL)isSystemMessage;
-- (NSString *)filePreview;
+- (NCMessageParameter *)file;
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)systemMessageFormat;
 

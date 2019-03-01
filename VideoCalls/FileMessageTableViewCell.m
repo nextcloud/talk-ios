@@ -9,6 +9,8 @@
 #import "FileMessageTableViewCell.h"
 #import "SLKUIConstants.h"
 #import "NCFilePreviewSessionManager.h"
+#import "NCSettingsController.h"
+#import "OpenInFirefoxControllerObjC.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 
@@ -45,6 +47,11 @@
     _previewView.layer.shadowRadius = 4;
     _previewView.layer.shadowOpacity = 0.5;
     _previewView.layer.masksToBounds = NO;
+    
+    UITapGestureRecognizer *previewTap =
+    [[UITapGestureRecognizer alloc] initWithTarget:self
+                                            action:@selector(previewTapped:)];
+    [_previewView addGestureRecognizer:previewTap];
     
     _previewImageView = [[FilePreviewImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellFilePreviewHeight, kFileMessageCellFilePreviewHeight)];
     _previewImageView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -154,6 +161,18 @@
         _bodyTextView.font = [UIFont systemFontOfSize:[FileMessageTableViewCell defaultFontSize]];
     }
     return _bodyTextView;
+}
+
+- (void)previewTapped:(UITapGestureRecognizer *)recognizer
+{
+    if (_fileLink) {
+        NSURL *url = [NSURL URLWithString:_fileLink];
+        if ([[NCSettingsController sharedInstance].defaultBrowser isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
+            [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:url];
+        } else {
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        }
+    }
 }
 
 - (void)setGuestAvatar:(NSString *)displayName

@@ -8,7 +8,6 @@
 
 #import "NCChatMessage.h"
 
-#import "NCMessageParameter.h"
 #import "NCSettingsController.h"
 
 NSInteger const kChatMessageMaxGroupNumber      = 10;
@@ -58,14 +57,14 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     return NO;
 }
 
-- (NSString *)filePreview;
+- (NCMessageParameter *)file;
 {
-    NSString *fileId = nil;
+    NCMessageParameter *fileParam = nil;
     for (NSDictionary *parameterDict in _messageParameters.allValues) {
         NCMessageParameter *parameter = [NCMessageParameter parameterWithDictionary:parameterDict] ;
         if ([parameter.type isEqualToString:@"file"]) {
-            if (!fileId) {
-                fileId = parameter.parameterId;
+            if (!fileParam) {
+                fileParam = parameter;
             } else {
                 // If there is more than one file in the message,
                 // we don't display any preview.
@@ -73,7 +72,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
             }
         }
     }
-    return fileId;
+    return fileParam;
 }
 
 - (NSMutableAttributedString *)parsedMessage
