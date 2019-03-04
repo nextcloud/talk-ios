@@ -46,6 +46,7 @@
     if (self) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
     }
     return self;
 }
@@ -83,8 +84,6 @@
                                  message:@"It seems that there is no Internet connection."
                                  preferredStyle:UIAlertControllerStyleAlert];
     
-    
-    
     UIAlertAction* okButton = [UIAlertAction
                                actionWithTitle:@"OK"
                                style:UIAlertActionStyleDefault
@@ -93,6 +92,52 @@
     [alert addAction:okButton];
     
     [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)presentTalkNotInstalledWarningAlert
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:@"Nextcloud Talk not installed"
+                                 message:@"It seems that Nextcloud Talk is not installed in your server."
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:@"OK"
+                               style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * _Nonnull action) {
+                                   [self logOutCurrentUser];
+                               }];
+    
+    [alert addAction:okButton];
+    
+    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)presentTalkOutdatedWarningAlert
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:@"Nextcloud Talk version not supported"
+                                 message:@"Please update your server with the latest Nextcloud Talk version available."
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:@"OK"
+                               style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * _Nonnull action) {
+                                   [self logOutCurrentUser];
+                               }];
+    
+    [alert addAction:okButton];
+    
+    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)logOutCurrentUser
+{
+    [[NCSettingsController sharedInstance] logoutWithCompletionBlock:^(NSError *error) {
+        [[NCUserInterfaceController sharedInstance] presentConversationsList];
+        [[NCConnectionController sharedInstance] checkAppState];
+    }];
 }
 
 - (void)presentChatForLocalNotification:(NSDictionary *)userInfo
@@ -243,20 +288,38 @@
     }
 }
 
+- (void)serverCapabilitiesReceived:(NSNotification *)notification
+{
+    // If the logged-in user is using an old NC Talk version or is not allowed to use Talk then logged the user out.
+    if (![[NCSettingsController sharedInstance] serverUsesRequiredTalkVersion]) {
+        if ([[[NCSettingsController sharedInstance] ncTalkCapabilities] count] == 0) {
+            [self presentTalkNotInstalledWarningAlert];
+        } else {
+            [self presentTalkOutdatedWarningAlert];
+        }
+    }
+}
+
 #pragma mark - LoginViewControllerDelegate
 
 - (void)loginViewControllerDidFinish:(LoginViewController *)viewController
 {
-    [[NCConnectionController sharedInstance] checkAppState];
-    [_mainNavigationController dismissViewControllerAnimated:YES completion:nil];
+    [_mainNavigationController dismissViewControllerAnimated:YES completion:^{
+        [[NCConnectionController sharedInstance] checkAppState];
+        // Get server capabilities again to check if user is allowed to use Nextcloud Talk
+        [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:nil];
+    }];
 }
 
 #pragma mark - AuthenticationViewControllerDelegate
 
 - (void)authenticationViewControllerDidFinish:(AuthenticationViewController *)viewController
 {
-    [[NCConnectionController sharedInstance] checkAppState];
-    [_mainNavigationController dismissViewControllerAnimated:YES completion:nil];
+    [_mainNavigationController dismissViewControllerAnimated:YES completion:^{
+        [[NCConnectionController sharedInstance] checkAppState];
+        // Get server capabilities again to check if user is allowed to use Nextcloud Talk
+        [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:nil];
+    }];
 }
 
 @end
