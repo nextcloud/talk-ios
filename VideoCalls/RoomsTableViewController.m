@@ -122,7 +122,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     _settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationWillBePresented:) name:NCNotificationControllerWillPresentNotification object:nil];
@@ -148,17 +147,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 }
 
 #pragma mark - Notifications
-
-- (void)serverCapabilitiesReceived:(NSNotification *)notification
-{
-    // If the logged-in user is using an old NC Talk version on the server then logged the user out.
-    if (![[NCSettingsController sharedInstance] serverUsesRequiredTalkVersion]) {
-        [[NCSettingsController sharedInstance] logoutWithCompletionBlock:^(NSError *error) {
-            [[NCUserInterfaceController sharedInstance] presentConversationsList];
-            [[NCConnectionController sharedInstance] checkAppState];
-        }];
-    }
-}
 
 - (void)appStateHasChanged:(NSNotification *)notification
 {
