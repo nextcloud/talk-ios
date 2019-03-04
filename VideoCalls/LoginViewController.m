@@ -96,6 +96,8 @@
             // Check minimum required version
             if ([[NCSettingsController sharedInstance] serverUsesRequiredTalkVersion]) {
                 [self presentAuthenticationView];
+            } else if ([[[NCSettingsController sharedInstance] ncTalkCapabilities] count] == 0) {
+                    [self showAlertWithTitle:@"Nextcloud Talk not installed" andMessage:@"It seems that Nextcloud Talk is not installed in your server."];
             } else {
                 [self showAlertWithTitle:@"Nextcloud Talk version not supported" andMessage:@"Please update your server with the latest Nextcloud Talk version available."];
             }
