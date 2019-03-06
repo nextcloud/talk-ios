@@ -723,7 +723,10 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_peersInCall addObject:remotePeer];
     } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
         [_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
-        [self showScreenOfPeerId:remotePeer.peerId];
+        // Present screensharing directly only in video calls
+        if (!_isAudioOnly) {
+            [self showScreenOfPeerId:remotePeer.peerId];
+        }
     }
     
     [self.collectionView reloadData];
@@ -778,6 +781,12 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_screensharingView setHidden:NO];
         [self resizeScreensharingView];
     });
+    // Enable/Disable detailed view with tap gesture
+    // in voice only call when screensharing is enabled
+    if (_isAudioOnly) {
+        [self addTapGestureForDetailedView];
+        [self showDetailedViewWithTimer];
+    }
 }
 
 - (void)resizeScreensharingView {
@@ -802,6 +811,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_screenView removeFromSuperview];
     _screenView = nil;
     [_screensharingView setHidden:YES];
+    // Back to normal voice only UI
+    if (_isAudioOnly) {
+        [self invalidateDetailedViewTimer];
+        [self showDetailedView];
+        [self removeTapGestureForDetailedView];
+    }
 }
 
 #pragma mark - RTCEAGLVideoViewDelegate

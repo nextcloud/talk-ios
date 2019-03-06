@@ -301,11 +301,12 @@ static NSString * const kNCVideoTrackKind = @"video";
         NSLog(@"Creating a peer for %@", sessionId);
         
         NSArray *iceServers = [_signalingController getIceServers];
-        peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:_isAudioOnly];
+        BOOL screensharingPeer = [roomType isEqualToString:kRoomTypeScreen];
+        peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:screensharingPeer ? NO : _isAudioOnly];
         peerConnectionWrapper.roomType = roomType;
         peerConnectionWrapper.delegate = self;
         // TODO: Try to get display name here
-        if (![[NCExternalSignalingController sharedInstance] hasMCU] || ![roomType isEqualToString:@"screen"]) {
+        if (![[NCExternalSignalingController sharedInstance] hasMCU] || !screensharingPeer) {
             [peerConnectionWrapper.peerConnection addStream:_localStream];
         }
         
@@ -472,7 +473,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         if (![_connectionsDict objectForKey:sessionId]) {
             if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
                 NSLog(@"Requesting offer to the MCU for session: %@", sessionId);
-                [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:sessionId andRoomType:@"video"];
+                [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:sessionId andRoomType:kRoomTypeVideo];
             } else {
                 NSComparisonResult result = [sessionId compare:_userSessionId];
                 if (result == NSOrderedAscending) {
