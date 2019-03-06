@@ -33,23 +33,42 @@
                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="audio-off" translatesAutoresizingMaskIntoConstraints="NO" id="0G6-qf-Fj2">
-                        <rect key="frame" x="89" y="62" width="22" height="22"/>
+                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fKp-Jc-Znf">
+                        <rect key="frame" x="58" y="64" width="84" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    </imageView>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bj2-hS-1pF">
+                                <rect key="frame" x="26" y="0.0" width="32" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" image="screensharing"/>
+                                <connections>
+                                    <action selector="screenSharingButtonPressed:" destination="gTV-IL-0wX" eventType="touchUpInside" id="DzG-u7-nPx"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vlO-GV-Y3B">
+                                <rect key="frame" x="26" y="0.0" width="32" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" image="audio-off"/>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </view>
                 </subviews>
             </view>
             <size key="customSize" width="200" height="200"/>
             <connections>
-                <outlet property="audioOffIndicator" destination="0G6-qf-Fj2" id="iwd-A7-kaB"/>
+                <outlet property="audioOffIndicator" destination="vlO-GV-Y3B" id="cIm-dZ-peB"/>
+                <outlet property="buttonsContainerView" destination="fKp-Jc-Znf" id="IKS-0x-s9X"/>
                 <outlet property="peerAvatarImageView" destination="zYx-Of-3tH" id="fkR-av-PMY"/>
                 <outlet property="peerNameLabel" destination="D5h-T2-aB9" id="m82-2d-znc"/>
                 <outlet property="peerVideoView" destination="2xo-Od-0bZ" id="YvZ-QP-fUW"/>
+                <outlet property="screensharingIndicator" destination="bj2-hS-1pF" id="VFt-FC-Oum"/>
             </connections>
-            <point key="canvasLocation" x="-41" y="129"/>
+            <point key="canvasLocation" x="-41.600000000000001" y="128.63568215892056"/>
         </collectionViewCell>
     </objects>
     <resources>
         <image name="audio-off" width="24" height="24"/>
+        <image name="screensharing" width="24" height="24"/>
     </resources>
 </document>

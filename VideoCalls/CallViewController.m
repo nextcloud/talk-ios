@@ -24,6 +24,7 @@
 #import "NCRoomController.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
+#import "NCSignalingMessage.h"
 #import "UIImageView+AFNetworking.h"
 #import "CallKitManager.h"
 
@@ -33,13 +34,16 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallStateInCall
 };
 
-@interface CallViewController () <NCCallControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, RTCEAGLVideoViewDelegate>
+@interface CallViewController () <NCCallControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, RTCEAGLVideoViewDelegate, CallParticipantViewCellDelegate>
 {
     CallState _callState;
     NSMutableArray *_peersInCall;
-    NSMutableDictionary *_renderersDict;
+    NSMutableDictionary *_videoRenderersDict;
+    NSMutableDictionary *_screenRenderersDict;
     NCCallController *_callController;
     ARDCaptureController *_captureController;
+    UIView <RTCVideoRenderer> *_screenView;
+    CGSize _screensharingSize;
     UITapGestureRecognizer *_tapGestureForDetailedView;
     NSTimer *_detailedViewTimer;
     NSString *_displayName;
@@ -75,7 +79,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     _displayName = displayName;
     _isAudioOnly = audioOnly;
     _peersInCall = [[NSMutableArray alloc] init];
-    _renderersDict = [[NSMutableDictionary alloc] init];
+    _videoRenderersDict = [[NSMutableDictionary alloc] init];
+    _screenRenderersDict = [[NSMutableDictionary alloc] init];
     
     // Set image downloader to avatar background imageviews.
     // Do not cache images so I can get 200 or 201 from the avatar requests.
@@ -112,6 +117,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     _tapGestureForDetailedView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showDetailedViewWithTimer)];
     [_tapGestureForDetailedView setNumberOfTapsRequired:1];
     
+    [_screensharingView setHidden:YES];
+    
     [self.audioMuteButton.layer setCornerRadius:30.0f];
     [self.speakerButton.layer setCornerRadius:30.0f];
     [self.videoDisableButton.layer setCornerRadius:30.0f];
@@ -146,6 +153,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         CallParticipantViewCell * participantCell = (CallParticipantViewCell *) cell;
         [participantCell resizeRemoteVideoView];
     }
+    [self resizeScreensharingView];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -565,9 +573,14 @@ typedef NS_ENUM(NSInteger, CallState) {
     _captureController = nil;
     
     for (NCPeerConnection *peerConnection in _peersInCall) {
-        RTCEAGLVideoView *renderer = [_renderersDict objectForKey:peerConnection.peerId];
-        [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:renderer];
-        [_renderersDict removeObjectForKey:peerConnection.peerId];
+        // Video renderers
+        RTCEAGLVideoView *videoRenderer = [_videoRenderersDict objectForKey:peerConnection.peerId];
+        [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
+        [_videoRenderersDict removeObjectForKey:peerConnection.peerId];
+        // Screen renderers
+        RTCEAGLVideoView *screenRenderer = [_videoRenderersDict objectForKey:peerConnection.peerId];
+        [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
+        [_screenRenderersDict removeObjectForKey:peerConnection.peerId];
     }
     
     if (_callController) {
@@ -613,6 +626,13 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
+#pragma mark - CallParticipantViewCell delegate
+
+- (void)cellWantsToPresentScreenSharing:(CallParticipantViewCell *)participantCell
+{
+    [self showScreenOfPeerId:participantCell.peerId];
+}
+
 #pragma mark - UICollectionView Datasource
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
@@ -626,10 +646,13 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallParticipantViewCell *cell = (CallParticipantViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCallParticipantCellIdentifier forIndexPath:indexPath];
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
     
-    [cell setVideoView:[_renderersDict objectForKey:peerConnection.peerId]];
+    cell.peerId = peerConnection.peerId;
+    cell.actionsDelegate = self;
+    [cell setVideoView:[_videoRenderersDict objectForKey:peerConnection.peerId]];
     [cell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
     [cell setDisplayName:peerConnection.peerName];
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
+    [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
     [cell setVideoDisabled: (_isAudioOnly) ? YES : peerConnection.isRemoteVideoDisabled];
     
     return cell;
@@ -661,9 +684,15 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callController:(NCCallController *)callController peerLeft:(NCPeerConnection *)peer
 {
-    RTCEAGLVideoView *renderer = [_renderersDict objectForKey:peer.peerId];
-    [[peer.remoteStream.videoTracks firstObject] removeRenderer:renderer];
-    [_renderersDict removeObjectForKey:peer.peerId];
+    // Video renderers
+    RTCEAGLVideoView *videoRenderer = [_videoRenderersDict objectForKey:peer.peerId];
+    [[peer.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
+    [_videoRenderersDict removeObjectForKey:peer.peerId];
+    // Screen renderers
+    RTCEAGLVideoView *screenRenderer = [_videoRenderersDict objectForKey:peer.peerId];
+    [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
+    [_screenRenderersDict removeObjectForKey:peer.peerId];
+    
     [_peersInCall removeObject:peer];
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.collectionView reloadData];
@@ -688,8 +717,15 @@ typedef NS_ENUM(NSInteger, CallState) {
     renderView.delegate = self;
     RTCVideoTrack *remoteVideoTrack = [remotePeer.remoteStream.videoTracks firstObject];
     [remoteVideoTrack addRenderer:renderView];
-    [_renderersDict setObject:renderView forKey:remotePeer.peerId];
-    [_peersInCall addObject:remotePeer];
+    
+    if ([remotePeer.roomType isEqualToString:kRoomTypeVideo]) {
+        [_videoRenderersDict setObject:renderView forKey:remotePeer.peerId];
+        [_peersInCall addObject:remotePeer];
+    } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
+        [_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
+        [self showScreenOfPeerId:remotePeer.peerId];
+    }
+    
     [self.collectionView reloadData];
 }
 - (void)callController:(NCCallController *)callController didRemoveStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
@@ -728,13 +764,62 @@ typedef NS_ENUM(NSInteger, CallState) {
     }];
 }
 
+#pragma mark - Screensharing
+
+- (void)showScreenOfPeerId:(NSString *)peerId
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        RTCEAGLVideoView *renderView = [_screenRenderersDict objectForKey:peerId];
+        [_screenView removeFromSuperview];
+        _screenView = nil;
+        _screenView = renderView;
+        _screensharingSize = renderView.frame.size;
+        [_screensharingView addSubview:_screenView];
+        [_screensharingView setHidden:NO];
+        [self resizeScreensharingView];
+    });
+}
+
+- (void)resizeScreensharingView {
+    CGRect bounds = _screensharingView.bounds;
+    CGSize videoSize = _screensharingSize;
+    
+    if (videoSize.width > 0 && videoSize.height > 0) {
+        // Aspect fill remote video into bounds.
+        CGRect remoteVideoFrame = AVMakeRectWithAspectRatioInsideRect(videoSize, bounds);
+        CGFloat scale = 1;
+        remoteVideoFrame.size.height *= scale;
+        remoteVideoFrame.size.width *= scale;
+        _screenView.frame = remoteVideoFrame;
+        _screenView.center = CGPointMake(CGRectGetMidX(bounds), CGRectGetMidY(bounds));
+    } else {
+        _screenView.frame = bounds;
+    }
+}
+
+- (IBAction)closeScreensharingButtonPressed:(id)sender
+{
+    [_screenView removeFromSuperview];
+    _screenView = nil;
+    [_screensharingView setHidden:YES];
+}
+
 #pragma mark - RTCEAGLVideoViewDelegate
 
 - (void)videoView:(RTCEAGLVideoView*)videoView didChangeVideoSize:(CGSize)size
 {
-    for (RTCEAGLVideoView *rendererView in [_renderersDict allValues]) {
+    for (RTCEAGLVideoView *rendererView in [_videoRenderersDict allValues]) {
         if ([videoView isEqual:rendererView]) {
             rendererView.frame = CGRectMake(0, 0, size.width, size.height);
+        }
+    }
+    for (RTCEAGLVideoView *rendererView in [_screenRenderersDict allValues]) {
+        if ([videoView isEqual:rendererView]) {
+            rendererView.frame = CGRectMake(0, 0, size.width, size.height);
+            if ([_screenView isEqual:rendererView]) {
+                _screensharingSize = rendererView.frame.size;
+                [self resizeScreensharingView];
+            }
         }
     }
     
@@ -764,7 +849,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     for (CallParticipantViewCell *cell in visibleCells) {
         [UIView animateWithDuration:0.3f animations:^{
             [cell.peerNameLabel setAlpha:1.0f];
-            [cell.audioOffIndicator setAlpha:0.5f];
+            [cell.buttonsContainerView setAlpha:1.0f];
             [cell layoutIfNeeded];
         }];
     }
@@ -776,7 +861,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     for (CallParticipantViewCell *cell in visibleCells) {
         [UIView animateWithDuration:0.3f animations:^{
             [cell.peerNameLabel setAlpha:0.0f];
-            [cell.audioOffIndicator setAlpha:0.0f];
+            [cell.buttonsContainerView setAlpha:0.0f];
             [cell layoutIfNeeded];
         }];
     }

@@ -34,6 +34,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 - (void)awakeFromNib {
     [super awakeFromNib];
     self.audioOffIndicator.hidden = YES;
+    self.screensharingIndicator.hidden = YES;
     self.peerAvatarImageView.hidden = YES;
     self.peerAvatarImageView.layer.cornerRadius = 64;
     self.peerAvatarImageView.layer.masksToBounds = YES;
@@ -119,8 +120,36 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 {
     _audioDisabled = audioDisabled;
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.audioOffIndicator.hidden = !_audioDisabled;
+        [self configureParticipantButtons];
     });
+}
+
+- (void)setScreenShared:(BOOL)screenShared
+{
+    _screenShared = screenShared;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self configureParticipantButtons];
+    });
+}
+
+- (IBAction)screenSharingButtonPressed:(id)sender
+{
+    [self.actionsDelegate cellWantsToPresentScreenSharing:self];
+}
+
+- (void)configureParticipantButtons
+{
+    CGRect audioDisabledFrame = _audioOffIndicator.frame;
+    CGRect screenSharedFrame = _screensharingIndicator.frame;
+    
+    audioDisabledFrame.origin.x = (_screenShared) ? 0 : 26;
+    screenSharedFrame.origin.x = (_audioDisabled) ? 52 : 26;
+    
+    self.audioOffIndicator.frame = audioDisabledFrame;
+    self.screensharingIndicator.frame = screenSharedFrame;
+    
+    self.audioOffIndicator.hidden = !_audioDisabled;
+    self.screensharingIndicator.hidden = !_screenShared;
 }
 
 - (void)setVideoDisabled:(BOOL)videoDisabled

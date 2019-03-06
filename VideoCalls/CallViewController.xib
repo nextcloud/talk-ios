@@ -18,6 +18,7 @@
                 <outlet property="collectionView" destination="aUh-Z0-hO6" id="jmc-BV-dTa"/>
                 <outlet property="hangUpButton" destination="Rl8-bS-FJ5" id="jNg-Ly-6wz"/>
                 <outlet property="localVideoView" destination="TXj-7E-NAa" id="nXn-uK-PDD"/>
+                <outlet property="screensharingView" destination="Zzc-Pq-hMC" id="kaT-G4-IxS"/>
                 <outlet property="speakerButton" destination="dgz-bL-PRr" id="WdG-PS-8Qa"/>
                 <outlet property="switchCameraButton" destination="Mf3-yk-Olo" id="bJn-Fu-bqF"/>
                 <outlet property="videoCallButton" destination="YDj-MO-jIc" id="RwW-bN-mi1"/>
@@ -60,6 +61,22 @@
                             </connections>
                         </button>
                     </subviews>
+                </view>
+                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zzc-Pq-hMC">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N0N-Ny-Aeg">
+                            <rect key="frame" x="335" y="28" width="32" height="32"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                            <state key="normal" image="close"/>
+                            <connections>
+                                <action selector="closeScreensharingButtonPressed:" destination="-1" eventType="touchUpInside" id="Pio-Dr-GaB"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <viewLayoutGuide key="safeArea" id="j53-tu-e0T"/>
                 </view>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-7q-HlR">
                     <rect key="frame" x="37" y="477" width="300" height="170"/>
@@ -140,6 +157,7 @@
     </objects>
     <resources>
         <image name="audio" width="24" height="24"/>
+        <image name="close" width="48" height="48"/>
         <image name="hang-up" width="24" height="24"/>
         <image name="speaker-off" width="24" height="24"/>
         <image name="switch-camera" width="24" height="24"/>

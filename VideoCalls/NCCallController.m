@@ -487,12 +487,21 @@ static NSString * const kNCVideoTrackKind = @"video";
     }
     
     for (NSString *sessionId in leftSessions) {
-        NCPeerConnection *leftPeerConnection = [_connectionsDict objectForKey:sessionId];
+        NSString *peerKey = [sessionId stringByAppendingString:kRoomTypeVideo];
+        NCPeerConnection *leftPeerConnection = [_connectionsDict objectForKey:peerKey];
         if (leftPeerConnection) {
             NSLog(@"Peer left: %@", sessionId);
             [self.delegate callController:self peerLeft:leftPeerConnection];
             [leftPeerConnection close];
-            [_connectionsDict removeObjectForKey:sessionId];
+            [_connectionsDict removeObjectForKey:peerKey];
+        }
+        // Close possible screen peers
+        peerKey = [sessionId stringByAppendingString:kRoomTypeScreen];
+        leftPeerConnection = [_connectionsDict objectForKey:peerKey];
+        if (leftPeerConnection) {
+            [self.delegate callController:self peerLeft:leftPeerConnection];
+            [leftPeerConnection close];
+            [_connectionsDict removeObjectForKey:peerKey];
         }
     }
 }
