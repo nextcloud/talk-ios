@@ -124,6 +124,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.videoDisableButton.layer setCornerRadius:30.0f];
     [self.hangUpButton.layer setCornerRadius:30.0f];
     [self.videoCallButton.layer setCornerRadius:30.0f];
+    [self.closeScreensharingButton.layer setCornerRadius:16.0f];
     
     [self adjustButtonsConainer];
     
@@ -414,6 +415,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self.buttonsContainerView setAlpha:1.0f];
         [self.switchCameraButton setAlpha:1.0f];
         [self.videoCallButton setAlpha:1.0f];
+        [self.closeScreensharingButton setAlpha:1.0f];
         [self.view layoutIfNeeded];
     }];
 }
@@ -424,6 +426,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self.buttonsContainerView setAlpha:0.0f];
         [self.switchCameraButton setAlpha:0.0f];
         [self.videoCallButton setAlpha:0.0f];
+        [self.closeScreensharingButton setAlpha:0.0f];
         [self.view layoutIfNeeded];
     }];
 }
@@ -778,6 +781,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         _screenView = renderView;
         _screensharingSize = renderView.frame.size;
         [_screensharingView addSubview:_screenView];
+        [_screensharingView bringSubviewToFront:_closeScreensharingButton];
         [_screensharingView setHidden:NO];
         [self resizeScreensharingView];
     });
