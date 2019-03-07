@@ -72,10 +72,8 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
                             [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
                         } else if (serverNotification.notificationType == kNCNotificationTypeCall) {
                             NSString *callType = [[serverNotification.subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
-                            if ([CallKitManager isCallKitAvailable]) {
-                                if (![[CallKitManager sharedInstance] currentCallUUID] && [callType isEqualToString:@"one2one"]) {
-                                    [self showIncomingCallForPushNotification:pushNotification withServerNotification:serverNotification];
-                                }
+                            if ([CallKitManager isCallKitAvailable] && ![[CallKitManager sharedInstance] currentCallUUID] && [callType isEqualToString:@"one2one"]) {
+                                [self showIncomingCallForPushNotification:pushNotification withServerNotification:serverNotification];
                             } else {
                                 [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
                             }
