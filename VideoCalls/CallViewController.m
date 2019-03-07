@@ -581,7 +581,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
         [_videoRenderersDict removeObjectForKey:peerConnection.peerId];
         // Screen renderers
-        RTCEAGLVideoView *screenRenderer = [_videoRenderersDict objectForKey:peerConnection.peerId];
+        RTCEAGLVideoView *screenRenderer = [_screenRenderersDict objectForKey:peerConnection.peerId];
         [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
         [_screenRenderersDict removeObjectForKey:peerConnection.peerId];
     }
@@ -692,7 +692,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[peer.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
     [_videoRenderersDict removeObjectForKey:peer.peerId];
     // Screen renderers
-    RTCEAGLVideoView *screenRenderer = [_videoRenderersDict objectForKey:peer.peerId];
+    RTCEAGLVideoView *screenRenderer = [_screenRenderersDict objectForKey:peer.peerId];
     [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
     [_screenRenderersDict removeObjectForKey:peer.peerId];
     
@@ -768,6 +768,15 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
         [cell setDisplayName:nick];
     }];
+}
+
+- (void)callController:(NCCallController *)callController didReceiveUnshareScreenFromPeer:(NCPeerConnection *)peer
+{
+    RTCEAGLVideoView *screenRenderer = [_screenRenderersDict objectForKey:peer.peerId];
+    [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
+    [_screenRenderersDict removeObjectForKey:peer.peerId];
+    [self closeScreensharingButtonPressed:self];
+    [self.collectionView reloadData];
 }
 
 #pragma mark - Screensharing

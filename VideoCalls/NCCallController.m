@@ -441,6 +441,17 @@ static NSString * const kNCVideoTrackKind = @"video";
                 [peerConnectionWrapper addICECandidate:candidateMessage.candidate];
                 break;
             }
+            case kNCSignalingMessageTypeUnshareScreen:
+            {
+                NSString *peerKey = [peerConnectionWrapper.peerId stringByAppendingString:kRoomTypeScreen];
+                NCPeerConnection *screenPeerConnection = [_connectionsDict objectForKey:peerKey];
+                if (screenPeerConnection) {
+                    [screenPeerConnection close];
+                    [_connectionsDict removeObjectForKey:peerKey];
+                }
+                [self.delegate callController:self didReceiveUnshareScreenFromPeer:peerConnectionWrapper];
+                break;
+            }
             case kNCSignalingMessageTypeUknown:
                 NSLog(@"Received an unknown signaling message: %@", signalingMessage);
                 break;
@@ -500,7 +511,6 @@ static NSString * const kNCVideoTrackKind = @"video";
         peerKey = [sessionId stringByAppendingString:kRoomTypeScreen];
         leftPeerConnection = [_connectionsDict objectForKey:peerKey];
         if (leftPeerConnection) {
-            [self.delegate callController:self peerLeft:leftPeerConnection];
             [leftPeerConnection close];
             [_connectionsDict removeObjectForKey:peerKey];
         }

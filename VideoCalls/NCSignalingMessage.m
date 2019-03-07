@@ -32,6 +32,7 @@ static NSString * const kNCSignalingMessageNickKey = @"nick";
 static NSString * const kNCSignalingMessageTypeOfferKey = @"offer";
 static NSString * const kNCSignalingMessageTypeAnswerKey = @"answer";
 static NSString * const kNCSignalingMessageTypeCandidateKey = @"candidate";
+static NSString * const kNCSignalingMessageTypeUnshareScreenKey = @"unshareScreen";
 static NSString * const kNCSignalingMessageTypeRemoveCandidatesKey = @"remove-candidates";
 
 static NSString * const kNCSignalingMessageSdpKey = @"sdp";
@@ -89,6 +90,8 @@ NSString *const kRoomTypeScreen = @"screen";
     } else if ([typeString isEqualToString:kNCSignalingMessageTypeOfferKey] ||
                [typeString isEqualToString:kNCSignalingMessageTypeAnswerKey]) {
         message = [[NCSessionDescriptionMessage alloc] initWithValues:jsonDict];
+    } else if ([typeString isEqualToString:kNCSignalingMessageTypeUnshareScreenKey]) {
+        message = [[NCUnshareScreenMessage alloc] initWithValues:jsonDict];
     } else {
         NSLog(@"Unexpected type: %@", typeString);
     }
@@ -328,6 +331,24 @@ NSString *const kRoomTypeScreen = @"screen";
     _nick = nick;
     
     return self;
+}
+
+@end
+
+@implementation NCUnshareScreenMessage
+
+- (instancetype)initWithValues:(NSDictionary *)values {
+    NSDictionary *payload = [[NSDictionary alloc] init];
+    return [super initWithFrom:[values objectForKey:kNCSignalingMessageFromKey]
+                            to:[values objectForKey:kNCSignalingMessageToKey]
+                           sid:[values objectForKey:kNCSignalingMessageSidKey]
+                          type:kNCSignalingMessageTypeUnshareScreenKey
+                       payload:payload
+                      roomType:[values objectForKey:kNCSignalingMessageRoomTypeKey]];
+}
+
+- (NCSignalingMessageType)messageType {
+    return kNCSignalingMessageTypeUnshareScreen;
 }
 
 @end
