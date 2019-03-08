@@ -34,6 +34,7 @@ typedef enum {
 
 + (NCSignalingMessage *)messageFromJSONString:(NSString *)jsonString;
 + (NCSignalingMessage *)messageFromJSONDictionary:(NSDictionary *)jsonDict;
++ (NCSignalingMessage *)messageFromExternalSignalingJSONDictionary:(NSDictionary *)jsonDict;
 + (NSString *)getMessageSid;
 - (NSDictionary *)messageDict;
 - (NSDictionary *)functionDict;

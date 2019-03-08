@@ -354,7 +354,8 @@ static NSString * const kNCVideoTrackKind = @"video";
     _ownPeerConnection = [[NCPeerConnection alloc] initForMCUWithSessionId:_userSessionId andICEServers:iceServers forAudioOnlyCall:YES];
     _ownPeerConnection.roomType = kRoomTypeVideo;
     _ownPeerConnection.delegate = self;
-    [_connectionsDict setObject:_ownPeerConnection forKey:_userSessionId];
+    NSString *peerKey = [_userSessionId stringByAppendingString:kRoomTypeVideo];
+    [_connectionsDict setObject:_ownPeerConnection forKey:peerKey];
     [_ownPeerConnection.peerConnection addStream:_localStream];
     [_ownPeerConnection sendPublishOfferToMCU];
 }
@@ -362,7 +363,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)externalSignalingMessageReceived:(NSNotification *)notification
 {
     NSLog(@"External signaling message received: %@", notification);
-    NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromJSONDictionary:[notification.userInfo objectForKey:@"data"]];
+    NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromExternalSignalingJSONDictionary:notification.userInfo];
     [self processSignalingMessage:signalingMessage];
 }
 

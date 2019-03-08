@@ -732,7 +732,9 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
     }
     
-    [self.collectionView reloadData];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.collectionView reloadData];
+    });
 }
 - (void)callController:(NCCallController *)callController didRemoveStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
@@ -742,7 +744,9 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     if (state == RTCIceConnectionStateClosed) {
         [_peersInCall removeObject:peer];
-        [self.collectionView reloadData];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.collectionView reloadData];
+        });
     }
 }
 - (void)callController:(NCCallController *)callController didAddDataChannel:(RTCDataChannel *)dataChannel
@@ -776,7 +780,9 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
     [_screenRenderersDict removeObjectForKey:peer.peerId];
     [self closeScreensharingButtonPressed:self];
-    [self.collectionView reloadData];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.collectionView reloadData];
+    });
 }
 
 #pragma mark - Screensharing
@@ -821,9 +827,11 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (IBAction)closeScreensharingButtonPressed:(id)sender
 {
-    [_screenView removeFromSuperview];
-    _screenView = nil;
-    [_screensharingView setHidden:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_screenView removeFromSuperview];
+        _screenView = nil;
+        [_screensharingView setHidden:YES];
+    });
     // Back to normal voice only UI
     if (_isAudioOnly) {
         [self invalidateDetailedViewTimer];
@@ -851,7 +859,9 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
     }
     
-    [self.collectionView reloadData];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.collectionView reloadData];
+    });
 }
 
 #pragma mark - Cell updates
