@@ -27,6 +27,8 @@
 @property (nonatomic, strong) NCRoom *room;
 
 @property (nonatomic, strong) IBOutlet RTCCameraPreviewView *localVideoView;
+@property (nonatomic, strong) IBOutlet UIView *screensharingView;
+@property (nonatomic, strong) IBOutlet UIButton *closeScreensharingButton;
 @property (nonatomic, strong) IBOutlet UIView *waitingView;
 @property (nonatomic, strong) IBOutlet AvatarBackgroundImageView *avatarBackgroundImageView;
 @property (nonatomic, strong) IBOutlet UILabel *waitingLabel;

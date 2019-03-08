@@ -15,16 +15,28 @@ extern NSString *const kCallParticipantCellNibName;
 
 @class RTCVideoTrack;
 
+@class CallParticipantViewCell;
+@protocol CallParticipantViewCellDelegate <NSObject>
+- (void)cellWantsToPresentScreenSharing:(CallParticipantViewCell *)participantCell;
+@end
+
 @interface CallParticipantViewCell : UICollectionViewCell
 
+@property (nonatomic, weak) id<CallParticipantViewCellDelegate> actionsDelegate;
+
+@property (nonatomic, strong)  NSString *peerId;
 @property (nonatomic, strong)  NSString *displayName;
 @property (nonatomic, assign)  BOOL audioDisabled;
 @property (nonatomic, assign)  BOOL videoDisabled;
+@property (nonatomic, assign)  BOOL screenShared;
 
 @property (nonatomic, weak) IBOutlet UIView *peerVideoView;
 @property (nonatomic, weak) IBOutlet UILabel *peerNameLabel;
 @property (nonatomic, weak) IBOutlet UIImageView *peerAvatarImageView;
-@property (nonatomic, weak) IBOutlet UIImageView *audioOffIndicator;
+@property (nonatomic, weak) IBOutlet UIButton *audioOffIndicator;
+@property (nonatomic, weak) IBOutlet UIButton *screensharingIndicator;
+@property (weak, nonatomic) IBOutlet UIView *buttonsContainerView;
+
 
 - (void)setVideoView:(RTCEAGLVideoView *)videoView;
 - (void)setUserAvatar:(NSString *)userId;

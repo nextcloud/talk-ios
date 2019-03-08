@@ -19,7 +19,12 @@ static NSString * const kNCSignalingMessageFunctionKey = @"fn";
 static NSString * const kNCSignalingMessageSessionIdKey = @"sessionId";
 
 static NSString * const kNCSignalingMessageKey = @"message";
-static NSString * const kNCSignalingMessageDataKey = @"data";
+
+static NSString * const kNCExternalSignalingMessageDataKey = @"data";
+static NSString * const kNCExternalSignalingMessageSenderKey = @"sender";
+static NSString * const kNCExternalSignalingMessageTypeSessionKey = @"session";
+static NSString * const kNCExternalSignalingMessageTypeRoomKey = @"room";
+static NSString * const kNCExternalSignalingMessageSessionIdKey = @"sessionid";
 
 static NSString * const kNCSignalingMessageFromKey = @"from";
 static NSString * const kNCSignalingMessageToKey = @"to";
@@ -32,6 +37,7 @@ static NSString * const kNCSignalingMessageNickKey = @"nick";
 static NSString * const kNCSignalingMessageTypeOfferKey = @"offer";
 static NSString * const kNCSignalingMessageTypeAnswerKey = @"answer";
 static NSString * const kNCSignalingMessageTypeCandidateKey = @"candidate";
+static NSString * const kNCSignalingMessageTypeUnshareScreenKey = @"unshareScreen";
 static NSString * const kNCSignalingMessageTypeRemoveCandidatesKey = @"remove-candidates";
 
 static NSString * const kNCSignalingMessageSdpKey = @"sdp";
@@ -89,11 +95,28 @@ NSString *const kRoomTypeScreen = @"screen";
     } else if ([typeString isEqualToString:kNCSignalingMessageTypeOfferKey] ||
                [typeString isEqualToString:kNCSignalingMessageTypeAnswerKey]) {
         message = [[NCSessionDescriptionMessage alloc] initWithValues:jsonDict];
+    } else if ([typeString isEqualToString:kNCSignalingMessageTypeUnshareScreenKey]) {
+        message = [[NCUnshareScreenMessage alloc] initWithValues:jsonDict];
     } else {
         NSLog(@"Unexpected type: %@", typeString);
     }
     
     return message;
+}
+
++ (NCSignalingMessage *)messageFromExternalSignalingJSONDictionary:(NSDictionary *)jsonDict {
+    NSDictionary *sender = [jsonDict objectForKey:kNCExternalSignalingMessageSenderKey];
+    NSString *messageType = [sender objectForKey:kNCSignalingMessageTypeKey];
+    if ([messageType isEqualToString:kNCExternalSignalingMessageTypeSessionKey]) {
+        return [self messageFromJSONDictionary:[jsonDict objectForKey:kNCExternalSignalingMessageDataKey]];
+    }
+    NSDictionary *data = [jsonDict objectForKey:kNCExternalSignalingMessageDataKey];
+    NSString *dataType = [data objectForKey:kNCSignalingMessageTypeKey];
+    if ([dataType isEqualToString:kNCSignalingMessageTypeUnshareScreenKey]) {
+        return [[NCUnshareScreenMessage alloc] initWithValues:jsonDict];
+    }
+    
+    return [self messageFromJSONDictionary:jsonDict];
 }
 
 - (NSData *)JSONData {
@@ -328,6 +351,32 @@ NSString *const kRoomTypeScreen = @"screen";
     _nick = nick;
     
     return self;
+}
+
+@end
+
+@implementation NCUnshareScreenMessage
+
+- (instancetype)initWithValues:(NSDictionary *)values {
+    NSDictionary *payload = [[NSDictionary alloc] init];
+    NSDictionary *dataDict = [[NSDictionary alloc] initWithDictionary:values];
+    NSString *from = [values objectForKey:kNCSignalingMessageFromKey];
+    // Get 'from' value from 'sender' using External Signaling
+    NSDictionary *sender = [values objectForKey:kNCExternalSignalingMessageSenderKey];
+    if (sender) {
+        from = [sender objectForKey:kNCExternalSignalingMessageSessionIdKey];
+        dataDict = [values objectForKey:kNCExternalSignalingMessageDataKey];
+    }
+    return [super initWithFrom:from
+                            to:[dataDict objectForKey:kNCSignalingMessageToKey]
+                           sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
+                          type:kNCSignalingMessageTypeUnshareScreenKey
+                       payload:payload
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+}
+
+- (NCSignalingMessageType)messageType {
+    return kNCSignalingMessageTypeUnshareScreen;
 }
 
 @end

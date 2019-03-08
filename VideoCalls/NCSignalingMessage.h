@@ -19,6 +19,7 @@ typedef enum {
     kNCSignalingMessageTypeCandidate,
     kNCSignalingMessageTypeOffer,
     kNCSignalingMessageTypeAnswer,
+    kNCSignalingMessageTypeUnshareScreen,
 } NCSignalingMessageType;
 
 
@@ -33,6 +34,7 @@ typedef enum {
 
 + (NCSignalingMessage *)messageFromJSONString:(NSString *)jsonString;
 + (NCSignalingMessage *)messageFromJSONDictionary:(NSDictionary *)jsonDict;
++ (NCSignalingMessage *)messageFromExternalSignalingJSONDictionary:(NSDictionary *)jsonDict;
 + (NSString *)getMessageSid;
 - (NSDictionary *)messageDict;
 - (NSDictionary *)functionDict;
@@ -66,6 +68,12 @@ typedef enum {
                                   roomType:(NSString *)roomType
                                       nick:(NSString *)nick;
 
+
+@end
+
+@interface NCUnshareScreenMessage : NCSignalingMessage
+
+- (instancetype)initWithValues:(NSDictionary *)values;
 
 @end
 
