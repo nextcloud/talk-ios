@@ -160,13 +160,13 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (BOOL)isVideoEnabled
 {
     RTCVideoTrack *videoTrack = [_localStream.videoTracks firstObject];
-    return videoTrack ? videoTrack.isEnabled : YES;
+    return videoTrack ? videoTrack.isEnabled : NO;
 }
 
 - (BOOL)isAudioEnabled
 {
     RTCAudioTrack *audioTrack = [_localStream.audioTracks firstObject];
-    return audioTrack ? audioTrack.isEnabled : YES;
+    return audioTrack ? audioTrack.isEnabled : NO;
 }
 
 - (void)enableVideo:(BOOL)enable
@@ -600,7 +600,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     }
     
     // Send current video state
-    if (self.isVideoEnabled && !_isAudioOnly) {
+    if (self.isVideoEnabled) {
         NSLog(@"Send videoOn");
         [peerConnection sendDataChannelMessageOfType:@"videoOn" withPayload:nil];
     } else {
