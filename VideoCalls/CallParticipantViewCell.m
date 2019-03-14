@@ -75,7 +75,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
                                             CIImage *inputImage = [[CIImage alloc] initWithImage:image];
                                             CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
                                             [filter setValue:inputImage forKey:kCIInputImageKey];
-                                            [filter setValue:[NSNumber numberWithFloat:8.0f] forKey:@"inputRadius"];
+                                            [filter setValue:[NSNumber numberWithFloat:16.0f] forKey:@"inputRadius"];
                                             CIImage *result = [filter valueForKey:kCIOutputImageKey];
                                             CGImageRef cgImage = [context createCGImage:result fromRect:[inputImage extent]];
                                             UIImage *finalImage = [UIImage imageWithCGImage:cgImage];
@@ -89,10 +89,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
                                     } failure:nil];
         
         if (!userId || userId.length == 0) {
-            UIImage *avatarImage = [UIImage imageNamed:@"group-bg"];
-            DBImageColorPicker *colorPicker = [[DBImageColorPicker alloc] initFromImage:avatarImage withBackgroundType:DBImageColorPickerBackgroundTypeDefault];
-            [weakBGView setBackgroundColor:colorPicker.backgroundColor];
-            weakBGView.backgroundColor = [weakBGView.backgroundColor colorWithAlphaComponent:0.8];
+            weakBGView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:1];
         }
     }
     

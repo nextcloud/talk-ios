@@ -64,7 +64,7 @@
 {
     _gradientView = [[GradientView alloc] initWithFrame:self.bounds];
     _gradientView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    _gradientView.layer.colors = @[ (id)[[UIColor colorWithWhite:0 alpha:0.8] CGColor], (id)[[UIColor clearColor] CGColor] ];
+    _gradientView.layer.colors = @[(id)[[UIColor colorWithWhite:0 alpha:0.6] CGColor], (id)[[UIColor colorWithWhite:0 alpha:0.6] CGColor]];
     _gradientView.layer.locations = @[@0.0, @1.0];
     [self addSubview:_gradientView];
 }

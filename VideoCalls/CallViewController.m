@@ -339,7 +339,7 @@ typedef NS_ENUM(NSInteger, CallState) {
                                                       CIImage *inputImage = [[CIImage alloc] initWithImage:image];
                                                       CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
                                                       [filter setValue:inputImage forKey:kCIInputImageKey];
-                                                      [filter setValue:[NSNumber numberWithFloat:2.0f] forKey:@"inputRadius"];
+                                                      [filter setValue:[NSNumber numberWithFloat:16.0f] forKey:@"inputRadius"];
                                                       CIImage *result = [filter valueForKey:kCIOutputImageKey];
                                                       CGImageRef cgImage = [context createCGImage:result fromRect:[inputImage extent]];
                                                       UIImage *finalImage = [UIImage imageWithCGImage:cgImage];
@@ -353,20 +353,7 @@ typedef NS_ENUM(NSInteger, CallState) {
                                               } failure:nil];
     } else {
         self.waitingLabel.text = @"Waiting for others to join call…";
-        UIImage *avatarImage = [UIImage imageNamed:@"group-bg"];
-        if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-            avatarImage = [UIImage imageNamed:@"file-bg"];
-        } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-            avatarImage = [UIImage imageNamed:@"password-bg"];
-        } else if (_room.type == kNCRoomTypeGroupCall) {
-            avatarImage = [UIImage imageNamed:@"group-bg"];
-        } else if (_room.type == kNCRoomTypePublicCall){
-            avatarImage = (_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"];
-        }
-        
-        DBImageColorPicker *colorPicker = [[DBImageColorPicker alloc] initFromImage:avatarImage withBackgroundType:DBImageColorPickerBackgroundTypeDefault];
-        [self.avatarBackgroundImageView setBackgroundColor:colorPicker.backgroundColor];
-        self.avatarBackgroundImageView.backgroundColor = [self.avatarBackgroundImageView.backgroundColor colorWithAlphaComponent:0.8];
+        self.avatarBackgroundImageView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:1];
     }
 }
 
