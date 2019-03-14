@@ -716,10 +716,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_peersInCall addObject:remotePeer];
     } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
         [_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
-        // Present screensharing directly only in video calls
-        if (!_isAudioOnly) {
-            [self showScreenOfPeerId:remotePeer.peerId];
-        }
+        [self showScreenOfPeerId:remotePeer.peerId];
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
