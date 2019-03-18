@@ -332,14 +332,14 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (_room.type == kNCRoomTypeOneToOneCall) {
         self.waitingLabel.text = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
         __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
-        [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:256]
+        [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
                                               placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
                                                   if ([response statusCode] == 200) {
                                                       CIContext *context = [CIContext contextWithOptions:nil];
                                                       CIImage *inputImage = [[CIImage alloc] initWithImage:image];
                                                       CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
                                                       [filter setValue:inputImage forKey:kCIInputImageKey];
-                                                      [filter setValue:[NSNumber numberWithFloat:16.0f] forKey:@"inputRadius"];
+                                                      [filter setValue:[NSNumber numberWithFloat:8.0f] forKey:@"inputRadius"];
                                                       CIImage *result = [filter valueForKey:kCIOutputImageKey];
                                                       CGImageRef cgImage = [context createCGImage:result fromRect:[inputImage extent]];
                                                       UIImage *finalImage = [UIImage imageWithCGImage:cgImage];
