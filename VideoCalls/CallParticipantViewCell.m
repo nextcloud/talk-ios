@@ -68,7 +68,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
         _backgroundImageView = [[AvatarBackgroundImageView alloc] initWithFrame:self.bounds];
         __weak UIImageView *weakBGView = _backgroundImageView;
         self.backgroundView = _backgroundImageView;
-        [_backgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:256]
+        [_backgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:96]
                                     placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
                                         if ([response statusCode] == 200) {
                                             CIContext *context = [CIContext contextWithOptions:nil];
@@ -89,10 +89,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
                                     } failure:nil];
         
         if (!userId || userId.length == 0) {
-            UIImage *avatarImage = [UIImage imageNamed:@"group-bg"];
-            DBImageColorPicker *colorPicker = [[DBImageColorPicker alloc] initFromImage:avatarImage withBackgroundType:DBImageColorPickerBackgroundTypeDefault];
-            [weakBGView setBackgroundColor:colorPicker.backgroundColor];
-            weakBGView.backgroundColor = [weakBGView.backgroundColor colorWithAlphaComponent:0.8];
+            weakBGView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:1];
         }
     }
     
