@@ -50,6 +50,7 @@ NSString * const kCapabilityNoPing              = @"no-ping";
 NSString * const kCapabilitySystemMessages      = @"system-messages";
 NSString * const kCapabilityMentionFlag         = @"mention-flag";
 NSString * const kCapabilityNotificationLevels  = @"notification-levels";
+NSString * const kCapabilityLockedOneToOneRooms = @"locked-one-to-one-rooms";
 
 NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabilitiesReceivedNotification";
 

@@ -65,15 +65,17 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (BOOL)canModerate
 {
-    return _participantType == kNCParticipantTypeOwner || _participantType == kNCParticipantTypeModerator;
+    return (_participantType == kNCParticipantTypeOwner || _participantType == kNCParticipantTypeModerator) && ![self isLockedOneToOne];
 }
 
 - (BOOL)isNameEditable
 {
-    if ([self canModerate] && _type != kNCRoomTypeOneToOneCall) {
-        return  YES;
-    }
-    return NO;
+    return [self canModerate] && _type != kNCRoomTypeOneToOneCall;
+}
+
+- (BOOL)isLockedOneToOne
+{
+    return _type == kNCRoomTypeOneToOneCall && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLockedOneToOneRooms];
 }
 
 - (BOOL)isLeavable
@@ -81,10 +83,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     // Allow users to leave when there are no moderators in the room
     // (No need to check room type because in one2one rooms users will always be moderators)
     // or when in a group call and there are other participants.
-    if (![self canModerate] || (_type != kNCRoomTypeOneToOneCall && [_participants count] > 1)) {
-        return  YES;
-    }
-    return NO;
+    return ![self canModerate] || (_type != kNCRoomTypeOneToOneCall && [_participants count] > 1);
 }
 
 - (BOOL)shouldShowLastMessageActorName
