@@ -716,10 +716,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_peersInCall addObject:remotePeer];
     } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
         [_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
-        // Present screensharing directly only in video calls
-        if (!_isAudioOnly) {
-            [self showScreenOfPeerId:remotePeer.peerId];
-        }
+        [self showScreenOfPeerId:remotePeer.peerId];
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -787,7 +784,10 @@ typedef NS_ENUM(NSInteger, CallState) {
         _screensharingSize = renderView.frame.size;
         [_screensharingView addSubview:_screenView];
         [_screensharingView bringSubviewToFront:_closeScreensharingButton];
-        [_screensharingView setHidden:NO];
+        [UIView transitionWithView:_screensharingView duration:0.4
+                           options:UIViewAnimationOptionTransitionCrossDissolve
+                        animations:^{_screensharingView.hidden = NO;}
+                        completion:nil];
         [self resizeScreensharingView];
     });
     // Enable/Disable detailed view with tap gesture
@@ -820,7 +820,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     dispatch_async(dispatch_get_main_queue(), ^{
         [_screenView removeFromSuperview];
         _screenView = nil;
-        [_screensharingView setHidden:YES];
+        [UIView transitionWithView:_screensharingView duration:0.4
+                           options:UIViewAnimationOptionTransitionCrossDissolve
+                        animations:^{_screensharingView.hidden = YES;}
+                        completion:nil];
     });
     // Back to normal voice only UI
     if (_isAudioOnly) {
