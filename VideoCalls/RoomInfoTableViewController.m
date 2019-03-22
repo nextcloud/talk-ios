@@ -824,9 +824,6 @@ typedef enum ModificationError {
                 case kNCRoomTypeOneToOneCall:
                 {
                     cell.roomNameTextField.text = _room.displayName;
-                    // Create avatar for every OneToOne call
-                    [cell.roomImage setImageWithString:_room.displayName color:nil circular:true];
-                    // Request user avatar to the server and set it if exist
                     [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
                                           placeholderImage:nil success:nil failure:nil];
                 }
@@ -968,13 +965,8 @@ typedef enum ModificationError {
                 cell.labelTitle.text = guestName;
                 [cell.contactImage setImageWithString:avatarName color:guestAvatarColor circular:true];
             } else {
-                // Create avatar for every participant
-                [cell.contactImage setImageWithString:participant.displayName color:nil circular:true];
-                // Request user avatar to the server and set it if exist
                 [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
-                                         placeholderImage:nil
-                                                  success:nil
-                                                  failure:nil];
+                                         placeholderImage:nil success:nil failure:nil];
                 cell.contactImage.layer.cornerRadius = 24.0;
                 cell.contactImage.layer.masksToBounds = YES;
             }

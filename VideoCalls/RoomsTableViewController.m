@@ -20,7 +20,6 @@
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NSDate+DateTools.h"
-#import "UIImageView+Letters.h"
 #import "AFImageDownloader.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIButton+AFNetworking.h"
@@ -1054,14 +1053,8 @@ API_AVAILABLE(ios(11.0)){
     // Set room image
     switch (room.type) {
         case kNCRoomTypeOneToOneCall:
-        {
-            // Create avatar for every OneToOne call
-            [cell.roomImage setImageWithString:room.displayName color:nil circular:true];
-            
-            // Request user avatar to the server and set it if exist
             [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96]
                                   placeholderImage:nil success:nil failure:nil];
-        }
             break;
             
         case kNCRoomTypeGroupCall:

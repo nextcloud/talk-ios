@@ -11,7 +11,6 @@
 #import "NCUser.h"
 #import "NCAPIController.h"
 #import "PlaceholderView.h"
-#import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
 @interface ResultMultiSelectionTableViewController ()
@@ -104,15 +103,8 @@
     
     cell.labelTitle.text = contact.name;
     
-    // Create avatar for every contact
-    [cell.contactImage setImageWithString:contact.name color:nil circular:true];
-    
-    // Request user avatar to the server and set it if exist
     [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:96]
-                             placeholderImage:nil
-                                      success:nil
-                                      failure:nil];
-    
+                             placeholderImage:nil success:nil failure:nil];
     cell.contactImage.layer.cornerRadius = 24.0;
     cell.contactImage.layer.masksToBounds = YES;
     

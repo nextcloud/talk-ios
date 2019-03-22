@@ -12,7 +12,6 @@
 #import "RoomNameTableViewCell.h"
 #import "NCUser.h"
 #import "NCAPIController.h"
-#import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
 typedef enum CreationSection {
@@ -366,13 +365,8 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                 }
                 
                 cell.labelTitle.text = participant.name;
-                // Create avatar for every contact
-                [cell.contactImage setImageWithString:participant.name color:nil circular:true];
-                // Request user avatar to the server and set it if exist
                 [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
-                                         placeholderImage:nil
-                                                  success:nil
-                                                  failure:nil];
+                                         placeholderImage:nil success:nil failure:nil];
                 cell.contactImage.layer.cornerRadius = 24.0;
                 cell.contactImage.layer.masksToBounds = YES;
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
