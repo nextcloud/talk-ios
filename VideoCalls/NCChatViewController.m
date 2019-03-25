@@ -47,6 +47,8 @@
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
 @property (nonatomic, assign) NSInteger firstUnreadMessage;
 @property (nonatomic, strong) UnreadMessagesView *unreadMessageView;
+@property (nonatomic, strong) UIBarButtonItem *videoCallButton;
+@property (nonatomic, strong) UIBarButtonItem *voiceCallButton;
 
 @end
 
@@ -158,6 +160,8 @@
         _stopReceivingNewMessages = NO;
         [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
     }
+    
+    [self checkRoomReadOnlyState];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -235,17 +239,32 @@
 
 - (void)configureActionItems
 {
-    UIBarButtonItem *videoCallButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"videocall-action"]
-                                                                        style:UIBarButtonItemStylePlain
-                                                                       target:self
-                                                                       action:@selector(videoCallButtonPressed:)];
+    _videoCallButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"videocall-action"]
+                                                        style:UIBarButtonItemStylePlain
+                                                       target:self
+                                                       action:@selector(videoCallButtonPressed:)];
     
-    UIBarButtonItem *voiceCallButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"call-action"]
-                                                                        style:UIBarButtonItemStylePlain
-                                                                       target:self
-                                                                       action:@selector(voiceCallButtonPressed:)];
+    _voiceCallButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"call-action"]
+                                                        style:UIBarButtonItemStylePlain
+                                                       target:self
+                                                       action:@selector(voiceCallButtonPressed:)];
     
-    self.navigationItem.rightBarButtonItems = @[videoCallButton, voiceCallButton];
+    self.navigationItem.rightBarButtonItems = @[_videoCallButton, _voiceCallButton];
+}
+
+#pragma mark - User Interface
+
+- (void)checkRoomReadOnlyState
+{
+    if (_room.readOnlyState == NCRoomReadOnlyStateReadOnly) {
+        // Disable text input
+        self.textInputbar.userInteractionEnabled = NO;
+        self.textInputbar.textView.placeholder = @"This conversation is locked";
+        self.textInputbar.textView.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
+        // Disable call buttons
+        [_videoCallButton setEnabled:NO];
+        [_voiceCallButton setEnabled:NO];
+    }
 }
 
 #pragma mark - Utils

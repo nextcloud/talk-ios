@@ -40,6 +40,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.notificationLevel = (NCRoomNotificationLevel)[[roomDict objectForKey:@"notificationLevel"] integerValue];
     room.objectType = [roomDict objectForKey:@"objectType"];
     room.objectId = [roomDict objectForKey:@"objectId"];
+    room.readOnlyState = (NCRoomReadOnlyState)[[roomDict objectForKey:@"readOnly"] integerValue];
     
     id name = [roomDict objectForKey:@"name"];
     if ([name isKindOfClass:[NSString class]]) {
