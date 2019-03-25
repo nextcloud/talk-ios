@@ -27,6 +27,7 @@ typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NSError *error);
 typedef void (^ExitRoomCompletionBlock)(NSError *error);
 typedef void (^FavoriteRoomCompletionBlock)(NSError *error);
 typedef void (^NotificationLevelCompletionBlock)(NSError *error);
+typedef void (^ReadOnlyCompletionBlock)(NSError *error);
 
 typedef void (^GetParticipantsFromRoomCompletionBlock)(NSMutableArray *participants, NSError *error);
 typedef void (^LeaveRoomCompletionBlock)(NSInteger errorCode, NSError *error);
@@ -85,6 +86,7 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 - (NSURLSessionDataTask *)addRoomToFavorites:(NSString *)token withCompletionBlock:(FavoriteRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)removeRoomFromFavorites:(NSString *)token withCompletionBlock:(FavoriteRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)setNotificationLevel:(NCRoomNotificationLevel)level forRoom:(NSString *)token withCompletionBlock:(NotificationLevelCompletionBlock)block;
+- (NSURLSessionDataTask *)setReadOnlyState:(NCRoomReadOnlyState)state forRoom:(NSString *)token withCompletionBlock:(ReadOnlyCompletionBlock)block;
 
 // Participants Controller
 - (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block;
