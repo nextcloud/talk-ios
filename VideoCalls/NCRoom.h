@@ -24,6 +24,11 @@ typedef enum NCRoomNotificationLevel {
     kNCRoomNotificationLevelNever
 } NCRoomNotificationLevel;
 
+typedef enum NCRoomReadOnlyState {
+    NCRoomReadOnlyStateReadWrite = 0,
+    NCRoomReadOnlyStateReadOnly
+} NCRoomReadOnlyState;
+
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;
 
@@ -49,6 +54,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, assign) NCRoomNotificationLevel notificationLevel;
 @property (nonatomic, copy) NSString *objectType;
 @property (nonatomic, copy) NSString *objectId;
+@property (nonatomic, assign) NCRoomReadOnlyState readOnlyState;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 

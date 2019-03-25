@@ -158,6 +158,8 @@
         _stopReceivingNewMessages = NO;
         [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
     }
+    
+    [self checkRoomReadOnlyState];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -246,6 +248,22 @@
                                                                        action:@selector(voiceCallButtonPressed:)];
     
     self.navigationItem.rightBarButtonItems = @[videoCallButton, voiceCallButton];
+}
+
+#pragma mark - User Interface
+
+- (void)checkRoomReadOnlyState
+{
+    if (_room.readOnlyState == NCRoomReadOnlyStateReadOnly) {
+        // Disable text input
+        self.textInputbar.userInteractionEnabled = NO;
+        self.textInputbar.textView.placeholder = @"This conversation is locked";
+        self.textInputbar.textView.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
+        // Disable call buttons
+        for (UIBarButtonItem *button in self.navigationItem.rightBarButtonItems) {
+            [button setEnabled:NO];
+        }
+    }
 }
 
 #pragma mark - Utils
