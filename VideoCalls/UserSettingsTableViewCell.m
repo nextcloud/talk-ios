@@ -15,7 +15,8 @@ NSString *const kUserSettingsTableCellNibName = @"UserSettingsTableViewCell";
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    // Initialization code
+    self.userImageView.layer.cornerRadius = 40.0;
+    self.userImageView.layer.masksToBounds = YES;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

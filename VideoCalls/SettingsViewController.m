@@ -316,8 +316,6 @@ typedef enum AboutSection {
                 cell.userDisplayNameLabel.text = [NCSettingsController sharedInstance].ncUserDisplayName;
                 [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:160]
                                           placeholderImage:nil success:nil failure:nil];
-                cell.userImageView.layer.cornerRadius = 40.0;
-                cell.userImageView.layer.masksToBounds = YES;
             }
             return cell;
         }
