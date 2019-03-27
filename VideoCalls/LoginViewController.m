@@ -67,10 +67,13 @@
         [storage deleteCookie:cookie];
     }
     
-    [self.activityIndicatorView startAnimating];
-    self.activityIndicatorView.hidden = NO;
-    
-    [self startLoginProcess];
+    // Check if valid URL
+    NSURL *serverURL = [NSURL URLWithString:_serverURL];
+    if (serverURL) {
+        [self startLoginProcess];
+    } else {
+        [self showAlertWithTitle:@"Invalid server address" andMessage:@"Please check that you entered a valid server address."];
+    }
 }
 
 - (void)trustedCerticateAccepted
@@ -89,6 +92,8 @@
 - (void)startLoginProcess
 {
     [[NCAPIController sharedInstance] setNCServer:_serverURL];
+    [self.activityIndicatorView startAnimating];
+    self.activityIndicatorView.hidden = NO;
     [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
         [self.activityIndicatorView stopAnimating];
         self.activityIndicatorView.hidden = YES;
