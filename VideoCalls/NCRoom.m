@@ -156,6 +156,8 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     NSMutableAttributedString *lastMessage = _lastMessage.parsedMessage;
     [lastMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:15.0 weight:UIFontWeightRegular] range:NSMakeRange(0,lastMessage.length)];
     [lastMessage addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.4] range:NSMakeRange(0,lastMessage.length)];
+    // Remove possible links in last message
+    [lastMessage removeAttribute:NSLinkAttributeName range:NSMakeRange(0,lastMessage.length)];
     
     return lastMessage;
 }
