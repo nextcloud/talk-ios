@@ -41,18 +41,6 @@
     _avatarView.layer.cornerRadius = kFileMessageCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
     
-    _previewView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellFilePreviewHeight, kFileMessageCellFilePreviewHeight)];
-    _previewView.translatesAutoresizingMaskIntoConstraints = NO;
-    _previewView.layer.shadowOffset = CGSizeMake(-4, 4);
-    _previewView.layer.shadowRadius = 4;
-    _previewView.layer.shadowOpacity = 0.5;
-    _previewView.layer.masksToBounds = NO;
-    
-    UITapGestureRecognizer *previewTap =
-    [[UITapGestureRecognizer alloc] initWithTarget:self
-                                            action:@selector(previewTapped:)];
-    [_previewView addGestureRecognizer:previewTap];
-    
     _previewImageView = [[FilePreviewImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellFilePreviewHeight, kFileMessageCellFilePreviewHeight)];
     _previewImageView.translatesAutoresizingMaskIntoConstraints = NO;
     _previewImageView.userInteractionEnabled = NO;
@@ -60,20 +48,22 @@
     _previewImageView.layer.masksToBounds = YES;
     [_previewImageView setImage:[UIImage imageNamed:@"file-default-preview"]];
     
+    UITapGestureRecognizer *previewTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
+    [_previewImageView addGestureRecognizer:previewTap];
+    _previewImageView.userInteractionEnabled = YES;
+    
     if ([self.reuseIdentifier isEqualToString:FileMessageCellIdentifier]) {
         [self.contentView addSubview:_avatarView];
         [self.contentView addSubview:self.titleLabel];
         [self.contentView addSubview:self.dateLabel];
     }
-    [self.contentView addSubview:_previewView];
-    [self.previewView addSubview:_previewImageView];
+    [self.contentView addSubview:_previewImageView];
     [self.contentView addSubview:self.bodyTextView];
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"titleLabel": self.titleLabel,
                             @"dateLabel": self.dateLabel,
                             @"previewImageView": self.previewImageView,
-                            @"previewView": self.previewView,
                             @"bodyTextView": self.bodyTextView,
                             };
     
@@ -87,19 +77,16 @@
     
     if ([self.reuseIdentifier isEqualToString:FileMessageCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[previewView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[previewView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[previewView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:GroupedFileMessageCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[previewView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[previewView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
     }
-    
-    [self.previewView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[previewImageView(previewSize)]|" options:0 metrics:metrics views:views]];
-    [self.previewView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[previewImageView(previewView)]|" options:0 metrics:metrics views:views]];
 }
 
 - (void)prepareForReuse

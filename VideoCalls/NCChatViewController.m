@@ -792,8 +792,13 @@
         fileCell.dateLabel.text = [self getTimeFromDate:date];
         [fileCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
                                    placeholderImage:nil success:nil failure:nil];
+        __weak FilePreviewImageView *weakPreviewImageView = fileCell.previewImageView;
         [fileCell.previewImageView setImageWithURLRequest:[[NCFilePreviewSessionManager sharedInstance] createPreviewRequestForFile:message.file.parameterId width:120 height:120]
-                                         placeholderImage:[UIImage imageNamed:@"file-default-preview"] success:nil failure:nil];
+                                         placeholderImage:[UIImage imageNamed:@"file-default-preview"] success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+                                             [weakPreviewImageView setImage:image];
+                                             weakPreviewImageView.layer.borderColor = [[UIColor colorWithWhite:0.9 alpha:1.0] CGColor];
+                                             weakPreviewImageView.layer.borderWidth = 1.0f;
+                                         } failure:nil];
         return fileCell;
     }
     if (message.groupMessage) {
