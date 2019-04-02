@@ -61,7 +61,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (BOOL)isPublic
 {
-    return _type == kNCRoomTypePublicCall;
+    return _type == kNCRoomTypePublic;
 }
 
 - (BOOL)canModerate
@@ -71,12 +71,12 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (BOOL)isNameEditable
 {
-    return [self canModerate] && _type != kNCRoomTypeOneToOneCall;
+    return [self canModerate] && _type != kNCRoomTypeOneToOne;
 }
 
 - (BOOL)isLockedOneToOne
 {
-    return _type == kNCRoomTypeOneToOneCall && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLockedOneToOneRooms];
+    return _type == kNCRoomTypeOneToOne && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLockedOneToOneRooms];
 }
 
 - (BOOL)isLeavable
@@ -84,18 +84,18 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     // Allow users to leave when there are no moderators in the room
     // (No need to check room type because in one2one rooms users will always be moderators)
     // or when in a group call and there are other participants.
-    return ![self canModerate] || (_type != kNCRoomTypeOneToOneCall && [_participants count] > 1);
+    return ![self canModerate] || (_type != kNCRoomTypeOneToOne && [_participants count] > 1);
 }
 
 - (BOOL)shouldShowLastMessageActorName
 {
-    return _type != kNCRoomTypeOneToOneCall && !_lastMessage.isSystemMessage;
+    return _type != kNCRoomTypeOneToOne && !_lastMessage.isSystemMessage;
 }
 
 - (NSString *)deletionMessage
 {
     NSString *message = @"Do you really want to delete this conversation?";
-    if (_type == kNCRoomTypeOneToOneCall) {
+    if (_type == kNCRoomTypeOneToOne) {
         message = [NSString stringWithFormat:@"If you delete the conversation, it will also be deleted for %@", _displayName];
     } else if ([_participants count] > 1) {
         message = @"If you delete the conversation, it will also be deleted for all other participants.";

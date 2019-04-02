@@ -516,7 +516,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         if (!error) {
             NSString *title = [NSString stringWithFormat:@"%@ is now public", room.name];
             // Room type condition should be removed when we don't set room names by default on OneToOne calls.
-            if (room.type == kNCRoomTypeOneToOneCall || !room.name || [room.name isEqualToString:@""]) {
+            if (room.type == kNCRoomTypeOneToOne || !room.name || [room.name isEqualToString:@""]) {
                 title = @"This conversation is now public";
             }
             [self showShareDialogForRoom:room withTitle:title];
@@ -1052,16 +1052,16 @@ API_AVAILABLE(ios(11.0)){
     
     // Set room image
     switch (room.type) {
-        case kNCRoomTypeOneToOneCall:
+        case kNCRoomTypeOneToOne:
             [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96]
                                   placeholderImage:nil success:nil failure:nil];
             break;
             
-        case kNCRoomTypeGroupCall:
+        case kNCRoomTypeGroup:
             [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
             break;
             
-        case kNCRoomTypePublicCall:
+        case kNCRoomTypePublic:
             [cell.roomImage setImage:(room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
             break;
             

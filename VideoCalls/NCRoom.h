@@ -12,9 +12,9 @@
 #import "NCChatMessage.h"
 
 typedef enum NCRoomType {
-    kNCRoomTypeOneToOneCall = 1,
-    kNCRoomTypeGroupCall,
-    kNCRoomTypePublicCall
+    kNCRoomTypeOneToOne = 1,
+    kNCRoomTypeGroup,
+    kNCRoomTypePublic
 } NCRoomType;
 
 typedef enum NCRoomNotificationLevel {
