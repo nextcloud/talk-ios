@@ -128,16 +128,16 @@
     
     // Set room image
     switch (room.type) {
-        case kNCRoomTypeOneToOneCall:
+        case kNCRoomTypeOneToOne:
             [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96]
                                   placeholderImage:nil success:nil failure:nil];
             break;
             
-        case kNCRoomTypeGroupCall:
+        case kNCRoomTypeGroup:
             [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
             break;
             
-        case kNCRoomTypePublicCall:
+        case kNCRoomTypePublic:
             [cell.roomImage setImage:(room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
             break;
             

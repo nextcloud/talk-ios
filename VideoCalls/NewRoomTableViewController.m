@@ -143,7 +143,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 - (void)createRoomWithContact:(NCUser *)contact
 {
     [[NCAPIController sharedInstance] createRoomWith:contact.userId
-                                              ofType:kNCRoomTypeOneToOneCall
+                                              ofType:kNCRoomTypeOneToOne
                                              andName:nil
                                  withCompletionBlock:^(NSString *token, NSError *error) {
                                      if (!error) {

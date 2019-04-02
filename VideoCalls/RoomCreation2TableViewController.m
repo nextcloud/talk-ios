@@ -129,7 +129,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 - (void)createGroupRoomWithName:(NSString *)roomName public:(BOOL)public
 {
     [[NCAPIController sharedInstance] createRoomWith:nil
-                                              ofType:public ? kNCRoomTypePublicCall : kNCRoomTypeGroupCall
+                                              ofType:public ? kNCRoomTypePublic : kNCRoomTypeGroup
                                              andName:roomName
                                  withCompletionBlock:^(NSString *token, NSError *error) {
                                      if (!error) {

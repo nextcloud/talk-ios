@@ -329,7 +329,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)createWaitingScreen
 {
-    if (_room.type == kNCRoomTypeOneToOneCall) {
+    if (_room.type == kNCRoomTypeOneToOne) {
         self.waitingLabel.text = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
         __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
         [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]

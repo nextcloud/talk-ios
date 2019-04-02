@@ -140,6 +140,11 @@
     [_avatarView setImageWithString:@">" color:guestAvatarColor circular:true];
 }
 
+- (void)setChangelogAvatar
+{
+    [_avatarView setImage:[UIImage imageNamed:@"changelog"]];
+}
+
 + (CGFloat)defaultFontSize
 {
     CGFloat pointSize = 16.0;

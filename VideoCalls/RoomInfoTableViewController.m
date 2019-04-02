@@ -821,7 +821,7 @@ typedef enum ModificationError {
             cell.roomNameTextField.text = _room.name;
             
             switch (_room.type) {
-                case kNCRoomTypeOneToOneCall:
+                case kNCRoomTypeOneToOne:
                 {
                     cell.roomNameTextField.text = _room.displayName;
                     [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
@@ -829,12 +829,19 @@ typedef enum ModificationError {
                 }
                     break;
                     
-                case kNCRoomTypeGroupCall:
+                case kNCRoomTypeGroup:
                     [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
                     break;
                     
-                case kNCRoomTypePublicCall:
+                case kNCRoomTypePublic:
                     [cell.roomImage setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
+                    break;
+                    
+                case kNCRoomTypeChangelog:
+                {
+                    cell.roomNameTextField.text = _room.displayName;
+                    [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
+                }
                     break;
                     
                 default:
@@ -909,7 +916,7 @@ typedef enum ModificationError {
                     cell.textLabel.text = @"Share link";
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _publicSwtich;
-                    _publicSwtich.on = (_room.type == kNCRoomTypePublicCall) ? YES : NO;
+                    _publicSwtich.on = (_room.type == kNCRoomTypePublic) ? YES : NO;
                     [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
                     
                     return cell;

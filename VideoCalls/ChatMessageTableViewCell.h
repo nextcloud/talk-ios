@@ -26,5 +26,6 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 + (CGFloat)defaultFontSize;
 - (void)setGuestAvatar:(NSString *)displayName;
 - (void)setBotAvatar;
+- (void)setChangelogAvatar;
 
 @end
