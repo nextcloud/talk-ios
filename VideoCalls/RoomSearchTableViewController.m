@@ -141,6 +141,10 @@
             [cell.roomImage setImage:(room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
             break;
             
+        case kNCRoomTypeChangelog:
+            [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
+            break;
+            
         default:
             break;
     }
