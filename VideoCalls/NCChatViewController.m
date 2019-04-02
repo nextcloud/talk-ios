@@ -223,6 +223,9 @@
         case kNCRoomTypePublic:
             [_titleView.image setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
             break;
+        case kNCRoomTypeChangelog:
+            [_titleView.image setImage:[UIImage imageNamed:@"changelog"]];
+            break;
         default:
             break;
     }
@@ -818,7 +821,11 @@
             normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
             [normalCell setGuestAvatar:message.actorDisplayName];
         } else if ([message.actorType isEqualToString:@"bots"]) {
-            [normalCell setBotAvatar];
+            if ([message.actorId isEqualToString:@"changelog"]) {
+                [normalCell setChangelogAvatar];
+            } else {
+                [normalCell setBotAvatar];
+            }
         } else {
             [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
                                          placeholderImage:nil success:nil failure:nil];

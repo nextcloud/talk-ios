@@ -89,7 +89,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (BOOL)shouldShowLastMessageActorName
 {
-    return _type != kNCRoomTypeOneToOne && !_lastMessage.isSystemMessage;
+    return !_lastMessage.isSystemMessage && _type != kNCRoomTypeOneToOne && _type != kNCRoomTypeChangelog;
 }
 
 - (NSString *)deletionMessage

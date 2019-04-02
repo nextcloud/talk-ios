@@ -837,6 +837,13 @@ typedef enum ModificationError {
                     [cell.roomImage setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
                     break;
                     
+                case kNCRoomTypeChangelog:
+                {
+                    cell.roomNameTextField.text = _room.displayName;
+                    [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
+                }
+                    break;
+                    
                 default:
                     break;
             }

@@ -14,7 +14,8 @@
 typedef enum NCRoomType {
     kNCRoomTypeOneToOne = 1,
     kNCRoomTypeGroup,
-    kNCRoomTypePublic
+    kNCRoomTypePublic,
+    kNCRoomTypeChangelog
 } NCRoomType;
 
 typedef enum NCRoomNotificationLevel {
