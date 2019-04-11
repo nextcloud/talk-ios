@@ -74,12 +74,12 @@
                                               maximumActiveDownloads:4
                                               imageCache:[[AFAutoPurgingImageCache alloc] init]];
         [FilePreviewImageView setSharedImageDownloader:imageDownloader];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistory:) name:NCRoomControllerDidReceiveInitialChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatHistory:) name:NCRoomControllerDidReceiveChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCRoomControllerDidReceiveChatMessagesNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCRoomControllerDidSendChatMessageNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
     }
     
     return self;
@@ -160,10 +160,7 @@
 {
     [super viewWillAppear:animated];
     
-    if (_stopReceivingNewMessages) {
-        _stopReceivingNewMessages = NO;
-        [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
-    }
+    [[NCRoomsManager sharedInstance] joinRoom:_room.token];
     
     [self checkRoomReadOnlyState];
 }
@@ -400,6 +397,9 @@
     if (!_roomController) {
         _roomController = roomController;
         [_roomController getInitialChatHistory];
+    } else if (_stopReceivingNewMessages) {
+        _stopReceivingNewMessages = NO;
+        [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
     }
 }
 

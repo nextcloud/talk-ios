@@ -75,21 +75,21 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 #pragma mark - Room
 
-- (void)joinRoom:(NCRoom *)room forCall:(BOOL)call
+- (void)joinRoom:(NSString *)token forCall:(BOOL)call
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
+    NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (!roomController) {
-        _joiningRoom = [room.token copy];
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:room.token withCompletionBlock:^(NSString *sessionId, NSError *error) {
+        _joiningRoom = token;
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token withCompletionBlock:^(NSString *sessionId, NSError *error) {
             if (!error) {
-                NCRoomController *controller = [[NCRoomController alloc] initForUser:sessionId inRoom:room.token];
+                NCRoomController *controller = [[NCRoomController alloc] initForUser:sessionId inRoom:token];
                 controller.inChat = !call;
                 controller.inCall = call;
-                [_activeRooms setObject:controller forKey:room.token];
+                [_activeRooms setObject:controller forKey:token];
                 [userInfo setObject:controller forKey:@"roomController"];
                 if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-                    [[NCExternalSignalingController sharedInstance] joinRoom:room.token withSessionId:sessionId];
+                    [[NCExternalSignalingController sharedInstance] joinRoom:token withSessionId:sessionId];
                 }
             } else {
                 [userInfo setObject:error forKey:@"error"];
@@ -111,6 +111,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                                                             object:self
                                                           userInfo:userInfo];
     }
+}
+
+- (void)joinRoom:(NSString *)token
+{
+    [self joinRoom:token forCall:NO];
 }
 
 - (void)rejoinRoom:(NSString *)token
@@ -241,7 +246,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         }
         NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
         [[NCUserInterfaceController sharedInstance] presentChatViewController:chatVC];
-        [self joinRoom:room forCall:NO];
+        [self joinRoom:room.token forCall:NO];
     }
 }
 
@@ -333,7 +338,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             }
         }
         [[NCUserInterfaceController sharedInstance] presentCallViewController:_callViewController];
-        [self joinRoom:room forCall:YES];
+        [self joinRoom:room.token forCall:YES];
     } else {
         NSLog(@"Not starting call due to in another call.");
     }
