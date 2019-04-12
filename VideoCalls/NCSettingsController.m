@@ -253,6 +253,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 
 - (void)subscribeForPushNotifications
 {
+#if !TARGET_IPHONE_SIMULATOR
     UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
                                                                 accessGroup:@"group.com.nextcloud.Talk"];
     
@@ -288,6 +289,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
             }
         }];
     }
+#endif
 }
 
 - (BOOL)generatePushNotificationsKeyPair
