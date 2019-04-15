@@ -6,7 +6,6 @@ pod 'AFNetworking', "3.1.0"
 pod 'DateTools'
 pod 'GoogleWebRTC', "1.1.20266"
 pod 'JDStatusBarNotification'
-pod 'SlackTextViewController'
 pod 'SocketRocket'
 pod 'DBImageColorPicker'
 end
