@@ -86,6 +86,16 @@
 		2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */; };
 		2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */; };
 		2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
+		2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */; };
+		2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */; };
+		2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A12264775E0053078A /* SLKTextInputbar.m */; };
+		2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A32264775E0053078A /* SLKTextView+SLKAdditions.m */; };
+		2CB3041D2264775E0053078A /* SLKTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A52264775E0053078A /* SLKTextView.m */; };
+		2CB3041E2264775E0053078A /* SLKTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A72264775E0053078A /* SLKTextViewController.m */; };
+		2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AA2264775E0053078A /* SLKTypingIndicatorView.m */; };
+		2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AD2264775E0053078A /* UIResponder+SLKAdditions.m */; };
+		2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AF2264775E0053078A /* UIScrollView+SLKAdditions.m */; };
+		2CB304222264775E0053078A /* UIView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303B12264775E0053078A /* UIView+SLKAdditions.m */; };
 		2CB5D0531FB4D1FD00D7A5B7 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60141FB4A9DA006E87EF /* libssl.a */; };
 		2CB5D0541FB4D20B00D7A5B7 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60131FB4A9DA006E87EF /* libcrypto.a */; };
 		2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
@@ -343,6 +353,28 @@
 		2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContactsTableViewCell.xib; sourceTree = "<group>"; };
 		2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoomTableViewCell.h; sourceTree = "<group>"; };
 		2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoomTableViewCell.m; sourceTree = "<group>"; };
+		2CB3039C2264775E0053078A /* SLKInputAccessoryView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKInputAccessoryView.h; sourceTree = "<group>"; };
+		2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLKInputAccessoryView.m; sourceTree = "<group>"; };
+		2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SLKTextInput+Implementation.m"; sourceTree = "<group>"; };
+		2CB3039F2264775E0053078A /* SLKTextInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKTextInput.h; sourceTree = "<group>"; };
+		2CB303A02264775E0053078A /* SLKTextInputbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKTextInputbar.h; sourceTree = "<group>"; };
+		2CB303A12264775E0053078A /* SLKTextInputbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLKTextInputbar.m; sourceTree = "<group>"; };
+		2CB303A22264775E0053078A /* SLKTextView+SLKAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SLKTextView+SLKAdditions.h"; sourceTree = "<group>"; };
+		2CB303A32264775E0053078A /* SLKTextView+SLKAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SLKTextView+SLKAdditions.m"; sourceTree = "<group>"; };
+		2CB303A42264775E0053078A /* SLKTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKTextView.h; sourceTree = "<group>"; };
+		2CB303A52264775E0053078A /* SLKTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLKTextView.m; sourceTree = "<group>"; };
+		2CB303A62264775E0053078A /* SLKTextViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKTextViewController.h; sourceTree = "<group>"; };
+		2CB303A72264775E0053078A /* SLKTextViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLKTextViewController.m; sourceTree = "<group>"; };
+		2CB303A82264775E0053078A /* SLKTypingIndicatorProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKTypingIndicatorProtocol.h; sourceTree = "<group>"; };
+		2CB303A92264775E0053078A /* SLKTypingIndicatorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKTypingIndicatorView.h; sourceTree = "<group>"; };
+		2CB303AA2264775E0053078A /* SLKTypingIndicatorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLKTypingIndicatorView.m; sourceTree = "<group>"; };
+		2CB303AB2264775E0053078A /* SLKUIConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKUIConstants.h; sourceTree = "<group>"; };
+		2CB303AC2264775E0053078A /* UIResponder+SLKAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIResponder+SLKAdditions.h"; sourceTree = "<group>"; };
+		2CB303AD2264775E0053078A /* UIResponder+SLKAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIResponder+SLKAdditions.m"; sourceTree = "<group>"; };
+		2CB303AE2264775E0053078A /* UIScrollView+SLKAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+SLKAdditions.h"; sourceTree = "<group>"; };
+		2CB303AF2264775E0053078A /* UIScrollView+SLKAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SLKAdditions.m"; sourceTree = "<group>"; };
+		2CB303B02264775E0053078A /* UIView+SLKAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+SLKAdditions.h"; sourceTree = "<group>"; };
+		2CB303B12264775E0053078A /* UIView+SLKAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+SLKAdditions.m"; sourceTree = "<group>"; };
 		2CBF82AC1FC888FC00636459 /* NCPushNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushNotification.h; sourceTree = "<group>"; };
 		2CBF82AD1FC888FC00636459 /* NCPushNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushNotification.m; sourceTree = "<group>"; };
 		2CBF82B01FCC7DBA00636459 /* CCCertificate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCCertificate.h; sourceTree = "<group>"; };
@@ -462,6 +494,7 @@
 		2C05749C1EDDA01700D9E7F2 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				2CB302F92264775E0053078A /* SlackTextViewController */,
 				2C4E758C214B942D003910D5 /* Firefox */,
 				2C8B5FF01FB4A9DA006E87EF /* openssl */,
 				2C9219591F58530B008AC1A3 /* UIImageView+Letters */,
@@ -793,6 +826,44 @@
 			name = UICKeyChainStore;
 			sourceTree = "<group>";
 		};
+		2CB302F92264775E0053078A /* SlackTextViewController */ = {
+			isa = PBXGroup;
+			children = (
+				2CB3039B2264775E0053078A /* Source */,
+			);
+			name = SlackTextViewController;
+			path = ThirdParty/SlackTextViewController;
+			sourceTree = "<group>";
+		};
+		2CB3039B2264775E0053078A /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				2CB3039C2264775E0053078A /* SLKInputAccessoryView.h */,
+				2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */,
+				2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */,
+				2CB3039F2264775E0053078A /* SLKTextInput.h */,
+				2CB303A02264775E0053078A /* SLKTextInputbar.h */,
+				2CB303A12264775E0053078A /* SLKTextInputbar.m */,
+				2CB303A22264775E0053078A /* SLKTextView+SLKAdditions.h */,
+				2CB303A32264775E0053078A /* SLKTextView+SLKAdditions.m */,
+				2CB303A42264775E0053078A /* SLKTextView.h */,
+				2CB303A52264775E0053078A /* SLKTextView.m */,
+				2CB303A62264775E0053078A /* SLKTextViewController.h */,
+				2CB303A72264775E0053078A /* SLKTextViewController.m */,
+				2CB303A82264775E0053078A /* SLKTypingIndicatorProtocol.h */,
+				2CB303A92264775E0053078A /* SLKTypingIndicatorView.h */,
+				2CB303AA2264775E0053078A /* SLKTypingIndicatorView.m */,
+				2CB303AB2264775E0053078A /* SLKUIConstants.h */,
+				2CB303AC2264775E0053078A /* UIResponder+SLKAdditions.h */,
+				2CB303AD2264775E0053078A /* UIResponder+SLKAdditions.m */,
+				2CB303AE2264775E0053078A /* UIScrollView+SLKAdditions.h */,
+				2CB303AF2264775E0053078A /* UIScrollView+SLKAdditions.m */,
+				2CB303B02264775E0053078A /* UIView+SLKAdditions.h */,
+				2CB303B12264775E0053078A /* UIView+SLKAdditions.m */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
 		2CBF82B31FCC7DC100636459 /* Security */ = {
 			isa = PBXGroup;
 			children = (
@@ -1046,6 +1117,7 @@
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
 				2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
+				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
 				2C8CDD0621C2EDE8004E2997 /* AvatarBackgroundImageView.m in Sources */,
 				2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */,
 				2CC007BD20D8F24B0096D91F /* RoomCreation2TableViewController.m in Sources */,
@@ -1055,20 +1127,25 @@
 				2C4D7D721F309DA500FF4A0D /* RTCIceCandidate+JSON.m in Sources */,
 				2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */,
 				2C06330F2046CC8B0043481A /* NCUserInterfaceController.m in Sources */,
+				2CB304222264775E0053078A /* UIView+SLKAdditions.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
+				2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */,
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
 				2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
 				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
+				2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
 				2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */,
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
+				2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */,
 				2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */,
+				2CB3041E2264775E0053078A /* SLKTextViewController.m in Sources */,
 				2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */,
 				2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */,
 				2C063313205A85850043481A /* VideoSettingsViewController.m in Sources */,
@@ -1083,6 +1160,9 @@
 				2C7A1236200E0A5700864818 /* UserSettingsTableViewCell.m in Sources */,
 				2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */,
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
+				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
+				2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */,
+				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
 				2C063318205ACB140043481A /* VideoResolutionsViewController.m in Sources */,
@@ -1090,6 +1170,7 @@
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				2C42ADB420B58E6300296DEA /* NCRoomController.m in Sources */,
 				2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */,
+				2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */,
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
 				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
