@@ -853,6 +853,9 @@
                                      NSParagraphStyleAttributeName: paragraphStyle};
         
         CGFloat width = CGRectGetWidth(tableView.frame) - kChatMessageCellAvatarHeight;
+        if (@available(iOS 11.0, *)) {
+            width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right;
+        }
         width -= (message.isSystemMessage)? 80.0 : 30.0; // 4*right(10) + dateLabel(40) : 3*right(10)
         
         CGRect titleBounds = [message.actorDisplayName boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
