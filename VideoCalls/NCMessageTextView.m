@@ -29,7 +29,7 @@
     self.placeholder = NSLocalizedString(@"New message …", nil);
     self.placeholderColor = [UIColor lightGrayColor];
     
-    self.layer.borderColor = [UIColor colorWithRed:217.0/255.0 green:217.0/255.0 blue:217.0/255.0 alpha:1.0].CGColor;
+    self.layer.borderColor = [UIColor lightGrayColor].CGColor;
 }
 
 @end
