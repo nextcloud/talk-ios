@@ -110,7 +110,8 @@
     self.shouldScrollToBottomAfterKeyboardShows = YES;
     self.inverted = NO;
     
-    [self.rightButton setTitle:NSLocalizedString(@"Send", nil) forState:UIControlStateNormal];
+    [self.rightButton setTitle:@"" forState:UIControlStateNormal];
+    [self.rightButton setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
     
     self.textInputbar.autoHideRightButton = YES;
     self.textInputbar.maxCharCount = 1000;
