@@ -8,10 +8,15 @@
 
 #import "NCAPIController.h"
 
+#import "CCCertificate.h"
 #import "NCAPISessionManager.h"
 #import "NCFilePreviewSessionManager.h"
 #import "NCPushProxySessionManager.h"
 #import "NCSettingsController.h"
+
+#define k_maxHTTPConnectionsPerHost                     5
+#define k_maxConcurrentOperation                        10
+#define k_webDAV                                        @"/remote.php/webdav/"
 
 NSString * const kNCOCSAPIVersion       = @"/ocs/v2.php";
 NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
@@ -68,6 +73,57 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (NSString *)getRequestURLForSpreedEndpoint:(NSString *)endpoint
 {
     return [NSString stringWithFormat:@"%@%@%@/%@", _serverUrl, kNCOCSAPIVersion, kNCSpreedAPIVersion, endpoint];
+}
+
+- (OCCommunication *)sharedOCCommunication
+{
+    static OCCommunication* sharedOCCommunication = nil;
+    
+    if (sharedOCCommunication == nil)
+    {
+        // Network
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        configuration.allowsCellularAccess = YES;
+        configuration.discretionary = NO;
+        configuration.HTTPMaximumConnectionsPerHost = k_maxConcurrentOperation;
+        configuration.requestCachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+        
+        OCURLSessionManager *networkSessionManager = [[OCURLSessionManager alloc] initWithSessionConfiguration:configuration];
+        [networkSessionManager.operationQueue setMaxConcurrentOperationCount: k_maxConcurrentOperation];
+        networkSessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        
+        // Download
+        NSURLSessionConfiguration *configurationDownload = [NSURLSessionConfiguration defaultSessionConfiguration];
+        configurationDownload.allowsCellularAccess = YES;
+        configurationDownload.discretionary = NO;
+        configurationDownload.HTTPMaximumConnectionsPerHost = k_maxHTTPConnectionsPerHost;
+        configurationDownload.requestCachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+        configurationDownload.timeoutIntervalForRequest = k_timeout_upload;
+        
+        OCURLSessionManager *downloadSessionManager = [[OCURLSessionManager alloc] initWithSessionConfiguration:configurationDownload];
+        [downloadSessionManager.operationQueue setMaxConcurrentOperationCount:k_maxHTTPConnectionsPerHost];
+        [downloadSessionManager setSessionDidReceiveAuthenticationChallengeBlock:^NSURLSessionAuthChallengeDisposition (NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential) {
+            return NSURLSessionAuthChallengePerformDefaultHandling;
+        }];
+        
+        // Upload
+        NSURLSessionConfiguration *configurationUpload = [NSURLSessionConfiguration defaultSessionConfiguration];
+        configurationUpload.allowsCellularAccess = YES;
+        configurationUpload.discretionary = NO;
+        configurationUpload.HTTPMaximumConnectionsPerHost = k_maxHTTPConnectionsPerHost;
+        configurationUpload.requestCachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+        configurationUpload.timeoutIntervalForRequest = k_timeout_upload;
+        
+        OCURLSessionManager *uploadSessionManager = [[OCURLSessionManager alloc] initWithSessionConfiguration:configurationUpload];
+        [uploadSessionManager.operationQueue setMaxConcurrentOperationCount:k_maxHTTPConnectionsPerHost];
+        [uploadSessionManager setSessionDidReceiveAuthenticationChallengeBlock:^NSURLSessionAuthChallengeDisposition (NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential) {
+            return NSURLSessionAuthChallengePerformDefaultHandling;
+        }];
+        
+        sharedOCCommunication = [[OCCommunication alloc] initWithUploadSessionManager:uploadSessionManager andDownloadSessionManager:downloadSessionManager andNetworkSessionManager:networkSessionManager];
+    }
+    
+    return sharedOCCommunication;
 }
 
 #pragma mark - Contacts Controller
@@ -822,6 +878,49 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return [self getRequestURLForSpreedEndpoint:@"signaling/backend"];
 }
 
+#pragma mark - Files
+
+- (void)readFolderAtPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block
+{
+    OCCommunication *communication = [self sharedOCCommunication];
+    [communication setCredentialsWithUser:[NCSettingsController sharedInstance].ncUser andUserID:[NCSettingsController sharedInstance].ncUser andPassword:[NCSettingsController sharedInstance].ncToken];
+    [communication setUserAgent:_userAgent];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@%@%@", _serverUrl, k_webDAV, path ? path : @""];
+    [communication readFolder:urlString depth:depth withUserSessionToken:nil onCommunication:communication successRequest:^(NSHTTPURLResponse *response, NSArray *items, NSString *redirectedServer, NSString *token) {
+        if (block) {
+            block(items, nil);
+        }
+    } failureRequest:^(NSHTTPURLResponse *response, NSError *error, NSString *token, NSString *redirectedServer) {
+        if (block) {
+            block(nil, error);
+        }
+    }];
+}
+
+- (void)shareFileOrFolderAtPath:(NSString *)path toRoom:(NSString *)token withCompletionBlock:(ShareFileOrFolderCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/files_sharing/api/v1/shares", _serverUrl];
+    NSDictionary *parameters = @{@"path" : path,
+                                 @"shareType" : @(10),
+                                 @"shareWith" : token
+                                 };
+    
+    [[NCAPISessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+        // Do not return error when re-sharing a file or folder.
+        if (httpResponse.statusCode == 403 && block) {
+            block(nil);
+        } else if (block) {
+            block(error);
+        }
+    }];
+}
+
 #pragma mark - User avatars
 
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size
@@ -992,5 +1091,21 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     [_manager.operationQueue cancelAllOperations];
 }
 
+
+@end
+
+#pragma mark - OCURLSessionManager
+
+@implementation OCURLSessionManager
+
+- (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
+{
+    // The pinnning check
+    if ([[CCCertificate sharedManager] checkTrustedChallenge:challenge]) {
+        completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
+    } else {
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+    }
+}
 
 @end

@@ -52,6 +52,8 @@ NSString * const kCapabilityMentionFlag         = @"mention-flag";
 NSString * const kCapabilityNotificationLevels  = @"notification-levels";
 NSString * const kCapabilityLockedOneToOneRooms = @"locked-one-to-one-rooms";
 
+NSString * const kPreferredFileSorting  = @"preferredFileSorting";
+
 NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabilitiesReceivedNotification";
 
 + (NCSettingsController *)sharedInstance
@@ -74,6 +76,23 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
         [self readValuesFromKeyChain];
     }
     return self;
+}
+
+#pragma mark - User defaults
+
+- (NCPreferredFileSorting)getPreferredFileSorting
+{
+    NCPreferredFileSorting sorting = (NCPreferredFileSorting)[[[NSUserDefaults standardUserDefaults] objectForKey:kPreferredFileSorting] integerValue];
+    if (!sorting) {
+        sorting = NCModificationDateSorting;
+        [[NSUserDefaults standardUserDefaults] setObject:@(sorting) forKey:kPreferredFileSorting];
+    }
+    return sorting;
+}
+
+- (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting
+{
+    [[NSUserDefaults standardUserDefaults] setObject:@(sorting) forKey:kPreferredFileSorting];
 }
 
 #pragma mark - KeyChain
