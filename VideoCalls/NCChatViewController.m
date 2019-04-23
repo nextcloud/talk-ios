@@ -11,6 +11,7 @@
 #import "AFImageDownloader.h"
 #import "CallKitManager.h"
 #import "ChatMessageTableViewCell.h"
+#import "DirectoryTableViewController.h"
 #import "GroupedChatMessageTableViewCell.h"
 #import "FileMessageTableViewCell.h"
 #import "SystemMessageTableViewCell.h"
@@ -112,8 +113,9 @@
     
     [self.rightButton setTitle:@"" forState:UIControlStateNormal];
     [self.rightButton setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
+    [self.leftButton setImage:[UIImage imageNamed:@"add"] forState:UIControlStateNormal];
     
-    self.textInputbar.autoHideRightButton = YES;
+    self.textInputbar.autoHideRightButton = NO;
     self.textInputbar.maxCharCount = 1000;
     self.textInputbar.counterStyle = SLKCounterStyleCountdownReversed;
     self.textInputbar.counterPosition = SLKCounterPositionTop;
@@ -321,6 +323,14 @@
     NSString *sendingText = [self createSendingMessage:self.textView.text];
     [[NCRoomsManager sharedInstance] sendChatMessage:sendingText toRoom:_room];
     [super didPressRightButton:sender];
+}
+
+- (void)didPressLeftButton:(id)sender
+{
+    DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:@"" inRoom:_room.token];
+    UINavigationController *fileSharingNC = [[UINavigationController alloc] initWithRootViewController:directoryVC];
+    [self presentViewController:fileSharingNC animated:YES completion:nil];
+    [super didPressLeftButton:sender];
 }
 
 #pragma mark - UIScrollViewDelegate Methods

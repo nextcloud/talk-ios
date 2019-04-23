@@ -44,6 +44,11 @@ typedef void (^GetSignalingConfigCompletionBlock)(NSError *error);
 
 extern NSString * const NCServerCapabilitiesReceivedNotification;
 
+typedef enum NCPreferredFileSorting {
+    NCAlphabeticalSorting = 1,
+    NCModificationDateSorting
+} NCPreferredFileSorting;
+
 
 @interface NCSettingsController : NSObject
 
@@ -79,5 +84,7 @@ extern NSString * const NCServerCapabilitiesReceivedNotification;
 - (void)subscribeForPushNotifications;
 - (BOOL)serverUsesRequiredTalkVersion;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
+- (NCPreferredFileSorting)getPreferredFileSorting;
+- (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting;
 
 @end

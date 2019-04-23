@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 
 #import "AFNetworking.h"
+#import "OCCommunication.h"
+#import "OCFrameworkConstants.h"
 #import "NCChatMessage.h"
 #import "NCRoom.h"
 #import "NCUser.h"
@@ -46,6 +48,9 @@ typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);
 typedef void (^GetSignalingSettingsCompletionBlock)(NSDictionary *settings, NSError *error);
 
+typedef void (^ReadFolderCompletionBlock)(NSArray *items, NSError *error);
+typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
+
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
 
 typedef void (^GetServerCapabilitiesCompletionBlock)(NSDictionary *serverCapabilities, NSError *error);
@@ -56,6 +61,8 @@ typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
 typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
 typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
+@interface OCURLSessionManager : AFURLSessionManager
+@end
 
 @interface NCAPIController : NSObject
 
@@ -115,6 +122,10 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 - (NSURLSessionDataTask *)pullSignalingMessagesFromRoom:(NSString *)token withCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
 - (NSURLSessionDataTask *)getSignalingSettingsWithCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
 - (NSString *)authenticationBackendUrl;
+
+// WebDAV client
+- (void)readFolderAtPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block;
+- (void)shareFileOrFolderAtPath:(NSString *)path toRoom:(NSString *)token withCompletionBlock:(ShareFileOrFolderCompletionBlock)block;
 
 // User avatars
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size;
