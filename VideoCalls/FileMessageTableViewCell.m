@@ -107,6 +107,7 @@
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
     
+    self.previewImageView.layer.borderWidth = 0.0f;
     self.previewImageView.image = nil;
 }
 
