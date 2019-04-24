@@ -15,6 +15,8 @@
 @property (nonatomic, strong) NSString *path;
 @property (nonatomic, strong) NSString *link;
 @property (nonatomic, strong) NSString *type;
+@property (nonatomic, strong) NSString *mimetype;
+@property (nonatomic, assign) BOOL previewAvailable;
 @property (nonatomic, assign) NSRange range;
 
 + (instancetype)parameterWithDictionary:(NSDictionary *)parameterDict;

@@ -24,6 +24,8 @@
     messageParameter.type = [parameterDict objectForKey:@"type"];
     messageParameter.path = [parameterDict objectForKey:@"path"];
     messageParameter.link = [parameterDict objectForKey:@"link"];
+    messageParameter.mimetype = [parameterDict objectForKey:@"mimetype"];
+    messageParameter.previewAvailable = [[parameterDict objectForKey:@"preview-available"] boolValue];
     
     id parameterId = [parameterDict objectForKey:@"id"];
     if ([parameterId isKindOfClass:[NSString class]]) {
