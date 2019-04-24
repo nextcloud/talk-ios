@@ -46,7 +46,7 @@
     _previewImageView.userInteractionEnabled = NO;
     _previewImageView.layer.cornerRadius = 4.0;
     _previewImageView.layer.masksToBounds = YES;
-    [_previewImageView setImage:[UIImage imageNamed:@"file-default-preview"]];
+    [_previewImageView setImage:[UIImage imageNamed:@"file-chat-preview"]];
     
     UITapGestureRecognizer *previewTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
     [_previewImageView addGestureRecognizer:previewTap];

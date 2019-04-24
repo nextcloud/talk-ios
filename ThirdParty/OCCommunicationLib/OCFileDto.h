@@ -53,5 +53,6 @@
 @property (nonatomic, copy) NSString *trashbinOriginalLocation;
 @property long trashbinDeletionTime;
 @property int hasPreview;
+@property (nonatomic, copy) NSString *contentType;
 
 @end

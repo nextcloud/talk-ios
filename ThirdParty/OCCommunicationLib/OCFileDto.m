@@ -43,6 +43,7 @@
         self.id = 0;
         self.trashbinFileName = @"";
         self.trashbinOriginalLocation = @"";
+        self.contentType = @"";
     }
     
     return self;
