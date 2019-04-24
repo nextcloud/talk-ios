@@ -173,6 +173,7 @@
     } else if ([elementName hasSuffix:@":getcontenttype"] && [_xmlChars length]) {
         //CONTENT TYPE
         [_xmlBucket setObject:[_xmlChars copy] forKey:@"contenttype"];
+        _currentFile.contentType = _xmlChars;
         
     } else if([elementName hasSuffix:@"d:getcontentlength"] && [_xmlChars length]) {
         //SIZE
