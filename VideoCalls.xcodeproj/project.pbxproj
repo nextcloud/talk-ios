@@ -37,6 +37,7 @@
 		2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */; };
 		2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4DE9F121F732B40096940D /* NCAudioController.m */; };
 		2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
+		2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
 		2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
 		2C738158210613A200CDB8DB /* NCChatTitleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C738157210613A200CDB8DB /* NCChatTitleView.xib */; };
@@ -220,6 +221,8 @@
 		2C4DE9F121F732B40096940D /* NCAudioController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAudioController.m; sourceTree = "<group>"; };
 		2C4E758D214B942D003910D5 /* OpenInFirefoxControllerObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenInFirefoxControllerObjC.h; sourceTree = "<group>"; };
 		2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenInFirefoxControllerObjC.m; sourceTree = "<group>"; };
+		2C5E957B227097E0009CA9BE /* NCUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCUtils.m; sourceTree = "<group>"; };
+		2C5E957C227097E0009CA9BE /* NCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCUtils.h; sourceTree = "<group>"; };
 		2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SystemMessageTableViewCell.h; sourceTree = "<group>"; };
 		2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SystemMessageTableViewCell.m; sourceTree = "<group>"; };
 		2C6085C11FB1063700B36A6E /* VideoCalls.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VideoCalls.entitlements; sourceTree = "<group>"; };
@@ -743,6 +746,8 @@
 				2C063312205A85850043481A /* VideoSettingsViewController.m */,
 				2C063316205ACB140043481A /* VideoResolutionsViewController.h */,
 				2C063317205ACB140043481A /* VideoResolutionsViewController.m */,
+				2C5E957C227097E0009CA9BE /* NCUtils.h */,
+				2C5E957B227097E0009CA9BE /* NCUtils.m */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -1299,6 +1304,7 @@
 				2C961E222216BF4B00F5C23F /* UtilsFramework.m in Sources */,
 				2C961E1B2216BF4B00F5C23F /* OCWebDAVClient.m in Sources */,
 				2C961E162216BF4B00F5C23F /* OCShareUser.m in Sources */,
+				2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
 				2C961E102216BF4B00F5C23F /* OCExternalSites.m in Sources */,

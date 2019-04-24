@@ -13,6 +13,7 @@
 #import "NCAPIController.h"
 #import "NCFilePreviewSessionManager.h"
 #import "NCSettingsController.h"
+#import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "UIImageView+AFNetworking.h"
 
@@ -322,14 +323,16 @@
     cell.fileInfoLabel.text = [self dateDiff:[NSDate dateWithTimeIntervalSince1970:item.date]];
     
     // Icon or preview
+    NSString *imageName = [NCUtils previewImageForFileMIMEType:item.contentType];
+    UIImage *filePreviewImage = [UIImage imageNamed:imageName];
     if (item.isDirectory) {
         cell.fileImageView.image = [UIImage imageNamed:@"folder"];
     } else if (item.hasPreview) {
         NSString *fileId = [NSString stringWithFormat:@"%f", item.id];
         [cell.fileImageView setImageWithURLRequest:[[NCFilePreviewSessionManager sharedInstance] createPreviewRequestForFile:fileId width:40 height:40]
-                                  placeholderImage:[UIImage imageNamed:@"file"] success:nil failure:nil];
+                                  placeholderImage:filePreviewImage success:nil failure:nil];
     } else {
-        cell.fileImageView.image = [UIImage imageNamed:@"file"];
+        cell.fileImageView.image = filePreviewImage;
     }
     
     // Disclosure indicator
