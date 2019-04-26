@@ -20,8 +20,6 @@
 	<string>6.1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
-	<key>FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED</key>
-	<true/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>firefox</string>
