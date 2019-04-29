@@ -10,6 +10,7 @@
 #import "SLKUIConstants.h"
 #import "NCFilePreviewSessionManager.h"
 #import "NCSettingsController.h"
+#import "NCUtils.h"
 #import "OpenInFirefoxControllerObjC.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
@@ -155,7 +156,9 @@
 {
     if (_fileLink) {
         NSURL *url = [NSURL URLWithString:_fileLink];
-        if ([[NCSettingsController sharedInstance].defaultBrowser isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
+        if ([NCUtils isNextcloudAppInstalled]) {
+            [NCUtils openFileInNextcloudApp:_fileLink];
+        } else if ([[NCSettingsController sharedInstance].defaultBrowser isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
             [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:url];
         } else {
             [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];

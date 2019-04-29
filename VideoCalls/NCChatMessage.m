@@ -129,7 +129,12 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
         }
         //Create a link if parameter contains a link
         else if (param.link) {
-            [attributedMessage addAttribute: NSLinkAttributeName value:param.link range:param.range];
+            // Do not create links for files. File preview images will redirect to files client or browser.
+            if ([param.type isEqualToString:@"file"]) {
+                [attributedMessage addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:16.0f] range:param.range];
+            } else {
+                [attributedMessage addAttribute: NSLinkAttributeName value:param.link range:param.range];
+            }
         }
     }
     

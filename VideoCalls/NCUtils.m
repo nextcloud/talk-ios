@@ -7,7 +7,13 @@
 //
 
 #import "NCUtils.h"
+
+#import <UIKit/UIKit.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+
+#import "NCSettingsController.h"
+
+static NSString *const nextcloudScheme = @"nextcloud:";
 
 @implementation NCUtils
 
@@ -48,6 +54,25 @@
         else if (UTTypeConformsTo(fileType, kUTTypeZipArchive)) previewImage = @"file-zip";
     }
     return previewImage;
+}
+
+ + (BOOL)isNextcloudAppInstalled
+{
+    NSURL *url = [NSURL URLWithString:nextcloudScheme];
+    return [[UIApplication sharedApplication] canOpenURL:url];
+}
+
++ (void)openFileInNextcloudApp:(NSString *)fileURL
+{
+    if (![self isNextcloudAppInstalled]) {
+        return;
+    }
+    
+    NSMutableString *nextcloudURLString = [NSMutableString string];
+    [nextcloudURLString appendFormat:@"%@//open-file?url=%@&user=%@", nextcloudScheme, fileURL, [[NCSettingsController sharedInstance] ncUser]];
+    NSURL *nextcloudURL = [NSURL URLWithString: nextcloudURLString];
+    
+    [[UIApplication sharedApplication] openURL:nextcloudURL options:@{} completionHandler:nil];
 }
 
 @end
