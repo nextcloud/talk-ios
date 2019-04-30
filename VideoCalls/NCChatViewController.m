@@ -801,6 +801,7 @@
         fileCell.bodyTextView.attributedText = message.parsedMessage;
         fileCell.messageId = message.messageId;
         fileCell.fileLink = message.file.link;
+        fileCell.filePath = message.file.path;
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
         fileCell.dateLabel.text = [self getTimeFromDate:date];
         [fileCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]

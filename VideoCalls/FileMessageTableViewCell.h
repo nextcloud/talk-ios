@@ -28,6 +28,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 @property (nonatomic, strong) UIImageView *avatarView;
 @property (nonatomic, strong) NSString *fileLink;
+@property (nonatomic, strong) NSString *filePath;
 
 + (CGFloat)defaultFontSize;
 - (void)setGuestAvatar:(NSString *)displayName;

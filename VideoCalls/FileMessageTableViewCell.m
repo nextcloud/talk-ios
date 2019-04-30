@@ -154,10 +154,10 @@
 
 - (void)previewTapped:(UITapGestureRecognizer *)recognizer
 {
-    if (_fileLink) {
+    if (_fileLink && _filePath) {
         NSURL *url = [NSURL URLWithString:_fileLink];
         if ([NCUtils isNextcloudAppInstalled]) {
-            [NCUtils openFileInNextcloudApp:_fileLink];
+            [NCUtils openFileInNextcloudApp:_filePath withFileLink:_fileLink];
         } else if ([[NCSettingsController sharedInstance].defaultBrowser isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
             [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:url];
         } else {
