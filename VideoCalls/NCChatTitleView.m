@@ -28,6 +28,8 @@
         self.contentView.frame = self.bounds;
         self.image.layer.cornerRadius = 15.0f;
         self.image.clipsToBounds = YES;
+        self.title.titleLabel.adjustsFontSizeToFitWidth = YES;
+        self.title.titleLabel.minimumScaleFactor = 0.75;
     }
     
     return self;
