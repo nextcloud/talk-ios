@@ -123,6 +123,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationWillBePresented:) name:NCNotificationControllerWillPresentNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
 }
@@ -159,15 +160,43 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self adaptInterfaceForConnectionState:connectionState];
 }
 
+- (void)roomsDidUpdate:(NSNotification *)notification
+{
+    NSMutableArray *rooms = [notification.userInfo objectForKey:@"rooms"];
+    NSError *error = [notification.userInfo objectForKey:@"error"];
+    if (!error) {
+        _rooms = rooms;
+        [_roomsBackgroundView.loadingView stopAnimating];
+        [_roomsBackgroundView.loadingView setHidden:YES];
+        [_roomsBackgroundView.placeholderView setHidden:(rooms.count > 0)];
+        [self.tableView reloadData];
+        if (_searchController.isActive) {
+            [self searchForRoomsWithString:_searchController.searchBar.text];
+        }
+        NSLog(@"Rooms updated");
+    } else {
+        NSLog(@"Error while trying to get rooms: %@", error);
+        if ([error code] == NSURLErrorServerCertificateUntrusted) {
+            NSLog(@"Untrusted certificate");
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
+            });
+            
+        }
+    }
+    
+    [_refreshControl endRefreshing];
+}
+
 - (void)notificationWillBePresented:(NSNotification *)notification
 {
-    [self fetchRoomsWithCompletionBlock:nil];
+    [[NCRoomsManager sharedInstance] updateRooms];
 }
 
 - (void)appWillEnterForeground:(NSNotification *)notification
 {
     if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
-        [self fetchRoomsWithCompletionBlock:nil];
+        [[NCRoomsManager sharedInstance] updateRooms];
     }
 }
 
@@ -203,8 +232,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)refreshControlTarget
 {
-    [self fetchRoomsWithCompletionBlock:nil];
-    
+    [[NCRoomsManager sharedInstance] updateRooms];
     // Actuate `Peek` feedback (weak boom)
     AudioServicesPlaySystemSound(1519);
 }
@@ -241,7 +269,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         case kAppStateReady:
         {
             [self setProfileButtonWithUserImage:YES];
-            [self fetchRoomsWithCompletionBlock:nil];
+            [[NCRoomsManager sharedInstance] updateRooms];
         }
             break;
             
@@ -318,67 +346,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self presentViewController:_settingsNC animated:YES completion:nil];
 }
 
-#pragma mark - Rooms
-
-- (void)fetchRoomsWithCompletionBlock:(FetchRoomsCompletionBlock)block
-{
-    [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
-        if (!error) {
-            _rooms = rooms;
-            [_roomsBackgroundView.loadingView stopAnimating];
-            [_roomsBackgroundView.loadingView setHidden:YES];
-            [_roomsBackgroundView.placeholderView setHidden:(rooms.count > 0)];
-            [self.tableView reloadData];
-            if (_searchController.isActive) {
-                [self searchForRoomsWithString:_searchController.searchBar.text];
-            }
-            NSLog(@"Rooms updated");
-            if (block) {
-                block(YES);
-            }
-        } else {
-            NSLog(@"Error while trying to get rooms: %@", error);
-            if ([error code] == NSURLErrorServerCertificateUntrusted) {
-                NSLog(@"Untrusted certificate");
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
-                });
-                
-            }
-            if (block) {
-                block(NO);
-            }
-        }
-        
-        [_refreshControl endRefreshing];
-    }];
-}
+#pragma mark - CCCertificateDelegate
 
 - (void)trustedCerticateAccepted
 {
-    [self fetchRoomsWithCompletionBlock:nil];
-}
-
-- (NCRoom *)getRoomForToken:(NSString *)token
-{
-    NCRoom *room = nil;
-    for (NCRoom *localRoom in _rooms) {
-        if (localRoom.token == token) {
-            room = localRoom;
-        }
-    }
-    return room;
-}
-
-- (NCRoom *)getRoomForId:(NSInteger)roomId
-{
-    NCRoom *room = nil;
-    for (NCRoom *localRoom in _rooms) {
-        if (localRoom.roomId == roomId) {
-            room = localRoom;
-        }
-    }
-    return room;
+    [[NCRoomsManager sharedInstance] updateRooms];
 }
 
 #pragma mark - Room actions
@@ -416,12 +388,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             return;
         }
         [[NCAPIController sharedInstance] renameRoom:room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
-            if (!error) {
-                [self fetchRoomsWithCompletionBlock:nil];
-            } else {
+            if (error) {
                 NSLog(@"Error renaming the room: %@", error.description);
-                //TODO: Error handling
             }
+            [[NCRoomsManager sharedInstance] updateRooms];
         }];
     }];
     _renameAction.enabled = NO;
@@ -463,12 +433,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                            return;
                                                        }
                                                        [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:room.token withCompletionBlock:^(NSError *error) {
-                                                           if (!error) {
-                                                               [self fetchRoomsWithCompletionBlock:nil];
-                                                           } else {
+                                                           if (error) {
                                                                NSLog(@"Error renaming the room: %@", error.description);
-                                                               //TODO: Error handling
                                                            }
+                                                           [[NCRoomsManager sharedInstance] updateRooms];
                                                        }];
                                                    }];
     if (room.notificationLevel == level) {
@@ -520,11 +488,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                 title = @"This conversation is now public";
             }
             [self showShareDialogForRoom:room withTitle:title];
-            [self fetchRoomsWithCompletionBlock:nil];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
-            //TODO: Error handling
         }
+        [[NCRoomsManager sharedInstance] updateRooms];
     }];
 }
 
@@ -532,12 +499,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     [[NCAPIController sharedInstance] makeRoomPrivate:room.token withCompletionBlock:^(NSError *error) {
-        if (!error) {
-            [self fetchRoomsWithCompletionBlock:nil];
-        } else {
+        if (error) {
             NSLog(@"Error making private the room: %@", error.description);
-            //TODO: Error handling
         }
+        [[NCRoomsManager sharedInstance] updateRooms];
     }];
 }
 
@@ -564,12 +529,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         NSString *password = [[passwordDialog textFields][0] text];
         NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:room.token withCompletionBlock:^(NSError *error) {
-            if (!error) {
-                [self fetchRoomsWithCompletionBlock:nil];
-            } else {
+            if (error) {
                 NSLog(@"Error setting room password: %@", error.description);
-                //TODO: Error handling
             }
+            [[NCRoomsManager sharedInstance] updateRooms];
         }];
     }];
     _setPasswordAction.enabled = NO;
@@ -578,12 +541,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     if (room.hasPassword) {
         UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:@"Remove password" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
             [[NCAPIController sharedInstance] setPassword:@"" toRoom:room.token withCompletionBlock:^(NSError *error) {
-                if (!error) {
-                    [self fetchRoomsWithCompletionBlock:nil];
-                } else {
+                if (error) {
                     NSLog(@"Error changing room password: %@", error.description);
-                    //TODO: Error handling
                 }
+                [[NCRoomsManager sharedInstance] updateRooms];
             }];
         }];
         [passwordDialog addAction:removePasswordAction];
@@ -599,12 +560,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     [[NCAPIController sharedInstance] addRoomToFavorites:room.token withCompletionBlock:^(NSError *error) {
-        if (!error) {
-            [self fetchRoomsWithCompletionBlock:nil];
-        } else {
+        if (error) {
             NSLog(@"Error adding room to favorites: %@", error.description);
-            //TODO: Error handling
         }
+        [[NCRoomsManager sharedInstance] updateRooms];
     }];
 }
 
@@ -612,12 +571,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token withCompletionBlock:^(NSError *error) {
-        if (!error) {
-            [self fetchRoomsWithCompletionBlock:nil];
-        } else {
+        if (error) {
             NSLog(@"Error removing room from favorites: %@", error.description);
-            //TODO: Error handling
         }
+        [[NCRoomsManager sharedInstance] updateRooms];
     }];
 }
 
@@ -637,7 +594,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             } else {
                 NSLog(@"Error leaving room: %@", error.description);
             }
-            [self fetchRoomsWithCompletionBlock:nil];
+            [[NCRoomsManager sharedInstance] updateRooms];
         }];
     }];
     [confirmDialog addAction:confirmAction];
@@ -657,12 +614,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [_rooms removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [[NCAPIController sharedInstance] deleteRoom:room.token withCompletionBlock:^(NSError *error) {
-            if (!error) {
-                [self fetchRoomsWithCompletionBlock:nil];
-            } else {
+            if (error) {
                 NSLog(@"Error deleting room: %@", error.description);
-                //TODO: Error handling
             }
+            [[NCRoomsManager sharedInstance] updateRooms];
         }];
     }];
     [confirmDialog addAction:confirmAction];
@@ -809,7 +764,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
-    [[NCRoomsManager sharedInstance] startChatInRoom:room];
+    NCChatViewController *chatViewController = [[NCChatViewController alloc] initForRoom:room];
+    [self.navigationController pushViewController:chatViewController animated:YES];
 }
 
 #pragma mark - Utils
