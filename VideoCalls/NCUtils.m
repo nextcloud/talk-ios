@@ -68,10 +68,8 @@ static NSString *const nextcloudScheme = @"nextcloud:";
         return;
     }
     
-    NSMutableString *nextcloudURLString = [NSMutableString string];
-    [nextcloudURLString appendFormat:@"%@//open-file?path=%@&user=%@&link=%@", nextcloudScheme, path, [[NCSettingsController sharedInstance] ncUser], link];
-    NSURL *nextcloudURL = [NSURL URLWithString: nextcloudURLString];
-    
+    NSString *nextcloudURLString = [NSString stringWithFormat:@"%@//open-file?path=%@&user=%@&link=%@", nextcloudScheme, path, [[NCSettingsController sharedInstance] ncUser], link];
+    NSURL *nextcloudURL = [NSURL URLWithString:[nextcloudURLString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     [[UIApplication sharedApplication] openURL:nextcloudURL options:@{} completionHandler:nil];
 }
 
