@@ -22,6 +22,7 @@
 	<string>1</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>nextcloud</string>
 		<string>firefox</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>

@@ -10,6 +10,7 @@
 #import "SLKUIConstants.h"
 #import "NCFilePreviewSessionManager.h"
 #import "NCSettingsController.h"
+#import "NCUtils.h"
 #import "OpenInFirefoxControllerObjC.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
@@ -153,9 +154,11 @@
 
 - (void)previewTapped:(UITapGestureRecognizer *)recognizer
 {
-    if (_fileLink) {
+    if (_fileLink && _filePath) {
         NSURL *url = [NSURL URLWithString:_fileLink];
-        if ([[NCSettingsController sharedInstance].defaultBrowser isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
+        if ([NCUtils isNextcloudAppInstalled]) {
+            [NCUtils openFileInNextcloudApp:_filePath withFileLink:_fileLink];
+        } else if ([[NCSettingsController sharedInstance].defaultBrowser isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
             [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:url];
         } else {
             [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
