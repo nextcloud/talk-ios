@@ -36,8 +36,17 @@
         
         // Set Realm configuration
         RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
-        configuration.fileURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:k_TalkDatabaseFileName];
+        NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:k_TalkDatabaseFileName];
+        configuration.fileURL = databaseURL;
         [RLMRealmConfiguration setDefaultConfiguration:configuration];
+        
+#ifdef DEBUG
+        // Copy Talk DB to Documents directory
+        NSString *dbCopyPath = [NSString stringWithFormat:@"%@/%@", NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0], k_TalkDatabaseFileName];
+        NSURL *dbCopyURL = [NSURL fileURLWithPath:dbCopyPath];
+        [[NSFileManager defaultManager] removeItemAtURL:dbCopyURL error:nil];
+        [[NSFileManager defaultManager] copyItemAtURL:databaseURL toURL:dbCopyURL error:nil];
+#endif
     }
     
     return self;
