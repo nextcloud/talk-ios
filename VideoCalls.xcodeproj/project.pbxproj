@@ -23,6 +23,7 @@
 		2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
 		2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
 		2C3780C5210F4A26003F9AE8 /* HeaderWithButton.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */; };
+		2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
 		2C415F9B2136BDD6005F7F37 /* FileMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */; };
 		2C42ADB420B58E6300296DEA /* NCRoomController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C42ADB320B58E6300296DEA /* NCRoomController.m */; };
 		2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
@@ -192,6 +193,8 @@
 		2C3780C1210F49DC003F9AE8 /* HeaderWithButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HeaderWithButton.h; sourceTree = "<group>"; };
 		2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HeaderWithButton.m; sourceTree = "<group>"; };
 		2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HeaderWithButton.xib; sourceTree = "<group>"; };
+		2C40281322832EED0000DDFC /* NCDatabaseManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCDatabaseManager.h; sourceTree = "<group>"; };
+		2C40281422832EED0000DDFC /* NCDatabaseManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCDatabaseManager.m; sourceTree = "<group>"; };
 		2C415F992136BDD6005F7F37 /* FileMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileMessageTableViewCell.h; sourceTree = "<group>"; };
 		2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileMessageTableViewCell.m; sourceTree = "<group>"; };
 		2C42ADB220B58E6300296DEA /* NCRoomController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCRoomController.h; sourceTree = "<group>"; };
@@ -545,6 +548,7 @@
 				2C5521691F7D48480077E587 /* Calls */,
 				2CF0679E208A2A430070A79B /* Chat */,
 				2C5521671F7D47BA0077E587 /* Contacts */,
+				2C40281622832EF90000DDFC /* Database */,
 				2C8A2BCA221F096200DE6D2C /* File sharing */,
 				2C5521681F7D481C0077E587 /* Login */,
 				2C55216B1F7D48970077E587 /* Network */,
@@ -600,6 +604,15 @@
 				2CC7158820B837140045C789 /* PlaceholderView.xib */,
 			);
 			name = "User Interface";
+			sourceTree = "<group>";
+		};
+		2C40281622832EF90000DDFC /* Database */ = {
+			isa = PBXGroup;
+			children = (
+				2C40281322832EED0000DDFC /* NCDatabaseManager.h */,
+				2C40281422832EED0000DDFC /* NCDatabaseManager.m */,
+			);
+			name = Database;
 			sourceTree = "<group>";
 		};
 		2C4D7D601F2F7C2C00FF4A0D /* AppRTC */ = {
@@ -1322,6 +1335,7 @@
 				2C961E1D2216BF4B00F5C23F /* OCXMLParser.m in Sources */,
 				2C961E1A2216BF4B00F5C23F /* OCHTTPRequestOperation.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
+				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
