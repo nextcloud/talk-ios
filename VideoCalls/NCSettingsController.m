@@ -15,6 +15,7 @@
 #import <openssl/sha.h>
 #import <openssl/err.h>
 #import <CommonCrypto/CommonDigest.h>
+#import "OpenInFirefoxControllerObjC.h"
 #import "NCAPIController.h"
 #import "NCExternalSignalingController.h"
 
@@ -79,6 +80,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
         _keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
                                                    accessGroup:@"group.com.nextcloud.Talk"];
         [self readValuesFromKeyChain];
+        [self configureDefaultBrowser];
     }
     return self;
 }
@@ -194,6 +196,23 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     [[NCExternalSignalingController sharedInstance] disconnect];
     [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
     if (block) block(nil);
+}
+
+#pragma mark - Default browser
+
+- (void)configureDefaultBrowser
+{
+    // Check supported browsers
+    NSMutableArray *supportedBrowsers = [[NSMutableArray alloc] initWithObjects:@"Safari", nil];
+    if ([[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
+        [supportedBrowsers addObject:@"Firefox"];
+    }
+    self.supportedBrowsers = supportedBrowsers;
+    // Set default browser
+    NSString *defaultBrowser = [NCSettingsController sharedInstance].defaultBrowser;
+    if (!defaultBrowser || ![supportedBrowsers containsObject:defaultBrowser]) {
+        self.defaultBrowser = @"Safari";
+    }
 }
 
 

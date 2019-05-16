@@ -16,7 +16,6 @@
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
-#import "OpenInFirefoxControllerObjC.h"
 #import "NCAudioController.h"
 #import "NCConnectionController.h"
 #import "NCNotificationController.h"
@@ -50,17 +49,8 @@
     NSLog(@"Configure Audio Session");
     [NCAudioController sharedInstance];
     
-    // Check supported browsers
-    NSMutableArray *supportedBrowsers = [[NSMutableArray alloc] initWithObjects:@"Safari", nil];
-    if ([[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
-        [supportedBrowsers addObject:@"Firefox"];
-    }
-    [NCSettingsController sharedInstance].supportedBrowsers = supportedBrowsers;
-    // Set default browser
-    NSString *defaultBrowser = [NCSettingsController sharedInstance].defaultBrowser;
-    if (!defaultBrowser || ![supportedBrowsers containsObject:defaultBrowser]) {
-        [NCSettingsController sharedInstance].defaultBrowser = @"Safari";
-    }
+    NSLog(@"Configure App Settings");
+    [NCSettingsController sharedInstance];
     
     [NCUserInterfaceController sharedInstance].mainNavigationController = (UINavigationController *) self.window.rootViewController;
     
