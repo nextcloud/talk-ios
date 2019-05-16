@@ -11,6 +11,12 @@
 #define k_TalkDatabaseFolder    @"Library/Application Support/Talk"
 #define k_TalkDatabaseFileName  @"talk.realm"
 
+@implementation TalkAccount
++ (NSString *)primaryKey {
+    return @"account";
+}
+@end
+
 @implementation NCDatabaseManager
 
 + (NCDatabaseManager *)sharedInstance
