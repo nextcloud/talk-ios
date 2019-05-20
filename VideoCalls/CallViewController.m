@@ -50,6 +50,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     BOOL _isAudioOnly;
     BOOL _userDisabledVideo;
     BOOL _videoCallUpgrade;
+    BOOL _hangingUp;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -557,29 +558,35 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)hangup
 {
-    [self.delegate callViewControllerWantsToBeDismissed:self];
-    
-    [_localVideoView.captureSession stopRunning];
-    _localVideoView.captureSession = nil;
-    [_localVideoView setHidden:YES];
-    [_captureController stopCapture];
-    _captureController = nil;
-    
-    for (NCPeerConnection *peerConnection in _peersInCall) {
-        // Video renderers
-        RTCEAGLVideoView *videoRenderer = [_videoRenderersDict objectForKey:peerConnection.peerId];
-        [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
-        [_videoRenderersDict removeObjectForKey:peerConnection.peerId];
-        // Screen renderers
-        RTCEAGLVideoView *screenRenderer = [_screenRenderersDict objectForKey:peerConnection.peerId];
-        [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
-        [_screenRenderersDict removeObjectForKey:peerConnection.peerId];
-    }
-    
-    if (_callController) {
-        [_callController leaveCall];
-    } else {
-        [self finishCall];
+    if (!_hangingUp) {
+        _hangingUp = YES;
+        // Dismiss possible notifications
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+        
+        [self.delegate callViewControllerWantsToBeDismissed:self];
+        
+        [_localVideoView.captureSession stopRunning];
+        _localVideoView.captureSession = nil;
+        [_localVideoView setHidden:YES];
+        [_captureController stopCapture];
+        _captureController = nil;
+        
+        for (NCPeerConnection *peerConnection in _peersInCall) {
+            // Video renderers
+            RTCEAGLVideoView *videoRenderer = [_videoRenderersDict objectForKey:peerConnection.peerId];
+            [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
+            [_videoRenderersDict removeObjectForKey:peerConnection.peerId];
+            // Screen renderers
+            RTCEAGLVideoView *screenRenderer = [_screenRenderersDict objectForKey:peerConnection.peerId];
+            [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
+            [_screenRenderersDict removeObjectForKey:peerConnection.peerId];
+        }
+        
+        if (_callController) {
+            [_callController leaveCall];
+        } else {
+            [self finishCall];
+        }
     }
 }
 
@@ -613,6 +620,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     _callController = nil;
     if (_videoCallUpgrade) {
+        _videoCallUpgrade = NO;
         [self.delegate callViewControllerWantsVideoCallUpgrade:self];
     } else {
         [self.delegate callViewControllerDidFinish:self];

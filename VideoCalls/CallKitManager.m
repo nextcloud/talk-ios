@@ -142,6 +142,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
         [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
             if (error) {
                 NSLog(@"%@", error.localizedDescription);
+                _currentCallUUID = nil;
             }
         }];
     } else if (videoEnabled) {
@@ -203,17 +204,18 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 
 - (void)provider:(CXProvider *)provider performEndCallAction:(CXEndCallAction *)action
 {
+    [action fulfill];
+    
     if (_currentCallToken) {
-        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidEndCallNotification
-                                                            object:self
-                                                          userInfo:userInfo];
+        NSString *leaveCallToken = [_currentCallToken copy];
         self.currentCallUUID = nil;
         self.currentCallToken = nil;
         self.currentCallDisplayName = nil;
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:leaveCallToken forKey:@"roomToken"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidEndCallNotification
+                                                            object:self
+                                                          userInfo:userInfo];
     }
-    
-    [action fulfill];
 }
 
 - (void)provider:(CXProvider *)provider performSetMutedCallAction:(CXSetMutedCallAction *)action

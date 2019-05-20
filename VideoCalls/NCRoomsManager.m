@@ -32,6 +32,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 @property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
 @property (nonatomic, strong) NSString *joiningRoom;
 @property (nonatomic, strong) NSURLSessionTask *joinRoomTask;
+@property (nonatomic, strong) NSString *upgradeCallToken;
 
 
 @end
@@ -63,6 +64,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(acceptCallForRoom:) name:CallKitManagerDidAnswerCallNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startCallForRoom:) name:CallKitManagerDidStartCallNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkForCallUpgrades:) name:CallKitManagerDidEndCallNotification object:nil];
     }
     
     return self;
@@ -395,8 +397,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (roomController) {
         roomController.inCall = NO;
     }
+    _upgradeCallToken = room.token;
     [[CallKitManager sharedInstance] endCurrentCall];
-    [self joinCallWithCallToken:room.token withVideo:YES];
 }
 
 - (void)callDidEndInRoom:(NCRoom *)room
@@ -436,6 +438,18 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 }
 
 #pragma mark - Notifications
+
+- (void)checkForCallUpgrades:(NSNotification *)notification
+{
+    if (_upgradeCallToken) {
+        NSString *token = [_upgradeCallToken copy];
+        _upgradeCallToken = nil;
+        // Add some delay so CallKit doesn't fail requesting new call
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
+            [self joinCallWithCallToken:token withVideo:YES];
+        });
+    }
+}
 
 - (void)acceptCallForRoom:(NSNotification *)notification
 {
