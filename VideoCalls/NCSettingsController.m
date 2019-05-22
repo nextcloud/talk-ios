@@ -209,8 +209,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     }
     self.supportedBrowsers = supportedBrowsers;
     // Set default browser
-    NSString *defaultBrowser = [NCSettingsController sharedInstance].defaultBrowser;
-    if (!defaultBrowser || ![supportedBrowsers containsObject:defaultBrowser]) {
+    if (!_defaultBrowser || ![supportedBrowsers containsObject:_defaultBrowser]) {
         self.defaultBrowser = @"Safari";
     }
 }
