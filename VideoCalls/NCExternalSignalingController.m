@@ -31,6 +31,7 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 @property (nonatomic, assign) NSInteger reconnectInterval;
 @property (nonatomic, strong) NSTimer *reconnectTimer;
 @property (nonatomic, assign) BOOL reconnecting;
+@property (nonatomic, assign) BOOL sessionChanged;
 
 @end
 
@@ -38,6 +39,7 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 
 NSString * const NCESReceivedSignalingMessageNotification = @"NCESReceivedSignalingMessageNotification";
 NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceivedParticipantListMessageNotification";
+NSString * const NCESShouldRejoinCallNotification = @"NCESShouldRejoinCallNotification";
 
 + (NCExternalSignalingController *)sharedInstance
 {
@@ -203,7 +205,9 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
 {
     _connected = YES;
     _resumeId = [helloDict objectForKey:@"resumeid"];
-    _sessionId = [helloDict objectForKey:@"sessionid"];
+    NSString *newSessionId = [helloDict objectForKey:@"sessionid"];
+    _sessionChanged = _sessionId && ![_sessionId isEqualToString:newSessionId];
+    _sessionId = newSessionId;
     NSArray *serverFeatures = [[helloDict objectForKey:@"server"] objectForKey:@"features"];
     for (NSString *feature in serverFeatures) {
         if ([feature isEqualToString:@"mcu"]) {
@@ -218,7 +222,7 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
     _pendingMessages = [NSMutableArray new];
     
     // Re-join if user was in a room
-    if (_currentRoom && _sessionId) {
+    if (_currentRoom && _sessionChanged) {
         [[NCRoomsManager sharedInstance] rejoinRoom:_currentRoom];
     }
 }
@@ -292,7 +296,14 @@ NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceived
 {
     _participantsMap = [NSMutableDictionary new];
     _currentRoom = [messageDict objectForKey:@"roomid"];
-    NSLog(@"Room message received.");
+    
+    // Notify that session has change to rejoin the call if currently in a call
+    if (_sessionChanged) {
+        _sessionChanged = NO;
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCESShouldRejoinCallNotification
+                                                            object:self
+                                                          userInfo:nil];
+    }
 }
 
 - (void)eventMessageReceived:(NSDictionary *)eventDict
