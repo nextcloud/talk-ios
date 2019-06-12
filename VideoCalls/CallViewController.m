@@ -31,6 +31,7 @@
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
     CallStateWaitingParticipants,
+    CallStateReconnecting,
     CallStateInCall
 };
 
@@ -292,6 +293,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     switch (state) {
         case CallStateJoining:
         case CallStateWaitingParticipants:
+        case CallStateReconnecting:
         {
             [self showWaitingScreen];
             [self invalidateDetailedViewTimer];
@@ -331,7 +333,6 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)createWaitingScreen
 {
     if (_room.type == kNCRoomTypeOneToOne) {
-        self.waitingLabel.text = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
         __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
         [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
                                               placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
@@ -356,13 +357,28 @@ typedef NS_ENUM(NSInteger, CallState) {
                                                   }
                                               } failure:nil];
     } else {
-        self.waitingLabel.text = @"Waiting for others to join call…";
         self.avatarBackgroundImageView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:1];
+    }
+    
+    [self setWaitingScreenText];
+}
+
+- (void)setWaitingScreenText
+{
+    if (_room.type == kNCRoomTypeOneToOne) {
+        self.waitingLabel.text = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
+    } else {
+        self.waitingLabel.text = @"Waiting for others to join call…";
+    }
+    
+    if (_callState == CallStateReconnecting) {
+        self.waitingLabel.text = @"Connecting to the call…";
     }
 }
 
 - (void)showWaitingScreen
 {
+    [self setWaitingScreenText];
     self.collectionView.backgroundView = self.waitingView;
 }
 
@@ -778,6 +794,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.collectionView reloadData];
     });
+}
+
+- (void)callControllerIsReconnectingCall:(NCCallController *)callController
+{
+    [self setCallState:CallStateReconnecting];
 }
 
 #pragma mark - Screensharing

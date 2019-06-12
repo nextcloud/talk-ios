@@ -29,5 +29,6 @@ extern NSString * const NCESShouldRejoinCallNotification;
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 - (void)disconnect;
+- (void)forceReconnect;
 
 @end

@@ -123,6 +123,11 @@ NSString * const NCESShouldRejoinCallNotification = @"NCESShouldRejoinCallNotifi
     
     [self setReconnectionTimer];
 }
+- (void)forceReconnect
+{
+    _resumeId = nil;
+    [self reconnect];
+}
 
 - (void)disconnect
 {

@@ -128,6 +128,13 @@ static NSString * const kNCVideoTrackKind = @"video";
     }];
 }
 
+- (void)forceReconnect
+{
+    [self cleanCurrentPeerConnections];
+    [self.delegate callControllerIsReconnectingCall:self];
+    [[NCExternalSignalingController sharedInstance] forceReconnect];
+}
+
 - (void)leaveCall
 {
     [self setLeavingCall:YES];
@@ -203,6 +210,17 @@ static NSString * const kNCVideoTrackKind = @"video";
         _speaking = NO;
         [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
     }
+}
+
+#pragma mark - Call controller
+
+- (void)cleanCurrentPeerConnections
+{
+    for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
+        [peerConnectionWrapper close];
+    }
+    _connectionsDict = [[NSMutableDictionary alloc] init];
+    _usersInRoom = [[NSArray alloc] init];
 }
 
 #pragma mark - Microphone audio level
@@ -611,6 +629,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didChangeIceConnectionState:(RTCIceConnectionState)newState
 {
+    if (peerConnection.isMCUPublisherPeer && newState == RTCIceConnectionStateFailed) {
+        [self forceReconnect];
+    }
     [self.delegate callController:self iceStatusChanged:newState ofPeer:peerConnection];
 }
 
