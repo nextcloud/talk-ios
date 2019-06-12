@@ -8,8 +8,6 @@
 
 #import "CallParticipantViewCell.h"
 
-#import <WebRTC/RTCAVFoundationVideoSource.h>
-#import <WebRTC/RTCEAGLVideoView.h>
 #import "DBImageColorPicker.h"
 #import "CallViewController.h"
 #import "NCAPIController.h"
@@ -25,6 +23,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
     CGSize _remoteVideoSize;
     BOOL _showOriginalSize;
     AvatarBackgroundImageView *_backgroundImageView;
+    NSTimer *_disconnectedTimer;
 }
 
 @end
@@ -49,6 +48,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 {
     [super prepareForReuse];
     _displayName = nil;
+    _peerAvatarImageView.alpha = 1;
     _backgroundImageView = nil;
     _peerNameLabel.text = nil;
     [_videoView removeFromSuperview];
@@ -129,6 +129,47 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
     _screenShared = screenShared;
     dispatch_async(dispatch_get_main_queue(), ^{
         [self configureParticipantButtons];
+    });
+}
+
+- (void)setConnectionState:(RTCIceConnectionState)connectionState
+{
+    _connectionState = connectionState;
+    if (connectionState == RTCIceConnectionStateDisconnected) {
+        [self setDisconnectedTimer];
+    } else {
+        [self invalidateDisconnectedTimer];
+        [self setConnectedUI];
+    }
+}
+
+- (void)setDisconnectedTimer
+{
+    [self invalidateDisconnectedTimer];
+    _disconnectedTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(setDisconnectedUI) userInfo:nil repeats:NO];
+}
+
+- (void)invalidateDisconnectedTimer
+{
+    [_disconnectedTimer invalidate];
+    _disconnectedTimer = nil;
+}
+
+- (void)setDisconnectedUI
+{
+    if (_connectionState == RTCIceConnectionStateDisconnected) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.peerNameLabel.text = [NSString stringWithFormat:@"Connecting to %@…", _displayName];
+            self.peerAvatarImageView.alpha = 0.3;
+        });
+    }
+}
+
+- (void)setConnectedUI
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.peerNameLabel.text = _displayName;
+        self.peerAvatarImageView.alpha = 1;
     });
 }
 

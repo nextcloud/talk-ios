@@ -758,6 +758,10 @@ typedef NS_ENUM(NSInteger, CallState) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.collectionView reloadData];
         });
+    } else {
+        [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+            [cell setConnectionState:state];
+        }];
     }
 }
 - (void)callController:(NCCallController *)callController didAddDataChannel:(RTCDataChannel *)dataChannel
