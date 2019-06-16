@@ -655,8 +655,15 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didChangeIceConnectionState:(RTCIceConnectionState)newState
 {
-    if (peerConnection.isMCUPublisherPeer && newState == RTCIceConnectionStateFailed) {
-        [self forceReconnect];
+    if (newState == RTCIceConnectionStateFailed) {
+        // If publisher peer failed then reconnect
+        if (peerConnection.isMCUPublisherPeer) {
+            [self forceReconnect];
+        // If another peer failed using MCU then request a new offer
+        } else if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+            [self cleanPeerConnectionsForSessionId:peerConnection.peerId];
+            [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:peerConnection.peerId andRoomType:kRoomTypeVideo];
+        }
     }
     [self.delegate callController:self iceStatusChanged:newState ofPeer:peerConnection];
 }
