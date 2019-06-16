@@ -10,6 +10,7 @@
 
 #import "CCCertificate.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 
 NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flow";
@@ -106,20 +107,9 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
                 token = [[[component substringFromIndex:[passPrefix length]] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByRemovingPercentEncoding];
         }
         
-        [NCSettingsController sharedInstance].ncServer = _serverUrl;
-        [NCSettingsController sharedInstance].ncUser = user;
-        [NCSettingsController sharedInstance].ncToken = token;
-        
-        UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
-                                                                    accessGroup:@"group.com.nextcloud.Talk"];
-        
-        [keychain setString:_serverUrl forKey:kNCServerKey];
-        [keychain setString:user forKey:kNCUserKey];
-        [keychain setString:token forKey:kNCTokenKey];
-        
-        [[NCAPIController sharedInstance] setNCServer:_serverUrl];
-        [[NCAPIController sharedInstance] setAuthHeaderWithUser:user andToken:token];
-        
+        [[NCDatabaseManager sharedInstance] createAccountForUser:user inServer:_serverUrl];
+        [[NCSettingsController sharedInstance] setToken:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount].account];
+        [[NCSettingsController sharedInstance] configureActiveUser];
         [[NCSettingsController sharedInstance] subscribeForPushNotifications];
         
         [self.delegate authenticationViewControllerDidFinish:self];

@@ -69,14 +69,6 @@
     [_mainNavigationController presentViewController:_loginViewController animated:YES completion:nil];
 }
 
-- (void)presentAuthenticationViewController
-{
-    _authViewController = [[AuthenticationViewController alloc] init];
-    _authViewController.delegate = self;
-    _authViewController.serverUrl = [NCSettingsController sharedInstance].ncServer;
-    [_mainNavigationController presentViewController:_authViewController animated:YES completion:nil];
-}
-
 - (void)presentOfflineWarningAlert
 {
     UIAlertController * alert = [UIAlertController

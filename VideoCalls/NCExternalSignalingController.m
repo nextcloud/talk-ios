@@ -10,6 +10,7 @@
 
 #import "SRWebSocket.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 
@@ -180,6 +181,7 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
 
 - (void)sendHello
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSDictionary *helloDict = @{
                                 @"type": @"hello",
                                 @"hello": @{
@@ -187,7 +189,7 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
                                         @"auth": @{
                                                 @"url": [[NCAPIController sharedInstance] authenticationBackendUrl],
                                                 @"params": @{
-                                                        @"userid": [NCSettingsController sharedInstance].ncUserId,
+                                                        @"userid": activeAccount.userId,
                                                         @"ticket": _ticket
                                                         }
                                                 }
@@ -339,7 +341,8 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
             if (!participantId || [participantId isEqualToString:@""]) {
                 NSLog(@"Guest joined room.");
             } else {
-                if ([participantId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
+                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+                if ([participantId isEqualToString:activeAccount.userId]) {
                     NSLog(@"App user joined room.");
                 } else {
                     [_participantsMap setObject:participant forKey:[participant objectForKey:@"sessionid"]];

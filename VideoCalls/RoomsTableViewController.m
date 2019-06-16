@@ -12,6 +12,7 @@
 #import "RoomTableViewCell.h"
 #import "CCCertificate.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCImageSessionManager.h"
 #import "NCConnectionController.h"
 #import "NCNotificationController.h"
@@ -314,8 +315,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     profileButton.layer.cornerRadius = 15;
     
     if (userImage) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         [profileButton setBackgroundImageForState:UIControlStateNormal
-                                   withURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:60]
+                                   withURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:activeAccount.userId andSize:60]
                                  placeholderImage:nil success:nil failure:nil];
     } else {
         [profileButton setImage:[UIImage imageNamed:@"settings-white"] forState:UIControlStateNormal];

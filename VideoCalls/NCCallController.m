@@ -19,6 +19,7 @@
 #import <WebRTC/RTCCameraVideoCapturer.h>
 #import "NCAPIController.h"
 #import "NCAudioController.h"
+#import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingController.h"
 #import "NCExternalSignalingController.h"
@@ -482,9 +483,10 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)sendNick
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSDictionary *payload = @{
-                              @"userid":[NCSettingsController sharedInstance].ncUserId,
-                              @"name":[NCSettingsController sharedInstance].ncUserDisplayName
+                              @"userid":activeAccount.userId,
+                              @"name":activeAccount.userDisplayName
                               };
     [self sendDataChannelMessageToAllOfType:@"nickChanged" withPayload:payload];
 }

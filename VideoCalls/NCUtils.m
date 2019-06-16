@@ -11,7 +11,7 @@
 #import <UIKit/UIKit.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
-#import "NCSettingsController.h"
+#import "NCDatabaseManager.h"
 
 static NSString *const nextcloudScheme = @"nextcloud:";
 
@@ -67,8 +67,8 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     if (![self isNextcloudAppInstalled]) {
         return;
     }
-    
-    NSString *nextcloudURLString = [NSString stringWithFormat:@"%@//open-file?path=%@&user=%@&link=%@", nextcloudScheme, path, [[NCSettingsController sharedInstance] ncUser], link];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSString *nextcloudURLString = [NSString stringWithFormat:@"%@//open-file?path=%@&user=%@&link=%@", nextcloudScheme, path, activeAccount.user, link];
     NSURL *nextcloudURL = [NSURL URLWithString:[nextcloudURLString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     [[UIApplication sharedApplication] openURL:nextcloudURL options:@{} completionHandler:nil];
 }

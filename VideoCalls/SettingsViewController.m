@@ -10,6 +10,7 @@
 
 #import "NCSettingsController.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "UserSettingsTableViewCell.h"
 #import "NCAPIController.h"
 #import "NCUserInterfaceController.h"
@@ -38,14 +39,6 @@ typedef enum AboutSection {
     kAboutSectionNumber
 } AboutSection;
 
-@interface SettingsViewController ()
-{
-    NSString *_server;
-    NSString *_user;
-}
-
-@end
-
 @implementation SettingsViewController
 
 - (void)viewDidLoad
@@ -72,9 +65,6 @@ typedef enum AboutSection {
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    
-    _server = [[NCSettingsController sharedInstance] ncServer];
-    _user = [[NCSettingsController sharedInstance] ncUser];
     
     [self adaptInterfaceForAppState:[NCConnectionController sharedInstance].appState];
     [self.tableView reloadData];
@@ -310,11 +300,12 @@ typedef enum AboutSection {
                 cell = [[UserSettingsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kUserSettingsCellIdentifier];
             }
             
-            cell.serverAddressLabel.text = _server;
+            TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+            cell.serverAddressLabel.text = activeAccount.server;
             
             if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
-                cell.userDisplayNameLabel.text = [NCSettingsController sharedInstance].ncUserDisplayName;
-                [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:160]
+                cell.userDisplayNameLabel.text = activeAccount.userDisplayName;
+                [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:activeAccount.userId andSize:160]
                                           placeholderImage:nil success:nil failure:nil];
             }
             return cell;

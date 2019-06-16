@@ -20,6 +20,7 @@
 #import "PlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
+#import "NCDatabaseManager.h"
 #import "NCMessageParameter.h"
 #import "NCChatTitleView.h"
 #import "NCMessageTextView.h"
@@ -901,8 +902,9 @@
 
 - (BOOL)newMessagesContainUserMessage:(NSMutableArray *)messages
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     for (NCChatMessage *message in messages) {
-        if ([message.actorId isEqualToString:[NCSettingsController sharedInstance].ncUserId]) {
+        if ([message.actorId isEqualToString:activeAccount.userId]) {
             return YES;
         }
     }

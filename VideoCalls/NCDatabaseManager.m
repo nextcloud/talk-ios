@@ -58,4 +58,49 @@
     return self;
 }
 
+- (NSInteger)numberOfAccounts
+{
+    return [TalkAccount allObjects].count;
+}
+
+- (TalkAccount *)activeAccount
+{
+    return [TalkAccount objectsWhere:(@"active = true")].firstObject;
+}
+
+- (void)setPushKitToken:(NSString *)token forAccount:(NSString *)account
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"account = %@", account];
+    TalkAccount *editAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+    [realm beginWriteTransaction];
+    editAccount.pushKitToken = token;
+    editAccount.pushNotificationSubscribed = NO;
+    [realm commitWriteTransaction];
+}
+
+- (void)createAccountForUser:(NSString *)user inServer:(NSString *)server
+{
+    TalkAccount *account =  [[TalkAccount alloc] init];
+    account.account = [NSString stringWithFormat:@"%@@%@", user, server];
+    account.server = server;
+    account.user = user;
+    account.active = YES;
+    
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        [realm addObject:account];
+    }];
+}
+
+- (void)removeAccount:(NSString *)account
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"account = %@", account];
+    TalkAccount *removeAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+    [realm beginWriteTransaction];
+    [realm deleteObject:removeAccount];
+    [realm commitWriteTransaction];
+}
+
 @end

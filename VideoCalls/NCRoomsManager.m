@@ -12,6 +12,7 @@
 #import "NewRoomTableViewController.h"
 #import "RoomCreation2TableViewController.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCChatMessage.h"
 #import "NCExternalSignalingController.h"
 #import "NCRoomController.h"
@@ -333,7 +334,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)startCall:(BOOL)video inRoom:(NCRoom *)room
 {
     if (!_callViewController) {
-        _callViewController = [[CallViewController alloc] initCallInRoom:room asUser:[[NCSettingsController sharedInstance] ncUserDisplayName] audioOnly:!video];
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        _callViewController = [[CallViewController alloc] initCallInRoom:room asUser:activeAccount.userDisplayName audioOnly:!video];
         [_callViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
         _callViewController.delegate = self;
         // Workaround until external signaling supports multi-room

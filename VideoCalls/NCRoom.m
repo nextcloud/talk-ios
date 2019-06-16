@@ -8,6 +8,7 @@
 
 #import "NCRoom.h"
 
+#import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 
 NSString * const NCRoomObjectTypeFile           = @"file";
@@ -146,10 +147,10 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     if (![self shouldShowLastMessageActorName]) {
         return nil;
     }
-    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *displayName = _lastMessage.actorDisplayName;
     // For own messages
-    if ([_lastMessage.actorId isEqualToString:[NCSettingsController sharedInstance].ncUserId]) {
+    if ([_lastMessage.actorId isEqualToString:activeAccount.userId]) {
         displayName = @"You";
     }
     // For guests

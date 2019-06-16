@@ -19,16 +19,23 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *userDisplayName;
 @property NSString *pushKitToken;
 @property NSString *pushNotificationServer;
-@property NSString *pushNotificationSubscribed;
-@property NSString *pushNotificationPublicKey;
+@property BOOL pushNotificationSubscribed;
+@property NSData *pushNotificationPublicKey;
 @property NSString *deviceIdentifier;
 @property NSString *deviceSignature;
 @property NSString *userPublicKey;
+@property BOOL active;
 @end
 
 @interface NCDatabaseManager : NSObject
 
 + (instancetype)sharedInstance;
+
+- (NSInteger)numberOfAccounts;
+- (TalkAccount *)activeAccount;
+- (void)createAccountForUser:(NSString *)user inServer:(NSString *)server;
+- (void)setPushKitToken:(NSString *)token forAccount:(NSString *)account;
+- (void)removeAccount:(NSString *)account;
 
 @end
 

@@ -14,6 +14,7 @@
 #import "RoomNameTableViewCell.h"
 #import "HeaderWithButton.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
 #import "NCRoomParticipant.h"
 #import "NCSettingsController.h"
@@ -290,7 +291,8 @@ typedef enum ModificationError {
 
 - (BOOL)isAppUser:(NCRoomParticipant *)participant
 {
-    if ([participant.userId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if ([participant.userId isEqualToString:activeAccount.userId]) {
         return YES;
     }
     return NO;

@@ -17,6 +17,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "OpenInFirefoxControllerObjC.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCExternalSignalingController.h"
 
 @interface NCSettingsController ()
@@ -80,9 +81,69 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
         _keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
                                                    accessGroup:@"group.com.nextcloud.Talk"];
         [self readValuesFromKeyChain];
+        [self configureDatabase];
+        [self configureActiveUser];
         [self configureDefaultBrowser];
     }
     return self;
+}
+
+#pragma mark - Database
+
+- (void)configureDatabase
+{
+    // Init database
+    [NCDatabaseManager sharedInstance];
+    
+    // Check possible account migration to database
+    if (_ncUser && _ncServer) {
+        NSLog(@"Migrating user to the database");
+        TalkAccount *account =  [[TalkAccount alloc] init];
+        account.account = [NSString stringWithFormat:@"%@@%@", _ncUser, _ncServer];
+        account.server = _ncServer;
+        account.user = _ncUser;
+        account.userId = _ncUserId;
+        account.userDisplayName = _ncUserDisplayName;
+        account.pushKitToken = _ncPushKitToken;
+        account.pushNotificationServer = kNCPushServer;
+        account.pushNotificationSubscribed = _pushNotificationSubscribed;
+        account.pushNotificationPublicKey = _ncPNPublicKey;
+        account.pushNotificationPublicKey = _ncPNPublicKey;
+        account.deviceIdentifier = _ncDeviceIdentifier;
+        account.deviceSignature = _ncDeviceSignature;
+        account.userPublicKey = _ncUserPublicKey;
+        account.active = YES;
+        
+        [self setToken:_ncToken forAccount:account.account];
+        [self setPushNotificationPrivateKey:_ncPNPrivateKey forAccount:account.account];
+        
+        RLMRealm *realm = [RLMRealm defaultRealm];
+        [realm transactionWithBlock:^{
+            [realm addObject:account];
+        }];
+        
+        [self cleanUserAndServerStoredValues];
+    }
+}
+
+- (void)setToken:(NSString *)token forAccount:(NSString *)account
+{
+    [_keychain setString:token forKey:[NSString stringWithFormat:@"%@-%@", kNCTokenKey, account]];
+}
+
+- (NSString *)tokenForAccount:(NSString *)account
+{
+    return [_keychain stringForKey:[NSString stringWithFormat:@"%@-%@", kNCTokenKey, account]];
+}
+
+- (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccount:(NSString *)account
+{
+    [_keychain setData:privateKey forKey:[NSString stringWithFormat:@"%@-%@", kNCPNPrivateKey, account]];
+}
+
+- (NSData *)pushNotificationPrivateKeyForAccount:(NSString *)account
+{
+    return [_keychain dataForKey:[NSString stringWithFormat:@"%@-%@", kNCPNPrivateKey, account]];
 }
 
 #pragma mark - User defaults
@@ -155,18 +216,33 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     [[NCAPIController sharedInstance] setAuthHeaderWithUser:NULL andToken:NULL];
 }
 
+#pragma mark - User Manager
+
+- (void)configureActiveUser
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    
+    // Configure API controller
+    [[NCAPIController sharedInstance] setNCServer:activeAccount.server];
+    [[NCAPIController sharedInstance] setAuthHeaderWithUser:activeAccount.user andToken:[self tokenForAccount:activeAccount.account]];
+}
+
+
+
 #pragma mark - User Profile
 
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getUserProfileWithCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
         if (!error) {
             NSString *userDisplayName = [userProfile objectForKey:@"display-name"];
-            _ncUserDisplayName = userDisplayName;
-            [_keychain setString:userDisplayName forKey:kNCUserDisplayNameKey];
             NSString *userId = [userProfile objectForKey:@"id"];
-            _ncUserId = userId;
-            [_keychain setString:userId forKey:kNCUserIdKey];
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm beginWriteTransaction];
+            activeAccount.userDisplayName = userDisplayName;
+            activeAccount.userId = userId;
+            [realm commitWriteTransaction];
             if (block) block(nil);
         } else {
             NSLog(@"Error while getting the user profile");
@@ -177,7 +253,8 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 
 - (void)logoutWithCompletionBlock:(LogoutCompletionBlock)block
 {
-    if ([[NCSettingsController sharedInstance] ncDeviceIdentifier]) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if (activeAccount.deviceIdentifier) {
         [[NCAPIController sharedInstance] unsubscribeToNextcloudServer:^(NSError *error) {
             if (!error) {
                 NSLog(@"Unsubscribed from NC server!!!");
@@ -195,6 +272,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     }
     [[NCExternalSignalingController sharedInstance] disconnect];
     [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
+    [[NCDatabaseManager sharedInstance] removeAccount:activeAccount.account];
     if (block) block(nil);
 }
 
@@ -306,9 +384,6 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 - (void)subscribeForPushNotifications
 {
 #if !TARGET_IPHONE_SIMULATOR
-    UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
-                                                                accessGroup:@"group.com.nextcloud.Talk"];
-    
     if ([self generatePushNotificationsKeyPair]) {
         [[NCAPIController sharedInstance] subscribeToNextcloudServer:^(NSDictionary *responseDict, NSError *error) {
             if (!error) {
@@ -318,19 +393,19 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
                 NSString *deviceIdentifier = [responseDict objectForKey:@"deviceIdentifier"];
                 NSString *signature = [responseDict objectForKey:@"signature"];
                 
-                [NCSettingsController sharedInstance].ncUserPublicKey = publicKey;
-                [NCSettingsController sharedInstance].ncDeviceIdentifier = deviceIdentifier;
-                [NCSettingsController sharedInstance].ncDeviceSignature = signature;
-                
-                [keychain setString:publicKey forKey:kNCUserPublicKey];
-                [keychain setString:deviceIdentifier forKey:kNCDeviceIdentifier];
-                [keychain setString:signature forKey:kNCDeviceSignature];
+                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+                RLMRealm *realm = [RLMRealm defaultRealm];
+                [realm beginWriteTransaction];
+                activeAccount.userPublicKey = publicKey;
+                activeAccount.deviceIdentifier = deviceIdentifier;
+                activeAccount.deviceSignature = signature;
+                [realm commitWriteTransaction];
                 
                 [[NCAPIController sharedInstance] subscribeToPushServer:^(NSError *error) {
                     if (!error) {
-                        NSString *subscribedValue = @"subscribed";
-                        [NCSettingsController sharedInstance].pushNotificationSubscribed = subscribedValue;
-                        [keychain setString:subscribedValue forKey:kNCPushSubscribedKey];
+                        [realm beginWriteTransaction];
+                        activeAccount.pushNotificationSubscribed = YES;
+                        [realm commitWriteTransaction];
                         NSLog(@"Subscribed to Push Notification server successfully.");
                     } else {
                         NSLog(@"Error while subscribing to Push Notification server.");
@@ -365,9 +440,13 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     keyBytes  = malloc(len);
     
     BIO_read(publicKeyBIO, keyBytes, len);
-    _ncPNPublicKey = [NSData dataWithBytes:keyBytes length:len];
-    [_keychain setData:_ncPNPublicKey forKey:kNCPNPublicKey];
-    NSLog(@"Push Notifications Key Pair generated: \n%@", [[NSString alloc] initWithData:_ncPNPublicKey encoding:NSUTF8StringEncoding]);
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    NSData *pnPublicKey = [NSData dataWithBytes:keyBytes length:len];
+    [realm beginWriteTransaction];
+    activeAccount.pushNotificationPublicKey = pnPublicKey;
+    [realm commitWriteTransaction];
+    NSLog(@"Push Notifications Key Pair generated: \n%@", [[NSString alloc] initWithData:pnPublicKey encoding:NSUTF8StringEncoding]);
     
     // PrivateKey
     BIO *privateKeyBIO = BIO_new(BIO_s_mem());
@@ -377,9 +456,8 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     keyBytes = malloc(len);
     
     BIO_read(privateKeyBIO, keyBytes, len);
-    _ncPNPrivateKey = [NSData dataWithBytes:keyBytes length:len];
-    [_keychain setData:_ncPNPrivateKey forKey:kNCPNPrivateKey];
-    
+    NSData *pnPrivateKey = [NSData dataWithBytes:keyBytes length:len];
+    [[NCSettingsController sharedInstance] setPushNotificationPrivateKey:pnPrivateKey forAccount:activeAccount.account];
     EVP_PKEY_free(pkey);
     
     return YES;
@@ -453,7 +531,8 @@ cleanup:
 
 - (NSString *)pushTokenSHA512
 {
-    return [self createSHA512:_ncPushKitToken];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    return [self createSHA512:activeAccount.pushKitToken];
 }
 
 #pragma mark - Utils

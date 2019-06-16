@@ -8,7 +8,7 @@
 
 #import "NCMessageParameter.h"
 
-#import "NCSettingsController.h"
+#import "NCDatabaseManager.h"
 
 @implementation NCMessageParameter
 
@@ -41,7 +41,8 @@
 {
     // Own mentions
     // Call mentions
-    return ([_type isEqualToString:@"user"] && [[NCSettingsController sharedInstance].ncUserId isEqualToString:_parameterId]) || [_type isEqualToString:@"call"];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    return ([_type isEqualToString:@"user"] && [activeAccount.userId isEqualToString:_parameterId]) || [_type isEqualToString:@"call"];
 }
 
 @end

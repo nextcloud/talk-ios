@@ -10,6 +10,7 @@
 
 #import "AFNetworking.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCExternalSignalingController.h"
 #import "NCUserInterfaceController.h"
@@ -40,9 +41,10 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
         self.appState = kAppStateUnknown;
         self.connectionState = kConnectionStateUnknown;
         
-        NSString *storedServer = [NCSettingsController sharedInstance].ncServer;
-        NSString *storedUser = [NCSettingsController sharedInstance].ncUser;
-        NSString *storedToken = [NCSettingsController sharedInstance].ncToken;
+        TalkAccount *activeAccount  = [[NCDatabaseManager sharedInstance] activeAccount];
+        NSString *storedServer      = activeAccount.server;
+        NSString *storedUser        = activeAccount.user;
+        NSString *storedToken       = [[NCSettingsController sharedInstance] tokenForAccount:activeAccount.account];
         
         if (storedServer) {
             [[NCAPIController sharedInstance] setNCServer:storedServer];
@@ -98,24 +100,16 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
 
 - (void)checkAppState
 {
-    NSString *ncServer                  = [NCSettingsController sharedInstance].ncServer;
-    NSString *ncUser                    = [NCSettingsController sharedInstance].ncUser;
-    NSString *ncUserId                  = [NCSettingsController sharedInstance].ncUserId;
-    NSString *ncUserDisplayName         = [NCSettingsController sharedInstance].ncUserDisplayName;
+    TalkAccount *activeAccount          = [[NCDatabaseManager sharedInstance] activeAccount];
     NSDictionary *ncTalkCapabilities    = [NCSettingsController sharedInstance].ncTalkCapabilities;
     NSDictionary *ncSignalingConfig     = [NCSettingsController sharedInstance].ncSignalingConfiguration;
     
-    if (!ncServer) {
+    if (!activeAccount.server || !activeAccount.user) {
         if (self.appState != kAppStateNotServerProvided) {
             [self setAppState:kAppStateNotServerProvided];
             [[NCUserInterfaceController sharedInstance] presentLoginViewController];
         }
-    } else if (!ncUser) {
-        if (self.appState != kAppStateAuthenticationNeeded) {
-            [self setAppState:kAppStateAuthenticationNeeded];
-            [[NCUserInterfaceController sharedInstance] presentAuthenticationViewController];
-        }
-    } else if (!ncUserId || !ncUserDisplayName) {
+    } else if (!activeAccount.userId || !activeAccount.userDisplayName) {
         if (self.appState != kAppStateMissingUserProfile) {
             [self setAppState:kAppStateMissingUserProfile];
             [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {

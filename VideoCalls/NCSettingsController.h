@@ -77,6 +77,11 @@ typedef enum NCPreferredFileSorting {
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
 
 + (instancetype)sharedInstance;
+- (void)setToken:(NSString *)token forAccount:(NSString *)account;
+- (NSString *)tokenForAccount:(NSString *)account;
+- (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccount:(NSString *)account;
+- (NSData *)pushNotificationPrivateKeyForAccount:(NSString *)account;
+- (void)configureActiveUser;
 - (void)cleanUserAndServerStoredValues;
 - (BOOL)generatePushNotificationsKeyPair;
 - (NSString *)pushTokenSHA512;

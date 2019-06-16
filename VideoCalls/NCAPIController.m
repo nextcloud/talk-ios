@@ -10,6 +10,7 @@
 
 #import "CCCertificate.h"
 #import "NCAPISessionManager.h"
+#import "NCDatabaseManager.h"
 #import "NCFilePreviewSessionManager.h"
 #import "NCPushProxySessionManager.h"
 #import "NCSettingsController.h"
@@ -143,7 +144,8 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseContacts.count];
         for (NSDictionary *user in responseContacts) {
             NCUser *ncUser = [NCUser userWithDictionary:user];
-            if (![ncUser.userId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
+            TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+            if (![ncUser.userId isEqualToString:activeAccount.userId]) {
                 [users addObject:ncUser];
             }
         }
@@ -927,8 +929,9 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (void)readFolderAtPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     OCCommunication *communication = [self sharedOCCommunication];
-    [communication setCredentialsWithUser:[NCSettingsController sharedInstance].ncUser andUserID:[NCSettingsController sharedInstance].ncUser andPassword:[NCSettingsController sharedInstance].ncToken];
+    [communication setCredentialsWithUser:activeAccount.user andUserID:activeAccount.userId andPassword:[[NCSettingsController sharedInstance] tokenForAccount:activeAccount.account]];
     [communication setUserAgent:_userAgent];
     
     NSString *urlString = [NSString stringWithFormat:@"%@%@%@", _serverUrl, k_webDAV, path ? path : @""];
@@ -1050,8 +1053,9 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (NSURLSessionDataTask *)subscribeToNextcloudServer:(SubscribeToNextcloudServerCompletionBlock)block
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/push", _serverUrl];
-    NSString *devicePublicKey = [[NSString alloc] initWithData:[NCSettingsController sharedInstance].ncPNPublicKey encoding:NSUTF8StringEncoding];
+    NSString *devicePublicKey = [[NSString alloc] initWithData:activeAccount.pushNotificationPublicKey encoding:NSUTF8StringEncoding];
 
     NSDictionary *parameters = @{@"pushTokenHash" : [[NCSettingsController sharedInstance] pushTokenSHA512],
                                  @"devicePublicKey" : devicePublicKey,
@@ -1092,11 +1096,11 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (NSURLSessionDataTask *)subscribeToPushServer:(SubscribeToPushProxyCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
-
-    NSDictionary *parameters = @{@"pushToken" : [NCSettingsController sharedInstance].ncPushKitToken,
-                                 @"deviceIdentifier" : [NCSettingsController sharedInstance].ncDeviceIdentifier,
-                                 @"deviceIdentifierSignature" : [NCSettingsController sharedInstance].ncDeviceSignature,
-                                 @"userPublicKey" : [NCSettingsController sharedInstance].ncUserPublicKey
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSDictionary *parameters = @{@"pushToken" : activeAccount.pushKitToken,
+                                 @"deviceIdentifier" : activeAccount.deviceIdentifier,
+                                 @"deviceIdentifierSignature" : activeAccount.deviceSignature,
+                                 @"userPublicKey" : activeAccount.userPublicKey
                                  };
 
     NSURLSessionDataTask *task = [[NCPushProxySessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -1115,10 +1119,10 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (NSURLSessionDataTask *)unsubscribeToPushServer:(UnsubscribeToPushProxyCompletionBlock)block
 {    
     NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
-
-    NSDictionary *parameters = @{@"deviceIdentifier" : [NCSettingsController sharedInstance].ncDeviceIdentifier,
-                                 @"deviceIdentifierSignature" : [NCSettingsController sharedInstance].ncDeviceSignature,
-                                 @"userPublicKey" : [NCSettingsController sharedInstance].ncUserPublicKey
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSDictionary *parameters = @{@"deviceIdentifier" : activeAccount.deviceIdentifier,
+                                 @"deviceIdentifierSignature" : activeAccount.deviceSignature,
+                                 @"userPublicKey" : activeAccount.userPublicKey
                                  };
 
     NSURLSessionDataTask *task = [[NCPushProxySessionManager sharedInstance] DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
