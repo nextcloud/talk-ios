@@ -13,6 +13,7 @@
 extern NSString * const NCESReceivedSignalingMessageNotification;
 extern NSString * const NCESReceivedParticipantListMessageNotification;
 extern NSString * const NCESShouldRejoinCallNotification;
+extern NSString * const NCESWillRejoinCallNotification;
 
 @interface NCExternalSignalingController : NSObject
 

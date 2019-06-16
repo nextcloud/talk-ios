@@ -40,6 +40,7 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 NSString * const NCESReceivedSignalingMessageNotification = @"NCESReceivedSignalingMessageNotification";
 NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceivedParticipantListMessageNotification";
 NSString * const NCESShouldRejoinCallNotification = @"NCESShouldRejoinCallNotification";
+NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotification";
 
 + (NCExternalSignalingController *)sharedInstance
 {
@@ -228,6 +229,9 @@ NSString * const NCESShouldRejoinCallNotification = @"NCESShouldRejoinCallNotifi
     
     // Re-join if user was in a room
     if (_currentRoom && _sessionChanged) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCESWillRejoinCallNotification
+                                                            object:self
+                                                          userInfo:nil];
         [[NCRoomsManager sharedInstance] rejoinRoom:_currentRoom];
     }
 }
@@ -371,7 +375,7 @@ NSString * const NCESShouldRejoinCallNotification = @"NCESShouldRejoinCallNotifi
 {
     NSString *eventType = [eventDict objectForKey:@"type"];
     if ([eventType isEqualToString:@"update"]) {
-        NSLog(@"Participant list changed.");
+        NSLog(@"Participant list changed: %@", [eventDict objectForKey:@"update"]);
         [[NSNotificationCenter defaultCenter] postNotificationName:NCESReceivedParticipantListMessageNotification
                                                             object:self
                                                           userInfo:[eventDict objectForKey:@"update"]];
