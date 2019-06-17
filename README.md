@@ -18,6 +18,7 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 
 ```
 $ pod install
+$ git submodule update --init
 $ open VideoCalls.xcworkspace
 ```
 
