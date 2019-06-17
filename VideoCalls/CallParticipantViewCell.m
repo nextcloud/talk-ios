@@ -135,17 +135,19 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 - (void)setConnectionState:(RTCIceConnectionState)connectionState
 {
     _connectionState = connectionState;
+    
+    [self invalidateDisconnectedTimer];
     if (connectionState == RTCIceConnectionStateDisconnected) {
         [self setDisconnectedTimer];
+    } else if (connectionState == RTCIceConnectionStateFailed) {
+        [self setFailedConnectionUI];
     } else {
-        [self invalidateDisconnectedTimer];
         [self setConnectedUI];
     }
 }
 
 - (void)setDisconnectedTimer
 {
-    [self invalidateDisconnectedTimer];
     _disconnectedTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(setDisconnectedUI) userInfo:nil repeats:NO];
 }
 
@@ -163,6 +165,14 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
             self.peerAvatarImageView.alpha = 0.3;
         });
     }
+}
+
+- (void)setFailedConnectionUI
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.peerNameLabel.text = [NSString stringWithFormat:@"Failed to connect to %@", _displayName];
+        self.peerAvatarImageView.alpha = 0.3;
+    });
 }
 
 - (void)setConnectedUI
