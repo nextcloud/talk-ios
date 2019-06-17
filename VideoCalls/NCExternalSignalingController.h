@@ -12,6 +12,8 @@
 
 extern NSString * const NCESReceivedSignalingMessageNotification;
 extern NSString * const NCESReceivedParticipantListMessageNotification;
+extern NSString * const NCESShouldRejoinCallNotification;
+extern NSString * const NCESWillRejoinCallNotification;
 
 @interface NCExternalSignalingController : NSObject
 
@@ -28,5 +30,6 @@ extern NSString * const NCESReceivedParticipantListMessageNotification;
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 - (void)disconnect;
+- (void)forceReconnect;
 
 @end

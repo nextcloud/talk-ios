@@ -7,13 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@class RTCEAGLVideoView;
+#import <WebRTC/WebRTC.h>
 
 extern NSString *const kCallParticipantCellIdentifier;
 extern NSString *const kCallParticipantCellNibName;
-
-@class RTCVideoTrack;
 
 @class CallParticipantViewCell;
 @protocol CallParticipantViewCellDelegate <NSObject>
@@ -29,6 +26,7 @@ extern NSString *const kCallParticipantCellNibName;
 @property (nonatomic, assign)  BOOL audioDisabled;
 @property (nonatomic, assign)  BOOL videoDisabled;
 @property (nonatomic, assign)  BOOL screenShared;
+@property (nonatomic, assign)  RTCIceConnectionState connectionState;
 
 @property (nonatomic, weak) IBOutlet UIView *peerVideoView;
 @property (nonatomic, weak) IBOutlet UILabel *peerNameLabel;

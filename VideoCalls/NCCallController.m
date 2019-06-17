@@ -81,6 +81,8 @@ static NSString * const kNCVideoTrackKind = @"video";
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(externalSignalingMessageReceived:) name:NCESReceivedSignalingMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(externalParticipantListMessageReceived:) name:NCESReceivedParticipantListMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shouldRejoinCall:) name:NCESShouldRejoinCallNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willRejoinCall:) name:NCESWillRejoinCallNotification object:nil];
     }
     
     return self;
@@ -91,31 +93,77 @@ static NSString * const kNCVideoTrackKind = @"video";
     [self createLocalMedia];
     _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [self setInCall:YES];
             [self.delegate callControllerDidJoinCall:self];
             [self getPeersForCall];
             [self startMonitoringMicrophoneAudioLevel];
             if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
                 _userSessionId = [[NCExternalSignalingController sharedInstance] sessionId];
-                if (_pendingUsersInRoom) {
-                    [self processUsersInRoom:_pendingUsersInRoom];
-                }
                 if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
                     [self createOwnPublishPeerConnection];
+                }
+                if (_pendingUsersInRoom) {
+                    NSLog(@"Procees pending users on start call");;
+                    NSArray *usersInRoom = [_pendingUsersInRoom copy];
+                    _pendingUsersInRoom = nil;
+                    [self processUsersInRoom:usersInRoom];
                 }
             } else {
                 [_signalingController startPullingSignalingMessages];
             }
+            [self setInCall:YES];
         } else {
             NSLog(@"Could not join call. Error: %@", error.description);
         }
     }];
 }
 
+- (void)shouldRejoinCall:(NSNotification *)notification
+{
+    _userSessionId = [[NCExternalSignalingController sharedInstance] sessionId];
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [self.delegate callControllerDidJoinCall:self];
+            NSLog(@"Rejoined call");
+            if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+                [self createOwnPublishPeerConnection];
+            }
+            if (_pendingUsersInRoom) {
+                NSLog(@"Procees pending users on rejoin");
+                NSArray *usersInRoom = [_pendingUsersInRoom copy];
+                _pendingUsersInRoom = nil;
+                [self processUsersInRoom:usersInRoom];
+            }
+            [self setInCall:YES];
+        } else {
+            NSLog(@"Could not rejoin call. Error: %@", error.description);
+        }
+    }];
+}
+
+- (void)willRejoinCall:(NSNotification *)notification
+{
+    NSLog(@"willRejoinCall");
+    [self setInCall:NO];
+    [self cleanCurrentPeerConnections];
+    [self.delegate callControllerIsReconnectingCall:self];
+}
+
+
+- (void)forceReconnect
+{
+    NSLog(@"forceReconnect");
+    [self setInCall:NO];
+    [self cleanCurrentPeerConnections];
+    [self.delegate callControllerIsReconnectingCall:self];
+    [[NCExternalSignalingController sharedInstance] forceReconnect];
+}
+
 - (void)leaveCall
 {
     [self setLeavingCall:YES];
     [self stopSendingNick];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
         [peerConnectionWrapper close];
@@ -184,6 +232,38 @@ static NSString * const kNCVideoTrackKind = @"video";
     if (!enable) {
         _speaking = NO;
         [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
+    }
+}
+
+#pragma mark - Call controller
+
+- (void)cleanCurrentPeerConnections
+{
+    for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
+        [peerConnectionWrapper close];
+    }
+    _connectionsDict = [[NSMutableDictionary alloc] init];
+    _usersInRoom = [[NSArray alloc] init];
+}
+
+- (void)cleanPeerConnectionsForSessionId:(NSString *)sessionId
+{
+    NSString *peerKey = [sessionId stringByAppendingString:kRoomTypeVideo];
+    NCPeerConnection *removedPeerConnection = [_connectionsDict objectForKey:peerKey];
+    if (removedPeerConnection) {
+        NSLog(@"Removing peer connection: %@", sessionId);
+        [self.delegate callController:self peerLeft:removedPeerConnection];
+        removedPeerConnection.delegate = nil;
+        [removedPeerConnection close];
+        [_connectionsDict removeObjectForKey:peerKey];
+    }
+    // Close possible screen peers
+    peerKey = [sessionId stringByAppendingString:kRoomTypeScreen];
+    removedPeerConnection = [_connectionsDict objectForKey:peerKey];
+    if (removedPeerConnection) {
+        removedPeerConnection.delegate = nil;
+        [removedPeerConnection close];
+        [_connectionsDict removeObjectForKey:peerKey];
     }
 }
 
@@ -349,7 +429,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)createOwnPublishPeerConnection
 {
-    NSLog(@"Creating own pusblish peer connection");
+    NSLog(@"Creating own pusblish peer connection: %@", _userSessionId);
     NSArray *iceServers = [_signalingController getIceServers];
     _ownPeerConnection = [[NCPeerConnection alloc] initForMCUWithSessionId:_userSessionId andICEServers:iceServers forAudioOnlyCall:YES];
     _ownPeerConnection.roomType = kRoomTypeVideo;
@@ -392,6 +472,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)startSendingNick
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        [_sendNickTimer invalidate];
+        _sendNickTimer = nil;
         _sendNickTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(sendNick) userInfo:nil repeats:YES];
     });
 }
@@ -481,8 +563,10 @@ static NSString * const kNCVideoTrackKind = @"video";
         [self getPeersForCall];
     }
     
+    // Create new peer connections for new sessions in call
     for (NSString *sessionId in newSessions) {
-        if (![_connectionsDict objectForKey:sessionId]) {
+        NSString *peerKey = [sessionId stringByAppendingString:kRoomTypeVideo];
+        if (![_connectionsDict objectForKey:peerKey] && ![_userSessionId isEqualToString:sessionId]) {
             if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
                 NSLog(@"Requesting offer to the MCU for session: %@", sessionId);
                 [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:sessionId andRoomType:kRoomTypeVideo];
@@ -499,22 +583,9 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
     }
     
+    // Close old peer connections for sessions that left the call
     for (NSString *sessionId in leftSessions) {
-        NSString *peerKey = [sessionId stringByAppendingString:kRoomTypeVideo];
-        NCPeerConnection *leftPeerConnection = [_connectionsDict objectForKey:peerKey];
-        if (leftPeerConnection) {
-            NSLog(@"Peer left: %@", sessionId);
-            [self.delegate callController:self peerLeft:leftPeerConnection];
-            [leftPeerConnection close];
-            [_connectionsDict removeObjectForKey:peerKey];
-        }
-        // Close possible screen peers
-        peerKey = [sessionId stringByAppendingString:kRoomTypeScreen];
-        leftPeerConnection = [_connectionsDict objectForKey:peerKey];
-        if (leftPeerConnection) {
-            [leftPeerConnection close];
-            [_connectionsDict removeObjectForKey:peerKey];
-        }
+        [self cleanPeerConnectionsForSessionId:sessionId];
     }
 }
 
@@ -524,7 +595,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     for (NSMutableDictionary *user in users) {
         NSString *sessionId = [user objectForKey:@"sessionId"];
         BOOL inCall = [[user objectForKey:@"inCall"] boolValue];
-        if (inCall && ![_userSessionId isEqualToString:sessionId]) {
+        if (inCall) {
             [sessions addObject:sessionId];
         }
     }
@@ -585,6 +656,16 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didChangeIceConnectionState:(RTCIceConnectionState)newState
 {
+    if (newState == RTCIceConnectionStateFailed) {
+        // If publisher peer failed then reconnect
+        if (peerConnection.isMCUPublisherPeer) {
+            [self forceReconnect];
+        // If another peer failed using MCU then request a new offer
+        } else if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+            [self cleanPeerConnectionsForSessionId:peerConnection.peerId];
+            [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:peerConnection.peerId andRoomType:kRoomTypeVideo];
+        }
+    }
     [self.delegate callController:self iceStatusChanged:newState ofPeer:peerConnection];
 }
 

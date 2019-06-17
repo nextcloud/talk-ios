@@ -31,6 +31,7 @@
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
     CallStateWaitingParticipants,
+    CallStateReconnecting,
     CallStateInCall
 };
 
@@ -292,6 +293,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     switch (state) {
         case CallStateJoining:
         case CallStateWaitingParticipants:
+        case CallStateReconnecting:
         {
             [self showWaitingScreen];
             [self invalidateDetailedViewTimer];
@@ -331,7 +333,6 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)createWaitingScreen
 {
     if (_room.type == kNCRoomTypeOneToOne) {
-        self.waitingLabel.text = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
         __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
         [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
                                               placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
@@ -356,29 +357,55 @@ typedef NS_ENUM(NSInteger, CallState) {
                                                   }
                                               } failure:nil];
     } else {
-        self.waitingLabel.text = @"Waiting for others to join call…";
         self.avatarBackgroundImageView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:1];
     }
+    
+    [self setWaitingScreenText];
+}
+
+- (void)setWaitingScreenText
+{
+    NSString *waitingMessage = @"Waiting for others to join call…";
+    if (_room.type == kNCRoomTypeOneToOne) {
+        waitingMessage = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
+    }
+    
+    if (_callState == CallStateReconnecting) {
+        waitingMessage = @"Connecting to the call…";
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.waitingLabel.text = waitingMessage;
+    });
 }
 
 - (void)showWaitingScreen
 {
-    self.collectionView.backgroundView = self.waitingView;
+    [self setWaitingScreenText];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.collectionView.backgroundView = self.waitingView;
+    });
 }
 
 - (void)hideWaitingScreen
 {
-    self.collectionView.backgroundView = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.collectionView.backgroundView = nil;
+    });
 }
 
 - (void)addTapGestureForDetailedView
 {
-    [self.view addGestureRecognizer:_tapGestureForDetailedView];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.view addGestureRecognizer:_tapGestureForDetailedView];
+    });
 }
 
 - (void)removeTapGestureForDetailedView
 {
-    [self.view removeGestureRecognizer:_tapGestureForDetailedView];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.view removeGestureRecognizer:_tapGestureForDetailedView];
+    });
 }
 
 - (void)showDetailedView
@@ -402,24 +429,28 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)showButtonsContainer
 {
-    [UIView animateWithDuration:0.3f animations:^{
-        [self.buttonsContainerView setAlpha:1.0f];
-        [self.switchCameraButton setAlpha:1.0f];
-        [self.videoCallButton setAlpha:1.0f];
-        [self.closeScreensharingButton setAlpha:1.0f];
-        [self.view layoutIfNeeded];
-    }];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [UIView animateWithDuration:0.3f animations:^{
+            [self.buttonsContainerView setAlpha:1.0f];
+            [self.switchCameraButton setAlpha:1.0f];
+            [self.videoCallButton setAlpha:1.0f];
+            [self.closeScreensharingButton setAlpha:1.0f];
+            [self.view layoutIfNeeded];
+        }];
+    });
 }
 
 - (void)hideButtonsContainer
 {
-    [UIView animateWithDuration:0.3f animations:^{
-        [self.buttonsContainerView setAlpha:0.0f];
-        [self.switchCameraButton setAlpha:0.0f];
-        [self.videoCallButton setAlpha:0.0f];
-        [self.closeScreensharingButton setAlpha:0.0f];
-        [self.view layoutIfNeeded];
-    }];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [UIView animateWithDuration:0.3f animations:^{
+            [self.buttonsContainerView setAlpha:0.0f];
+            [self.switchCameraButton setAlpha:0.0f];
+            [self.videoCallButton setAlpha:0.0f];
+            [self.closeScreensharingButton setAlpha:0.0f];
+            [self.view layoutIfNeeded];
+        }];
+    });
 }
 
 - (void)adjustButtonsConainer
@@ -742,6 +773,10 @@ typedef NS_ENUM(NSInteger, CallState) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.collectionView reloadData];
         });
+    } else {
+        [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+            [cell setConnectionState:state];
+        }];
     }
 }
 - (void)callController:(NCCallController *)callController didAddDataChannel:(RTCDataChannel *)dataChannel
@@ -778,6 +813,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.collectionView reloadData];
     });
+}
+
+- (void)callControllerIsReconnectingCall:(NCCallController *)callController
+{
+    [self setCallState:CallStateReconnecting];
 }
 
 #pragma mark - Screensharing
@@ -884,26 +924,30 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)showPeersInfo
 {
-    NSArray *visibleCells = [_collectionView visibleCells];
-    for (CallParticipantViewCell *cell in visibleCells) {
-        [UIView animateWithDuration:0.3f animations:^{
-            [cell.peerNameLabel setAlpha:1.0f];
-            [cell.buttonsContainerView setAlpha:1.0f];
-            [cell layoutIfNeeded];
-        }];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSArray *visibleCells = [_collectionView visibleCells];
+        for (CallParticipantViewCell *cell in visibleCells) {
+            [UIView animateWithDuration:0.3f animations:^{
+                [cell.peerNameLabel setAlpha:1.0f];
+                [cell.buttonsContainerView setAlpha:1.0f];
+                [cell layoutIfNeeded];
+            }];
+        }
+    });
 }
 
 - (void)hidePeersInfo
 {
-    NSArray *visibleCells = [_collectionView visibleCells];
-    for (CallParticipantViewCell *cell in visibleCells) {
-        [UIView animateWithDuration:0.3f animations:^{
-            [cell.peerNameLabel setAlpha:0.0f];
-            [cell.buttonsContainerView setAlpha:0.0f];
-            [cell layoutIfNeeded];
-        }];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSArray *visibleCells = [_collectionView visibleCells];
+        for (CallParticipantViewCell *cell in visibleCells) {
+            [UIView animateWithDuration:0.3f animations:^{
+                [cell.peerNameLabel setAlpha:0.0f];
+                [cell.buttonsContainerView setAlpha:0.0f];
+                [cell layoutIfNeeded];
+            }];
+        }
+    });
 }
 
 @end
