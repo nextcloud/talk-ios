@@ -122,6 +122,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     _userSessionId = [[NCExternalSignalingController sharedInstance] sessionId];
     _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
+            [self.delegate callControllerDidJoinCall:self];
             NSLog(@"Rejoined call");
             if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
                 [self createOwnPublishPeerConnection];
