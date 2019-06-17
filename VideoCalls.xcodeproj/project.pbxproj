@@ -1210,7 +1210,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-frameworks.sh",
 				"${PODS_ROOT}/GoogleWebRTC/Frameworks/frameworks/WebRTC.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -1219,7 +1219,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		2C8035721F950BA800501B5C /* ShellScript */ = {
@@ -1259,16 +1259,16 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-resources.sh",
 				"${PODS_ROOT}/DateTools/DateTools/DateTools/DateTools.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DateTools.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
