@@ -83,8 +83,8 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
     NSString *wsUrl = [serverUrl copy];
     
     // Change to websocket protocol
-    [wsUrl stringByReplacingOccurrencesOfString:@"https://" withString:@"wss://"];
-    [wsUrl stringByReplacingOccurrencesOfString:@"http://" withString:@"ws://"];
+    wsUrl = [wsUrl stringByReplacingOccurrencesOfString:@"https://" withString:@"wss://"];
+    wsUrl = [wsUrl stringByReplacingOccurrencesOfString:@"http://" withString:@"ws://"];
     // Remove trailing slash
     if([wsUrl hasSuffix:@"/"]) {
         wsUrl = [wsUrl substringToIndex:[wsUrl length] - 1];
