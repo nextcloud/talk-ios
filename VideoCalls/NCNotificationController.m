@@ -21,6 +21,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 @interface NCNotificationController () <UNUserNotificationCenterDelegate>
 
 @property (nonatomic, strong) UNUserNotificationCenter *notificationCenter;
+@property (nonatomic, strong) NSMutableDictionary *serverNotificationsAttempts; // notificationId -> get attempts
 
 @end
 
@@ -42,6 +43,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     if (self) {
         _notificationCenter = [UNUserNotificationCenter currentNotificationCenter];
         _notificationCenter.delegate = self;
+        _serverNotificationsAttempts = [[NSMutableDictionary alloc] init];
     }
     
     return self;
@@ -64,32 +66,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     if (pushNotification) {
         NSInteger notificationId = pushNotification.notificationId;
         if (notificationId) {
-            [[NCAPIController sharedInstance] getServerNotification:notificationId withCompletionBlock:^(NSDictionary *notification, NSError *error) {
-                if (!error) {
-                    NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
-                    if (serverNotification) {
-                        if (serverNotification.notificationType == kNCNotificationTypeChat) {
-                            [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
-                        } else if (serverNotification.notificationType == kNCNotificationTypeCall) {
-                            NSString *callType = [[serverNotification.subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
-                            if ([CallKitManager isCallKitAvailable] && ![[CallKitManager sharedInstance] currentCallUUID] && [callType isEqualToString:@"one2one"]) {
-                                [self showIncomingCallForPushNotification:pushNotification withServerNotification:serverNotification];
-                            } else {
-                                [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
-                            }
-                        } else if (serverNotification.notificationType == kNCNotificationTypeRoom) {
-                            NSString *callType = [[serverNotification.subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
-                            // Only present invitation notifications for group conversations
-                            if (![callType isEqualToString:@"one2one"]) {
-                                [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
-                            }
-                        }
-                    }
-                } else {
-                    NSLog(@"Could not retrieve server notification.");
-                    [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
-                }
-            }];
+            [self getAndShowServerNotificationForPushNotification:pushNotification];
         } else {
             NSLog(@"No notification id.");
             [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
@@ -116,6 +93,44 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
     
     [self updateAppIconBadgeNumber];
+}
+
+- (void)getAndShowServerNotificationForPushNotification:(NCPushNotification *)pushNotification
+{
+    NSInteger notificationId = pushNotification.notificationId;
+    NSInteger retryAttempts = [[_serverNotificationsAttempts objectForKey:@(notificationId)] integerValue];
+    if (retryAttempts < 3) {
+        retryAttempts += 1;
+        [_serverNotificationsAttempts setObject:@(retryAttempts) forKey:@(notificationId)];
+        [[NCAPIController sharedInstance] getServerNotification:notificationId withCompletionBlock:^(NSDictionary *notification, NSError *error) {
+            if (!error) {
+                NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
+                if (serverNotification) {
+                    if (serverNotification.notificationType == kNCNotificationTypeChat) {
+                        [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
+                    } else if (serverNotification.notificationType == kNCNotificationTypeCall) {
+                        NSString *callType = [[serverNotification.subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
+                        if ([CallKitManager isCallKitAvailable] && ![[CallKitManager sharedInstance] currentCallUUID] && [callType isEqualToString:@"one2one"]) {
+                            [self showIncomingCallForPushNotification:pushNotification withServerNotification:serverNotification];
+                        } else {
+                            [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
+                        }
+                    } else if (serverNotification.notificationType == kNCNotificationTypeRoom) {
+                        NSString *callType = [[serverNotification.subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
+                        // Only present invitation notifications for group conversations
+                        if (![callType isEqualToString:@"one2one"]) {
+                            [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
+                        }
+                    }
+                }
+            } else {
+                NSLog(@"Could not retrieve server notification. Attempt:%ld", (long)retryAttempts);
+                [self getAndShowServerNotificationForPushNotification:pushNotification];
+            }
+        }];
+    } else {
+        [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
+    }
 }
 
 - (void)showLocalNotification:(NCLocalNotificationType)type withUserInfo:(NSDictionary *)userInfo
