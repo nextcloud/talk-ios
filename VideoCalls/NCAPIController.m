@@ -752,12 +752,27 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];
         [messages sortUsingDescriptors:descriptors];
         
+        // Get X-Chat-Last-Given header
+        NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
+        NSDictionary *headers = [response allHeaderFields];
+        NSString *lastKnowMessageHeader = [headers objectForKey:@"X-Chat-Last-Given"];
+        NSInteger lastKnownMessage = -1;
+        if (lastKnowMessageHeader) {
+            lastKnownMessage = [lastKnowMessageHeader integerValue];
+        }
+        
         if (block) {
-            block(messages, nil);
+            block(messages, lastKnownMessage, 0);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = 0;
+        if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            statusCode = httpResponse.statusCode;
+        }
+        
         if (block) {
-            block(nil, error);
+            block(nil, -1, statusCode);
         }
     }];
     

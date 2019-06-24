@@ -19,7 +19,8 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
 @interface NCRoomController ()
 
 @property (nonatomic, strong) NSTimer *pingTimer;
-@property (nonatomic, assign) NSInteger lastMessageId;
+@property (nonatomic, assign) NSInteger oldestMessageId;
+@property (nonatomic, assign) NSInteger newestMessageId;
 @property (nonatomic, assign) BOOL stopChatMessagesPoll;
 @property (nonatomic, strong) NSURLSessionTask *pingRoomTask;
 @property (nonatomic, strong) NSURLSessionTask *getHistoryTask;
@@ -35,7 +36,9 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
     if (self) {
         _userSessionId = sessionId;
         _roomToken = token;
-        _lastMessageId = -1;
+        _oldestMessageId = -1;
+        _newestMessageId = -1;
+        _hasHistory = YES;
         if (![[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNoPing]) {
             [self startPingRoom];
         }
@@ -68,39 +71,42 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
 
 - (void)getInitialChatHistory
 {
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_lastMessageId history:YES withCompletionBlock:^(NSMutableArray *messages, NSError *error) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_oldestMessageId history:YES withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSInteger statusCode) {
         if (_stopChatMessagesPoll) {
             return;
         }
+        _oldestMessageId = lastKnownMessage;
+        
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
-        NSInteger messagesCount = messages.count;
-        if (messagesCount > 0) {
+        if (messages.count > 0) {
             NCChatMessage *lastMessage = messages.lastObject;
-            _lastMessageId = lastMessage.messageId;
+            _newestMessageId = lastMessage.messageId;
             [userInfo setObject:messages forKey:@"messages"];
         }
         [userInfo setObject:_roomToken forKey:@"room"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveInitialChatHistoryNotification
                                                             object:self
                                                           userInfo:userInfo];
-        _hasHistory = (messagesCount == 200);
         [self startReceivingChatMessages];
     }];
 }
 
 - (void)getChatHistoryFromMessagesId:(NSInteger)messageId
 {
-    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:messageId history:YES withCompletionBlock:^(NSMutableArray *messages, NSError *error) {
+    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_oldestMessageId history:YES withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSInteger statusCode) {
+        if (statusCode == 304) {
+            _hasHistory = NO;
+        }
+        _oldestMessageId = lastKnownMessage > 0 ? lastKnownMessage : _oldestMessageId;
+        
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
-        NSInteger messagesCount = messages.count;
-        if (messagesCount > 0) {
+        if (messages.count > 0) {
             [userInfo setObject:messages forKey:@"messages"];
         }
         [userInfo setObject:_roomToken forKey:@"room"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveChatHistoryNotification
                                                             object:self
                                                           userInfo:userInfo];
-        _hasHistory = (messagesCount == 200);
     }];
 }
 
@@ -113,14 +119,14 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_lastMessageId history:NO withCompletionBlock:^(NSMutableArray *messages, NSError *error) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_newestMessageId history:NO withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSInteger statusCode) {
         if (_stopChatMessagesPoll) {
             return;
         }
+        _newestMessageId = lastKnownMessage > 0 ? lastKnownMessage : _newestMessageId;
+        
         if (messages.count > 0) {
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
-            NCChatMessage *lastMessage = messages.lastObject;
-            _lastMessageId = lastMessage.messageId;
             [userInfo setObject:messages forKey:@"messages"];
             [userInfo setObject:_roomToken forKey:@"room"];
             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveChatMessagesNotification
