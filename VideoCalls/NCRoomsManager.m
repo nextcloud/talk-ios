@@ -248,7 +248,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         }
         NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
         [[NCUserInterfaceController sharedInstance] presentChatViewController:chatVC];
-        [self joinRoom:room.token forCall:NO];
     }
 }
 
