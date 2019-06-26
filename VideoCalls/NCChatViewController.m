@@ -47,7 +47,7 @@
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
-@property (nonatomic, assign) NSInteger firstUnreadMessage;
+@property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
 @property (nonatomic, strong) UnreadMessagesView *unreadMessageView;
 @property (nonatomic, strong) UIBarButtonItem *videoCallButton;
 @property (nonatomic, strong) UIBarButtonItem *voiceCallButton;
@@ -145,7 +145,7 @@
     self.tableView.backgroundView = _chatBackgroundView;
     
     // Unread messages indicator
-    _firstUnreadMessage = -1;
+    _firstUnreadMessageIP = nil;
     _unreadMessageView =  [[UnreadMessagesView alloc] init];
     _unreadMessageView.center = self.view.center;
     _unreadMessageView.frame = CGRectMake(_unreadMessageView.frame.origin.x,
@@ -185,7 +185,7 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-    if (_firstUnreadMessage > -1) {
+    if (_firstUnreadMessageIP) {
         [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
             _unreadMessageView.hidden = YES;
         } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
@@ -345,7 +345,7 @@
         }
     }
     
-    if (_firstUnreadMessage > -1) {
+    if (_firstUnreadMessageIP) {
         [self checkUnreadMessagesVisibility];
     }
 }
@@ -455,12 +455,6 @@
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
     if (messages.count > 0) {
         NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
-        BOOL singleMessage = (messages.count == 1);
-        BOOL scroll = [self shouldScrollOnNewMessages];
-        if (!scroll && _firstUnreadMessage < 0) {
-            [self showNewMessagesViewUntilMessage:[messages firstObject]];
-        }
-        
         [self sortMessages:messages inDictionary:_messages];
         
         NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
@@ -468,7 +462,7 @@
         
         if (messages.count > 1) {
             [self.tableView reloadData];
-        } else if (singleMessage) {
+        } else if (messages.count == 1) {
             [self.tableView beginUpdates];
             NSInteger newLastSection = _dateSections.count - 1;
             BOOL newSection = lastSectionBeforeUpdate != newLastSection;
@@ -480,8 +474,10 @@
             [self.tableView endUpdates];
         }
         
-        if (scroll) {
+        if ([self shouldScrollOnNewMessages]) {
             [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+        } else if (!_firstUnreadMessageIP) {
+            [self showNewMessagesViewUntilIndexPath:lastMessageIndexPath];
         }
     }
     
@@ -649,25 +645,24 @@
     return NO;
 }
 
-- (void)showNewMessagesViewUntilMessage:(NCChatMessage *)message
+- (void)showNewMessagesViewUntilIndexPath:(NSIndexPath *)messageIP
 {
-    _firstUnreadMessage = message.messageId;
+    _firstUnreadMessageIP = messageIP;
     _unreadMessageView.hidden = NO;
 }
 
 - (void)hideNewMessagesView
 {
-    _firstUnreadMessage = -1;
+    _firstUnreadMessageIP = nil;
     _unreadMessageView.hidden = YES;
 }
 
 - (void)checkUnreadMessagesVisibility
 {
-    NSArray* cells = self.tableView.visibleCells;
-    for (ChatTableViewCell *cell in cells) {
-        if (cell.messageId == _firstUnreadMessage) {
-            [self hideNewMessagesView];
-        }
+    NSArray* visibleCellsIPs = [self.tableView indexPathsForVisibleRows];
+    NSIndexPath *lastVisibleIndexPath = [visibleCellsIPs objectAtIndex:visibleCellsIPs.count -1];
+    if (lastVisibleIndexPath == _firstUnreadMessageIP) {
+         [self hideNewMessagesView];
     }
 }
 
