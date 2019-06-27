@@ -11,7 +11,7 @@
 @interface UnreadMessagesView ()
 
 @property (strong, nonatomic) IBOutlet UIView *contentView;
-@property (weak, nonatomic) IBOutlet UILabel *unreadMessagesLabel;
+@property (weak, nonatomic) IBOutlet UIButton *unreadMessagesButton;
 
 @end
 
@@ -27,8 +27,8 @@
         [self addSubview:self.contentView];
         self.contentView.frame = self.bounds;
         
-        self.unreadMessagesLabel.layer.cornerRadius = 12.0f;
-        self.unreadMessagesLabel.clipsToBounds = YES;
+        self.unreadMessagesButton.layer.cornerRadius = 12.0f;
+        self.unreadMessagesButton.clipsToBounds = YES;
     }
     
     return self;
