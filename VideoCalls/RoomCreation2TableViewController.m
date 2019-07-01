@@ -367,8 +367,6 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                 cell.labelTitle.text = participant.name;
                 [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
                                          placeholderImage:nil success:nil failure:nil];
-                cell.contactImage.layer.cornerRadius = 24.0;
-                cell.contactImage.layer.masksToBounds = YES;
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
                 cell.layoutMargins = UIEdgeInsetsMake(0, 72, 0, 0);
                 

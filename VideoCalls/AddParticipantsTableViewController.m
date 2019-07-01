@@ -332,8 +332,6 @@
     
     [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
                              placeholderImage:nil success:nil failure:nil];
-    cell.contactImage.layer.cornerRadius = 24.0;
-    cell.contactImage.layer.masksToBounds = YES;
     
     UIImageView *checkboxChecked = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]];
     UIImageView *checkboxUnchecked = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-unchecked"]];

@@ -20,7 +20,9 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    // Initialization code
+    
+    self.contactImage.layer.cornerRadius = 24.0;
+    self.contactImage.layer.masksToBounds = YES;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

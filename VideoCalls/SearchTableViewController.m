@@ -105,8 +105,6 @@
     
     [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:96]
                              placeholderImage:nil success:nil failure:nil];
-    cell.contactImage.layer.cornerRadius = 24.0;
-    cell.contactImage.layer.masksToBounds = YES;
     
     return cell;
 }
