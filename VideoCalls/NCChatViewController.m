@@ -31,7 +31,6 @@
 #import "NSDate+DateTools.h"
 #import "RoomInfoTableViewController.h"
 #import "UIImageView+AFNetworking.h"
-#import "UnreadMessagesView.h"
 
 @interface NCChatViewController ()
 
@@ -47,8 +46,8 @@
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
-@property (nonatomic, assign) NSInteger firstUnreadMessage;
-@property (nonatomic, strong) UnreadMessagesView *unreadMessageView;
+@property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
+@property (nonatomic, strong) UIButton *unreadMessageButton;
 @property (nonatomic, strong) UIBarButtonItem *videoCallButton;
 @property (nonatomic, strong) UIBarButtonItem *voiceCallButton;
 
@@ -145,15 +144,25 @@
     self.tableView.backgroundView = _chatBackgroundView;
     
     // Unread messages indicator
-    _firstUnreadMessage = -1;
-    _unreadMessageView =  [[UnreadMessagesView alloc] init];
-    _unreadMessageView.center = self.view.center;
-    _unreadMessageView.frame = CGRectMake(_unreadMessageView.frame.origin.x,
-                                          -40,
-                                          _unreadMessageView.frame.size.width,
-                                          _unreadMessageView.frame.size.height);
-    _unreadMessageView.hidden = YES;
-    [self.textInputbar addSubview:_unreadMessageView];
+    _firstUnreadMessageIP = nil;
+    _unreadMessageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 126, 24)];
+    _unreadMessageButton.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1]; //#0082C9
+    _unreadMessageButton.titleLabel.font = [UIFont systemFontOfSize:12];
+    _unreadMessageButton.layer.cornerRadius = 12;
+    _unreadMessageButton.clipsToBounds = YES;
+    _unreadMessageButton.hidden = YES;
+    _unreadMessageButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [_unreadMessageButton addTarget:self action:@selector(unreadMessagesButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [_unreadMessageButton setTitle:@"↓ New messages" forState:UIControlStateNormal];
+    
+    [self.view addSubview:_unreadMessageButton];
+    
+    NSDictionary *views = @{@"unreadMessagesButton": _unreadMessageButton,
+                            @"textInputbar": self.textInputbar};
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[unreadMessagesButton(24)]-5-[textInputbar]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[unreadMessagesButton(126)]-(>=0)-|" options:0 metrics:nil views:views]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual
+                                                             toItem:_unreadMessageButton attribute:NSLayoutAttributeCenterX multiplier:1.f constant:0.f]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -180,22 +189,6 @@
     // Leave chat when the view controller has been removed from its parent view.
     if (self.isMovingFromParentViewController) {
         [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
-    }
-}
-
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
-{
-    if (_firstUnreadMessage > -1) {
-        [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-            _unreadMessageView.hidden = YES;
-        } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-            _unreadMessageView.center = self.view.center;
-            _unreadMessageView.frame = CGRectMake(_unreadMessageView.frame.origin.x,
-                                                  -40,
-                                                  _unreadMessageView.frame.size.width,
-                                                  _unreadMessageView.frame.size.height);
-            _unreadMessageView.hidden = NO;
-        }];
     }
 }
 
@@ -304,6 +297,13 @@
     [self.navigationController pushViewController:roomInfoVC animated:YES];
 }
 
+- (void)unreadMessagesButtonPressed:(id)sender
+{
+    if (_firstUnreadMessageIP) {
+        [self.tableView scrollToRowAtIndexPath:_firstUnreadMessageIP atScrollPosition:UITableViewScrollPositionNone animated:YES];
+    }
+}
+
 - (void)videoCallButtonPressed:(id)sender
 {
     [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:YES andDisplayName:_room.displayName];
@@ -345,7 +345,7 @@
         }
     }
     
-    if (_firstUnreadMessage > -1) {
+    if (_firstUnreadMessageIP) {
         [self checkUnreadMessagesVisibility];
     }
 }
@@ -455,12 +455,6 @@
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
     if (messages.count > 0) {
         NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
-        BOOL singleMessage = (messages.count == 1);
-        BOOL scroll = [self shouldScrollOnNewMessages];
-        if (!scroll && _firstUnreadMessage < 0) {
-            [self showNewMessagesViewUntilMessage:[messages firstObject]];
-        }
-        
         [self sortMessages:messages inDictionary:_messages];
         
         NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
@@ -468,7 +462,7 @@
         
         if (messages.count > 1) {
             [self.tableView reloadData];
-        } else if (singleMessage) {
+        } else if (messages.count == 1) {
             [self.tableView beginUpdates];
             NSInteger newLastSection = _dateSections.count - 1;
             BOOL newSection = lastSectionBeforeUpdate != newLastSection;
@@ -480,8 +474,10 @@
             [self.tableView endUpdates];
         }
         
-        if (scroll) {
+        if ([self shouldScrollOnNewMessages]) {
             [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+        } else if (!_firstUnreadMessageIP) {
+            [self showNewMessagesViewUntilIndexPath:lastMessageIndexPath];
         }
     }
     
@@ -649,25 +645,24 @@
     return NO;
 }
 
-- (void)showNewMessagesViewUntilMessage:(NCChatMessage *)message
+- (void)showNewMessagesViewUntilIndexPath:(NSIndexPath *)messageIP
 {
-    _firstUnreadMessage = message.messageId;
-    _unreadMessageView.hidden = NO;
+    _firstUnreadMessageIP = messageIP;
+    _unreadMessageButton.hidden = NO;
 }
 
 - (void)hideNewMessagesView
 {
-    _firstUnreadMessage = -1;
-    _unreadMessageView.hidden = YES;
+    _firstUnreadMessageIP = nil;
+    _unreadMessageButton.hidden = YES;
 }
 
 - (void)checkUnreadMessagesVisibility
 {
-    NSArray* cells = self.tableView.visibleCells;
-    for (ChatTableViewCell *cell in cells) {
-        if (cell.messageId == _firstUnreadMessage) {
-            [self hideNewMessagesView];
-        }
+    NSArray* visibleCellsIPs = [self.tableView indexPathsForVisibleRows];
+    NSIndexPath *lastVisibleIndexPath = [visibleCellsIPs objectAtIndex:visibleCellsIPs.count -1];
+    if (lastVisibleIndexPath == _firstUnreadMessageIP) {
+         [self hideNewMessagesView];
     }
 }
 
