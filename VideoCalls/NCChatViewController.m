@@ -48,7 +48,7 @@
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
 @property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
-@property (nonatomic, strong) UnreadMessagesView *unreadMessageView;
+@property (nonatomic, strong) UIButton *unreadMessageButton;
 @property (nonatomic, strong) UIBarButtonItem *videoCallButton;
 @property (nonatomic, strong) UIBarButtonItem *voiceCallButton;
 
@@ -146,14 +146,24 @@
     
     // Unread messages indicator
     _firstUnreadMessageIP = nil;
-    _unreadMessageView =  [[UnreadMessagesView alloc] init];
-    _unreadMessageView.center = self.view.center;
-    _unreadMessageView.frame = CGRectMake(_unreadMessageView.frame.origin.x,
-                                          -40,
-                                          _unreadMessageView.frame.size.width,
-                                          _unreadMessageView.frame.size.height);
-    _unreadMessageView.hidden = YES;
-    [self.textInputbar addSubview:_unreadMessageView];
+    _unreadMessageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 126, 24)];
+    _unreadMessageButton.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1]; //#0082C9
+    _unreadMessageButton.titleLabel.font = [UIFont systemFontOfSize:12];
+    _unreadMessageButton.layer.cornerRadius = 12;
+    _unreadMessageButton.clipsToBounds = YES;
+    _unreadMessageButton.hidden = YES;
+    _unreadMessageButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [_unreadMessageButton addTarget:self action:@selector(unreadMessagesButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [_unreadMessageButton setTitle:@"↓ New messages" forState:UIControlStateNormal];
+    
+    [self.view addSubview:_unreadMessageButton];
+    
+    NSDictionary *views = @{@"unreadMessagesButton": _unreadMessageButton,
+                            @"textInputbar": self.textInputbar};
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[unreadMessagesButton(24)]-5-[textInputbar]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[unreadMessagesButton(126)]-(>=0)-|" options:0 metrics:nil views:views]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual
+                                                             toItem:_unreadMessageButton attribute:NSLayoutAttributeCenterX multiplier:1.f constant:0.f]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -180,22 +190,6 @@
     // Leave chat when the view controller has been removed from its parent view.
     if (self.isMovingFromParentViewController) {
         [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
-    }
-}
-
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
-{
-    if (_firstUnreadMessageIP) {
-        [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-            _unreadMessageView.hidden = YES;
-        } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-            _unreadMessageView.center = self.view.center;
-            _unreadMessageView.frame = CGRectMake(_unreadMessageView.frame.origin.x,
-                                                  -40,
-                                                  _unreadMessageView.frame.size.width,
-                                                  _unreadMessageView.frame.size.height);
-            _unreadMessageView.hidden = NO;
-        }];
     }
 }
 
@@ -302,6 +296,13 @@
 {
     RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room];
     [self.navigationController pushViewController:roomInfoVC animated:YES];
+}
+
+- (void)unreadMessagesButtonPressed:(id)sender
+{
+    if (_firstUnreadMessageIP) {
+        [self.tableView scrollToRowAtIndexPath:_firstUnreadMessageIP atScrollPosition:UITableViewScrollPositionNone animated:YES];
+    }
 }
 
 - (void)videoCallButtonPressed:(id)sender
@@ -648,13 +649,13 @@
 - (void)showNewMessagesViewUntilIndexPath:(NSIndexPath *)messageIP
 {
     _firstUnreadMessageIP = messageIP;
-    _unreadMessageView.hidden = NO;
+    _unreadMessageButton.hidden = NO;
 }
 
 - (void)hideNewMessagesView
 {
     _firstUnreadMessageIP = nil;
-    _unreadMessageView.hidden = YES;
+    _unreadMessageButton.hidden = YES;
 }
 
 - (void)checkUnreadMessagesVisibility
