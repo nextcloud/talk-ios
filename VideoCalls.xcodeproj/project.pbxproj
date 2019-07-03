@@ -142,8 +142,6 @@
 		2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
 		2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* PlaceholderView.xib */; };
 		2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
-		2CC7158E20C51ABA0045C789 /* UnreadMessagesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158D20C51ABA0045C789 /* UnreadMessagesView.xib */; };
-		2CC7159120C51F7F0045C789 /* UnreadMessagesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159020C51F7F0045C789 /* UnreadMessagesView.m */; };
 		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
 		2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7187D2007A9920055E02C /* LaunchScreen.xib */; };
 		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
@@ -487,9 +485,6 @@
 		2CC7158820B837140045C789 /* PlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PlaceholderView.xib; sourceTree = "<group>"; };
 		2CC7158A20B8394A0045C789 /* PlaceholderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaceholderView.h; sourceTree = "<group>"; };
 		2CC7158B20B8394A0045C789 /* PlaceholderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlaceholderView.m; sourceTree = "<group>"; };
-		2CC7158D20C51ABA0045C789 /* UnreadMessagesView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UnreadMessagesView.xib; sourceTree = "<group>"; };
-		2CC7158F20C51F7F0045C789 /* UnreadMessagesView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnreadMessagesView.h; sourceTree = "<group>"; };
-		2CC7159020C51F7F0045C789 /* UnreadMessagesView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnreadMessagesView.m; sourceTree = "<group>"; };
 		2CC7159220C54D080045C789 /* ChatTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatTableViewCell.h; sourceTree = "<group>"; };
 		2CC7159320C54D080045C789 /* ChatTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatTableViewCell.m; sourceTree = "<group>"; };
 		2CC7187E2007A9920055E02C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = VideoCalls/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -1082,9 +1077,6 @@
 				2C738157210613A200CDB8DB /* NCChatTitleView.xib */,
 				2CA15549208F2E5700CE8EF0 /* NCMessageTextView.h */,
 				2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */,
-				2CC7158F20C51F7F0045C789 /* UnreadMessagesView.h */,
-				2CC7159020C51F7F0045C789 /* UnreadMessagesView.m */,
-				2CC7158D20C51ABA0045C789 /* UnreadMessagesView.xib */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -1187,7 +1179,6 @@
 				2C8A2BCF221FEEFE00DE6D2C /* DirectoryTableViewCell.xib in Resources */,
 				2CC007C620D90AE50096D91F /* RoomNameTableViewCell.xib in Resources */,
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
-				2CC7158E20C51ABA0045C789 /* UnreadMessagesView.xib in Resources */,
 				2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */,
 				2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */,
 				2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */,
@@ -1382,7 +1373,6 @@
 				2C961E142216BF4B00F5C23F /* OCRichObjectStrings.m in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
 				2C961E182216BF4B00F5C23F /* NSDate+ISO8601.m in Sources */,
-				2CC7159120C51F7F0045C789 /* UnreadMessagesView.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,

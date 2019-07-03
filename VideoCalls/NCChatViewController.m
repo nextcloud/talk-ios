@@ -31,7 +31,6 @@
 #import "NSDate+DateTools.h"
 #import "RoomInfoTableViewController.h"
 #import "UIImageView+AFNetworking.h"
-#import "UnreadMessagesView.h"
 
 @interface NCChatViewController ()
 
