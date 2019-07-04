@@ -52,6 +52,8 @@ NSString * const kCapabilityMentionFlag         = @"mention-flag";
 NSString * const kCapabilityNotificationLevels  = @"notification-levels";
 NSString * const kCapabilityLockedOneToOneRooms = @"locked-one-to-one-rooms";
 
+NSInteger const kDefaultChatMaxLength           = 1000;
+
 NSString * const kPreferredFileSorting  = @"preferredFileSorting";
 
 NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabilitiesReceivedNotification";
@@ -266,6 +268,16 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
         }
     }
     return NO;
+}
+
+- (NSInteger)chatMaxLengthConfigCapability
+{
+    if (_ncTalkCapabilities) {
+        NSDictionary *talkConfiguration = [_ncTalkCapabilities objectForKey:@"config"];
+        NSInteger chatMaxLength = [[[talkConfiguration objectForKey:@"chat"] objectForKey:@"max-length"] integerValue];
+        return chatMaxLength > 0 ? chatMaxLength : kDefaultChatMaxLength;
+    }
+    return kDefaultChatMaxLength;
 }
 
 #pragma mark - Push Notifications

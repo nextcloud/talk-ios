@@ -116,9 +116,14 @@
     [self.leftButton setImage:[UIImage imageNamed:@"add"] forState:UIControlStateNormal];
     
     self.textInputbar.autoHideRightButton = NO;
-    self.textInputbar.maxCharCount = 1000;
-    self.textInputbar.counterStyle = SLKCounterStyleCountdownReversed;
+    NSInteger chatMaxLength = [[NCSettingsController sharedInstance] chatMaxLengthConfigCapability];
+    self.textInputbar.maxCharCount = chatMaxLength;
+    self.textInputbar.counterStyle = SLKCounterStyleLimitExceeded;
     self.textInputbar.counterPosition = SLKCounterPositionTop;
+    // Only show char counter when chat is limited to 1000 chars
+    if (chatMaxLength == kDefaultChatMaxLength) {
+        self.textInputbar.counterStyle = SLKCounterStyleCountdownReversed;
+    }
     self.textInputbar.translucent = NO;
     self.textInputbar.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //Default color
     

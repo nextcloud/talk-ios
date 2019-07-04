@@ -37,6 +37,8 @@ extern NSString * const kCapabilityMentionFlag;
 extern NSString * const kCapabilityNotificationLevels;
 extern NSString * const kCapabilityLockedOneToOneRooms;
 
+extern NSInteger const kDefaultChatMaxLength;
+
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
@@ -84,6 +86,7 @@ typedef enum NCPreferredFileSorting {
 - (void)subscribeForPushNotifications;
 - (BOOL)serverUsesRequiredTalkVersion;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
+- (NSInteger)chatMaxLengthConfigCapability;
 - (NCPreferredFileSorting)getPreferredFileSorting;
 - (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting;
 
