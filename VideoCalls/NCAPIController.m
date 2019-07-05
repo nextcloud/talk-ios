@@ -393,11 +393,17 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSString *sessionId = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"sessionId"];
         if (block) {
-            block(sessionId, nil);
+            block(sessionId, nil, 0);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = 0;
+        if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            statusCode = httpResponse.statusCode;
+        }
+        
         if (block) {
-            block(nil, error);
+            block(nil, error, statusCode);
         }
     }];
     
