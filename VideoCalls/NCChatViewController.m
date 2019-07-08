@@ -45,6 +45,7 @@
 @property (nonatomic, assign) BOOL stopReceivingNewMessages;
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
 @property (nonatomic, assign) BOOL retrievingHistory;
+@property (nonatomic, assign) NSInteger joinRoomAttempts;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
 @property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
 @property (nonatomic, strong) UIButton *unreadMessageButton;
@@ -97,6 +98,8 @@
     
     [self setTitleView];
     [self configureActionItems];
+    
+    self.joinRoomAttempts = 0;
     
     // Disable room info until receiving first chat history
     _titleView.userInteractionEnabled = NO;
@@ -294,6 +297,24 @@
     return sendingMessage;
 }
 
+- (void)presentJoinRoomError
+{
+    NSString *alertTitle = [NSString stringWithFormat:@"Could not join %@", _room.displayName];
+    if (_room.type == kNCRoomTypeOneToOne) {
+        alertTitle = [NSString stringWithFormat:@"Could not join conversation with %@", _room.displayName];
+    }
+    UIAlertController * alert = [UIAlertController alertControllerWithTitle:alertTitle
+                                                                    message:@"An error occurred while joining the conversation"
+                                                             preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction* okButton = [UIAlertAction actionWithTitle:@"OK"
+                                                       style:UIAlertActionStyleDefault
+                                                     handler:^(UIAlertAction * _Nonnull action) {
+                                                         [self.navigationController popViewControllerAnimated:YES];
+                                                     }];
+    [alert addAction:okButton];
+    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+}
+
 #pragma mark - Action Methods
 
 - (void)titleButtonPressed:(id)sender
@@ -394,6 +415,18 @@
 
 - (void)didJoinRoom:(NSNotification *)notification
 {
+    NSError *error = [notification.userInfo objectForKey:@"error"];
+    if (error) {
+        if (_joinRoomAttempts < 3) {
+            NSLog(@"Error joining room, retrying.");
+            _joinRoomAttempts += 1;
+            [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+        } else {
+            [self presentJoinRoomError];
+        }
+        return;
+    }
+    
     NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
     if (![roomController.roomToken isEqualToString:_room.token]) {
         return;
