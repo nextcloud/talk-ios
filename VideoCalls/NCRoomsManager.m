@@ -32,6 +32,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 @property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
 @property (nonatomic, strong) NSString *joiningRoom;
 @property (nonatomic, strong) NSURLSessionTask *joinRoomTask;
+@property (nonatomic, strong) NSMutableDictionary *joinRoomAttempts; //roomToken -> attempts
 @property (nonatomic, strong) NSString *upgradeCallToken;
 
 
@@ -55,6 +56,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (self) {
         _rooms = [[NSMutableArray alloc] init];
         _activeRooms = [[NSMutableDictionary alloc] init];
+        _joinRoomAttempts = [[NSMutableDictionary alloc] init];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChatWithLocalNotification:) name:NCLocalNotificationJoinChatNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChat:) name:NCPushNotificationJoinChatNotification object:nil];
@@ -89,16 +91,26 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 controller.inChat = !call;
                 controller.inCall = call;
                 [_activeRooms setObject:controller forKey:token];
+                [_joinRoomAttempts removeObjectForKey:token];
                 [userInfo setObject:controller forKey:@"roomController"];
                 if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
                     [[NCExternalSignalingController sharedInstance] joinRoom:token withSessionId:sessionId];
                 }
             } else {
+                NSInteger joinAttempts = [[_joinRoomAttempts objectForKey:token] integerValue];
+                if (joinAttempts < 3) {
+                    NSLog(@"Error joining room, retrying. %ld", (long)joinAttempts);
+                    joinAttempts += 1;
+                    [_joinRoomAttempts setObject:@(joinAttempts) forKey:token];
+                    [self joinRoom:token forCall:call];
+                    return;
+                }
                 [userInfo setObject:error forKey:@"error"];
                 [userInfo setObject:@(statusCode) forKey:@"statusCode"];
                 NSLog(@"Could not join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
             }
             _joiningRoom = nil;
+            [userInfo setObject:token forKey:@"token"];
             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
                                                                 object:self
                                                               userInfo:userInfo];

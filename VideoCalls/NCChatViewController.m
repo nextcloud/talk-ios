@@ -46,7 +46,6 @@
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, assign) BOOL isVisible;
 @property (nonatomic, assign) BOOL hasJoinedRoom;
-@property (nonatomic, assign) NSInteger joinRoomAttempts;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
 @property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
 @property (nonatomic, strong) UIButton *unreadMessageButton;
@@ -99,8 +98,6 @@
     
     [self setTitleView];
     [self configureActionItems];
-    
-    self.joinRoomAttempts = 0;
     
     // Disable room info and call buttons until joining the room
     _titleView.userInteractionEnabled = YES;
@@ -426,26 +423,21 @@
 
 - (void)didJoinRoom:(NSNotification *)notification
 {
-    NSError *error = [notification.userInfo objectForKey:@"error"];
-    if (error) {
-        if (_joinRoomAttempts < 3) {
-            NSLog(@"Error joining room, retrying.");
-            _joinRoomAttempts += 1;
-            [[NCRoomsManager sharedInstance] joinRoom:_room.token];
-        } else {
-            [self presentJoinRoomError];
-        }
+    NSString *token = [notification.userInfo objectForKey:@"token"];
+    if (![token isEqualToString:_room.token]) {
         return;
     }
     
-    NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
-    if (![roomController.roomToken isEqualToString:_room.token]) {
+    NSError *error = [notification.userInfo objectForKey:@"error"];
+    if (error && _isVisible) {
+        [self presentJoinRoomError];
         return;
     }
     
     _hasJoinedRoom = YES;
     [self checkRoomControlsAvailability];
     
+    NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
     if (!_roomController) {
         _roomController = roomController;
         [_roomController getInitialChatHistory];
