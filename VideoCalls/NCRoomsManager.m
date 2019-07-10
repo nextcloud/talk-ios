@@ -83,7 +83,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (!roomController) {
         _joiningRoom = token;
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token withCompletionBlock:^(NSString *sessionId, NSError *error) {
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
             if (!error) {
                 NCRoomController *controller = [[NCRoomController alloc] initForUser:sessionId inRoom:token];
                 controller.inChat = !call;
@@ -95,7 +95,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 }
             } else {
                 [userInfo setObject:error forKey:@"error"];
-                NSLog(@"Could not join room. Error: %@", error.description);
+                [userInfo setObject:@(statusCode) forKey:@"statusCode"];
+                NSLog(@"Could not join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
             }
             _joiningRoom = nil;
             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
@@ -125,7 +126,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (roomController) {
         _joiningRoom = [token copy];
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token withCompletionBlock:^(NSString *sessionId, NSError *error) {
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
             if (!error) {
                 roomController.userSessionId = sessionId;
                 roomController.inChat = YES;
@@ -133,7 +134,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                     [[NCExternalSignalingController sharedInstance] joinRoom:token withSessionId:sessionId];
                 }
             } else {
-                NSLog(@"Could not re-join room. Error: %@", error.description);
+                NSLog(@"Could not re-join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
             }
             _joiningRoom = nil;
         }];

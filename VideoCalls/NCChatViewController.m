@@ -42,9 +42,11 @@
 @property (nonatomic, strong) NSMutableArray *dateSections;
 @property (nonatomic, strong) NSMutableArray *mentions;
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
-@property (nonatomic, assign) BOOL stopReceivingNewMessages;
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
 @property (nonatomic, assign) BOOL retrievingHistory;
+@property (nonatomic, assign) BOOL isVisible;
+@property (nonatomic, assign) BOOL hasJoinedRoom;
+@property (nonatomic, assign) NSInteger joinRoomAttempts;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
 @property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
 @property (nonatomic, strong) UIButton *unreadMessageButton;
@@ -98,8 +100,12 @@
     [self setTitleView];
     [self configureActionItems];
     
-    // Disable room info until receiving first chat history
-    _titleView.userInteractionEnabled = NO;
+    self.joinRoomAttempts = 0;
+    
+    // Disable room info and call buttons until joining the room
+    _titleView.userInteractionEnabled = YES;
+    [_videoCallButton setEnabled:NO];
+    [_voiceCallButton setEnabled:NO];
     
     self.messages = [[NSMutableDictionary alloc] init];
     self.mentions = [[NSMutableArray alloc] init];
@@ -174,17 +180,18 @@
 {
     [super viewWillAppear:animated];
     
-    [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+    [self checkRoomControlsAvailability];
     
-    [self checkRoomReadOnlyState];
+    _isVisible = YES;
+    
+    [[NCRoomsManager sharedInstance] joinRoom:_room.token];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
     
-    _stopReceivingNewMessages = YES;
-    [[NCRoomsManager sharedInstance] stopReceivingChatMessagesInRoom:_room];
+    _isVisible = NO;
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -256,8 +263,15 @@
 
 #pragma mark - User Interface
 
-- (void)checkRoomReadOnlyState
+- (void)checkRoomControlsAvailability
 {
+    if (_hasJoinedRoom) {
+        // Enable room info and call buttons
+        _titleView.userInteractionEnabled = YES;
+        [_videoCallButton setEnabled:YES];
+        [_voiceCallButton setEnabled:YES];
+    }
+    
     if (_room.readOnlyState == NCRoomReadOnlyStateReadOnly) {
         // Hide text input
         self.textInputbarHidden = YES;
@@ -292,6 +306,24 @@
     }
     _mentions = [[NSMutableArray alloc] init];
     return sendingMessage;
+}
+
+- (void)presentJoinRoomError
+{
+    NSString *alertTitle = [NSString stringWithFormat:@"Could not join %@", _room.displayName];
+    if (_room.type == kNCRoomTypeOneToOne) {
+        alertTitle = [NSString stringWithFormat:@"Could not join conversation with %@", _room.displayName];
+    }
+    UIAlertController * alert = [UIAlertController alertControllerWithTitle:alertTitle
+                                                                    message:@"An error occurred while joining the conversation"
+                                                             preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction* okButton = [UIAlertAction actionWithTitle:@"OK"
+                                                       style:UIAlertActionStyleDefault
+                                                     handler:^(UIAlertAction * _Nonnull action) {
+                                                         [self.navigationController popViewControllerAnimated:YES];
+                                                     }];
+    [alert addAction:okButton];
+    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
 }
 
 #pragma mark - Action Methods
@@ -394,17 +426,29 @@
 
 - (void)didJoinRoom:(NSNotification *)notification
 {
+    NSError *error = [notification.userInfo objectForKey:@"error"];
+    if (error) {
+        if (_joinRoomAttempts < 3) {
+            NSLog(@"Error joining room, retrying.");
+            _joinRoomAttempts += 1;
+            [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+        } else {
+            [self presentJoinRoomError];
+        }
+        return;
+    }
+    
     NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
     if (![roomController.roomToken isEqualToString:_room.token]) {
         return;
     }
     
+    _hasJoinedRoom = YES;
+    [self checkRoomControlsAvailability];
+    
     if (!_roomController) {
         _roomController = roomController;
         [_roomController getInitialChatHistory];
-    } else if (_stopReceivingNewMessages) {
-        _stopReceivingNewMessages = NO;
-        [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
     }
 }
 
@@ -641,9 +685,9 @@
 
 - (BOOL)shouldScrollOnNewMessages
 {
-    // Scroll if table view is at the bottom (or 80px up)
+    // Scroll if table view is at the bottom (or 80px up) and chat view is visible
     CGFloat minimumOffset = (self.tableView.contentSize.height - self.tableView.frame.size.height) - 80;
-    if (self.tableView.contentOffset.y >= minimumOffset) {
+    if (self.tableView.contentOffset.y >= minimumOffset && _isVisible) {
         return YES;
     }
     
