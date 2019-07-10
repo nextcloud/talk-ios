@@ -45,6 +45,7 @@
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, assign) BOOL isVisible;
+@property (nonatomic, assign) BOOL hasJoinedRoom;
 @property (nonatomic, assign) NSInteger joinRoomAttempts;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
 @property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
@@ -101,8 +102,10 @@
     
     self.joinRoomAttempts = 0;
     
-    // Disable room info until receiving first chat history
-    _titleView.userInteractionEnabled = NO;
+    // Disable room info and call buttons until joining the room
+    _titleView.userInteractionEnabled = YES;
+    [_videoCallButton setEnabled:NO];
+    [_voiceCallButton setEnabled:NO];
     
     self.messages = [[NSMutableDictionary alloc] init];
     self.mentions = [[NSMutableArray alloc] init];
@@ -177,11 +180,11 @@
 {
     [super viewWillAppear:animated];
     
+    [self checkRoomControlsAvailability];
+    
     _isVisible = YES;
     
     [[NCRoomsManager sharedInstance] joinRoom:_room.token];
-    
-    [self checkRoomReadOnlyState];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -260,8 +263,15 @@
 
 #pragma mark - User Interface
 
-- (void)checkRoomReadOnlyState
+- (void)checkRoomControlsAvailability
 {
+    if (_hasJoinedRoom) {
+        // Enable room info and call buttons
+        _titleView.userInteractionEnabled = YES;
+        [_videoCallButton setEnabled:YES];
+        [_voiceCallButton setEnabled:YES];
+    }
+    
     if (_room.readOnlyState == NCRoomReadOnlyStateReadOnly) {
         // Hide text input
         self.textInputbarHidden = YES;
@@ -432,6 +442,9 @@
     if (![roomController.roomToken isEqualToString:_room.token]) {
         return;
     }
+    
+    _hasJoinedRoom = YES;
+    [self checkRoomControlsAvailability];
     
     if (!_roomController) {
         _roomController = roomController;
