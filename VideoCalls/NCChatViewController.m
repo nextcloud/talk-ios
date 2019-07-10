@@ -44,6 +44,7 @@
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
 @property (nonatomic, assign) BOOL retrievingHistory;
+@property (nonatomic, assign) BOOL isVisible;
 @property (nonatomic, assign) NSInteger joinRoomAttempts;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
 @property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
@@ -176,6 +177,8 @@
 {
     [super viewWillAppear:animated];
     
+    _isVisible = YES;
+    
     [[NCRoomsManager sharedInstance] joinRoom:_room.token];
     
     [self checkRoomReadOnlyState];
@@ -184,6 +187,8 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    
+    _isVisible = NO;
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -667,9 +672,9 @@
 
 - (BOOL)shouldScrollOnNewMessages
 {
-    // Scroll if table view is at the bottom (or 80px up)
+    // Scroll if table view is at the bottom (or 80px up) and chat view is visible
     CGFloat minimumOffset = (self.tableView.contentSize.height - self.tableView.frame.size.height) - 80;
-    if (self.tableView.contentOffset.y >= minimumOffset) {
+    if (self.tableView.contentOffset.y >= minimumOffset && _isVisible) {
         return YES;
     }
     
