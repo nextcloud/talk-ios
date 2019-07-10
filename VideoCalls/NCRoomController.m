@@ -106,7 +106,9 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (error) {
             [userInfo setObject:error forKey:@"error"];
-            NSLog(@"Could not get chat history. Error: %@", error.description);
+            if (statusCode != 304) {
+                NSLog(@"Could not get chat history. Error: %@", error.description);
+            }
         }
         if (messages.count > 0) {
             [userInfo setObject:messages forKey:@"messages"];
@@ -136,7 +138,9 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (error) {
             [userInfo setObject:error forKey:@"error"];
-            NSLog(@"Could not get new chat messages. Error: %@", error.description);
+            if (statusCode != 304) {
+                NSLog(@"Could not get new chat messages. Error: %@", error.description);
+            }
         }
         if (messages.count > 0) {
             [userInfo setObject:messages forKey:@"messages"];
