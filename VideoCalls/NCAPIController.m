@@ -768,7 +768,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         }
         
         if (block) {
-            block(messages, lastKnownMessage, 0);
+            block(messages, lastKnownMessage, nil, 0);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = 0;
@@ -778,7 +778,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         }
         
         if (block) {
-            block(nil, -1, statusCode);
+            block(nil, -1, error, statusCode);
         }
     }];
     

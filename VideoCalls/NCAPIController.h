@@ -40,7 +40,7 @@ typedef void (^JoinCallCompletionBlock)(NSError *error);
 typedef void (^PingCallCompletionBlock)(NSError *error);
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
 
-typedef void (^GetChatMessagesCompletionBlock)(NSMutableArray *messages, NSInteger lastKnownMessage, NSInteger statusCode);
+typedef void (^GetChatMessagesCompletionBlock)(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
 typedef void (^SendChatMessagesCompletionBlock)(NSError *error);
 typedef void (^GetMentionSuggestionsCompletionBlock)(NSMutableArray *mentions, NSError *error);
 
