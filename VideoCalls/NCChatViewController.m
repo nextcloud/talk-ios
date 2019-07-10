@@ -42,7 +42,6 @@
 @property (nonatomic, strong) NSMutableArray *dateSections;
 @property (nonatomic, strong) NSMutableArray *mentions;
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
-@property (nonatomic, assign) BOOL stopReceivingNewMessages;
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, assign) NSInteger joinRoomAttempts;
@@ -185,9 +184,6 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    
-    _stopReceivingNewMessages = YES;
-    [[NCRoomsManager sharedInstance] stopReceivingChatMessagesInRoom:_room];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -435,9 +431,6 @@
     if (!_roomController) {
         _roomController = roomController;
         [_roomController getInitialChatHistory];
-    } else if (_stopReceivingNewMessages) {
-        _stopReceivingNewMessages = NO;
-        [[NCRoomsManager sharedInstance] startReceivingChatMessagesInRoom:_room];
     }
 }
 
