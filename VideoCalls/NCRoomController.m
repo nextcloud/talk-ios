@@ -166,7 +166,7 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
     [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_roomToken displayName:nil withCompletionBlock:^(NSError *error) {
         if (error) {
             [userInfo setObject:error forKey:@"error"];
-            NSLog(@"Could not join room. Error: %@", error.description);
+            NSLog(@"Could not send chat message. Error: %@", error.description);
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidSendChatMessageNotification
                                                             object:self
