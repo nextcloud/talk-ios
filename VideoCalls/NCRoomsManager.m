@@ -121,6 +121,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         } else {
             roomController.inChat = YES;
         }
+        [userInfo setObject:token forKey:@"token"];
         [userInfo setObject:roomController forKey:@"roomController"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
                                                             object:self

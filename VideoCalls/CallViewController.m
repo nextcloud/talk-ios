@@ -185,11 +185,18 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)didJoinRoom:(NSNotification *)notification
 {
-    NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
-    if (![roomController.roomToken isEqualToString:_room.token]) {
+    NSString *token = [notification.userInfo objectForKey:@"token"];
+    if (![token isEqualToString:_room.token]) {
         return;
     }
     
+    NSError *error = [notification.userInfo objectForKey:@"error"];
+    if (error) {
+        [self presentJoinCallError];
+        return;
+    }
+    
+    NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
     if (!_callController) {
         [self startCallWithSessionId:roomController.userSessionId];
     }
@@ -489,6 +496,26 @@ typedef NS_ENUM(NSInteger, CallState) {
     _detailedViewTimer = nil;
 }
 
+- (void)presentJoinCallError
+{
+    NSString *alertTitle = [NSString stringWithFormat:@"Could not join %@ call", _room.displayName];
+    if (_room.type == kNCRoomTypeOneToOne) {
+        alertTitle = [NSString stringWithFormat:@"Could not join call with %@", _room.displayName];
+    }
+    UIAlertController * alert = [UIAlertController alertControllerWithTitle:alertTitle
+                                                                    message:@"An error occurred while joining the call"
+                                                             preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction* okButton = [UIAlertAction actionWithTitle:@"OK"
+                                                       style:UIAlertActionStyleDefault
+                                                     handler:^(UIAlertAction * _Nonnull action) {
+                                                         [self hangup];
+                                                     }];
+    [alert addAction:okButton];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self presentViewController:alert animated:YES completion:nil];
+    });
+}
+
 #pragma mark - Call actions
 
 - (IBAction)audioButtonPressed:(id)sender
@@ -703,12 +730,18 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callControllerDidJoinCall:(NCCallController *)callController
 {
     [self setCallState:CallStateWaitingParticipants];
-    
 }
+
+- (void)callControllerDidFailedJoiningCall:(NCCallController *)callController
+{
+    [self presentJoinCallError];
+}
+
 - (void)callControllerDidEndCall:(NCCallController *)callController
 {
     [self finishCall];
 }
+
 - (void)callController:(NCCallController *)callController peerJoined:(NCPeerConnection *)peer
 {
     // Start adding cell for that peer and wait until add
@@ -737,12 +770,15 @@ typedef NS_ENUM(NSInteger, CallState) {
     _captureController = [[ARDCaptureController alloc] initWithCapturer:videoCapturer settings:[[NCSettingsController sharedInstance] videoSettingsModel]];
     [_captureController startCapture];
 }
+
 - (void)callController:(NCCallController *)callController didAddLocalStream:(RTCMediaStream *)localStream
 {
 }
+
 - (void)callController:(NCCallController *)callController didRemoveLocalStream:(RTCMediaStream *)localStream
 {
 }
+
 - (void)callController:(NCCallController *)callController didAddStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
     RTCEAGLVideoView *renderView = [[RTCEAGLVideoView alloc] initWithFrame:CGRectZero];
@@ -762,10 +798,12 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self.collectionView reloadData];
     });
 }
+
 - (void)callController:(NCCallController *)callController didRemoveStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
     
 }
+
 - (void)callController:(NCCallController *)callController iceStatusChanged:(RTCIceConnectionState)state ofPeer:(NCPeerConnection *)peer
 {
     if (state == RTCIceConnectionStateClosed) {
@@ -779,6 +817,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         }];
     }
 }
+
 - (void)callController:(NCCallController *)callController didAddDataChannel:(RTCDataChannel *)dataChannel
 {
 }
@@ -797,6 +836,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
     }
 }
+
 - (void)callController:(NCCallController *)callController didReceiveNick:(NSString *)nick fromPeer:(NCPeerConnection *)peer
 {
     [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
