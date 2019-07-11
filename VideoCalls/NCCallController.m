@@ -33,6 +33,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, assign) BOOL isAudioOnly;
 @property (nonatomic, assign) BOOL inCall;
 @property (nonatomic, assign) BOOL leavingCall;
+@property (nonatomic, assign) NSInteger joinCallAttempts;
 @property (nonatomic, strong) AVAudioRecorder *recorder;
 @property (nonatomic, strong) NSTimer *micAudioLevelTimer;
 @property (nonatomic, assign) BOOL speaking;
@@ -91,6 +92,11 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)startCall
 {
     [self createLocalMedia];
+    [self joinCall];
+}
+
+- (void)joinCall
+{
     _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
@@ -112,6 +118,13 @@ static NSString * const kNCVideoTrackKind = @"video";
             }
             [self setInCall:YES];
         } else {
+            if (_joinCallAttempts < 3) {
+                NSLog(@"Could not join call, retrying. %ld", (long)_joinCallAttempts);
+                _joinCallAttempts += 1;
+                [self joinCall];
+                return;
+            }
+            [self.delegate callControllerDidFailedJoiningCall:self];
             NSLog(@"Could not join call. Error: %@", error.description);
         }
     }];

@@ -730,12 +730,18 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callControllerDidJoinCall:(NCCallController *)callController
 {
     [self setCallState:CallStateWaitingParticipants];
-    
 }
+
+- (void)callControllerDidFailedJoiningCall:(NCCallController *)callController
+{
+    [self presentJoinCallError];
+}
+
 - (void)callControllerDidEndCall:(NCCallController *)callController
 {
     [self finishCall];
 }
+
 - (void)callController:(NCCallController *)callController peerJoined:(NCPeerConnection *)peer
 {
     // Start adding cell for that peer and wait until add
@@ -764,12 +770,15 @@ typedef NS_ENUM(NSInteger, CallState) {
     _captureController = [[ARDCaptureController alloc] initWithCapturer:videoCapturer settings:[[NCSettingsController sharedInstance] videoSettingsModel]];
     [_captureController startCapture];
 }
+
 - (void)callController:(NCCallController *)callController didAddLocalStream:(RTCMediaStream *)localStream
 {
 }
+
 - (void)callController:(NCCallController *)callController didRemoveLocalStream:(RTCMediaStream *)localStream
 {
 }
+
 - (void)callController:(NCCallController *)callController didAddStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
     RTCEAGLVideoView *renderView = [[RTCEAGLVideoView alloc] initWithFrame:CGRectZero];
@@ -789,10 +798,12 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self.collectionView reloadData];
     });
 }
+
 - (void)callController:(NCCallController *)callController didRemoveStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
     
 }
+
 - (void)callController:(NCCallController *)callController iceStatusChanged:(RTCIceConnectionState)state ofPeer:(NCPeerConnection *)peer
 {
     if (state == RTCIceConnectionStateClosed) {
@@ -806,6 +817,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         }];
     }
 }
+
 - (void)callController:(NCCallController *)callController didAddDataChannel:(RTCDataChannel *)dataChannel
 {
 }
@@ -824,6 +836,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
     }
 }
+
 - (void)callController:(NCCallController *)callController didReceiveNick:(NSString *)nick fromPeer:(NCPeerConnection *)peer
 {
     [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
