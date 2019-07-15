@@ -43,6 +43,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) NSArray *peersInCall;
 @property (nonatomic, strong) NCPeerConnection *ownPeerConnection;
 @property (nonatomic, strong) NSMutableDictionary *connectionsDict;
+@property (nonatomic, strong) NSMutableDictionary *pendingOffersDict;
 @property (nonatomic, strong) RTCMediaStream *localStream;
 @property (nonatomic, strong) RTCAudioTrack *localAudioTrack;
 @property (nonatomic, strong) RTCVideoTrack *localVideoTrack;
@@ -66,6 +67,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         _userSessionId = sessionId;
         _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] init];
         _connectionsDict = [[NSMutableDictionary alloc] init];
+        _pendingOffersDict = [[NSMutableDictionary alloc] init];
         _usersInRoom = [[NSArray alloc] init];
         _peersInCall = [[NSArray alloc] init];
         
@@ -255,7 +257,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
         [peerConnectionWrapper close];
     }
+    for (NSTimer *pendingOfferTimer in [_pendingOffersDict allValues]) {
+        [pendingOfferTimer invalidate];
+    }
     _connectionsDict = [[NSMutableDictionary alloc] init];
+    _pendingOffersDict = [[NSMutableDictionary alloc] init];
     _usersInRoom = [[NSArray alloc] init];
 }
 
@@ -457,6 +463,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     NSLog(@"External signaling message received: %@", notification);
     NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromExternalSignalingJSONDictionary:notification.userInfo];
+    [self checkIfPendingOffer:signalingMessage];
     [self processSignalingMessage:signalingMessage];
 }
 
@@ -495,6 +502,22 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     [_sendNickTimer invalidate];
     _sendNickTimer = nil;
+}
+
+- (void)requestNewOffer:(NSTimer *)timer
+{
+    NSString *sessionId = [timer.userInfo objectForKey:@"sessionId"];
+    NSString *roomType = [timer.userInfo objectForKey:@"roomType"];
+    [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:sessionId andRoomType:roomType];
+}
+
+- (void)checkIfPendingOffer:(NCSignalingMessage *)signalingMessage
+{
+    NSTimer *pendingRequestTimer = [_pendingOffersDict objectForKey:signalingMessage.from];
+    if (pendingRequestTimer && signalingMessage.messageType == kNCSignalingMessageTypeOffer) {
+        NSLog(@"Pending requested offer arrived. Removing timer.");
+        [pendingRequestTimer invalidate];
+    }
 }
 
 #pragma mark - Signaling Controller Delegate
@@ -675,8 +698,18 @@ static NSString * const kNCVideoTrackKind = @"video";
             [self forceReconnect];
         // If another peer failed using MCU then request a new offer
         } else if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+            NSString *sessionId = [peerConnection.peerId copy];
+            NSString *roomType = [peerConnection.roomType copy];
+            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:sessionId forKey:@"sessionId"];
+            [userInfo setObject:roomType forKey:@"roomType"];
+            // Close failed peer connection
             [self cleanPeerConnectionsForSessionId:peerConnection.peerId];
-            [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:peerConnection.peerId andRoomType:kRoomTypeVideo];
+            // Request new offer
+            [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:peerConnection.peerId andRoomType:peerConnection.roomType];
+            // Set timeout to request new offer
+            NSTimer *pendingOfferTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(requestNewOffer:) userInfo:userInfo repeats:YES];
+            [_pendingOffersDict setObject:pendingOfferTimer forKey:peerConnection.peerId];
         }
     }
     [self.delegate callController:self iceStatusChanged:newState ofPeer:peerConnection];
