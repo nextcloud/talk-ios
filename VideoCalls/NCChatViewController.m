@@ -100,7 +100,7 @@
     [self configureActionItems];
     
     // Disable room info and call buttons until joining the room
-    _titleView.userInteractionEnabled = YES;
+    _titleView.userInteractionEnabled = NO;
     [_videoCallButton setEnabled:NO];
     [_voiceCallButton setEnabled:NO];
     
@@ -452,7 +452,6 @@
     }
     
     _hasReceiveInitialHistory = YES;
-    _titleView.userInteractionEnabled = YES;
     [_chatBackgroundView.loadingView stopAnimating];
     [_chatBackgroundView.loadingView setHidden:YES];
     
