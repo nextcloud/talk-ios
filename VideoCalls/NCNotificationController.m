@@ -71,6 +71,8 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             NSLog(@"No notification id.");
             [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
         }
+        
+        [self updateAppIconBadgeNumber];
     }
 }
 
@@ -97,9 +99,8 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
     [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
     
-    [self updateAppIconBadgeNumber];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
 }
 
 - (void)getAndShowServerNotificationForPushNotification:(NCPushNotification *)pushNotification
