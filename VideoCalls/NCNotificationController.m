@@ -78,13 +78,20 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 {
     UNMutableNotificationContent *content = [UNMutableNotificationContent new];
     content.body = pushNotification.bodyForRemoteAlerts;
-    if (serverNotification && serverNotification.notificationType == kNCNotificationTypeChat) {
-        content.title = serverNotification.chatMessageTitle;
-        content.body = serverNotification.message;
-    }
+    content.threadIdentifier = pushNotification.roomToken;
     content.sound = [UNNotificationSound defaultSound];
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:pushNotification.jsonString forKey:@"pushNotification"];
-    content.userInfo = userInfo;
+    content.userInfo = [NSDictionary dictionaryWithObject:pushNotification.jsonString forKey:@"pushNotification"];
+    
+    if (serverNotification) {
+        content.threadIdentifier = serverNotification.objectId;
+        if (serverNotification.notificationType == kNCNotificationTypeChat) {
+            content.title = serverNotification.chatMessageTitle;
+            content.body = serverNotification.message;
+            if (@available(iOS 12.0, *)) {
+                content.summaryArgument = serverNotification.chatMessageAuthor;
+            }
+        }
+    }
     
     NSString *identifier = [NSString stringWithFormat:@"Notification-%ld", (long)pushNotification.notificationId];
     UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
