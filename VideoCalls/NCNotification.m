@@ -49,13 +49,15 @@
     return type;
 }
 
+- (NSString *)chatMessageAuthor
+{
+    NSString *author = [[_subjectRichParameters objectForKey:@"user"] objectForKey:@"name"];
+    return author ? author : @"Guest";
+}
+
 - (NSString *)chatMessageTitle
 {
-    NSString *title = [[_subjectRichParameters objectForKey:@"user"] objectForKey:@"name"];
-    // Guests
-    if (!title) {
-        title = @"Guest";
-    }
+    NSString *title = [self chatMessageAuthor];
     // Check if the room has a name
     NSArray *parameters = [self getParametersFromRichText:_subjectRich];
     for (int i = 0; i < parameters.count; i++) {

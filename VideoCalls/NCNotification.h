@@ -28,6 +28,7 @@ typedef enum NCNotificationType {
 
 + (instancetype)notificationWithDictionary:(NSDictionary *)notificationDict;
 - (NCNotificationType)notificationType;
+- (NSString *)chatMessageAuthor;
 - (NSString *)chatMessageTitle;
 - (NSString *)callDisplayName;
 
