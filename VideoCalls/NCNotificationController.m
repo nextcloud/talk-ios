@@ -65,14 +65,13 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 {
     if (pushNotification) {
         NSInteger notificationId = pushNotification.notificationId;
-        if (notificationId) {
-            [self getAndShowServerNotificationForPushNotification:pushNotification];
+        if (pushNotification.type == NCPushNotificationTypeDelete) {
+            [self removeNotificationWithNotificationId:notificationId];
+        } else if (pushNotification.type == NCPushNotificationTypeDeleteAll) {
+            [self cleanAllNotifications];
         } else {
-            NSLog(@"No notification id.");
-            [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
+            [self handlePushNotification:pushNotification];
         }
-        
-        [self updateAppIconBadgeNumber];
     }
 }
 
@@ -100,14 +99,16 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
     [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
     
+    [self updateAppIconBadgeNumber:1];
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
 }
 
-- (void)getAndShowServerNotificationForPushNotification:(NCPushNotification *)pushNotification
+- (void)handlePushNotification:(NCPushNotification *)pushNotification
 {
     NSInteger notificationId = pushNotification.notificationId;
     NSInteger retryAttempts = [[_serverNotificationsAttempts objectForKey:@(notificationId)] integerValue];
-    if (retryAttempts < 3) {
+    if (retryAttempts < 3 && notificationId) {
         retryAttempts += 1;
         [_serverNotificationsAttempts setObject:@(retryAttempts) forKey:@(notificationId)];
         [[NCAPIController sharedInstance] getServerNotification:notificationId withCompletionBlock:^(NSDictionary *notification, NSError *error) {
@@ -133,7 +134,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
                 }
             } else {
                 NSLog(@"Could not retrieve server notification. Attempt:%ld", (long)retryAttempts);
-                [self getAndShowServerNotificationForPushNotification:pushNotification];
+                [self handlePushNotification:pushNotification];
             }
         }];
     } else {
@@ -163,7 +164,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
     [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
     
-    [self updateAppIconBadgeNumber];
+    [self updateAppIconBadgeNumber:1];
 }
 
 - (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification withServerNotification:(NCNotification *)serverNotification
@@ -173,17 +174,42 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName];
 }
 
-- (void)updateAppIconBadgeNumber
+- (void)updateAppIconBadgeNumber:(NSInteger)update
 {
-    if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
-        [UIApplication sharedApplication].applicationIconBadgeNumber += 1;
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
+            [UIApplication sharedApplication].applicationIconBadgeNumber += update;
+        }
+    });
 }
 
-- (void)cleanNotifications
+- (void)cleanAllNotifications
 {
     [_notificationCenter removeAllDeliveredNotifications];
     [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+}
+
+- (void)removeNotificationWithNotificationId:(NSInteger)notificationId
+{
+    NSString *identifier = [NSString stringWithFormat:@"Notification-%ld", (long)notificationId];
+    // Check in pending notifications
+    [_notificationCenter getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> * _Nonnull requests) {
+        for (UNNotificationRequest *notificationRequest in requests) {
+            if ([notificationRequest.identifier isEqualToString:identifier]) {
+                [_notificationCenter removePendingNotificationRequestsWithIdentifiers:@[identifier]];
+                [self updateAppIconBadgeNumber:-1];
+            }
+        }
+    }];
+    // Check in delivered notifications
+    [_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+        for (UNNotification *notification in notifications) {
+            if ([notification.request.identifier isEqualToString:identifier]) {
+                [_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[identifier]];
+                [self updateAppIconBadgeNumber:-1];
+            }
+        }
+    }];
 }
 
 #pragma mark - UNUserNotificationCenter delegate

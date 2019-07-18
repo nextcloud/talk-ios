@@ -19,6 +19,8 @@ NSString * const kNCPNNotifIdKey        = @"nid";
 NSString * const kNCPNTypeCallKey       = @"call";
 NSString * const kNCPNTypeRoomKey       = @"room";
 NSString * const kNCPNTypeChatKey       = @"chat";
+NSString * const kNCPNTypeDeleteKey     = @"delete";
+NSString * const kNCPNTypeDeleteAllKey  = @"delete-all";
 
 NSString * const NCPushNotificationJoinChatNotification                 = @"NCPushNotificationJoinChatNotification";
 NSString * const NCPushNotificationJoinAudioCallAcceptedNotification    = @"NCPushNotificationJoinAudioCallAcceptedNotification";
@@ -36,7 +38,7 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
     
     NSString *app = [jsonDict objectForKey:kNCPNAppKey];
     if (![app isEqualToString:kNCPNAppIdKey]) {
-        return nil;
+        return [self nonTalkPushNotification:jsonDict];
     }
     
     NCPushNotification *pushNotification = [[NCPushNotification alloc] init];
@@ -61,6 +63,20 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
     return pushNotification;
 }
 
++ (instancetype)nonTalkPushNotification:(id)jsonNotification
+{
+    NCPushNotification *pushNotification = [[NCPushNotification alloc] init];
+    if ([jsonNotification objectForKey:kNCPNTypeDeleteKey]) {
+        pushNotification.notificationId = [[jsonNotification objectForKey:kNCPNNotifIdKey] integerValue];
+        pushNotification.type = NCPushNotificationTypeDelete;
+    } else if ([jsonNotification objectForKey:kNCPNTypeDeleteAllKey]) {
+        pushNotification.type = NCPushNotificationTypeDeleteAll;
+    } else {
+        return nil;
+    }
+    return pushNotification;
+}
+
 - (NSString *)bodyForRemoteAlerts
 {
     switch (_type) {
@@ -73,7 +89,7 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
         case NCPushNotificationTypeChat:
             return [NSString stringWithFormat:@"💬 %@", _subject];
             break;
-        case NCPushNotificationTypeUnknown:
+        default:
             return _subject;
             break;
     }
