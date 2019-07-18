@@ -12,7 +12,9 @@ typedef NS_ENUM(NSInteger, NCPushNotificationType) {
     NCPushNotificationTypeUnknown,
     NCPushNotificationTypeCall,
     NCPushNotificationTypeRoom,
-    NCPushNotificationTypeChat
+    NCPushNotificationTypeChat,
+    NCPushNotificationTypeDelete,
+    NCPushNotificationTypeDeleteAll
 };
 
 extern NSString * const kNCPNAppKey;
