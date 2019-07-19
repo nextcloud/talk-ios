@@ -497,6 +497,24 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return task;
 }
 
+- (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state forRoom:(NSString *)token withCompletionBlock:(SetLobbyStateCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/webinary/lobby", token]];
+    NSDictionary *parameters = @{@"state" : @(state)};
+    
+    NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+    
+    return task;
+}
+
 #pragma mark - Participants Controller
 
 - (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block

@@ -30,6 +30,11 @@ typedef enum NCRoomReadOnlyState {
     NCRoomReadOnlyStateReadOnly
 } NCRoomReadOnlyState;
 
+typedef enum NCRoomLobbyState {
+    NCRoomLobbyStateAllParticipants = 0,
+    NCRoomLobbyStateModeratorsOnly
+} NCRoomLobbyState;
+
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;
 
@@ -56,6 +61,8 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, copy) NSString *objectType;
 @property (nonatomic, copy) NSString *objectId;
 @property (nonatomic, assign) NCRoomReadOnlyState readOnlyState;
+@property (nonatomic, assign) NCRoomLobbyState lobbyState;
+@property (nonatomic, assign) NSInteger lobbyTimer;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 

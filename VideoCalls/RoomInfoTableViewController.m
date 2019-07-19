@@ -24,6 +24,7 @@
 typedef enum RoomInfoSection {
     kRoomInfoSectionName = 0,
     kRoomInfoSectionActions,
+    kRoomInfoSectionWebinar,
     kRoomInfoSectionParticipants,
     kRoomInfoSectionDestructive,
     kRoomInfoSections
@@ -37,6 +38,12 @@ typedef enum RoomAction {
     kRoomActionSendLink
 } RoomAction;
 
+typedef enum WebinarAction {
+    kWebinarActionLobby = 0,
+    kWebinarActionLobbyTimer,
+    kWebinarActions
+} WebinarAction;
+
 typedef enum DestructiveAction {
     kDestructiveActionLeave = 0,
     kDestructiveActionDelete
@@ -48,6 +55,7 @@ typedef enum ModificationError {
     kModificationErrorNotifications,
     kModificationErrorShare,
     kModificationErrorPassword,
+    kModificationErrorLobby,
     kModificationErrorModeration,
     kModificationErrorRemove,
     kModificationErrorLeave,
@@ -64,6 +72,7 @@ typedef enum ModificationError {
 @property (nonatomic, strong) NSMutableArray *roomParticipants;
 @property (nonatomic, strong) UITextField *roomNameTextField;
 @property (nonatomic, strong) UISwitch *publicSwtich;
+@property (nonatomic, strong) UISwitch *lobbySwtich;
 @property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
 @property (nonatomic, strong) HeaderWithButton *headerView;
 @property (nonatomic, strong) UIAlertAction *setPasswordAction;
@@ -96,6 +105,9 @@ typedef enum ModificationError {
     
     _publicSwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_publicSwtich addTarget: self action: @selector(publicValueChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    _lobbySwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_lobbySwtich addTarget: self action: @selector(lobbyValueChanged:) forControlEvents:UIControlEventValueChanged];
     
     _modifyingRoomView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     
@@ -238,6 +250,10 @@ typedef enum ModificationError {
             
         case kModificationErrorPassword:
             errorDescription = @"Could not change password protection settings";
+            break;
+            
+        case kModificationErrorLobby:
+            errorDescription = @"Could not change lobby state of the conversation";
             break;
             
         case kModificationErrorModeration:
@@ -387,7 +403,7 @@ typedef enum ModificationError {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error making private the room: %@", error.description);
-            [self showRoomModificationError:kModificationErrorShare];
+            [self showRoomModificationError:kModificationErrorFavorite];
         }
     }];
 }
@@ -400,7 +416,7 @@ typedef enum ModificationError {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error making private the room: %@", error.description);
-            [self showRoomModificationError:kModificationErrorShare];
+            [self showRoomModificationError:kModificationErrorFavorite];
         }
     }];
 }
@@ -563,6 +579,31 @@ typedef enum ModificationError {
 
 #pragma mark - Participant options
 
+- (void)enableLobby
+{
+    [self setLobbyState:NCRoomLobbyStateModeratorsOnly];
+}
+
+- (void)disableLobby
+{
+    [self setLobbyState:NCRoomLobbyStateAllParticipants];
+}
+
+- (void)setLobbyState:(NCRoomLobbyState)lobbyState
+{
+    [[NCAPIController sharedInstance] setLobbyState:lobbyState forRoom:_room.token withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+        } else {
+            NSLog(@"Error changing lobby state in room: %@", error.description);
+            [self showRoomModificationError:kModificationErrorLobby];
+        }
+        _lobbySwtich.enabled = YES;
+    }];
+}
+
+#pragma mark - Participant options
+
 - (void)addParticipantsButtonPressed
 {
     AddParticipantsTableViewController *addParticipantsVC = [[AddParticipantsTableViewController alloc] initForRoom:_room];
@@ -680,6 +721,18 @@ typedef enum ModificationError {
     }
 }
 
+#pragma mark - Lobby switch
+
+- (void)lobbyValueChanged:(id)sender
+{
+    _lobbySwtich.enabled = NO;
+    if (_lobbySwtich.on) {
+        [self enableLobby];
+    } else {
+        [self disableLobby];
+    }
+}
+
 #pragma mark - UIGestureRecognizer delegate
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
@@ -742,6 +795,10 @@ typedef enum ModificationError {
             return [self getRoomActions].count;
             break;
             
+        case kRoomInfoSectionWebinar:
+            return kWebinarActions;
+            break;
+            
         case kRoomInfoSectionParticipants:
             return _roomParticipants.count;
             break;
@@ -772,7 +829,7 @@ typedef enum ModificationError {
     switch (section) {
         case kRoomInfoSectionParticipants:
         {
-            NSString *title = [NSString stringWithFormat:@"%ld participants", _roomParticipants.count];
+            NSString *title = [NSString stringWithFormat:@"%lu participants", (unsigned long)_roomParticipants.count];
             if (_roomParticipants.count == 1) {
                 title = @"1 participant";
             }
@@ -807,6 +864,8 @@ typedef enum ModificationError {
     static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
     static NSString *passwordCellIdentifier = @"PasswordCellIdentifier";
     static NSString *sendLinkCellIdentifier = @"SendLinkCellIdentifier";
+    static NSString *lobbyCellIdentifier = @"LobbyCellIdentifier";
+    static NSString *lobbyTimerCellIdentifier = @"LobbyTimerCellIdentifier";
     static NSString *leaveRoomCellIdentifier = @"LeaveRoomCellIdentifier";
     static NSString *deleteRoomCellIdentifier = @"DeleteRoomCellIdentifier";
     
@@ -946,6 +1005,41 @@ typedef enum ModificationError {
                     
                     cell.textLabel.text = @"Send conversation link";
                     [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
+                    
+                    return cell;
+                }
+                    break;
+            }
+        }
+            break;
+        case kRoomInfoSectionWebinar:
+        {
+            switch (indexPath.row) {
+                case kWebinarActionLobby:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:lobbyCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:lobbyCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = @"Lobby";
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _lobbySwtich;
+                    _lobbySwtich.on = (_room.lobbyState == NCRoomLobbyStateModeratorsOnly) ? YES : NO;
+                    [cell.imageView setImage:[UIImage imageNamed:@"lobby"]];
+                    
+                    return cell;
+                }
+                    break;
+                case kWebinarActionLobbyTimer:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:lobbyTimerCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:lobbyTimerCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = @"Start time";
+                    [cell.imageView setImage:[UIImage imageNamed:@"timer"]];
                     
                     return cell;
                 }
