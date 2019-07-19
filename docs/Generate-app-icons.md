@@ -6,6 +6,13 @@
 $ brew install caskformula/caskformula/inkscape
 ```
 
+## Install Inkscape (macOS Mojave)
+
+```
+$ brew tap homebrew/cask
+$ brew cask install inkscape
+```
+
 ## Run next commands
 
 ```
