@@ -18,6 +18,7 @@
 #import "NCRoomParticipant.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
+#import "NCUtils.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 
@@ -75,6 +76,8 @@ typedef enum ModificationError {
 @property (nonatomic, strong) UITextField *roomNameTextField;
 @property (nonatomic, strong) UISwitch *publicSwtich;
 @property (nonatomic, strong) UISwitch *lobbySwtich;
+@property (nonatomic, strong) UIDatePicker *lobbyDatePicker;
+@property (nonatomic, strong) UITextField *lobbyDateTextField;
 @property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
 @property (nonatomic, strong) HeaderWithButton *headerView;
 @property (nonatomic, strong) UIAlertAction *setPasswordAction;
@@ -111,6 +114,15 @@ typedef enum ModificationError {
     _lobbySwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_lobbySwtich addTarget: self action: @selector(lobbyValueChanged:) forControlEvents:UIControlEventValueChanged];
     
+    _lobbyDatePicker = [[UIDatePicker alloc] init];
+    _lobbyDatePicker.datePickerMode = UIDatePickerModeDateAndTime;
+    _lobbyDateTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 00, 200, 30)];
+    _lobbyDateTextField.textAlignment = NSTextAlignmentRight;
+    _lobbyDateTextField.placeholder = @"Manual";
+    _lobbyDateTextField.adjustsFontSizeToFitWidth = YES;
+    [_lobbyDateTextField setInputView:_lobbyDatePicker];
+    [self setupLobbyDatePicker];
+    
     _modifyingRoomView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     
     _headerView = [[HeaderWithButton alloc] init];
@@ -129,6 +141,7 @@ typedef enum ModificationError {
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [[NCRoomsManager sharedInstance] updateRoom:_room.token];
     [self getRoomParticipants];
 }
 
@@ -421,6 +434,7 @@ typedef enum ModificationError {
     }
     
     _room = room;
+    [self setupLobbyDatePicker];
     [self.tableView reloadData];
 }
 
@@ -633,17 +647,18 @@ typedef enum ModificationError {
 
 - (void)enableLobby
 {
-    [self setLobbyState:NCRoomLobbyStateModeratorsOnly];
+    [self setLobbyState:NCRoomLobbyStateModeratorsOnly withTimer:nil];
 }
 
 - (void)disableLobby
 {
-    [self setLobbyState:NCRoomLobbyStateAllParticipants];
+    [self setLobbyState:NCRoomLobbyStateAllParticipants withTimer:nil];
 }
 
-- (void)setLobbyState:(NCRoomLobbyState)lobbyState
+- (void)setLobbyState:(NCRoomLobbyState)lobbyState withTimer:(NSString *)timer
 {
-    [[NCAPIController sharedInstance] setLobbyState:lobbyState forRoom:_room.token withCompletionBlock:^(NSError *error) {
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] setLobbyState:lobbyState withTimer:timer forRoom:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
@@ -652,6 +667,48 @@ typedef enum ModificationError {
         }
         _lobbySwtich.enabled = YES;
     }];
+}
+
+- (void)setLobbyDate
+{
+    NSString *lobbyTimer = [NCUtils dateAtomFormatFromDate:_lobbyDatePicker.date];
+    [self setLobbyState:NCRoomLobbyStateModeratorsOnly withTimer:lobbyTimer];
+    
+    NSString *lobbyTimerReadable = [NCUtils readableDateFromDate:_lobbyDatePicker.date];
+    _lobbyDateTextField.text = [NSString stringWithFormat:@"%@",lobbyTimerReadable];
+    [self dismissLobbyDatePicker];
+}
+
+- (void)removeLobbyDate
+{
+    [self setLobbyState:NCRoomLobbyStateModeratorsOnly withTimer:nil];
+    [self dismissLobbyDatePicker];
+}
+
+- (void)dismissLobbyDatePicker
+{
+    [_lobbyDateTextField resignFirstResponder];
+}
+
+- (void)setupLobbyDatePicker
+{
+    [_lobbyDatePicker setMinimumDate:[NSDate new]];
+    [_lobbyDatePicker setDate:[NSDate new]];
+    
+    UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(dismissLobbyDatePicker)];
+    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(setLobbyDate)];
+    UIBarButtonItem *space = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [toolBar setItems:[NSArray arrayWithObjects:cancelButton, space,doneButton, nil]];
+    [_lobbyDateTextField setInputAccessoryView:toolBar];
+    
+    NSDate *date = [NCUtils dateFromDateAtomFormat:_room.lobbyTimer];
+    if (date) {
+        UIBarButtonItem *clearButton = [[UIBarButtonItem alloc] initWithTitle:@"Remove" style:UIBarButtonItemStylePlain target:self action:@selector(removeLobbyDate)];
+        [clearButton setTintColor:[UIColor redColor]];
+        [toolBar setItems:[NSArray arrayWithObjects:clearButton, space, doneButton, nil]];
+        [_lobbyDatePicker setDate:date];
+    }
 }
 
 #pragma mark - Participant options
@@ -1140,6 +1197,10 @@ typedef enum ModificationError {
                     }
                     
                     cell.textLabel.text = @"Start time";
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _lobbyDateTextField;
+                    NSDate *date = [NCUtils dateFromDateAtomFormat:_room.lobbyTimer];
+                    _lobbyDateTextField.text = date ? [NCUtils readableDateFromDate:date] : nil;
                     [cell.imageView setImage:[UIImage imageNamed:@"timer"]];
                     
                     return cell;

@@ -95,7 +95,7 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 - (NSURLSessionDataTask *)removeRoomFromFavorites:(NSString *)token withCompletionBlock:(FavoriteRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)setNotificationLevel:(NCRoomNotificationLevel)level forRoom:(NSString *)token withCompletionBlock:(NotificationLevelCompletionBlock)block;
 - (NSURLSessionDataTask *)setReadOnlyState:(NCRoomReadOnlyState)state forRoom:(NSString *)token withCompletionBlock:(ReadOnlyCompletionBlock)block;
-- (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state forRoom:(NSString *)token withCompletionBlock:(SetLobbyStateCompletionBlock)block;
+- (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state withTimer:(NSString *)timer forRoom:(NSString *)token withCompletionBlock:(SetLobbyStateCompletionBlock)block;
 
 // Participants Controller
 - (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block;

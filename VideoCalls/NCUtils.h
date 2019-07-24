@@ -14,8 +14,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSString *)previewImageForFileExtension:(NSString *)fileExtension;
 + (NSString *)previewImageForFileMIMEType:(NSString *)fileMIMEType;
+
 + (BOOL)isNextcloudAppInstalled;
 + (void)openFileInNextcloudApp:(NSString *)path withFileLink:(NSString *)link;
+
+// https://www.php.net/manual/en/class.datetimeinterface.php#datetime.constants.atom
++ (NSDate *)dateFromDateAtomFormat:(NSString *)dateAtomFormatString;
++ (NSString *)dateAtomFormatFromDate:(NSDate *)date;
++ (NSString *)readableDateFromDate:(NSDate *)date;
 
 @end
 
