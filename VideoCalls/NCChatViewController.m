@@ -51,6 +51,7 @@
 @property (nonatomic, strong) UIButton *unreadMessageButton;
 @property (nonatomic, strong) UIBarButtonItem *videoCallButton;
 @property (nonatomic, strong) UIBarButtonItem *voiceCallButton;
+@property (nonatomic, strong) NSTimer *lobbyCheckTimer;
 
 @end
 
@@ -80,6 +81,7 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatHistory:) name:NCRoomControllerDidReceiveChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCRoomControllerDidReceiveChatMessagesNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCRoomControllerDidSendChatMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatBlocked:) name:NCRoomControllerDidReceiveChatBlockedNotification object:nil];
     }
     
     return self;
@@ -96,6 +98,11 @@
 {
     [super viewDidLoad];
     
+    self.titleView = [[NCChatTitleView alloc] init];
+    self.titleView.frame = CGRectMake(0, 0, 800, 30);
+    self.titleView.autoresizingMask=UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    [self.titleView.title addTarget:self action:@selector(titleButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.titleView = _titleView;
     [self setTitleView];
     [self configureActionItems];
     
@@ -197,6 +204,7 @@
     
     // Leave chat when the view controller has been removed from its parent view.
     if (self.isMovingFromParentViewController) {
+        [_lobbyCheckTimer invalidate];
         [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
     }
 }
@@ -205,11 +213,7 @@
 
 - (void)setTitleView
 {
-    _titleView = [[NCChatTitleView alloc] init];
-    _titleView.frame = CGRectMake(0, 0, 800, 30);
-    _titleView.autoresizingMask=UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [_titleView.title setTitle:_room.displayName forState:UIControlStateNormal];
-    [_titleView.title addTarget:self action:@selector(titleButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
     // Set room image
     switch (_room.type) {
@@ -239,8 +243,6 @@
     } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
         [_titleView.image setImage:[UIImage imageNamed:@"password-bg"]];
     }
-    
-    self.navigationItem.titleView = _titleView;
 }
 
 - (void)configureActionItems
@@ -269,13 +271,44 @@
         [_voiceCallButton setEnabled:YES];
     }
     
-    if (_room.readOnlyState == NCRoomReadOnlyStateReadOnly) {
+    if (_room.readOnlyState == NCRoomReadOnlyStateReadOnly || [self shouldPresentLobbyView]) {
         // Hide text input
         self.textInputbarHidden = YES;
         // Disable call buttons
         [_videoCallButton setEnabled:NO];
         [_voiceCallButton setEnabled:NO];
+    } else if ([self isTextInputbarHidden]) {
+        // Show text input if it was hidden in a previous state
+        [self setTextInputbarHidden:NO animated:YES];
     }
+}
+
+- (void)checkLobbyState
+{
+    if ([self shouldPresentLobbyView]) {
+        [_chatBackgroundView.placeholderText setText:@"You are currently waiting in the lobby."];
+        [_chatBackgroundView.placeholderView setHidden:NO];
+        [_chatBackgroundView.loadingView stopAnimating];
+        [_chatBackgroundView.loadingView setHidden:YES];
+        // Clear current chat since chat history will be retrieve when lobby is disabled
+        _messages = [[NSMutableDictionary alloc] init];
+        _dateSections = [[NSMutableArray alloc] init];
+        _hasReceiveInitialHistory = NO;
+        [self hideNewMessagesView];
+        [self.tableView reloadData];
+    } else {
+        [_chatBackgroundView.placeholderText setText:@"No messages yet, start the conversation!"];
+        [_chatBackgroundView.placeholderView setHidden:YES];
+        [_chatBackgroundView.loadingView startAnimating];
+        [_chatBackgroundView.loadingView setHidden:NO];
+        // Stop checking lobby flag
+        [_lobbyCheckTimer invalidate];
+        // Retrieve initial chat history
+        if (!_hasReceiveInitialHistory) {
+            [_roomController getInitialChatHistory];
+        }
+    }
+    [self checkRoomControlsAvailability];
 }
 
 #pragma mark - Utils
@@ -419,6 +452,7 @@
     
     _room = room;
     [self setTitleView];
+    [self checkLobbyState];
 }
 
 - (void)didJoinRoom:(NSNotification *)notification
@@ -545,6 +579,38 @@
     }
 }
 
+- (void)didReceiveChatBlocked:(NSNotification *)notification
+{
+    NSString *room = [notification.userInfo objectForKey:@"room"];
+    if (![room isEqualToString:_room.token]) {
+        return;
+    }
+    
+    [self startObservingRoomLobbyFlag];
+}
+
+#pragma mark - Lobby functions
+
+- (void)startObservingRoomLobbyFlag
+{
+    [self updateRoomInformation];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_lobbyCheckTimer invalidate];
+        _lobbyCheckTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(updateRoomInformation) userInfo:nil repeats:YES];
+    });
+}
+
+- (void)updateRoomInformation
+{
+    [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+}
+
+- (BOOL)shouldPresentLobbyView
+{
+    return _room.lobbyState == NCRoomLobbyStateModeratorsOnly && !_room.canModerate;
+}
+
 #pragma mark - Chat functions
 
 - (NSDate *)getKeyForDate:(NSDate *)date inDictionary:(NSDictionary *)dictionary
@@ -657,7 +723,7 @@
 
 - (BOOL)shouldRetireveHistory
 {
-    return _hasReceiveInitialHistory && !_retrievingHistory && [_roomController hasHistory];
+    return _hasReceiveInitialHistory && !_retrievingHistory && [_roomController hasHistory] && _dateSections.count > 0;
 }
 
 - (void)showLoadingHistoryView
@@ -747,6 +813,12 @@
         return 1;
     }
     
+    if ([tableView isEqual:self.tableView] && _dateSections.count > 0) {
+        self.tableView.backgroundView = nil;
+    } else {
+        self.tableView.backgroundView = _chatBackgroundView;
+    }
+    
     return _dateSections.count;
 }
 
@@ -758,10 +830,6 @@
     
     NSDate *date = [_dateSections objectAtIndex:section];
     NSMutableArray *messages = [_messages objectForKey:date];
-    
-    if ([tableView isEqual:self.tableView] && messages.count > 0) {
-        self.tableView.backgroundView = nil;
-    }
     
     return messages.count;
 }

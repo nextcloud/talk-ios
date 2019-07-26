@@ -14,6 +14,7 @@ extern NSString * const NCRoomControllerDidReceiveInitialChatHistoryNotification
 extern NSString * const NCRoomControllerDidReceiveChatHistoryNotification;
 extern NSString * const NCRoomControllerDidReceiveChatMessagesNotification;
 extern NSString * const NCRoomControllerDidSendChatMessageNotification;
+extern NSString * const NCRoomControllerDidReceiveChatBlockedNotification;
 
 @interface NCRoomController : NSObject
 
