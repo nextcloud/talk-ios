@@ -13,5 +13,6 @@
 @interface NCChatViewController : SLKTextViewController
 
 - (instancetype)initForRoom:(NCRoom *)room;
+- (void)leaveChat;
 
 @end

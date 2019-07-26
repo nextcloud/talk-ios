@@ -204,9 +204,14 @@
     
     // Leave chat when the view controller has been removed from its parent view.
     if (self.isMovingFromParentViewController) {
-        [_lobbyCheckTimer invalidate];
-        [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
+        [self leaveChat];
     }
+}
+
+- (void)leaveChat
+{
+    [_lobbyCheckTimer invalidate];
+    [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
 #pragma mark - Configuration
@@ -369,7 +374,7 @@
 
 - (void)titleButtonPressed:(id)sender
 {
-    RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room];
+    RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room fromChatViewController:self];
     [self.navigationController pushViewController:roomInfoVC animated:YES];
 }
 

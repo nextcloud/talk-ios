@@ -71,6 +71,7 @@ typedef enum ModificationError {
 @interface RoomInfoTableViewController () <UITextFieldDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) NCRoom *room;
+@property (nonatomic, strong) NCChatViewController *chatViewController;
 @property (nonatomic, strong) NSString *roomName;
 @property (nonatomic, strong) NSMutableArray *roomParticipants;
 @property (nonatomic, strong) UITextField *roomNameTextField;
@@ -88,9 +89,15 @@ typedef enum ModificationError {
 
 - (instancetype)initForRoom:(NCRoom *)room
 {
+    return [self initForRoom:room fromChatViewController:nil];
+}
+
+- (instancetype)initForRoom:(NCRoom *)room fromChatViewController:(NCChatViewController *)chatViewController
+{
     self = [super init];
     if (self) {
         _room = room;
+        _chatViewController = chatViewController;
     }
     return self;
 }
@@ -621,6 +628,9 @@ typedef enum ModificationError {
 {
     [[NCAPIController sharedInstance] removeSelfFromRoom:_room.token withCompletionBlock:^(NSInteger errorCode, NSError *error) {
         if (!error) {
+            if (_chatViewController) {
+                [_chatViewController leaveChat];
+            }
             [[NCUserInterfaceController sharedInstance] presentConversationsList];
         } else if (errorCode == 400) {
             [self showRoomModificationError:kModificationErrorLeaveModeration];
@@ -635,6 +645,9 @@ typedef enum ModificationError {
 {
     [[NCAPIController sharedInstance] deleteRoom:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
+            if (_chatViewController) {
+                [_chatViewController leaveChat];
+            }
             [[NCUserInterfaceController sharedInstance] presentConversationsList];
         } else {
             NSLog(@"Error deleting the room: %@", error.description);
