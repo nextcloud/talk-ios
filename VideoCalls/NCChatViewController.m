@@ -287,6 +287,14 @@
 {
     if ([self shouldPresentLobbyView]) {
         [_chatBackgroundView.placeholderText setText:@"You are currently waiting in the lobby."];
+        [_chatBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"lobby-placeholder"]];
+        NSDate *date = [NCUtils dateFromDateAtomFormat:_room.lobbyTimer];
+        if (date) {
+            NSString *meetingStart = [NCUtils readableDateFromDate:date];
+            NSString *placeHolderText = [NSString stringWithFormat:@"You are currently waiting in the lobby.\nThis meeting is scheduled for\n%@", meetingStart];
+            [_chatBackgroundView.placeholderText setText:placeHolderText];
+            [_chatBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"lobby-placeholder"]];
+        }
         [_chatBackgroundView.placeholderView setHidden:NO];
         [_chatBackgroundView.loadingView stopAnimating];
         [_chatBackgroundView.loadingView setHidden:YES];
@@ -298,6 +306,7 @@
         [self.tableView reloadData];
     } else {
         [_chatBackgroundView.placeholderText setText:@"No messages yet, start the conversation!"];
+        [_chatBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"chat-placeholder"]];
         [_chatBackgroundView.placeholderView setHidden:YES];
         [_chatBackgroundView.loadingView startAnimating];
         [_chatBackgroundView.loadingView setHidden:NO];
