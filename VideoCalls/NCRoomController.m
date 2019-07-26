@@ -15,6 +15,7 @@ NSString * const NCRoomControllerDidReceiveInitialChatHistoryNotification   = @"
 NSString * const NCRoomControllerDidReceiveChatHistoryNotification          = @"NCRoomControllerDidReceiveChatHistoryNotification";
 NSString * const NCRoomControllerDidReceiveChatMessagesNotification         = @"NCRoomControllerDidReceiveChatMessagesNotification";
 NSString * const NCRoomControllerDidSendChatMessageNotification             = @"NCRoomControllerDidSendChatMessageNotification";
+NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"NCRoomControllerDidReceiveChatBlockedNotification";
 
 @interface NCRoomController ()
 
@@ -71,7 +72,7 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
 
 - (void)getInitialChatHistory
 {
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_oldestMessageId history:YES withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:-1 history:YES withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
         if (_stopChatMessagesPoll) {
             return;
         }
@@ -79,6 +80,10 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
         
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (error) {
+            if ([self isChatBeingBlocked:statusCode]) {
+                [self notifyChatIsBlocked];
+                return;
+            }
             [userInfo setObject:error forKey:@"error"];
             NSLog(@"Could not get initial chat history. Error: %@", error.description);
         }
@@ -91,7 +96,9 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
         [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveInitialChatHistoryNotification
                                                             object:self
                                                           userInfo:userInfo];
-        [self startReceivingChatMessages];
+        if (!error) {
+            [self startReceivingChatMessages];
+        }
     }];
 }
 
@@ -105,6 +112,10 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
         
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (error) {
+            if ([self isChatBeingBlocked:statusCode]) {
+                [self notifyChatIsBlocked];
+                return;
+            }
             [userInfo setObject:error forKey:@"error"];
             if (statusCode != 304) {
                 NSLog(@"Could not get chat history. Error: %@", error.description);
@@ -137,6 +148,10 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
         
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (error) {
+            if ([self isChatBeingBlocked:statusCode]) {
+                [self notifyChatIsBlocked];
+                return;
+            }
             [userInfo setObject:error forKey:@"error"];
             if (statusCode != 304) {
                 NSLog(@"Could not get new chat messages. Error: %@", error.description);
@@ -149,7 +164,9 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
         [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveChatMessagesNotification
                                                             object:self
                                                           userInfo:userInfo];
-        [self startReceivingChatMessages];
+        if (error.code != -999) {
+            [self startReceivingChatMessages];
+        }
     }];
 }
 
@@ -172,6 +189,23 @@ NSString * const NCRoomControllerDidSendChatMessageNotification             = @"
                                                             object:self
                                                           userInfo:userInfo];
     }];
+}
+
+- (BOOL)isChatBeingBlocked:(NSInteger)statusCode
+{
+    if (statusCode == 412) {
+        return YES;
+    }
+    return NO;
+}
+
+- (void)notifyChatIsBlocked
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    [userInfo setObject:_roomToken forKey:@"room"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveChatBlockedNotification
+                                                        object:self
+                                                      userInfo:userInfo];
 }
 
 - (void)stopRoomController

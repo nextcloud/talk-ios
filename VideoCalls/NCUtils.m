@@ -73,4 +73,29 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     [[UIApplication sharedApplication] openURL:nextcloudURL options:@{} completionHandler:nil];
 }
 
++ (NSDate *)dateFromDateAtomFormat:(NSString *)dateAtomFormatString
+{
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+    
+    return [dateFormatter dateFromString:dateAtomFormatString];
+}
++ (NSString *)dateAtomFormatFromDate:(NSDate *)date
+{
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+    
+    return [dateFormatter stringFromDate:date];
+}
++ (NSString *)readableDateFromDate:(NSDate *)date
+{
+    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+    [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
+    
+    return [dateFormatter stringFromDate:date];
+}
+
 @end
