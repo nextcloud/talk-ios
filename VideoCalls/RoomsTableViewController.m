@@ -519,7 +519,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                        [self addRoomToFavoritesAtIndexPath:indexPath];
                                                                    }
                                                                }];
-        [favoriteAction setValue:[[UIImage imageNamed:@"favorite-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        NSString *favImageName = (room.isFavorite) ? @"favorite-action" : @"fav-setting";
+        [favoriteAction setValue:[[UIImage imageNamed:favImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:favoriteAction];
     }
     // Notification levels
@@ -535,12 +536,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Share link
     if (room.isPublic) {
         // Share Link
-        UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:@"Share link"
+        UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:@"Share conversation link"
                                                                   style:UIAlertActionStyleDefault
                                                                 handler:^void (UIAlertAction *action) {
                                                                     [self shareLinkFromRoomAtIndexPath:indexPath];
                                                                 }];
-        [shareLinkAction setValue:[[UIImage imageNamed:@"public-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [shareLinkAction setValue:[[UIImage imageNamed:@"share-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:shareLinkAction];
     }
     // Room info
