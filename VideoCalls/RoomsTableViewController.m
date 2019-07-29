@@ -9,8 +9,6 @@
 #import "RoomsTableViewController.h"
 
 #import "AFNetworking.h"
-#import "CallViewController.h"
-#import "AddParticipantsTableViewController.h"
 #import "RoomTableViewCell.h"
 #import "CCCertificate.h"
 #import "NCAPIController.h"
@@ -26,16 +24,14 @@
 #import "NCChatViewController.h"
 #import "NCRoomsManager.h"
 #import "NewRoomTableViewController.h"
+#import "RoomInfoTableViewController.h"
 #import "RoomSearchTableViewController.h"
 #import "SettingsViewController.h"
 #import "PlaceholderView.h"
 
-#define k_rename_textfield_tag          99
-#define k_set_password_textfield_tag    98
-
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
-@interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UITextFieldDelegate>
+@interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
     NSMutableArray *_rooms;
     UIRefreshControl *_refreshControl;
@@ -44,9 +40,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     RoomSearchTableViewController *_resultTableViewController;
     PlaceholderView *_roomsBackgroundView;
     UINavigationController *_settingsNC;
-    NSString *_renamimgRoomName;
-    UIAlertAction *_renameAction;
-    UIAlertAction *_setPasswordAction;
 }
 
 @end
@@ -355,55 +348,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 #pragma mark - Room actions
 
-- (void)addParticipantInRoomAtIndexPath:(NSIndexPath *)indexPath
-{
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    AddParticipantsTableViewController *addParticipantsVC = [[AddParticipantsTableViewController alloc] initForRoom:room];
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:addParticipantsVC];
-    [self presentViewController:navigationController animated:YES completion:nil];
-}
-
-- (void)renameRoomAtIndexPath:(NSIndexPath *)indexPath
-{
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    
-    UIAlertController *renameDialog =
-    [UIAlertController alertControllerWithTitle:@"Set new conversation name:"
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleAlert];
-    
-    __weak typeof(self) weakSelf = self;
-    [renameDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-        textField.placeholder = @"Conversation name";
-        textField.text = room.name;
-        textField.delegate = weakSelf;
-        textField.tag = k_rename_textfield_tag;
-        textField.autocapitalizationType = UITextAutocapitalizationTypeSentences;
-        textField.autocorrectionType = UITextAutocorrectionTypeDefault;
-    }];
-    
-    _renameAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        NSString *newRoomName = [[[renameDialog textFields][0] text] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        if ([newRoomName isEqualToString:room.name] || [newRoomName isEqualToString:@""]) {
-            return;
-        }
-        [[NCAPIController sharedInstance] renameRoom:room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
-            if (error) {
-                NSLog(@"Error renaming the room: %@", error.description);
-            }
-            [[NCRoomsManager sharedInstance] updateRooms];
-        }];
-    }];
-    _renameAction.enabled = NO;
-    _renamimgRoomName = room.name;
-    [renameDialog addAction:_renameAction];
-    
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
-    [renameDialog addAction:cancelAction];
-    
-    [self presentViewController:renameDialog animated:YES completion:nil];
-}
-
 - (void)setNotificationLevelForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
@@ -477,85 +421,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     };
 }
 
-- (void)makePublicRoomAtIndexPath:(NSIndexPath *)indexPath
-{
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] makeRoomPublic:room.token withCompletionBlock:^(NSError *error) {
-        if (!error) {
-            NSString *title = [NSString stringWithFormat:@"%@ is now public", room.name];
-            // Room type condition should be removed when we don't set room names by default on OneToOne calls.
-            if (room.type == kNCRoomTypeOneToOne || !room.name || [room.name isEqualToString:@""]) {
-                title = @"This conversation is now public";
-            }
-            [self showShareDialogForRoom:room withTitle:title];
-        } else {
-            NSLog(@"Error making public the room: %@", error.description);
-        }
-        [[NCRoomsManager sharedInstance] updateRooms];
-    }];
-}
-
-- (void)makePrivateRoomAtIndexPath:(NSIndexPath *)indexPath
-{
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] makeRoomPrivate:room.token withCompletionBlock:^(NSError *error) {
-        if (error) {
-            NSLog(@"Error making private the room: %@", error.description);
-        }
-        [[NCRoomsManager sharedInstance] updateRooms];
-    }];
-}
-
-- (void)setPasswordToRoomAtIndexPath:(NSIndexPath *)indexPath
-{
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    
-    NSString *alertTitle = room.hasPassword ? @"Set new password:" : @"Set password:";
-    UIAlertController *passwordDialog =
-    [UIAlertController alertControllerWithTitle:alertTitle
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleAlert];
-    
-    __weak typeof(self) weakSelf = self;
-    [passwordDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-        textField.placeholder = @"Password";
-        textField.secureTextEntry = YES;
-        textField.delegate = weakSelf;
-        textField.tag = k_set_password_textfield_tag;
-    }];
-    
-    NSString *actionTitle = room.hasPassword ? @"Change password" : @"OK";
-    _setPasswordAction = [UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        NSString *password = [[passwordDialog textFields][0] text];
-        NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:room.token withCompletionBlock:^(NSError *error) {
-            if (error) {
-                NSLog(@"Error setting room password: %@", error.description);
-            }
-            [[NCRoomsManager sharedInstance] updateRooms];
-        }];
-    }];
-    _setPasswordAction.enabled = NO;
-    [passwordDialog addAction:_setPasswordAction];
-    
-    if (room.hasPassword) {
-        UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:@"Remove password" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-            [[NCAPIController sharedInstance] setPassword:@"" toRoom:room.token withCompletionBlock:^(NSError *error) {
-                if (error) {
-                    NSLog(@"Error changing room password: %@", error.description);
-                }
-                [[NCRoomsManager sharedInstance] updateRooms];
-            }];
-        }];
-        [passwordDialog addAction:removePasswordAction];
-    }
-    
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
-    [passwordDialog addAction:cancelAction];
-    
-    [self presentViewController:passwordDialog animated:YES completion:nil];
-}
-
 - (void)addRoomToFavoritesAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
@@ -578,6 +443,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }];
 }
 
+- (void)presentRoomInfoForRoomAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:room];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:roomInfoVC];
+    [self presentViewController:navigationController animated:YES completion:nil];
+}
+
 - (void)leaveRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
@@ -591,7 +464,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSInteger errorCode, NSError *error) {
             if (errorCode == 400) {
                 [self showLeaveRoomLastModeratorErrorForRoom:room];
-            } else {
+            } else if (error) {
                 NSLog(@"Error leaving room: %@", error.description);
             }
             [[NCRoomsManager sharedInstance] updateRooms];
@@ -646,7 +519,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                        [self addRoomToFavoritesAtIndexPath:indexPath];
                                                                    }
                                                                }];
-        [favoriteAction setValue:[[UIImage imageNamed:@"favorite-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        NSString *favImageName = (room.isFavorite) ? @"favorite-action" : @"fav-setting";
+        [favoriteAction setValue:[[UIImage imageNamed:favImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:favoriteAction];
     }
     // Notification levels
@@ -659,93 +533,25 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [notificationsAction setValue:[[UIImage imageNamed:@"notifications-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:notificationsAction];
     }
-    // Share link of public calls even if you are not a moderator
-    if (!room.canModerate && room.isPublic) {
+    // Share link
+    if (room.isPublic) {
         // Share Link
-        UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:@"Share link"
+        UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:@"Share conversation link"
                                                                   style:UIAlertActionStyleDefault
                                                                 handler:^void (UIAlertAction *action) {
                                                                     [self shareLinkFromRoomAtIndexPath:indexPath];
                                                                 }];
-        [shareLinkAction setValue:[[UIImage imageNamed:@"public-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [shareLinkAction setValue:[[UIImage imageNamed:@"share-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:shareLinkAction];
-    // Moderator options
-    } else if (room.canModerate) {
-        // Add participant
-        UIAlertAction *addParticipantAction = [UIAlertAction actionWithTitle:@"Add participant"
-                                                                       style:UIAlertActionStyleDefault
-                                                                     handler:^void (UIAlertAction *action) {
-                                                                         [self addParticipantInRoomAtIndexPath:indexPath];
-                                                                     }];
-        [addParticipantAction setValue:[[UIImage imageNamed:@"add-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-        [optionsActionSheet addAction:addParticipantAction];
-        
-        // Rename
-        if (room.isNameEditable) {
-            UIAlertAction *renameAction = [UIAlertAction actionWithTitle:@"Rename"
-                                                                   style:UIAlertActionStyleDefault
-                                                                 handler:^void (UIAlertAction *action) {
-                                                                     [self renameRoomAtIndexPath:indexPath];
-                                                                 }];
-            [renameAction setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-            [optionsActionSheet addAction:renameAction];
-        }
-        
-        // Public/Private room options
-        if (room.isPublic) {
-            
-            // Set Password
-            UIAlertAction *passwordAction = [UIAlertAction actionWithTitle:(room.hasPassword) ? @"Change password" : @"Set password"
-                                                                     style:UIAlertActionStyleDefault
-                                                                   handler:^void (UIAlertAction *action) {
-                                                                       [self setPasswordToRoomAtIndexPath:indexPath];
-                                                                   }];
-            [passwordAction setValue:[[UIImage imageNamed:@"no-password-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-            if (room.hasPassword) {
-                [passwordAction setValue:[[UIImage imageNamed:@"password-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-            }
-            [optionsActionSheet addAction:passwordAction];
-            
-            // Share Link
-            UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:@"Share link"
-                                                                      style:UIAlertActionStyleDefault
-                                                                    handler:^void (UIAlertAction *action) {
-                                                                        [self shareLinkFromRoomAtIndexPath:indexPath];
-                                                                    }];
-            [shareLinkAction setValue:[[UIImage imageNamed:@"public-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-            [optionsActionSheet addAction:shareLinkAction];
-            
-            // Make call private
-            UIAlertAction *makePrivateAction = [UIAlertAction actionWithTitle:@"Make conversation private"
-                                                                        style:UIAlertActionStyleDefault
-                                                                      handler:^void (UIAlertAction *action) {
-                                                                          [self makePrivateRoomAtIndexPath:indexPath];
-                                                                      }];
-            [makePrivateAction setValue:[[UIImage imageNamed:@"group-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-            [optionsActionSheet addAction:makePrivateAction];
-        } else {
-            // Make call public
-            UIAlertAction *makePublicAction = [UIAlertAction actionWithTitle:@"Make conversation public"
-                                                                       style:UIAlertActionStyleDefault
-                                                                     handler:^void (UIAlertAction *action) {
-                                                                         [self makePublicRoomAtIndexPath:indexPath];
-                                                                     }];
-            [makePublicAction setValue:[[UIImage imageNamed:@"public-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-            [optionsActionSheet addAction:makePublicAction];
-        }
-        
-        // Delete room (Only add this option when the room is leavable)
-        if (room.isLeavable) {
-            UIAlertAction *deleteCallAction = [UIAlertAction actionWithTitle:@"Delete conversation"
-                                                                       style:UIAlertActionStyleDestructive
-                                                                     handler:^void (UIAlertAction *action) {
-                                                                         [self deleteRoomAtIndexPath:indexPath];
-                                                                     }];
-            [deleteCallAction setValue:[[UIImage imageNamed:@"delete-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-            [optionsActionSheet addAction:deleteCallAction];
-        }
-        
     }
+    // Room info
+    UIAlertAction *roomInfoAction = [UIAlertAction actionWithTitle:@"Conversation info"
+                                                             style:UIAlertActionStyleDefault
+                                                           handler:^void (UIAlertAction *action) {
+                                                               [self presentRoomInfoForRoomAtIndexPath:indexPath];
+                                                           }];
+    [roomInfoAction setValue:[[UIImage imageNamed:@"room-info-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [optionsActionSheet addAction:roomInfoAction];
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
@@ -794,52 +600,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [leaveRoomFailedDialog addAction:okAction];
     
     [self presentViewController:leaveRoomFailedDialog animated:YES completion:nil];
-}
-
-#pragma mark - UITextField delegate
-
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-    if (textField.tag == k_rename_textfield_tag || textField.tag == k_set_password_textfield_tag) {
-        // Prevent crashing undo bug
-        // https://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield
-        if (range.length + range.location > textField.text.length) {
-            return NO;
-        }
-        // Set maximum character length
-        NSUInteger newLength = [textField.text length] + [string length] - range.length;
-        BOOL hasAllowedLength = newLength <= 200;
-        // Enable/Disable confirmation buttons
-        if (hasAllowedLength) {
-            NSString *newValue = [[textField.text stringByReplacingCharactersInRange:range withString:string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            _renameAction.enabled = (newValue.length > 0) && ![_renamimgRoomName isEqualToString:newValue];
-            _setPasswordAction.enabled = (newValue.length > 0);
-        }
-        return hasAllowedLength;
-    }
-    return YES;
-}
-
-#pragma mark - Public Calls
-
-- (void)showShareDialogForRoom:(NCRoom *)room withTitle:(NSString *)title
-{
-    NSInteger roomIndex = [_rooms indexOfObject:room];
-    NSIndexPath *roomIndexPath = [NSIndexPath indexPathForRow:roomIndex inSection:0];
-    
-    UIAlertController *shareRoomDialog =
-    [UIAlertController alertControllerWithTitle:title
-                                        message:@"Do you want to share this conversation with others?"
-                                 preferredStyle:UIAlertControllerStyleAlert];
-    
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self shareLinkFromRoomAtIndexPath:roomIndexPath];
-    }];
-    [shareRoomDialog addAction:confirmAction];
-    
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Not now" style:UIAlertActionStyleCancel handler:nil];
-    [shareRoomDialog addAction:cancelAction];
-    
-    [self presentViewController:shareRoomDialog animated:YES completion:nil];
 }
 
 #pragma mark - Table view data source

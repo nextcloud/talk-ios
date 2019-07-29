@@ -8,9 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import "NCRoom.h"
+#import "NCChatViewController.h"
 
 @interface RoomInfoTableViewController : UITableViewController
 
 - (instancetype)initForRoom:(NCRoom *)room;
+- (instancetype)initForRoom:(NCRoom *)room fromChatViewController:(NCChatViewController *)chatViewController;
 
 @end

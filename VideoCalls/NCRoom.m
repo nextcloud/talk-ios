@@ -116,13 +116,13 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     NSString *levelString = @"Default";
     switch (level) {
         case kNCRoomNotificationLevelAlways:
-            levelString = @"Always";
+            levelString = @"All messages";
             break;
         case kNCRoomNotificationLevelMention:
-            levelString = @"On mention";
+            levelString = @"@-mentions only";
             break;
         case kNCRoomNotificationLevelNever:
-            levelString = @"Never";
+            levelString = @"Off";
             break;
         default:
             break;
