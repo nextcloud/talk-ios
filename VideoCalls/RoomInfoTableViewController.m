@@ -143,6 +143,12 @@ typedef enum ModificationError {
     tap.delegate = self;
     [self.view addGestureRecognizer:tap];
     
+    if (!_chatViewController) {
+        UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                      target:self action:@selector(cancelButtonPressed)];
+        self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
+    }
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
 }
 
@@ -161,6 +167,11 @@ typedef enum ModificationError {
 - (void)dismissKeyboard
 {
     [_roomNameTextField resignFirstResponder];
+}
+
+- (void)cancelButtonPressed
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)dealloc
