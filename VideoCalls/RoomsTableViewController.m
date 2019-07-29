@@ -464,7 +464,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSInteger errorCode, NSError *error) {
             if (errorCode == 400) {
                 [self showLeaveRoomLastModeratorErrorForRoom:room];
-            } else {
+            } else if (error) {
                 NSLog(@"Error leaving room: %@", error.description);
             }
             [[NCRoomsManager sharedInstance] updateRooms];
