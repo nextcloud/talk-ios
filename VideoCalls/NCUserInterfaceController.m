@@ -230,6 +230,7 @@
 
 - (void)presentCallViewController:(CallViewController *)callViewController
 {
+    [_mainNavigationController dismissViewControllerAnimated:NO completion:nil];
     [_mainNavigationController presentViewController:callViewController animated:YES completion:nil];
 }
 
