@@ -580,7 +580,8 @@ typedef enum ModificationError {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] makeRoomPublic:_room.token withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [self shareRoomLink];
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:kPublicActionPublicToggle inSection:[self getSectionForRoomInfoSection:kRoomInfoSectionPublic]];
+            [self shareRoomLinkFromIndexPath:indexPath];
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
@@ -604,7 +605,7 @@ typedef enum ModificationError {
     }];
 }
 
-- (void)shareRoomLink
+- (void)shareRoomLinkFromIndexPath:(NSIndexPath *)indexPath
 {
     NSString *shareMessage = [NSString stringWithFormat:@"Join the conversation at %@/index.php/call/%@",
                               [[NCAPIController sharedInstance] currentServerUrl], _room.token];
@@ -621,7 +622,7 @@ typedef enum ModificationError {
     
     // Presentation on iPads
     controller.popoverPresentationController.sourceView = self.tableView;
-    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[self getIndexPathForRoomAction:kRoomActionSendLink]];
+    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
     
     [self presentViewController:controller animated:YES completion:nil];
     
@@ -1340,7 +1341,7 @@ typedef enum ModificationError {
                     [self presentNotificationLevelSelector];
                     break;
                 case kRoomActionSendLink:
-                    [self shareRoomLink];
+                    [self shareRoomLinkFromIndexPath:indexPath];
                     break;
             }
         }
