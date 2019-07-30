@@ -212,9 +212,10 @@
     // Do not show join call dialog until we don't handle 'hangup current call'/'join new one' properly.
     if (![NCRoomsManager sharedInstance].callViewController) {
         [_mainNavigationController dismissViewControllerAnimated:NO completion:nil];
+        [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+    } else {
+        NSLog(@"Not showing join call dialog due to in a call.");
     }
-
-    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)presentAlertViewController:(UIAlertController *)alertViewController
