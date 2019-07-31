@@ -672,15 +672,15 @@ typedef enum ModificationError {
 
 - (void)enableLobby
 {
-    [self setLobbyState:NCRoomLobbyStateModeratorsOnly withTimer:nil];
+    [self setLobbyState:NCRoomLobbyStateModeratorsOnly withTimer:0];
 }
 
 - (void)disableLobby
 {
-    [self setLobbyState:NCRoomLobbyStateAllParticipants withTimer:nil];
+    [self setLobbyState:NCRoomLobbyStateAllParticipants withTimer:0];
 }
 
-- (void)setLobbyState:(NCRoomLobbyState)lobbyState withTimer:(NSString *)timer
+- (void)setLobbyState:(NCRoomLobbyState)lobbyState withTimer:(NSInteger)timer
 {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] setLobbyState:lobbyState withTimer:timer forRoom:_room.token withCompletionBlock:^(NSError *error) {
@@ -696,7 +696,7 @@ typedef enum ModificationError {
 
 - (void)setLobbyDate
 {
-    NSString *lobbyTimer = [NCUtils dateAtomFormatFromDate:_lobbyDatePicker.date];
+    NSInteger lobbyTimer = _lobbyDatePicker.date.timeIntervalSince1970;
     [self setLobbyState:NCRoomLobbyStateModeratorsOnly withTimer:lobbyTimer];
     
     NSString *lobbyTimerReadable = [NCUtils readableDateFromDate:_lobbyDatePicker.date];
@@ -706,7 +706,7 @@ typedef enum ModificationError {
 
 - (void)removeLobbyDate
 {
-    [self setLobbyState:NCRoomLobbyStateModeratorsOnly withTimer:nil];
+    [self setLobbyState:NCRoomLobbyStateModeratorsOnly withTimer:0];
     [self dismissLobbyDatePicker];
 }
 
@@ -727,8 +727,8 @@ typedef enum ModificationError {
     [toolBar setItems:[NSArray arrayWithObjects:cancelButton, space,doneButton, nil]];
     [_lobbyDateTextField setInputAccessoryView:toolBar];
     
-    NSDate *date = [NCUtils dateFromDateAtomFormat:_room.lobbyTimer];
-    if (date) {
+    if (_room.lobbyTimer > 0) {
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
         UIBarButtonItem *clearButton = [[UIBarButtonItem alloc] initWithTitle:@"Remove" style:UIBarButtonItemStylePlain target:self action:@selector(removeLobbyDate)];
         [clearButton setTintColor:[UIColor redColor]];
         [toolBar setItems:[NSArray arrayWithObjects:clearButton, space, doneButton, nil]];
@@ -1224,8 +1224,8 @@ typedef enum ModificationError {
                     cell.textLabel.text = @"Start time";
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _lobbyDateTextField;
-                    NSDate *date = [NCUtils dateFromDateAtomFormat:_room.lobbyTimer];
-                    _lobbyDateTextField.text = date ? [NCUtils readableDateFromDate:date] : nil;
+                    NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
+                    _lobbyDateTextField.text = _room.lobbyTimer > 0 ? [NCUtils readableDateFromDate:date] : nil;
                     [cell.imageView setImage:[UIImage imageNamed:@"timer"]];
                     
                     return cell;

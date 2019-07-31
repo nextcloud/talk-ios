@@ -293,8 +293,8 @@
     if ([self shouldPresentLobbyView]) {
         [_chatBackgroundView.placeholderText setText:@"You are currently waiting in the lobby."];
         [_chatBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"lobby-placeholder"]];
-        NSDate *date = [NCUtils dateFromDateAtomFormat:_room.lobbyTimer];
-        if (date) {
+        if (_room.lobbyTimer > 0) {
+            NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
             NSString *meetingStart = [NCUtils readableDateFromDate:date];
             NSString *placeHolderText = [NSString stringWithFormat:@"You are currently waiting in the lobby.\nThis meeting is scheduled for\n%@", meetingStart];
             [_chatBackgroundView.placeholderText setText:placeHolderText];

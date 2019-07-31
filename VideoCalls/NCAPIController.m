@@ -497,13 +497,13 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return task;
 }
 
-- (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state withTimer:(NSString *)timer forRoom:(NSString *)token withCompletionBlock:(SetLobbyStateCompletionBlock)block
+- (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state withTimer:(NSInteger)timer forRoom:(NSString *)token withCompletionBlock:(SetLobbyStateCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"room/%@/webinary/lobby", token]];
     NSMutableDictionary *parameters = [NSMutableDictionary new];
     [parameters setObject:@(state) forKey:@"state"];
-    if (timer) {
-        [parameters setObject:timer forKey:@"timer"];
+    if (timer > 0) {
+        [parameters setObject:@(timer) forKey:@"timer"];
     }
     
     NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
