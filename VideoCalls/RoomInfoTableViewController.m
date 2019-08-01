@@ -718,7 +718,11 @@ typedef enum ModificationError {
 - (void)setupLobbyDatePicker
 {
     [_lobbyDatePicker setMinimumDate:[NSDate new]];
-    [_lobbyDatePicker setDate:[NSDate new]];
+    // Round up default lobby timer to next hour
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDateComponents *components = [calendar components: NSCalendarUnitEra|NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour fromDate: [NSDate new]];
+    [components setHour: [components hour] + 1];
+    [_lobbyDatePicker setDate:[calendar dateFromComponents:components]];
     
     UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(dismissLobbyDatePicker)];
