@@ -55,7 +55,7 @@ typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
 
 typedef void (^GetServerCapabilitiesCompletionBlock)(NSDictionary *serverCapabilities, NSError *error);
-typedef void (^GetServerNotificationCompletionBlock)(NSDictionary *notification, NSError *error);
+typedef void (^GetServerNotificationCompletionBlock)(NSDictionary *notification, NSError *error, NSInteger statusCode);
 
 typedef void (^SubscribeToNextcloudServerCompletionBlock)(NSDictionary *responseDict, NSError *error);
 typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);

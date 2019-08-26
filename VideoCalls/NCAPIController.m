@@ -1027,11 +1027,16 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSURLSessionDataTask *task = [[NCAPISessionManager sharedInstance] GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *notification = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
-            block(notification, nil);
+            block(notification, nil, 0);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error);
+            NSInteger statusCode = 0;
+            if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
+                NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+                statusCode = httpResponse.statusCode;
+            }
+            block(nil, error, statusCode);
         }
     }];
     
