@@ -52,6 +52,10 @@
 - (NSString *)chatMessageAuthor
 {
     NSString *author = [[_subjectRichParameters objectForKey:@"user"] objectForKey:@"name"];
+    NSString *guest = [[_subjectRichParameters objectForKey:@"guest"] objectForKey:@"name"];
+    if (guest) {
+        author = [NSString stringWithFormat:@"%@ (%@)", guest, @"guest"];
+    }
     return author ? author : @"Guest";
 }
 
