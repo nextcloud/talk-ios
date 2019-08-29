@@ -70,9 +70,9 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 
 #pragma mark - Chat
 
-- (void)getInitialChatHistory
+- (void)getInitialChatHistory:(NSInteger)lastReadMessage
 {
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:-1 history:YES withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:lastReadMessage history:YES includeLastMessage:YES withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
         if (_stopChatMessagesPoll) {
             return;
         }
@@ -104,7 +104,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 
 - (void)getChatHistoryFromMessagesId:(NSInteger)messageId
 {
-    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_oldestMessageId history:YES withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_oldestMessageId history:YES includeLastMessage:NO withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
         if (statusCode == 304) {
             _hasHistory = NO;
         }
@@ -140,7 +140,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_newestMessageId history:NO withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_newestMessageId history:NO includeLastMessage:NO withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
         if (_stopChatMessagesPoll) {
             return;
         }

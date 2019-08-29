@@ -320,7 +320,7 @@
         [_lobbyCheckTimer invalidate];
         // Retrieve initial chat history
         if (!_hasReceiveInitialHistory) {
-            [_roomController getInitialChatHistory];
+            [_roomController getInitialChatHistory:_room.lastReadMessage];
         }
     }
     [self checkRoomControlsAvailability];
@@ -489,7 +489,7 @@
     NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
     if (!_roomController) {
         _roomController = roomController;
-        [_roomController getInitialChatHistory];
+        [_roomController getInitialChatHistory:_room.lastReadMessage];
     }
 }
 

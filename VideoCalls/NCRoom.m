@@ -43,6 +43,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.readOnlyState = (NCRoomReadOnlyState)[[roomDict objectForKey:@"readOnly"] integerValue];
     room.lobbyState = (NCRoomLobbyState)[[roomDict objectForKey:@"lobbyState"] integerValue];
     room.lobbyTimer = [[roomDict objectForKey:@"lobbyTimer"] integerValue];
+    room.lastReadMessage = [[roomDict objectForKey:@"lastReadMessage"] integerValue];
     
     id name = [roomDict objectForKey:@"name"];
     if ([name isKindOfClass:[NSString class]]) {
