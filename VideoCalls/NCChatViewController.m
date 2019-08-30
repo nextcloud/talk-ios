@@ -790,8 +790,7 @@
 - (void)checkUnreadMessagesVisibility
 {
     NSArray* visibleCellsIPs = [self.tableView indexPathsForVisibleRows];
-    NSIndexPath *lastVisibleIndexPath = [visibleCellsIPs objectAtIndex:visibleCellsIPs.count -1];
-    if (lastVisibleIndexPath == _firstUnreadMessageIP) {
+    if ([visibleCellsIPs containsObject:_firstUnreadMessageIP]) {
          [self hideNewMessagesView];
     }
 }
