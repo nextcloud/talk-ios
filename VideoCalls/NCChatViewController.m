@@ -31,6 +31,7 @@
 #import "NSDate+DateTools.h"
 #import "RoomInfoTableViewController.h"
 #import "UIImageView+AFNetworking.h"
+#import "UIImageView+Letters.h"
 
 @interface NCChatViewController ()
 
@@ -896,10 +897,15 @@
         NSDictionary *suggestion = [_autocompletionUsers objectAtIndex:indexPath.row];
         NSString *suggestionId = [suggestion objectForKey:@"id"];
         NSString *suggestionName = [suggestion objectForKey:@"label"];
+        NSString *suggestionSource = [suggestion objectForKey:@"source"];
         ChatMessageTableViewCell *suggestionCell = (ChatMessageTableViewCell *)[self.autoCompletionView dequeueReusableCellWithIdentifier:AutoCompletionCellIdentifier];
         suggestionCell.titleLabel.text = suggestionName;
         if ([suggestionId isEqualToString:@"all"]) {
             [suggestionCell.avatarView setImage:[UIImage imageNamed:@"group-bg"]];
+        } else if ([suggestionSource isEqualToString:@"guests"]) {
+            UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
+            NSString *name = ([suggestionName isEqualToString:@"Guest"]) ? @"?" : suggestionName;
+            [suggestionCell.avatarView setImageWithString:name color:guestAvatarColor circular:true];
         } else {
             [suggestionCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:suggestionId andSize:96]
                                              placeholderImage:nil success:nil failure:nil];
@@ -1037,6 +1043,10 @@
         NCMessageParameter *mention = [[NCMessageParameter alloc] init];
         mention.parameterId = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
         mention.name = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"label"]];
+        // Guest mentions are wrapped with double quotes @"guest/<sha1(webrtc session id)>"
+        if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"guests"]) {
+            mention.parameterId = [NSString stringWithFormat:@"@\"%@\"", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
+        }
         [_mentions addObject:mention];
         
         NSMutableString *mentionString = [[self.autocompletionUsers[indexPath.row] objectForKey:@"label"] mutableCopy];
