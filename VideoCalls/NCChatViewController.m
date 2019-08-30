@@ -769,6 +769,8 @@
 {
     _firstUnreadMessageIP = messageIP;
     _unreadMessageButton.hidden = NO;
+    // Check if unread messages are already visible
+    [self checkUnreadMessagesVisibility];
 }
 
 - (void)hideNewMessagesView
