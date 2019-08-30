@@ -562,7 +562,7 @@
             [self.tableView endUpdates];
         }
         
-        if ([self shouldScrollOnNewMessages]) {
+        if ([self shouldScrollOnNewMessages:messages]) {
             [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
         } else if (!_firstUnreadMessageIP) {
             [self showNewMessagesViewUntilIndexPath:lastMessageIndexPath];
@@ -754,12 +754,20 @@
     self.tableView.tableHeaderView = nil;
 }
 
-- (BOOL)shouldScrollOnNewMessages
+- (BOOL)shouldScrollOnNewMessages:(NSMutableArray *)messages
 {
-    // Scroll if table view is at the bottom (or 80px up) and chat view is visible
-    CGFloat minimumOffset = (self.tableView.contentSize.height - self.tableView.frame.size.height) - 80;
-    if (self.tableView.contentOffset.y >= minimumOffset && _isVisible) {
-        return YES;
+    if (_isVisible) {
+        // Scroll if table view is at the bottom (or 80px up)
+        CGFloat minimumOffset = (self.tableView.contentSize.height - self.tableView.frame.size.height) - 80;
+        if (self.tableView.contentOffset.y >= minimumOffset) {
+            return YES;
+        }
+        // Scroll if new messages contain a message from the user
+        for (NCChatMessage *message in messages) {
+            if ([message.actorId isEqualToString:[NCSettingsController sharedInstance].ncUserId]) {
+                return YES;
+            }
+        }
     }
     
     return NO;
