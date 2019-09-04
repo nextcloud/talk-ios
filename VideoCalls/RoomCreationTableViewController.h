@@ -10,4 +10,6 @@
 
 @interface RoomCreationTableViewController : UITableViewController
 
+- (instancetype)initWithParticipants:(NSMutableDictionary *)participants andIndexes:(NSMutableArray *)indexes;
+
 @end

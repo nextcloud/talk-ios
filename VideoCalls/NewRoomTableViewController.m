@@ -26,7 +26,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 
 @interface NewRoomTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
-    NSDictionary *_contacts;
+    NSMutableDictionary *_contacts;
     NSMutableArray *_indexes;
     UISearchController *_searchController;
     PlaceholderView *_newRoomBackgroundView;
@@ -42,8 +42,9 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 {
     [super viewDidLoad];
     
-    _contacts = [[NSDictionary alloc] init];
+    _contacts = [[NSMutableDictionary alloc] init];
     _indexes = [[NSMutableArray alloc] init];
+    [_indexes insertObject:@"" atIndex:0];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     // Align header's title to ContactsTableViewCell's label
@@ -161,7 +162,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 
 - (void)startCreatingNewGroup
 {
-    RoomCreationTableViewController *roomCreationVC = [[RoomCreationTableViewController alloc] init];
+    RoomCreationTableViewController *roomCreationVC = [[RoomCreationTableViewController alloc] initWithParticipants:_contacts andIndexes:_indexes];
     [self.navigationController pushViewController:roomCreationVC animated:YES];
 }
 

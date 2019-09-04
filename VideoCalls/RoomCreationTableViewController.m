@@ -29,12 +29,25 @@
 
 @implementation RoomCreationTableViewController
 
+- (instancetype)init
+{
+    return [self initWithParticipants:nil andIndexes:nil];
+}
+
+- (instancetype)initWithParticipants:(NSMutableDictionary *)participants andIndexes:(NSMutableArray *)indexes
+{
+    self = [super init];
+    if (self) {
+        _participants = participants ? participants : [[NSMutableDictionary alloc] init];
+        _indexes = indexes ? indexes : [[NSArray alloc] init];
+    }
+    return self;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    _participants = [[NSMutableDictionary alloc] init];
-    _indexes = [[NSArray alloc] init];
     _selectedParticipants = [[NSMutableArray alloc] init];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
@@ -182,12 +195,11 @@
 {
     [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:contactList];
-            _participants = participants;
-            _indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+            _participants = contacts;
+            _indexes = [NSMutableArray arrayWithArray:indexes];
             [_roomCreationBackgroundView.loadingView stopAnimating];
             [_roomCreationBackgroundView.loadingView setHidden:YES];
-            [_roomCreationBackgroundView.placeholderView setHidden:(participants.count > 0)];
+            [_roomCreationBackgroundView.placeholderView setHidden:(contacts.count > 0)];
             [self.tableView reloadData];
         } else {
             NSLog(@"Error while trying to get participants: %@", error);
@@ -200,9 +212,7 @@
     [_searchParticipantsTask cancel];
     _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:contactList];
-            NSArray *sortedIndexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-            [_resultTableViewController setSearchResultContacts:participants withIndexes:sortedIndexes];
+            [_resultTableViewController setSearchResultContacts:contacts withIndexes:indexes];
         } else {
             if (error.code != -999) {
                 NSLog(@"Error while searching for participants: %@", error);
