@@ -44,6 +44,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     
     _contacts = [[NSDictionary alloc] init];
     _indexes = [[NSMutableArray alloc] init];
+    [_indexes insertObject:@"" atIndex:0];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     // Align header's title to ContactsTableViewCell's label
