@@ -152,8 +152,8 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
                 [self notifyChatIsBlocked];
                 return;
             }
-            [userInfo setObject:error forKey:@"error"];
             if (statusCode != 304) {
+                [userInfo setObject:error forKey:@"error"];
                 NSLog(@"Could not get new chat messages. Error: %@", error.description);
             }
         }

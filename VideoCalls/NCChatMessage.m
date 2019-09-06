@@ -77,6 +77,9 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
 
 - (NSMutableAttributedString *)parsedMessage
 {
+    if (!_message) {
+        return nil;
+    }
     NSString *originalMessage = _message;
     NSString *parsedMessage = originalMessage;
     NSError *error = nil;

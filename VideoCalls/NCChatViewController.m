@@ -15,6 +15,7 @@
 #import "GroupedChatMessageTableViewCell.h"
 #import "FileMessageTableViewCell.h"
 #import "SystemMessageTableViewCell.h"
+#import "MessageSeparatorTableViewCell.h"
 #import "DateHeaderView.h"
 #import "PlaceholderView.h"
 #import "NCAPIController.h"
@@ -44,6 +45,7 @@
 @property (nonatomic, strong) NSMutableArray *mentions;
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
+@property (nonatomic, assign) BOOL hasReceiveNewMessages;
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, assign) BOOL isVisible;
 @property (nonatomic, assign) BOOL hasJoinedRoom;
@@ -150,6 +152,7 @@
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:FileMessageCellIdentifier];
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:GroupedFileMessageCellIdentifier];
     [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:SystemMessageCellIdentifier];
+    [self.tableView registerClass:[MessageSeparatorTableViewCell class] forCellReuseIdentifier:MessageSeparatorCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
     
@@ -537,19 +540,33 @@
 - (void)didReceiveChatMessages:(NSNotification *)notification
 {
     NSString *room = [notification.userInfo objectForKey:@"room"];
-    if (![room isEqualToString:_room.token]) {
+    NSError *error = [notification.userInfo objectForKey:@"error"];
+    if (![room isEqualToString:_room.token] || error) {
         return;
     }
+    
+    BOOL possibleUnreadMessages = !_hasReceiveNewMessages;
+    _hasReceiveNewMessages = YES;
     
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
     if (messages.count > 0) {
         NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
+        BOOL unreadMessagesReceived = NO;
+        if (possibleUnreadMessages && _room.lastReadMessage > 0 && messages.count > 0) {
+            unreadMessagesReceived = YES;
+            NSMutableArray *messagesForLastDateBeforeUpdate = [_messages objectForKey:[_dateSections lastObject]];
+            NCChatMessage *separator = [[NCChatMessage alloc] init];
+            separator.messageId = kMessageSeparatorIdentifier;
+            [messagesForLastDateBeforeUpdate addObject:separator];
+            [_messages setObject:messagesForLastDateBeforeUpdate forKey:[_dateSections lastObject]];
+        }
+        
         [self sortMessages:messages inDictionary:_messages];
         
         NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
         NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
         
-        if (messages.count > 1) {
+        if (messages.count > 1 || unreadMessagesReceived) {
             [self.tableView reloadData];
         } else if (messages.count == 1) {
             [self.tableView beginUpdates];
@@ -563,7 +580,9 @@
             [self.tableView endUpdates];
         }
         
-        if ([self shouldScrollOnNewMessages:messages]) {
+        if (unreadMessagesReceived) {
+            [self.tableView scrollToRowAtIndexPath:[self indexPathForMessage:messages[0]] atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+        } else if ([self shouldScrollOnNewMessages:messages]) {
             [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
         } else if (!_firstUnreadMessageIP) {
             [self showNewMessagesViewUntilIndexPath:lastMessageIndexPath];
@@ -718,6 +737,24 @@
     }
     
     [self sortDateSections];
+}
+
+- (NSIndexPath *)indexPathForMessage:(NCChatMessage *)message
+{
+    NSDate *messageDate = [NSDate dateWithTimeIntervalSince1970: message.timestamp];
+    NSDate *keyDate = [self getKeyForDate:messageDate inDictionary:_messages];
+    NSInteger section = [_dateSections indexOfObject:keyDate];
+    if (NSNotFound != section) {
+        NSMutableArray *messages = [_messages objectForKey:keyDate];
+        for (int i = 0; i < messages.count; i++) {
+            NCChatMessage *currentMessage = messages[i];
+            if (currentMessage.messageId == message.messageId) {
+                return [NSIndexPath indexPathForRow:i inSection:section];
+            }
+        }
+    }
+    
+    return nil;
 }
 
 - (void)sortDateSections
@@ -916,6 +953,10 @@
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
     UITableViewCell *cell = [UITableViewCell new];
+    if (message.messageId == kMessageSeparatorIdentifier) {
+        MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
+        return separatorCell;
+    }
     if (message.isSystemMessage) {
         SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
         systemCell.bodyTextView.attributedText = message.systemMessageFormat;
@@ -991,6 +1032,10 @@
         NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
         paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
         paragraphStyle.alignment = NSTextAlignmentLeft;
+        
+        if (message.messageId == kMessageSeparatorIdentifier) {
+            return kMessageSeparatorCellHeight;
+        }
         
         CGFloat pointSize = [ChatMessageTableViewCell defaultFontSize];
         
