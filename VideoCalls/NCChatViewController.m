@@ -504,16 +504,10 @@
     }
     
     _hasReceiveInitialHistory = YES;
-    [_chatBackgroundView.loadingView stopAnimating];
-    [_chatBackgroundView.loadingView setHidden:YES];
     
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
     if (messages) {
         [self sortMessages:messages inDictionary:_messages];
-        [self.tableView reloadData];
-        NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
-        NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
-        [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
     } else {
         [_chatBackgroundView.placeholderView setHidden:NO];
     }
@@ -545,14 +539,14 @@
         return;
     }
     
-    BOOL possibleUnreadMessages = !_hasReceiveNewMessages;
+    BOOL firstNewMessagesAfterHistory = !_hasReceiveNewMessages;
     _hasReceiveNewMessages = YES;
     
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
     if (messages.count > 0) {
         NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
         BOOL unreadMessagesReceived = NO;
-        if (possibleUnreadMessages && _room.lastReadMessage > 0 && messages.count > 0) {
+        if (firstNewMessagesAfterHistory && _room.lastReadMessage > 0 && messages.count > 0) {
             unreadMessagesReceived = YES;
             NSMutableArray *messagesForLastDateBeforeUpdate = [_messages objectForKey:[_dateSections lastObject]];
             NCChatMessage *separator = [[NCChatMessage alloc] init];
@@ -587,8 +581,20 @@
         } else if (!_firstUnreadMessageIP) {
             [self showNewMessagesViewUntilIndexPath:lastMessageIndexPath];
         }
+    } else if (firstNewMessagesAfterHistory) {
+        // Now the chat is loaded after getting the initial history and the first new messages block.
+        // Even if there are no new messages, tableview should be reloaded and scrolled to the bottom
+        // as it was done when only initial history was loaded.
+        [self.tableView reloadData];
+        NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
+        NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+        [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
     }
     
+    if (firstNewMessagesAfterHistory) {
+        [_chatBackgroundView.loadingView stopAnimating];
+        [_chatBackgroundView.loadingView setHidden:YES];
+    }
 }
 
 - (void)didSendChatMessage:(NSNotification *)notification

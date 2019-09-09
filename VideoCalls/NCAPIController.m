@@ -759,12 +759,12 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 #pragma mark - Chat Controller
 
-- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId history:(BOOL)history includeLastMessage:(BOOL)include withCompletionBlock:(GetChatMessagesCompletionBlock)block
+- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout withCompletionBlock:(GetChatMessagesCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"chat/%@", token]];
     NSDictionary *parameters = @{@"lookIntoFuture" : history ? @(0) : @(1),
                                  @"limit" : @(200),
-                                 @"timeout" : @"30",
+                                 @"timeout" : timeout ? @(30) : @(0),
                                  @"lastKnownMessageId" : @(messageId),
                                  @"setReadMarker" : @(1),
                                  @"includeLastKnown" : include ? @(1) : @(0)};

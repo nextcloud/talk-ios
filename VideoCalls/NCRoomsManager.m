@@ -309,7 +309,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (roomController) {
-        [roomController startReceivingChatMessages];
+        [roomController startReceivingChatMessagesWithTimeout:YES];
     } else {
         NSLog(@"Trying to start receiving message from a room where you are not active.");
     }
