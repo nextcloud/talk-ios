@@ -548,6 +548,7 @@
     if (messages.count > 0) {
         NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
         BOOL unreadMessagesReceived = NO;
+        // Check if last-read-message indicator should be added
         if (firstNewMessagesAfterHistory && _room.lastReadMessage > 0 && messages.count > 0) {
             unreadMessagesReceived = YES;
             NSMutableArray *messagesForLastDateBeforeUpdate = [_messages objectForKey:[_dateSections lastObject]];
@@ -557,14 +558,19 @@
             [_messages setObject:messagesForLastDateBeforeUpdate forKey:[_dateSections lastObject]];
         }
         
+        // Sort received messages
         [self sortMessages:messages inDictionary:_messages];
         
         NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
         NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
         NCChatMessage *firstNewMessage = [messages objectAtIndex:0];
         NSIndexPath *firstMessageIndexPath = [self indexPathForMessage:firstNewMessage];
+        // This variable is needed since several calls to receiveMessages API might be needed
+        // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
+        // to receive all the unread messages.
         BOOL areReallyNewMessages = firstNewMessage.timestamp >= _chatViewPresentedTimestamp;
         
+        // Load messages in chat view
         if (messages.count > 1 || unreadMessagesReceived) {
             [self.tableView reloadData];
         } else if (messages.count == 1) {
@@ -579,6 +585,7 @@
             [self.tableView endUpdates];
         }
         
+        // Position chat view
         if (unreadMessagesReceived) {
             [self.tableView scrollToRowAtIndexPath:firstMessageIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
         } else if ([self shouldScrollOnNewMessages:messages]) {
