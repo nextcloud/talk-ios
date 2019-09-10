@@ -49,6 +49,7 @@
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, assign) BOOL isVisible;
 @property (nonatomic, assign) BOOL hasJoinedRoom;
+@property (nonatomic, assign) NSInteger chatViewPresentedTimestamp;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
 @property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
 @property (nonatomic, strong) UIButton *unreadMessageButton;
@@ -175,6 +176,7 @@
     [_unreadMessageButton setTitle:@"↓ New messages" forState:UIControlStateNormal];
     
     [self.view addSubview:_unreadMessageButton];
+    _chatViewPresentedTimestamp = [[NSDate date] timeIntervalSince1970];
     
     NSDictionary *views = @{@"unreadMessagesButton": _unreadMessageButton,
                             @"textInputbar": self.textInputbar};
@@ -559,6 +561,9 @@
         
         NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
         NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+        NCChatMessage *firstNewMessage = [messages objectAtIndex:0];
+        NSIndexPath *firstMessageIndexPath = [self indexPathForMessage:firstNewMessage];
+        BOOL areReallyNewMessages = firstNewMessage.timestamp >= _chatViewPresentedTimestamp;
         
         if (messages.count > 1 || unreadMessagesReceived) {
             [self.tableView reloadData];
@@ -575,11 +580,11 @@
         }
         
         if (unreadMessagesReceived) {
-            [self.tableView scrollToRowAtIndexPath:[self indexPathForMessage:messages[0]] atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+            [self.tableView scrollToRowAtIndexPath:firstMessageIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
         } else if ([self shouldScrollOnNewMessages:messages]) {
             [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-        } else if (!_firstUnreadMessageIP) {
-            [self showNewMessagesViewUntilIndexPath:lastMessageIndexPath];
+        } else if (!_firstUnreadMessageIP && areReallyNewMessages) {
+            [self showNewMessagesViewUntilIndexPath:firstMessageIndexPath];
         }
     } else if (firstNewMessagesAfterHistory) {
         // Now the chat is loaded after getting the initial history and the first new messages block.
