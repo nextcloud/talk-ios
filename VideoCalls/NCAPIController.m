@@ -763,7 +763,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForSpreedEndpoint:[NSString stringWithFormat:@"chat/%@", token]];
     NSDictionary *parameters = @{@"lookIntoFuture" : history ? @(0) : @(1),
-                                 @"limit" : @(200),
+                                 @"limit" : @(100),
                                  @"timeout" : timeout ? @(30) : @(0),
                                  @"lastKnownMessageId" : @(messageId),
                                  @"setReadMarker" : @(1),
