@@ -60,6 +60,7 @@
 		2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */; };
 		2C8A2BCF221FEEFE00DE6D2C /* DirectoryTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCD221FEEFE00DE6D2C /* DirectoryTableViewCell.xib */; };
 		2C8CDD0621C2EDE8004E2997 /* AvatarBackgroundImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8CDD0521C2EDE8004E2997 /* AvatarBackgroundImageView.m */; };
+		2C8E2A1B232174C20022BFC9 /* MessageSeparatorTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */; };
 		2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5631EDDE0FB0093D85A /* Foundation.framework */; };
 		2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5661EDDE1340093D85A /* CoreGraphics.framework */; };
 		2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5681EDDE13A0093D85A /* UIKit.framework */; };
@@ -334,6 +335,8 @@
 		2C8B603B1FB4A9DA006E87EF /* x509v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
 		2C8CDD0421C2EDE8004E2997 /* AvatarBackgroundImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AvatarBackgroundImageView.h; sourceTree = "<group>"; };
 		2C8CDD0521C2EDE8004E2997 /* AvatarBackgroundImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AvatarBackgroundImageView.m; sourceTree = "<group>"; };
+		2C8E2A19232174C20022BFC9 /* MessageSeparatorTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageSeparatorTableViewCell.h; sourceTree = "<group>"; };
+		2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageSeparatorTableViewCell.m; sourceTree = "<group>"; };
 		2C90E5631EDDE0FB0093D85A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2C90E5661EDDE1340093D85A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		2C90E5681EDDE13A0093D85A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -1063,6 +1066,8 @@
 				2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */,
 				2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */,
 				2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */,
+				2C8E2A19232174C20022BFC9 /* MessageSeparatorTableViewCell.h */,
+				2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */,
 				2C06BF6520AC647A0031EB46 /* DateHeaderView.h */,
 				2C06BF6620AC647A0031EB46 /* DateHeaderView.m */,
 				2C06BF6320AC64370031EB46 /* DateHeaderView.xib */,
@@ -1335,6 +1340,7 @@
 				2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */,
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
 				2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */,
+				2C8E2A1B232174C20022BFC9 /* MessageSeparatorTableViewCell.m in Sources */,
 				2CB3041E2264775E0053078A /* SLKTextViewController.m in Sources */,
 				2C961E1F2216BF4B00F5C23F /* OCXMLShareByLinkParser.m in Sources */,
 				2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */,

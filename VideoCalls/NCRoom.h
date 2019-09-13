@@ -63,6 +63,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, assign) NCRoomReadOnlyState readOnlyState;
 @property (nonatomic, assign) NCRoomLobbyState lobbyState;
 @property (nonatomic, assign) NSInteger lobbyTimer;
+@property (nonatomic, assign) NSInteger lastReadMessage;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 
