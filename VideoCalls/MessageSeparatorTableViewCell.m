@@ -15,7 +15,7 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
-        self.backgroundColor = [UIColor colorWithWhite:0.86 alpha:1];
+        self.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
         self.messageId = kMessageSeparatorIdentifier;
         
         [self configureSubviews];
@@ -55,9 +55,9 @@
         _separatorLabel.backgroundColor = [UIColor clearColor];
         _separatorLabel.userInteractionEnabled = NO;
         _separatorLabel.numberOfLines = 1;
-        _separatorLabel.textColor = [UIColor whiteColor];
+        _separatorLabel.textColor = [UIColor lightGrayColor];
         _separatorLabel.font = [UIFont systemFontOfSize:12.0];
-        _separatorLabel.text = @"Last read message";
+        _separatorLabel.text = @"Unread messages";
     }
     return _separatorLabel;
 }
