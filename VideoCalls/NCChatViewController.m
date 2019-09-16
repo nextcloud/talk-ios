@@ -49,6 +49,10 @@
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, assign) BOOL isVisible;
 @property (nonatomic, assign) BOOL hasJoinedRoom;
+@property (nonatomic, assign) BOOL leftChat;
+@property (nonatomic, assign) NSInteger lastReadMessage;
+@property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
+@property (nonatomic, strong) NSIndexPath *unreadMessagesSeparatorIP;
 @property (nonatomic, assign) NSInteger chatViewPresentedTimestamp;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
 @property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
@@ -177,8 +181,13 @@
     [_unreadMessageButton addTarget:self action:@selector(unreadMessagesButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [_unreadMessageButton setTitle:@"↓ New messages" forState:UIControlStateNormal];
     
+    // Unread messages separator
+    _unreadMessagesSeparator = [[NCChatMessage alloc] init];
+    _unreadMessagesSeparator.messageId = kMessageSeparatorIdentifier;
+    
     [self.view addSubview:_unreadMessageButton];
     _chatViewPresentedTimestamp = [[NSDate date] timeIntervalSince1970];
+    _lastReadMessage = _room.lastReadMessage;
     
     NSDictionary *views = @{@"unreadMessagesButton": _unreadMessageButton,
                             @"textInputbar": self.textInputbar};
@@ -323,13 +332,21 @@
         [_lobbyCheckTimer invalidate];
         // Retrieve initial chat history
         if (!_hasReceiveInitialHistory) {
-            [_roomController getInitialChatHistory:_room.lastReadMessage];
+            [_roomController getInitialChatHistory:[self getLastReadMessage]];
         }
     }
     [self checkRoomControlsAvailability];
 }
 
 #pragma mark - Utils
+
+- (NSInteger)getLastReadMessage
+{
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
+        return _lastReadMessage;
+    }
+    return 0;
+}
 
 - (NSString *)getTimeFromDate:(NSDate *)date
 {
@@ -463,17 +480,15 @@
 
 -(void)appDidBecomeActive:(NSNotification*)notification
 {
+    [self removeUnreadMessagesSeparator];
     [[NCRoomsManager sharedInstance] joinRoom:_room.token];
 }
 
 -(void)appWillResignActive:(NSNotification*)notification
 {
-    [self cleanChat];
-    if (_chatBackgroundView.loadingView.isHidden) {
-        [_chatBackgroundView.loadingView startAnimating];
-        [_chatBackgroundView.loadingView setHidden:NO];
-    }
     _roomController = nil;
+    _hasReceiveNewMessages = NO;
+    _leftChat = YES;
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
@@ -510,7 +525,12 @@
     NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
     if (!_roomController) {
         _roomController = roomController;
-        [_roomController getInitialChatHistory:_room.lastReadMessage];
+        if (_leftChat) {
+            _leftChat = NO;
+            [_roomController startReceivingChatMessagesFromMessagesId:[self getLastReadMessage] withTimeout:YES];
+        } else {
+            [_roomController getInitialChatHistory:[self getLastReadMessage]];
+        }
     }
 }
 
@@ -564,13 +584,12 @@
     if (messages.count > 0) {
         NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
         BOOL unreadMessagesReceived = NO;
-        // Check if last-read-message indicator should be added
-        if (firstNewMessagesAfterHistory && _room.lastReadMessage > 0 && messages.count > 0) {
+        // Check if unread messages separator should be added
+        if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && messages.count > 0) {
             unreadMessagesReceived = YES;
             NSMutableArray *messagesForLastDateBeforeUpdate = [_messages objectForKey:[_dateSections lastObject]];
-            NCChatMessage *separator = [[NCChatMessage alloc] init];
-            separator.messageId = kMessageSeparatorIdentifier;
-            [messagesForLastDateBeforeUpdate addObject:separator];
+            [messagesForLastDateBeforeUpdate addObject:_unreadMessagesSeparator];
+            _unreadMessagesSeparatorIP = [NSIndexPath indexPathForRow:messagesForLastDateBeforeUpdate.count - 1 inSection: _dateSections.count - 1];
             [_messages setObject:messagesForLastDateBeforeUpdate forKey:[_dateSections lastObject]];
         }
         
@@ -609,6 +628,10 @@
         } else if (!_firstUnreadMessageIP && areReallyNewMessages) {
             [self showNewMessagesViewUntilIndexPath:firstMessageIndexPath];
         }
+        
+        // Set last received message as last read message
+        NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
+        _lastReadMessage = lastReceivedMessage.messageId;
     } else if (firstNewMessagesAfterHistory) {
         // Now the chat is loaded after getting the initial history and the first new messages block.
         // Even if there are no new messages, tableview should be reloaded and scrolled to the bottom
@@ -857,6 +880,17 @@
 {
     _firstUnreadMessageIP = nil;
     _unreadMessageButton.hidden = YES;
+}
+
+- (void)removeUnreadMessagesSeparator
+{
+    if (_unreadMessagesSeparatorIP) {
+        NSDate *separatorDate = [_dateSections objectAtIndex:_unreadMessagesSeparatorIP.section];
+        NSMutableArray *messages = [_messages objectForKey:separatorDate];
+        [messages removeObjectAtIndex:_unreadMessagesSeparatorIP.row];
+        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:_unreadMessagesSeparatorIP] withRowAnimation:UITableViewRowAnimationTop];
+        _unreadMessagesSeparatorIP = nil;
+    }
 }
 
 - (void)checkUnreadMessagesVisibility

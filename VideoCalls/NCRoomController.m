@@ -97,7 +97,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
                                                             object:self
                                                           userInfo:userInfo];
         if (!error) {
-            [self startReceivingChatMessagesWithTimeout:NO];
+            [self startReceivingChatMessagesFromMessagesId:_newestMessageId withTimeout:NO];
         }
     }];
 }
@@ -136,11 +136,12 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
     [_getHistoryTask cancel];
 }
 
-- (void)startReceivingChatMessagesWithTimeout:(BOOL)timeout
+- (void)startReceivingChatMessagesFromMessagesId:(NSInteger)messageId withTimeout:(BOOL)timeout
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_newestMessageId history:NO includeLastMessage:NO timeout:timeout withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+    _newestMessageId = messageId;
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
         if (_stopChatMessagesPoll) {
             return;
         }
@@ -165,7 +166,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
                                                             object:self
                                                           userInfo:userInfo];
         if (error.code != -999) {
-            [self startReceivingChatMessagesWithTimeout:YES];
+            [self startReceivingChatMessagesFromMessagesId:_newestMessageId withTimeout:YES];
         }
     }];
 }
