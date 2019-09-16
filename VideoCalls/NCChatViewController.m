@@ -86,6 +86,8 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCRoomControllerDidReceiveChatMessagesNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCRoomControllerDidSendChatMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatBlocked:) name:NCRoomControllerDidReceiveChatBlockedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     }
     
     return self;
@@ -310,11 +312,7 @@
         [_chatBackgroundView.loadingView stopAnimating];
         [_chatBackgroundView.loadingView setHidden:YES];
         // Clear current chat since chat history will be retrieve when lobby is disabled
-        _messages = [[NSMutableDictionary alloc] init];
-        _dateSections = [[NSMutableArray alloc] init];
-        _hasReceiveInitialHistory = NO;
-        [self hideNewMessagesView];
-        [self.tableView reloadData];
+        [self cleanChat];
     } else {
         [_chatBackgroundView.placeholderText setText:@"No messages yet, start the conversation!"];
         [_chatBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"chat-placeholder"]];
@@ -459,6 +457,24 @@
     }
     
     return [super textView:textView shouldChangeTextInRange:range replacementText:text];
+}
+
+#pragma mark - App lifecycle notifications
+
+-(void)appDidBecomeActive:(NSNotification*)notification
+{
+    [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+}
+
+-(void)appWillResignActive:(NSNotification*)notification
+{
+    [self cleanChat];
+    if (_chatBackgroundView.loadingView.isHidden) {
+        [_chatBackgroundView.loadingView startAnimating];
+        [_chatBackgroundView.loadingView setHidden:NO];
+    }
+    _roomController = nil;
+    [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
 #pragma mark - Room Manager notifications
@@ -849,6 +865,16 @@
     if ([visibleCellsIPs containsObject:_firstUnreadMessageIP]) {
          [self hideNewMessagesView];
     }
+}
+
+- (void)cleanChat
+{
+    _messages = [[NSMutableDictionary alloc] init];
+    _dateSections = [[NSMutableArray alloc] init];
+    _hasReceiveInitialHistory = NO;
+    _hasReceiveNewMessages = NO;
+    [self hideNewMessagesView];
+    [self.tableView reloadData];
 }
 
 #pragma mark - Autocompletion
