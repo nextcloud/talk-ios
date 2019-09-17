@@ -86,6 +86,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (!roomController) {
         _joiningRoom = token;
         _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+            if (!_joiningRoom) {
+                NSLog(@"Not joining the room any more. Ignore response.");
+                return;
+            }
             if (!error) {
                 NCRoomController *controller = [[NCRoomController alloc] initForUser:sessionId inRoom:token];
                 controller.inChat = !call;
