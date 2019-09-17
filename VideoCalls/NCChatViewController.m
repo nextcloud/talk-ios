@@ -527,7 +527,7 @@
         _roomController = roomController;
         if (_leftChat) {
             _leftChat = NO;
-            [_roomController startReceivingChatMessagesFromMessagesId:[self getLastReadMessage] withTimeout:YES];
+            [_roomController startReceivingChatMessagesFromMessagesId:_lastReadMessage withTimeout:YES];
         } else {
             [_roomController getInitialChatHistory:[self getLastReadMessage]];
         }
@@ -545,6 +545,9 @@
     
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
     if (messages) {
+        // Set last received message as last read message
+        NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
+        _lastReadMessage = lastReceivedMessage.messageId;
         [self sortMessages:messages inDictionary:_messages];
     } else {
         [_chatBackgroundView.placeholderView setHidden:NO];
