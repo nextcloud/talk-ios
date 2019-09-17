@@ -86,6 +86,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (!roomController) {
         _joiningRoom = token;
         _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+            if (!_joiningRoom) {
+                NSLog(@"Not joining the room any more. Ignore response.");
+                return;
+            }
             if (!error) {
                 NCRoomController *controller = [[NCRoomController alloc] initForUser:sessionId inRoom:token];
                 controller.inChat = !call;
@@ -305,15 +309,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
-- (void)startReceivingChatMessagesInRoom:(NCRoom *)room
-{
-    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
-    if (roomController) {
-        [roomController startReceivingChatMessagesWithTimeout:YES];
-    } else {
-        NSLog(@"Trying to start receiving message from a room where you are not active.");
-    }
-}
 - (void)stopReceivingChatMessagesInRoom:(NCRoom *)room
 {
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];

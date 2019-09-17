@@ -37,6 +37,7 @@ extern NSString * const kCapabilityMentionFlag;
 extern NSString * const kCapabilityNotificationLevels;
 extern NSString * const kCapabilityLockedOneToOneRooms;
 extern NSString * const kCapabilityWebinaryLobby;
+extern NSString * const kCapabilityChatReadMarker;
 
 extern NSInteger const kDefaultChatMaxLength;
 
