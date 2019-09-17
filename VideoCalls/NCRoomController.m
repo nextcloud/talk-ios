@@ -104,7 +104,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 
 - (void)getChatHistoryFromMessagesId:(NSInteger)messageId
 {
-    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:_oldestMessageId history:YES includeLastMessage:NO timeout:NO withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
         if (statusCode == 304) {
             _hasHistory = NO;
         }
