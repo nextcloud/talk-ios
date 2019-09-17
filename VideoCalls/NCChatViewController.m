@@ -49,7 +49,7 @@
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, assign) BOOL isVisible;
 @property (nonatomic, assign) BOOL hasJoinedRoom;
-@property (nonatomic, assign) BOOL leftChat;
+@property (nonatomic, assign) BOOL leftChatWithVisibleChatVC;
 @property (nonatomic, assign) NSInteger lastReadMessage;
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
 @property (nonatomic, strong) NSIndexPath *unreadMessagesSeparatorIP;
@@ -486,9 +486,11 @@
 
 -(void)appWillResignActive:(NSNotification*)notification
 {
-    _roomController = nil;
-    _hasReceiveNewMessages = NO;
-    _leftChat = YES;
+    if (_roomController) {
+        _hasReceiveNewMessages = NO;
+        _leftChatWithVisibleChatVC = YES;
+        _roomController = nil;
+    }
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
@@ -525,8 +527,8 @@
     NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
     if (!_roomController) {
         _roomController = roomController;
-        if (_leftChat) {
-            _leftChat = NO;
+        if (_leftChatWithVisibleChatVC && _hasReceiveInitialHistory) {
+            _leftChatWithVisibleChatVC = NO;
             [_roomController startReceivingChatMessagesFromMessagesId:_lastReadMessage withTimeout:YES];
         } else {
             [_roomController getInitialChatHistory:[self getLastReadMessage]];
