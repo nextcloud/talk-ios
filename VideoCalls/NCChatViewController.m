@@ -603,12 +603,6 @@
         
         NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
         NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
-        NCChatMessage *firstNewMessage = [messages objectAtIndex:0];
-        NSIndexPath *firstMessageIndexPath = [self indexPathForMessage:firstNewMessage];
-        // This variable is needed since several calls to receiveMessages API might be needed
-        // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
-        // to receive all the unread messages.
-        BOOL areReallyNewMessages = firstNewMessage.timestamp >= _chatViewPresentedTimestamp;
         
         // Load messages in chat view
         if (messages.count > 1 || unreadMessagesReceived) {
@@ -625,10 +619,25 @@
             [self.tableView endUpdates];
         }
         
+        BOOL newMessagesContainUserMessage = [self newMessagesContainUserMessage:messages];
+        // Remove unread messages separator when user writes a message
+        if (newMessagesContainUserMessage) {
+            [self removeUnreadMessagesSeparator];
+            // Update last message index path
+            lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+        }
+        
+        NCChatMessage *firstNewMessage = [messages objectAtIndex:0];
+        NSIndexPath *firstMessageIndexPath = [self indexPathForMessage:firstNewMessage];
+        // This variable is needed since several calls to receiveMessages API might be needed
+        // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
+        // to receive all the unread messages.
+        BOOL areReallyNewMessages = firstNewMessage.timestamp >= _chatViewPresentedTimestamp;
+        
         // Position chat view
         if (unreadMessagesReceived) {
             [self.tableView scrollToRowAtIndexPath:firstMessageIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
-        } else if ([self shouldScrollOnNewMessages:messages]) {
+        } else if ([self shouldScrollOnNewMessages] || newMessagesContainUserMessage) {
             [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
         } else if (!_firstUnreadMessageIP && areReallyNewMessages) {
             [self showNewMessagesViewUntilIndexPath:firstMessageIndexPath];
@@ -854,7 +863,7 @@
     self.tableView.tableHeaderView = nil;
 }
 
-- (BOOL)shouldScrollOnNewMessages:(NSMutableArray *)messages
+- (BOOL)shouldScrollOnNewMessages
 {
     if (_isVisible) {
         // Scroll if table view is at the bottom (or 80px up)
@@ -862,14 +871,17 @@
         if (self.tableView.contentOffset.y >= minimumOffset) {
             return YES;
         }
-        // Scroll if new messages contain a message from the user
-        for (NCChatMessage *message in messages) {
-            if ([message.actorId isEqualToString:[NCSettingsController sharedInstance].ncUserId]) {
-                return YES;
-            }
+    }
+    return NO;
+}
+
+- (BOOL)newMessagesContainUserMessage:(NSMutableArray *)messages
+{
+    for (NCChatMessage *message in messages) {
+        if ([message.actorId isEqualToString:[NCSettingsController sharedInstance].ncUserId]) {
+            return YES;
         }
     }
-    
     return NO;
 }
 
