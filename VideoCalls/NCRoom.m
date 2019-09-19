@@ -44,6 +44,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.lobbyState = (NCRoomLobbyState)[[roomDict objectForKey:@"lobbyState"] integerValue];
     room.lobbyTimer = [[roomDict objectForKey:@"lobbyTimer"] integerValue];
     room.lastReadMessage = [[roomDict objectForKey:@"lastReadMessage"] integerValue];
+    room.canStartCall = [[roomDict objectForKey:@"canStartCall"] boolValue];
     
     id name = [roomDict objectForKey:@"name"];
     if ([name isKindOfClass:[NSString class]]) {
@@ -80,6 +81,14 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 - (BOOL)isLockedOneToOne
 {
     return _type == kNCRoomTypeOneToOne && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLockedOneToOneRooms];
+}
+
+- (BOOL)userCanStartCall
+{
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityStartCallFlag] && !_canStartCall) {
+        return NO;
+    }
+    return YES;
 }
 
 - (BOOL)isLeavable

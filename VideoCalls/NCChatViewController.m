@@ -293,6 +293,12 @@
         [_voiceCallButton setEnabled:YES];
     }
     
+    if (![_room userCanStartCall]) {
+        // Disable call buttons
+        [_videoCallButton setEnabled:NO];
+        [_voiceCallButton setEnabled:NO];
+    }
+    
     if (_room.readOnlyState == NCRoomReadOnlyStateReadOnly || [self shouldPresentLobbyView]) {
         // Hide text input
         self.textInputbarHidden = YES;
