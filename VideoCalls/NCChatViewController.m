@@ -946,6 +946,7 @@
     _dateSections = [[NSMutableArray alloc] init];
     _hasReceiveInitialHistory = NO;
     _hasReceiveNewMessages = NO;
+    _unreadMessagesSeparatorIP = nil;
     [self hideNewMessagesView];
     [self.tableView reloadData];
 }
