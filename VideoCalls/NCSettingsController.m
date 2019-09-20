@@ -53,6 +53,7 @@ NSString * const kCapabilityNotificationLevels  = @"notification-levels";
 NSString * const kCapabilityLockedOneToOneRooms = @"locked-one-to-one-rooms";
 NSString * const kCapabilityWebinaryLobby       = @"webinary-lobby";
 NSString * const kCapabilityChatReadMarker      = @"chat-read-marker";
+NSString * const kCapabilityStartCallFlag       = @"start-call-flag";
 
 NSInteger const kDefaultChatMaxLength           = 1000;
 

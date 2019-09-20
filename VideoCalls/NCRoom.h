@@ -64,6 +64,8 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, assign) NCRoomLobbyState lobbyState;
 @property (nonatomic, assign) NSInteger lobbyTimer;
 @property (nonatomic, assign) NSInteger lastReadMessage;
+@property (nonatomic, assign) BOOL canStartCall;
+@property (nonatomic, assign) BOOL hasCall;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 
@@ -71,6 +73,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 - (BOOL)canModerate;
 - (BOOL)isNameEditable;
 - (BOOL)isLeavable;
+- (BOOL)userCanStartCall;
 - (BOOL)shouldShowLastMessageActorName;
 - (NSString *)deletionMessage;
 - (NSString *)notificationLevelString;
