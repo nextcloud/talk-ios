@@ -293,7 +293,7 @@
         [_voiceCallButton setEnabled:YES];
     }
     
-    if (![_room userCanStartCall]) {
+    if (![_room userCanStartCall] && !_room.hasCall) {
         // Disable call buttons
         [_videoCallButton setEnabled:NO];
         [_voiceCallButton setEnabled:NO];

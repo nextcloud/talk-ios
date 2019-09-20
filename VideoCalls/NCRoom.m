@@ -45,6 +45,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.lobbyTimer = [[roomDict objectForKey:@"lobbyTimer"] integerValue];
     room.lastReadMessage = [[roomDict objectForKey:@"lastReadMessage"] integerValue];
     room.canStartCall = [[roomDict objectForKey:@"canStartCall"] boolValue];
+    room.hasCall = [[roomDict objectForKey:@"hasCall"] boolValue];
     
     id name = [roomDict objectForKey:@"name"];
     if ([name isKindOfClass:[NSString class]]) {
