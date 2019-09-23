@@ -1210,6 +1210,11 @@
         if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"guests"]) {
             mention.parameterId = [NSString stringWithFormat:@"@\"%@\"", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
         }
+        // User-ids with a space should be wrapped in double quoutes
+        NSRange whiteSpaceRange = [mention.parameterId rangeOfCharacterFromSet:[NSCharacterSet whitespaceCharacterSet]];
+        if (whiteSpaceRange.location != NSNotFound) {
+            mention.parameterId = [NSString stringWithFormat:@"@\"%@\"", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
+        }
         [_mentions addObject:mention];
         
         NSMutableString *mentionString = [[self.autocompletionUsers[indexPath.row] objectForKey:@"label"] mutableCopy];
