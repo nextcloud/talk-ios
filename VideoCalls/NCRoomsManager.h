@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #import "NCRoom.h"
+#import "NCChatViewController.h"
 #import "CallViewController.h"
 
 // Room
@@ -21,6 +22,7 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 
 @interface NCRoomsManager : NSObject
 
+@property (nonatomic, strong) NCChatViewController *chatViewController;
 @property (nonatomic, strong) CallViewController *callViewController;
 
 + (instancetype)sharedInstance;

@@ -253,10 +253,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
     
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
-    if (roomController && roomController.inChat) {
-        // User is already in that room
-        return;
-    } else {
+    if (!roomController) {
         // Workaround until external signaling supports multi-room
         if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
             NSString *currentRoom = [NCExternalSignalingController sharedInstance].currentRoom;
@@ -264,8 +261,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 [NCExternalSignalingController sharedInstance].currentRoom = nil;
             }
         }
-        NCChatViewController *chatVC = [[NCChatViewController alloc] initForRoom:room];
-        [[NCUserInterfaceController sharedInstance] presentChatViewController:chatVC];
+    }
+    
+    if (!_chatViewController || ![_chatViewController.room.token isEqualToString:room.token]) {
+        _chatViewController = [[NCChatViewController alloc] initForRoom:room];
+        [[NCUserInterfaceController sharedInstance] presentChatViewController:_chatViewController];
     }
 }
 

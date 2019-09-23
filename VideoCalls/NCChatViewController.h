@@ -12,6 +12,8 @@
 
 @interface NCChatViewController : SLKTextViewController
 
+@property (nonatomic, strong) NCRoom *room;
+
 - (instancetype)initForRoom:(NCRoom *)room;
 - (void)leaveChat;
 

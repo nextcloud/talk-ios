@@ -36,7 +36,6 @@
 
 @interface NCChatViewController ()
 
-@property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) NCRoomController *roomController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
 @property (nonatomic, strong) PlaceholderView *chatBackgroundView;
@@ -222,6 +221,9 @@
     
     // Leave chat when the view controller has been removed from its parent view.
     if (self.isMovingFromParentViewController) {
+        if ([[NCRoomsManager sharedInstance].chatViewController.room.token isEqualToString:_room.token]) {
+            [NCRoomsManager sharedInstance].chatViewController = nil;
+        }
         [self leaveChat];
     }
 }

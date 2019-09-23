@@ -570,8 +570,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
-    NCChatViewController *chatViewController = [[NCChatViewController alloc] initForRoom:room];
-    [self.navigationController pushViewController:chatViewController animated:YES];
+    [[NCRoomsManager sharedInstance] startChatInRoom:room];
 }
 
 #pragma mark - Utils
