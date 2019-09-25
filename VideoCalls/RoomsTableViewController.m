@@ -131,6 +131,18 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [super viewDidAppear:animated];
     [self adaptInterfaceForAppState:[NCConnectionController sharedInstance].appState];
     [self adaptInterfaceForConnectionState:[NCConnectionController sharedInstance].connectionState];
+    if (@available(iOS 13.1, *)) {
+        self.navigationItem.hidesSearchBarWhenScrolling = NO;
+    }
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    if (@available(iOS 13.1, *)) {
+        self.navigationItem.hidesSearchBarWhenScrolling = NO;
+    }
 }
 
 - (void)didReceiveMemoryWarning
