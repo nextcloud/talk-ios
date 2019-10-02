@@ -1097,7 +1097,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSDictionary *parameters = @{@"pushToken" : activeAccount.pushKitToken,
+    NSDictionary *parameters = @{@"pushToken" : [NCSettingsController sharedInstance].ncPushKitToken,
                                  @"deviceIdentifier" : activeAccount.deviceIdentifier,
                                  @"deviceIdentifierSignature" : activeAccount.deviceSignature,
                                  @"userPublicKey" : activeAccount.userPublicKey

@@ -114,20 +114,23 @@
         return;
     }
     
+    UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
+                                                                accessGroup:@"group.com.nextcloud.Talk"];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *pushKitToken = [self stringWithDeviceToken:credentials.token];
-    NSString *savedPushKitToken = activeAccount.pushKitToken;
+    NSString *devicePushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
     BOOL subscribed = activeAccount.pushNotificationSubscribed;
     
     // Re-subscribe if new push token has been generated
-    if (!subscribed || ![savedPushKitToken isEqualToString:pushKitToken]) {
+    if (!subscribed || ![devicePushKitToken isEqualToString:pushKitToken]) {
         RLMRealm *realm = [RLMRealm defaultRealm];
-        [realm beginWriteTransaction];
         // Remove subscribed flag
+        [realm beginWriteTransaction];
         activeAccount.pushNotificationSubscribed = NO;
-        // Store new PushKit token
-        activeAccount.pushKitToken = pushKitToken;
         [realm commitWriteTransaction];
+        // Store new PushKit token
+        [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
+        [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
         [[NCConnectionController sharedInstance] reSubscribeForPushNotifications];
     }
 }

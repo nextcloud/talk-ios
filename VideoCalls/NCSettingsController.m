@@ -104,8 +104,6 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
         account.user = _ncUser;
         account.userId = _ncUserId;
         account.userDisplayName = _ncUserDisplayName;
-        account.pushKitToken = _ncPushKitToken;
-        account.pushNotificationServer = kNCPushServer;
         account.pushNotificationSubscribed = _pushNotificationSubscribed;
         account.pushNotificationPublicKey = _ncPNPublicKey;
         account.pushNotificationPublicKey = _ncPNPublicKey;
@@ -531,8 +529,7 @@ cleanup:
 
 - (NSString *)pushTokenSHA512
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    return [self createSHA512:activeAccount.pushKitToken];
+    return [self createSHA512:_ncPushKitToken];
 }
 
 #pragma mark - Utils
