@@ -193,7 +193,7 @@
 
 - (void)getPossibleParticipants
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             _participants = contacts;
             _indexes = [NSMutableArray arrayWithArray:indexes];
@@ -210,7 +210,7 @@
 - (void)searchForParticipantsWithString:(NSString *)searchString
 {
     [_searchParticipantsTask cancel];
-    _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             [_resultTableViewController setSearchResultContacts:contacts withIndexes:indexes];
         } else {
@@ -309,7 +309,7 @@
     
     cell.labelTitle.text = participant.name;
     
-    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
+    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                              placeholderImage:nil success:nil failure:nil];
     
     UIImageView *checkboxChecked = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]];

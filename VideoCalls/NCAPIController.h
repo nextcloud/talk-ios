@@ -12,6 +12,7 @@
 #import "OCCommunication.h"
 #import "OCFrameworkConstants.h"
 #import "NCChatMessage.h"
+#import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "NCUser.h"
 
@@ -67,88 +68,83 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
 @interface NCAPIController : NSObject
 
-@property (nonatomic, strong) AFHTTPSessionManager *manager;
-@property (nonatomic, strong) NSURLSession *session;
+@property (nonatomic, strong) NSMutableDictionary *apiSessionManagers;
 
 + (instancetype)sharedInstance;
-- (void)setNCServer:(NSString *)serverUrl;
-- (void)setAuthHeaderWithUser:(NSString *)user andToken:(NSString *)token;
-- (NSString *)currentServerUrl;
+- (void)createAPISessionManagerForAccount:(TalkAccount *)account;
 
 // Contacts Controller
-- (NSURLSessionDataTask *)getContactsWithSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
+- (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
 - (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users;
 
 // Rooms Controller
-- (NSURLSessionDataTask *)getRoomsWithCompletionBlock:(GetRoomsCompletionBlock)block;
-- (NSURLSessionDataTask *)getRoomWithToken:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)getRoomWithId:(NSInteger)roomId withCompletionBlock:(GetRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)createRoomWith:(NSString *)invite ofType:(NCRoomType)type andName:(NSString *)roomName withCompletionBlock:(CreateRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)renameRoom:(NSString *)token withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)makeRoomPublic:(NSString *)token withCompletionBlock:(MakeRoomPublicCompletionBlock)block;
-- (NSURLSessionDataTask *)makeRoomPrivate:(NSString *)token withCompletionBlock:(MakeRoomPrivateCompletionBlock)block;
-- (NSURLSessionDataTask *)deleteRoom:(NSString *)token withCompletionBlock:(DeleteRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)setPassword:(NSString *)password toRoom:(NSString *)token withCompletionBlock:(SetPasswordCompletionBlock)block;
-- (NSURLSessionDataTask *)joinRoom:(NSString *)token withCompletionBlock:(JoinRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)exitRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)addRoomToFavorites:(NSString *)token withCompletionBlock:(FavoriteRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)removeRoomFromFavorites:(NSString *)token withCompletionBlock:(FavoriteRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)setNotificationLevel:(NCRoomNotificationLevel)level forRoom:(NSString *)token withCompletionBlock:(NotificationLevelCompletionBlock)block;
-- (NSURLSessionDataTask *)setReadOnlyState:(NCRoomReadOnlyState)state forRoom:(NSString *)token withCompletionBlock:(ReadOnlyCompletionBlock)block;
-- (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state withTimer:(NSInteger)timer forRoom:(NSString *)token withCompletionBlock:(SetLobbyStateCompletionBlock)block;
+- (NSURLSessionDataTask *)getRoomsForAccount:(TalkAccount *)account withCompletionBlock:(GetRoomsCompletionBlock)block;
+- (NSURLSessionDataTask *)getRoomForAccount:(TalkAccount *)account withToken:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)getRoomForAccount:(TalkAccount *)account withId:(NSInteger)roomId withCompletionBlock:(GetRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)createRoomForAccount:(TalkAccount *)account with:(NSString *)invite ofType:(NCRoomType)type andName:(NSString *)roomName withCompletionBlock:(CreateRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)renameRoom:(NSString *)token forAccount:(TalkAccount *)account withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)makeRoomPublic:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MakeRoomPublicCompletionBlock)block;
+- (NSURLSessionDataTask *)makeRoomPrivate:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MakeRoomPrivateCompletionBlock)block;
+- (NSURLSessionDataTask *)deleteRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(DeleteRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)setPassword:(NSString *)password toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetPasswordCompletionBlock)block;
+- (NSURLSessionDataTask *)joinRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)exitRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ExitRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)addRoomToFavorites:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(FavoriteRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)removeRoomFromFavorites:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(FavoriteRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)setNotificationLevel:(NCRoomNotificationLevel)level forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(NotificationLevelCompletionBlock)block;
+- (NSURLSessionDataTask *)setReadOnlyState:(NCRoomReadOnlyState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ReadOnlyCompletionBlock)block;
+- (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state withTimer:(NSInteger)timer forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetLobbyStateCompletionBlock)block;
 
 // Participants Controller
-- (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)addParticipant:(NSString *)user toRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
-- (NSURLSessionDataTask *)removeParticipant:(NSString *)user fromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
-- (NSURLSessionDataTask *)removeGuest:(NSString *)guest fromRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
-- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token withCompletionBlock:(LeaveRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)promoteParticipant:(NSString *)user toModeratorOfRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
-- (NSURLSessionDataTask *)demoteModerator:(NSString *)moderator toParticipantOfRoom:(NSString *)token withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)addParticipant:(NSString *)user toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)removeParticipant:(NSString *)user fromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)removeGuest:(NSString *)guest fromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(LeaveRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)promoteParticipant:(NSString *)user toModeratorOfRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)demoteModerator:(NSString *)moderator toParticipantOfRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 
 // Call Controller
-- (NSURLSessionDataTask *)getPeersForCall:(NSString *)token withCompletionBlock:(GetPeersForCallCompletionBlock)block;
-- (NSURLSessionDataTask *)joinCall:(NSString *)token withCompletionBlock:(JoinCallCompletionBlock)block;
-- (NSURLSessionDataTask *)pingCall:(NSString *)token withCompletionBlock:(PingCallCompletionBlock)block;
-- (NSURLSessionDataTask *)leaveCall:(NSString *)token withCompletionBlock:(LeaveCallCompletionBlock)block;
+- (NSURLSessionDataTask *)getPeersForCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetPeersForCallCompletionBlock)block;
+- (NSURLSessionDataTask *)joinCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinCallCompletionBlock)block;
+- (NSURLSessionDataTask *)pingCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PingCallCompletionBlock)block;
+- (NSURLSessionDataTask *)leaveCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(LeaveCallCompletionBlock)block;
 
 // Chat Controller
-- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout withCompletionBlock:(GetChatMessagesCompletionBlock)block;
-- (NSURLSessionDataTask *)sendChatMessage:(NSString *)message toRoom:(NSString *)token displayName:(NSString *)displayName withCompletionBlock:(SendChatMessagesCompletionBlock)block;
-- (NSURLSessionDataTask *)getMentionSuggestionsInRoom:(NSString *)token forString:(NSString *)string withCompletionBlock:(GetMentionSuggestionsCompletionBlock)block;
+- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout forAccount:(TalkAccount *)account withCompletionBlock:(GetChatMessagesCompletionBlock)block;
+- (NSURLSessionDataTask *)sendChatMessage:(NSString *)message toRoom:(NSString *)token displayName:(NSString *)displayName forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block;
+- (NSURLSessionDataTask *)getMentionSuggestionsInRoom:(NSString *)token forString:(NSString *)string forAccount:(TalkAccount *)account withCompletionBlock:(GetMentionSuggestionsCompletionBlock)block;
 
 // Signaling Controller
-- (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
-- (NSURLSessionDataTask *)pullSignalingMessagesWithCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
-- (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
-- (NSURLSessionDataTask *)pullSignalingMessagesFromRoom:(NSString *)token withCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
-- (NSURLSessionDataTask *)getSignalingSettingsWithCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
-- (NSString *)authenticationBackendUrl;
+- (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages forAccount:(TalkAccount *)account withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
+- (NSURLSessionDataTask *)pullSignalingMessagesForAccount:(TalkAccount *)account withCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
+- (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
+- (NSURLSessionDataTask *)pullSignalingMessagesFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
+- (NSURLSessionDataTask *)getSignalingSettingsForAccount:(TalkAccount *)account withCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
+- (NSString *)authenticationBackendUrlForAccount:(TalkAccount *)account;
 
 // WebDAV client
-- (void)readFolderAtPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block;
-- (void)shareFileOrFolderAtPath:(NSString *)path toRoom:(NSString *)token withCompletionBlock:(ShareFileOrFolderCompletionBlock)block;
+- (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block;
+- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token withCompletionBlock:(ShareFileOrFolderCompletionBlock)block;
 
 // User avatars
-- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size;
+- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account;
 
 // User Profile
-- (NSURLSessionDataTask *)getUserProfileWithCompletionBlock:(GetUserProfileCompletionBlock)block;
+- (NSURLSessionDataTask *)getUserProfileForAccount:(TalkAccount *)account withCompletionBlock:(GetUserProfileCompletionBlock)block;
 
 // Server capabilities
-- (NSURLSessionDataTask *)getServerCapabilitiesWithCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;
+- (NSURLSessionDataTask *)getServerCapabilitiesForServer:(NSString *)server withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;
+- (NSURLSessionDataTask *)getServerCapabilitiesForAccount:(TalkAccount *)account withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;
 
 // Server notifications
-- (NSURLSessionDataTask *)getServerNotification:(NSInteger)notificationId withCompletionBlock:(GetServerNotificationCompletionBlock)block;
+- (NSURLSessionDataTask *)getServerNotification:(NSInteger)notificationId forAccount:(TalkAccount *)account withCompletionBlock:(GetServerNotificationCompletionBlock)block;
 
 // Push Notifications
-- (NSURLSessionDataTask *)subscribeToNextcloudServer:(SubscribeToNextcloudServerCompletionBlock)block;
-- (NSURLSessionDataTask *)unsubscribeToNextcloudServer:(UnsubscribeToNextcloudServerCompletionBlock)block;
-- (NSURLSessionDataTask *)subscribeToPushServer:(SubscribeToPushProxyCompletionBlock)block;
-- (NSURLSessionDataTask *)unsubscribeToPushServer:(UnsubscribeToPushProxyCompletionBlock)block;
+- (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account toNextcloudServerWithCompletionBlock:(SubscribeToNextcloudServerCompletionBlock)block;
+- (NSURLSessionDataTask *)unsubscribeAccount:(TalkAccount *)account fromNextcloudServerWithCompletionBlock:(UnsubscribeToNextcloudServerCompletionBlock)block;
+- (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account toPushServerWithCompletionBlock:(SubscribeToPushProxyCompletionBlock)block;
+- (NSURLSessionDataTask *)unsubscribeAccount:(TalkAccount *)account fromPushServerWithCompletionBlock:(UnsubscribeToPushProxyCompletionBlock)block;
 
-
-//Utils
-- (void)cancelAllOperations;
 
 @end

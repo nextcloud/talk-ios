@@ -52,7 +52,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 
 - (void)pingRoom
 {
-    _pingRoomTask = [[NCAPIController sharedInstance] pingCall:_roomToken withCompletionBlock:nil];
+    _pingRoomTask = [[NCAPIController sharedInstance] pingCall:_roomToken forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:nil];
 }
 
 - (void)startPingRoom
@@ -72,7 +72,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 
 - (void)getInitialChatHistory:(NSInteger)lastReadMessage
 {
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:lastReadMessage history:YES includeLastMessage:YES timeout:NO withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:lastReadMessage history:YES includeLastMessage:YES timeout:NO forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
         if (_stopChatMessagesPoll) {
             return;
         }
@@ -104,7 +104,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 
 - (void)getChatHistoryFromMessagesId:(NSInteger)messageId
 {
-    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
         if (statusCode == 304) {
             _hasHistory = NO;
         }
@@ -141,7 +141,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
     _newestMessageId = messageId;
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
         if (_stopChatMessagesPoll) {
             return;
         }
@@ -181,7 +181,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:message forKey:@"message"];
-    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_roomToken displayName:nil withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_roomToken displayName:nil forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             [userInfo setObject:error forKey:@"error"];
             NSLog(@"Could not send chat message. Error: %@", error.description);

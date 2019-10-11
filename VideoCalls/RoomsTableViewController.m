@@ -317,7 +317,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     if (userImage) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         [profileButton setBackgroundImageForState:UIControlStateNormal
-                                   withURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:activeAccount.userId andSize:60]
+                                   withURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:activeAccount.userId andSize:60 usingAccount:activeAccount]
                                  placeholderImage:nil success:nil failure:nil];
     } else {
         [profileButton setImage:[UIImage imageNamed:@"settings-white"] forState:UIControlStateNormal];
@@ -378,7 +378,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                        if (level == room.notificationLevel) {
                                                            return;
                                                        }
-                                                       [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:room.token withCompletionBlock:^(NSError *error) {
+                                                       [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
                                                            if (error) {
                                                                NSLog(@"Error renaming the room: %@", error.description);
                                                            }
@@ -394,11 +394,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)shareLinkFromRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *shareMessage = [NSString stringWithFormat:@"Join the conversation at %@/index.php/call/%@",
-                              [[NCAPIController sharedInstance] currentServerUrl], room.token];
+                              activeAccount.server, room.token];
     if (room.name && ![room.name isEqualToString:@""]) {
         shareMessage = [NSString stringWithFormat:@"Join the conversation%@ at %@/index.php/call/%@",
-                        [NSString stringWithFormat:@" \"%@\"", room.name], [[NCAPIController sharedInstance] currentServerUrl], room.token];
+                        [NSString stringWithFormat:@" \"%@\"", room.name], activeAccount.server, room.token];
     }
     NSArray *items = @[shareMessage];
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
@@ -426,7 +427,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)addRoomToFavoritesAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] addRoomToFavorites:room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addRoomToFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error adding room to favorites: %@", error.description);
         }
@@ -437,7 +438,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)removeRoomFromFavoritesAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error removing room from favorites: %@", error.description);
         }
@@ -463,7 +464,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Leave" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [_rooms removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSInteger errorCode, NSError *error) {
+        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSInteger errorCode, NSError *error) {
             if (errorCode == 400) {
                 [self showLeaveRoomLastModeratorErrorForRoom:room];
             } else if (error) {
@@ -488,7 +489,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [_rooms removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        [[NCAPIController sharedInstance] deleteRoom:room.token withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] deleteRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             if (error) {
                 NSLog(@"Error deleting room: %@", error.description);
             }
@@ -770,7 +771,7 @@ API_AVAILABLE(ios(11.0)){
     // Set room image
     switch (room.type) {
         case kNCRoomTypeOneToOne:
-            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96]
+            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                   placeholderImage:nil success:nil failure:nil];
             break;
             

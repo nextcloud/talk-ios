@@ -58,6 +58,7 @@ NSString * const kCapabilityChatReadMarker      = @"chat-read-marker";
 NSString * const kCapabilityStartCallFlag       = @"start-call-flag";
 
 NSInteger const kDefaultChatMaxLength           = 1000;
+NSString * const kMinimunRequiredTalkCapability = kCapabilityChatV2;
 
 NSString * const kPreferredFileSorting  = @"preferredFileSorting";
 
@@ -82,7 +83,6 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
                                                    accessGroup:@"group.com.nextcloud.Talk"];
         [self readValuesFromKeyChain];
         [self configureDatabase];
-        [self configureActiveUser];
         [self configureDefaultBrowser];
     }
     return self;
@@ -209,30 +209,14 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     [_keychain removeItemForKey:kNCDeviceSignature];
     [_keychain removeItemForKey:kNCUserPublicKey];
     [_keychain removeItemForKey:kNCUserDefaultBrowser];
-    
-#warning TODO - Restore NCAPIController in a diferent way
-    [[NCAPIController sharedInstance] setAuthHeaderWithUser:NULL andToken:NULL];
 }
-
-#pragma mark - User Manager
-
-- (void)configureActiveUser
-{
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    
-    // Configure API controller
-    [[NCAPIController sharedInstance] setNCServer:activeAccount.server];
-    [[NCAPIController sharedInstance] setAuthHeaderWithUser:activeAccount.user andToken:[self tokenForAccount:activeAccount.account]];
-}
-
-
 
 #pragma mark - User Profile
 
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getUserProfileWithCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
+    [[NCAPIController sharedInstance] getUserProfileForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
         if (!error) {
             NSString *userDisplayName = [userProfile objectForKey:@"display-name"];
             NSString *userId = [userProfile objectForKey:@"id"];
@@ -253,14 +237,14 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if (activeAccount.deviceIdentifier) {
-        [[NCAPIController sharedInstance] unsubscribeToNextcloudServer:^(NSError *error) {
+        [[NCAPIController sharedInstance] unsubscribeAccount:[[NCDatabaseManager sharedInstance] activeAccount] fromNextcloudServerWithCompletionBlock:^(NSError *error) {
             if (!error) {
                 NSLog(@"Unsubscribed from NC server!!!");
             } else {
                 NSLog(@"Error while unsubscribing from NC server.");
             }
         }];
-        [[NCAPIController sharedInstance] unsubscribeToPushServer:^(NSError *error) {
+        [[NCAPIController sharedInstance] unsubscribeAccount:[[NCDatabaseManager sharedInstance] activeAccount] fromPushServerWithCompletionBlock:^(NSError *error) {
             if (!error) {
                 NSLog(@"Unsubscribed from Push Notification server!!!");
             } else {
@@ -301,7 +285,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 
 - (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block
 {
-    [[NCAPIController sharedInstance] getSignalingSettingsWithCompletionBlock:^(NSDictionary *settings, NSError *error) {
+    [[NCAPIController sharedInstance] getSignalingSettingsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *settings, NSError *error) {
         if (!error) {
             _ncSignalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
             if (block) block(nil);
@@ -330,7 +314,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
 {
-    [[NCAPIController sharedInstance] getServerCapabilitiesWithCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
+    [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
         if (!error) {
             NSDictionary *talkCapabilities = [[serverCapabilities objectForKey:@"capabilities"] objectForKey:@"spreed"];
             _ncTalkCapabilities = talkCapabilities ? talkCapabilities : @{};
@@ -383,7 +367,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 {
 #if !TARGET_IPHONE_SIMULATOR
     if ([self generatePushNotificationsKeyPair]) {
-        [[NCAPIController sharedInstance] subscribeToNextcloudServer:^(NSDictionary *responseDict, NSError *error) {
+        [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] activeAccount] toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
             if (!error) {
                 NSLog(@"Subscribed to NC server successfully.");
                 
@@ -399,7 +383,7 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
                 activeAccount.deviceSignature = signature;
                 [realm commitWriteTransaction];
                 
-                [[NCAPIController sharedInstance] subscribeToPushServer:^(NSError *error) {
+                [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] activeAccount] toPushServerWithCompletionBlock:^(NSError *error) {
                     if (!error) {
                         [realm beginWriteTransaction];
                         activeAccount.pushNotificationSubscribed = YES;

@@ -45,7 +45,7 @@
 
 - (void)getSignalingSettings
 {
-    _getSignalingSettingsTask = [[NCAPIController sharedInstance] getSignalingSettingsWithCompletionBlock:^(NSDictionary *settings, NSError *error) {
+    _getSignalingSettingsTask = [[NCAPIController sharedInstance] getSignalingSettingsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *settings, NSError *error) {
         if (error) {
             //TODO: Error handling
             NSLog(@"Error getting signaling settings.");
@@ -125,9 +125,9 @@
     };
     
     if (_multiRoomSupport) {
-        _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token withCompletionBlock:pullSignalingMessagesBlock];
+        _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:pullSignalingMessagesBlock];
     } else {
-        _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesWithCompletionBlock:pullSignalingMessagesBlock];
+        _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:pullSignalingMessagesBlock];
     }
 }
 
@@ -146,9 +146,9 @@
     };
     
     if (_multiRoomSupport) {
-        [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages toRoom:_room.token withCompletionBlock:sendSignalingMessagesBlock];
+        [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:sendSignalingMessagesBlock];
     } else {
-        [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages withCompletionBlock:sendSignalingMessagesBlock];
+        [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:sendSignalingMessagesBlock];
     }
 }
 

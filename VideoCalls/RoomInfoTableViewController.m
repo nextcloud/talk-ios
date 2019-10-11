@@ -184,7 +184,7 @@ typedef enum ModificationError {
 
 - (void)getRoomParticipants
 {
-    [[NCAPIController sharedInstance] getParticipantsFromRoom:_room.token withCompletionBlock:^(NSMutableArray *participants, NSError *error) {
+    [[NCAPIController sharedInstance] getParticipantsFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *participants, NSError *error) {
         _roomParticipants = participants;
         [self.tableView reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange([self getSectionForRoomInfoSection:kRoomInfoSectionParticipants], 1)] withRowAnimation:UITableViewRowAnimationNone];
         [self removeModifyingRoomUI];
@@ -471,7 +471,7 @@ typedef enum ModificationError {
         return;
     }
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] renameRoom:_room.token withName:newRoomName andCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] renameRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withName:newRoomName andCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
@@ -484,7 +484,7 @@ typedef enum ModificationError {
 - (void)addRoomToFavorites
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] addRoomToFavorites:_room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addRoomToFavorites:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
@@ -497,7 +497,7 @@ typedef enum ModificationError {
 - (void)removeRoomFromFavorites
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] removeRoomFromFavorites:_room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] removeRoomFromFavorites:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
@@ -513,7 +513,7 @@ typedef enum ModificationError {
         return;
     }
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:_room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
@@ -544,7 +544,7 @@ typedef enum ModificationError {
         NSString *password = [[passwordDialog textFields][0] text];
         NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         [self setModifyingRoomUI];
-        [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:_room.token withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             if (!error) {
                 [[NCRoomsManager sharedInstance] updateRoom:_room.token];
             } else {
@@ -559,7 +559,7 @@ typedef enum ModificationError {
     if (_room.hasPassword) {
         UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:@"Remove password" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
             [self setModifyingRoomUI];
-            [[NCAPIController sharedInstance] setPassword:@"" toRoom:_room.token withCompletionBlock:^(NSError *error) {
+            [[NCAPIController sharedInstance] setPassword:@"" toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
                 if (!error) {
                     [[NCRoomsManager sharedInstance] updateRoom:_room.token];
                 } else {
@@ -580,7 +580,7 @@ typedef enum ModificationError {
 - (void)makeRoomPublic
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] makeRoomPublic:_room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] makeRoomPublic:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:kPublicActionPublicToggle inSection:[self getSectionForRoomInfoSection:kRoomInfoSectionPublic]];
             [self shareRoomLinkFromIndexPath:indexPath];
@@ -596,7 +596,7 @@ typedef enum ModificationError {
 - (void)makeRoomPrivate
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] makeRoomPrivate:_room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] makeRoomPrivate:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
@@ -609,11 +609,12 @@ typedef enum ModificationError {
 
 - (void)shareRoomLinkFromIndexPath:(NSIndexPath *)indexPath
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *shareMessage = [NSString stringWithFormat:@"Join the conversation at %@/index.php/call/%@",
-                              [[NCAPIController sharedInstance] currentServerUrl], _room.token];
+                              activeAccount.server, _room.token];
     if (_room.name && ![_room.name isEqualToString:@""]) {
         shareMessage = [NSString stringWithFormat:@"Join the conversation%@ at %@/index.php/call/%@",
-                        [NSString stringWithFormat:@" \"%@\"", _room.name], [[NCAPIController sharedInstance] currentServerUrl], _room.token];
+                        [NSString stringWithFormat:@" \"%@\"", _room.name], activeAccount.server, _room.token];
     }
     NSArray *items = @[shareMessage];
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
@@ -640,7 +641,7 @@ typedef enum ModificationError {
 
 - (void)leaveRoom
 {
-    [[NCAPIController sharedInstance] removeSelfFromRoom:_room.token withCompletionBlock:^(NSInteger errorCode, NSError *error) {
+    [[NCAPIController sharedInstance] removeSelfFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSInteger errorCode, NSError *error) {
         if (!error) {
             if (_chatViewController) {
                 [_chatViewController leaveChat];
@@ -657,7 +658,7 @@ typedef enum ModificationError {
 
 - (void)deleteRoom
 {
-    [[NCAPIController sharedInstance] deleteRoom:_room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] deleteRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             if (_chatViewController) {
                 [_chatViewController leaveChat];
@@ -685,7 +686,7 @@ typedef enum ModificationError {
 - (void)setLobbyState:(NCRoomLobbyState)lobbyState withTimer:(NSInteger)timer
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] setLobbyState:lobbyState withTimer:timer forRoom:_room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] setLobbyState:lobbyState withTimer:timer forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
@@ -800,7 +801,7 @@ typedef enum ModificationError {
 - (void)promoteToModerator:(NCRoomParticipant *)participant
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] promoteParticipant:participant.participantId toModeratorOfRoom:_room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] promoteParticipant:participant.participantId toModeratorOfRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self getRoomParticipants];
         } else {
@@ -813,7 +814,7 @@ typedef enum ModificationError {
 - (void)demoteFromModerator:(NCRoomParticipant *)participant
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] demoteModerator:participant.participantId toParticipantOfRoom:_room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] demoteModerator:participant.participantId toParticipantOfRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self getRoomParticipants];
         } else {
@@ -827,7 +828,7 @@ typedef enum ModificationError {
 {
     if (participant.participantType == kNCParticipantTypeGuest) {
         [self setModifyingRoomUI];
-        [[NCAPIController sharedInstance] removeGuest:participant.participantId fromRoom:_room.token withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] removeGuest:participant.participantId fromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self getRoomParticipants];
             } else {
@@ -837,7 +838,7 @@ typedef enum ModificationError {
         }];
     } else {
         [self setModifyingRoomUI];
-        [[NCAPIController sharedInstance] removeParticipant:participant.participantId fromRoom:_room.token withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] removeParticipant:participant.participantId fromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self getRoomParticipants];
             } else {
@@ -1063,7 +1064,7 @@ typedef enum ModificationError {
                 case kNCRoomTypeOneToOne:
                 {
                     cell.roomNameTextField.text = _room.displayName;
-                    [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
+                    [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                           placeholderImage:nil success:nil failure:nil];
                 }
                     break;
@@ -1259,7 +1260,7 @@ typedef enum ModificationError {
                 cell.labelTitle.text = guestName;
                 [cell.contactImage setImageWithString:avatarName color:guestAvatarColor circular:true];
             } else {
-                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
+                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                          placeholderImage:nil success:nil failure:nil];
             }
             

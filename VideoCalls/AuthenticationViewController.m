@@ -109,7 +109,7 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
         
         [[NCDatabaseManager sharedInstance] createAccountForUser:user inServer:_serverUrl];
         [[NCSettingsController sharedInstance] setToken:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount].account];
-        [[NCSettingsController sharedInstance] configureActiveUser];
+        [[NCAPIController sharedInstance] createAPISessionManagerForAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
         [[NCSettingsController sharedInstance] subscribeForPushNotifications];
         
         [self.delegate authenticationViewControllerDidFinish:self];

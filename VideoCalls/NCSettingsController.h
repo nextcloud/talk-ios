@@ -41,6 +41,7 @@ extern NSString * const kCapabilityChatReadMarker;
 extern NSString * const kCapabilityStartCallFlag;
 
 extern NSInteger const kDefaultChatMaxLength;
+extern NSString * const kMinimunRequiredTalkCapability;
 
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);
@@ -81,7 +82,6 @@ typedef enum NCPreferredFileSorting {
 - (NSString *)tokenForAccount:(NSString *)account;
 - (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccount:(NSString *)account;
 - (NSData *)pushNotificationPrivateKeyForAccount:(NSString *)account;
-- (void)configureActiveUser;
 - (void)cleanUserAndServerStoredValues;
 - (BOOL)generatePushNotificationsKeyPair;
 - (NSString *)pushTokenSHA512;

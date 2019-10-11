@@ -305,7 +305,7 @@ typedef enum AboutSection {
             
             if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
                 cell.userDisplayNameLabel.text = activeAccount.userDisplayName;
-                [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:activeAccount.userId andSize:160]
+                [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:activeAccount.userId andSize:160 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                           placeholderImage:nil success:nil failure:nil];
             }
             return cell;

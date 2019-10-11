@@ -19,7 +19,6 @@
 #import <WebRTC/RTCCameraVideoCapturer.h>
 #import "NCAPIController.h"
 #import "NCAudioController.h"
-#import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingController.h"
 #import "NCExternalSignalingController.h"
@@ -100,7 +99,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)joinCall
 {
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
             [self getPeersForCall];
@@ -136,7 +135,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)shouldRejoinCall:(NSNotification *)notification
 {
     _userSessionId = [[NCExternalSignalingController sharedInstance] sessionId];
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCompletionBlock:^(NSError *error) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
             NSLog(@"Rejoined call");
@@ -200,7 +199,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         [_getPeersForCallTask cancel];
         _getPeersForCallTask = nil;
         
-        [[NCAPIController sharedInstance] leaveCall:_room.token withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] leaveCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             [self.delegate callControllerDidEndCall:self];
             if (error) {
                 NSLog(@"Could not leave call. Error: %@", error.description);
@@ -345,7 +344,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)getPeersForCall
 {
-    _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCall:_room.token withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
+    _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
         if (!error) {
             _peersInCall = peers;
         }
@@ -658,7 +657,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)getUserIdInServerFromSessionId:(NSString *)sessionId withCompletionBlock:(GetUserIdForSessionIdCompletionBlock)block
 {
-    [[NCAPIController sharedInstance] getPeersForCall:_room.token withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
+    [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
         if (!error) {
             NSString *userId = nil;
             for (NSMutableDictionary *user in peers) {

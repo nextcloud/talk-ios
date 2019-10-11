@@ -137,7 +137,7 @@
 
 - (void)getItemsInDirectory
 {
-    [[NCAPIController sharedInstance] readFolderAtPath:_path depth:@"1" withCompletionBlock:^(NSArray *items, NSError *error) {
+    [[NCAPIController sharedInstance] readFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:_path depth:@"1" withCompletionBlock:^(NSArray *items, NSError *error) {
         if (!error) {
             NSMutableArray *itemsInDirectory = [NSMutableArray new];
             for (OCFileDto *item in items) {
@@ -177,7 +177,7 @@
 - (void)shareFileWithPath:(NSString *)path
 {
     [self setSharingFileUI];
-    [[NCAPIController sharedInstance] shareFileOrFolderAtPath:path toRoom:_token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] shareFileOrFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:path toRoom:_token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self dismissViewControllerAnimated:YES completion:nil];
         } else {

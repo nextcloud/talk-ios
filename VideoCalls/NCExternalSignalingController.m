@@ -187,7 +187,7 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
                                 @"hello": @{
                                         @"version": @"1.0",
                                         @"auth": @{
-                                                @"url": [[NCAPIController sharedInstance] authenticationBackendUrl],
+                                                @"url": [[NCAPIController sharedInstance] authenticationBackendUrlForAccount:activeAccount],
                                                 @"params": @{
                                                         @"userid": activeAccount.userId,
                                                         @"ticket": _ticket

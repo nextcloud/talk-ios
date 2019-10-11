@@ -86,7 +86,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (!roomController) {
         _joiningRoom = token;
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
             if (!_joiningRoom) {
                 NSLog(@"Not joining the room any more. Ignore response.");
                 return;
@@ -144,7 +144,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (roomController) {
         _joiningRoom = [token copy];
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
             if (!error) {
                 roomController.userSessionId = sessionId;
                 roomController.inChat = YES;
@@ -172,7 +172,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [roomController stopRoomController];
         [_activeRooms removeObjectForKey:token];
         
-        [[NCAPIController sharedInstance] exitRoom:token withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] exitRoom:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
             if (!error) {
                 if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
@@ -191,7 +191,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)updateRooms
 {
-    [[NCAPIController sharedInstance] getRoomsWithCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] getRoomsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
             self.rooms = rooms;
@@ -208,7 +208,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)updateRoom:(NSString *)token
 {
-    [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+    [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
             [userInfo setObject:room forKey:@"room"];
@@ -277,7 +277,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [self startChatInRoom:room];
     } else {
         //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
+        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
             if (!error) {
                 [self startChatInRoom:room];
             }
@@ -292,7 +292,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [self startChatInRoom:room];
     } else {
         //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
             if (!error) {
                 [self startChatInRoom:room];
             }
@@ -363,7 +363,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
     } else {
         //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
+        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
             if (!error) {
                 [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
             }
@@ -378,7 +378,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
     } else {
         //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
             if (!error) {
                 [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
             }
@@ -393,7 +393,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [self startCall:video inRoom:room];
     } else {
         //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomWithToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
             if (!error) {
                 [self startCall:video inRoom:room];
             }

@@ -41,18 +41,6 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
         self.appState = kAppStateUnknown;
         self.connectionState = kConnectionStateUnknown;
         
-        TalkAccount *activeAccount  = [[NCDatabaseManager sharedInstance] activeAccount];
-        NSString *storedServer      = activeAccount.server;
-        NSString *storedUser        = activeAccount.user;
-        NSString *storedToken       = [[NCSettingsController sharedInstance] tokenForAccount:activeAccount.account];
-        
-        if (storedServer) {
-            [[NCAPIController sharedInstance] setNCServer:storedServer];
-        }
-        if (storedUser && storedToken) {
-            [[NCAPIController sharedInstance] setAuthHeaderWithUser:storedUser andToken:storedToken];
-        }
-        
         [self checkAppState];
         
         [[AFNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {

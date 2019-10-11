@@ -11,17 +11,7 @@
 
 @implementation NCAPISessionManager
 
-+ (NCAPISessionManager *)sharedInstance
-{
-    static dispatch_once_t once;
-    static NCAPISessionManager *sharedInstance;
-    dispatch_once(&once, ^{
-        sharedInstance = [[self alloc] init];
-    });
-    return sharedInstance;
-}
-
-- (id)init
+- (instancetype)init
 {
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     self = [super initWithSessionConfiguration:configuration];

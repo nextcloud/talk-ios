@@ -341,7 +341,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     if (_room.type == kNCRoomTypeOneToOne) {
         __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
-        [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
+        [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                               placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
                                                   if ([response statusCode] == 200) {
                                                       CGFloat inputRadius = 8.0f;

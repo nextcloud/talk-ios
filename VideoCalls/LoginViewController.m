@@ -91,17 +91,17 @@
 
 - (void)startLoginProcess
 {
-    [[NCAPIController sharedInstance] setNCServer:_serverURL];
     [self.activityIndicatorView startAnimating];
     self.activityIndicatorView.hidden = NO;
-    [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] getServerCapabilitiesForServer:_serverURL withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
         [self.activityIndicatorView stopAnimating];
         self.activityIndicatorView.hidden = YES;
         if (!error) {
+            NSArray *talkFeatures = [[[serverCapabilities objectForKey:@"capabilities"] objectForKey:@"spreed"] objectForKey:@"features"];
             // Check minimum required version
-            if ([[NCSettingsController sharedInstance] serverUsesRequiredTalkVersion]) {
+            if ([talkFeatures containsObject:kMinimunRequiredTalkCapability]) {
                 [self presentAuthenticationView];
-            } else if ([[[NCSettingsController sharedInstance] ncTalkCapabilities] count] == 0) {
+            } else if (talkFeatures.count == 0) {
                     [self showAlertWithTitle:@"Nextcloud Talk not installed" andMessage:@"It seems that Nextcloud Talk is not installed in your server."];
             } else {
                 [self showAlertWithTitle:@"Nextcloud Talk version not supported" andMessage:@"Please update your server with the latest Nextcloud Talk version available."];
