@@ -24,7 +24,7 @@
 #import "NCMessageParameter.h"
 #import "NCChatTitleView.h"
 #import "NCMessageTextView.h"
-#import "NCFilePreviewSessionManager.h"
+#import "NCImageSessionManager.h"
 #import "NCRoomsManager.h"
 #import "NCRoomController.h"
 #import "NCSettingsController.h"
@@ -78,7 +78,7 @@
         [self registerClassForTextView:[NCMessageTextView class]];
         // Set image downloader to file preview imageviews.
         AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
-                                              initWithSessionManager:[NCFilePreviewSessionManager sharedInstance]
+                                              initWithSessionManager:[NCImageSessionManager sharedInstance]
                                               downloadPrioritization:AFImageDownloadPrioritizationFIFO
                                               maximumActiveDownloads:4
                                               imageCache:[[AFAutoPurgingImageCache alloc] init]];
@@ -1099,12 +1099,13 @@
         fileCell.filePath = message.file.path;
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
         fileCell.dateLabel.text = [self getTimeFromDate:date];
-        [fileCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        [fileCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:activeAccount]
                                    placeholderImage:nil success:nil failure:nil];
         NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
         UIImage *filePreviewImage = [UIImage imageNamed:imageName];
         __weak FilePreviewImageView *weakPreviewImageView = fileCell.previewImageView;
-        [fileCell.previewImageView setImageWithURLRequest:[[NCFilePreviewSessionManager sharedInstance] createPreviewRequestForFile:message.file.parameterId width:120 height:120]
+        [fileCell.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId width:120 height:120 usingAccount:activeAccount]
                                          placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
                                              [weakPreviewImageView setImage:image];
                                              weakPreviewImageView.layer.borderColor = [[UIColor colorWithWhite:0.9 alpha:1.0] CGColor];

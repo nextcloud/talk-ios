@@ -11,7 +11,6 @@
 #import "CCCertificate.h"
 #import "NCAPISessionManager.h"
 #import "NCDatabaseManager.h"
-#import "NCFilePreviewSessionManager.h"
 #import "NCPushProxySessionManager.h"
 #import "NCSettingsController.h"
 
@@ -61,15 +60,18 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account
 {
-    NCAPISessionManager *sessionManager = [[NCAPISessionManager alloc] init];
+    NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] init];
+    [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
+    [_apiSessionManagers setObject:apiSessionManager forKey:account.account];
+}
+
+- (NSString *)authHeaderForAccount:(TalkAccount *)account
+{
     NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCSettingsController sharedInstance] tokenForAccount:account.account]];
     NSData *data = [userTokenString dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
     
-    NSString *authHeader = [[NSString alloc]initWithFormat:@"Basic %@",base64Encoded];
-    [sessionManager.requestSerializer setValue:authHeader forHTTPHeaderField:@"Authorization"];
-    
-    [_apiSessionManagers setObject:sessionManager forKey:account.account];
+    return [[NSString alloc]initWithFormat:@"Basic %@",base64Encoded];
 }
 
 - (NSString *)getRequestURLForAccount:(TalkAccount *)account withEndpoint:(NSString *)endpoint
@@ -1015,6 +1017,16 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]
                             cachePolicy:NSURLRequestReturnCacheDataElseLoad
                         timeoutInterval:60];
+}
+
+#pragma mark - File previews
+
+- (NSURLRequest *)createPreviewRequestForFile:(NSString *)fileId width:(NSInteger)width height:(NSInteger)height usingAccount:(TalkAccount *)account
+{
+    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=%ld&y=%ld&forceIcon=1", account.server, fileId, (long)width, (long)height];
+    NSMutableURLRequest *previewRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
+    [previewRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
+    return previewRequest;
 }
 
 #pragma mark - User profile

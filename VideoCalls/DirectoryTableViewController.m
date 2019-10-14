@@ -11,7 +11,6 @@
 #import "DirectoryTableViewCell.h"
 #import "OCFileDto.h"
 #import "NCAPIController.h"
-#import "NCFilePreviewSessionManager.h"
 #import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
@@ -329,7 +328,7 @@
         cell.fileImageView.image = [UIImage imageNamed:@"folder"];
     } else if (item.hasPreview) {
         NSString *fileId = [NSString stringWithFormat:@"%f", item.id];
-        [cell.fileImageView setImageWithURLRequest:[[NCFilePreviewSessionManager sharedInstance] createPreviewRequestForFile:fileId width:40 height:40]
+        [cell.fileImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:fileId width:40 height:40 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                   placeholderImage:filePreviewImage success:nil failure:nil];
     } else {
         cell.fileImageView.image = filePreviewImage;
