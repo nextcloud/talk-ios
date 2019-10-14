@@ -14,24 +14,14 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 - [Nextcloud Talk](https://github.com/nextcloud/spreed) version 3.2 or higher.
 - [CocoaPods](https://cocoapods.org/)
 
-## Build steps
+## Development setup
 
 ```
 $ pod install
 $ git submodule update --init
 $ open VideoCalls.xcworkspace
 ```
-
-## Start contributing
-If you want to [contribute](https://nextcloud.com/contribute/), you are very welcome: 
-
-- on our IRC channels #nextcloud and #nextcloud-mobile (on freenode)
-- our forum at https://help.nextcloud.com/
-
-[![irc](https://img.shields.io/badge/IRC-%23nextcloud%20on%20freenode-orange.svg)](https://webchat.freenode.net/?channels=nextcloud)
-[![irc](https://img.shields.io/badge/IRC-%23nextcloud--mobile%20on%20freenode-blue.svg)](https://webchat.freenode.net/?channels=nextcloud-mobile)
-
-Fork this repository and contribute back using pull requests to the master branch!
+We are also available on [our public Talk team conversation](https://cloud.nextcloud.com/call/c7fz9qpr), if you want to join the discussion.
 
 **License:** [GPLv3](https://github.com/nextcloud/spreed-ios/blob/master/LICENSE) with [Apple app store exception](https://github.com/nextcloud/spreed-ios/blob/master/COPYING.iOS).
 
