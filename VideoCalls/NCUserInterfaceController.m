@@ -46,7 +46,8 @@
     if (self) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesReceived:) name:NCServerCapabilitiesReceivedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(presentTalkNotInstalledWarningAlert) name:NCTalkNotInstalledNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(presentTalkOutdatedWarningAlert) name:NCOutdatedTalkVersionNotification object:nil];
     }
     return self;
 }
@@ -279,18 +280,6 @@
             
         default:
             break;
-    }
-}
-
-- (void)serverCapabilitiesReceived:(NSNotification *)notification
-{
-    // If the logged-in user is using an old NC Talk version or is not allowed to use Talk then logged the user out.
-    if (![[NCSettingsController sharedInstance] serverUsesRequiredTalkVersion]) {
-        if ([[[NCSettingsController sharedInstance] ncTalkCapabilities] count] == 0) {
-            [self presentTalkNotInstalledWarningAlert];
-        } else {
-            [self presentTalkOutdatedWarningAlert];
-        }
     }
 }
 

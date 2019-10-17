@@ -171,12 +171,8 @@
 
 - (void)checkServerCapabilities
 {
-    NSDictionary *talkCapabilities = [NCSettingsController sharedInstance].ncTalkCapabilities;
-    if (talkCapabilities) {
-        NSArray *talkFeatures = [talkCapabilities objectForKey:@"features"];
-        if ([talkFeatures containsObject:@"multi-room-users"]) {
-            _multiRoomSupport = YES;
-        }
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityMultiRoomUsers]) {
+        _multiRoomSupport = YES;
     }
 }
 

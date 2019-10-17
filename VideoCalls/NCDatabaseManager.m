@@ -17,6 +17,12 @@
 }
 @end
 
+@implementation ServerCapabilities
++ (NSString *)primaryKey {
+    return @"account";
+}
+@end
+
 @implementation NCDatabaseManager
 
 + (NCDatabaseManager *)sharedInstance
@@ -58,6 +64,8 @@
     return self;
 }
 
+#pragma mark - Talk accounts
+
 - (NSInteger)numberOfAccounts
 {
     return [TalkAccount allObjects].count;
@@ -90,6 +98,48 @@
     [realm beginWriteTransaction];
     [realm deleteObject:removeAccount];
     [realm commitWriteTransaction];
+}
+
+#pragma mark - Server capabilities
+
+- (ServerCapabilities *)serverCapabilitiesForAccount:(NSString *)account
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"account = %@", account];
+    return [ServerCapabilities objectsWithPredicate:query].firstObject;
+}
+
+- (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccount:(NSString *)account
+{
+    NSDictionary *serverCaps = [serverCapabilities objectForKey:@"capabilities"];
+    NSDictionary *version = [serverCapabilities objectForKey:@"version"];
+    NSDictionary *themingCaps = [serverCaps objectForKey:@"theming"];
+    NSDictionary *talkCaps = [serverCaps objectForKey:@"spreed"];
+    
+    ServerCapabilities *capabilities = [[ServerCapabilities alloc] init];
+    capabilities.account = account;
+    capabilities.name = [themingCaps objectForKey:@"name"];
+    capabilities.slogan = [themingCaps objectForKey:@"slogan"];
+    capabilities.url = [themingCaps objectForKey:@"url"];
+    capabilities.logo = [themingCaps objectForKey:@"logo"];
+    capabilities.color = [themingCaps objectForKey:@"color"];
+    capabilities.colorElement = [themingCaps objectForKey:@"color-element"];
+    capabilities.colorText = [themingCaps objectForKey:@"color-text"];
+    capabilities.background = [themingCaps objectForKey:@"background"];
+    capabilities.backgroundDefault = [[themingCaps objectForKey:@"background-default"] boolValue];
+    capabilities.backgroundPlain = [[themingCaps objectForKey:@"background-plain"] boolValue];
+    capabilities.version = [version objectForKey:@"string"];
+    capabilities.versionMajor = [[version objectForKey:@"major"] integerValue];
+    capabilities.versionMinor = [[version objectForKey:@"minor"] integerValue];
+    capabilities.versionMicro = [[version objectForKey:@"micro"] integerValue];
+    capabilities.edition = [version objectForKey:@"edition"];
+    capabilities.extendedSupport = [[version objectForKey:@"extendedSupport"] boolValue];
+    capabilities.talkCapabilities = [talkCaps objectForKey:@"features"];
+    capabilities.chatMaxLength = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"max-length"] integerValue];
+    
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        [realm addOrUpdateObject:capabilities];
+    }];
 }
 
 @end

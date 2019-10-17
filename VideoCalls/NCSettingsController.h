@@ -29,6 +29,7 @@ extern NSString * const kNCUserPublicKey;
 extern NSString * const kNCUserDefaultBrowser;
 
 extern NSString * const kCapabilityChatV2;
+extern NSString * const kCapabilityMultiRoomUsers;
 extern NSString * const kCapabilityFavorites;
 extern NSString * const kCapabilityLastRoomActivity;
 extern NSString * const kCapabilityNoPing;
@@ -48,7 +49,8 @@ typedef void (^LogoutCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
 typedef void (^GetSignalingConfigCompletionBlock)(NSError *error);
 
-extern NSString * const NCServerCapabilitiesReceivedNotification;
+extern NSString * const NCTalkNotInstalledNotification;
+extern NSString * const NCOutdatedTalkVersionNotification;
 
 typedef enum NCPreferredFileSorting {
     NCAlphabeticalSorting = 1,
@@ -71,7 +73,6 @@ typedef enum NCPreferredFileSorting {
 @property (nonatomic, copy) NSString *ncDeviceIdentifier;
 @property (nonatomic, copy) NSString *ncDeviceSignature;
 @property (nonatomic, copy) NSString *ncUserPublicKey;
-@property (nonatomic, copy) NSDictionary *ncTalkCapabilities;
 @property (nonatomic, copy) NSString *defaultBrowser;
 @property (nonatomic, copy) NSMutableArray *supportedBrowsers;
 @property (nonatomic, copy) NSDictionary *ncSignalingConfiguration;
@@ -92,7 +93,6 @@ typedef enum NCPreferredFileSorting {
 - (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block;
 - (void)setSignalingConfiguration;
 - (void)subscribeForPushNotifications;
-- (BOOL)serverUsesRequiredTalkVersion;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
 - (NSInteger)chatMaxLengthConfigCapability;
 - (NCPreferredFileSorting)getPreferredFileSorting;

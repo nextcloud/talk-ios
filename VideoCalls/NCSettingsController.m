@@ -46,6 +46,7 @@ NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
 NSString * const kNCUserDefaultBrowser  = @"ncUserDefaultBrowser";
 
 NSString * const kCapabilityChatV2              = @"chat-v2";
+NSString * const kCapabilityMultiRoomUsers      = @"multi-room-users";
 NSString * const kCapabilityFavorites           = @"favorites";
 NSString * const kCapabilityLastRoomActivity    = @"last-room-activity";
 NSString * const kCapabilityNoPing              = @"no-ping";
@@ -62,7 +63,8 @@ NSString * const kMinimunRequiredTalkCapability = kCapabilityChatV2;
 
 NSString * const kPreferredFileSorting  = @"preferredFileSorting";
 
-NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabilitiesReceivedNotification";
+NSString * const NCTalkNotInstalledNotification = @"NCTalkNotInstalledNotification";
+NSString * const NCOutdatedTalkVersionNotification = @"NCOutdatedTalkVersionNotification";
 
 + (NCSettingsController *)sharedInstance
 {
@@ -195,7 +197,6 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     _defaultBrowser = @"Safari";
     _pushNotificationSubscribed = nil;
     // Also remove values that are not stored in the keychain
-    _ncTalkCapabilities = nil;
     _ncSignalingConfiguration = nil;
     
     [_keychain removeItemForKey:kNCServerKey];
@@ -314,13 +315,11 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
 {
-    [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:activeAccount withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
         if (!error) {
-            NSDictionary *talkCapabilities = [[serverCapabilities objectForKey:@"capabilities"] objectForKey:@"spreed"];
-            _ncTalkCapabilities = talkCapabilities ? talkCapabilities : @{};
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCServerCapabilitiesReceivedNotification
-                                                                object:self
-                                                              userInfo:nil];
+            [[NCDatabaseManager sharedInstance] setServerCapabilities:serverCapabilities forAccount:activeAccount.account];
+            [self checkServerCapabilities];
             if (block) block(nil);
         } else {
             NSLog(@"Error while getting server capabilities");
@@ -329,21 +328,31 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
     }];
 }
 
-- (BOOL)serverUsesRequiredTalkVersion
+- (void)checkServerCapabilities
 {
-    if (_ncTalkCapabilities) {
-        NSArray *talkFeatures = [_ncTalkCapabilities objectForKey:@"features"];
-        if ([talkFeatures containsObject:kCapabilityChatV2]) {
-            return YES;
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccount:activeAccount.account];
+    if (serverCapabilities) {
+        NSArray *talkFeatures = [serverCapabilities.talkCapabilities valueForKey:@"self"];
+        if (!talkFeatures) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCTalkNotInstalledNotification
+                                                                object:self
+                                                              userInfo:nil];
+        }
+        if (![talkFeatures containsObject:kMinimunRequiredTalkCapability]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCOutdatedTalkVersionNotification
+                                                                object:self
+                                                              userInfo:nil];
         }
     }
-    return NO;
 }
 
 - (BOOL)serverHasTalkCapability:(NSString *)capability
 {
-    if (_ncTalkCapabilities) {
-        NSArray *talkFeatures = [_ncTalkCapabilities objectForKey:@"features"];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccount:activeAccount.account];
+    if (serverCapabilities) {
+        NSArray *talkFeatures = [serverCapabilities.talkCapabilities valueForKey:@"self"];
         if ([talkFeatures containsObject:capability]) {
             return YES;
         }
@@ -353,9 +362,10 @@ NSString * const NCServerCapabilitiesReceivedNotification = @"NCServerCapabiliti
 
 - (NSInteger)chatMaxLengthConfigCapability
 {
-    if (_ncTalkCapabilities) {
-        NSDictionary *talkConfiguration = [_ncTalkCapabilities objectForKey:@"config"];
-        NSInteger chatMaxLength = [[[talkConfiguration objectForKey:@"chat"] objectForKey:@"max-length"] integerValue];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccount:activeAccount.account];
+    if (serverCapabilities) {
+        NSInteger chatMaxLength = serverCapabilities.chatMaxLength;
         return chatMaxLength > 0 ? chatMaxLength : kDefaultChatMaxLength;
     }
     return kDefaultChatMaxLength;

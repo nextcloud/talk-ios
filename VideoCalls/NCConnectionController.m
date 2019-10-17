@@ -88,54 +88,44 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
 
 - (void)checkAppState
 {
-    TalkAccount *activeAccount          = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSDictionary *ncTalkCapabilities    = [NCSettingsController sharedInstance].ncTalkCapabilities;
-    NSDictionary *ncSignalingConfig     = [NCSettingsController sharedInstance].ncSignalingConfiguration;
+    TalkAccount *activeAccount              = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccount:activeAccount.account];
+    NSDictionary *ncSignalingConfig         = [NCSettingsController sharedInstance].ncSignalingConfiguration;
     
     if (!activeAccount.server || !activeAccount.user) {
-        if (self.appState != kAppStateNotServerProvided) {
-            [self setAppState:kAppStateNotServerProvided];
-            [[NCUserInterfaceController sharedInstance] presentLoginViewController];
-        }
+        [self setAppState:kAppStateNotServerProvided];
+        [[NCUserInterfaceController sharedInstance] presentLoginViewController];
     } else if (!activeAccount.userId || !activeAccount.userDisplayName) {
-        if (self.appState != kAppStateMissingUserProfile) {
-            [self setAppState:kAppStateMissingUserProfile];
-            [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
-                if (error) {
-                    [self setAppState:kAppStateUnknown];
-                    [self notifyAppState];
-                } else {
-                    [self checkAppState];
-                }
-            }];
-        }
-    } else if (!ncTalkCapabilities) {
-        if (self.appState != kAppStateMissingServerCapabilities) {
-            [self setAppState:kAppStateMissingServerCapabilities];
-            [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
-                if (error) {
-                    [self setAppState:kAppStateUnknown];
-                    [self notifyAppState];
-                } else {
-                    [self checkAppState];
-                }
-            }];
-        }
+        [self setAppState:kAppStateMissingUserProfile];
+        [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
+            if (error) {
+                [self notifyAppState];
+            } else {
+                [self checkAppState];
+            }
+        }];
+    } else if (!serverCapabilities) {
+        [self setAppState:kAppStateMissingServerCapabilities];
+        [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
+            if (error) {
+                [self notifyAppState];
+            } else {
+                [self checkAppState];
+            }
+        }];
     } else if (!ncSignalingConfig) {
-        if (self.appState != kAppStateMissingSignalingConfiguration) {
-            [self setAppState:kAppStateMissingSignalingConfiguration];
-            [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
-                if (error) {
-                    [self setAppState:kAppStateUnknown];
-                    [self notifyAppState];
-                } else {
-                    // SetSignalingConfiguration should be called just once
-                    [[NCSettingsController sharedInstance] setSignalingConfiguration];
-                    [self checkAppState];
-                }
-            }];
-        }
+        [self setAppState:kAppStateMissingSignalingConfiguration];
+        [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
+            if (error) {
+                [self notifyAppState];
+            } else {
+                // SetSignalingConfiguration should be called just once
+                [[NCSettingsController sharedInstance] setSignalingConfiguration];
+                [self checkAppState];
+            }
+        }];
     } else {
+        [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:nil];
         [self setAppState:kAppStateReady];
     }
     

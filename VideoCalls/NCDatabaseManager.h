@@ -25,6 +25,28 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL active;
 @end
 
+@interface ServerCapabilities : RLMObject
+@property NSString *account;
+@property NSString *name;
+@property NSString *slogan;
+@property NSString *url;
+@property NSString *logo;
+@property NSString *color;
+@property NSString *colorElement;
+@property NSString *colorText;
+@property NSString *background;
+@property BOOL backgroundDefault;
+@property BOOL backgroundPlain;
+@property NSString *version;
+@property NSInteger versionMajor;
+@property NSInteger versionMinor;
+@property NSInteger versionMicro;
+@property NSString *edition;
+@property BOOL extendedSupport;
+@property RLMArray<RLMString> *talkCapabilities;
+@property NSInteger chatMaxLength;
+@end
+
 @interface NCDatabaseManager : NSObject
 
 + (instancetype)sharedInstance;
@@ -33,6 +55,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (TalkAccount *)activeAccount;
 - (void)createAccountForUser:(NSString *)user inServer:(NSString *)server;
 - (void)removeAccount:(NSString *)account;
+
+- (ServerCapabilities *)serverCapabilitiesForAccount:(NSString *)account;
+- (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccount:(NSString *)account;
 
 @end
 
