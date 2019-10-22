@@ -76,18 +76,33 @@
     return [TalkAccount objectsWhere:(@"active = true")].firstObject;
 }
 
-- (void)createAccountForUser:(NSString *)user inServer:(NSString *)server
+- (void)setActiveAccount:(NSString *)account
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    for (TalkAccount *account in [TalkAccount allObjects]) {
+        account.active = NO;
+    }
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"account = %@", account];
+    TalkAccount *activeAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+    activeAccount.active = YES;
+    [realm commitWriteTransaction];
+}
+
+- (NSString *)createAccountForUser:(NSString *)user inServer:(NSString *)server
 {
     TalkAccount *account =  [[TalkAccount alloc] init];
-    account.account = [NSString stringWithFormat:@"%@@%@", user, server];
+    NSString *accountId = [NSString stringWithFormat:@"%@@%@", user, server];
+    account.account = accountId;
     account.server = server;
     account.user = user;
-    account.active = YES;
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         [realm addObject:account];
     }];
+    
+    return accountId;
 }
 
 - (void)removeAccount:(NSString *)account

@@ -51,6 +51,7 @@ typedef void (^GetSignalingConfigCompletionBlock)(NSError *error);
 
 extern NSString * const NCTalkNotInstalledNotification;
 extern NSString * const NCOutdatedTalkVersionNotification;
+extern NSString * const NCUserProfileImageUpdatedNotification;
 
 typedef enum NCPreferredFileSorting {
     NCAlphabeticalSorting = 1,
@@ -80,6 +81,8 @@ typedef enum NCPreferredFileSorting {
 
 + (instancetype)sharedInstance;
 - (void)setToken:(NSString *)token forAccount:(NSString *)account;
+- (void)addNewAccountForUser:(NSString *)user withToken:(NSString *)token inServer:(NSString *)server;
+- (void)setAccountActive:(NSString *)account;
 - (NSString *)tokenForAccount:(NSString *)account;
 - (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccount:(NSString *)account;
 - (NSData *)pushNotificationPrivateKeyForAccount:(NSString *)account;

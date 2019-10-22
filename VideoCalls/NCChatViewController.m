@@ -77,12 +77,7 @@
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
         // Set image downloader to file preview imageviews.
-        AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
-                                              initWithSessionManager:[NCImageSessionManager sharedInstance]
-                                              downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                                              maximumActiveDownloads:4
-                                              imageCache:[[AFAutoPurgingImageCache alloc] init]];
-        [FilePreviewImageView setSharedImageDownloader:imageDownloader];
+        [FilePreviewImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];

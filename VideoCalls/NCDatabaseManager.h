@@ -53,7 +53,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSInteger)numberOfAccounts;
 - (TalkAccount *)activeAccount;
-- (void)createAccountForUser:(NSString *)user inServer:(NSString *)server;
+- (void)setActiveAccount:(NSString *)account;
+- (NSString *)createAccountForUser:(NSString *)user inServer:(NSString *)server;
 - (void)removeAccount:(NSString *)account;
 
 - (ServerCapabilities *)serverCapabilitiesForAccount:(NSString *)account;

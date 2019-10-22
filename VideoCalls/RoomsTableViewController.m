@@ -11,7 +11,9 @@
 #import "AFNetworking.h"
 #import "RoomTableViewCell.h"
 #import "CCCertificate.h"
+#import "FTPopOverMenu.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCImageSessionManager.h"
 #import "NCConnectionController.h"
@@ -58,18 +60,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
     [self createRefreshControl];
+    [self setNavigationLogoButton];
     
-    AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
-                                          initWithSessionManager:[NCImageSessionManager sharedInstance]
-                                          downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                                          maximumActiveDownloads:4
-                                          imageCache:[[AFAutoPurgingImageCache alloc] init]];
+    [UIImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
+    [UIButton setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
     
-    [UIImageView setSharedImageDownloader:imageDownloader];
-    [UIButton setSharedImageDownloader:imageDownloader];
-    
-    UIImage *navigationLogo = [UIImage imageNamed:@"navigationLogo"];
-    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:navigationLogo];
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
@@ -119,6 +114,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationWillBePresented:) name:NCNotificationControllerWillPresentNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userProfileImageUpdated:) name:NCUserProfileImageUpdatedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
@@ -187,6 +183,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NCRoomsManager sharedInstance] updateRooms];
 }
 
+- (void)userProfileImageUpdated:(NSNotification *)notification
+{
+    [self setProfileButtonWithUserImage];
+}
+
 - (void)appWillEnterForeground:(NSNotification *)notification
 {
     if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
@@ -231,6 +232,65 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     AudioServicesPlaySystemSound(1519);
 }
 
+#pragma mark - Title menu
+
+- (void)setNavigationLogoButton
+{
+    UIImage *logoImage = [UIImage imageNamed:@"navigationLogo"];
+    if (multiAccountEnabled) {
+        UIButton *logoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        [logoButton setImage:logoImage forState:UIControlStateNormal];
+        [logoButton addTarget:self action:@selector(showAccountsMenu:) forControlEvents:UIControlEventTouchUpInside];
+        self.navigationItem.titleView = logoButton;
+    } else {
+        self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
+    }
+}
+
+-(void)showAccountsMenu:(UIButton*)sender
+{
+    NSMutableArray *menuArray = [NSMutableArray new];
+    NSMutableArray *actionsArray = [NSMutableArray new];
+    for (TalkAccount *account in [TalkAccount allObjects]) {
+        NSString *accountName = [NSString stringWithFormat:@"%@ (%@)", account.userDisplayName, [[NSURL URLWithString:account.server] host]];
+        UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account];
+        FTPopOverMenuModel *accountModel = [[FTPopOverMenuModel alloc] initWithTitle:accountName image:accountImage selected:NO];
+        [menuArray addObject:accountModel];
+        [actionsArray addObject:account];
+    }
+    FTPopOverMenuModel *addAccountModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Add account" image:[UIImage imageNamed:@"add-settings"] selected:NO];
+    FTPopOverMenuConfiguration *menuConfiguration = [[FTPopOverMenuConfiguration alloc] init];
+    [menuArray addObject:addAccountModel];
+    [actionsArray addObject:@"AddAccountAction"];
+    
+    menuConfiguration.menuRowHeight = 44;
+    menuConfiguration.menuWidth = 250;
+    menuConfiguration.textColor = [UIColor darkGrayColor];
+    menuConfiguration.textFont = [UIFont systemFontOfSize:14];
+    menuConfiguration.backgroundColor = [UIColor colorWithWhite:1 alpha:1];
+    menuConfiguration.borderWidth = 0;
+    menuConfiguration.ignoreImageOriginalColor = NO;
+    menuConfiguration.allowRoundedArrow = NO;
+    menuConfiguration.selectedTextColor = [UIColor blackColor];
+    menuConfiguration.selectedCellBackgroundColor = [UIColor darkGrayColor];
+    menuConfiguration.separatorColor = [UIColor colorWithWhite:0.85 alpha:1];
+    menuConfiguration.shadowOpacity = 0.8;
+
+    [FTPopOverMenu showForSender:sender
+                   withMenuArray:menuArray
+                      imageArray:nil
+                   configuration:menuConfiguration
+                       doneBlock:^(NSInteger selectedIndex) {
+                           id action = [actionsArray objectAtIndex:selectedIndex];
+                           if ([action isKindOfClass:[TalkAccount class]]) {
+                               TalkAccount *account = action;
+                               [[NCSettingsController sharedInstance] setAccountActive:account.account];
+                           } else {
+                               [[NCUserInterfaceController sharedInstance] presentLoginViewController];
+                           }
+                       } dismissBlock:nil];
+}
+
 #pragma mark - Search controller
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
@@ -255,14 +315,17 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)adaptInterfaceForAppState:(AppState)appState
 {
     switch (appState) {
-        case kAppStateUnknown:
+        case kAppStateNotServerProvided:
+        case kAppStateMissingUserProfile:
+        case kAppStateMissingServerCapabilities:
+        case kAppStateMissingSignalingConfiguration:
         {
-            [self setProfileButtonWithUserImage:NO];
+            [self setProfileButtonWithUserImage];
         }
             break;
         case kAppStateReady:
         {
-            [self setProfileButtonWithUserImage:YES];
+            [self setProfileButtonWithUserImage];
             [[NCRoomsManager sharedInstance] updateRooms];
         }
             break;
@@ -301,12 +364,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)setOnlineAppearance
 {
     self.addButton.enabled = YES;
-    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogo"]];
+    [self setNavigationLogoButton];
 }
 
 #pragma mark - User profile
 
-- (void)setProfileButtonWithUserImage:(BOOL)userImage
+- (void)setProfileButtonWithUserImage
 {
     UIButton *profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [profileButton addTarget:self action:@selector(showUserProfile) forControlEvents:UIControlEventTouchUpInside];
@@ -314,11 +377,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     profileButton.layer.masksToBounds = YES;
     profileButton.layer.cornerRadius = 15;
     
-    if (userImage) {
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        [profileButton setBackgroundImageForState:UIControlStateNormal
-                                   withURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:activeAccount.userId andSize:60 usingAccount:activeAccount]
-                                 placeholderImage:nil success:nil failure:nil];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount];
+    if (profileImage) {
+        [profileButton setImage:profileImage forState:UIControlStateNormal];
     } else {
         [profileButton setImage:[UIImage imageNamed:@"settings-white"] forState:UIControlStateNormal];
         profileButton.contentMode = UIViewContentModeCenter;

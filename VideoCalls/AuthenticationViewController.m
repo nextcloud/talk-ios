@@ -40,6 +40,7 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
 {
     [super viewDidLoad];
     WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
+    configuration.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", _serverUrl, kNCAuthTokenFlowEndpoint]];
     
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
@@ -48,25 +49,28 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
         [storage deleteCookie:cookie];
     }
     
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
-    [request setValue:@"true" forHTTPHeaderField:@"OCS-APIRequest"];
-    
-    _webView = [[WKWebView alloc] initWithFrame:self.view.frame
-                                  configuration:configuration];
-    NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
-    NSString *deviceName = [[UIDevice currentDevice] name];
-    NSString *userAgent = [NSString stringWithFormat:@"%@ (%@)", deviceName, appDisplayName];
-    _webView.customUserAgent = [[NSString alloc] initWithCString:[userAgent UTF8String] encoding:NSASCIIStringEncoding];
-    _webView.navigationDelegate = self;
-    
-    [_webView loadRequest:request];
-    [self.view addSubview:_webView];
-    
-    _activityIndicatorView = [[UIActivityIndicatorView alloc] init];
-    _activityIndicatorView.center = self.view.center;
-    _activityIndicatorView.color = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
-    [_activityIndicatorView startAnimating];
-    [self.view addSubview:_activityIndicatorView];
+    NSSet *websiteDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+    NSDate *dateFrom = [NSDate dateWithTimeIntervalSince1970:0];
+    [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:websiteDataTypes modifiedSince:dateFrom completionHandler:^{
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
+        [request setValue:@"true" forHTTPHeaderField:@"OCS-APIRequest"];
+        
+        _webView = [[WKWebView alloc] initWithFrame:self.view.frame configuration:configuration];
+        NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
+        NSString *deviceName = [[UIDevice currentDevice] name];
+        NSString *userAgent = [NSString stringWithFormat:@"%@ (%@)", deviceName, appDisplayName];
+        _webView.customUserAgent = [[NSString alloc] initWithCString:[userAgent UTF8String] encoding:NSASCIIStringEncoding];
+        _webView.navigationDelegate = self;
+        
+        [_webView loadRequest:request];
+        [self.view addSubview:_webView];
+        
+        _activityIndicatorView = [[UIActivityIndicatorView alloc] init];
+        _activityIndicatorView.center = self.view.center;
+        _activityIndicatorView.color = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        [_activityIndicatorView startAnimating];
+        [self.view addSubview:_activityIndicatorView];
+    }];
 }
 
 - (void)didReceiveMemoryWarning
@@ -107,10 +111,7 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
                 token = [[[component substringFromIndex:[passPrefix length]] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByRemovingPercentEncoding];
         }
         
-        [[NCDatabaseManager sharedInstance] createAccountForUser:user inServer:_serverUrl];
-        [[NCSettingsController sharedInstance] setToken:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount].account];
-        [[NCAPIController sharedInstance] createAPISessionManagerForAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
-        [[NCSettingsController sharedInstance] subscribeForPushNotifications];
+        [[NCSettingsController sharedInstance] addNewAccountForUser:user withToken:token inServer:_serverUrl];
         
         [self.delegate authenticationViewControllerDidFinish:self];
         

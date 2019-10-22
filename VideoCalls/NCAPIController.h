@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #import "AFNetworking.h"
+#import "AFImageDownloader.h"
 #import "OCCommunication.h"
 #import "OCFrameworkConstants.h"
 #import "NCChatMessage.h"
@@ -69,6 +70,8 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 @interface NCAPIController : NSObject
 
 @property (nonatomic, strong) NSMutableDictionary *apiSessionManagers;
+@property (nonatomic, strong) AFImageDownloader *imageDownloader;
+@property (nonatomic, strong) AFImageDownloader *imageDownloaderNoCache;
 
 + (instancetype)sharedInstance;
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account;
@@ -135,6 +138,8 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
 // User Profile
 - (NSURLSessionDataTask *)getUserProfileForAccount:(TalkAccount *)account withCompletionBlock:(GetUserProfileCompletionBlock)block;
+- (void)saveProfileImageForAccount:(TalkAccount *)account;
+- (UIImage *)userProfileImageForAccount:(TalkAccount *)account;
 
 // Server capabilities
 - (NSURLSessionDataTask *)getServerCapabilitiesForServer:(NSString *)server withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;

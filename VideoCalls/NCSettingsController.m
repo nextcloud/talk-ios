@@ -17,6 +17,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "OpenInFirefoxControllerObjC.h"
 #import "NCAPIController.h"
+#import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCExternalSignalingController.h"
 
@@ -65,6 +66,7 @@ NSString * const kPreferredFileSorting  = @"preferredFileSorting";
 
 NSString * const NCTalkNotInstalledNotification = @"NCTalkNotInstalledNotification";
 NSString * const NCOutdatedTalkVersionNotification = @"NCOutdatedTalkVersionNotification";
+NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpdatedNotification";
 
 + (NCSettingsController *)sharedInstance
 {
@@ -124,6 +126,23 @@ NSString * const NCOutdatedTalkVersionNotification = @"NCOutdatedTalkVersionNoti
         
         [self cleanUserAndServerStoredValues];
     }
+}
+
+#pragma mark - User accounts
+
+- (void)addNewAccountForUser:(NSString *)user withToken:(NSString *)token inServer:(NSString *)server
+{
+    NSString *newAccount = [[NCDatabaseManager sharedInstance] createAccountForUser:user inServer:server];
+    [[NCDatabaseManager sharedInstance] setActiveAccount:newAccount];
+    [self setToken:token forAccount:newAccount];
+    [[NCAPIController sharedInstance] createAPISessionManagerForAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
+    [self subscribeForPushNotifications];
+}
+
+- (void)setAccountActive:(NSString *)account
+{
+    [[NCDatabaseManager sharedInstance] setActiveAccount:account];
+    [[NCConnectionController sharedInstance] checkAppState];
 }
 
 - (void)setToken:(NSString *)token forAccount:(NSString *)account
@@ -226,6 +245,7 @@ NSString * const NCOutdatedTalkVersionNotification = @"NCOutdatedTalkVersionNoti
             activeAccount.userDisplayName = userDisplayName;
             activeAccount.userId = userId;
             [realm commitWriteTransaction];
+            [[NCAPIController sharedInstance] saveProfileImageForAccount:activeAccount];
             if (block) block(nil);
         } else {
             NSLog(@"Error while getting the user profile");

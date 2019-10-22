@@ -11,6 +11,7 @@
 #import "CCCertificate.h"
 #import "NCAPISessionManager.h"
 #import "NCDatabaseManager.h"
+#import "NCImageSessionManager.h"
 #import "NCPushProxySessionManager.h"
 #import "NCSettingsController.h"
 
@@ -44,6 +45,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     self = [super init];
     if (self) {
         [self initSessionManagers];
+        [self initImageDownloaders];
     }
     
     return self;
@@ -63,6 +65,21 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] init];
     [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
     [_apiSessionManagers setObject:apiSessionManager forKey:account.account];
+}
+
+- (void)initImageDownloaders
+{
+    _imageDownloader = [[AFImageDownloader alloc]
+                        initWithSessionManager:[NCImageSessionManager sharedInstance]
+                        downloadPrioritization:AFImageDownloadPrioritizationFIFO
+                        maximumActiveDownloads:4
+                                    imageCache:[[AFAutoPurgingImageCache alloc] init]];
+    
+    _imageDownloaderNoCache = [[AFImageDownloader alloc]
+                               initWithSessionManager:[NCImageSessionManager sharedInstance]
+                               downloadPrioritization:AFImageDownloadPrioritizationFIFO
+                               maximumActiveDownloads:4
+                                            imageCache:nil];
 }
 
 - (NSString *)authHeaderForAccount:(TalkAccount *)account
@@ -1049,6 +1066,31 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     }];
     
     return task;
+}
+
+- (void)saveProfileImageForAccount:(TalkAccount *)account
+{
+    NSURLRequest *request = [self createAvatarRequestForUser:account.userId andSize:160 usingAccount:account];
+    [_imageDownloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull responseObject) {
+        NSData *pngData = UIImagePNGRepresentation(responseObject);
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsPath = [paths objectAtIndex:0];
+        NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
+        NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
+        [pngData writeToFile:filePath atomically:YES];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCUserProfileImageUpdatedNotification object:self userInfo:nil];
+    } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
+        NSLog(@"Could not download user profile image");
+    }];
+}
+
+- (UIImage *)userProfileImageForAccount:(TalkAccount *)account
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsPath = [paths objectAtIndex:0];
+    NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
+    NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
+    return [UIImage imageWithContentsOfFile:filePath];
 }
 
 #pragma mark - Server capabilities
