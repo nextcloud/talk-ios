@@ -116,35 +116,39 @@
     
     UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
                                                                 accessGroup:@"group.com.nextcloud.Talk"];
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *pushKitToken = [self stringWithDeviceToken:credentials.token];
     NSString *devicePushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
-    BOOL subscribed = activeAccount.pushNotificationSubscribed;
+    BOOL tokenChanged = ![devicePushKitToken isEqualToString:pushKitToken];
     
-    // Re-subscribe if new push token has been generated
-    if (!subscribed || ![devicePushKitToken isEqualToString:pushKitToken]) {
-        RLMRealm *realm = [RLMRealm defaultRealm];
-        // Remove subscribed flag
-        [realm beginWriteTransaction];
-        activeAccount.pushNotificationSubscribed = NO;
-        [realm commitWriteTransaction];
-        // Store new PushKit token
-        [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
-        [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
-        [[NCConnectionController sharedInstance] reSubscribeForPushNotifications];
+    for (TalkAccount *account in [TalkAccount allObjects]) {
+        if (tokenChanged) {
+            // Remove subscribed flag if token has changed
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm beginWriteTransaction];
+            account.pushNotificationSubscribed = NO;
+            [realm commitWriteTransaction];
+        }
+        if (!account.pushNotificationSubscribed) {
+            [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccount:account.account];
+        }
     }
+    
+    // Store new PushKit token in Keychain
+    [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
+    [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
 }
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
 {
     NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSData *pushNotificationPrivateKey = [[NCSettingsController sharedInstance] pushNotificationPrivateKeyForAccount:activeAccount.account];
-    if (message && pushNotificationPrivateKey) {
-        NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
-        if (decryptedMessage) {
-            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage];
-            [[NCNotificationController sharedInstance] processIncomingPushNotification:pushNotification];
+    for (TalkAccount *account in [TalkAccount allObjects]) {
+        NSData *pushNotificationPrivateKey = [[NCSettingsController sharedInstance] pushNotificationPrivateKeyForAccount:account.account];
+        if (message && pushNotificationPrivateKey) {
+            NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+            if (decryptedMessage) {
+                NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccount:account.account];
+                [[NCNotificationController sharedInstance] processIncomingPushNotification:pushNotification];
+            }
         }
     }
 }

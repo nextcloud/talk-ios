@@ -1165,9 +1165,8 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account toNextcloudServerWithCompletionBlock:(SubscribeToNextcloudServerCompletionBlock)block
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/push", account.server];
-    NSString *devicePublicKey = [[NSString alloc] initWithData:activeAccount.pushNotificationPublicKey encoding:NSUTF8StringEncoding];
+    NSString *devicePublicKey = [[NSString alloc] initWithData:account.pushNotificationPublicKey encoding:NSUTF8StringEncoding];
 
     NSDictionary *parameters = @{@"pushTokenHash" : [[NCSettingsController sharedInstance] pushTokenSHA512],
                                  @"devicePublicKey" : devicePublicKey,

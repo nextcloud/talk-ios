@@ -76,6 +76,12 @@
     return [TalkAccount objectsWhere:(@"active = true")].firstObject;
 }
 
+- (TalkAccount *)talkAccountForAccount:(NSString *)account
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"account = %@", account];
+    return [TalkAccount objectsWithPredicate:query].firstObject;
+}
+
 - (void)setActiveAccount:(NSString *)account
 {
     RLMRealm *realm = [RLMRealm defaultRealm];

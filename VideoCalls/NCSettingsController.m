@@ -135,8 +135,9 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     NSString *newAccount = [[NCDatabaseManager sharedInstance] createAccountForUser:user inServer:server];
     [[NCDatabaseManager sharedInstance] setActiveAccount:newAccount];
     [self setToken:token forAccount:newAccount];
-    [[NCAPIController sharedInstance] createAPISessionManagerForAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
-    [self subscribeForPushNotifications];
+    TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccount:newAccount];
+    [[NCAPIController sharedInstance] createAPISessionManagerForAccount:talkAccount];
+    [self subscribeForPushNotificationsForAccount:newAccount];
 }
 
 - (void)setAccountActive:(NSString *)account
@@ -393,11 +394,12 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 
 #pragma mark - Push Notifications
 
-- (void)subscribeForPushNotifications
+- (void)subscribeForPushNotificationsForAccount:(NSString *)account
 {
+    TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccount:account];
 #if !TARGET_IPHONE_SIMULATOR
-    if ([self generatePushNotificationsKeyPair]) {
-        [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] activeAccount] toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
+    if ([self generatePushNotificationsKeyPairForAccount:account]) {
+        [[NCAPIController sharedInstance] subscribeAccount:talkAccount toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
             if (!error) {
                 NSLog(@"Subscribed to NC server successfully.");
                 
@@ -405,18 +407,17 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
                 NSString *deviceIdentifier = [responseDict objectForKey:@"deviceIdentifier"];
                 NSString *signature = [responseDict objectForKey:@"signature"];
                 
-                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
                 RLMRealm *realm = [RLMRealm defaultRealm];
                 [realm beginWriteTransaction];
-                activeAccount.userPublicKey = publicKey;
-                activeAccount.deviceIdentifier = deviceIdentifier;
-                activeAccount.deviceSignature = signature;
+                talkAccount.userPublicKey = publicKey;
+                talkAccount.deviceIdentifier = deviceIdentifier;
+                talkAccount.deviceSignature = signature;
                 [realm commitWriteTransaction];
                 
-                [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] activeAccount] toPushServerWithCompletionBlock:^(NSError *error) {
+                [[NCAPIController sharedInstance] subscribeAccount:talkAccount toPushServerWithCompletionBlock:^(NSError *error) {
                     if (!error) {
                         [realm beginWriteTransaction];
-                        activeAccount.pushNotificationSubscribed = YES;
+                        talkAccount.pushNotificationSubscribed = YES;
                         [realm commitWriteTransaction];
                         NSLog(@"Subscribed to Push Notification server successfully.");
                     } else {
@@ -431,7 +432,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 #endif
 }
 
-- (BOOL)generatePushNotificationsKeyPair
+- (BOOL)generatePushNotificationsKeyPairForAccount:(NSString *)account
 {
     EVP_PKEY *pkey;
     NSError *keyError;
@@ -452,11 +453,11 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     keyBytes  = malloc(len);
     
     BIO_read(publicKeyBIO, keyBytes, len);
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccount:account];
     RLMRealm *realm = [RLMRealm defaultRealm];
     NSData *pnPublicKey = [NSData dataWithBytes:keyBytes length:len];
     [realm beginWriteTransaction];
-    activeAccount.pushNotificationPublicKey = pnPublicKey;
+    talkAccount.pushNotificationPublicKey = pnPublicKey;
     [realm commitWriteTransaction];
     NSLog(@"Push Notifications Key Pair generated: \n%@", [[NSString alloc] initWithData:pnPublicKey encoding:NSUTF8StringEncoding]);
     
@@ -469,7 +470,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     
     BIO_read(privateKeyBIO, keyBytes, len);
     NSData *pnPrivateKey = [NSData dataWithBytes:keyBytes length:len];
-    [[NCSettingsController sharedInstance] setPushNotificationPrivateKey:pnPrivateKey forAccount:activeAccount.account];
+    [[NCSettingsController sharedInstance] setPushNotificationPrivateKey:pnPrivateKey forAccount:account];
     EVP_PKEY_free(pkey);
     
     return YES;

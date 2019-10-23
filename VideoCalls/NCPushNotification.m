@@ -27,7 +27,7 @@ NSString * const NCPushNotificationJoinAudioCallAcceptedNotification    = @"NCPu
 NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPushNotificationJoinVideoCallAcceptedNotification";
 
 
-+ (instancetype)pushNotificationFromDecryptedString:(NSString *)decryptedString
++ (instancetype)pushNotificationFromDecryptedString:(NSString *)decryptedString withAccount:(NSString *)account
 {
     if (!decryptedString) {
         return nil;
@@ -58,6 +58,7 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
         pushNotification.type = NCPushNotificationTypeChat;
     }
     
+    pushNotification.account = account;
     pushNotification.jsonString = decryptedString;
     
     return pushNotification;

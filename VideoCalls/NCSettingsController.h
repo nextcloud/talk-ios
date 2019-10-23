@@ -87,7 +87,6 @@ typedef enum NCPreferredFileSorting {
 - (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccount:(NSString *)account;
 - (NSData *)pushNotificationPrivateKeyForAccount:(NSString *)account;
 - (void)cleanUserAndServerStoredValues;
-- (BOOL)generatePushNotificationsKeyPair;
 - (NSString *)pushTokenSHA512;
 - (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
@@ -95,7 +94,7 @@ typedef enum NCPreferredFileSorting {
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
 - (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block;
 - (void)setSignalingConfiguration;
-- (void)subscribeForPushNotifications;
+- (void)subscribeForPushNotificationsForAccount:(NSString *)account;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
 - (NSInteger)chatMaxLengthConfigCapability;
 - (NCPreferredFileSorting)getPreferredFileSorting;
