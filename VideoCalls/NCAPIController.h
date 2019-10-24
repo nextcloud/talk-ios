@@ -70,6 +70,7 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 @interface NCAPIController : NSObject
 
 @property (nonatomic, strong) NSMutableDictionary *apiSessionManagers;
+@property (nonatomic, strong) NSMutableDictionary *apiUsingCookiesSessionManagers;
 @property (nonatomic, strong) AFImageDownloader *imageDownloader;
 @property (nonatomic, strong) AFImageDownloader *imageDownloaderNoCache;
 

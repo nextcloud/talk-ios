@@ -11,10 +11,8 @@
 
 @implementation NCAPISessionManager
 
-- (instancetype)init
+- (instancetype)initWithSessionConfiguration:(NSURLSessionConfiguration *)configuration
 {
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    configuration.HTTPCookieStorage = nil;
     self = [super initWithSessionConfiguration:configuration];
     if (self) {
         _userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",

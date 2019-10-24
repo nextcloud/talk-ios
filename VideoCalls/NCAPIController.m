@@ -53,8 +53,13 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (void)initSessionManagers
 {
-    _defaultAPISessionManager = [[NCAPISessionManager alloc] init];
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    configuration.HTTPCookieStorage = nil;
+    _defaultAPISessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configuration];
+    
     _apiSessionManagers = [NSMutableDictionary new];
+    _apiUsingCookiesSessionManagers = [NSMutableDictionary new];
+    
     for (TalkAccount *account in [TalkAccount allObjects]) {
         [self createAPISessionManagerForAccount:account];
     }
@@ -62,7 +67,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account
 {
-    NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] init];
+    NSURLSessionConfiguration *configurationUsingCookies = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NCAPISessionManager *apiUsingCookiesSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configurationUsingCookies];
+    [apiUsingCookiesSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
+    [_apiUsingCookiesSessionManagers setObject:apiUsingCookiesSessionManager forKey:account.account];
+    
+    NSURLSessionConfiguration *configurationNoCookies = [NSURLSessionConfiguration defaultSessionConfiguration];
+    configurationNoCookies.HTTPCookieStorage = nil;
+    NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configurationNoCookies];
     [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
     [_apiSessionManagers setObject:apiSessionManager forKey:account.account];
 }
@@ -422,7 +434,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/participants/active", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.account];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSString *sessionId = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"sessionId"];
         if (block) {
@@ -919,7 +931,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:endpoint];
     NSDictionary *parameters = @{@"messages" : messages};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.account];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -938,7 +950,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *endpoint = (token) ? [NSString stringWithFormat:@"signaling/%@", token] : @"signaling";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:endpoint];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.account];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString
                                              parameters:nil progress:nil
                                                 success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {

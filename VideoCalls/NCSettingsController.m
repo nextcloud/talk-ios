@@ -143,6 +143,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 - (void)setAccountActive:(NSString *)account
 {
     [[NCDatabaseManager sharedInstance] setActiveAccount:account];
+    [[NSHTTPCookieStorage sharedHTTPCookieStorage] removeCookiesSinceDate:[NSDate dateWithTimeIntervalSince1970:0]];
     [[NCConnectionController sharedInstance] checkAppState];
 }
 
