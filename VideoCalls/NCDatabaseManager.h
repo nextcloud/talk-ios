@@ -52,8 +52,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedInstance;
 
 - (NSInteger)numberOfAccounts;
-- (TalkAccount *)talkAccountForAccount:(NSString *)account;
 - (TalkAccount *)activeAccount;
+- (RLMResults *)nonActiveAccounts;
+- (TalkAccount *)talkAccountForAccount:(NSString *)account;
 - (void)setActiveAccount:(NSString *)account;
 - (NSString *)createAccountForUser:(NSString *)user inServer:(NSString *)server;
 - (void)removeAccount:(NSString *)account;

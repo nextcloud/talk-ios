@@ -10,6 +10,7 @@
 
 #import "NCSettingsController.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "UserSettingsTableViewCell.h"
 #import "NCAPIController.h"
@@ -22,9 +23,9 @@
 
 typedef enum SettingsSection {
     kSettingsSectionUser = 0,
+    kSettingsSectionAccounts,
     kSettingsSectionConfiguration,
-    kSettingsSectionAbout,
-    kSettingsSectionNumber
+    kSettingsSectionAbout
 } SettingsSection;
 
 typedef enum ConfigurationSection {
@@ -79,6 +80,32 @@ typedef enum AboutSection {
 
 - (IBAction)cancelButtonPressed:(id)sender {
     [self dismissViewControllerAnimated:true completion:nil];
+}
+
+- (NSArray *)getSettingsSections
+{
+    NSMutableArray *sections = [[NSMutableArray alloc] init];
+    // Active user sections
+    [sections addObject:[NSNumber numberWithInt:kSettingsSectionUser]];
+    // Accounts section
+    if (multiAccountEnabled) {
+        [sections addObject:[NSNumber numberWithInt:kSettingsSectionAccounts]];
+    }
+    // Configuration section
+    [sections addObject:[NSNumber numberWithInt:kSettingsSectionConfiguration]];
+    // About section
+    [sections addObject:[NSNumber numberWithInt:kSettingsSectionAbout]];
+
+    return [NSArray arrayWithArray:sections];
+}
+
+- (NSInteger)getSectionForSettingsSection:(SettingsSection)section
+{
+    NSInteger sectionNumber = [[self getSettingsSections] indexOfObject:[NSNumber numberWithInt:section]];
+    if(NSNotFound != sectionNumber) {
+        return sectionNumber;
+    }
+    return 0;
 }
 
 #pragma mark - User Profile
@@ -228,12 +255,14 @@ typedef enum AboutSection {
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return kSettingsSectionNumber;
+    return [self getSettingsSections].count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    switch (section) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:section] intValue];
+    switch (settingsSection) {
         case kSettingsSectionConfiguration:
         {
             NSUInteger numberOfSupportedBrowsers = [NCSettingsController sharedInstance].supportedBrowsers.count;
@@ -244,6 +273,15 @@ typedef enum AboutSection {
         case kSettingsSectionAbout:
             return kAboutSectionNumber;
             break;
+            
+        case kSettingsSectionAccounts:
+        {
+            return [[NCDatabaseManager sharedInstance] nonActiveAccounts].count + 1;
+        }
+            break;
+            
+        default:
+            break;
     }
     
     return 1;
@@ -251,7 +289,9 @@ typedef enum AboutSection {
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section == kSettingsSectionUser) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:indexPath.section] intValue];
+    if (settingsSection == kSettingsSectionUser) {
         return 100;
     }
     
@@ -260,13 +300,22 @@ typedef enum AboutSection {
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    switch (section) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:section] intValue];
+    switch (settingsSection) {
+        case kSettingsSectionAccounts:
+            return @"Accounts";
+            break;
+            
         case kSettingsSectionConfiguration:
             return @"Configuration";
             break;
 
         case kSettingsSectionAbout:
             return @"About";
+            break;
+            
+        default:
             break;
     }
     
@@ -275,7 +324,9 @@ typedef enum AboutSection {
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
-    if (section == kSettingsSectionAbout) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:section] intValue];
+    if (settingsSection == kSettingsSectionAbout) {
         NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
         NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
         NSString *copyright = @"© 2019 Nextcloud GmbH";
@@ -287,12 +338,16 @@ typedef enum AboutSection {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
+    static NSString *accountCellIdentifier = @"AccountCellIdentifier";
+    static NSString *addAccountCellIdentifier = @"AddAccountCellIdentifier";
     static NSString *videoConfigurationCellIdentifier = @"VideoConfigurationCellIdentifier";
     static NSString *browserConfigurationCellIdentifier = @"BrowserConfigurationCellIdentifier";
     static NSString *privacyCellIdentifier = @"PrivacyCellIdentifier";
     static NSString *sourceCodeCellIdentifier = @"SourceCodeCellIdentifier";
     
-    switch (indexPath.section) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:indexPath.section] intValue];
+    switch (settingsSection) {
         case kSettingsSectionUser:
         {
             UserSettingsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kUserSettingsCellIdentifier];
@@ -309,6 +364,29 @@ typedef enum AboutSection {
                                           placeholderImage:nil success:nil failure:nil];
             }
             return cell;
+        }
+            break;
+        case kSettingsSectionAccounts:
+        {
+            RLMResults *nonActiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts];
+            if (indexPath.row < nonActiveAccount.count) {
+                TalkAccount *account = [nonActiveAccount objectAtIndex:indexPath.row];
+                cell = [tableView dequeueReusableCellWithIdentifier:accountCellIdentifier];
+                if (!cell) {
+                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:accountCellIdentifier];
+                }
+                cell.textLabel.text = account.userDisplayName;
+                cell.imageView.layer.cornerRadius = cell.imageView.frame.size.height / 2;
+                cell.imageView.layer.masksToBounds = YES;
+                [cell.imageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(24, 24)]];
+            } else {
+                cell = [tableView dequeueReusableCellWithIdentifier:addAccountCellIdentifier];
+                if (!cell) {
+                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:addAccountCellIdentifier];
+                    cell.textLabel.text = @"Add account";
+                    [cell.imageView setImage:[UIImage imageNamed:@"add-settings"]];
+                }
+            }
         }
             break;
         case kSettingsSectionConfiguration:
@@ -373,10 +451,28 @@ typedef enum AboutSection {
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch (indexPath.section) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:indexPath.section] intValue];
+    switch (settingsSection) {
         case kSettingsSectionUser:
         {
             [self userProfilePressed];
+        }
+            break;
+        case kSettingsSectionAccounts:
+        {
+            RLMResults *nonActiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts];
+            if (indexPath.row < nonActiveAccount.count) {
+                TalkAccount *account = [nonActiveAccount objectAtIndex:indexPath.row];
+                [[NCSettingsController sharedInstance] setAccountActive:account.account];
+                
+            } else {
+                [self dismissViewControllerAnimated:true completion:^{
+                    [[NCUserInterfaceController sharedInstance] presentLoginViewController];
+                }];
+            }
+            
+            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
         }
             break;
         case kSettingsSectionConfiguration:

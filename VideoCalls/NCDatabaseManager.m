@@ -76,6 +76,11 @@
     return [TalkAccount objectsWhere:(@"active = true")].firstObject;
 }
 
+- (RLMResults *)nonActiveAccounts
+{
+    return [TalkAccount objectsWhere:(@"active = false")];
+}
+
 - (TalkAccount *)talkAccountForAccount:(NSString *)account
 {
     NSPredicate *query = [NSPredicate predicateWithFormat:@"account = %@", account];

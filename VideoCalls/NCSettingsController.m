@@ -20,6 +20,7 @@
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCExternalSignalingController.h"
+#import "NCUserInterfaceController.h"
 
 @interface NCSettingsController ()
 {
@@ -142,6 +143,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 
 - (void)setAccountActive:(NSString *)account
 {
+    [[NCUserInterfaceController sharedInstance] presentConversationsList];
     [[NCDatabaseManager sharedInstance] setActiveAccount:account];
     [[NSHTTPCookieStorage sharedHTTPCookieStorage] removeCookiesSinceDate:[NSDate dateWithTimeIntervalSince1970:0]];
     [[NCConnectionController sharedInstance] checkAppState];

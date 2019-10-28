@@ -1096,13 +1096,22 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     }];
 }
 
-- (UIImage *)userProfileImageForAccount:(TalkAccount *)account
+- (UIImage *)userProfileImageForAccount:(TalkAccount *)account withSize:(CGSize)size
 {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsPath = [paths objectAtIndex:0];
     NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
     NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
-    return [UIImage imageWithContentsOfFile:filePath];
+    return [self imageWithImage:[UIImage imageWithContentsOfFile:filePath] convertToSize:size];
+}
+
+- (UIImage *)imageWithImage:(UIImage *)image convertToSize:(CGSize)size
+{
+    UIGraphicsBeginImageContext(size);
+    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
+    UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return destImage;
 }
 
 #pragma mark - Server capabilities
