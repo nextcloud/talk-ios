@@ -150,12 +150,15 @@ typedef enum AboutSection {
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
-    UIAlertAction *logOutAction = [UIAlertAction actionWithTitle:@"Log out"
+    NSString *actionTitle = (multiAccountEnabled) ? @"Remove account" : @"Log out";
+    UIImage *actionImage = (multiAccountEnabled) ? [UIImage imageNamed:@"delete-action"] : [UIImage imageNamed:@"logout"];
+    
+    UIAlertAction *logOutAction = [UIAlertAction actionWithTitle:actionTitle
                                                      style:UIAlertActionStyleDestructive
                                                    handler:^void (UIAlertAction *action) {
                                                        [self logout];
                                                    }];
-    [logOutAction setValue:[[UIImage imageNamed:@"logout"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [logOutAction setValue:[actionImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     [optionsActionSheet addAction:logOutAction];
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     

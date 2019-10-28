@@ -280,6 +280,12 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     [[NCExternalSignalingController sharedInstance] disconnect];
     [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
     [[NCDatabaseManager sharedInstance] removeAccount:activeAccount.account];
+    // Activate any of the inactive accounts
+    TalkAccount *inactiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts].firstObject;
+    if (inactiveAccount) {
+        [self setAccountActive:inactiveAccount.account];
+    }
+    
     if (block) block(nil);
 }
 
