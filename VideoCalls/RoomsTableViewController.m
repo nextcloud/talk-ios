@@ -275,6 +275,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     menuConfiguration.selectedCellBackgroundColor = [UIColor darkGrayColor];
     menuConfiguration.separatorColor = [UIColor colorWithWhite:0.85 alpha:1];
     menuConfiguration.shadowOpacity = 0.8;
+    menuConfiguration.roundedImage = YES;
 
     [FTPopOverMenu showForSender:sender
                    withMenuArray:menuArray
