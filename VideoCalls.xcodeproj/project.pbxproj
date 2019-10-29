@@ -19,6 +19,7 @@
 		2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C06BF6320AC64370031EB46 /* DateHeaderView.xib */; };
 		2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
 		2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */; };
+		2C2026A0236832D300DFC89B /* FTPopOverMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C20269F236832D300DFC89B /* FTPopOverMenu.m */; };
 		2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
 		2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
@@ -186,6 +187,8 @@
 		2C06BF6620AC647A0031EB46 /* DateHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateHeaderView.m; sourceTree = "<group>"; };
 		2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedNumberView.m; sourceTree = "<group>"; };
 		2C06BF6B20AEB0030031EB46 /* RoundedNumberView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedNumberView.h; sourceTree = "<group>"; };
+		2C20269E236832D300DFC89B /* FTPopOverMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FTPopOverMenu.h; sourceTree = "<group>"; };
+		2C20269F236832D300DFC89B /* FTPopOverMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FTPopOverMenu.m; sourceTree = "<group>"; };
 		2C2A788C2359CC8800EEB797 /* NCAppBranding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCAppBranding.h; sourceTree = "<group>"; };
 		2C2A788D2359CC8800EEB797 /* NCAppBranding.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAppBranding.m; sourceTree = "<group>"; };
 		2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSignalingMessage.h; sourceTree = "<group>"; };
@@ -580,6 +583,7 @@
 		2C05749C1EDDA01700D9E7F2 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				2C20269D236832D300DFC89B /* FTPopOverMenu */,
 				2CB302F92264775E0053078A /* SlackTextViewController */,
 				2C961DD72216BF4A00F5C23F /* OCCommunicationLib */,
 				2C4E758C214B942D003910D5 /* Firefox */,
@@ -604,6 +608,16 @@
 				2CC7158820B837140045C789 /* PlaceholderView.xib */,
 			);
 			name = "User Interface";
+			sourceTree = "<group>";
+		};
+		2C20269D236832D300DFC89B /* FTPopOverMenu */ = {
+			isa = PBXGroup;
+			children = (
+				2C20269E236832D300DFC89B /* FTPopOverMenu.h */,
+				2C20269F236832D300DFC89B /* FTPopOverMenu.m */,
+			);
+			name = FTPopOverMenu;
+			path = ThirdParty/FTPopOverMenu/FTPopOverMenu;
 			sourceTree = "<group>";
 		};
 		2C40281622832EF90000DDFC /* Database */ = {
@@ -1372,6 +1386,7 @@
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
 				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,
 				2C7A1236200E0A5700864818 /* UserSettingsTableViewCell.m in Sources */,
+				2C2026A0236832D300DFC89B /* FTPopOverMenu.m in Sources */,
 				2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */,
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
