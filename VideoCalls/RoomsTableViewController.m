@@ -252,7 +252,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NSMutableArray *menuArray = [NSMutableArray new];
     NSMutableArray *actionsArray = [NSMutableArray new];
     for (TalkAccount *account in [TalkAccount allObjects]) {
-        NSString *accountName = [NSString stringWithFormat:@"%@ (%@)", account.userDisplayName, [[NSURL URLWithString:account.server] host]];
+        NSString *accountName = account.userDisplayName;
         UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(72, 72)];
         UIImageView *accessoryImageView = (account.active) ? [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]] : nil;
         FTPopOverMenuModel *accountModel = [[FTPopOverMenuModel alloc] initWithTitle:accountName image:accountImage selected:NO accessoryView:accessoryImageView];
@@ -260,16 +260,16 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [actionsArray addObject:account];
     }
     FTPopOverMenuModel *addAccountModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Add account" image:[UIImage imageNamed:@"add-settings"] selected:NO accessoryView:nil];
-    FTPopOverMenuConfiguration *menuConfiguration = [[FTPopOverMenuConfiguration alloc] init];
     [menuArray addObject:addAccountModel];
     [actionsArray addObject:@"AddAccountAction"];
     
+    FTPopOverMenuConfiguration *menuConfiguration = [[FTPopOverMenuConfiguration alloc] init];
     menuConfiguration.menuIconMargin = 12;
     menuConfiguration.menuTextMargin = 12;
     menuConfiguration.imageSize = CGSizeMake(24, 24);
     menuConfiguration.separatorInset = UIEdgeInsetsMake(0, 48, 0, 0);
     menuConfiguration.menuRowHeight = 44;
-    menuConfiguration.menuWidth = 250;
+    menuConfiguration.autoMenuWidth = YES;
     menuConfiguration.textColor = [UIColor darkTextColor];
     menuConfiguration.textFont = [UIFont systemFontOfSize:15];
     menuConfiguration.backgroundColor = [UIColor whiteColor];
