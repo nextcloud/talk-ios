@@ -274,13 +274,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     menuConfiguration.textFont = [UIFont systemFontOfSize:15];
     menuConfiguration.backgroundColor = [UIColor whiteColor];
     menuConfiguration.borderWidth = 0;
-    menuConfiguration.ignoreImageOriginalColor = NO;
-    menuConfiguration.allowRoundedArrow = NO;
-    menuConfiguration.selectedTextColor = [UIColor darkTextColor];
-    menuConfiguration.selectedCellBackgroundColor = [UIColor colorWithWhite:0.8 alpha:1];
     menuConfiguration.separatorColor = [UIColor colorWithWhite:0.85 alpha:1];
     menuConfiguration.shadowOpacity = 0.8;
     menuConfiguration.roundedImage = YES;
+    menuConfiguration.defaultSelection = YES;
 
     [FTPopOverMenu showForSender:sender
                    withMenuArray:menuArray
