@@ -12,6 +12,7 @@
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
+#import "AccountTableViewCell.h"
 #import "UserSettingsTableViewCell.h"
 #import "NCAPIController.h"
 #import "NCUserInterfaceController.h"
@@ -54,6 +55,7 @@ typedef enum AboutSection {
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     [self.tableView registerNib:[UINib nibWithNibName:kUserSettingsTableCellNibName bundle:nil] forCellReuseIdentifier:kUserSettingsCellIdentifier];
+    [self.tableView registerNib:[UINib nibWithNibName:kAccountTableViewCellNibName bundle:nil] forCellReuseIdentifier:kAccountCellIdentifier];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
 }
@@ -374,14 +376,13 @@ typedef enum AboutSection {
             RLMResults *nonActiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts];
             if (indexPath.row < nonActiveAccount.count) {
                 TalkAccount *account = [nonActiveAccount objectAtIndex:indexPath.row];
-                cell = [tableView dequeueReusableCellWithIdentifier:accountCellIdentifier];
+                AccountTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kAccountCellIdentifier];
                 if (!cell) {
-                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:accountCellIdentifier];
+                    cell = [[AccountTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAccountCellIdentifier];
                 }
                 cell.textLabel.text = account.userDisplayName;
-                cell.imageView.layer.cornerRadius = cell.imageView.frame.size.height / 2;
-                cell.imageView.layer.masksToBounds = YES;
-                [cell.imageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(24, 24)]];
+                [cell.accountImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(90, 90)]];
+                return cell;
             } else {
                 cell = [tableView dequeueReusableCellWithIdentifier:addAccountCellIdentifier];
                 if (!cell) {
