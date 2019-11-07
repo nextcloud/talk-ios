@@ -239,7 +239,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getUserProfileForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
-        if (!error) {
+        if (!error && !activeAccount.invalidated) {
             NSString *userDisplayName = [userProfile objectForKey:@"display-name"];
             NSString *userId = [userProfile objectForKey:@"id"];
             RLMRealm *realm = [RLMRealm defaultRealm];
@@ -349,7 +349,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:activeAccount withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
-        if (!error) {
+        if (!error && !activeAccount.invalidated) {
             [[NCDatabaseManager sharedInstance] setServerCapabilities:serverCapabilities forAccount:activeAccount.account];
             [self checkServerCapabilities];
             if (block) block(nil);
@@ -411,7 +411,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 #if !TARGET_IPHONE_SIMULATOR
     if ([self generatePushNotificationsKeyPairForAccount:account]) {
         [[NCAPIController sharedInstance] subscribeAccount:talkAccount toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
-            if (!error) {
+            if (!error && !talkAccount.invalidated) {
                 NSLog(@"Subscribed to NC server successfully.");
                 
                 NSString *publicKey = [responseDict objectForKey:@"publicKey"];
@@ -426,7 +426,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
                 [realm commitWriteTransaction];
                 
                 [[NCAPIController sharedInstance] subscribeAccount:talkAccount toPushServerWithCompletionBlock:^(NSError *error) {
-                    if (!error) {
+                    if (!error && !talkAccount.invalidated) {
                         [realm beginWriteTransaction];
                         talkAccount.pushNotificationSubscribed = YES;
                         [realm commitWriteTransaction];
