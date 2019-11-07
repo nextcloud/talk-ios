@@ -1105,6 +1105,15 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return [self imageWithImage:[UIImage imageWithContentsOfFile:filePath] convertToSize:size];
 }
 
+- (void)removeProfileImageForAccount:(TalkAccount *)account
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsPath = [paths objectAtIndex:0];
+    NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
+    NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
+    [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
+}
+
 - (UIImage *)imageWithImage:(UIImage *)image convertToSize:(CGSize)size
 {
     UIGraphicsBeginImageContext(size);

@@ -259,15 +259,17 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 - (void)logoutWithCompletionBlock:(LogoutCompletionBlock)block
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    if (activeAccount.deviceIdentifier) {
-        [[NCAPIController sharedInstance] unsubscribeAccount:[[NCDatabaseManager sharedInstance] activeAccount] fromNextcloudServerWithCompletionBlock:^(NSError *error) {
+    // Make a copy of the active TalkAccount so it can be deleted/invalidated while removing account info.
+    TalkAccount *removingAccount = [[TalkAccount alloc] initWithValue:activeAccount];
+    if (removingAccount.deviceIdentifier) {
+        [[NCAPIController sharedInstance] unsubscribeAccount:removingAccount fromNextcloudServerWithCompletionBlock:^(NSError *error) {
             if (!error) {
                 NSLog(@"Unsubscribed from NC server!!!");
             } else {
                 NSLog(@"Error while unsubscribing from NC server.");
             }
         }];
-        [[NCAPIController sharedInstance] unsubscribeAccount:[[NCDatabaseManager sharedInstance] activeAccount] fromPushServerWithCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] unsubscribeAccount:removingAccount fromPushServerWithCompletionBlock:^(NSError *error) {
             if (!error) {
                 NSLog(@"Unsubscribed from Push Notification server!!!");
             } else {
@@ -277,7 +279,9 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     }
     [[NCExternalSignalingController sharedInstance] disconnect];
     [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
-    [[NCDatabaseManager sharedInstance] removeAccount:activeAccount.account];
+    [[NCAPIController sharedInstance] removeProfileImageForAccount:removingAccount];
+    [[NCDatabaseManager sharedInstance] removeAccount:removingAccount.account];
+    
     // Activate any of the inactive accounts
     TalkAccount *inactiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts].firstObject;
     if (inactiveAccount) {

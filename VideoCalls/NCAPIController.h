@@ -141,6 +141,7 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 - (NSURLSessionDataTask *)getUserProfileForAccount:(TalkAccount *)account withCompletionBlock:(GetUserProfileCompletionBlock)block;
 - (void)saveProfileImageForAccount:(TalkAccount *)account;
 - (UIImage *)userProfileImageForAccount:(TalkAccount *)account withSize:(CGSize)size;
+- (void)removeProfileImageForAccount:(TalkAccount *)account;
 
 // Server capabilities
 - (NSURLSessionDataTask *)getServerCapabilitiesForServer:(NSString *)server withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;

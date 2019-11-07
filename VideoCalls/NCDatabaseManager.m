@@ -121,8 +121,10 @@
     RLMRealm *realm = [RLMRealm defaultRealm];
     NSPredicate *query = [NSPredicate predicateWithFormat:@"account = %@", account];
     TalkAccount *removeAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+    ServerCapabilities *serverCapabilities = [ServerCapabilities objectsWithPredicate:query].firstObject;
     [realm beginWriteTransaction];
     [realm deleteObject:removeAccount];
+    [realm deleteObject:serverCapabilities];
     [realm commitWriteTransaction];
 }
 
