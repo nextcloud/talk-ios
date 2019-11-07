@@ -21,6 +21,7 @@
 #import "NCDatabaseManager.h"
 #import "NCExternalSignalingController.h"
 #import "NCUserInterfaceController.h"
+#import "JDStatusBarNotification.h"
 
 @interface NCSettingsController ()
 {
@@ -131,12 +132,19 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 
 - (void)addNewAccountForUser:(NSString *)user withToken:(NSString *)token inServer:(NSString *)server
 {
-    NSString *newAccount = [[NCDatabaseManager sharedInstance] createAccountForUser:user inServer:server];
-    [[NCDatabaseManager sharedInstance] setActiveAccount:newAccount];
-    [self setToken:token forAccount:newAccount];
-    TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccount:newAccount];
-    [[NCAPIController sharedInstance] createAPISessionManagerForAccount:talkAccount];
-    [self subscribeForPushNotificationsForAccount:newAccount];
+    NSString *accountId = [[NCDatabaseManager sharedInstance] accountIdForUser:user inServer:server];
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccount:accountId];
+    if (!account) {
+        [[NCDatabaseManager sharedInstance] createAccountForUser:user inServer:server];
+        [[NCDatabaseManager sharedInstance] setActiveAccount:accountId];
+        [self setToken:token forAccount:accountId];
+        TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccount:accountId];
+        [[NCAPIController sharedInstance] createAPISessionManagerForAccount:talkAccount];
+        [self subscribeForPushNotificationsForAccount:accountId];
+    } else {
+        [self setAccountActive:accountId];
+        [JDStatusBarNotification showWithStatus:@"Account already added" dismissAfter:4.0f styleName:JDStatusBarStyleSuccess];
+    }
 }
 
 - (void)setAccountActive:(NSString *)account
@@ -407,8 +415,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 
 - (void)subscribeForPushNotificationsForAccount:(NSString *)account
 {
-    TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccount:account];
 #if !TARGET_IPHONE_SIMULATOR
+    TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccount:account];
     if ([self generatePushNotificationsKeyPairForAccount:account]) {
         [[NCAPIController sharedInstance] subscribeAccount:talkAccount toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
             if (!error && !talkAccount.invalidated) {

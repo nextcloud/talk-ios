@@ -100,10 +100,15 @@
     [realm commitWriteTransaction];
 }
 
-- (NSString *)createAccountForUser:(NSString *)user inServer:(NSString *)server
+- (NSString *)accountIdForUser:(NSString *)user inServer:(NSString *)server
+{
+    return [NSString stringWithFormat:@"%@@%@", user, server];
+}
+
+- (void)createAccountForUser:(NSString *)user inServer:(NSString *)server
 {
     TalkAccount *account =  [[TalkAccount alloc] init];
-    NSString *accountId = [NSString stringWithFormat:@"%@@%@", user, server];
+    NSString *accountId = [self accountIdForUser:user inServer:server];
     account.account = accountId;
     account.server = server;
     account.user = user;
@@ -112,8 +117,6 @@
     [realm transactionWithBlock:^{
         [realm addObject:account];
     }];
-    
-    return accountId;
 }
 
 - (void)removeAccount:(NSString *)account
