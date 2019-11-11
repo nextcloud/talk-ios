@@ -343,7 +343,6 @@ typedef enum AboutSection {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
-    static NSString *accountCellIdentifier = @"AccountCellIdentifier";
     static NSString *addAccountCellIdentifier = @"AddAccountCellIdentifier";
     static NSString *videoConfigurationCellIdentifier = @"VideoConfigurationCellIdentifier";
     static NSString *browserConfigurationCellIdentifier = @"BrowserConfigurationCellIdentifier";
@@ -361,13 +360,9 @@ typedef enum AboutSection {
             }
             
             TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+            cell.userDisplayNameLabel.text = activeAccount.userDisplayName;
             cell.serverAddressLabel.text = activeAccount.server;
-            
-            if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
-                cell.userDisplayNameLabel.text = activeAccount.userDisplayName;
-                [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:activeAccount.userId andSize:160 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                          placeholderImage:nil success:nil failure:nil];
-            }
+            [cell.userImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withSize:CGSizeMake(160, 160)]];
             return cell;
         }
             break;
