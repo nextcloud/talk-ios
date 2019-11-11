@@ -89,7 +89,7 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
 - (void)checkAppState
 {
     TalkAccount *activeAccount              = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccount:activeAccount.account];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     NSDictionary *ncSignalingConfig         = [NCSettingsController sharedInstance].ncSignalingConfiguration;
     
     if (!activeAccount.server || !activeAccount.user) {

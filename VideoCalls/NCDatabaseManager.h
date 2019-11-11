@@ -12,7 +12,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface TalkAccount : RLMObject
-@property NSString *account;
+@property NSString *accountId;
 @property NSString *server;
 @property NSString *user;
 @property NSString *userId;
@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface ServerCapabilities : RLMObject
-@property NSString *account;
+@property NSString *accountId;
 @property NSString *name;
 @property NSString *slogan;
 @property NSString *url;
@@ -54,14 +54,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSInteger)numberOfAccounts;
 - (TalkAccount *)activeAccount;
 - (RLMResults *)nonActiveAccounts;
-- (TalkAccount *)talkAccountForAccount:(NSString *)account;
-- (void)setActiveAccount:(NSString *)account;
+- (TalkAccount *)talkAccountForAccountId:(NSString *)accountId;
+- (void)setActiveAccount:(NSString *)accountId;
 - (NSString *)accountIdForUser:(NSString *)user inServer:(NSString *)server;
 - (void)createAccountForUser:(NSString *)user inServer:(NSString *)server;
-- (void)removeAccount:(NSString *)account;
+- (void)removeAccount:(NSString *)accountId;
 
-- (ServerCapabilities *)serverCapabilitiesForAccount:(NSString *)account;
-- (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccount:(NSString *)account;
+- (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId;
+- (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId;
 
 @end
 

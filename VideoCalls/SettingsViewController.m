@@ -468,7 +468,7 @@ typedef enum AboutSection {
             RLMResults *nonActiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts];
             if (indexPath.row < nonActiveAccount.count) {
                 TalkAccount *account = [nonActiveAccount objectAtIndex:indexPath.row];
-                [[NCSettingsController sharedInstance] setAccountActive:account.account];
+                [[NCSettingsController sharedInstance] setAccountActive:account.accountId];
                 
             } else {
                 [self dismissViewControllerAnimated:true completion:^{

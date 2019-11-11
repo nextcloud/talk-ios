@@ -70,13 +70,13 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSURLSessionConfiguration *configurationUsingCookies = [NSURLSessionConfiguration defaultSessionConfiguration];
     NCAPISessionManager *apiUsingCookiesSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configurationUsingCookies];
     [apiUsingCookiesSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
-    [_apiUsingCookiesSessionManagers setObject:apiUsingCookiesSessionManager forKey:account.account];
+    [_apiUsingCookiesSessionManagers setObject:apiUsingCookiesSessionManager forKey:account.accountId];
     
     NSURLSessionConfiguration *configurationNoCookies = [NSURLSessionConfiguration defaultSessionConfiguration];
     configurationNoCookies.HTTPCookieStorage = nil;
     NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configurationNoCookies];
     [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
-    [_apiSessionManagers setObject:apiSessionManager forKey:account.account];
+    [_apiSessionManagers setObject:apiSessionManager forKey:account.accountId];
 }
 
 - (void)initImageDownloaders
@@ -96,7 +96,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (NSString *)authHeaderForAccount:(TalkAccount *)account
 {
-    NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCSettingsController sharedInstance] tokenForAccount:account.account]];
+    NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCSettingsController sharedInstance] tokenForAccount:account.accountId]];
     NSData *data = [userTokenString dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
     
@@ -169,7 +169,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
                                  @"perPage" : @"200",
                                  @"itemType" : @"call"};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseUsers = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"users"];
         NSArray *responseExtactUsers = [[[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"exact"] objectForKey:@"users"];
@@ -222,7 +222,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:@"room"];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *rooms = [[NSMutableArray alloc] initWithCapacity:responseRooms.count];
@@ -268,7 +268,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *roomDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NCRoom *room = [NCRoom roomWithDictionary:roomDict];
@@ -288,7 +288,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:@"room"];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         for (NSDictionary *room in responseRooms) {
@@ -323,7 +323,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         [parameters setObject:roomName forKey:@"roomName"];
     }
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSString *token = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"token"];
         if (block) {
@@ -343,7 +343,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@", token]];
     NSDictionary *parameters = @{@"roomName" : newName};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -361,7 +361,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/public", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -379,7 +379,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/public", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -397,7 +397,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -416,7 +416,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/password", token]];
     NSDictionary *parameters = @{@"password" : password};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -434,7 +434,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/participants/active", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSString *sessionId = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"sessionId"];
         if (block) {
@@ -459,7 +459,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/participants/active", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -477,7 +477,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/favorite", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -495,7 +495,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/favorite", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -514,7 +514,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/notify", token]];
     NSDictionary *parameters = @{@"level" : @(level)};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -533,7 +533,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/read-only", token]];
     NSDictionary *parameters = @{@"state" : @(state)};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -556,7 +556,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         [parameters setObject:@(timer) forKey:@"timer"];
     }
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -575,7 +575,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/participants", token]];
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseParticipants = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *participants = [[NSMutableArray alloc] initWithCapacity:responseParticipants.count];
@@ -634,7 +634,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/participants", token]];
     NSDictionary *parameters = @{@"newParticipant" : user};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -653,7 +653,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/participants", token]];
     NSDictionary *parameters = @{@"participant" : user};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -672,7 +672,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/participants/guests", token]];
     NSDictionary *parameters = @{@"participant" : guest};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -690,7 +690,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/participants/self", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(0, nil);
@@ -710,7 +710,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/moderators", token]];
     NSDictionary *parameters = @{@"participant" : user};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -729,7 +729,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@/moderators", token]];
     NSDictionary *parameters = @{@"participant" : moderator};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -749,7 +749,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"call/%@", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responsePeers = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *peers = [[NSMutableArray alloc] initWithArray:responsePeers];
@@ -769,7 +769,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"call/%@", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -787,7 +787,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"call/%@/ping", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -805,7 +805,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"call/%@", token]];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -831,7 +831,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
                                  @"setReadMarker" : @(1),
                                  @"includeLastKnown" : include ? @(1) : @(0)};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseMessages = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *messages = [[NSMutableArray alloc] initWithCapacity:responseMessages.count];
@@ -878,7 +878,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSDictionary *parameters = @{@"message" : message,
                                  @"token" : token};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -898,7 +898,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSDictionary *parameters = @{@"limit" : @"20",
                                  @"search" : string ? string : @""};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *mentions = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *suggestions = [[NSMutableArray alloc] initWithArray:mentions];;
@@ -931,7 +931,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:endpoint];
     NSDictionary *parameters = @{@"messages" : messages};
     
-    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -950,7 +950,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *endpoint = (token) ? [NSString stringWithFormat:@"signaling/%@", token] : @"signaling";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:endpoint];
     
-    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString
                                              parameters:nil progress:nil
                                                 success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -971,7 +971,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:@"signaling/settings"];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseDict = responseObject;
         if (block) {
@@ -995,9 +995,9 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block
 {
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     OCCommunication *communication = [self sharedOCCommunication];
-    [communication setCredentialsWithUser:account.user andUserID:account.userId andPassword:[[NCSettingsController sharedInstance] tokenForAccount:account.account]];
+    [communication setCredentialsWithUser:account.user andUserID:account.userId andPassword:[[NCSettingsController sharedInstance] tokenForAccount:account.accountId]];
     [communication setUserAgent:apiSessionManager.userAgent];
     
     NSString *urlString = [NSString stringWithFormat:@"%@%@%@", account.server, k_webDAV, path ? path : @""];
@@ -1020,7 +1020,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
                                  @"shareWith" : token
                                  };
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -1065,7 +1065,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/user", account.server];
     NSDictionary *parameters = @{@"fomat" : @"json"};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *profile = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
@@ -1149,7 +1149,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/capabilities", account.server];
     NSDictionary *parameters = @{@"fomat" : @"json"};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *capabilities = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
@@ -1170,7 +1170,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/notifications/%ld", account.server, (long)notificationId];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *notification = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
@@ -1203,7 +1203,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
                                  @"proxyServer" : kNCPushServer
                                  };
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
@@ -1222,7 +1222,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/push", account.server];
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.account];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);

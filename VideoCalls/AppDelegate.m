@@ -129,7 +129,7 @@
             [realm commitWriteTransaction];
         }
         if (!account.pushNotificationSubscribed) {
-            [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccount:account.account];
+            [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccount:account.accountId];
         }
     }
     
@@ -142,11 +142,11 @@
 {
     NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
     for (TalkAccount *account in [TalkAccount allObjects]) {
-        NSData *pushNotificationPrivateKey = [[NCSettingsController sharedInstance] pushNotificationPrivateKeyForAccount:account.account];
+        NSData *pushNotificationPrivateKey = [[NCSettingsController sharedInstance] pushNotificationPrivateKeyForAccount:account.accountId];
         if (message && pushNotificationPrivateKey) {
             NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
             if (decryptedMessage) {
-                NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccount:account.account];
+                NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccount:account.accountId];
                 [[NCNotificationController sharedInstance] processIncomingPushNotification:pushNotification];
             }
         }

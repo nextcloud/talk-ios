@@ -115,7 +115,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     if (retryAttempts < 3 && notificationId) {
         retryAttempts += 1;
         [_serverNotificationsAttempts setObject:@(retryAttempts) forKey:@(notificationId)];
-        TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccount:pushNotification.account];
+        TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:pushNotification.account];
         [[NCAPIController sharedInstance] getServerNotification:notificationId forAccount:talkAccount withCompletionBlock:^(NSDictionary *notification, NSError *error, NSInteger statusCode) {
             if (statusCode == 404) {
                 // Notification has been treated/deleted in another device

@@ -13,13 +13,13 @@
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
-    return @"account";
+    return @"accountId";
 }
 @end
 
 @implementation ServerCapabilities
 + (NSString *)primaryKey {
-    return @"account";
+    return @"accountId";
 }
 @end
 
@@ -81,20 +81,20 @@
     return [TalkAccount objectsWhere:(@"active = false")];
 }
 
-- (TalkAccount *)talkAccountForAccount:(NSString *)account
+- (TalkAccount *)talkAccountForAccountId:(NSString *)accountId
 {
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"account = %@", account];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     return [TalkAccount objectsWithPredicate:query].firstObject;
 }
 
-- (void)setActiveAccount:(NSString *)account
+- (void)setActiveAccount:(NSString *)accountId
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm beginWriteTransaction];
     for (TalkAccount *account in [TalkAccount allObjects]) {
         account.active = NO;
     }
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"account = %@", account];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     TalkAccount *activeAccount = [TalkAccount objectsWithPredicate:query].firstObject;
     activeAccount.active = YES;
     [realm commitWriteTransaction];
@@ -109,7 +109,7 @@
 {
     TalkAccount *account =  [[TalkAccount alloc] init];
     NSString *accountId = [self accountIdForUser:user inServer:server];
-    account.account = accountId;
+    account.accountId = accountId;
     account.server = server;
     account.user = user;
     
@@ -119,10 +119,10 @@
     }];
 }
 
-- (void)removeAccount:(NSString *)account
+- (void)removeAccount:(NSString *)accountId
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"account = %@", account];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     TalkAccount *removeAccount = [TalkAccount objectsWithPredicate:query].firstObject;
     ServerCapabilities *serverCapabilities = [ServerCapabilities objectsWithPredicate:query].firstObject;
     [realm beginWriteTransaction];
@@ -133,13 +133,13 @@
 
 #pragma mark - Server capabilities
 
-- (ServerCapabilities *)serverCapabilitiesForAccount:(NSString *)account
+- (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId
 {
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"account = %@", account];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     return [ServerCapabilities objectsWithPredicate:query].firstObject;
 }
 
-- (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccount:(NSString *)account
+- (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId
 {
     NSDictionary *serverCaps = [serverCapabilities objectForKey:@"capabilities"];
     NSDictionary *version = [serverCapabilities objectForKey:@"version"];
@@ -147,7 +147,7 @@
     NSDictionary *talkCaps = [serverCaps objectForKey:@"spreed"];
     
     ServerCapabilities *capabilities = [[ServerCapabilities alloc] init];
-    capabilities.account = account;
+    capabilities.accountId = accountId;
     capabilities.name = [themingCaps objectForKey:@"name"];
     capabilities.slogan = [themingCaps objectForKey:@"slogan"];
     capabilities.url = [themingCaps objectForKey:@"url"];
