@@ -10,6 +10,7 @@
 
 #import "ARDSettingsModel.h"
 #import "UICKeyChainStore.h"
+#import "CCBKPasscode.h"
 
 
 extern NSString * const kNCServerKey;
@@ -64,6 +65,8 @@ typedef enum NCPreferredFileSorting {
 @property (nonatomic, copy) NSString *ncToken;
 @property (nonatomic, copy) NSString *ncPushToken;
 @property (nonatomic, copy) NSString *ncPushKitToken;
+@property (nonatomic, copy) NSString *ncBlockCode;
+@property (nonatomic, copy) NSString *ncBlockCodeUseSimply;
 @property (nonatomic, copy) NSString *pushNotificationSubscribed;
 @property (nonatomic, copy) NSData *ncPNPublicKey;
 @property (nonatomic, copy) NSData *ncPNPrivateKey;
@@ -92,5 +95,6 @@ typedef enum NCPreferredFileSorting {
 - (NSInteger)chatMaxLengthConfigCapability;
 - (NCPreferredFileSorting)getPreferredFileSorting;
 - (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting;
+- (void)readValuesFromKeyChain;
 
 @end

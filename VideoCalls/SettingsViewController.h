@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "BKPasscodeViewController.h"
 
-@interface SettingsViewController : UITableViewController
+@interface SettingsViewController : UITableViewController<BKPasscodeViewControllerDelegate>
 
 @end
