@@ -12,6 +12,7 @@
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
 #import "NCNotification.h"
+#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "CallKitManager.h"
@@ -238,6 +239,11 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notificationRequest.content.userInfo objectForKey:@"localNotificationType"] integerValue];
     NSString *notificationString = [notificationRequest.content.userInfo objectForKey:@"pushNotification"];
     NSString *notificationAccount = [notificationRequest.content.userInfo objectForKey:@"account"];
+    
+    if ([NCRoomsManager sharedInstance].callViewController) {
+        completionHandler();
+        return;
+    }
     
     // Set active account
     [[NCSettingsController sharedInstance] setAccountActive:notificationAccount];
