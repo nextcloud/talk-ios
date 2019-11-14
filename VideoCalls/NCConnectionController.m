@@ -12,7 +12,6 @@
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
-#import "NCExternalSignalingController.h"
 #import "NCUserInterfaceController.h"
 
 NSString * const NCAppStateHasChangedNotification           = @"NCAppStateHasChangedNotification";
@@ -88,9 +87,9 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
 
 - (void)checkAppState
 {
-    TalkAccount *activeAccount              = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    NSDictionary *ncSignalingConfig         = [NCSettingsController sharedInstance].ncSignalingConfiguration;
+    TalkAccount *activeAccount                  = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities      = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigutations] objectForKey:activeAccount.accountId];
     
     if (!activeAccount.server || !activeAccount.user) {
         [self setAppState:kAppStateNotServerProvided];
@@ -113,14 +112,14 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
                 [self checkAppState];
             }
         }];
-    } else if (!ncSignalingConfig) {
+    } else if (!activeAccountSignalingConfig) {
         [self setAppState:kAppStateMissingSignalingConfiguration];
         [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
             if (error) {
                 [self notifyAppState];
             } else {
                 // SetSignalingConfiguration should be called just once
-                [[NCSettingsController sharedInstance] setSignalingConfiguration];
+                [[NCSettingsController sharedInstance] setSignalingConfigurationForAccount:activeAccount.accountId];
                 [self checkAppState];
             }
         }];

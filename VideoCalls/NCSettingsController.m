@@ -87,6 +87,10 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
         _videoSettingsModel = [[ARDSettingsModel alloc] init];
         _keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
                                                    accessGroup:@"group.com.nextcloud.Talk"];
+        
+        _signalingConfigutations = [NSMutableDictionary new];
+        _externalSignalingControllers = [NSMutableDictionary new];
+        
         [self readValuesFromKeyChain];
         [self configureDatabase];
         [self configureDefaultBrowser];
@@ -225,8 +229,6 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     _ncDeviceSignature = nil;
     _defaultBrowser = @"Safari";
     _pushNotificationSubscribed = nil;
-    // Also remove values that are not stored in the keychain
-    _ncSignalingConfiguration = nil;
     
     [_keychain removeItemForKey:kNCServerKey];
     [_keychain removeItemForKey:kNCUserKey];
@@ -285,7 +287,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
             }
         }];
     }
-    [[NCExternalSignalingController sharedInstance] disconnect];
+    NCExternalSignalingController *extSignalingController = [self externalSignalingControllerForAccount:removingAccount.accountId];
+    [extSignalingController disconnect];
     [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
     [[NCAPIController sharedInstance] removeProfileImageForAccount:removingAccount];
     [[NCDatabaseManager sharedInstance] removeAccount:removingAccount.accountId];
@@ -326,9 +329,11 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 
 - (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block
 {
-    [[NCAPIController sharedInstance] getSignalingSettingsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *settings, NSError *error) {
-        if (!error) {
-            _ncSignalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getSignalingSettingsForAccount:activeAccount withCompletionBlock:^(NSDictionary *settings, NSError *error) {
+        if (!error && !activeAccount.invalidated) {
+            NSDictionary *signalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
+            [_signalingConfigutations setObject:signalingConfiguration forKey:activeAccount.accountId];
             if (block) block(nil);
         } else {
             NSLog(@"Error while getting signaling configuration");
@@ -338,17 +343,30 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 }
 
 // SetSignalingConfiguration should be called just once
-- (void)setSignalingConfiguration
+- (void)setSignalingConfigurationForAccount:(NSString *)accountId
 {
+    NSDictionary *signalingConfiguration = [_signalingConfigutations objectForKey:accountId];
     NSString *externalSignalingServer = nil;
-    id server = [_ncSignalingConfiguration objectForKey:@"server"];
+    id server = [signalingConfiguration objectForKey:@"server"];
     if ([server isKindOfClass:[NSString class]]) {
         externalSignalingServer = server;
     }
-    NSString *externalSignalingTicket = [_ncSignalingConfiguration objectForKey:@"ticket"];
+    NSString *externalSignalingTicket = [signalingConfiguration objectForKey:@"ticket"];
     if (externalSignalingServer && externalSignalingTicket) {
-        [[NCExternalSignalingController sharedInstance] setServer:externalSignalingServer andTicket:externalSignalingTicket];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NCExternalSignalingController *extSignalingController = [_externalSignalingControllers objectForKey:accountId];
+            if (!extSignalingController) {
+                TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
+                extSignalingController = [[NCExternalSignalingController alloc] initWithAccount:account server:externalSignalingServer andTicket:externalSignalingTicket];
+                [_externalSignalingControllers setObject:extSignalingController forKey:accountId];
+            }
+        });
     }
+}
+
+- (NCExternalSignalingController *)externalSignalingControllerForAccount:(NSString *)accountId
+{
+    return [_externalSignalingControllers objectForKey:accountId];
 }
 
 #pragma mark - Server Capabilities

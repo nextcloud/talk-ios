@@ -84,9 +84,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     NCRoomController *roomController = [_activeRooms objectForKey:token];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if (!roomController) {
         _joiningRoom = token;
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
             if (!_joiningRoom) {
                 NSLog(@"Not joining the room any more. Ignore response.");
                 return;
@@ -98,8 +99,9 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 [_activeRooms setObject:controller forKey:token];
                 [_joinRoomAttempts removeObjectForKey:token];
                 [userInfo setObject:controller forKey:@"roomController"];
-                if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-                    [[NCExternalSignalingController sharedInstance] joinRoom:token withSessionId:sessionId];
+                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+                if ([extSignalingController isEnabled]) {
+                    [extSignalingController joinRoom:token withSessionId:sessionId];
                 }
             } else {
                 NSInteger joinAttempts = [[_joinRoomAttempts objectForKey:token] integerValue];
@@ -142,14 +144,16 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)rejoinRoom:(NSString *)token
 {
     NCRoomController *roomController = [_activeRooms objectForKey:token];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if (roomController) {
         _joiningRoom = [token copy];
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
             if (!error) {
                 roomController.userSessionId = sessionId;
                 roomController.inChat = YES;
-                if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-                    [[NCExternalSignalingController sharedInstance] joinRoom:token withSessionId:sessionId];
+                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+                if ([extSignalingController isEnabled]) {
+                    [extSignalingController joinRoom:token withSessionId:sessionId];
                 }
             } else {
                 NSLog(@"Could not re-join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
@@ -172,11 +176,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [roomController stopRoomController];
         [_activeRooms removeObjectForKey:token];
         
-        [[NCAPIController sharedInstance] exitRoom:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        [[NCAPIController sharedInstance] exitRoom:token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
             if (!error) {
-                if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-                    [[NCExternalSignalingController sharedInstance] leaveRoom:token];
+                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+                if ([extSignalingController isEnabled]) {
+                    [extSignalingController leaveRoom:token];
                 }
             } else {
                 [userInfo setObject:error forKey:@"error"];
@@ -256,10 +262,12 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (!roomController) {
         // Workaround until external signaling supports multi-room
-        if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-            NSString *currentRoom = [NCExternalSignalingController sharedInstance].currentRoom;
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+        if ([extSignalingController isEnabled]) {
+            NSString *currentRoom = extSignalingController.currentRoom;
             if (![currentRoom isEqualToString:room.token]) {
-                [NCExternalSignalingController sharedInstance].currentRoom = nil;
+                extSignalingController.currentRoom = nil;
             }
         }
     }
@@ -339,14 +347,15 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [_callViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
         _callViewController.delegate = self;
         // Workaround until external signaling supports multi-room
-        if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-            NSString *currentRoom = [NCExternalSignalingController sharedInstance].currentRoom;
+        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+        if ([extSignalingController isEnabled]) {
+            NSString *currentRoom = extSignalingController.currentRoom;
             if (![currentRoom isEqualToString:room.token]) {
                 [[NCUserInterfaceController sharedInstance] presentConversationsList];
                 if (currentRoom) {
                     [self leaveChatInRoom:currentRoom];
                 }
-                [NCExternalSignalingController sharedInstance].currentRoom = nil;
+                extSignalingController.currentRoom = nil;
             }
         }
         [[NCUserInterfaceController sharedInstance] presentCallViewController:_callViewController];

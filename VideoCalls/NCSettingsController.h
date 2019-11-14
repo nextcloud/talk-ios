@@ -58,6 +58,7 @@ typedef enum NCPreferredFileSorting {
     NCModificationDateSorting
 } NCPreferredFileSorting;
 
+@class NCExternalSignalingController;
 
 @interface NCSettingsController : NSObject
 
@@ -76,8 +77,9 @@ typedef enum NCPreferredFileSorting {
 @property (nonatomic, copy) NSString *ncUserPublicKey;
 @property (nonatomic, copy) NSString *defaultBrowser;
 @property (nonatomic, copy) NSMutableArray *supportedBrowsers;
-@property (nonatomic, copy) NSDictionary *ncSignalingConfiguration;
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
+@property (nonatomic, copy) NSMutableDictionary *signalingConfigutations; // accountId -> signalingConfigutation
+@property (nonatomic, copy) NSMutableDictionary *externalSignalingControllers; // accountId -> externalSignalingController
 
 + (instancetype)sharedInstance;
 - (void)setToken:(NSString *)token forAccount:(NSString *)account;
@@ -93,7 +95,8 @@ typedef enum NCPreferredFileSorting {
 - (void)logoutWithCompletionBlock:(LogoutCompletionBlock)block;
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
 - (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block;
-- (void)setSignalingConfiguration;
+- (void)setSignalingConfigurationForAccount:(NSString *)accountId;
+- (NCExternalSignalingController *)externalSignalingControllerForAccount:(NSString *)accountId;
 - (void)subscribeForPushNotificationsForAccount:(NSString *)account;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
 - (NSInteger)chatMaxLengthConfigCapability;

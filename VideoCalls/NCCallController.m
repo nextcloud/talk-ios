@@ -28,7 +28,7 @@ static NSString * const kNCAudioTrackId = @"NCa0";
 static NSString * const kNCVideoTrackId = @"NCv0";
 static NSString * const kNCVideoTrackKind = @"video";
 
-@interface NCCallController () <NCPeerConnectionDelegate, NCSignalingControllerObserver>
+@interface NCCallController () <NCPeerConnectionDelegate, NCSignalingControllerObserver, NCExternalSignalingControllerDelegate>
 
 @property (nonatomic, assign) BOOL isAudioOnly;
 @property (nonatomic, assign) BOOL inCall;
@@ -49,6 +49,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) RTCVideoTrack *localVideoTrack;
 @property (nonatomic, strong) RTCPeerConnectionFactory *peerConnectionFactory;
 @property (nonatomic, strong) NCSignalingController *signalingController;
+@property (nonatomic, strong) NCExternalSignalingController *externalSignalingController;
+@property (nonatomic, strong) TalkAccount *account;
 @property (nonatomic, strong) NSURLSessionTask *joinCallTask;
 @property (nonatomic, strong) NSURLSessionTask *getPeersForCallTask;
 
@@ -74,6 +76,10 @@ static NSString * const kNCVideoTrackKind = @"video";
         _signalingController = [[NCSignalingController alloc] initForRoom:room];
         _signalingController.observer = self;
         
+        _account = [[NCDatabaseManager sharedInstance] activeAccount];
+        _externalSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:_account.accountId];
+        _externalSignalingController.delegate = self;
+        
         if (audioOnly) {
             [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
         } else {
@@ -81,11 +87,6 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
         
         [self initRecorder];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(externalSignalingMessageReceived:) name:NCESReceivedSignalingMessageNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(externalParticipantListMessageReceived:) name:NCESReceivedParticipantListMessageNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shouldRejoinCall:) name:NCESShouldRejoinCallNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willRejoinCall:) name:NCESWillRejoinCallNotification object:nil];
     }
     
     return self;
@@ -99,14 +100,14 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)joinCall
 {
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:_account withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
             [self getPeersForCall];
             [self startMonitoringMicrophoneAudioLevel];
-            if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-                _userSessionId = [[NCExternalSignalingController sharedInstance] sessionId];
-                if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+            if ([_externalSignalingController isEnabled]) {
+                _userSessionId = [_externalSignalingController sessionId];
+                if ([_externalSignalingController hasMCU]) {
                     [self createOwnPublishPeerConnection];
                 }
                 if (_pendingUsersInRoom) {
@@ -132,14 +133,14 @@ static NSString * const kNCVideoTrackKind = @"video";
     }];
 }
 
-- (void)shouldRejoinCall:(NSNotification *)notification
+- (void)shouldRejoinCall
 {
-    _userSessionId = [[NCExternalSignalingController sharedInstance] sessionId];
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    _userSessionId = [_externalSignalingController sessionId];
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:_account withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
             NSLog(@"Rejoined call");
-            if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+            if ([_externalSignalingController hasMCU]) {
                 [self createOwnPublishPeerConnection];
             }
             if (_pendingUsersInRoom) {
@@ -155,7 +156,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     }];
 }
 
-- (void)willRejoinCall:(NSNotification *)notification
+- (void)willRejoinCall
 {
     NSLog(@"willRejoinCall");
     [self setInCall:NO];
@@ -170,7 +171,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     [self setInCall:NO];
     [self cleanCurrentPeerConnections];
     [self.delegate callControllerIsReconnectingCall:self];
-    [[NCExternalSignalingController sharedInstance] forceReconnect];
+    [_externalSignalingController forceReconnect];
 }
 
 - (void)leaveCall
@@ -344,7 +345,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)getPeersForCall
 {
-    _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
+    _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:_account withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
         if (!error) {
             _peersInCall = peers;
         }
@@ -405,7 +406,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         peerConnectionWrapper.roomType = roomType;
         peerConnectionWrapper.delegate = self;
         // TODO: Try to get display name here
-        if (![[NCExternalSignalingController sharedInstance] hasMCU] || !screensharingPeer) {
+        if (![_externalSignalingController hasMCU] || !screensharingPeer) {
             [peerConnectionWrapper.peerConnection addStream:_localStream];
         }
         
@@ -434,7 +435,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)sendDataChannelMessageToAllOfType:(NSString *)type withPayload:(id)payload
 {
-    if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+    if ([_externalSignalingController hasMCU]) {
         [_ownPeerConnection sendDataChannelMessageOfType:type withPayload:payload];
     } else {
         NSArray *connectionWrappers = [self.connectionsDict allValues];
@@ -459,33 +460,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     [_ownPeerConnection sendPublishOfferToMCU];
 }
 
-- (void)externalSignalingMessageReceived:(NSNotification *)notification
-{
-    NSLog(@"External signaling message received: %@", notification);
-    NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromExternalSignalingJSONDictionary:notification.userInfo];
-    [self checkIfPendingOffer:signalingMessage];
-    [self processSignalingMessage:signalingMessage];
-}
-
-- (void)externalParticipantListMessageReceived:(NSNotification *)notification
-{
-    NSLog(@"External participants message received: %@", notification);
-    NSArray *usersInRoom = [notification.userInfo objectForKey:@"users"];
-    if (_inCall) {
-        [self processUsersInRoom:usersInRoom];
-    } else {
-        // Store pending usersInRoom since this websocket message could
-        // arrive before NCCallController knows that it's in the call.
-        _pendingUsersInRoom = usersInRoom;
-    }
-}
-
 - (void)sendNick
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSDictionary *payload = @{
-                              @"userid":activeAccount.userId,
-                              @"name":activeAccount.userDisplayName
+                              @"userid":_account.userId,
+                              @"name":_account.userDisplayName
                               };
     [self sendDataChannelMessageToAllOfType:@"nickChanged" withPayload:payload];
 }
@@ -509,7 +488,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     NSString *sessionId = [timer.userInfo objectForKey:@"sessionId"];
     NSString *roomType = [timer.userInfo objectForKey:@"roomType"];
-    [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:sessionId andRoomType:roomType];
+    [_externalSignalingController requestOfferForSessionId:sessionId andRoomType:roomType];
 }
 
 - (void)checkIfPendingOffer:(NCSignalingMessage *)signalingMessage
@@ -519,6 +498,39 @@ static NSString * const kNCVideoTrackKind = @"video";
         NSLog(@"Pending requested offer arrived. Removing timer.");
         [pendingRequestTimer invalidate];
     }
+}
+
+#pragma mark - External Signaling Controller Delegate
+
+- (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedSignalingMessage:(NSDictionary *)signalingMessageDict
+{
+    NSLog(@"External signaling message received: %@", signalingMessageDict);
+    NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromExternalSignalingJSONDictionary:signalingMessageDict];
+    [self checkIfPendingOffer:signalingMessage];
+    [self processSignalingMessage:signalingMessage];
+}
+
+- (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedParticipantListMessage:(NSDictionary *)participantListMessageDict
+{
+    NSLog(@"External participants message received: %@", participantListMessageDict);
+    NSArray *usersInRoom = [participantListMessageDict objectForKey:@"users"];
+    if (_inCall) {
+        [self processUsersInRoom:usersInRoom];
+    } else {
+        // Store pending usersInRoom since this websocket message could
+        // arrive before NCCallController knows that it's in the call.
+        _pendingUsersInRoom = usersInRoom;
+    }
+}
+
+- (void)externalSignalingControllerShouldRejoinCall:(NCExternalSignalingController *)externalSignalingController
+{
+    [self shouldRejoinCall];
+}
+
+- (void)externalSignalingControllerWillRejoinCall:(NCExternalSignalingController *)externalSignalingController
+{
+    [self willRejoinCall];
 }
 
 #pragma mark - Signaling Controller Delegate
@@ -604,9 +616,9 @@ static NSString * const kNCVideoTrackKind = @"video";
     for (NSString *sessionId in newSessions) {
         NSString *peerKey = [sessionId stringByAppendingString:kRoomTypeVideo];
         if (![_connectionsDict objectForKey:peerKey] && ![_userSessionId isEqualToString:sessionId]) {
-            if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+            if ([_externalSignalingController hasMCU]) {
                 NSLog(@"Requesting offer to the MCU for session: %@", sessionId);
-                [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:sessionId andRoomType:kRoomTypeVideo];
+                [_externalSignalingController requestOfferForSessionId:sessionId andRoomType:kRoomTypeVideo];
             } else {
                 NSComparisonResult result = [sessionId compare:_userSessionId];
                 if (result == NSOrderedAscending) {
@@ -642,8 +654,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId
 {
-    if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-        return [[NCExternalSignalingController sharedInstance] getUserIdFromSessionId:sessionId];
+    if ([_externalSignalingController isEnabled]) {
+        return [_externalSignalingController getUserIdFromSessionId:sessionId];
     }
     NSString *userId = nil;
     for (NSMutableDictionary *user in _peersInCall) {
@@ -657,7 +669,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)getUserIdInServerFromSessionId:(NSString *)sessionId withCompletionBlock:(GetUserIdForSessionIdCompletionBlock)block
 {
-    [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
+    [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:_account withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
         if (!error) {
             NSString *userId = nil;
             for (NSMutableDictionary *user in peers) {
@@ -698,7 +710,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         if (peerConnection.isMCUPublisherPeer) {
             [self forceReconnect];
         // If another peer failed using MCU then request a new offer
-        } else if ([[NCExternalSignalingController sharedInstance] hasMCU]) {
+        } else if ([_externalSignalingController hasMCU]) {
             NSString *sessionId = [peerConnection.peerId copy];
             NSString *roomType = [peerConnection.roomType copy];
             NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
@@ -707,7 +719,7 @@ static NSString * const kNCVideoTrackKind = @"video";
             // Close failed peer connection
             [self cleanPeerConnectionsForSessionId:peerConnection.peerId];
             // Request new offer
-            [[NCExternalSignalingController sharedInstance] requestOfferForSessionId:peerConnection.peerId andRoomType:peerConnection.roomType];
+            [_externalSignalingController requestOfferForSessionId:peerConnection.peerId andRoomType:peerConnection.roomType];
             // Set timeout to request new offer
             NSTimer *pendingOfferTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(requestNewOffer:) userInfo:userInfo repeats:YES];
             [_pendingOffersDict setObject:pendingOfferTimer forKey:peerConnection.peerId];
@@ -750,8 +762,8 @@ static NSString * const kNCVideoTrackKind = @"video";
                                                                                   sid:nil
                                                                              roomType:peerConnection.roomType];
     
-    if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-        [[NCExternalSignalingController sharedInstance] sendCallMessage:message];
+    if ([_externalSignalingController isEnabled]) {
+        [_externalSignalingController sendCallMessage:message];
     } else {
         [_signalingController sendSignalingMessage:message];
     }
@@ -767,8 +779,8 @@ static NSString * const kNCVideoTrackKind = @"video";
                                             roomType:peerConnection.roomType
                                             nick:_userDisplayName];
     
-    if ([[NCExternalSignalingController sharedInstance] isEnabled]) {
-        [[NCExternalSignalingController sharedInstance] sendCallMessage:message];
+    if ([_externalSignalingController isEnabled]) {
+        [_externalSignalingController sendCallMessage:message];
     } else {
         [_signalingController sendSignalingMessage:message];
     }
