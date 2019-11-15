@@ -10,6 +10,7 @@
 
 #import "SRWebSocket.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 
@@ -24,6 +25,8 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 @property (nonatomic, strong) NSString* ticket;
 @property (nonatomic, strong) NSString* resumeId;
 @property (nonatomic, strong) NSString* sessionId;
+@property (nonatomic, strong) NSString* userId;
+@property (nonatomic, strong) NSString* authenticationBackendUrl;
 @property (nonatomic, assign) BOOL connected;
 @property (nonatomic, assign) BOOL mcuSupport;
 @property (nonatomic, strong) NSMutableDictionary* participantsMap;
@@ -37,11 +40,6 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 
 @implementation NCExternalSignalingController
 
-NSString * const NCESReceivedSignalingMessageNotification = @"NCESReceivedSignalingMessageNotification";
-NSString * const NCESReceivedParticipantListMessageNotification = @"NCESReceivedParticipantListMessageNotification";
-NSString * const NCESShouldRejoinCallNotification = @"NCESShouldRejoinCallNotification";
-NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotification";
-
 + (NCExternalSignalingController *)sharedInstance
 {
     static dispatch_once_t once;
@@ -50,6 +48,18 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
         sharedInstance = [[self alloc] init];
     });
     return sharedInstance;
+}
+
+- (instancetype)initWithAccount:(TalkAccount *)account server:(NSString *)serverUrl andTicket:(NSString *)ticket
+{
+    self = [super init];
+    if (self) {
+        _account = account;
+        _userId = _account.userId;
+        _authenticationBackendUrl = [[NCAPIController sharedInstance] authenticationBackendUrlForAccount:_account];
+        [self setServer:serverUrl andTicket:ticket];
+    }
+    return self;
 }
 
 - (BOOL)isEnabled
@@ -185,9 +195,9 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
                                 @"hello": @{
                                         @"version": @"1.0",
                                         @"auth": @{
-                                                @"url": [[NCAPIController sharedInstance] authenticationBackendUrl],
+                                                @"url": _authenticationBackendUrl,
                                                 @"params": @{
-                                                        @"userid": [NCSettingsController sharedInstance].ncUserId,
+                                                        @"userid": _userId,
                                                         @"ticket": _ticket
                                                         }
                                                 }
@@ -229,9 +239,7 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
     
     // Re-join if user was in a room
     if (_currentRoom && _sessionChanged) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCESWillRejoinCallNotification
-                                                            object:self
-                                                          userInfo:nil];
+        [self.delegate externalSignalingControllerWillRejoinCall:self];
         [[NCRoomsManager sharedInstance] rejoinRoom:_currentRoom];
     }
 }
@@ -309,9 +317,7 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
     // Notify that session has change to rejoin the call if currently in a call
     if (_sessionChanged) {
         _sessionChanged = NO;
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCESShouldRejoinCallNotification
-                                                            object:self
-                                                          userInfo:nil];
+        [self.delegate externalSignalingControllerShouldRejoinCall:self];
     }
 }
 
@@ -339,7 +345,7 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
             if (!participantId || [participantId isEqualToString:@""]) {
                 NSLog(@"Guest joined room.");
             } else {
-                if ([participantId isEqualToString:[NCSettingsController sharedInstance].ncUser]) {
+                if ([participantId isEqualToString:_userId]) {
                     NSLog(@"App user joined room.");
                 } else {
                     [_participantsMap setObject:participant forKey:[participant objectForKey:@"sessionid"]];
@@ -376,9 +382,7 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
     NSString *eventType = [eventDict objectForKey:@"type"];
     if ([eventType isEqualToString:@"update"]) {
         NSLog(@"Participant list changed: %@", [eventDict objectForKey:@"update"]);
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCESReceivedParticipantListMessageNotification
-                                                            object:self
-                                                          userInfo:[eventDict objectForKey:@"update"]];
+        [self.delegate externalSignalingController:self didReceivedParticipantListMessage:[eventDict objectForKey:@"update"]];
     } else {
         NSLog(@"Unknown room event: %@", eventDict);
     }
@@ -387,9 +391,7 @@ NSString * const NCESWillRejoinCallNotification = @"NCESWillRejoinCallNotificati
 - (void)messageReceived:(NSDictionary *)messageDict
 {
     NSLog(@"Message received");
-    [[NSNotificationCenter defaultCenter] postNotificationName:NCESReceivedSignalingMessageNotification
-                                                        object:self
-                                                      userInfo:messageDict];
+    [self.delegate externalSignalingController:self didReceivedSignalingMessage:messageDict];
 }
 
 #pragma mark - SRWebSocketDelegate

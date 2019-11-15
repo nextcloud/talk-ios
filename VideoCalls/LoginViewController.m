@@ -11,6 +11,8 @@
 #import "AuthenticationViewController.h"
 #import "CCCertificate.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
+#import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 
 @interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate>
@@ -30,9 +32,21 @@
     [super viewDidLoad];
     
     self.appLogo.image = [UIImage imageNamed:@"loginLogo"];
-    self.login.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
-    self.activityIndicatorView.color = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    self.view.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    
+    NSString *serverUrlPlaceholderText = @"Server address https://…";
+    self.serverUrl.textColor = [UIColor whiteColor];
+    self.serverUrl.tintColor = [UIColor whiteColor];
+    self.serverUrl.attributedPlaceholder = [[NSAttributedString alloc] initWithString:serverUrlPlaceholderText
+                                                                           attributes:@{NSForegroundColorAttributeName:[UIColor colorWithWhite:1 alpha:0.5]}];
+    
+    self.login.backgroundColor = [UIColor whiteColor];
+    [self.login setTitleColor:[UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0] forState:UIControlStateNormal]; //#0082C9
+    
+    self.activityIndicatorView.color = [UIColor whiteColor];
     self.activityIndicatorView.hidden = YES;
+    
+    self.cancel.hidden = !(multiAccountEnabled && [[NCDatabaseManager sharedInstance] numberOfAccounts] > 0);
 }
 
 - (void)didReceiveMemoryWarning
@@ -76,6 +90,11 @@
     }
 }
 
+- (IBAction)cancel:(id)sender
+{
+    [self dismissViewControllerAnimated:true completion:nil];
+}
+
 - (void)trustedCerticateAccepted
 {
     [self login:self];
@@ -91,17 +110,17 @@
 
 - (void)startLoginProcess
 {
-    [[NCAPIController sharedInstance] setNCServer:_serverURL];
     [self.activityIndicatorView startAnimating];
     self.activityIndicatorView.hidden = NO;
-    [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] getServerCapabilitiesForServer:_serverURL withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
         [self.activityIndicatorView stopAnimating];
         self.activityIndicatorView.hidden = YES;
         if (!error) {
+            NSArray *talkFeatures = [[[serverCapabilities objectForKey:@"capabilities"] objectForKey:@"spreed"] objectForKey:@"features"];
             // Check minimum required version
-            if ([[NCSettingsController sharedInstance] serverUsesRequiredTalkVersion]) {
+            if ([talkFeatures containsObject:kMinimunRequiredTalkCapability]) {
                 [self presentAuthenticationView];
-            } else if ([[[NCSettingsController sharedInstance] ncTalkCapabilities] count] == 0) {
+            } else if (talkFeatures.count == 0) {
                     [self showAlertWithTitle:@"Nextcloud Talk not installed" andMessage:@"It seems that Nextcloud Talk is not installed in your server."];
             } else {
                 [self showAlertWithTitle:@"Nextcloud Talk version not supported" andMessage:@"Please update your server with the latest Nextcloud Talk version available."];

@@ -29,6 +29,7 @@ extern NSString * const kNCUserPublicKey;
 extern NSString * const kNCUserDefaultBrowser;
 
 extern NSString * const kCapabilityChatV2;
+extern NSString * const kCapabilityMultiRoomUsers;
 extern NSString * const kCapabilityFavorites;
 extern NSString * const kCapabilityLastRoomActivity;
 extern NSString * const kCapabilityNoPing;
@@ -41,19 +42,23 @@ extern NSString * const kCapabilityChatReadMarker;
 extern NSString * const kCapabilityStartCallFlag;
 
 extern NSInteger const kDefaultChatMaxLength;
+extern NSString * const kMinimunRequiredTalkCapability;
 
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
 typedef void (^GetSignalingConfigCompletionBlock)(NSError *error);
 
-extern NSString * const NCServerCapabilitiesReceivedNotification;
+extern NSString * const NCTalkNotInstalledNotification;
+extern NSString * const NCOutdatedTalkVersionNotification;
+extern NSString * const NCUserProfileImageUpdatedNotification;
 
 typedef enum NCPreferredFileSorting {
     NCAlphabeticalSorting = 1,
     NCModificationDateSorting
 } NCPreferredFileSorting;
 
+@class NCExternalSignalingController;
 
 @interface NCSettingsController : NSObject
 
@@ -70,24 +75,29 @@ typedef enum NCPreferredFileSorting {
 @property (nonatomic, copy) NSString *ncDeviceIdentifier;
 @property (nonatomic, copy) NSString *ncDeviceSignature;
 @property (nonatomic, copy) NSString *ncUserPublicKey;
-@property (nonatomic, copy) NSDictionary *ncTalkCapabilities;
 @property (nonatomic, copy) NSString *defaultBrowser;
 @property (nonatomic, copy) NSMutableArray *supportedBrowsers;
-@property (nonatomic, copy) NSDictionary *ncSignalingConfiguration;
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
+@property (nonatomic, copy) NSMutableDictionary *signalingConfigutations; // accountId -> signalingConfigutation
+@property (nonatomic, copy) NSMutableDictionary *externalSignalingControllers; // accountId -> externalSignalingController
 
 + (instancetype)sharedInstance;
+- (void)setToken:(NSString *)token forAccount:(NSString *)account;
+- (void)addNewAccountForUser:(NSString *)user withToken:(NSString *)token inServer:(NSString *)server;
+- (void)setAccountActive:(NSString *)account;
+- (NSString *)tokenForAccount:(NSString *)account;
+- (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccount:(NSString *)account;
+- (NSData *)pushNotificationPrivateKeyForAccount:(NSString *)account;
 - (void)cleanUserAndServerStoredValues;
-- (BOOL)generatePushNotificationsKeyPair;
 - (NSString *)pushTokenSHA512;
 - (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
 - (void)logoutWithCompletionBlock:(LogoutCompletionBlock)block;
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
 - (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block;
-- (void)setSignalingConfiguration;
-- (void)subscribeForPushNotifications;
-- (BOOL)serverUsesRequiredTalkVersion;
+- (void)setSignalingConfigurationForAccount:(NSString *)accountId;
+- (NCExternalSignalingController *)externalSignalingControllerForAccount:(NSString *)accountId;
+- (void)subscribeForPushNotificationsForAccount:(NSString *)account;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
 - (NSInteger)chatMaxLengthConfigCapability;
 - (NCPreferredFileSorting)getPreferredFileSorting;

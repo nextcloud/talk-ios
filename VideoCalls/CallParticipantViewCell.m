@@ -68,7 +68,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
         _backgroundImageView = [[AvatarBackgroundImageView alloc] initWithFrame:self.bounds];
         __weak UIImageView *weakBGView = _backgroundImageView;
         self.backgroundView = _backgroundImageView;
-        [_backgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:96]
+        [_backgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                     placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
                                         if ([response statusCode] == 200) {
                                             CGFloat inputRadius = 8.0f;
@@ -97,7 +97,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
     }
     
     if (userId && userId.length > 0) {
-        [self.peerAvatarImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:256]
+        [self.peerAvatarImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:256 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                         placeholderImage:nil success:nil failure:nil];
     } else {
         UIColor *guestAvatarColor = [UIColor colorWithRed:0.73 green:0.73 blue:0.73 alpha:1.0]; /*#b9b9b9*/

@@ -11,7 +11,6 @@
 #import "DirectoryTableViewCell.h"
 #import "OCFileDto.h"
 #import "NCAPIController.h"
-#import "NCFilePreviewSessionManager.h"
 #import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
@@ -137,7 +136,7 @@
 
 - (void)getItemsInDirectory
 {
-    [[NCAPIController sharedInstance] readFolderAtPath:_path depth:@"1" withCompletionBlock:^(NSArray *items, NSError *error) {
+    [[NCAPIController sharedInstance] readFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:_path depth:@"1" withCompletionBlock:^(NSArray *items, NSError *error) {
         if (!error) {
             NSMutableArray *itemsInDirectory = [NSMutableArray new];
             for (OCFileDto *item in items) {
@@ -177,7 +176,7 @@
 - (void)shareFileWithPath:(NSString *)path
 {
     [self setSharingFileUI];
-    [[NCAPIController sharedInstance] shareFileOrFolderAtPath:path toRoom:_token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] shareFileOrFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:path toRoom:_token withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self dismissViewControllerAnimated:YES completion:nil];
         } else {
@@ -329,7 +328,7 @@
         cell.fileImageView.image = [UIImage imageNamed:@"folder"];
     } else if (item.hasPreview) {
         NSString *fileId = [NSString stringWithFormat:@"%f", item.id];
-        [cell.fileImageView setImageWithURLRequest:[[NCFilePreviewSessionManager sharedInstance] createPreviewRequestForFile:fileId width:40 height:40]
+        [cell.fileImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:fileId width:40 height:40 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                   placeholderImage:filePreviewImage success:nil failure:nil];
     } else {
         cell.fileImageView.image = filePreviewImage;

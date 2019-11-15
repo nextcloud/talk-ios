@@ -10,20 +10,28 @@
 
 #import "NCSignalingMessage.h"
 
-extern NSString * const NCESReceivedSignalingMessageNotification;
-extern NSString * const NCESReceivedParticipantListMessageNotification;
-extern NSString * const NCESShouldRejoinCallNotification;
-extern NSString * const NCESWillRejoinCallNotification;
+@class NCExternalSignalingController;
+@class TalkAccount;
+
+@protocol NCExternalSignalingControllerDelegate <NSObject>
+
+- (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedSignalingMessage:(NSDictionary *)signalingMessageDict;
+- (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedParticipantListMessage:(NSDictionary *)participantListMessageDict;
+- (void)externalSignalingControllerShouldRejoinCall:(NCExternalSignalingController *)externalSignalingController;
+- (void)externalSignalingControllerWillRejoinCall:(NCExternalSignalingController *)externalSignalingController;
+
+@end
 
 @interface NCExternalSignalingController : NSObject
 
-@property (nonatomic, strong) NSString* currentRoom;
+@property (nonatomic, strong) NSString *currentRoom;
+@property (nonatomic, strong) TalkAccount *account;
+@property (nonatomic, weak) id<NCExternalSignalingControllerDelegate> delegate;
 
-+ (instancetype)sharedInstance;
+- (instancetype)initWithAccount:(TalkAccount *)account server:(NSString *)serverUrl andTicket:(NSString *)ticket;
 - (BOOL)isEnabled;
 - (BOOL)hasMCU;
 - (NSString *)sessionId;
-- (void)setServer:(NSString *)serverUrl andTicket:(NSString *)ticket;
 - (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId;
 - (void)leaveRoom:(NSString *)roomId;
 - (void)sendCallMessage:(NCSignalingMessage *)message;

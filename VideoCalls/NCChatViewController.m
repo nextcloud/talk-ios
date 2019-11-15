@@ -20,10 +20,11 @@
 #import "PlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCChatMessage.h"
+#import "NCDatabaseManager.h"
 #import "NCMessageParameter.h"
 #import "NCChatTitleView.h"
 #import "NCMessageTextView.h"
-#import "NCFilePreviewSessionManager.h"
+#import "NCImageSessionManager.h"
 #import "NCRoomsManager.h"
 #import "NCRoomController.h"
 #import "NCSettingsController.h"
@@ -76,12 +77,7 @@
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
         // Set image downloader to file preview imageviews.
-        AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
-                                              initWithSessionManager:[NCFilePreviewSessionManager sharedInstance]
-                                              downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                                              maximumActiveDownloads:4
-                                              imageCache:[[AFAutoPurgingImageCache alloc] init]];
-        [FilePreviewImageView setSharedImageDownloader:imageDownloader];
+        [FilePreviewImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
@@ -245,7 +241,7 @@
         case kNCRoomTypeOneToOne:
         {
             // Request user avatar to the server and set it if exist
-            [_titleView.image setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
+            [_titleView.image setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                     placeholderImage:nil success:nil failure:nil];
         }
             break;
@@ -901,8 +897,9 @@
 
 - (BOOL)newMessagesContainUserMessage:(NSMutableArray *)messages
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     for (NCChatMessage *message in messages) {
-        if ([message.actorId isEqualToString:[NCSettingsController sharedInstance].ncUserId]) {
+        if ([message.actorId isEqualToString:activeAccount.userId]) {
             return YES;
         }
     }
@@ -970,7 +967,7 @@
 - (void)showSuggestionsForString:(NSString *)string
 {
     self.autocompletionUsers = nil;
-    [[NCAPIController sharedInstance] getMentionSuggestionsInRoom:_room.token forString:string withCompletionBlock:^(NSMutableArray *mentions, NSError *error) {
+    [[NCAPIController sharedInstance] getMentionSuggestionsInRoom:_room.token forString:string forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *mentions, NSError *error) {
         if (!error) {
             self.autocompletionUsers = [[NSMutableArray alloc] initWithArray:mentions];
             BOOL show = (self.autocompletionUsers.count > 0);
@@ -1064,7 +1061,7 @@
             NSString *name = ([suggestionName isEqualToString:@"Guest"]) ? @"?" : suggestionName;
             [suggestionCell.avatarView setImageWithString:name color:guestAvatarColor circular:true];
         } else {
-            [suggestionCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:suggestionId andSize:96]
+            [suggestionCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:suggestionId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                              placeholderImage:nil success:nil failure:nil];
         }
         return suggestionCell;
@@ -1097,12 +1094,13 @@
         fileCell.filePath = message.file.path;
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
         fileCell.dateLabel.text = [self getTimeFromDate:date];
-        [fileCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        [fileCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:activeAccount]
                                    placeholderImage:nil success:nil failure:nil];
         NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
         UIImage *filePreviewImage = [UIImage imageNamed:imageName];
         __weak FilePreviewImageView *weakPreviewImageView = fileCell.previewImageView;
-        [fileCell.previewImageView setImageWithURLRequest:[[NCFilePreviewSessionManager sharedInstance] createPreviewRequestForFile:message.file.parameterId width:120 height:120]
+        [fileCell.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId width:120 height:120 usingAccount:activeAccount]
                                          placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
                                              [weakPreviewImageView setImage:image];
                                              weakPreviewImageView.layer.borderColor = [[UIColor colorWithWhite:0.9 alpha:1.0] CGColor];
@@ -1133,7 +1131,7 @@
                 [normalCell setBotAvatar];
             }
         } else {
-            [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96]
+            [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                          placeholderImage:nil success:nil failure:nil];
         }
         

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -13,6 +13,7 @@
             <connections>
                 <outlet property="activityIndicatorView" destination="Dkt-lG-hBg" id="jaC-Lf-swb"/>
                 <outlet property="appLogo" destination="iwf-In-Fgx" id="lQi-z1-f1e"/>
+                <outlet property="cancel" destination="3DN-vn-ssn" id="2K7-ca-m3d"/>
                 <outlet property="imageBaseUrl" destination="FqU-PH-59c" id="HcC-vC-kkQ"/>
                 <outlet property="login" destination="WaC-p3-cE0" id="gR4-kZ-73f"/>
                 <outlet property="serverUrl" destination="Xub-RR-Z2O" id="yCd-bR-8wI"/>
@@ -24,15 +25,12 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="loginLogo" translatesAutoresizingMaskIntoConstraints="NO" id="iwf-In-Fgx">
-                    <rect key="frame" x="73" y="56" width="229" height="120"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="120" id="KHh-ze-fSP"/>
-                        <constraint firstAttribute="width" constant="229" id="eRM-xi-Thu"/>
-                    </constraints>
+                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="loginLogo" translatesAutoresizingMaskIntoConstraints="NO" id="iwf-In-Fgx">
+                    <rect key="frame" x="77" y="62" width="221" height="136"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Server address https://…" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Xub-RR-Z2O">
-                    <rect key="frame" x="49" y="215" width="282" height="35"/>
+                    <rect key="frame" x="49" y="232" width="282" height="35"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <color key="textColor" white="0.26000000000000001" alpha="1" colorSpace="calibratedWhite"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -45,33 +43,37 @@
                     <rect key="frame" x="0.0" y="307" width="375" height="52"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" red="0.28099492970000001" green="0.3251131223" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    <state key="normal" title="Login">
-                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <color key="titleShadowColor" white="0.26000000000000001" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
+                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                    <state key="normal" title="Login"/>
                     <connections>
                         <action selector="login:" destination="-1" eventType="touchUpInside" id="N8h-1K-h4U"/>
                     </connections>
                 </button>
                 <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="Dkt-lG-hBg">
-                    <rect key="frame" x="339" y="222" width="20" height="20"/>
+                    <rect key="frame" x="339" y="239" width="20" height="20"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                 </activityIndicatorView>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="loginURL" translatesAutoresizingMaskIntoConstraints="NO" id="FqU-PH-59c">
-                    <rect key="frame" x="16" y="220" width="25" height="25"/>
+                    <rect key="frame" x="16" y="237" width="25" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
+                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3DN-vn-ssn">
+                    <rect key="frame" x="327" y="30" width="44" height="44"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <state key="normal" image="cancel"/>
+                    <connections>
+                        <action selector="cancel:" destination="-1" eventType="touchUpInside" id="jep-NM-iny"/>
+                    </connections>
+                </button>
             </subviews>
-            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-            <constraints>
-                <constraint firstItem="iwf-In-Fgx" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="56" id="He8-ze-ArH"/>
-                <constraint firstItem="iwf-In-Fgx" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="tIR-gz-yu5"/>
-            </constraints>
-            <point key="canvasLocation" x="33.5" y="53.5"/>
+            <color key="backgroundColor" red="0.0" green="0.50980392159999999" blue="0.78823529410000004" alpha="1" colorSpace="calibratedRGB"/>
+            <point key="canvasLocation" x="32.799999999999997" y="52.623688155922046"/>
         </view>
     </objects>
     <resources>
-        <image name="loginLogo" width="223" height="157"/>
+        <image name="cancel" width="24" height="24"/>
+        <image name="loginLogo" width="250" height="176.5"/>
         <image name="loginURL" width="25" height="25"/>
     </resources>
 </document>

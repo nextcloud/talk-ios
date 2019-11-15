@@ -128,7 +128,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 - (void)createGroupRoomWithName:(NSString *)roomName public:(BOOL)public
 {
-    [[NCAPIController sharedInstance] createRoomWith:nil
+    [[NCAPIController sharedInstance] createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] with:nil
                                               ofType:public ? kNCRoomTypePublic : kNCRoomTypeGroup
                                              andName:roomName
                                  withCompletionBlock:^(NSString *token, NSError *error) {
@@ -151,7 +151,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 - (void)addParticipant:(NCUser *)participant
 {
-    [[NCAPIController sharedInstance] addParticipant:participant.userId toRoom:_createdRoomToken withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addParticipant:participant.userId toRoom:_createdRoomToken forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self participantHasBeenAdded];
         } else {
@@ -171,7 +171,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 - (void)setPassword
 {
-    [[NCAPIController sharedInstance] setPassword:_passwordToBeSet toRoom:_createdRoomToken withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] setPassword:_passwordToBeSet toRoom:_createdRoomToken forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             _passwordToBeSet = nil;
             [self checkRoomCreationCompletion];
@@ -365,7 +365,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                 }
                 
                 cell.labelTitle.text = participant.name;
-                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
+                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                          placeholderImage:nil success:nil failure:nil];
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
                 cell.layoutMargins = UIEdgeInsetsMake(0, 72, 0, 0);

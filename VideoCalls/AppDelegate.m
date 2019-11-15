@@ -16,9 +16,9 @@
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
-#import "OpenInFirefoxControllerObjC.h"
 #import "NCAudioController.h"
 #import "NCConnectionController.h"
+#import "NCDatabaseManager.h"
 #import "NCNotificationController.h"
 #import "NCPushNotification.h"
 #import "NCRoomsManager.h"
@@ -50,17 +50,8 @@
     NSLog(@"Configure Audio Session");
     [NCAudioController sharedInstance];
     
-    // Check supported browsers
-    NSMutableArray *supportedBrowsers = [[NSMutableArray alloc] initWithObjects:@"Safari", nil];
-    if ([[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
-        [supportedBrowsers addObject:@"Firefox"];
-    }
-    [NCSettingsController sharedInstance].supportedBrowsers = supportedBrowsers;
-    // Set default browser
-    NSString *defaultBrowser = [NCSettingsController sharedInstance].defaultBrowser;
-    if (!defaultBrowser || ![supportedBrowsers containsObject:defaultBrowser]) {
-        [NCSettingsController sharedInstance].defaultBrowser = @"Safari";
-    }
+    NSLog(@"Configure App Settings");
+    [NCSettingsController sharedInstance];
     
     [NCUserInterfaceController sharedInstance].mainNavigationController = (UINavigationController *) self.window.rootViewController;
     
@@ -126,29 +117,38 @@
     UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
                                                                 accessGroup:@"group.com.nextcloud.Talk"];
     NSString *pushKitToken = [self stringWithDeviceToken:credentials.token];
-    NSString *savedPushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
-    NSString *subscribed = [NCSettingsController sharedInstance].pushNotificationSubscribed;
+    NSString *devicePushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
+    BOOL tokenChanged = ![devicePushKitToken isEqualToString:pushKitToken];
     
-    // Re-subscribe if new push token has been generated
-    if (!subscribed || ![savedPushKitToken isEqualToString:pushKitToken]) {
-        // Remove subscribed flag
-        [keychain removeItemForKey:kNCPushSubscribedKey];
-        // Store new PushKit token
-        [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
-        [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
-        
-        [[NCConnectionController sharedInstance] reSubscribeForPushNotifications];
+    for (TalkAccount *account in [TalkAccount allObjects]) {
+        if (tokenChanged) {
+            // Remove subscribed flag if token has changed
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm beginWriteTransaction];
+            account.pushNotificationSubscribed = NO;
+            [realm commitWriteTransaction];
+        }
+        if (!account.pushNotificationSubscribed) {
+            [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccount:account.accountId];
+        }
     }
+    
+    // Store new PushKit token in Keychain
+    [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
+    [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
 }
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
 {
     NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
-    if (message && [NCSettingsController sharedInstance].ncPNPrivateKey) {
-        NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:[NCSettingsController sharedInstance].ncPNPrivateKey];
-        if (decryptedMessage) {
-            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage];
-            [[NCNotificationController sharedInstance] processIncomingPushNotification:pushNotification];
+    for (TalkAccount *account in [TalkAccount allObjects]) {
+        NSData *pushNotificationPrivateKey = [[NCSettingsController sharedInstance] pushNotificationPrivateKeyForAccount:account.accountId];
+        if (message && pushNotificationPrivateKey) {
+            NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+            if (decryptedMessage) {
+                NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccount:account.accountId];
+                [[NCNotificationController sharedInstance] processIncomingPushNotification:pushNotification];
+            }
         }
     }
 }
