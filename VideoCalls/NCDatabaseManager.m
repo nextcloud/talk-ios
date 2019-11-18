@@ -127,7 +127,9 @@
     ServerCapabilities *serverCapabilities = [ServerCapabilities objectsWithPredicate:query].firstObject;
     [realm beginWriteTransaction];
     [realm deleteObject:removeAccount];
-    [realm deleteObject:serverCapabilities];
+    if (serverCapabilities) {
+        [realm deleteObject:serverCapabilities];
+    }
     [realm commitWriteTransaction];
 }
 
