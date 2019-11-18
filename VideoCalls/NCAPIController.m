@@ -1116,11 +1116,15 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (UIImage *)imageWithImage:(UIImage *)image convertToSize:(CGSize)size
 {
-    UIGraphicsBeginImageContext(size);
-    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
-    UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return destImage;
+    if (image) {
+        UIGraphicsBeginImageContext(size);
+        [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
+        UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        return destImage;
+    }
+    
+    return nil;
 }
 
 #pragma mark - Server capabilities
