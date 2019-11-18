@@ -47,6 +47,7 @@
     self.activityIndicatorView.hidden = YES;
     
     self.cancel.hidden = !(multiAccountEnabled && [[NCDatabaseManager sharedInstance] numberOfAccounts] > 0);
+    [self.cancel setTitle:@"Cancel" forState:UIControlStateNormal];
 }
 
 - (void)didReceiveMemoryWarning

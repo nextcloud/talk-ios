@@ -57,11 +57,10 @@
                     <rect key="frame" x="16" y="237" width="25" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3DN-vn-ssn">
-                    <rect key="frame" x="327" y="30" width="44" height="44"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3DN-vn-ssn">
+                    <rect key="frame" x="16" y="30" width="160" height="44"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                    <state key="normal" image="cancel"/>
                     <connections>
                         <action selector="cancel:" destination="-1" eventType="touchUpInside" id="jep-NM-iny"/>
                     </connections>
@@ -72,7 +71,6 @@
         </view>
     </objects>
     <resources>
-        <image name="cancel" width="24" height="24"/>
         <image name="loginLogo" width="250" height="176.5"/>
         <image name="loginURL" width="25" height="25"/>
     </resources>
