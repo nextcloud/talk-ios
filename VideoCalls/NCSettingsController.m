@@ -234,9 +234,6 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     _ncDeviceSignature = nil;
     _defaultBrowser = @"Safari";
     _pushNotificationSubscribed = nil;
-    // Also remove values that are not stored in the keychain
-    _ncTalkCapabilities = nil;
-    _ncSignalingConfiguration = nil;
     _ncBlockCode = nil;
     _ncBlockCodeUseSimply = nil;
     
@@ -254,8 +251,6 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     [_keychain removeItemForKey:kNCBlockCode];
     [_keychain removeItemForKey:kNCBlockCodeUseSimply];
     
-#warning TODO - Restore NCAPIController in a diferent way
-    [[NCAPIController sharedInstance] setAuthHeaderWithUser:NULL andToken:NULL];
 
 }
 
