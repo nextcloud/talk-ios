@@ -11,7 +11,10 @@
 #import "AFNetworking.h"
 #import "RoomTableViewCell.h"
 #import "CCCertificate.h"
+#import "FTPopOverMenu.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
+#import "NCDatabaseManager.h"
 #import "NCImageSessionManager.h"
 #import "NCConnectionController.h"
 #import "NCNotificationController.h"
@@ -57,18 +60,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
     [self createRefreshControl];
+    [self setNavigationLogoButton];
     
-    AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
-                                          initWithSessionManager:[NCImageSessionManager sharedInstance]
-                                          downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                                          maximumActiveDownloads:4
-                                          imageCache:[[AFAutoPurgingImageCache alloc] init]];
+    [UIImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
+    [UIButton setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
     
-    [UIImageView setSharedImageDownloader:imageDownloader];
-    [UIButton setSharedImageDownloader:imageDownloader];
-    
-    UIImage *navigationLogo = [UIImage imageNamed:@"navigationLogo"];
-    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:navigationLogo];
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
@@ -118,6 +114,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationWillBePresented:) name:NCNotificationControllerWillPresentNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userProfileImageUpdated:) name:NCUserProfileImageUpdatedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
@@ -198,6 +195,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NCRoomsManager sharedInstance] updateRooms];
 }
 
+- (void)userProfileImageUpdated:(NSNotification *)notification
+{
+    [self setProfileButtonWithUserImage];
+}
+
 - (void)appWillEnterForeground:(NSNotification *)notification
 {
     if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
@@ -242,6 +244,68 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     AudioServicesPlaySystemSound(1519);
 }
 
+#pragma mark - Title menu
+
+- (void)setNavigationLogoButton
+{
+    UIImage *logoImage = [UIImage imageNamed:@"navigationLogo"];
+    if (multiAccountEnabled) {
+        UIButton *logoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        [logoButton setImage:logoImage forState:UIControlStateNormal];
+        [logoButton addTarget:self action:@selector(showAccountsMenu:) forControlEvents:UIControlEventTouchUpInside];
+        self.navigationItem.titleView = logoButton;
+    } else {
+        self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
+    }
+}
+
+-(void)showAccountsMenu:(UIButton*)sender
+{
+    NSMutableArray *menuArray = [NSMutableArray new];
+    NSMutableArray *actionsArray = [NSMutableArray new];
+    for (TalkAccount *account in [TalkAccount allObjects]) {
+        NSString *accountName = account.userDisplayName;
+        UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(72, 72)];
+        UIImageView *accessoryImageView = (account.active) ? [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]] : nil;
+        FTPopOverMenuModel *accountModel = [[FTPopOverMenuModel alloc] initWithTitle:accountName image:accountImage selected:NO accessoryView:accessoryImageView];
+        [menuArray addObject:accountModel];
+        [actionsArray addObject:account];
+    }
+    FTPopOverMenuModel *addAccountModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Add account" image:[UIImage imageNamed:@"add-settings"] selected:NO accessoryView:nil];
+    [menuArray addObject:addAccountModel];
+    [actionsArray addObject:@"AddAccountAction"];
+    
+    FTPopOverMenuConfiguration *menuConfiguration = [[FTPopOverMenuConfiguration alloc] init];
+    menuConfiguration.menuIconMargin = 12;
+    menuConfiguration.menuTextMargin = 12;
+    menuConfiguration.imageSize = CGSizeMake(24, 24);
+    menuConfiguration.separatorInset = UIEdgeInsetsMake(0, 48, 0, 0);
+    menuConfiguration.menuRowHeight = 44;
+    menuConfiguration.autoMenuWidth = YES;
+    menuConfiguration.textColor = [UIColor darkTextColor];
+    menuConfiguration.textFont = [UIFont systemFontOfSize:15];
+    menuConfiguration.backgroundColor = [UIColor whiteColor];
+    menuConfiguration.borderWidth = 0;
+    menuConfiguration.separatorColor = [UIColor colorWithWhite:0.85 alpha:1];
+    menuConfiguration.shadowOpacity = 0.8;
+    menuConfiguration.roundedImage = YES;
+    menuConfiguration.defaultSelection = YES;
+
+    [FTPopOverMenu showForSender:sender
+                   withMenuArray:menuArray
+                      imageArray:nil
+                   configuration:menuConfiguration
+                       doneBlock:^(NSInteger selectedIndex) {
+                           id action = [actionsArray objectAtIndex:selectedIndex];
+                           if ([action isKindOfClass:[TalkAccount class]]) {
+                               TalkAccount *account = action;
+                               [[NCSettingsController sharedInstance] setAccountActive:account.accountId];
+                           } else {
+                               [[NCUserInterfaceController sharedInstance] presentLoginViewController];
+                           }
+                       } dismissBlock:nil];
+}
+
 #pragma mark - Search controller
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
@@ -266,14 +330,17 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)adaptInterfaceForAppState:(AppState)appState
 {
     switch (appState) {
-        case kAppStateUnknown:
+        case kAppStateNotServerProvided:
+        case kAppStateMissingUserProfile:
+        case kAppStateMissingServerCapabilities:
+        case kAppStateMissingSignalingConfiguration:
         {
-            [self setProfileButtonWithUserImage:NO];
+            [self setProfileButtonWithUserImage];
         }
             break;
         case kAppStateReady:
         {
-            [self setProfileButtonWithUserImage:YES];
+            [self setProfileButtonWithUserImage];
             [[NCRoomsManager sharedInstance] updateRooms];
         }
             break;
@@ -312,12 +379,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)setOnlineAppearance
 {
     self.addButton.enabled = YES;
-    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogo"]];
+    [self setNavigationLogoButton];
 }
 
 #pragma mark - User profile
 
-- (void)setProfileButtonWithUserImage:(BOOL)userImage
+- (void)setProfileButtonWithUserImage
 {
     UIButton *profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [profileButton addTarget:self action:@selector(showUserProfile) forControlEvents:UIControlEventTouchUpInside];
@@ -325,10 +392,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     profileButton.layer.masksToBounds = YES;
     profileButton.layer.cornerRadius = 15;
     
-    if (userImage) {
-        [profileButton setBackgroundImageForState:UIControlStateNormal
-                                   withURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:60]
-                                 placeholderImage:nil success:nil failure:nil];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withSize:CGSizeMake(90, 90)];
+    if (profileImage) {
+        [profileButton setImage:profileImage forState:UIControlStateNormal];
     } else {
         [profileButton setImage:[UIImage imageNamed:@"settings-white"] forState:UIControlStateNormal];
         profileButton.contentMode = UIViewContentModeCenter;
@@ -388,7 +455,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                        if (level == room.notificationLevel) {
                                                            return;
                                                        }
-                                                       [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:room.token withCompletionBlock:^(NSError *error) {
+                                                       [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
                                                            if (error) {
                                                                NSLog(@"Error renaming the room: %@", error.description);
                                                            }
@@ -404,11 +471,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)shareLinkFromRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *shareMessage = [NSString stringWithFormat:@"Join the conversation at %@/index.php/call/%@",
-                              [[NCAPIController sharedInstance] currentServerUrl], room.token];
+                              activeAccount.server, room.token];
     if (room.name && ![room.name isEqualToString:@""]) {
         shareMessage = [NSString stringWithFormat:@"Join the conversation%@ at %@/index.php/call/%@",
-                        [NSString stringWithFormat:@" \"%@\"", room.name], [[NCAPIController sharedInstance] currentServerUrl], room.token];
+                        [NSString stringWithFormat:@" \"%@\"", room.name], activeAccount.server, room.token];
     }
     NSArray *items = @[shareMessage];
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
@@ -436,7 +504,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)addRoomToFavoritesAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] addRoomToFavorites:room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addRoomToFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error adding room to favorites: %@", error.description);
         }
@@ -447,7 +515,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)removeRoomFromFavoritesAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error removing room from favorites: %@", error.description);
         }
@@ -473,7 +541,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Leave" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [_rooms removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token withCompletionBlock:^(NSInteger errorCode, NSError *error) {
+        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSInteger errorCode, NSError *error) {
             if (errorCode == 400) {
                 [self showLeaveRoomLastModeratorErrorForRoom:room];
             } else if (error) {
@@ -498,7 +566,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [_rooms removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        [[NCAPIController sharedInstance] deleteRoom:room.token withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] deleteRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             if (error) {
                 NSLog(@"Error deleting room: %@", error.description);
             }
@@ -780,7 +848,7 @@ API_AVAILABLE(ios(11.0)){
     // Set room image
     switch (room.type) {
         case kNCRoomTypeOneToOne:
-            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96]
+            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                   placeholderImage:nil success:nil failure:nil];
             break;
             

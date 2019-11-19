@@ -13,6 +13,4 @@
 
 @property (nonatomic, strong) NSString *userAgent;
 
-+ (instancetype)sharedInstance;
-
 @end

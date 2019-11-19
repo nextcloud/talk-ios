@@ -129,7 +129,7 @@
     // Set room image
     switch (room.type) {
         case kNCRoomTypeOneToOne:
-            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96]
+            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                   placeholderImage:nil success:nil failure:nil];
             break;
             

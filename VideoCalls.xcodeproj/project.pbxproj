@@ -19,10 +19,15 @@
 		2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C06BF6320AC64370031EB46 /* DateHeaderView.xib */; };
 		2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
 		2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */; };
+		2C2026A0236832D300DFC89B /* FTPopOverMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C20269F236832D300DFC89B /* FTPopOverMenu.m */; };
+		2C2026A42369F47400DFC89B /* AccountTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2026A22369F47400DFC89B /* AccountTableViewCell.m */; };
+		2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C2026A32369F47400DFC89B /* AccountTableViewCell.xib */; };
+		2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
 		2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
 		2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
 		2C3780C5210F4A26003F9AE8 /* HeaderWithButton.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */; };
+		2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
 		2C415F9B2136BDD6005F7F37 /* FileMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */; };
 		2C42ADB420B58E6300296DEA /* NCRoomController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C42ADB320B58E6300296DEA /* NCRoomController.m */; };
 		2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
@@ -55,7 +60,6 @@
 		2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */; };
 		2C7C106221AF199300461817 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7C106021AF199300461817 /* SettingsViewController.m */; };
 		2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
-		2C86DB8B2135B910008770C3 /* NCFilePreviewSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C86DB8A2135B910008770C3 /* NCFilePreviewSessionManager.m */; };
 		2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */; };
 		2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */; };
 		2C8A2BCF221FEEFE00DE6D2C /* DirectoryTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCD221FEEFE00DE6D2C /* DirectoryTableViewCell.xib */; };
@@ -194,6 +198,13 @@
 		2C06BF6620AC647A0031EB46 /* DateHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateHeaderView.m; sourceTree = "<group>"; };
 		2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedNumberView.m; sourceTree = "<group>"; };
 		2C06BF6B20AEB0030031EB46 /* RoundedNumberView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedNumberView.h; sourceTree = "<group>"; };
+		2C20269E236832D300DFC89B /* FTPopOverMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FTPopOverMenu.h; sourceTree = "<group>"; };
+		2C20269F236832D300DFC89B /* FTPopOverMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FTPopOverMenu.m; sourceTree = "<group>"; };
+		2C2026A12369F47400DFC89B /* AccountTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AccountTableViewCell.h; sourceTree = "<group>"; };
+		2C2026A22369F47400DFC89B /* AccountTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AccountTableViewCell.m; sourceTree = "<group>"; };
+		2C2026A32369F47400DFC89B /* AccountTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AccountTableViewCell.xib; sourceTree = "<group>"; };
+		2C2A788C2359CC8800EEB797 /* NCAppBranding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCAppBranding.h; sourceTree = "<group>"; };
+		2C2A788D2359CC8800EEB797 /* NCAppBranding.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAppBranding.m; sourceTree = "<group>"; };
 		2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSignalingMessage.h; sourceTree = "<group>"; };
 		2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCSignalingMessage.m; sourceTree = "<group>"; };
 		2C3780BB2107209C003F9AE8 /* NCRoomParticipant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCRoomParticipant.h; sourceTree = "<group>"; };
@@ -201,6 +212,8 @@
 		2C3780C1210F49DC003F9AE8 /* HeaderWithButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HeaderWithButton.h; sourceTree = "<group>"; };
 		2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HeaderWithButton.m; sourceTree = "<group>"; };
 		2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HeaderWithButton.xib; sourceTree = "<group>"; };
+		2C40281322832EED0000DDFC /* NCDatabaseManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCDatabaseManager.h; sourceTree = "<group>"; };
+		2C40281422832EED0000DDFC /* NCDatabaseManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCDatabaseManager.m; sourceTree = "<group>"; };
 		2C415F992136BDD6005F7F37 /* FileMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileMessageTableViewCell.h; sourceTree = "<group>"; };
 		2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileMessageTableViewCell.m; sourceTree = "<group>"; };
 		2C42ADB220B58E6300296DEA /* NCRoomController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCRoomController.h; sourceTree = "<group>"; };
@@ -260,8 +273,6 @@
 		2C7C105F21AF199300461817 /* SettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
 		2C7C106021AF199300461817 /* SettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
 		2C7F47AB20289B9600081CC7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		2C86DB892135B910008770C3 /* NCFilePreviewSessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCFilePreviewSessionManager.h; sourceTree = "<group>"; };
-		2C86DB8A2135B910008770C3 /* NCFilePreviewSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCFilePreviewSessionManager.m; sourceTree = "<group>"; };
 		2C8A2BC7221F094F00DE6D2C /* DirectoryTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirectoryTableViewController.h; sourceTree = "<group>"; };
 		2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DirectoryTableViewController.m; sourceTree = "<group>"; };
 		2C8A2BCB221FEEFE00DE6D2C /* DirectoryTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirectoryTableViewCell.h; sourceTree = "<group>"; };
@@ -573,6 +584,7 @@
 				2C5521691F7D48480077E587 /* Calls */,
 				2CF0679E208A2A430070A79B /* Chat */,
 				2C5521671F7D47BA0077E587 /* Contacts */,
+				2C40281622832EF90000DDFC /* Database */,
 				2C8A2BCA221F096200DE6D2C /* File sharing */,
 				2C5521681F7D481C0077E587 /* Login */,
 				2C55216B1F7D48970077E587 /* Network */,
@@ -605,6 +617,7 @@
 			isa = PBXGroup;
 			children = (
 				C1CC61422373224000A50181 /* BKPasscodeView */,
+				2C20269D236832D300DFC89B /* FTPopOverMenu */,
 				2CB302F92264775E0053078A /* SlackTextViewController */,
 				2C961DD72216BF4A00F5C23F /* OCCommunicationLib */,
 				2C4E758C214B942D003910D5 /* Firefox */,
@@ -629,6 +642,25 @@
 				2CC7158820B837140045C789 /* PlaceholderView.xib */,
 			);
 			name = "User Interface";
+			sourceTree = "<group>";
+		};
+		2C20269D236832D300DFC89B /* FTPopOverMenu */ = {
+			isa = PBXGroup;
+			children = (
+				2C20269E236832D300DFC89B /* FTPopOverMenu.h */,
+				2C20269F236832D300DFC89B /* FTPopOverMenu.m */,
+			);
+			name = FTPopOverMenu;
+			path = ThirdParty/FTPopOverMenu/FTPopOverMenu;
+			sourceTree = "<group>";
+		};
+		2C40281622832EF90000DDFC /* Database */ = {
+			isa = PBXGroup;
+			children = (
+				2C40281322832EED0000DDFC /* NCDatabaseManager.h */,
+				2C40281422832EED0000DDFC /* NCDatabaseManager.m */,
+			);
+			name = Database;
 			sourceTree = "<group>";
 		};
 		2C4D7D601F2F7C2C00FF4A0D /* AppRTC */ = {
@@ -760,21 +792,24 @@
 		2C55216A1F7D48850077E587 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				2C2A788C2359CC8800EEB797 /* NCAppBranding.h */,
+				2C2A788D2359CC8800EEB797 /* NCAppBranding.m */,
 				2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */,
 				2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */,
+				2C5E957C227097E0009CA9BE /* NCUtils.h */,
+				2C5E957B227097E0009CA9BE /* NCUtils.m */,
 				2C7C105F21AF199300461817 /* SettingsViewController.h */,
 				2C7C106021AF199300461817 /* SettingsViewController.m */,
-				2CBF82AC1FC888FC00636459 /* NCPushNotification.h */,
-				2CBF82AD1FC888FC00636459 /* NCPushNotification.m */,
+				2C2026A12369F47400DFC89B /* AccountTableViewCell.h */,
+				2C2026A22369F47400DFC89B /* AccountTableViewCell.m */,
+				2C2026A32369F47400DFC89B /* AccountTableViewCell.xib */,
 				2C7A1233200E0A5700864818 /* UserSettingsTableViewCell.h */,
 				2C7A1234200E0A5700864818 /* UserSettingsTableViewCell.m */,
 				2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */,
-				2C063311205A85850043481A /* VideoSettingsViewController.h */,
-				2C063312205A85850043481A /* VideoSettingsViewController.m */,
 				2C063316205ACB140043481A /* VideoResolutionsViewController.h */,
 				2C063317205ACB140043481A /* VideoResolutionsViewController.m */,
-				2C5E957C227097E0009CA9BE /* NCUtils.h */,
-				2C5E957B227097E0009CA9BE /* NCUtils.m */,
+				2C063311205A85850043481A /* VideoSettingsViewController.h */,
+				2C063312205A85850043481A /* VideoSettingsViewController.m */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -792,8 +827,6 @@
 				2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */,
 				2CBF82BF1FD5AE3F00636459 /* NCPushProxySessionManager.h */,
 				2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */,
-				2C86DB892135B910008770C3 /* NCFilePreviewSessionManager.h */,
-				2C86DB8A2135B910008770C3 /* NCFilePreviewSessionManager.m */,
 			);
 			name = Network;
 			sourceTree = "<group>";
@@ -1018,6 +1051,8 @@
 			children = (
 				2C9B0B9A217F756B00A4752C /* NCNotification.h */,
 				2C9B0B9B217F756B00A4752C /* NCNotification.m */,
+				2CBF82AC1FC888FC00636459 /* NCPushNotification.h */,
+				2CBF82AD1FC888FC00636459 /* NCPushNotification.m */,
 				2C9B0B96217F6DBA00A4752C /* NCNotificationController.h */,
 				2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */,
 			);
@@ -1250,6 +1285,7 @@
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
+				2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1351,7 +1387,6 @@
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
 				2C961E112216BF4B00F5C23F /* OCFileDto.m in Sources */,
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
-				2C86DB8B2135B910008770C3 /* NCFilePreviewSessionManager.m in Sources */,
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
 				C1CC61562373226B00A50181 /* BKPasscodeLockScreenManager.m in Sources */,
@@ -1381,6 +1416,7 @@
 				2C961E1D2216BF4B00F5C23F /* OCXMLParser.m in Sources */,
 				2C961E1A2216BF4B00F5C23F /* OCHTTPRequestOperation.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
+				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
@@ -1421,6 +1457,7 @@
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
 				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,
 				2C7A1236200E0A5700864818 /* UserSettingsTableViewCell.m in Sources */,
+				2C2026A0236832D300DFC89B /* FTPopOverMenu.m in Sources */,
 				2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */,
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
@@ -1428,12 +1465,14 @@
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
 				2C961E1C2216BF4B00F5C23F /* OCXMLListParser.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
+				2C2026A42369F47400DFC89B /* AccountTableViewCell.m in Sources */,
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
 				2C063318205ACB140043481A /* VideoResolutionsViewController.m in Sources */,
 				2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */,
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,
 				2C42ADB420B58E6300296DEA /* NCRoomController.m in Sources */,
+				2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */,
 				2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */,
 				C1CC615A2373226B00A50181 /* BKPasscodeInputView.m in Sources */,
 				2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */,

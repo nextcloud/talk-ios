@@ -15,7 +15,6 @@
 #import "ARDCaptureController.h"
 #import "CallParticipantViewCell.h"
 #import "DBImageColorPicker.h"
-#import "AFImageDownloader.h"
 #import "NCImageSessionManager.h"
 #import "NBMPeersFlowLayout.h"
 #import "NCCallController.h"
@@ -84,14 +83,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     _videoRenderersDict = [[NSMutableDictionary alloc] init];
     _screenRenderersDict = [[NSMutableDictionary alloc] init];
     
-    // Set image downloader to avatar background imageviews.
-    // Do not cache images so I can get 200 or 201 from the avatar requests.
-    AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
-                                          initWithSessionManager:[NCImageSessionManager sharedInstance]
-                                          downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                                          maximumActiveDownloads:4
-                                          imageCache:nil];
-    [AvatarBackgroundImageView setSharedImageDownloader:imageDownloader];
+    // Use image downloader without cache so I can get 200 or 201 from the avatar requests.
+    [AvatarBackgroundImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloaderNoCache]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidEndCall:) name:CallKitManagerDidEndCallNotification object:nil];
@@ -341,7 +334,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     if (_room.type == kNCRoomTypeOneToOne) {
         __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
-        [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96]
+        [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                               placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
                                                   if ([response statusCode] == 200) {
                                                       CGFloat inputRadius = 8.0f;

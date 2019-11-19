@@ -12,6 +12,8 @@
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
 #import "NCNotification.h"
+#import "NCRoomsManager.h"
+#import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "CallKitManager.h"
 
@@ -81,7 +83,10 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     content.body = pushNotification.bodyForRemoteAlerts;
     content.threadIdentifier = pushNotification.roomToken;
     content.sound = [UNNotificationSound defaultSound];
-    content.userInfo = [NSDictionary dictionaryWithObject:pushNotification.jsonString forKey:@"pushNotification"];
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
+    [userInfo setObject:pushNotification.account forKey:@"account"];
+    content.userInfo = userInfo;
     
     if (serverNotification) {
         content.threadIdentifier = serverNotification.objectId;
@@ -111,7 +116,8 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     if (retryAttempts < 3 && notificationId) {
         retryAttempts += 1;
         [_serverNotificationsAttempts setObject:@(retryAttempts) forKey:@(notificationId)];
-        [[NCAPIController sharedInstance] getServerNotification:notificationId withCompletionBlock:^(NSDictionary *notification, NSError *error, NSInteger statusCode) {
+        TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:pushNotification.account];
+        [[NCAPIController sharedInstance] getServerNotification:notificationId forAccount:talkAccount withCompletionBlock:^(NSDictionary *notification, NSError *error, NSInteger statusCode) {
             if (statusCode == 404) {
                 // Notification has been treated/deleted in another device
                 return;
@@ -175,6 +181,9 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 {
     NSString *roomToken = serverNotification.objectId;
     NSString *displayName = serverNotification.callDisplayName;
+    // Set active account
+    [[NCSettingsController sharedInstance] setAccountActive:pushNotification.account];
+    // Present call
     [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName];
 }
 
@@ -226,11 +235,37 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler
 {
+    if ([NCRoomsManager sharedInstance].callViewController) {
+        completionHandler();
+        return;
+    }
+    
     UNNotificationRequest *notificationRequest = response.notification.request;
     NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notificationRequest.content.userInfo objectForKey:@"localNotificationType"] integerValue];
     NSString *notificationString = [notificationRequest.content.userInfo objectForKey:@"pushNotification"];
-    NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString];
+    NSString *notificationAccount = [notificationRequest.content.userInfo objectForKey:@"account"];
+    NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccount:notificationAccount];
     
+    // Change account if notification is from another account
+    if (![[[NCDatabaseManager sharedInstance] activeAccount].accountId isEqualToString:notificationAccount]) {
+        // Leave chat before changing accounts
+        if ([[NCRoomsManager sharedInstance] chatViewController]) {
+            [[[NCRoomsManager sharedInstance] chatViewController] leaveChat];
+        }
+        // Set notification account active
+        [[NCSettingsController sharedInstance] setAccountActive:notificationAccount];
+    }
+    
+    // Handle notification response
+    if (pushNotification) {
+        [self handlePushNotificationResponse:pushNotification withCompletionHandler:completionHandler];
+    } else if (localNotificationType > 0) {
+        [self handleLocalNotificationResponse:notificationRequest.content.userInfo withCompletionHandler:completionHandler];
+    }
+}
+
+- (void)handlePushNotificationResponse:(NCPushNotification *)pushNotification withCompletionHandler:(void (^)(void))completionHandler
+{
     if (pushNotification) {
         switch (pushNotification.type) {
             case NCPushNotificationTypeCall:
@@ -247,14 +282,21 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             default:
                 break;
         }
-    } else if (localNotificationType > 0) {
+    }
+    
+    completionHandler();
+}
+
+- (void)handleLocalNotificationResponse:(NSDictionary *)notificationUserInfo withCompletionHandler:(void (^)(void))completionHandler
+{
+    NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notificationUserInfo objectForKey:@"localNotificationType"] integerValue];
+    if (localNotificationType > 0) {
         switch (localNotificationType) {
             case kNCLocalNotificationTypeMissedCall:
-                {
-                    [[NCUserInterfaceController sharedInstance] presentChatForLocalNotification:notificationRequest.content.userInfo];
-                }
+            {
+                [[NCUserInterfaceController sharedInstance] presentChatForLocalNotification:notificationUserInfo];
+            }
                 break;
-                
             default:
                 break;
         }

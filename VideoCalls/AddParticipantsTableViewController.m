@@ -164,7 +164,7 @@
 
 - (void)addParticipantToRoom:(NCUser *)participant
 {
-    [[NCAPIController sharedInstance] addParticipant:participant.userId toRoom:_room.token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addParticipant:participant.userId toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             UIAlertController * alert = [UIAlertController
                                          alertControllerWithTitle:@"Could not add participant"
@@ -209,7 +209,7 @@
 
 - (void)getPossibleParticipants
 {
-    [[NCAPIController sharedInstance] getContactsWithSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             NSMutableArray *filteredParticipants = [self filterContacts:contactList];
             NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
@@ -228,7 +228,7 @@
 - (void)searchForParticipantsWithString:(NSString *)searchString
 {
     [_searchParticipantsTask cancel];
-    _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsWithSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             NSMutableArray *filteredParticipants = [self filterContacts:contactList];
             NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
@@ -330,7 +330,7 @@
     
     cell.labelTitle.text = participant.name;
     
-    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96]
+    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                              placeholderImage:nil success:nil failure:nil];
     
     UIImageView *checkboxChecked = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]];

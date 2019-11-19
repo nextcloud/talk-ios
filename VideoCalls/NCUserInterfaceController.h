@@ -21,7 +21,6 @@
 + (instancetype)sharedInstance;
 - (void)presentConversationsList;
 - (void)presentLoginViewController;
-- (void)presentAuthenticationViewController;
 - (void)presentOfflineWarningAlert;
 - (void)presentChatForLocalNotification:(NSDictionary *)userInfo;
 - (void)presentChatForPushNotification:(NCPushNotification *)pushNotification;

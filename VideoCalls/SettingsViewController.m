@@ -10,6 +10,9 @@
 
 #import "NCSettingsController.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
+#import "NCDatabaseManager.h"
+#import "AccountTableViewCell.h"
 #import "UserSettingsTableViewCell.h"
 #import "NCAPIController.h"
 #import "NCUserInterfaceController.h"
@@ -21,10 +24,10 @@
 
 typedef enum SettingsSection {
     kSettingsSectionUser = 0,
+    kSettingsSectionAccounts,
     kSettingsSectionConfiguration,
     kSettingsSectionLock,
-    kSettingsSectionAbout,
-    kSettingsSectionNumber
+    kSettingsSectionAbout
 } SettingsSection;
 
 typedef enum LockSection {
@@ -45,14 +48,6 @@ typedef enum AboutSection {
     kAboutSectionNumber
 } AboutSection;
 
-@interface SettingsViewController ()
-{
-    NSString *_server;
-    NSString *_user;
-}
-
-@end
-
 @implementation SettingsViewController
 
 - (void)viewDidLoad
@@ -67,6 +62,7 @@ typedef enum AboutSection {
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
     [self.tableView registerNib:[UINib nibWithNibName:kUserSettingsTableCellNibName bundle:nil] forCellReuseIdentifier:kUserSettingsCellIdentifier];
+    [self.tableView registerNib:[UINib nibWithNibName:kAccountTableViewCellNibName bundle:nil] forCellReuseIdentifier:kAccountCellIdentifier];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
 }
@@ -79,9 +75,6 @@ typedef enum AboutSection {
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    
-    _server = [[NCSettingsController sharedInstance] ncServer];
-    _user = [[NCSettingsController sharedInstance] ncUser];
     
     [self adaptInterfaceForAppState:[NCConnectionController sharedInstance].appState];
     [self.tableView reloadData];
@@ -96,6 +89,32 @@ typedef enum AboutSection {
 
 - (IBAction)cancelButtonPressed:(id)sender {
     [self dismissViewControllerAnimated:true completion:nil];
+}
+
+- (NSArray *)getSettingsSections
+{
+    NSMutableArray *sections = [[NSMutableArray alloc] init];
+    // Active user sections
+    [sections addObject:[NSNumber numberWithInt:kSettingsSectionUser]];
+    // Accounts section
+    if (multiAccountEnabled) {
+        [sections addObject:[NSNumber numberWithInt:kSettingsSectionAccounts]];
+    }
+    // Configuration section
+    [sections addObject:[NSNumber numberWithInt:kSettingsSectionConfiguration]];
+    // About section
+    [sections addObject:[NSNumber numberWithInt:kSettingsSectionAbout]];
+
+    return [NSArray arrayWithArray:sections];
+}
+
+- (NSInteger)getSectionForSettingsSection:(SettingsSection)section
+{
+    NSInteger sectionNumber = [[self getSettingsSections] indexOfObject:[NSNumber numberWithInt:section]];
+    if(NSNotFound != sectionNumber) {
+        return sectionNumber;
+    }
+    return 0;
 }
 
 #pragma mark - User Profile
@@ -140,12 +159,15 @@ typedef enum AboutSection {
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
-    UIAlertAction *logOutAction = [UIAlertAction actionWithTitle:@"Log out"
+    NSString *actionTitle = (multiAccountEnabled) ? @"Remove account" : @"Log out";
+    UIImage *actionImage = (multiAccountEnabled) ? [UIImage imageNamed:@"delete-action"] : [UIImage imageNamed:@"logout"];
+    
+    UIAlertAction *logOutAction = [UIAlertAction actionWithTitle:actionTitle
                                                      style:UIAlertActionStyleDestructive
                                                    handler:^void (UIAlertAction *action) {
                                                        [self logout];
                                                    }];
-    [logOutAction setValue:[[UIImage imageNamed:@"logout"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [logOutAction setValue:[actionImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     [optionsActionSheet addAction:logOutAction];
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
@@ -245,12 +267,14 @@ typedef enum AboutSection {
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return kSettingsSectionNumber;
+    return [self getSettingsSections].count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    switch (section) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:section] intValue];
+    switch (settingsSection) {
         case kSettingsSectionConfiguration:
         {
             NSUInteger numberOfSupportedBrowsers = [NCSettingsController sharedInstance].supportedBrowsers.count;
@@ -265,6 +289,15 @@ typedef enum AboutSection {
         case kSettingsSectionAbout:
             return kAboutSectionNumber;
             break;
+            
+        case kSettingsSectionAccounts:
+        {
+            return [[NCDatabaseManager sharedInstance] nonActiveAccounts].count + 1;
+        }
+            break;
+            
+        default:
+            break;
     }
     
     return 1;
@@ -272,7 +305,9 @@ typedef enum AboutSection {
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section == kSettingsSectionUser) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:indexPath.section] intValue];
+    if (settingsSection == kSettingsSectionUser) {
         return 100;
     }
     
@@ -281,7 +316,13 @@ typedef enum AboutSection {
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    switch (section) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:section] intValue];
+    switch (settingsSection) {
+        case kSettingsSectionAccounts:
+            return @"Accounts";
+            break;
+            
         case kSettingsSectionConfiguration:
             return @"Configuration";
             break;
@@ -293,6 +334,9 @@ typedef enum AboutSection {
         case kSettingsSectionAbout:
             return @"About";
             break;
+            
+        default:
+            break;
     }
     
     return nil;
@@ -300,7 +344,9 @@ typedef enum AboutSection {
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
-    if (section == kSettingsSectionAbout) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:section] intValue];
+    if (settingsSection == kSettingsSectionAbout) {
         NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
         NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
         NSString *copyright = @"© 2019 Nextcloud GmbH";
@@ -312,6 +358,7 @@ typedef enum AboutSection {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
+    static NSString *addAccountCellIdentifier = @"AddAccountCellIdentifier";
     static NSString *videoConfigurationCellIdentifier = @"VideoConfigurationCellIdentifier";
     static NSString *browserConfigurationCellIdentifier = @"BrowserConfigurationCellIdentifier";
     static NSString *privacyCellIdentifier = @"PrivacyCellIdentifier";
@@ -319,7 +366,9 @@ typedef enum AboutSection {
     static NSString *lockOnCellIdentifier = @"LockOnCellIdentifier";
     static NSString *lockUseSimplyCellIdentifier = @"LockUseSimplyCellIdentifier";
     
-    switch (indexPath.section) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:indexPath.section] intValue];
+    switch (settingsSection) {
         case kSettingsSectionUser:
         {
             UserSettingsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kUserSettingsCellIdentifier];
@@ -327,14 +376,33 @@ typedef enum AboutSection {
                 cell = [[UserSettingsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kUserSettingsCellIdentifier];
             }
             
-            cell.serverAddressLabel.text = _server;
-            
-            if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
-                cell.userDisplayNameLabel.text = [NCSettingsController sharedInstance].ncUserDisplayName;
-                [cell.userImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:[NCSettingsController sharedInstance].ncUserId andSize:160]
-                                          placeholderImage:nil success:nil failure:nil];
-            }
+            TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+            cell.userDisplayNameLabel.text = activeAccount.userDisplayName;
+            cell.serverAddressLabel.text = activeAccount.server;
+            [cell.userImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withSize:CGSizeMake(160, 160)]];
             return cell;
+        }
+            break;
+        case kSettingsSectionAccounts:
+        {
+            RLMResults *nonActiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts];
+            if (indexPath.row < nonActiveAccount.count) {
+                TalkAccount *account = [nonActiveAccount objectAtIndex:indexPath.row];
+                AccountTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kAccountCellIdentifier];
+                if (!cell) {
+                    cell = [[AccountTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAccountCellIdentifier];
+                }
+                cell.textLabel.text = account.userDisplayName;
+                [cell.accountImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(90, 90)]];
+                return cell;
+            } else {
+                cell = [tableView dequeueReusableCellWithIdentifier:addAccountCellIdentifier];
+                if (!cell) {
+                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:addAccountCellIdentifier];
+                    cell.textLabel.text = @"Add account";
+                    [cell.imageView setImage:[UIImage imageNamed:@"add-settings"]];
+                }
+            }
         }
             break;
         case kSettingsSectionConfiguration:
@@ -474,10 +542,28 @@ typedef enum AboutSection {
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch (indexPath.section) {
+    NSArray *sections = [self getSettingsSections];
+    SettingsSection settingsSection = [[sections objectAtIndex:indexPath.section] intValue];
+    switch (settingsSection) {
         case kSettingsSectionUser:
         {
             [self userProfilePressed];
+        }
+            break;
+        case kSettingsSectionAccounts:
+        {
+            RLMResults *nonActiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts];
+            if (indexPath.row < nonActiveAccount.count) {
+                TalkAccount *account = [nonActiveAccount objectAtIndex:indexPath.row];
+                [[NCSettingsController sharedInstance] setAccountActive:account.accountId];
+                
+            } else {
+                [self dismissViewControllerAnimated:true completion:^{
+                    [[NCUserInterfaceController sharedInstance] presentLoginViewController];
+                }];
+            }
+            
+            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
         }
             break;
         case kSettingsSectionConfiguration:

@@ -8,7 +8,6 @@
 
 #import "FileMessageTableViewCell.h"
 #import "SLKUIConstants.h"
-#import "NCFilePreviewSessionManager.h"
 #import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "OpenInFirefoxControllerObjC.h"
