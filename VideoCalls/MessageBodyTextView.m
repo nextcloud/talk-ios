@@ -36,6 +36,17 @@
     return NO;
 }
 
+// https://stackoverflow.com/a/44878203
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event
+{
+    UITextPosition *position = [self closestPositionToPoint:point];
+    if (!position) {return NO;}
+    UITextRange *range = [self.tokenizer rangeEnclosingPosition:position withGranularity:UITextGranularityCharacter inDirection:(UITextDirection)UITextLayoutDirectionLeft];
+    if (!range) {return NO;}
+    NSInteger startIndex = [self offsetFromPosition:self.beginningOfDocument toPosition:range.start];
+    return [self.attributedText attribute:NSLinkAttributeName atIndex:startIndex effectiveRange:nil] != nil;
+}
+
 #pragma mark - UITextView delegate
 
 - (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(nonnull NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction
