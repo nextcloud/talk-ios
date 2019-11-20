@@ -14,6 +14,7 @@
 #import "DirectoryTableViewController.h"
 #import "GroupedChatMessageTableViewCell.h"
 #import "FileMessageTableViewCell.h"
+#import "FTPopOverMenu.h"
 #import "SystemMessageTableViewCell.h"
 #import "MessageSeparatorTableViewCell.h"
 #import "DateHeaderView.h"
@@ -35,7 +36,7 @@
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 
-@interface NCChatViewController ()
+@interface NCChatViewController () <UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) NCRoomController *roomController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -148,6 +149,12 @@
     [self.textInputbar.editorRightButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
     
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    
+    // Add long press gesture recognizer
+    UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+    longPressGesture.delegate = self;
+    [self.tableView addGestureRecognizer:longPressGesture];
+    self.longPressGesture = longPressGesture;
     
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
@@ -434,6 +441,53 @@
     UINavigationController *fileSharingNC = [[UINavigationController alloc] initWithRootViewController:directoryVC];
     [self presentViewController:fileSharingNC animated:YES completion:nil];
     [super didPressLeftButton:sender];
+}
+
+#pragma mark - Gesture recognizer
+
+-(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
+{
+    CGPoint point = [gestureRecognizer locationInView:self.tableView];
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:point];
+    if (indexPath != nil && gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+        NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+        if (!message.isSystemMessage) {
+            // Select cell
+            [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
+            
+            // Create menu
+            FTPopOverMenuConfiguration *menuConfiguration = [[FTPopOverMenuConfiguration alloc] init];
+            menuConfiguration.menuIconMargin = 12;
+            menuConfiguration.menuTextMargin = 12;
+            menuConfiguration.imageSize = CGSizeMake(20, 20);
+            menuConfiguration.separatorInset = UIEdgeInsetsMake(0, 44, 0, 0);
+            menuConfiguration.menuRowHeight = 44;
+            menuConfiguration.autoMenuWidth = YES;
+            menuConfiguration.textFont = [UIFont systemFontOfSize:15];
+            menuConfiguration.backgroundColor = [UIColor colorWithWhite:0.3 alpha:1];
+            menuConfiguration.borderWidth = 0;
+            menuConfiguration.shadowOpacity = 0;
+            menuConfiguration.roundedImage = NO;
+            menuConfiguration.defaultSelection = YES;
+            
+            NSMutableArray *menuArray = [NSMutableArray new];
+            FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Reply" image:[UIImage imageNamed:@"reply"] selected:NO accessoryView:nil];
+            [menuArray addObject:replyModel];
+            FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Copy" image:[UIImage imageNamed:@"clippy"] selected:NO accessoryView:nil];
+            [menuArray addObject:copyModel];
+            
+            CGRect frame = [self.tableView rectForRowAtIndexPath:indexPath];
+            CGPoint yOffset = self.tableView.contentOffset;
+            CGRect cellRect = CGRectMake(frame.origin.x, (frame.origin.y - yOffset.y), frame.size.width, frame.size.height);
+            
+            [FTPopOverMenu showFromSenderFrame:cellRect withMenuArray:menuArray imageArray:nil configuration:menuConfiguration doneBlock:^(NSInteger selectedIndex) {
+                [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+            } dismissBlock:^{
+                [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+            }];
+        }
+    }
 }
 
 #pragma mark - UIScrollViewDelegate Methods
@@ -1220,6 +1274,8 @@
         NSMutableString *mentionString = [[self.autocompletionUsers[indexPath.row] objectForKey:@"label"] mutableCopy];
         [mentionString appendString:@" "];
         [self acceptAutoCompletionWithString:mentionString keepPrefix:YES];
+    } else {
+        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
 }
 
