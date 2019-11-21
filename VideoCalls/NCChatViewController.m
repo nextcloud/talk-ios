@@ -36,6 +36,11 @@
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 
+typedef enum NCChatMessageAction {
+    kNCChatMessageActionReply = 1,
+    kNCChatMessageActionCopy
+} NCChatMessageAction;
+
 @interface NCChatViewController () <UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) NCRoomController *roomController;
@@ -472,9 +477,11 @@
             menuConfiguration.defaultSelection = YES;
             
             NSMutableArray *menuArray = [NSMutableArray new];
-            FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Reply" image:[UIImage imageNamed:@"reply"] selected:NO accessoryView:nil];
+            NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
+            FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Reply" image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
             [menuArray addObject:replyModel];
-            FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Copy" image:[UIImage imageNamed:@"clippy"] selected:NO accessoryView:nil];
+            NSDictionary *copyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionCopy) forKey:@"action"];
+            FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Copy" image:[UIImage imageNamed:@"clippy"] userInfo:copyInfo];
             [menuArray addObject:copyModel];
             
             CGRect frame = [self.tableView rectForRowAtIndexPath:indexPath];
@@ -483,6 +490,23 @@
             
             [FTPopOverMenu showFromSenderFrame:cellRect withMenuArray:menuArray imageArray:nil configuration:menuConfiguration doneBlock:^(NSInteger selectedIndex) {
                 [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                FTPopOverMenuModel *model = [menuArray objectAtIndex:selectedIndex];
+                NCChatMessageAction action = (NCChatMessageAction)[[model.userInfo objectForKey:@"action"] integerValue];
+                switch (action) {
+                    case kNCChatMessageActionReply:
+                    {
+                        NSLog(@"Reply to: %@", message.parsedMessage.string);
+                    }
+                        break;
+                    case kNCChatMessageActionCopy:
+                    {
+                        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+                        pasteboard.string = message.parsedMessage.string;
+                    }
+                        break;
+                    default:
+                        break;
+                }
             } dismissBlock:^{
                 [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
             }];
