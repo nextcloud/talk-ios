@@ -32,6 +32,7 @@
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
 #import "NSDate+DateTools.h"
+#import "ReplyMessageView.h"
 #import "RoomInfoTableViewController.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
@@ -66,6 +67,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) UIBarButtonItem *videoCallButton;
 @property (nonatomic, strong) UIBarButtonItem *voiceCallButton;
 @property (nonatomic, strong) NSTimer *lobbyCheckTimer;
+@property (nonatomic, strong) ReplyMessageView *replyMessageView;
 
 @end
 
@@ -82,6 +84,8 @@ typedef enum NCChatMessageAction {
         self.tableView.estimatedSectionHeaderHeight = 0;
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
+        // Register ReplyMessageView class, conforming to SLKTypingIndicatorProtocol, as a custom typing indicator view.
+        [self registerClassForTypingIndicatorView:[ReplyMessageView class]];
         // Set image downloader to file preview imageviews.
         [FilePreviewImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
@@ -147,7 +151,7 @@ typedef enum NCChatMessageAction {
         self.textInputbar.counterStyle = SLKCounterStyleCountdownReversed;
     }
     self.textInputbar.translucent = NO;
-    self.textInputbar.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //Default color
+    self.textInputbar.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //Default toolbar color
     
     [self.textInputbar.editorTitle setTextColor:[UIColor darkGrayColor]];
     [self.textInputbar.editorLeftButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
@@ -436,7 +440,10 @@ typedef enum NCChatMessageAction {
 - (void)didPressRightButton:(id)sender
 {
     NSString *sendingText = [self createSendingMessage:self.textView.text];
-    [[NCRoomsManager sharedInstance] sendChatMessage:sendingText toRoom:_room];
+    NSInteger replyTo = (_replyMessageView.isVisible) ? _replyMessageView.message.messageId : -1;
+    
+    [[NCRoomsManager sharedInstance] sendChatMessage:sendingText replyTo:replyTo toRoom:_room];
+    [_replyMessageView dismiss];
     [super didPressRightButton:sender];
 }
 
@@ -495,7 +502,10 @@ typedef enum NCChatMessageAction {
                 switch (action) {
                     case kNCChatMessageActionReply:
                     {
-                        NSLog(@"Reply to: %@", message.parsedMessage.string);
+                        _replyMessageView = (ReplyMessageView *)self.typingIndicatorProxyView;
+                        [_replyMessageView dismiss];
+                        [_replyMessageView presentReplyViewWithMessage:message];
+                        [self presentKeyboard:YES];
                     }
                         break;
                     case kNCChatMessageActionCopy:
