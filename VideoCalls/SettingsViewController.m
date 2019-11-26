@@ -639,7 +639,7 @@ typedef enum AboutSection {
         case BKPasscodeViewControllerNewPasscodeType: {
             
             // enable passcode
-            [UICKeyChainStore setString:aPasscode forKey:@"ncBlockCode" service:@"com.nextcloud.Talk"];
+            [keychain setString:aPasscode forKey:@"ncBlockCode"];
             [[NCSettingsController sharedInstance] readValuesFromKeyChain];
         }
         break;
