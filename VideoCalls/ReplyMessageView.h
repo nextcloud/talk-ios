@@ -12,10 +12,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class NCChatMessage;
+@class QuotedMessageView;
 
 @interface ReplyMessageView : UIView <SLKTypingIndicatorProtocol>
 
 @property (nonatomic, strong) NCChatMessage *message;
+@property (nonatomic, strong) QuotedMessageView *quotedMessageView;
 
 - (void)presentReplyViewWithMessage:(NCChatMessage *)message;
 - (void)dismiss;
