@@ -24,6 +24,7 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 @property (nonatomic, assign) NSInteger timestamp;
 @property (nonatomic, strong) NSString *token;
 @property (nonatomic, strong) NSString *systemMessage;
+@property (nonatomic, assign) BOOL isReplyable;
 // Group messages
 @property (nonatomic, assign) BOOL groupMessage;
 @property (nonatomic, assign) NSInteger groupMessageNumber;

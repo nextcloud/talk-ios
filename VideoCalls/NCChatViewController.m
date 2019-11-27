@@ -484,9 +484,13 @@ typedef enum NCChatMessageAction {
             menuConfiguration.defaultSelection = YES;
             
             NSMutableArray *menuArray = [NSMutableArray new];
-            NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
-            FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Reply" image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
-            [menuArray addObject:replyModel];
+            // Reply option
+            if (message.isReplyable) {
+                NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
+                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Reply" image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
+                [menuArray addObject:replyModel];
+            }
+            // Copy option
             NSDictionary *copyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionCopy) forKey:@"action"];
             FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Copy" image:[UIImage imageNamed:@"clippy"] userInfo:copyInfo];
             [menuArray addObject:copyModel];
