@@ -47,6 +47,9 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
         message.messageParameters = @{};
     }
     
+    id parent = [messageDict objectForKey:@"parent"];
+    message.parent = [NCChatMessage messageWithDictionary:parent];
+    
     return message;
 }
 

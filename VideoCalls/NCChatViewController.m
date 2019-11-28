@@ -33,6 +33,7 @@
 #import "NCUtils.h"
 #import "NSDate+DateTools.h"
 #import "ReplyMessageView.h"
+#import "QuotedMessageView.h"
 #import "RoomInfoTableViewController.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
@@ -167,6 +168,7 @@ typedef enum NCChatMessageAction {
     
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
+    [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ReplyMessageCellIdentifier];
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:FileMessageCellIdentifier];
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:GroupedFileMessageCellIdentifier];
@@ -1200,6 +1202,33 @@ typedef enum NCChatMessageAction {
                                          } failure:nil];
         return fileCell;
     }
+    if (message.parent) {
+        ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
+        normalCell.titleLabel.text = message.actorDisplayName;
+        normalCell.bodyTextView.attributedText = message.parsedMessage;
+        normalCell.messageId = message.messageId;
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
+        normalCell.dateLabel.text = [self getTimeFromDate:date];
+        
+        if ([message.actorType isEqualToString:@"guests"]) {
+            normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
+            [normalCell setGuestAvatar:message.actorDisplayName];
+        } else if ([message.actorType isEqualToString:@"bots"]) {
+            if ([message.actorId isEqualToString:@"changelog"]) {
+                [normalCell setChangelogAvatar];
+            } else {
+                [normalCell setBotAvatar];
+            }
+        } else {
+            [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                                         placeholderImage:nil success:nil failure:nil];
+        }
+        
+        normalCell.quotedMessageView.actorLabel.text = message.parent.actorDisplayName;
+        normalCell.quotedMessageView.messageLabel.text = message.parent.parsedMessage.string;
+        
+        return normalCell;
+    }
     if (message.groupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
         groupedCell.bodyTextView.attributedText = message.parsedMessage;
@@ -1271,6 +1300,11 @@ typedef enum NCChatMessageAction {
         
         if (height < kChatMessageCellMinimumHeight) {
             height = kChatMessageCellMinimumHeight;
+        }
+        
+        if (message.parent) {
+            height += 60;
+            return height;
         }
         
         if (message.groupMessage || message.isSystemMessage) {
