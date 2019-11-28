@@ -46,8 +46,8 @@
     
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quoteContainerView]-[cancelButton(44)]|" options:0 metrics:nil views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quoteContainerView(50)]|" options:0 metrics:nil views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cancelButton(50)]|" options:0 metrics:nil views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quoteContainerView]|" options:0 metrics:nil views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cancelButton]|" options:0 metrics:nil views:views]];
 }
 
 #pragma mark - UIView
@@ -57,6 +57,12 @@
     [super layoutSubviews];
     
     self.topBorder.frame = CGRectMake(0, 0, self.bounds.size.width, 0.5);
+}
+
+- (CGSize)intrinsicContentSize
+{
+    // This will indicate the size of the view when calling systemLayoutSizeFittingSize in SLKTextViewController
+    return CGSizeMake(UIViewNoIntrinsicMetric, 50);
 }
 
 
