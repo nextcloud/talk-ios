@@ -214,7 +214,6 @@
     viewController.delegate = self;
     viewController.title = @"Nextcloud Talk";
     viewController.fromType = CCBKPasscodeFromLockScreen;
-    viewController.inputViewTitlePassword = YES;
 
     if([[NCSettingsController sharedInstance].ncBlockCodeUseSimply isEqualToString:@"true"]){
 

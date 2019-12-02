@@ -151,14 +151,6 @@
 		2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7187D2007A9920055E02C /* LaunchScreen.xib */; };
 		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
 		C1292B8C237313590004C3B7 /* CCBKPasscode.m in Sources */ = {isa = PBXBuildFile; fileRef = C1292B8B237313590004C3B7 /* CCBKPasscode.m */; };
-		C1CC61542373226B00A50181 /* BKPasscodeDummyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C1CC61432373226A00A50181 /* BKPasscodeDummyViewController.m */; };
-		C1CC61552373226B00A50181 /* BKTouchIDManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C1CC61482373226A00A50181 /* BKTouchIDManager.m */; };
-		C1CC61562373226B00A50181 /* BKPasscodeLockScreenManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C1CC61492373226A00A50181 /* BKPasscodeLockScreenManager.m */; };
-		C1CC61572373226B00A50181 /* BKPasscodeField.m in Sources */ = {isa = PBXBuildFile; fileRef = C1CC614C2373226A00A50181 /* BKPasscodeField.m */; };
-		C1CC61582373226B00A50181 /* BKShiftingView.m in Sources */ = {isa = PBXBuildFile; fileRef = C1CC614F2373226A00A50181 /* BKShiftingView.m */; };
-		C1CC61592373226B00A50181 /* BKTouchIDSwitchView.m in Sources */ = {isa = PBXBuildFile; fileRef = C1CC61512373226A00A50181 /* BKTouchIDSwitchView.m */; };
-		C1CC615A2373226B00A50181 /* BKPasscodeInputView.m in Sources */ = {isa = PBXBuildFile; fileRef = C1CC61522373226A00A50181 /* BKPasscodeInputView.m */; };
-		C1CC615B2373226B00A50181 /* BKPasscodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C1CC61532373226B00A50181 /* BKPasscodeViewController.m */; };
 		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
 /* End PBXBuildFile section */
 
@@ -517,23 +509,6 @@
 		8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.debug.xcconfig"; sourceTree = "<group>"; };
 		C1292B8A237313590004C3B7 /* CCBKPasscode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCBKPasscode.h; sourceTree = "<group>"; };
 		C1292B8B237313590004C3B7 /* CCBKPasscode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCBKPasscode.m; sourceTree = "<group>"; };
-		C1CC61432373226A00A50181 /* BKPasscodeDummyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BKPasscodeDummyViewController.m; path = ThirdParty/BKPasscodeView/BKPasscodeDummyViewController.m; sourceTree = "<group>"; };
-		C1CC61442373226A00A50181 /* BKTouchIDSwitchView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BKTouchIDSwitchView.h; path = ThirdParty/BKPasscodeView/BKTouchIDSwitchView.h; sourceTree = "<group>"; };
-		C1CC61452373226A00A50181 /* BKPasscodeDummyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BKPasscodeDummyViewController.h; path = ThirdParty/BKPasscodeView/BKPasscodeDummyViewController.h; sourceTree = "<group>"; };
-		C1CC61462373226A00A50181 /* BKPasscodeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BKPasscodeViewController.h; path = ThirdParty/BKPasscodeView/BKPasscodeViewController.h; sourceTree = "<group>"; };
-		C1CC61472373226A00A50181 /* BKPasscodeUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BKPasscodeUtils.h; path = ThirdParty/BKPasscodeView/BKPasscodeUtils.h; sourceTree = "<group>"; };
-		C1CC61482373226A00A50181 /* BKTouchIDManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BKTouchIDManager.m; path = ThirdParty/BKPasscodeView/BKTouchIDManager.m; sourceTree = "<group>"; };
-		C1CC61492373226A00A50181 /* BKPasscodeLockScreenManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BKPasscodeLockScreenManager.m; path = ThirdParty/BKPasscodeView/BKPasscodeLockScreenManager.m; sourceTree = "<group>"; };
-		C1CC614A2373226A00A50181 /* BKPasscodeField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BKPasscodeField.h; path = ThirdParty/BKPasscodeView/BKPasscodeField.h; sourceTree = "<group>"; };
-		C1CC614B2373226A00A50181 /* BKPasscodeLockScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BKPasscodeLockScreenManager.h; path = ThirdParty/BKPasscodeView/BKPasscodeLockScreenManager.h; sourceTree = "<group>"; };
-		C1CC614C2373226A00A50181 /* BKPasscodeField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BKPasscodeField.m; path = ThirdParty/BKPasscodeView/BKPasscodeField.m; sourceTree = "<group>"; };
-		C1CC614D2373226A00A50181 /* BKPasscodeInputView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BKPasscodeInputView.h; path = ThirdParty/BKPasscodeView/BKPasscodeInputView.h; sourceTree = "<group>"; };
-		C1CC614E2373226A00A50181 /* BKShiftingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BKShiftingView.h; path = ThirdParty/BKPasscodeView/BKShiftingView.h; sourceTree = "<group>"; };
-		C1CC614F2373226A00A50181 /* BKShiftingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BKShiftingView.m; path = ThirdParty/BKPasscodeView/BKShiftingView.m; sourceTree = "<group>"; };
-		C1CC61502373226A00A50181 /* BKTouchIDManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BKTouchIDManager.h; path = ThirdParty/BKPasscodeView/BKTouchIDManager.h; sourceTree = "<group>"; };
-		C1CC61512373226A00A50181 /* BKTouchIDSwitchView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BKTouchIDSwitchView.m; path = ThirdParty/BKPasscodeView/BKTouchIDSwitchView.m; sourceTree = "<group>"; };
-		C1CC61522373226A00A50181 /* BKPasscodeInputView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BKPasscodeInputView.m; path = ThirdParty/BKPasscodeView/BKPasscodeInputView.m; sourceTree = "<group>"; };
-		C1CC61532373226B00A50181 /* BKPasscodeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BKPasscodeViewController.m; path = ThirdParty/BKPasscodeView/BKPasscodeViewController.m; sourceTree = "<group>"; };
 		E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -616,7 +591,6 @@
 		2C05749C1EDDA01700D9E7F2 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
-				C1CC61422373224000A50181 /* BKPasscodeView */,
 				2C20269D236832D300DFC89B /* FTPopOverMenu */,
 				2CB302F92264775E0053078A /* SlackTextViewController */,
 				2C961DD72216BF4A00F5C23F /* OCCommunicationLib */,
@@ -1161,30 +1135,6 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
-		C1CC61422373224000A50181 /* BKPasscodeView */ = {
-			isa = PBXGroup;
-			children = (
-				C1CC61452373226A00A50181 /* BKPasscodeDummyViewController.h */,
-				C1CC61432373226A00A50181 /* BKPasscodeDummyViewController.m */,
-				C1CC614A2373226A00A50181 /* BKPasscodeField.h */,
-				C1CC614C2373226A00A50181 /* BKPasscodeField.m */,
-				C1CC614D2373226A00A50181 /* BKPasscodeInputView.h */,
-				C1CC61522373226A00A50181 /* BKPasscodeInputView.m */,
-				C1CC614B2373226A00A50181 /* BKPasscodeLockScreenManager.h */,
-				C1CC61492373226A00A50181 /* BKPasscodeLockScreenManager.m */,
-				C1CC61472373226A00A50181 /* BKPasscodeUtils.h */,
-				C1CC61462373226A00A50181 /* BKPasscodeViewController.h */,
-				C1CC61532373226B00A50181 /* BKPasscodeViewController.m */,
-				C1CC614E2373226A00A50181 /* BKShiftingView.h */,
-				C1CC614F2373226A00A50181 /* BKShiftingView.m */,
-				C1CC61502373226A00A50181 /* BKTouchIDManager.h */,
-				C1CC61482373226A00A50181 /* BKTouchIDManager.m */,
-				C1CC61442373226A00A50181 /* BKTouchIDSwitchView.h */,
-				C1CC61512373226A00A50181 /* BKTouchIDSwitchView.m */,
-			);
-			name = BKPasscodeView;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1373,7 +1323,6 @@
 				2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */,
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
 				2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */,
-				C1CC61582373226B00A50181 /* BKShiftingView.m in Sources */,
 				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
 				C1292B8C237313590004C3B7 /* CCBKPasscode.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
@@ -1389,13 +1338,11 @@
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
-				C1CC61562373226B00A50181 /* BKPasscodeLockScreenManager.m in Sources */,
 				2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */,
 				2C961E222216BF4B00F5C23F /* UtilsFramework.m in Sources */,
 				2C961E1B2216BF4B00F5C23F /* OCWebDAVClient.m in Sources */,
 				2C961E162216BF4B00F5C23F /* OCShareUser.m in Sources */,
 				2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */,
-				C1CC61552373226B00A50181 /* BKTouchIDManager.m in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
 				2C961E102216BF4B00F5C23F /* OCExternalSites.m in Sources */,
@@ -1427,7 +1374,6 @@
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
-				C1CC61572373226B00A50181 /* BKPasscodeField.m in Sources */,
 				2C961E122216BF4B00F5C23F /* OCNotifications.m in Sources */,
 				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
 				2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */,
@@ -1438,7 +1384,6 @@
 				2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */,
 				2C8E2A1B232174C20022BFC9 /* MessageSeparatorTableViewCell.m in Sources */,
 				2CB3041E2264775E0053078A /* SLKTextViewController.m in Sources */,
-				C1CC61542373226B00A50181 /* BKPasscodeDummyViewController.m in Sources */,
 				2C961E1F2216BF4B00F5C23F /* OCXMLShareByLinkParser.m in Sources */,
 				2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */,
 				2C961E0E2216BF4B00F5C23F /* OCCapabilities.m in Sources */,
@@ -1450,7 +1395,6 @@
 				2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */,
 				2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */,
 				2CA155562099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m in Sources */,
-				C1CC615B2373226B00A50181 /* BKPasscodeViewController.m in Sources */,
 				2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */,
 				2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */,
 				2C961E152216BF4B00F5C23F /* OCSharedDto.m in Sources */,
@@ -1474,13 +1418,11 @@
 				2C42ADB420B58E6300296DEA /* NCRoomController.m in Sources */,
 				2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */,
 				2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */,
-				C1CC615A2373226B00A50181 /* BKPasscodeInputView.m in Sources */,
 				2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */,
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
 				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
 				2C961E142216BF4B00F5C23F /* OCRichObjectStrings.m in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
-				C1CC61592373226B00A50181 /* BKTouchIDSwitchView.m in Sources */,
 				2C961E182216BF4B00F5C23F /* NSDate+ISO8601.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
