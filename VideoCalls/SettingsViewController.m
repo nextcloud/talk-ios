@@ -447,14 +447,16 @@ typedef enum AboutSection {
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:lockOnCellIdentifier];
                     }
+                    
+                    cell.textLabel.text = @"Lock";
 
                     if ([[[NCSettingsController sharedInstance] ncBlockCode ] length ] > 0) {
-                        cell.textLabel.text = @"Lock: On";
                         cell.imageView.image  = [UIImage imageNamed:@"settingsPasscodeYES"];
+                        cell.detailTextLabel.text = @"On";
                     }
                     else {
-                        cell.textLabel.text = @"Lock: Off";
                         cell.imageView.image  = [UIImage imageNamed:@"settingsPasscodeNO"];
+                        cell.detailTextLabel.text = @"Off";
                     }
                 }
                     break;
@@ -464,17 +466,13 @@ typedef enum AboutSection {
                         cell = [tableView dequeueReusableCellWithIdentifier:lockUseSimplyCellIdentifier];
                         if (!cell) {
                             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:lockUseSimplyCellIdentifier];
-                            cell.textLabel.text = @"Weak password protection";
-                            switchview = [[UISwitch alloc] initWithFrame:CGRectZero];
-                            cell.accessoryView = switchview;
+                            cell.textLabel.text = @"Password protection";
                         }
-                        
-                        [switchview addTarget:self action:@selector(switchTwisted:) forControlEvents:UIControlEventValueChanged];
 
                         if ([[[NCSettingsController sharedInstance] ncBlockCodeUseSimply ] isEqualToString:@"true"]) {
-                            switchview.on = true;
+                            cell.detailTextLabel.text = @"Weak";
                         } else {
-                            switchview.on = false;
+                            cell.detailTextLabel.text = @"Strong";
                         }
 
                     }
@@ -515,32 +513,23 @@ typedef enum AboutSection {
 }
 
  //Handle action
-- (void)switchTwisted:(UISwitch *)mySwitch
+- (void)passcodeStrengthClicked
 {
-    UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk" accessGroup:@"group.com.nextcloud.Talk"];
-    if ([mySwitch isOn]) {
-        [mySwitch setSelected:YES];
 
-        if([[NCSettingsController sharedInstance].ncBlockCode length] != 0){
-            [self changeSimplyPassword];
-        }
-        else {
+    if([[NCSettingsController sharedInstance].ncBlockCode length] != 0){
+        [self changeSimplyPassword];
+    }
+    else  {
+        UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk" accessGroup:@"group.com.nextcloud.Talk"];
+        if ([[[NCSettingsController sharedInstance] ncBlockCodeUseSimply ] isEqualToString:@"true"]) {
+            [keychain setString:@"false" forKey:@"ncBlockCodeUseSimply"];
+            [[NCSettingsController sharedInstance] readValuesFromKeyChain];
+        } else {
             [keychain setString:@"true" forKey:@"ncBlockCodeUseSimply"];
             [[NCSettingsController sharedInstance] readValuesFromKeyChain];
         }
-        
     }
-    else {
-        [mySwitch setSelected:NO];
-        
-        if([[NCSettingsController sharedInstance].ncBlockCode length] != 0){
-            [self changeSimplyPassword];
-        }
-        else  {
-            [keychain setString:@"false" forKey:@"ncBlockCodeUseSimply"];
-            [[NCSettingsController sharedInstance] readValuesFromKeyChain];
-        }
-    }
+    
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -594,7 +583,7 @@ typedef enum AboutSection {
                 }
                     break;
                 case kLockSectionUseSimply:{
-                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                    [self passcodeStrengthClicked];
                 }
                     break;
             }
