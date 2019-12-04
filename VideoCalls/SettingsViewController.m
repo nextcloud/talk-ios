@@ -448,14 +448,14 @@ typedef enum AboutSection {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:lockOnCellIdentifier];
                     }
                     
-                    cell.textLabel.text = @"Lock";
+                    cell.textLabel.text = @"Lock screen";
 
                     if ([[[NCSettingsController sharedInstance] ncBlockCode ] length ] > 0) {
-                        cell.imageView.image  = [UIImage imageNamed:@"settingsPasscodeYES"];
+                        cell.imageView.image  = [UIImage imageNamed:@"password-settings"];
                         cell.detailTextLabel.text = @"On";
                     }
                     else {
-                        cell.imageView.image  = [UIImage imageNamed:@"settingsPasscodeNO"];
+                        cell.imageView.image  = [UIImage imageNamed:@"no-password-settings"];
                         cell.detailTextLabel.text = @"Off";
                     }
                 }
