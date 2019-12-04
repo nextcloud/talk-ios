@@ -55,6 +55,17 @@
     [super viewWillAppear:animated];
 }
 
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    [self.navigationController.navigationBar setTitleTextAttributes:
+     @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
+    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.translucent = NO;
+    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+}
+
 - (void)customizePasscodeInputView:(BKPasscodeInputView *)aPasscodeInputView
 {
     [super customizePasscodeInputView:aPasscodeInputView];

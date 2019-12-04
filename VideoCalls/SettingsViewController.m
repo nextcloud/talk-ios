@@ -713,7 +713,6 @@ typedef enum AboutSection {
     viewController.touchIDManager = touchIDManager;
     
     viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(passcodeViewCloseButtonPressed:)];
-    viewController.navigationItem.leftBarButtonItem.tintColor = [UIColor blackColor];
     
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
     navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
@@ -745,11 +744,10 @@ typedef enum AboutSection {
         touchIDManager.promptText = @"Scan fingerprint to authenticate";
         viewController.touchIDManager = touchIDManager;
 
-        viewController.title = @"Password lock on";
+        viewController.title = @"Activating lock screen";
         
         viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(passcodeViewCloseButtonPressed:)];
-        viewController.navigationItem.leftBarButtonItem.tintColor = [UIColor blackColor];
-               
+        
         UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
         navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
         [self presentViewController:navigationController animated:YES completion:nil];
@@ -778,10 +776,9 @@ typedef enum AboutSection {
         touchIDManager.promptText = @"Scan fingerprint to authenticate";
         viewController.touchIDManager = touchIDManager;
 
-        viewController.title = @"Removing password lock";
+        viewController.title = @"Removing lock screen";
 
         viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(passcodeViewCloseButtonPressed:)];
-        viewController.navigationItem.leftBarButtonItem.tintColor = [UIColor blackColor];
 
         UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
         navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
