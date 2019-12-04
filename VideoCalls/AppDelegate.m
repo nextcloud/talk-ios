@@ -57,6 +57,12 @@
     
     //Init rooms manager to start receiving NSNotificationCenter notifications
     [NCRoomsManager sharedInstance];
+
+    [[BKPasscodeLockScreenManager sharedManager] setDelegate:self];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[BKPasscodeLockScreenManager sharedManager] showLockScreen:NO];
+    });
     
     return YES;
 }
@@ -84,6 +90,8 @@
 {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    // show passcode view controller when enter background. Screen will be obscured from here.
+    [[BKPasscodeLockScreenManager sharedManager] showLockScreen:NO];
 }
 
 
@@ -165,5 +173,65 @@
     return [token copy];
 }
 
+
+#pragma mark - Manage Passcode
+
+- (void)passcodeViewController:(CCBKPasscode *)aViewController didFinishWithPasscode:(NSString *)aPasscode
+{
+    [aViewController dismissViewControllerAnimated:YES completion:nil];
+    
+    // is a lock screen
+    if (aViewController.fromType == CCBKPasscodeFromLockScreen) {
+        
+        [aViewController dismissViewControllerAnimated:YES completion:nil];
+        
+     }
+}
+
+- (void)passcodeViewController:(CCBKPasscode *)aViewController authenticatePasscode:(NSString *)aPasscode resultHandler:(void (^)(BOOL))aResultHandler
+{
+    if (aViewController.fromType == CCBKPasscodeFromLockScreen || aViewController.fromType == CCBKPasscodeFromInit) {
+        
+        if ([aPasscode isEqualToString:[NCSettingsController sharedInstance].ncBlockCode]) {
+            //self.lockUntilDate = nil;
+            //self.failedAttempts = 0;
+            aResultHandler(YES);
+        } else aResultHandler(NO);
+    } else aResultHandler(YES);
+}
+
+
+
+- (BOOL)lockScreenManagerShouldShowLockScreen:(BKPasscodeLockScreenManager *)aManager
+{
+     return ([[NCSettingsController sharedInstance].ncBlockCode length] != 0);  
+}
+
+- (UIViewController *)lockScreenManagerPasscodeViewController:(BKPasscodeLockScreenManager *)aManager
+{
+    CCBKPasscode *viewController = [[CCBKPasscode alloc] initWithNibName:nil bundle:nil];
+    viewController.type = BKPasscodeViewControllerCheckPasscodeType;
+    viewController.delegate = self;
+    viewController.title = @"Nextcloud Talk";
+    viewController.fromType = CCBKPasscodeFromLockScreen;
+
+    if([[NCSettingsController sharedInstance].ncBlockCodeUseSimply isEqualToString:@"true"]){
+
+        viewController.passcodeStyle = BKPasscodeInputViewNumericPasscodeStyle;
+        viewController.passcodeInputView.maximumLength = 6;
+
+    } else {
+        
+        viewController.passcodeStyle = BKPasscodeInputViewNormalPasscodeStyle;
+        viewController.passcodeInputView.maximumLength = 64;
+    }
+    
+    viewController.touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName: @"com.nextcloud.Talk"];
+    viewController.touchIDManager.promptText = @"Scan fingerprint to authenticate";
+
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
+    navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
+    return navigationController;
+}
 
 @end

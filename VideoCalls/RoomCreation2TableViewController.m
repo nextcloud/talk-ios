@@ -354,7 +354,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                 cell.textLabel.text = @"Password";
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
                 cell.accessoryView = _passwordTextField;
-                [cell.imageView setImage:[UIImage imageNamed:@"privacy"]];
+                [cell.imageView setImage:[UIImage imageNamed:@"password-settings"]];
                 
                 return cell;
             } else {

@@ -1192,7 +1192,7 @@ typedef enum ModificationError {
                     }
                     
                     cell.textLabel.text = (_room.hasPassword) ? @"Change password" : @"Set password";
-                    [cell.imageView setImage:(_room.hasPassword) ? [UIImage imageNamed:@"privacy"] : [UIImage imageNamed:@"no-password-settings"]];
+                    [cell.imageView setImage:(_room.hasPassword) ? [UIImage imageNamed:@"password-settings"] : [UIImage imageNamed:@"no-password-settings"]];
                     
                     return cell;
                 }

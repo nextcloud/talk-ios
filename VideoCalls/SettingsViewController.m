@@ -26,8 +26,15 @@ typedef enum SettingsSection {
     kSettingsSectionUser = 0,
     kSettingsSectionAccounts,
     kSettingsSectionConfiguration,
+    kSettingsSectionLock,
     kSettingsSectionAbout
 } SettingsSection;
+
+typedef enum LockSection {
+    kLockSectionOn = 0,
+    kLockSectionUseSimply,
+    kLockSectionNumber
+} LockSection;
 
 typedef enum ConfigurationSection {
     kConfigurationSectionVideo = 0,
@@ -95,6 +102,8 @@ typedef enum AboutSection {
     }
     // Configuration section
     [sections addObject:[NSNumber numberWithInt:kSettingsSectionConfiguration]];
+    // Lock section
+    [sections addObject:[NSNumber numberWithInt:kSettingsSectionLock]];
     // About section
     [sections addObject:[NSNumber numberWithInt:kSettingsSectionAbout]];
 
@@ -275,6 +284,10 @@ typedef enum AboutSection {
         }
             break;
 
+        case kSettingsSectionLock:
+            return kLockSectionNumber;
+            break;
+            
         case kSettingsSectionAbout:
             return kAboutSectionNumber;
             break;
@@ -315,6 +328,10 @@ typedef enum AboutSection {
         case kSettingsSectionConfiguration:
             return @"Configuration";
             break;
+            
+        case kSettingsSectionLock:
+            return @"Lock";
+            break;
 
         case kSettingsSectionAbout:
             return @"About";
@@ -348,6 +365,8 @@ typedef enum AboutSection {
     static NSString *browserConfigurationCellIdentifier = @"BrowserConfigurationCellIdentifier";
     static NSString *privacyCellIdentifier = @"PrivacyCellIdentifier";
     static NSString *sourceCodeCellIdentifier = @"SourceCodeCellIdentifier";
+    static NSString *lockOnCellIdentifier = @"LockOnCellIdentifier";
+    static NSString *lockUseSimplyCellIdentifier = @"LockUseSimplyCellIdentifier";
     
     NSArray *sections = [self getSettingsSections];
     SettingsSection settingsSection = [[sections objectAtIndex:indexPath.section] intValue];
@@ -418,6 +437,50 @@ typedef enum AboutSection {
             }
         }
             break;
+
+        case kSettingsSectionLock:
+        {
+            switch (indexPath.row) {
+                case kLockSectionOn:
+                {
+                    cell = [tableView dequeueReusableCellWithIdentifier:lockOnCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:lockOnCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = @"Lock screen";
+
+                    if ([[[NCSettingsController sharedInstance] ncBlockCode ] length ] > 0) {
+                        cell.imageView.image  = [UIImage imageNamed:@"password-settings"];
+                        cell.detailTextLabel.text = @"On";
+                    }
+                    else {
+                        cell.imageView.image  = [UIImage imageNamed:@"no-password-settings"];
+                        cell.detailTextLabel.text = @"Off";
+                    }
+                }
+                    break;
+                    case kLockSectionUseSimply:
+                    {
+                        cell = [tableView dequeueReusableCellWithIdentifier:lockUseSimplyCellIdentifier];
+                        if (!cell) {
+                            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:lockUseSimplyCellIdentifier];
+                            cell.textLabel.text = @"Password type";
+                            cell.imageView.image  = [UIImage imageNamed:@"key"];
+                        }
+
+                        if ([[[NCSettingsController sharedInstance] ncBlockCodeUseSimply ] isEqualToString:@"true"]) {
+                            cell.detailTextLabel.text = @"Simple";
+                        } else {
+                            cell.detailTextLabel.text = @"Strong";
+                        }
+
+                    }
+                        break;
+            }
+        }
+                            
+            break;
         case kSettingsSectionAbout:
         {
             switch (indexPath.row) {
@@ -447,6 +510,27 @@ typedef enum AboutSection {
     }
     
     return cell;
+}
+
+ //Handle action
+- (void)passcodeStrengthClicked
+{
+
+    if([[NCSettingsController sharedInstance].ncBlockCode length] != 0){
+        [self changeSimplyPassword];
+    }
+    else  {
+        UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk" accessGroup:@"group.com.nextcloud.Talk"];
+        if ([[[NCSettingsController sharedInstance] ncBlockCodeUseSimply ] isEqualToString:@"true"]) {
+            [keychain setString:@"false" forKey:@"ncBlockCodeUseSimply"];
+            [[NCSettingsController sharedInstance] readValuesFromKeyChain];
+        } else {
+            [keychain setString:@"true" forKey:@"ncBlockCodeUseSimply"];
+            [[NCSettingsController sharedInstance] readValuesFromKeyChain];
+        }
+        NSIndexPath *passwordTypeIP = [NSIndexPath indexPathForRow:kLockSectionUseSimply inSection:[self getSectionForSettingsSection:kSettingsSectionLock]];
+        [self.tableView reloadRowsAtIndexPaths:@[passwordTypeIP] withRowAnimation:UITableViewRowAnimationNone];
+    }
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -492,6 +576,20 @@ typedef enum AboutSection {
             }
         }
             break;
+        case kSettingsSectionLock:
+        {
+            switch(indexPath.row){
+                case kLockSectionOn:{
+                    [self bloccoPassword];
+                }
+                    break;
+                case kLockSectionUseSimply:{
+                    [self passcodeStrengthClicked];
+                }
+                    break;
+            }
+        }
+            break;
         case kSettingsSectionAbout:
         {
             switch (indexPath.row) {
@@ -515,6 +613,178 @@ typedef enum AboutSection {
         }
             break;
     }
+}
+
+#pragma --------------------------------------------------------------------------------------------
+#pragma mark === BKPasscodeViewController ===
+#pragma --------------------------------------------------------------------------------------------
+
+- (void)passcodeViewController:(CCBKPasscode *)aViewController didFinishWithPasscode:(NSString *)aPasscode
+{
+    [aViewController dismissViewControllerAnimated:YES completion:nil];
+    UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk" accessGroup:@"group.com.nextcloud.Talk"];
+    
+    switch (aViewController.type) {
+            
+        case BKPasscodeViewControllerNewPasscodeType: {
+            
+            // enable passcode
+            [keychain setString:aPasscode forKey:@"ncBlockCode"];
+            [[NCSettingsController sharedInstance] readValuesFromKeyChain];
+        }
+        break;
+            
+        case BKPasscodeViewControllerCheckPasscodeType: {
+            
+            // disable passcode
+            if (aViewController.fromType == CCBKPasscodeFromSettingsPasscode) {
+                
+                [keychain setString:@"" forKey:@"ncBlockCode"];
+                [[NCSettingsController sharedInstance] readValuesFromKeyChain];
+            }
+            
+            // change simply
+            if (aViewController.fromType == CCBKPasscodeFromSimply) {
+
+                // disable passcode
+                [keychain setString:@"" forKey:@"ncBlockCode"];
+
+                if([[NCSettingsController sharedInstance].ncBlockCodeUseSimply isEqualToString:@"true"]){
+                    [keychain setString:@"false" forKey:@"ncBlockCodeUseSimply"];
+                }
+                else {
+                    [keychain setString:@"true" forKey:@"ncBlockCodeUseSimply"];
+                }
+
+                //  Call new passcode
+                [[NCSettingsController sharedInstance] readValuesFromKeyChain];
+                [self bloccoPassword];
+            }
+        }
+        break;
+            
+        default:
+        break;
+    }
+    
+    [self.tableView reloadData];
+    
+}
+
+- (void)passcodeViewController:(CCBKPasscode *)aViewController authenticatePasscode:(NSString *)aPasscode resultHandler:(void (^)(BOOL))aResultHandler
+{
+    if (aViewController.fromType == CCBKPasscodeFromSettingsPasscode || aViewController.fromType == CCBKPasscodeFromSimply) {
+        
+        if ([aPasscode isEqualToString:[NCSettingsController sharedInstance].ncBlockCode]) {
+//            self.lockUntilDate = nil;
+//            self.failedAttempts = 0;
+            aResultHandler(YES);
+        } else aResultHandler(NO);
+        
+    }
+}
+
+- (void)passcodeViewCloseButtonPressed:(id)sender
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)changeSimplyPassword
+{
+    CCBKPasscode *viewController = [[CCBKPasscode alloc] initWithNibName:nil bundle:nil];
+    viewController.delegate = self;
+    viewController.type = BKPasscodeViewControllerCheckPasscodeType;
+    viewController.fromType = CCBKPasscodeFromSimply;
+    viewController.title = NSLocalizedString(@"Change password type", nil);
+    
+    if([[NCSettingsController sharedInstance].ncBlockCodeUseSimply isEqualToString:@"true"]){
+        
+        viewController.passcodeStyle = BKPasscodeInputViewNumericPasscodeStyle;
+        viewController.passcodeInputView.maximumLength = 6;
+        
+    } else {
+        
+        viewController.passcodeStyle = BKPasscodeInputViewNormalPasscodeStyle;
+        viewController.passcodeInputView.maximumLength = 64;
+    }
+    
+    BKTouchIDManager *touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:@"com.nextcloud.Talk"];
+    touchIDManager.promptText = NSLocalizedString(@"Scan fingerprint to authenticate", nil);
+    viewController.touchIDManager = touchIDManager;
+    
+    viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(passcodeViewCloseButtonPressed:)];
+    
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
+    navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentViewController:navigationController animated:YES completion:nil];
+}
+
+- (void)bloccoPassword
+{
+    // ATTIVAZIONE LOCK PASSWORD
+    if ([[[NCSettingsController sharedInstance] ncBlockCode ] length ] == 0)  {
+        
+        CCBKPasscode *viewController = [[CCBKPasscode alloc] initWithNibName:nil bundle:nil];
+        viewController.delegate = self;
+        viewController.type = BKPasscodeViewControllerNewPasscodeType;
+        viewController.fromType = CCBKPasscodeFromSettingsPasscode;
+        
+        if([[NCSettingsController sharedInstance].ncBlockCodeUseSimply isEqualToString:@"true"]){
+
+            viewController.passcodeStyle = BKPasscodeInputViewNumericPasscodeStyle;
+            viewController.passcodeInputView.maximumLength = 6;
+
+        } else {
+            
+            viewController.passcodeStyle = BKPasscodeInputViewNormalPasscodeStyle;
+            viewController.passcodeInputView.maximumLength = 64;
+        }
+        
+        BKTouchIDManager *touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:@"com.nextcloud.Talk"];
+        touchIDManager.promptText = @"Scan fingerprint to authenticate";
+        viewController.touchIDManager = touchIDManager;
+
+        viewController.title = @"Activating lock screen";
+        
+        viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(passcodeViewCloseButtonPressed:)];
+        
+        UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
+        navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
+        [self presentViewController:navigationController animated:YES completion:nil];
+
+    } else
+    {
+
+        // OFF LOCK PASSWORD - disable passcode
+        CCBKPasscode *viewController = [[CCBKPasscode alloc] initWithNibName:nil bundle:nil];
+        viewController.delegate = self;
+        viewController.type = BKPasscodeViewControllerCheckPasscodeType;
+        viewController.fromType = CCBKPasscodeFromSettingsPasscode;
+
+        if([[NCSettingsController sharedInstance].ncBlockCodeUseSimply isEqualToString:@"true"]){
+
+            viewController.passcodeStyle = BKPasscodeInputViewNumericPasscodeStyle;
+            viewController.passcodeInputView.maximumLength = 6;
+
+        } else {
+
+            viewController.passcodeStyle = BKPasscodeInputViewNormalPasscodeStyle;
+            viewController.passcodeInputView.maximumLength = 64;
+        }
+
+        BKTouchIDManager *touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:@"com.nextcloud.Talk"];
+        touchIDManager.promptText = @"Scan fingerprint to authenticate";
+        viewController.touchIDManager = touchIDManager;
+
+        viewController.title = @"Removing lock screen";
+
+        viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(passcodeViewCloseButtonPressed:)];
+
+        UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
+        navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
+        [self presentViewController:navigationController animated:YES completion:nil];
+    }
+    
 }
 
 @end
