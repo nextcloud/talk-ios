@@ -462,15 +462,15 @@ typedef enum AboutSection {
                     break;
                     case kLockSectionUseSimply:
                     {
-                        UISwitch *switchview;
                         cell = [tableView dequeueReusableCellWithIdentifier:lockUseSimplyCellIdentifier];
                         if (!cell) {
                             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:lockUseSimplyCellIdentifier];
-                            cell.textLabel.text = @"Password protection";
+                            cell.textLabel.text = @"Password type";
+                            cell.imageView.image  = [UIImage imageNamed:@"key"];
                         }
 
                         if ([[[NCSettingsController sharedInstance] ncBlockCodeUseSimply ] isEqualToString:@"true"]) {
-                            cell.detailTextLabel.text = @"Weak";
+                            cell.detailTextLabel.text = @"Simple";
                         } else {
                             cell.detailTextLabel.text = @"Strong";
                         }
