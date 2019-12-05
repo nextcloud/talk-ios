@@ -14,12 +14,16 @@ static CGFloat kChatMessageCellMinimumHeight    = 50.0;
 static CGFloat kChatMessageCellAvatarHeight     = 30.0;
 
 static NSString *ChatMessageCellIdentifier      = @"ChatMessageCellIdentifier";
+static NSString *ReplyMessageCellIdentifier     = @"ReplyMessageCellIdentifier";
 static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier";
+
+@class QuotedMessageView;
 
 @interface ChatMessageTableViewCell : ChatTableViewCell
 
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *dateLabel;
+@property (nonatomic, strong) QuotedMessageView *quotedMessageView;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 @property (nonatomic, strong) UIImageView *avatarView;
 

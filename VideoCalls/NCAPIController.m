@@ -872,11 +872,14 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return task;
 }
 
-- (NSURLSessionDataTask *)sendChatMessage:(NSString *)message toRoom:(NSString *)token displayName:(NSString *)displayName forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block
+- (NSURLSessionDataTask *)sendChatMessage:(NSString *)message toRoom:(NSString *)token displayName:(NSString *)displayName replyTo:(NSInteger)replyTo forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"chat/%@", token]];
-    NSDictionary *parameters = @{@"message" : message,
-                                 @"token" : token};
+    NSMutableDictionary *parameters = [NSMutableDictionary new];
+    [parameters setObject:message forKey:@"message"];
+    if (replyTo > -1) {
+        [parameters setObject:@(replyTo) forKey:@"replyTo"];
+    }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {

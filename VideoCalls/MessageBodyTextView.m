@@ -33,10 +33,18 @@
 
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
 {
-    if (action == @selector(selectAll:)) {
-        return YES;
-    }
-    return [super canPerformAction:action withSender:sender];
+    return NO;
+}
+
+// https://stackoverflow.com/a/44878203
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event
+{
+    UITextPosition *position = [self closestPositionToPoint:point];
+    if (!position) {return NO;}
+    UITextRange *range = [self.tokenizer rangeEnclosingPosition:position withGranularity:UITextGranularityCharacter inDirection:(UITextDirection)UITextLayoutDirectionLeft];
+    if (!range) {return NO;}
+    NSInteger startIndex = [self offsetFromPosition:self.beginningOfDocument toPosition:range.start];
+    return [self.attributedText attribute:NSLinkAttributeName atIndex:startIndex effectiveRange:nil] != nil;
 }
 
 #pragma mark - UITextView delegate
@@ -48,6 +56,13 @@
         return NO;
     }
     return YES;
+}
+
+- (void)textViewDidChangeSelection:(UITextView *)textView
+{
+    if(!NSEqualRanges(textView.selectedRange, NSMakeRange(0, 0))) {
+        textView.selectedRange = NSMakeRange(0, 0);
+    }
 }
 
 @end

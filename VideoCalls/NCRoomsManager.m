@@ -308,11 +308,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
-- (void)sendChatMessage:(NSString *)message toRoom:(NCRoom *)room
+- (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo toRoom:(NCRoom *)room
 {
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (roomController) {
-        [roomController sendChatMessage:message];
+        [roomController sendChatMessage:message replyTo:replyTo];
     } else {
         NSLog(@"Trying to send a message to a room where you are not active.");
     }

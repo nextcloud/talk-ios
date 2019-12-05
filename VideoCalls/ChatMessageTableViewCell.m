@@ -8,10 +8,12 @@
 
 #import "ChatMessageTableViewCell.h"
 #import "SLKUIConstants.h"
+#import "QuotedMessageView.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 
 @interface ChatMessageTableViewCell ()
+@property (nonatomic, strong) UIView *quoteContainerView;
 @end
 
 @implementation ChatMessageTableViewCell
@@ -20,9 +22,7 @@
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        self.selectionStyle = UITableViewCellSelectionStyleNone;
         self.backgroundColor = [UIColor whiteColor];
-        
         [self configureSubviews];
     }
     return self;
@@ -42,10 +42,17 @@
     [self.contentView addSubview:self.dateLabel];
     [self.contentView addSubview:self.bodyTextView];
     
+    if ([self.reuseIdentifier isEqualToString:ReplyMessageCellIdentifier]) {
+        [self.contentView addSubview:self.quoteContainerView];
+        [_quoteContainerView addSubview:self.quotedMessageView];
+    }
+    
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"titleLabel": self.titleLabel,
                             @"dateLabel": self.dateLabel,
                             @"bodyTextView": self.bodyTextView,
+                            @"quoteContainerView": self.quoteContainerView,
+                            @"quotedMessageView": self.quotedMessageView
                             };
     
     NSDictionary *metrics = @{@"avatarSize": @(kChatMessageCellAvatarHeight),
@@ -59,8 +66,15 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-    }
-    else {
+    } else if ([self.reuseIdentifier isEqualToString:ReplyMessageCellIdentifier]) {
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[quoteContainerView(bodyTextView)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[quoteContainerView]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[quoteContainerView]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
+    } else {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[titleLabel]|" options:0 metrics:metrics views:views]];
     }
@@ -71,8 +85,6 @@
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-    
-    self.selectionStyle = UITableViewCellSelectionStyleNone;
     
     CGFloat pointSize = [ChatMessageTableViewCell defaultFontSize];
     
@@ -116,6 +128,25 @@
         _dateLabel.font = [UIFont systemFontOfSize:12.0];
     }
     return _dateLabel;
+}
+
+- (UIView *)quoteContainerView
+{
+    if (!_quoteContainerView) {
+        _quoteContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+        _quoteContainerView.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    return _quoteContainerView;
+}
+
+
+- (QuotedMessageView *)quotedMessageView
+{
+    if (!_quotedMessageView) {
+        _quotedMessageView = [[QuotedMessageView alloc] init];
+        _quotedMessageView.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    return _quotedMessageView;
 }
 
 - (MessageBodyTextView *)bodyTextView

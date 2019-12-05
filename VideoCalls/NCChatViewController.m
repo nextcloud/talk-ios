@@ -14,6 +14,7 @@
 #import "DirectoryTableViewController.h"
 #import "GroupedChatMessageTableViewCell.h"
 #import "FileMessageTableViewCell.h"
+#import "FTPopOverMenu.h"
 #import "SystemMessageTableViewCell.h"
 #import "MessageSeparatorTableViewCell.h"
 #import "DateHeaderView.h"
@@ -31,11 +32,18 @@
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
 #import "NSDate+DateTools.h"
+#import "ReplyMessageView.h"
+#import "QuotedMessageView.h"
 #import "RoomInfoTableViewController.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 
-@interface NCChatViewController ()
+typedef enum NCChatMessageAction {
+    kNCChatMessageActionReply = 1,
+    kNCChatMessageActionCopy
+} NCChatMessageAction;
+
+@interface NCChatViewController () <UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) NCRoomController *roomController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -60,6 +68,7 @@
 @property (nonatomic, strong) UIBarButtonItem *videoCallButton;
 @property (nonatomic, strong) UIBarButtonItem *voiceCallButton;
 @property (nonatomic, strong) NSTimer *lobbyCheckTimer;
+@property (nonatomic, strong) ReplyMessageView *replyMessageView;
 
 @end
 
@@ -76,6 +85,8 @@
         self.tableView.estimatedSectionHeaderHeight = 0;
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
+        // Register ReplyMessageView class, conforming to SLKTypingIndicatorProtocol, as a custom typing indicator view.
+        [self registerClassForTypingIndicatorView:[ReplyMessageView class]];
         // Set image downloader to file preview imageviews.
         [FilePreviewImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
@@ -141,7 +152,7 @@
         self.textInputbar.counterStyle = SLKCounterStyleCountdownReversed;
     }
     self.textInputbar.translucent = NO;
-    self.textInputbar.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //Default color
+    self.textInputbar.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //Default toolbar color
     
     [self.textInputbar.editorTitle setTextColor:[UIColor darkGrayColor]];
     [self.textInputbar.editorLeftButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
@@ -149,8 +160,15 @@
     
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     
+    // Add long press gesture recognizer
+    UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+    longPressGesture.delegate = self;
+    [self.tableView addGestureRecognizer:longPressGesture];
+    self.longPressGesture = longPressGesture;
+    
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
+    [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ReplyMessageCellIdentifier];
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:FileMessageCellIdentifier];
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:GroupedFileMessageCellIdentifier];
@@ -424,7 +442,10 @@
 - (void)didPressRightButton:(id)sender
 {
     NSString *sendingText = [self createSendingMessage:self.textView.text];
-    [[NCRoomsManager sharedInstance] sendChatMessage:sendingText toRoom:_room];
+    NSInteger replyTo = (_replyMessageView.isVisible) ? _replyMessageView.message.messageId : -1;
+    
+    [[NCRoomsManager sharedInstance] sendChatMessage:sendingText replyTo:replyTo toRoom:_room];
+    [_replyMessageView dismiss];
     [super didPressRightButton:sender];
 }
 
@@ -434,6 +455,80 @@
     UINavigationController *fileSharingNC = [[UINavigationController alloc] initWithRootViewController:directoryVC];
     [self presentViewController:fileSharingNC animated:YES completion:nil];
     [super didPressLeftButton:sender];
+}
+
+#pragma mark - Gesture recognizer
+
+-(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
+{
+    CGPoint point = [gestureRecognizer locationInView:self.tableView];
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:point];
+    if (indexPath != nil && gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+        NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+        if (!message.isSystemMessage) {
+            // Select cell
+            [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
+            
+            // Create menu
+            FTPopOverMenuConfiguration *menuConfiguration = [[FTPopOverMenuConfiguration alloc] init];
+            menuConfiguration.menuIconMargin = 12;
+            menuConfiguration.menuTextMargin = 12;
+            menuConfiguration.imageSize = CGSizeMake(20, 20);
+            menuConfiguration.separatorInset = UIEdgeInsetsMake(0, 44, 0, 0);
+            menuConfiguration.menuRowHeight = 44;
+            menuConfiguration.autoMenuWidth = YES;
+            menuConfiguration.textFont = [UIFont systemFontOfSize:15];
+            menuConfiguration.backgroundColor = [UIColor colorWithWhite:0.3 alpha:1];
+            menuConfiguration.borderWidth = 0;
+            menuConfiguration.shadowOpacity = 0;
+            menuConfiguration.roundedImage = NO;
+            menuConfiguration.defaultSelection = YES;
+            
+            NSMutableArray *menuArray = [NSMutableArray new];
+            // Reply option
+            if (message.isReplyable) {
+                NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
+                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Reply" image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
+                [menuArray addObject:replyModel];
+            }
+            // Copy option
+            NSDictionary *copyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionCopy) forKey:@"action"];
+            FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Copy" image:[UIImage imageNamed:@"clippy"] userInfo:copyInfo];
+            [menuArray addObject:copyModel];
+            
+            CGRect frame = [self.tableView rectForRowAtIndexPath:indexPath];
+            CGPoint yOffset = self.tableView.contentOffset;
+            CGRect cellRect = CGRectMake(frame.origin.x, (frame.origin.y - yOffset.y), frame.size.width, frame.size.height);
+            
+            __weak NCChatViewController *weakSelf = self;
+            [FTPopOverMenu showFromSenderFrame:cellRect withMenuArray:menuArray imageArray:nil configuration:menuConfiguration doneBlock:^(NSInteger selectedIndex) {
+                [weakSelf.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                FTPopOverMenuModel *model = [menuArray objectAtIndex:selectedIndex];
+                NCChatMessageAction action = (NCChatMessageAction)[[model.userInfo objectForKey:@"action"] integerValue];
+                switch (action) {
+                    case kNCChatMessageActionReply:
+                    {
+                        weakSelf.replyMessageView = (ReplyMessageView *)weakSelf.typingIndicatorProxyView;
+                        [weakSelf.replyMessageView dismiss];
+                        [weakSelf.replyMessageView presentReplyViewWithMessage:message];
+                        [weakSelf presentKeyboard:YES];
+                    }
+                        break;
+                    case kNCChatMessageActionCopy:
+                    {
+                        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+                        pasteboard.string = message.parsedMessage.string;
+                    }
+                        break;
+                    default:
+                        break;
+                }
+            } dismissBlock:^{
+                [weakSelf.tableView deselectRowAtIndexPath:indexPath animated:YES];
+            }];
+        }
+    }
 }
 
 #pragma mark - UIScrollViewDelegate Methods
@@ -1108,6 +1203,33 @@
                                          } failure:nil];
         return fileCell;
     }
+    if (message.parent) {
+        ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
+        normalCell.titleLabel.text = message.actorDisplayName;
+        normalCell.bodyTextView.attributedText = message.parsedMessage;
+        normalCell.messageId = message.messageId;
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
+        normalCell.dateLabel.text = [self getTimeFromDate:date];
+        
+        if ([message.actorType isEqualToString:@"guests"]) {
+            normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
+            [normalCell setGuestAvatar:message.actorDisplayName];
+        } else if ([message.actorType isEqualToString:@"bots"]) {
+            if ([message.actorId isEqualToString:@"changelog"]) {
+                [normalCell setChangelogAvatar];
+            } else {
+                [normalCell setBotAvatar];
+            }
+        } else {
+            [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                                         placeholderImage:nil success:nil failure:nil];
+        }
+        
+        normalCell.quotedMessageView.actorLabel.text = message.parent.actorDisplayName;
+        normalCell.quotedMessageView.messageLabel.text = message.parent.parsedMessage.string;
+        
+        return normalCell;
+    }
     if (message.groupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
         groupedCell.bodyTextView.attributedText = message.parsedMessage;
@@ -1181,6 +1303,11 @@
             height = kChatMessageCellMinimumHeight;
         }
         
+        if (message.parent) {
+            height += 60;
+            return height;
+        }
+        
         if (message.groupMessage || message.isSystemMessage) {
             height = CGRectGetHeight(bodyBounds) + 20;
             
@@ -1220,6 +1347,8 @@
         NSMutableString *mentionString = [[self.autocompletionUsers[indexPath.row] objectForKey:@"label"] mutableCopy];
         [mentionString appendString:@" "];
         [self acceptAutoCompletionWithString:mentionString keepPrefix:YES];
+    } else {
+        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
 }
 

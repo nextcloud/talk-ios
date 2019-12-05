@@ -30,6 +30,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     message.timestamp = [[messageDict objectForKey:@"timestamp"] integerValue];
     message.token = [messageDict objectForKey:@"token"];
     message.systemMessage = [messageDict objectForKey:@"systemMessage"];
+    message.isReplyable = [[messageDict objectForKey:@"isReplyable"] boolValue];
     
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
@@ -45,6 +46,9 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     if (![message.messageParameters isKindOfClass:[NSDictionary class]]) {
         message.messageParameters = @{};
     }
+    
+    id parent = [messageDict objectForKey:@"parent"];
+    message.parent = [NCChatMessage messageWithDictionary:parent];
     
     return message;
 }
