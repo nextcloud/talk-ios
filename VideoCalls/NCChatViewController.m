@@ -501,17 +501,18 @@ typedef enum NCChatMessageAction {
             CGPoint yOffset = self.tableView.contentOffset;
             CGRect cellRect = CGRectMake(frame.origin.x, (frame.origin.y - yOffset.y), frame.size.width, frame.size.height);
             
+            __weak NCChatViewController *weakSelf = self;
             [FTPopOverMenu showFromSenderFrame:cellRect withMenuArray:menuArray imageArray:nil configuration:menuConfiguration doneBlock:^(NSInteger selectedIndex) {
-                [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                [weakSelf.tableView deselectRowAtIndexPath:indexPath animated:YES];
                 FTPopOverMenuModel *model = [menuArray objectAtIndex:selectedIndex];
                 NCChatMessageAction action = (NCChatMessageAction)[[model.userInfo objectForKey:@"action"] integerValue];
                 switch (action) {
                     case kNCChatMessageActionReply:
                     {
-                        _replyMessageView = (ReplyMessageView *)self.typingIndicatorProxyView;
-                        [_replyMessageView dismiss];
-                        [_replyMessageView presentReplyViewWithMessage:message];
-                        [self presentKeyboard:YES];
+                        weakSelf.replyMessageView = (ReplyMessageView *)weakSelf.typingIndicatorProxyView;
+                        [weakSelf.replyMessageView dismiss];
+                        [weakSelf.replyMessageView presentReplyViewWithMessage:message];
+                        [weakSelf presentKeyboard:YES];
                     }
                         break;
                     case kNCChatMessageActionCopy:
@@ -524,7 +525,7 @@ typedef enum NCChatMessageAction {
                         break;
                 }
             } dismissBlock:^{
-                [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                [weakSelf.tableView deselectRowAtIndexPath:indexPath animated:YES];
             }];
         }
     }
