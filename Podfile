@@ -8,8 +8,9 @@ pod 'GoogleWebRTC', "1.1.20266"
 pod 'JDStatusBarNotification'
 pod 'SocketRocket'
 pod 'DBImageColorPicker'
-pod "AFViewShaker", "~> 0.0.5"
+pod 'UICKeyChainStore'
 pod 'Realm'
+pod "AFViewShaker", "~> 0.0.5"
 pod 'BKPasscodeView', '~> 0.1.2'
 end
 

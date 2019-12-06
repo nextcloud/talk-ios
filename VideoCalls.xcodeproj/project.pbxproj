@@ -109,7 +109,6 @@
 		2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC901F014354002FE6A2 /* NCConnectionController.m */; };
 		2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */; };
 		2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA1CC961F016117002FE6A2 /* Security.framework */; };
-		2CA1CC9A1F0161EA002FE6A2 /* UICKeyChainStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */; };
 		2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */; };
 		2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
 		2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
@@ -436,8 +435,6 @@
 		2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSettingsController.h; sourceTree = "<group>"; };
 		2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCSettingsController.m; sourceTree = "<group>"; };
 		2CA1CC961F016117002FE6A2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		2CA1CC981F0161EA002FE6A2 /* UICKeyChainStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UICKeyChainStore.h; path = ThirdParty/UICKeyChainStore/UICKeyChainStore.h; sourceTree = "<group>"; };
-		2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UICKeyChainStore.m; path = ThirdParty/UICKeyChainStore/UICKeyChainStore.m; sourceTree = "<group>"; };
 		2CA1CCA21F025F64002FE6A2 /* RoomsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoomsTableViewController.h; sourceTree = "<group>"; };
 		2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoomsTableViewController.m; sourceTree = "<group>"; };
 		2CA1CCA81F02D1A4002FE6A2 /* NCAPIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCAPIController.h; sourceTree = "<group>"; };
@@ -604,7 +601,6 @@
 				2C8B5FF01FB4A9DA006E87EF /* openssl */,
 				2C9219591F58530B008AC1A3 /* UIImageView+Letters */,
 				2C4D7D601F2F7C2C00FF4A0D /* AppRTC */,
-				2CA1CC9B1F0161FB002FE6A2 /* UICKeyChainStore */,
 			);
 			name = ThirdParty;
 			sourceTree = "<group>";
@@ -1039,15 +1035,6 @@
 			name = Notifications;
 			sourceTree = "<group>";
 		};
-		2CA1CC9B1F0161FB002FE6A2 /* UICKeyChainStore */ = {
-			isa = PBXGroup;
-			children = (
-				2CA1CC981F0161EA002FE6A2 /* UICKeyChainStore.h */,
-				2CA1CC991F0161EA002FE6A2 /* UICKeyChainStore.m */,
-			);
-			name = UICKeyChainStore;
-			sourceTree = "<group>";
-		};
 		2CB302F92264775E0053078A /* SlackTextViewController */ = {
 			isa = PBXGroup;
 			children = (
@@ -1441,7 +1428,6 @@
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
 				2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */,
 				2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */,
-				2CA1CC9A1F0161EA002FE6A2 /* UICKeyChainStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
