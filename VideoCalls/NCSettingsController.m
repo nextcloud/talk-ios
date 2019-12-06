@@ -95,6 +95,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
         
         [self readValuesFromKeyChain];
         [self configureDatabase];
+        [self checkStoredDataInKechain];
         [self configureDefaultBrowser];
     }
     return self;
@@ -131,6 +132,17 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
         }];
         
         [self cleanUserAndServerStoredValues];
+    }
+}
+
+- (void)checkStoredDataInKechain
+{
+    // Removed data stored in the Keychain if there are no accounts configured
+    // This step should be always done before the possible account migration
+    if ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) {
+        NSLog(@"Removing all data stored in Keychain");
+        [UICKeyChainStore removeAllItemsForService:@"com.nextcloud.Talk"
+                                       accessGroup:@"group.com.nextcloud.Talk"];
     }
 }
 
