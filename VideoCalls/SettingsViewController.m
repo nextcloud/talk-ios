@@ -20,6 +20,7 @@
 #import "OpenInFirefoxControllerObjC.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
+#import "CCBKPasscode.h"
 #import <SafariServices/SafariServices.h>
 
 typedef enum SettingsSection {
@@ -450,7 +451,7 @@ typedef enum AboutSection {
                     
                     cell.textLabel.text = @"Lock screen";
 
-                    if ([[[NCSettingsController sharedInstance] ncBlockCode ] length ] > 0) {
+                    if ([[[NCSettingsController sharedInstance] ncLockScreenPasscode] length] > 0) {
                         cell.imageView.image  = [UIImage imageNamed:@"password-settings"];
                         cell.detailTextLabel.text = @"On";
                     }
@@ -469,7 +470,7 @@ typedef enum AboutSection {
                             cell.imageView.image  = [UIImage imageNamed:@"key"];
                         }
 
-                        if ([[[NCSettingsController sharedInstance] ncBlockCodeUseSimply ] isEqualToString:@"true"]) {
+                        if ([[[NCSettingsController sharedInstance] ncLockScreenSimplePasscode] isEqualToString:@"true"]) {
                             cell.detailTextLabel.text = @"Simple";
                         } else {
                             cell.detailTextLabel.text = @"Strong";
@@ -512,21 +513,18 @@ typedef enum AboutSection {
     return cell;
 }
 
- //Handle action
-- (void)passcodeStrengthClicked
+- (void)passcodeTypeOpionPressed
 {
-
-    if([[NCSettingsController sharedInstance].ncBlockCode length] != 0){
-        [self changeSimplyPassword];
-    }
-    else  {
+    if ([[NCSettingsController sharedInstance].ncLockScreenPasscode length] != 0) {
+        [self changeLockScreenPassword];
+    } else {
         UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk" accessGroup:@"group.com.nextcloud.Talk"];
-        if ([[[NCSettingsController sharedInstance] ncBlockCodeUseSimply ] isEqualToString:@"true"]) {
-            [keychain setString:@"false" forKey:@"ncBlockCodeUseSimply"];
-            [[NCSettingsController sharedInstance] readValuesFromKeyChain];
+        if ([[[NCSettingsController sharedInstance] ncLockScreenSimplePasscode] isEqualToString:@"true"]) {
+            [NCSettingsController sharedInstance].ncLockScreenSimplePasscode = @"false";
+            [keychain setString:@"false" forKey:kNCLockScreenSimplePasscode];
         } else {
-            [keychain setString:@"true" forKey:@"ncBlockCodeUseSimply"];
-            [[NCSettingsController sharedInstance] readValuesFromKeyChain];
+            [NCSettingsController sharedInstance].ncLockScreenSimplePasscode = @"true";
+            [keychain setString:@"true" forKey:kNCLockScreenSimplePasscode];
         }
         NSIndexPath *passwordTypeIP = [NSIndexPath indexPathForRow:kLockSectionUseSimply inSection:[self getSectionForSettingsSection:kSettingsSectionLock]];
         [self.tableView reloadRowsAtIndexPaths:@[passwordTypeIP] withRowAnimation:UITableViewRowAnimationNone];
@@ -580,11 +578,11 @@ typedef enum AboutSection {
         {
             switch(indexPath.row){
                 case kLockSectionOn:{
-                    [self bloccoPassword];
+                    [self toggleLockScreenSetting];
                 }
                     break;
                 case kLockSectionUseSimply:{
-                    [self passcodeStrengthClicked];
+                    [self passcodeTypeOpionPressed];
                 }
                     break;
             }
@@ -615,9 +613,7 @@ typedef enum AboutSection {
     }
 }
 
-#pragma --------------------------------------------------------------------------------------------
-#pragma mark === BKPasscodeViewController ===
-#pragma --------------------------------------------------------------------------------------------
+#pragma mark - Lock screen
 
 - (void)passcodeViewController:(CCBKPasscode *)aViewController didFinishWithPasscode:(NSString *)aPasscode
 {
@@ -625,46 +621,42 @@ typedef enum AboutSection {
     UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk" accessGroup:@"group.com.nextcloud.Talk"];
     
     switch (aViewController.type) {
-            
-        case BKPasscodeViewControllerNewPasscodeType: {
-            
-            // enable passcode
-            [keychain setString:aPasscode forKey:@"ncBlockCode"];
-            [[NCSettingsController sharedInstance] readValuesFromKeyChain];
+        case BKPasscodeViewControllerNewPasscodeType:
+        {
+            // Store new passcode
+            [NCSettingsController sharedInstance].ncLockScreenPasscode = aPasscode;
+            [keychain setString:aPasscode forKey:kNCLockScreenPasscode];
         }
-        break;
-            
-        case BKPasscodeViewControllerCheckPasscodeType: {
-            
-            // disable passcode
+            break;
+        case BKPasscodeViewControllerCheckPasscodeType:
+        {
+            // Disable lock screen
             if (aViewController.fromType == CCBKPasscodeFromSettingsPasscode) {
-                
-                [keychain setString:@"" forKey:@"ncBlockCode"];
-                [[NCSettingsController sharedInstance] readValuesFromKeyChain];
+                [NCSettingsController sharedInstance].ncLockScreenPasscode = nil;
+                [keychain setString:@"" forKey:kNCLockScreenPasscode];
             }
-            
-            // change simply
+            // Change passcode type
             if (aViewController.fromType == CCBKPasscodeFromSimply) {
-
-                // disable passcode
-                [keychain setString:@"" forKey:@"ncBlockCode"];
-
-                if([[NCSettingsController sharedInstance].ncBlockCodeUseSimply isEqualToString:@"true"]){
-                    [keychain setString:@"false" forKey:@"ncBlockCodeUseSimply"];
+                // Remove passcode
+                [NCSettingsController sharedInstance].ncLockScreenPasscode = nil;
+                [keychain setString:@"" forKey:kNCLockScreenPasscode];
+                
+                // Set new passcode type
+                if ([[NCSettingsController sharedInstance].ncLockScreenSimplePasscode isEqualToString:@"true"]) {
+                    [NCSettingsController sharedInstance].ncLockScreenSimplePasscode = @"false";
+                    [keychain setString:@"false" forKey:kNCLockScreenSimplePasscode];
+                } else {
+                    [NCSettingsController sharedInstance].ncLockScreenSimplePasscode = @"true";
+                    [keychain setString:@"true" forKey:kNCLockScreenSimplePasscode];
                 }
-                else {
-                    [keychain setString:@"true" forKey:@"ncBlockCodeUseSimply"];
-                }
 
-                //  Call new passcode
-                [[NCSettingsController sharedInstance] readValuesFromKeyChain];
-                [self bloccoPassword];
+                // Start setting new passcode
+                [self toggleLockScreenSetting];
             }
         }
-        break;
-            
+            break;
         default:
-        break;
+            break;
     }
     
     [self.tableView reloadData];
@@ -673,14 +665,10 @@ typedef enum AboutSection {
 
 - (void)passcodeViewController:(CCBKPasscode *)aViewController authenticatePasscode:(NSString *)aPasscode resultHandler:(void (^)(BOOL))aResultHandler
 {
-    if (aViewController.fromType == CCBKPasscodeFromSettingsPasscode || aViewController.fromType == CCBKPasscodeFromSimply) {
-        
-        if ([aPasscode isEqualToString:[NCSettingsController sharedInstance].ncBlockCode]) {
-//            self.lockUntilDate = nil;
-//            self.failedAttempts = 0;
-            aResultHandler(YES);
-        } else aResultHandler(NO);
-        
+    if ([aPasscode isEqualToString:[NCSettingsController sharedInstance].ncLockScreenPasscode]) {
+        aResultHandler(YES);
+    } else {
+        aResultHandler(NO);
     }
 }
 
@@ -689,7 +677,7 @@ typedef enum AboutSection {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)changeSimplyPassword
+- (void)changeLockScreenPassword
 {
     CCBKPasscode *viewController = [[CCBKPasscode alloc] initWithNibName:nil bundle:nil];
     viewController.delegate = self;
@@ -697,13 +685,10 @@ typedef enum AboutSection {
     viewController.fromType = CCBKPasscodeFromSimply;
     viewController.title = NSLocalizedString(@"Change password type", nil);
     
-    if([[NCSettingsController sharedInstance].ncBlockCodeUseSimply isEqualToString:@"true"]){
-        
+    if ([[NCSettingsController sharedInstance].ncLockScreenSimplePasscode isEqualToString:@"true"]) {
         viewController.passcodeStyle = BKPasscodeInputViewNumericPasscodeStyle;
         viewController.passcodeInputView.maximumLength = 6;
-        
     } else {
-        
         viewController.passcodeStyle = BKPasscodeInputViewNormalPasscodeStyle;
         viewController.passcodeInputView.maximumLength = 64;
     }
@@ -719,23 +704,19 @@ typedef enum AboutSection {
     [self presentViewController:navigationController animated:YES completion:nil];
 }
 
-- (void)bloccoPassword
+- (void)toggleLockScreenSetting
 {
-    // ATTIVAZIONE LOCK PASSWORD
-    if ([[[NCSettingsController sharedInstance] ncBlockCode ] length ] == 0)  {
-        
+    if ([[NCSettingsController sharedInstance].ncLockScreenPasscode length] == 0) {
+        // Enable lock screen
         CCBKPasscode *viewController = [[CCBKPasscode alloc] initWithNibName:nil bundle:nil];
         viewController.delegate = self;
         viewController.type = BKPasscodeViewControllerNewPasscodeType;
         viewController.fromType = CCBKPasscodeFromSettingsPasscode;
         
-        if([[NCSettingsController sharedInstance].ncBlockCodeUseSimply isEqualToString:@"true"]){
-
+        if ([[NCSettingsController sharedInstance].ncLockScreenSimplePasscode isEqualToString:@"true"]) {
             viewController.passcodeStyle = BKPasscodeInputViewNumericPasscodeStyle;
             viewController.passcodeInputView.maximumLength = 6;
-
         } else {
-            
             viewController.passcodeStyle = BKPasscodeInputViewNormalPasscodeStyle;
             viewController.passcodeInputView.maximumLength = 64;
         }
@@ -752,22 +733,17 @@ typedef enum AboutSection {
         navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
         [self presentViewController:navigationController animated:YES completion:nil];
 
-    } else
-    {
-
-        // OFF LOCK PASSWORD - disable passcode
+    } else {
+        // Disable lock screen
         CCBKPasscode *viewController = [[CCBKPasscode alloc] initWithNibName:nil bundle:nil];
         viewController.delegate = self;
         viewController.type = BKPasscodeViewControllerCheckPasscodeType;
         viewController.fromType = CCBKPasscodeFromSettingsPasscode;
 
-        if([[NCSettingsController sharedInstance].ncBlockCodeUseSimply isEqualToString:@"true"]){
-
+        if ([[NCSettingsController sharedInstance].ncLockScreenSimplePasscode isEqualToString:@"true"]) {
             viewController.passcodeStyle = BKPasscodeInputViewNumericPasscodeStyle;
             viewController.passcodeInputView.maximumLength = 6;
-
         } else {
-
             viewController.passcodeStyle = BKPasscodeInputViewNormalPasscodeStyle;
             viewController.passcodeInputView.maximumLength = 64;
         }
@@ -784,7 +760,6 @@ typedef enum AboutSection {
         navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
         [self presentViewController:navigationController animated:YES completion:nil];
     }
-    
 }
 
 @end

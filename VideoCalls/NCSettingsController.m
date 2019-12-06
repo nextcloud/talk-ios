@@ -32,23 +32,23 @@
 
 @implementation NCSettingsController
 
-NSString * const kNCServerKey           = @"ncServer";
-NSString * const kNCUserKey             = @"ncUser";
-NSString * const kNCUserIdKey           = @"ncUserId";
-NSString * const kNCUserDisplayNameKey  = @"ncUserDisplayName";
-NSString * const kNCTokenKey            = @"ncToken";
-NSString * const kNCPushTokenKey        = @"ncPushToken";
-NSString * const kNCPushKitTokenKey     = @"ncPushKitToken";
-NSString * const kNCPushSubscribedKey   = @"ncPushSubscribed";
-NSString * const kNCPushServer          = @"https://push-notifications.nextcloud.com";
-NSString * const kNCPNPublicKey         = @"ncPNPublicKey";
-NSString * const kNCPNPrivateKey        = @"ncPNPrivateKey";
-NSString * const kNCDeviceIdentifier    = @"ncDeviceIdentifier";
-NSString * const kNCDeviceSignature     = @"ncDeviceSignature";
-NSString * const kNCUserPublicKey       = @"ncUserPublicKey";
-NSString * const kNCUserDefaultBrowser  = @"ncUserDefaultBrowser";
-NSString * const kNCBlockCode           = @"ncBlockCode";
-NSString * const kNCBlockCodeUseSimply  = @"ncBlockCodeUseSimply";
+NSString * const kNCServerKey                   = @"ncServer";
+NSString * const kNCUserKey                     = @"ncUser";
+NSString * const kNCUserIdKey                   = @"ncUserId";
+NSString * const kNCUserDisplayNameKey          = @"ncUserDisplayName";
+NSString * const kNCTokenKey                    = @"ncToken";
+NSString * const kNCPushTokenKey                = @"ncPushToken";
+NSString * const kNCPushKitTokenKey             = @"ncPushKitToken";
+NSString * const kNCPushSubscribedKey           = @"ncPushSubscribed";
+NSString * const kNCPushServer                  = @"https://push-notifications.nextcloud.com";
+NSString * const kNCPNPublicKey                 = @"ncPNPublicKey";
+NSString * const kNCPNPrivateKey                = @"ncPNPrivateKey";
+NSString * const kNCDeviceIdentifier            = @"ncDeviceIdentifier";
+NSString * const kNCDeviceSignature             = @"ncDeviceSignature";
+NSString * const kNCUserPublicKey               = @"ncUserPublicKey";
+NSString * const kNCUserDefaultBrowser          = @"ncUserDefaultBrowser";
+NSString * const kNCLockScreenPasscode          = @"ncLockScreenPasscode";
+NSString * const kNCLockScreenSimplePasscode    = @"ncLockScreenSimplePasscode";
 
 NSString * const kCapabilityChatV2              = @"chat-v2";
 NSString * const kCapabilityMultiRoomUsers      = @"multi-room-users";
@@ -228,9 +228,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     _ncDeviceSignature = [_keychain stringForKey:kNCDeviceSignature];
     _ncUserPublicKey = [_keychain stringForKey:kNCUserPublicKey];
     _defaultBrowser = [_keychain stringForKey:kNCUserDefaultBrowser];
-    
-    _ncBlockCode = [_keychain stringForKey:kNCBlockCode];
-    _ncBlockCodeUseSimply =[_keychain stringForKey:kNCBlockCodeUseSimply];
+    _ncLockScreenPasscode = [_keychain stringForKey:kNCLockScreenPasscode];
+    _ncLockScreenSimplePasscode = [_keychain stringForKey:kNCLockScreenSimplePasscode];
 }
 
 - (void)cleanUserAndServerStoredValues
@@ -246,8 +245,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     _ncDeviceSignature = nil;
     _defaultBrowser = @"Safari";
     _pushNotificationSubscribed = nil;
-    _ncBlockCode = nil;
-    _ncBlockCodeUseSimply = nil;
+    _ncLockScreenPasscode = nil;
+    _ncLockScreenSimplePasscode = nil;
     
     [_keychain removeItemForKey:kNCServerKey];
     [_keychain removeItemForKey:kNCUserKey];
@@ -260,8 +259,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     [_keychain removeItemForKey:kNCDeviceSignature];
     [_keychain removeItemForKey:kNCUserPublicKey];
     [_keychain removeItemForKey:kNCUserDefaultBrowser];
-    [_keychain removeItemForKey:kNCBlockCode];
-    [_keychain removeItemForKey:kNCBlockCodeUseSimply];
+    [_keychain removeItemForKey:kNCLockScreenPasscode];
+    [_keychain removeItemForKey:kNCLockScreenSimplePasscode];
     
 
 }
