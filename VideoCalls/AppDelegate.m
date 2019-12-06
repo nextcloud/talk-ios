@@ -204,7 +204,13 @@
 
 - (BOOL)lockScreenManagerShouldShowLockScreen:(BKPasscodeLockScreenManager *)aManager
 {
-     return ([[NCSettingsController sharedInstance].ncBlockCode length] != 0);  
+    BOOL shouldShowLockScreen = [[NCSettingsController sharedInstance].ncBlockCode length] != 0;
+    // Do not show lock screen if there are no accounts configured
+    if ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) {
+        shouldShowLockScreen = NO;
+    }
+    
+    return shouldShowLockScreen;
 }
 
 - (UIViewController *)lockScreenManagerPasscodeViewController:(BKPasscodeLockScreenManager *)aManager
