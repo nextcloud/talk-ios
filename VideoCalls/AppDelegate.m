@@ -174,37 +174,31 @@
 }
 
 
-#pragma mark - Manage Passcode
+#pragma mark - Lock screen
 
 - (void)passcodeViewController:(CCBKPasscode *)aViewController didFinishWithPasscode:(NSString *)aPasscode
 {
     [aViewController dismissViewControllerAnimated:YES completion:nil];
-    
-    // is a lock screen
-    if (aViewController.fromType == CCBKPasscodeFromLockScreen) {
-        
-        [aViewController dismissViewControllerAnimated:YES completion:nil];
-        
-     }
 }
 
 - (void)passcodeViewController:(CCBKPasscode *)aViewController authenticatePasscode:(NSString *)aPasscode resultHandler:(void (^)(BOOL))aResultHandler
 {
-    if (aViewController.fromType == CCBKPasscodeFromLockScreen || aViewController.fromType == CCBKPasscodeFromInit) {
-        
-        if ([aPasscode isEqualToString:[NCSettingsController sharedInstance].ncBlockCode]) {
-            //self.lockUntilDate = nil;
-            //self.failedAttempts = 0;
-            aResultHandler(YES);
-        } else aResultHandler(NO);
-    } else aResultHandler(YES);
+    if ([aPasscode isEqualToString:[NCSettingsController sharedInstance].ncLockScreenPasscode]) {
+        aResultHandler(YES);
+    } else {
+        aResultHandler(NO);
+    }
 }
-
-
 
 - (BOOL)lockScreenManagerShouldShowLockScreen:(BKPasscodeLockScreenManager *)aManager
 {
-     return ([[NCSettingsController sharedInstance].ncBlockCode length] != 0);  
+    BOOL shouldShowLockScreen = [[NCSettingsController sharedInstance].ncLockScreenPasscode length] != 0;
+    // Do not show lock screen if there are no accounts configured
+    if ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) {
+        shouldShowLockScreen = NO;
+    }
+    
+    return shouldShowLockScreen;
 }
 
 - (UIViewController *)lockScreenManagerPasscodeViewController:(BKPasscodeLockScreenManager *)aManager
@@ -215,18 +209,15 @@
     viewController.title = @"Nextcloud Talk";
     viewController.fromType = CCBKPasscodeFromLockScreen;
 
-    if([[NCSettingsController sharedInstance].ncBlockCodeUseSimply isEqualToString:@"true"]){
-
+    if ([[NCSettingsController sharedInstance].ncLockScreenSimplePasscode isEqualToString:@"true"]) {
         viewController.passcodeStyle = BKPasscodeInputViewNumericPasscodeStyle;
         viewController.passcodeInputView.maximumLength = 6;
-
     } else {
-        
         viewController.passcodeStyle = BKPasscodeInputViewNormalPasscodeStyle;
         viewController.passcodeInputView.maximumLength = 64;
     }
     
-    viewController.touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName: @"com.nextcloud.Talk"];
+    viewController.touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:@"com.nextcloud.Talk"];
     viewController.touchIDManager.promptText = @"Scan fingerprint to authenticate";
 
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
