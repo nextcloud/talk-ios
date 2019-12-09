@@ -230,7 +230,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     _ncUserPublicKey = [_keychain stringForKey:kNCUserPublicKey];
     _defaultBrowser = [_keychain stringForKey:kNCUserDefaultBrowser];
     _ncLockScreenPasscode = [_keychain stringForKey:kNCLockScreenPasscode];
-    _ncLockScreenSimplePasscode = [_keychain stringForKey:kNCLockScreenSimplePasscode];
+    _ncLockScreenSimplePasscode = [_keychain stringForKey:kNCLockScreenSimplePasscode] ? : @"true";
 }
 
 - (void)cleanUserAndServerStoredValues
