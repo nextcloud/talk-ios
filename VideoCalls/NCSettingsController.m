@@ -141,6 +141,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     // This step should be always done before the possible account migration
     if ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) {
         NSLog(@"Removing all data stored in Keychain");
+        [self cleanUserAndServerStoredValues];
         [UICKeyChainStore removeAllItemsForService:@"com.nextcloud.Talk"
                                        accessGroup:@"group.com.nextcloud.Talk"];
     }
@@ -261,8 +262,6 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     [_keychain removeItemForKey:kNCUserDefaultBrowser];
     [_keychain removeItemForKey:kNCLockScreenPasscode];
     [_keychain removeItemForKey:kNCLockScreenSimplePasscode];
-    
-
 }
 
 #pragma mark - User Profile
