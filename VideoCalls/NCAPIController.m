@@ -1046,9 +1046,9 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     #warning TODO - Clear cache from time to time and reload possible new images
     NSString *encodedUser = [userId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/%ld", account.server, encodedUser, (long)size];
-    return [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]
-                            cachePolicy:NSURLRequestReturnCacheDataElseLoad
-                        timeoutInterval:60];
+    NSMutableURLRequest *avatarRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
+    [avatarRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
+    return avatarRequest;
 }
 
 #pragma mark - File previews
