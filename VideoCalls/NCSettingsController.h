@@ -28,7 +28,7 @@ extern NSString * const kNCDeviceSignature;
 extern NSString * const kNCUserPublicKey;
 extern NSString * const kNCUserDefaultBrowser;
 extern NSString * const kNCLockScreenPasscode;
-extern NSString * const kNCLockScreenSimplePasscode;
+extern NSString * const kNCLockScreenPasscodeType;
 
 extern NSString * const kCapabilityChatV2;
 extern NSString * const kCapabilityMultiRoomUsers;
@@ -60,6 +60,11 @@ typedef enum NCPreferredFileSorting {
     NCModificationDateSorting
 } NCPreferredFileSorting;
 
+typedef enum NCPasscodeType {
+    NCPasscodeTypeSimple = 1,
+    NCPasscodeTypeStrong
+} NCPasscodeType;
+
 @class NCExternalSignalingController;
 
 @interface NCSettingsController : NSObject
@@ -71,8 +76,6 @@ typedef enum NCPreferredFileSorting {
 @property (nonatomic, copy) NSString *ncToken;
 @property (nonatomic, copy) NSString *ncPushToken;
 @property (nonatomic, copy) NSString *ncPushKitToken;
-@property (nonatomic, copy) NSString *ncLockScreenPasscode;
-@property (nonatomic, copy) NSString *ncLockScreenSimplePasscode;
 @property (nonatomic, copy) NSString *pushNotificationSubscribed;
 @property (nonatomic, copy) NSData *ncPNPublicKey;
 @property (nonatomic, copy) NSData *ncPNPrivateKey;
@@ -81,6 +84,8 @@ typedef enum NCPreferredFileSorting {
 @property (nonatomic, copy) NSString *ncUserPublicKey;
 @property (nonatomic, copy) NSString *defaultBrowser;
 @property (nonatomic, copy) NSMutableArray *supportedBrowsers;
+@property (nonatomic, copy) NSString *lockScreenPasscode;
+@property (nonatomic, assign) NCPasscodeType lockScreenPasscodeType;
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
 @property (nonatomic, copy) NSMutableDictionary *signalingConfigutations; // accountId -> signalingConfigutation
 @property (nonatomic, copy) NSMutableDictionary *externalSignalingControllers; // accountId -> externalSignalingController

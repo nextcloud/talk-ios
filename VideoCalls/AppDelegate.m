@@ -183,7 +183,7 @@
 
 - (void)passcodeViewController:(CCBKPasscode *)aViewController authenticatePasscode:(NSString *)aPasscode resultHandler:(void (^)(BOOL))aResultHandler
 {
-    if ([aPasscode isEqualToString:[NCSettingsController sharedInstance].ncLockScreenPasscode]) {
+    if ([aPasscode isEqualToString:[NCSettingsController sharedInstance].lockScreenPasscode]) {
         aResultHandler(YES);
     } else {
         aResultHandler(NO);
@@ -192,7 +192,7 @@
 
 - (BOOL)lockScreenManagerShouldShowLockScreen:(BKPasscodeLockScreenManager *)aManager
 {
-    BOOL shouldShowLockScreen = [[NCSettingsController sharedInstance].ncLockScreenPasscode length] != 0;
+    BOOL shouldShowLockScreen = [[NCSettingsController sharedInstance].lockScreenPasscode length] != 0;
     // Do not show lock screen if there are no accounts configured
     if ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) {
         shouldShowLockScreen = NO;
@@ -209,7 +209,7 @@
     viewController.title = @"Nextcloud Talk";
     viewController.fromType = CCBKPasscodeFromLockScreen;
 
-    if ([[NCSettingsController sharedInstance].ncLockScreenSimplePasscode isEqualToString:@"true"]) {
+    if ([NCSettingsController sharedInstance].lockScreenPasscodeType == NCPasscodeTypeSimple) {
         viewController.passcodeStyle = BKPasscodeInputViewNumericPasscodeStyle;
         viewController.passcodeInputView.maximumLength = 6;
     } else {

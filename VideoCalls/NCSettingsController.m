@@ -26,6 +26,8 @@
 @interface NCSettingsController ()
 {
     UICKeyChainStore *_keychain;
+    NSString *_lockScreenPasscode;
+    NCPasscodeType _lockScreenPasscodeType;
 }
 
 @end
@@ -48,7 +50,7 @@ NSString * const kNCDeviceSignature             = @"ncDeviceSignature";
 NSString * const kNCUserPublicKey               = @"ncUserPublicKey";
 NSString * const kNCUserDefaultBrowser          = @"ncUserDefaultBrowser";
 NSString * const kNCLockScreenPasscode          = @"ncLockScreenPasscode";
-NSString * const kNCLockScreenSimplePasscode    = @"ncLockScreenSimplePasscode";
+NSString * const kNCLockScreenPasscodeType      = @"ncLockScreenPasscodeType";
 
 NSString * const kCapabilityChatV2              = @"chat-v2";
 NSString * const kCapabilityMultiRoomUsers      = @"multi-room-users";
@@ -96,7 +98,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
         [self readValuesFromKeyChain];
         [self configureDatabase];
         [self checkStoredDataInKechain];
-        [self configureDefaultBrowser];
+        [self configureAppSettings];
     }
     return self;
 }
@@ -228,9 +230,6 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     _ncDeviceIdentifier = [_keychain stringForKey:kNCDeviceIdentifier];
     _ncDeviceSignature = [_keychain stringForKey:kNCDeviceSignature];
     _ncUserPublicKey = [_keychain stringForKey:kNCUserPublicKey];
-    _defaultBrowser = [_keychain stringForKey:kNCUserDefaultBrowser];
-    _ncLockScreenPasscode = [_keychain stringForKey:kNCLockScreenPasscode];
-    _ncLockScreenSimplePasscode = [_keychain stringForKey:kNCLockScreenSimplePasscode] ? : @"true";
 }
 
 - (void)cleanUserAndServerStoredValues
@@ -244,10 +243,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     _ncUserPublicKey = nil;
     _ncDeviceIdentifier = nil;
     _ncDeviceSignature = nil;
-    _defaultBrowser = @"Safari";
     _pushNotificationSubscribed = nil;
-    _ncLockScreenPasscode = nil;
-    _ncLockScreenSimplePasscode = nil;
     
     [_keychain removeItemForKey:kNCServerKey];
     [_keychain removeItemForKey:kNCUserKey];
@@ -259,9 +255,6 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     [_keychain removeItemForKey:kNCDeviceIdentifier];
     [_keychain removeItemForKey:kNCDeviceSignature];
     [_keychain removeItemForKey:kNCUserPublicKey];
-    [_keychain removeItemForKey:kNCUserDefaultBrowser];
-    [_keychain removeItemForKey:kNCLockScreenPasscode];
-    [_keychain removeItemForKey:kNCLockScreenSimplePasscode];
 }
 
 #pragma mark - User Profile
@@ -323,6 +316,14 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     if (block) block(nil);
 }
 
+#pragma mark - App settings
+
+- (void)configureAppSettings
+{
+    [self configureDefaultBrowser];
+    [self configureLockScreen];
+}
+
 #pragma mark - Default browser
 
 - (void)configureDefaultBrowser
@@ -344,6 +345,35 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 {
     _defaultBrowser = defaultBrowser;
     [_keychain setString:defaultBrowser forKey:kNCUserDefaultBrowser];
+}
+
+#pragma mark - Lock screen
+
+- (void)configureLockScreen
+{
+    _lockScreenPasscode = [_keychain stringForKey:kNCLockScreenPasscode];
+}
+
+- (void)setLockScreenPasscode:(NSString *)lockScreenPasscode
+{
+    _lockScreenPasscode = lockScreenPasscode;
+    [_keychain setString:lockScreenPasscode forKey:kNCLockScreenPasscode];
+}
+
+- (NCPasscodeType)lockScreenPasscodeType
+{
+    NCPasscodeType passcodeType = (NCPasscodeType)[[[NSUserDefaults standardUserDefaults] objectForKey:kNCLockScreenPasscodeType] integerValue];
+    if (!passcodeType) {
+        passcodeType = NCPasscodeTypeSimple;
+        [[NSUserDefaults standardUserDefaults] setObject:@(passcodeType) forKey:kNCLockScreenPasscodeType];
+    }
+    return passcodeType;
+}
+
+- (void)setLockScreenPasscodeType:(NCPasscodeType)lockScreenPasscodeType
+{
+    _lockScreenPasscodeType = lockScreenPasscodeType;
+    [[NSUserDefaults standardUserDefaults] setObject:@(lockScreenPasscodeType) forKey:kNCLockScreenPasscodeType];
 }
 
 #pragma mark - Signaling Configuration
