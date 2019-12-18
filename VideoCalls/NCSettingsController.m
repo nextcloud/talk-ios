@@ -26,6 +26,7 @@
 @interface NCSettingsController ()
 {
     UICKeyChainStore *_keychain;
+    NSString *_defaultBrowser;
     NSString *_lockScreenPasscode;
     NCPasscodeType _lockScreenPasscodeType;
 }
@@ -333,18 +334,32 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     if ([[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
         [supportedBrowsers addObject:@"Firefox"];
     }
-    self.supportedBrowsers = supportedBrowsers;
-    // Set default browser
-    if (!_defaultBrowser || ![supportedBrowsers containsObject:_defaultBrowser]) {
+    _supportedBrowsers = supportedBrowsers;
+    // Check if default browser is valid
+    if (![supportedBrowsers containsObject:self.defaultBrowser]) {
         self.defaultBrowser = @"Safari";
     }
 }
 
-
 - (void)setDefaultBrowser:(NSString *)defaultBrowser
 {
     _defaultBrowser = defaultBrowser;
-    [_keychain setString:defaultBrowser forKey:kNCUserDefaultBrowser];
+    [[NSUserDefaults standardUserDefaults] setObject:defaultBrowser forKey:kNCUserDefaultBrowser];
+}
+
+- (NSString *)defaultBrowser
+{
+    NSString *browser = [[NSUserDefaults standardUserDefaults] objectForKey:kNCUserDefaultBrowser];
+    if (!browser) {
+        browser = @"Safari";
+        // Legacy
+        NSString *oldDefaultBrowser = [_keychain stringForKey:kNCUserDefaultBrowser];
+        if (oldDefaultBrowser) {
+            browser = oldDefaultBrowser;
+        }
+        [[NSUserDefaults standardUserDefaults] setObject:browser forKey:kNCUserDefaultBrowser];
+    }
+    return browser;
 }
 
 #pragma mark - Lock screen
