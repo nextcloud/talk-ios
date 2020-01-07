@@ -26,7 +26,7 @@
     
     self.backgroundColor = [UIColor whiteColor];
     
-    self.placeholder = NSLocalizedString(@"New message …", nil);
+    self.placeholder = NSLocalizedString(@"Write message, @ to mention someone …", nil);
     self.placeholderColor = [UIColor lightGrayColor];
     
     self.layer.borderColor = [UIColor lightGrayColor].CGColor;
