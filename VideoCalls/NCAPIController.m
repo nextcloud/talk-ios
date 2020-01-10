@@ -241,9 +241,8 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
             }
             return NSOrderedSame;
         }];
-        // Sort by lastPing or lastActivity
-        NSString *sortKey = ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLastRoomActivity]) ? @"lastActivity" : @"lastPing";
-        NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:sortKey ascending:NO];
+        // Sort by lastActivity
+        NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"lastActivity" ascending:NO];
         NSArray *descriptors = [NSArray arrayWithObjects:favoriteSorting, valueDescriptor, nil];
         [rooms sortUsingDescriptors:descriptors];
 
@@ -274,30 +273,6 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         NCRoom *room = [NCRoom roomWithDictionary:roomDict];
         if (block) {
             block(room, nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        if (block) {
-            block(nil, error);
-        }
-    }];
-    
-    return task;
-}
-
-- (NSURLSessionDataTask *)getRoomForAccount:(TalkAccount *)account withId:(NSInteger)roomId withCompletionBlock:(GetRoomCompletionBlock)block
-{
-    NSString *URLString = [self getRequestURLForAccount:account withEndpoint:@"room"];
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
-        NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-        for (NSDictionary *room in responseRooms) {
-            NCRoom *ncRoom = [NCRoom roomWithDictionary:room];
-            if (ncRoom.roomId == roomId) {
-                if (block) {
-                    block(ncRoom, nil);
-                }
-            }
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
@@ -783,24 +758,6 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return task;
 }
 
-- (NSURLSessionDataTask *)pingCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PingCallCompletionBlock)block
-{
-    NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"call/%@/ping", token]];
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
 - (NSURLSessionDataTask *)leaveCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(LeaveCallCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"call/%@", token]];
@@ -918,15 +875,6 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 }
 
 #pragma mark - Signaling Controller
-
-- (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages forAccount:(TalkAccount *)account withCompletionBlock:(SendSignalingMessagesCompletionBlock)block
-{
-    return [self sendSignalingMessages:messages toRoom:nil forAccount:account withCompletionBlock:block];
-}
-- (NSURLSessionDataTask *)pullSignalingMessagesForAccount:(TalkAccount *)account withCompletionBlock:(PullSignalingMessagesCompletionBlock)block
-{
-    return [self pullSignalingMessagesFromRoom:nil forAccount:account withCompletionBlock:block];
-}
 
 - (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
 {

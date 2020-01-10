@@ -25,8 +25,6 @@ extern NSString * const NCRoomControllerDidReceiveChatBlockedNotification;
 @property (nonatomic, assign) BOOL hasHistory;
 
 - (instancetype)initForUser:(NSString *)sessionId inRoom:(NSString *)token;
-- (void)startPingRoom;
-- (void)stopPingRoom;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo;
 - (void)getInitialChatHistory:(NSInteger)lastReadMessage;
 - (void)getChatHistoryFromMessagesId:(NSInteger)messageId;

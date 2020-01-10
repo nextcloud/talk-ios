@@ -19,11 +19,9 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 
 @interface NCRoomController ()
 
-@property (nonatomic, strong) NSTimer *pingTimer;
 @property (nonatomic, assign) NSInteger oldestMessageId;
 @property (nonatomic, assign) NSInteger newestMessageId;
 @property (nonatomic, assign) BOOL stopChatMessagesPoll;
-@property (nonatomic, strong) NSURLSessionTask *pingRoomTask;
 @property (nonatomic, strong) NSURLSessionTask *getHistoryTask;
 @property (nonatomic, strong) NSURLSessionTask *pullMessagesTask;
 
@@ -40,32 +38,9 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
         _oldestMessageId = -1;
         _newestMessageId = -1;
         _hasHistory = YES;
-        if (![[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNoPing]) {
-            [self startPingRoom];
-        }
     }
     
     return self;
-}
-
-#pragma mark - Ping room
-
-- (void)pingRoom
-{
-    _pingRoomTask = [[NCAPIController sharedInstance] pingCall:_roomToken forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:nil];
-}
-
-- (void)startPingRoom
-{
-    [self pingRoom];
-    _pingTimer = [NSTimer scheduledTimerWithTimeInterval:5.0  target:self selector:@selector(pingRoom) userInfo:nil repeats:YES];
-}
-
-- (void)stopPingRoom
-{
-    [_pingRoomTask cancel];
-    [_pingTimer invalidate];
-    _pingTimer = nil;
 }
 
 #pragma mark - Chat
@@ -211,7 +186,6 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 
 - (void)stopRoomController
 {
-    [self stopPingRoom];
     [self stopReceivingChatMessages];
     [self stopReceivingChatHistory];
 }

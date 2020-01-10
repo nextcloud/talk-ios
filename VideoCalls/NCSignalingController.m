@@ -15,9 +15,7 @@
 @interface NCSignalingController()
 {
     NCRoom *_room;
-    BOOL _multiRoomSupport;
     BOOL _shouldStopPullingMessages;
-    NSTimer *_pingTimer;
     NSDictionary *_signalingSettings;
     NSURLSessionTask *_getSignalingSettingsTask;
     NSURLSessionTask *_pullSignalingMessagesTask;
@@ -32,7 +30,6 @@
     self = [super init];
     if (self) {
         _room = room;
-        [self checkServerCapabilities];
         [self getSignalingSettings];
     }
     return self;
@@ -100,8 +97,7 @@
 
 - (void)pullSignalingMessages
 {
-    PullSignalingMessagesCompletionBlock pullSignalingMessagesBlock = ^(NSDictionary *messages, NSError *error)
-    {
+    _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *messages, NSError *error) {
         if (_shouldStopPullingMessages) {
             return;
         }
@@ -122,13 +118,7 @@
             }
         }
         [self pullSignalingMessages];
-    };
-    
-    if (_multiRoomSupport) {
-        _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:pullSignalingMessagesBlock];
-    } else {
-        _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:pullSignalingMessagesBlock];
-    }
+    }];
 }
 
 - (void)sendSignalingMessage:(NCSignalingMessage *)message
@@ -136,20 +126,13 @@
     NSArray *messagesArray = [NSArray arrayWithObjects:[message messageDict], nil];
     NSString *JSONSerializedMessages = [self messagesJSONSerialization:messagesArray];
     
-    SendSignalingMessagesCompletionBlock sendSignalingMessagesBlock = ^(NSError *error)
-    {
+    [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             //TODO: Error handling
             NSLog(@"Error sending signaling message.");
         }
         NSLog(@"Sent %@", JSONSerializedMessages);
-    };
-    
-    if (_multiRoomSupport) {
-        [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:sendSignalingMessagesBlock];
-    } else {
-        [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:sendSignalingMessagesBlock];
-    }
+    }];
 }
 
 - (NSString *)messagesJSONSerialization:(NSArray *)messages
@@ -167,13 +150,6 @@
     }
     
     return jsonString;
-}
-
-- (void)checkServerCapabilities
-{
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityMultiRoomUsers]) {
-        _multiRoomSupport = YES;
-    }
 }
 
 - (void)stopAllRequests

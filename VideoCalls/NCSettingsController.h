@@ -30,13 +30,7 @@ extern NSString * const kNCUserDefaultBrowser;
 extern NSString * const kNCLockScreenPasscode;
 extern NSString * const kNCLockScreenPasscodeType;
 
-extern NSString * const kCapabilityChatV2;
-extern NSString * const kCapabilityMultiRoomUsers;
-extern NSString * const kCapabilityFavorites;
-extern NSString * const kCapabilityLastRoomActivity;
-extern NSString * const kCapabilityNoPing;
 extern NSString * const kCapabilitySystemMessages;
-extern NSString * const kCapabilityMentionFlag;
 extern NSString * const kCapabilityNotificationLevels;
 extern NSString * const kCapabilityLockedOneToOneRooms;
 extern NSString * const kCapabilityWebinaryLobby;
@@ -44,7 +38,7 @@ extern NSString * const kCapabilityChatReadMarker;
 extern NSString * const kCapabilityStartCallFlag;
 
 extern NSInteger const kDefaultChatMaxLength;
-extern NSString * const kMinimunRequiredTalkCapability;
+extern NSString * const kMinimumRequiredTalkCapability;
 
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);

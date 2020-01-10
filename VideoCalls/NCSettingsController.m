@@ -53,13 +53,7 @@ NSString * const kNCUserDefaultBrowser          = @"ncUserDefaultBrowser";
 NSString * const kNCLockScreenPasscode          = @"ncLockScreenPasscode";
 NSString * const kNCLockScreenPasscodeType      = @"ncLockScreenPasscodeType";
 
-NSString * const kCapabilityChatV2              = @"chat-v2";
-NSString * const kCapabilityMultiRoomUsers      = @"multi-room-users";
-NSString * const kCapabilityFavorites           = @"favorites";
-NSString * const kCapabilityLastRoomActivity    = @"last-room-activity";
-NSString * const kCapabilityNoPing              = @"no-ping";
 NSString * const kCapabilitySystemMessages      = @"system-messages";
-NSString * const kCapabilityMentionFlag         = @"mention-flag";
 NSString * const kCapabilityNotificationLevels  = @"notification-levels";
 NSString * const kCapabilityLockedOneToOneRooms = @"locked-one-to-one-rooms";
 NSString * const kCapabilityWebinaryLobby       = @"webinary-lobby";
@@ -67,7 +61,7 @@ NSString * const kCapabilityChatReadMarker      = @"chat-read-marker";
 NSString * const kCapabilityStartCallFlag       = @"start-call-flag";
 
 NSInteger const kDefaultChatMaxLength           = 1000;
-NSString * const kMinimunRequiredTalkCapability = kCapabilityChatV2;
+NSString * const kMinimumRequiredTalkCapability = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
 NSString * const kPreferredFileSorting  = @"preferredFileSorting";
 
@@ -463,7 +457,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
                                                                 object:self
                                                               userInfo:nil];
         }
-        if (![talkFeatures containsObject:kMinimunRequiredTalkCapability]) {
+        if (![talkFeatures containsObject:kMinimumRequiredTalkCapability]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NCOutdatedTalkVersionNotification
                                                                 object:self
                                                               userInfo:nil];
