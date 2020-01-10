@@ -30,8 +30,6 @@ extern NSString * const kNCUserDefaultBrowser;
 extern NSString * const kNCLockScreenPasscode;
 extern NSString * const kNCLockScreenPasscodeType;
 
-extern NSString * const kCapabilityChatV2;
-extern NSString * const kCapabilityMultiRoomUsers;
 extern NSString * const kCapabilityFavorites;
 extern NSString * const kCapabilityLastRoomActivity;
 extern NSString * const kCapabilityNoPing;

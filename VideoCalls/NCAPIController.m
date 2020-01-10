@@ -919,15 +919,6 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 #pragma mark - Signaling Controller
 
-- (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages forAccount:(TalkAccount *)account withCompletionBlock:(SendSignalingMessagesCompletionBlock)block
-{
-    return [self sendSignalingMessages:messages toRoom:nil forAccount:account withCompletionBlock:block];
-}
-- (NSURLSessionDataTask *)pullSignalingMessagesForAccount:(TalkAccount *)account withCompletionBlock:(PullSignalingMessagesCompletionBlock)block
-{
-    return [self pullSignalingMessagesFromRoom:nil forAccount:account withCompletionBlock:block];
-}
-
 - (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
 {
     NSString *endpoint = (token) ? [NSString stringWithFormat:@"signaling/%@", token] : @"signaling";
