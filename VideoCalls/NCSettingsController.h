@@ -31,7 +31,6 @@ extern NSString * const kNCLockScreenPasscode;
 extern NSString * const kNCLockScreenPasscodeType;
 
 extern NSString * const kCapabilitySystemMessages;
-extern NSString * const kCapabilityMentionFlag;
 extern NSString * const kCapabilityNotificationLevels;
 extern NSString * const kCapabilityLockedOneToOneRooms;
 extern NSString * const kCapabilityWebinaryLobby;

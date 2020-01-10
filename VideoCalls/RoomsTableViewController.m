@@ -809,11 +809,7 @@ API_AVAILABLE(ios(11.0)){
     cell.dateLabel.text = [self getDateLabelStringForDate:date];
     
     // Set unread messages
-    BOOL mentioned = NO;
-    if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityMentionFlag]) {
-        mentioned = room.unreadMention ? YES : NO;
-    }
-    [cell setUnreadMessages:room.unreadMessages mentioned:mentioned];
+    [cell setUnreadMessages:room.unreadMessages mentioned:room.unreadMention];
     
     // Set room image
     switch (room.type) {
