@@ -589,20 +589,18 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
     // Add/Remove room to/from favorites
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites]) {
-        UIAlertAction *favoriteAction = [UIAlertAction actionWithTitle:(room.isFavorite) ? @"Remove from favorites" : @"Add to favorites"
-                                                                 style:UIAlertActionStyleDefault
-                                                               handler:^void (UIAlertAction *action) {
-                                                                   if (room.isFavorite) {
-                                                                       [self removeRoomFromFavoritesAtIndexPath:indexPath];
-                                                                   } else {
-                                                                       [self addRoomToFavoritesAtIndexPath:indexPath];
-                                                                   }
-                                                               }];
-        NSString *favImageName = (room.isFavorite) ? @"favorite-action" : @"fav-setting";
-        [favoriteAction setValue:[[UIImage imageNamed:favImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-        [optionsActionSheet addAction:favoriteAction];
-    }
+    UIAlertAction *favoriteAction = [UIAlertAction actionWithTitle:(room.isFavorite) ? @"Remove from favorites" : @"Add to favorites"
+                                                             style:UIAlertActionStyleDefault
+                                                           handler:^void (UIAlertAction *action) {
+                                                               if (room.isFavorite) {
+                                                                   [self removeRoomFromFavoritesAtIndexPath:indexPath];
+                                                               } else {
+                                                                   [self addRoomToFavoritesAtIndexPath:indexPath];
+                                                               }
+                                                           }];
+    NSString *favImageName = (room.isFavorite) ? @"favorite-action" : @"fav-setting";
+    [favoriteAction setValue:[[UIImage imageNamed:favImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [optionsActionSheet addAction:favoriteAction];
     // Notification levels
     if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         UIAlertAction *notificationsAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"Notifications: %@", room.notificationLevelString]
@@ -705,15 +703,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (NSString *)tableView:(UITableView *)tableView titleForSwipeAccessoryButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    BOOL canFavorite = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites];
-    BOOL canChangeNotifications = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels];
-    if (room.canModerate || room.isPublic || canFavorite || canChangeNotifications) {
-        NSString *moreButtonText = @"More";
-        return moreButtonText;
-    }
-    
-    return nil;
+    return @"More";
 }
 
 - (void)tableView:(UITableView *)tableView swipeAccessoryButtonPushedForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -769,36 +759,25 @@ API_AVAILABLE(ios(11.0)){
         deleteAction.image = [UIImage imageNamed:@"exit-action"];
     }
     
-    NSArray *actions = @[deleteAction];
-    BOOL canFavorite = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites];
-    BOOL canChangeNotifications = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels];
-    if (room.canModerate || room.isPublic || canFavorite || canChangeNotifications) {
-        actions = @[deleteAction, moreAction];
-    }
-    
-    return [UISwipeActionsConfiguration configurationWithActions:actions];
+    return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction, moreAction]];
 }
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
 API_AVAILABLE(ios(11.0)){
-    NSArray *actions = @[];
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites]) {
-        UIContextualAction *favoriteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
-                                                                                   handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
-                                                                                       if (room.isFavorite) {
-                                                                                           [self removeRoomFromFavoritesAtIndexPath:indexPath];
-                                                                                       } else {
-                                                                                           [self addRoomToFavoritesAtIndexPath:indexPath];
-                                                                                       }
-                                                                                       completionHandler(true);
-                                                                                   }];
-        favoriteAction.image = [UIImage imageNamed:@"fav-setting"];
-        favoriteAction.backgroundColor = [UIColor colorWithRed:0.97 green:0.80 blue:0.27 alpha:1.0]; // Favorite yellow
-        actions = @[favoriteAction];
-    }
+    UIContextualAction *favoriteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
+                                                                               handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+                                                                                   if (room.isFavorite) {
+                                                                                       [self removeRoomFromFavoritesAtIndexPath:indexPath];
+                                                                                   } else {
+                                                                                       [self addRoomToFavoritesAtIndexPath:indexPath];
+                                                                                   }
+                                                                                   completionHandler(true);
+                                                                               }];
+    favoriteAction.image = [UIImage imageNamed:@"fav-setting"];
+    favoriteAction.backgroundColor = [UIColor colorWithRed:0.97 green:0.80 blue:0.27 alpha:1.0]; // Favorite yellow
     
-    return [UISwipeActionsConfiguration configurationWithActions:actions];
+    return [UISwipeActionsConfiguration configurationWithActions:@[favoriteAction]];
 }
 
 

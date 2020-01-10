@@ -227,9 +227,7 @@ typedef enum ModificationError {
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     // Favorite action
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityFavorites]) {
-        [actions addObject:[NSNumber numberWithInt:kRoomActionFavorite]];
-    }
+    [actions addObject:[NSNumber numberWithInt:kRoomActionFavorite]];
     // Notification levels action
     if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         [actions addObject:[NSNumber numberWithInt:kRoomActionNotifications]];
