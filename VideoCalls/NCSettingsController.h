@@ -44,7 +44,7 @@ extern NSString * const kCapabilityChatReadMarker;
 extern NSString * const kCapabilityStartCallFlag;
 
 extern NSInteger const kDefaultChatMaxLength;
-extern NSString * const kMinimunRequiredTalkCapability;
+extern NSString * const kMinimumRequiredTalkCapability;
 
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);

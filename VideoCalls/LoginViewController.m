@@ -119,10 +119,10 @@
         if (!error) {
             NSArray *talkFeatures = [[[serverCapabilities objectForKey:@"capabilities"] objectForKey:@"spreed"] objectForKey:@"features"];
             // Check minimum required version
-            if ([talkFeatures containsObject:kMinimunRequiredTalkCapability]) {
+            if ([talkFeatures containsObject:kMinimumRequiredTalkCapability]) {
                 [self presentAuthenticationView];
             } else if (talkFeatures.count == 0) {
-                    [self showAlertWithTitle:@"Nextcloud Talk not installed" andMessage:@"It seems that Nextcloud Talk is not installed in your server."];
+                [self showAlertWithTitle:@"Nextcloud Talk not installed" andMessage:@"It seems that Nextcloud Talk is not installed in your server."];
             } else {
                 [self showAlertWithTitle:@"Nextcloud Talk version not supported" andMessage:@"Please update your server with the latest Nextcloud Talk version available."];
             }
