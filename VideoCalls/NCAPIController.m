@@ -241,9 +241,8 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
             }
             return NSOrderedSame;
         }];
-        // Sort by lastPing or lastActivity
-        NSString *sortKey = ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLastRoomActivity]) ? @"lastActivity" : @"lastPing";
-        NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:sortKey ascending:NO];
+        // Sort by lastActivity
+        NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"lastActivity" ascending:NO];
         NSArray *descriptors = [NSArray arrayWithObjects:favoriteSorting, valueDescriptor, nil];
         [rooms sortUsingDescriptors:descriptors];
 

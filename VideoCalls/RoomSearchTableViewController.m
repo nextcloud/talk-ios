@@ -99,25 +99,21 @@
     // Set room name
     cell.titleLabel.text = room.displayName;
     
-    if ([[NCSettingsController sharedInstance]serverHasTalkCapability:kCapabilityLastRoomActivity]) {
-        // Set last activity
-        NCChatMessage *lastMessage = room.lastMessage;
-        if (lastMessage) {
-            cell.titleOnly = NO;
-            cell.subtitleLabel.attributedText = room.lastMessageString;
+    // Set last activity
+    NCChatMessage *lastMessage = room.lastMessage;
+    if (lastMessage) {
+        cell.titleOnly = NO;
+        if (room.shouldShowLastMessageActorName) {
+            cell.actorNameLabel.attributedText = room.lastMessageActorString;
+            cell.lastGroupMessageLabel.attributedText = room.lastMessageString;
         } else {
-            cell.titleOnly = YES;
+            cell.subtitleLabel.attributedText = room.lastMessageString;
         }
-        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastActivity];
-        cell.dateLabel.text = [self getDateLabelStringForDate:date];
     } else {
-        // Set last ping
-        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastPing];
-        cell.subtitleLabel.text = [date timeAgoSinceNow];
-        if (room.lastPing == 0) {
-            cell.subtitleLabel.text = @"Never joined";
-        }
+        cell.titleOnly = YES;
     }
+    NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastActivity];
+    cell.dateLabel.text = [self getDateLabelStringForDate:date];
     
     // Set unread messages
     BOOL mentioned = NO;
