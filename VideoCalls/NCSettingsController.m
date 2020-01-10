@@ -53,7 +53,6 @@ NSString * const kNCUserDefaultBrowser          = @"ncUserDefaultBrowser";
 NSString * const kNCLockScreenPasscode          = @"ncLockScreenPasscode";
 NSString * const kNCLockScreenPasscodeType      = @"ncLockScreenPasscodeType";
 
-NSString * const kCapabilityNoPing              = @"no-ping";
 NSString * const kCapabilitySystemMessages      = @"system-messages";
 NSString * const kCapabilityMentionFlag         = @"mention-flag";
 NSString * const kCapabilityNotificationLevels  = @"notification-levels";

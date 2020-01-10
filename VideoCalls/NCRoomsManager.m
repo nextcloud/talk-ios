@@ -239,17 +239,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     return room;
 }
 
-- (NCRoom *)getRoomForId:(NSInteger)roomId
-{
-    NCRoom *room = nil;
-    for (NCRoom *localRoom in _rooms) {
-        if (localRoom.roomId == roomId) {
-            room = localRoom;
-        }
-    }
-    return room;
-}
-
 #pragma mark - Chat
 
 - (void)startChatInRoom:(NCRoom *)room
@@ -275,21 +264,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (!_chatViewController || ![_chatViewController.room.token isEqualToString:room.token]) {
         _chatViewController = [[NCChatViewController alloc] initForRoom:room];
         [[NCUserInterfaceController sharedInstance] presentChatViewController:_chatViewController];
-    }
-}
-
-- (void)startChatWithRoomId:(NSInteger)callId
-{
-    NCRoom *room = [self getRoomForId:callId];
-    if (room) {
-        [self startChatInRoom:room];
-    } else {
-        //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
-            if (!error) {
-                [self startChatInRoom:room];
-            }
-        }];
     }
 }
 
@@ -362,21 +336,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [self joinRoom:room.token forCall:YES];
     } else {
         NSLog(@"Not starting call due to in another call.");
-    }
-}
-
-- (void)joinCallWithCallId:(NSInteger)callId withVideo:(BOOL)video
-{
-    NCRoom *room = [self getRoomForId:callId];
-    if (room) {
-        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
-    } else {
-        //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withId:callId withCompletionBlock:^(NCRoom *room, NSError *error) {
-            if (!error) {
-                [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
-            }
-        }];
     }
 }
 
@@ -486,31 +445,19 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)joinAudioCallAccepted:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNoPing]) {
-        [self joinCallWithCallToken:pushNotification.roomToken withVideo:NO];
-    } else {
-        [self joinCallWithCallId:pushNotification.roomId withVideo:NO];
-    }
+    [self joinCallWithCallToken:pushNotification.roomToken withVideo:NO];
 }
 
 - (void)joinVideoCallAccepted:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNoPing]) {
-        [self joinCallWithCallToken:pushNotification.roomToken withVideo:YES];
-    } else {
-        [self joinCallWithCallId:pushNotification.roomId withVideo:YES];
-    }
+    [self joinCallWithCallToken:pushNotification.roomToken withVideo:YES];
 }
 
 - (void)joinChat:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNoPing]) {
-        [self startChatWithRoomToken:pushNotification.roomToken];
-    } else {
-        [self startChatWithRoomId:pushNotification.roomId];
-    }
+    [self startChatWithRoomToken:pushNotification.roomToken];
 }
 
 - (void)joinChatWithLocalNotification:(NSNotification *)notification

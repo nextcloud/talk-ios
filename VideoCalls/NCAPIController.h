@@ -40,7 +40,6 @@ typedef void (^ParticipantModificationCompletionBlock)(NSError *error);
 
 typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *error);
 typedef void (^JoinCallCompletionBlock)(NSError *error);
-typedef void (^PingCallCompletionBlock)(NSError *error);
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
 
 typedef void (^GetChatMessagesCompletionBlock)(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
@@ -84,7 +83,6 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 // Rooms Controller
 - (NSURLSessionDataTask *)getRoomsForAccount:(TalkAccount *)account withCompletionBlock:(GetRoomsCompletionBlock)block;
 - (NSURLSessionDataTask *)getRoomForAccount:(TalkAccount *)account withToken:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)getRoomForAccount:(TalkAccount *)account withId:(NSInteger)roomId withCompletionBlock:(GetRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)createRoomForAccount:(TalkAccount *)account with:(NSString *)invite ofType:(NCRoomType)type andName:(NSString *)roomName withCompletionBlock:(CreateRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)renameRoom:(NSString *)token forAccount:(TalkAccount *)account withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)makeRoomPublic:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MakeRoomPublicCompletionBlock)block;
@@ -111,7 +109,6 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 // Call Controller
 - (NSURLSessionDataTask *)getPeersForCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetPeersForCallCompletionBlock)block;
 - (NSURLSessionDataTask *)joinCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinCallCompletionBlock)block;
-- (NSURLSessionDataTask *)pingCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PingCallCompletionBlock)block;
 - (NSURLSessionDataTask *)leaveCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(LeaveCallCompletionBlock)block;
 
 // Chat Controller

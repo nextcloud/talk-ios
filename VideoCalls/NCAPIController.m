@@ -283,30 +283,6 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     return task;
 }
 
-- (NSURLSessionDataTask *)getRoomForAccount:(TalkAccount *)account withId:(NSInteger)roomId withCompletionBlock:(GetRoomCompletionBlock)block
-{
-    NSString *URLString = [self getRequestURLForAccount:account withEndpoint:@"room"];
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
-        NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-        for (NSDictionary *room in responseRooms) {
-            NCRoom *ncRoom = [NCRoom roomWithDictionary:room];
-            if (ncRoom.roomId == roomId) {
-                if (block) {
-                    block(ncRoom, nil);
-                }
-            }
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        if (block) {
-            block(nil, error);
-        }
-    }];
-    
-    return task;
-}
-
 - (NSURLSessionDataTask *)createRoomForAccount:(TalkAccount *)account with:(NSString *)invite ofType:(NCRoomType)type andName:(NSString *)roomName withCompletionBlock:(CreateRoomCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:@"room"];
@@ -767,24 +743,6 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 - (NSURLSessionDataTask *)joinCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinCallCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"call/%@", token]];
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
-- (NSURLSessionDataTask *)pingCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PingCallCompletionBlock)block
-{
-    NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"call/%@/ping", token]];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
