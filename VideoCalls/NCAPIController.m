@@ -163,17 +163,18 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block
 {
-    NSString *URLString = [NSString stringWithFormat:@"%@%@/apps/files_sharing/api/v1/sharees", account.server, kNCOCSAPIVersion];
+    NSString *URLString = [NSString stringWithFormat:@"%@%@/core/autocomplete/get", account.server, kNCOCSAPIVersion];
     NSDictionary *parameters = @{@"fomat" : @"json",
                                  @"search" : search ? search : @"",
-                                 @"perPage" : @"200",
-                                 @"itemType" : @"call"};
+                                 @"perPage" : @"50",
+                                 @"itemType" : @"call",
+                                 @"itemId" : @"new",
+                                 @"shareTypes" : @[@(NCShareTypeUser)]
+                                 };
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSArray *responseUsers = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"users"];
-        NSArray *responseExtactUsers = [[[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"exact"] objectForKey:@"users"];
-        NSArray *responseContacts = [responseUsers arrayByAddingObjectsFromArray:responseExtactUsers];
+        NSArray *responseContacts = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseContacts.count];
         for (NSDictionary *user in responseContacts) {
             NCUser *ncUser = [NCUser userWithDictionary:user];
