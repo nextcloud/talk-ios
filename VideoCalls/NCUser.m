@@ -18,7 +18,7 @@
     
     NCUser *user = [[NCUser alloc] init];
     
-    id userId = [[userDict objectForKey:@"value"] objectForKey:@"shareWith"];
+    id userId = [userDict objectForKey:@"id"];
     if ([userId isKindOfClass:[NSString class]]) {
         user.userId = userId;
     } else {
@@ -30,6 +30,13 @@
         user.name = name;
     } else {
         user.name = [name stringValue];
+    }
+    
+    id source = [userDict objectForKey:@"source"];
+    if ([source isKindOfClass:[NSString class]]) {
+        user.source = source;
+    } else {
+        user.source = [source stringValue];
     }
     
     return user;

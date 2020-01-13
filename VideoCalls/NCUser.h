@@ -8,10 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
+typedef enum NCShareType {
+    NCShareTypeUser = 0,
+    NCShareTypeGroup = 1,
+    NCShareTypeCircle = 7
+} NCShareType;
+
 @interface NCUser : NSObject
 
 @property (nonatomic, copy) NSString *userId;
 @property (nonatomic, copy) NSString *name;
+@property (nonatomic, assign) NSString *source;
 
 + (instancetype)userWithDictionary:(NSDictionary *)userDict;
 
