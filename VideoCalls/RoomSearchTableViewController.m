@@ -103,12 +103,6 @@
     if (room.lastMessage) {
         cell.titleOnly = NO;
         cell.subtitleLabel.attributedText = room.lastMessageString;
-        if (room.shouldShowLastMessageActorName) {
-            NSMutableAttributedString *lastMessage = [[NSMutableAttributedString alloc] init];
-            [lastMessage appendAttributedString:room.lastMessageActorString];
-            [lastMessage appendAttributedString:room.lastMessageString];
-            cell.subtitleLabel.attributedText = lastMessage;
-        }
     } else {
         cell.titleOnly = YES;
     }

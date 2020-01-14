@@ -101,11 +101,6 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return ![self canModerate] || (_type != kNCRoomTypeOneToOne && [_participants count] > 1);
 }
 
-- (BOOL)shouldShowLastMessageActorName
-{
-    return !_lastMessage.isSystemMessage && _type != kNCRoomTypeOneToOne && _type != kNCRoomTypeChangelog;
-}
-
 - (NSString *)deletionMessage
 {
     NSString *message = @"Do you really want to delete this conversation?";
@@ -142,32 +137,29 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return levelString;
 }
 
-- (NSMutableAttributedString *)lastMessageActorString
+- (NSMutableAttributedString *)lastMessageString
 {
-    if (![self shouldShowLastMessageActorName]) {
-        return nil;
-    }
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSString *displayName = _lastMessage.actorDisplayName;
+    BOOL ownMessage = [_lastMessage.actorId isEqualToString:activeAccount.userId];
+    NSString *actorName = [[_lastMessage.actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0];
     // For own messages
-    if ([_lastMessage.actorId isEqualToString:activeAccount.userId]) {
-        displayName = @"You";
+    if (ownMessage) {
+        actorName = @"You";
     }
     // For guests
     if ([_lastMessage.actorDisplayName isEqualToString:@""]) {
-        displayName = @"Guest";
+        actorName = @"Guest";
     }
-    NSString *messageActor = [NSString stringWithFormat:@"%@: ", [[displayName componentsSeparatedByString:@" "] objectAtIndex:0]];
-    NSMutableAttributedString *actorDisplayName = [[NSMutableAttributedString alloc] initWithString:messageActor];
-    [actorDisplayName addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:15.0 weight:UIFontWeightRegular] range:NSMakeRange(0,actorDisplayName.length)];
-    [actorDisplayName addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.4] range:NSMakeRange(0,actorDisplayName.length)];
-    
-    return actorDisplayName;
-}
-
-- (NSMutableAttributedString *)lastMessageString
-{
-    NSMutableAttributedString *lastMessage = _lastMessage.parsedMessage;
+    // No actor name cases
+    if (_lastMessage.isSystemMessage || (_type == kNCRoomTypeOneToOne && !ownMessage) || _type == kNCRoomTypeChangelog) {
+        actorName = @"";
+    }
+    // Use only the first name
+    if (![actorName isEqualToString:@""]) {
+        actorName = [NSString stringWithFormat:@"%@: ", [[actorName componentsSeparatedByString:@" "] objectAtIndex:0]];
+    }
+    NSMutableAttributedString *lastMessage = [[NSMutableAttributedString alloc] initWithString:actorName];
+    [lastMessage appendAttributedString:_lastMessage.parsedMessage];
     [lastMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:15.0 weight:UIFontWeightRegular] range:NSMakeRange(0,lastMessage.length)];
     [lastMessage addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.4] range:NSMakeRange(0,lastMessage.length)];
     // Remove possible links in last message
