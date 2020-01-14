@@ -157,10 +157,10 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     if ([_lastMessage.actorDisplayName isEqualToString:@""]) {
         displayName = @"Guest";
     }
-    NSString *messageActor = [NSString stringWithFormat:@"%@: ", displayName];
+    NSString *messageActor = [NSString stringWithFormat:@"%@: ", [[displayName componentsSeparatedByString:@" "] objectAtIndex:0]];
     NSMutableAttributedString *actorDisplayName = [[NSMutableAttributedString alloc] initWithString:messageActor];
     [actorDisplayName addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:15.0 weight:UIFontWeightRegular] range:NSMakeRange(0,actorDisplayName.length)];
-    [actorDisplayName addAttribute:NSForegroundColorAttributeName value:[UIColor darkTextColor] range:NSMakeRange(0,actorDisplayName.length)];
+    [actorDisplayName addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.4] range:NSMakeRange(0,actorDisplayName.length)];
     
     return actorDisplayName;
 }
