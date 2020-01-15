@@ -793,15 +793,9 @@ API_AVAILABLE(ios(11.0)){
     cell.titleLabel.text = room.displayName;
     
     // Set last activity
-    NCChatMessage *lastMessage = room.lastMessage;
-    if (lastMessage) {
+    if (room.lastMessage) {
         cell.titleOnly = NO;
-        if (room.shouldShowLastMessageActorName) {
-            cell.actorNameLabel.attributedText = room.lastMessageActorString;
-            cell.lastGroupMessageLabel.attributedText = room.lastMessageString;
-        } else {
-            cell.subtitleLabel.attributedText = room.lastMessageString;
-        }
+        cell.subtitleLabel.text = room.lastMessageString;
     } else {
         cell.titleOnly = YES;
     }
@@ -845,9 +839,7 @@ API_AVAILABLE(ios(11.0)){
     if (room.isFavorite) {
         [cell.favoriteImage setImage:[UIImage imageNamed:@"favorite-room"]];
     }
-    
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    
+        
     return cell;
 }
 

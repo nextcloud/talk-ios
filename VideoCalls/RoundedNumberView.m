@@ -61,7 +61,7 @@
 {
     self.backgroundColor = kRoundedNumberViewDefaultBackgroundColor;
     self.numberLabel = [[UILabel alloc] init];
-    self.numberLabel.font = [UIFont systemFontOfSize:14];
+    self.numberLabel.font = [UIFont boldSystemFontOfSize:14];
     self.numberLabel.backgroundColor = [UIColor clearColor];
     _numberColor = kRoundedNumberViewDefaultTextColor;
     [self addSubview:self.numberLabel];
