@@ -90,11 +90,11 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     _metioned = mentioned;
     if (number > 0) {
         _titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightBold];
-        _subtitleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightBold];
+        _subtitleLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightBold];
         _dateLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightSemibold];
     } else {
         _titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightMedium];
-        _subtitleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightRegular];
+        _subtitleLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightRegular];
         _dateLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
     }
 }
