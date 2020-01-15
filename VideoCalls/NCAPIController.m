@@ -166,7 +166,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NSString *URLString = [NSString stringWithFormat:@"%@%@/core/autocomplete/get", account.server, kNCOCSAPIVersion];
     NSDictionary *parameters = @{@"fomat" : @"json",
                                  @"search" : search ? search : @"",
-                                 @"perPage" : @"50",
+                                 @"limit" : @"50",
                                  @"itemType" : @"call",
                                  @"itemId" : @"new",
                                  @"shareTypes" : @[@(NCShareTypeUser)]
