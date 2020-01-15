@@ -77,6 +77,6 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 - (NSString *)deletionMessage;
 - (NSString *)notificationLevelString;
 - (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level;
-- (NSMutableAttributedString *)lastMessageString;
+- (NSString *)lastMessageString;
 
 @end

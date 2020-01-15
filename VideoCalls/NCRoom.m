@@ -137,7 +137,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return levelString;
 }
 
-- (NSMutableAttributedString *)lastMessageString
+- (NSString *)lastMessageString
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     BOOL ownMessage = [_lastMessage.actorId isEqualToString:activeAccount.userId];
@@ -158,12 +158,8 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     if (![actorName isEqualToString:@""]) {
         actorName = [NSString stringWithFormat:@"%@: ", [[actorName componentsSeparatedByString:@" "] objectAtIndex:0]];
     }
-    NSMutableAttributedString *lastMessage = [[NSMutableAttributedString alloc] initWithString:actorName];
-    [lastMessage appendAttributedString:_lastMessage.parsedMessage];
-    [lastMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:15.0 weight:UIFontWeightRegular] range:NSMakeRange(0,lastMessage.length)];
-    [lastMessage addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.4] range:NSMakeRange(0,lastMessage.length)];
-    // Remove possible links in last message
-    [lastMessage removeAttribute:NSLinkAttributeName range:NSMakeRange(0,lastMessage.length)];
+    // Add the last message
+    NSString *lastMessage = [NSString stringWithFormat:@"%@%@", actorName, _lastMessage.parsedMessage.string];
     
     return lastMessage;
 }

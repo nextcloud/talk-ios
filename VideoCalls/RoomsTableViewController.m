@@ -795,7 +795,7 @@ API_AVAILABLE(ios(11.0)){
     // Set last activity
     if (room.lastMessage) {
         cell.titleOnly = NO;
-        cell.subtitleLabel.attributedText = room.lastMessageString;
+        cell.subtitleLabel.text = room.lastMessageString;
     } else {
         cell.titleOnly = YES;
     }
