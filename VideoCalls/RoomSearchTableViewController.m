@@ -110,7 +110,8 @@
     cell.dateLabel.text = [self getDateLabelStringForDate:date];
     
     // Set unread messages
-    [cell setUnreadMessages:room.unreadMessages mentioned:room.unreadMention];
+    BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne;
+    [cell setUnreadMessages:room.unreadMessages mentioned:mentioned];
     
     // Set room image
     switch (room.type) {
