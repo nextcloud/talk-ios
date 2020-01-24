@@ -256,8 +256,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getUserProfileForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         if (!error && !activeAccount.invalidated) {
             NSString *userDisplayName = [userProfile objectForKey:@"display-name"];
             NSString *userId = [userProfile objectForKey:@"id"];
@@ -389,8 +389,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 
 - (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getSignalingSettingsForAccount:activeAccount withCompletionBlock:^(NSDictionary *settings, NSError *error) {
+    [[NCAPIController sharedInstance] getSignalingSettingsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *settings, NSError *error) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         if (!error && !activeAccount.invalidated) {
             NSDictionary *signalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
             [_signalingConfigutations setObject:signalingConfiguration forKey:activeAccount.accountId];
@@ -433,8 +433,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:activeAccount withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
+    [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         if (!error && !activeAccount.invalidated) {
             [[NCDatabaseManager sharedInstance] setServerCapabilities:serverCapabilities forAccountId:activeAccount.accountId];
             [self checkServerCapabilities];
