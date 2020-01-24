@@ -60,7 +60,17 @@
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
     
-    if (@available(iOS 11.0, *)) {
+    if (@available(iOS 13.0, *)) {
+        self.navigationItem.searchController = _searchController;
+        _searchController.searchBar.tintColor = [UIColor whiteColor];
+        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+        searchTextField.tintColor = [UIColor whiteColor];
+        searchTextField.textColor = [UIColor whiteColor];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"Search"
+            attributes:@{NSForegroundColorAttributeName:[UIColor colorWithWhite:1 alpha:0.5]}];
+        });
+    } else if (@available(iOS 11.0, *)) {
         self.navigationItem.searchController = _searchController;
         _searchController.searchBar.tintColor = [UIColor whiteColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
