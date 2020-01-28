@@ -94,6 +94,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     _resultTableViewController.tableView.delegate = self;
     _searchController.delegate = self;
     _searchController.searchBar.delegate = self;
+    _searchController.hidesNavigationBarDuringPresentation = NO;
     
     self.definesPresentationContext = YES;
     
