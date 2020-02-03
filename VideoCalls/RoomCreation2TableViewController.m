@@ -151,7 +151,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 - (void)addParticipant:(NCUser *)participant
 {
-    [[NCAPIController sharedInstance] addParticipant:participant.userId toRoom:_createdRoomToken forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addParticipant:participant.userId ofType:participant.source toRoom:_createdRoomToken forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self participantHasBeenAdded];
         } else {
@@ -365,8 +365,14 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                 }
                 
                 cell.labelTitle.text = participant.name;
-                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                         placeholderImage:nil success:nil failure:nil];
+                
+                if ([participant.source isEqualToString:@"users"]) {
+                    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                                             placeholderImage:nil success:nil failure:nil];
+                } else {
+                    [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
+                }
+                
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
                 cell.layoutMargins = UIEdgeInsetsMake(0, 72, 0, 0);
                 

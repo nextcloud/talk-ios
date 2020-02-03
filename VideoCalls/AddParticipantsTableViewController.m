@@ -174,7 +174,7 @@
 
 - (void)addParticipantToRoom:(NCUser *)participant
 {
-    [[NCAPIController sharedInstance] addParticipant:participant.userId toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addParticipant:participant.userId ofType:participant.source toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             UIAlertController * alert = [UIAlertController
                                          alertControllerWithTitle:@"Could not add participant"
