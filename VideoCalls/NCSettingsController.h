@@ -32,10 +32,12 @@ extern NSString * const kNCLockScreenPasscodeType;
 
 extern NSString * const kCapabilitySystemMessages;
 extern NSString * const kCapabilityNotificationLevels;
+extern NSString * const kCapabilityInviteGroupsAndMails;
 extern NSString * const kCapabilityLockedOneToOneRooms;
 extern NSString * const kCapabilityWebinaryLobby;
 extern NSString * const kCapabilityChatReadMarker;
 extern NSString * const kCapabilityStartCallFlag;
+extern NSString * const kCapabilityCirclesSupport;
 
 extern NSInteger const kDefaultChatMaxLength;
 extern NSString * const kMinimumRequiredTalkCapability;

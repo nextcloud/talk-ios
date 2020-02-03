@@ -161,15 +161,24 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 #pragma mark - Contacts Controller
 
-- (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block
+- (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block
 {
+    NSMutableArray *shareTypes = [[NSMutableArray alloc] initWithObjects:@(NCShareTypeUser), nil];
+    if (groupRoom && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityInviteGroupsAndMails]) {
+        [shareTypes addObject:@(NCShareTypeGroup)];
+        [shareTypes addObject:@(NCShareTypeEmail)];
+        if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityCirclesSupport]) {
+            [shareTypes addObject:@(NCShareTypeCircle)];
+        }
+    }
+    
     NSString *URLString = [NSString stringWithFormat:@"%@%@/core/autocomplete/get", account.server, kNCOCSAPIVersion];
     NSDictionary *parameters = @{@"fomat" : @"json",
                                  @"search" : search ? search : @"",
                                  @"limit" : @"50",
                                  @"itemType" : @"call",
-                                 @"itemId" : @"new",
-                                 @"shareTypes" : @[@(NCShareTypeUser)]
+                                 @"itemId" : room ? room : @"new",
+                                 @"shareTypes" : shareTypes
                                  };
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];

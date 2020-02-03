@@ -77,7 +77,7 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account;
 
 // Contacts Controller
-- (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
+- (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
 - (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users;
 
 // Rooms Controller

@@ -11,6 +11,7 @@
 typedef enum NCShareType {
     NCShareTypeUser = 0,
     NCShareTypeGroup = 1,
+    NCShareTypeEmail = 4,
     NCShareTypeCircle = 7
 } NCShareType;
 
