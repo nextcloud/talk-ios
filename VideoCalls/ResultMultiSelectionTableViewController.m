@@ -114,7 +114,7 @@
     
     cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-unchecked"]];
     for (NCUser *user in _selectedParticipants) {
-        if ([user.userId isEqualToString:contact.userId]) {
+        if ([user.userId isEqualToString:contact.userId] && [user.source isEqualToString:contact.source]) {
             cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]];
         }
     }

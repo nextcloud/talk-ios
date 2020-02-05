@@ -257,7 +257,8 @@
 - (BOOL)isParticipantAlreadySelected:(NCUser *)participant
 {
     for (NCUser *user in _selectedParticipants) {
-        if ([user.userId isEqualToString:participant.userId]) {
+        if ([user.userId isEqualToString:participant.userId] &&
+            [user.source isEqualToString:participant.source]) {
             return YES;
         }
     }
@@ -268,7 +269,8 @@
 {
     NCUser *userToDelete = nil;
     for (NCUser *user in _selectedParticipants) {
-        if ([user.userId isEqualToString:participant.userId]) {
+        if ([user.userId isEqualToString:participant.userId] &&
+            [user.source isEqualToString:participant.source]) {
             userToDelete = user;
         }
     }
