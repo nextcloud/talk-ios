@@ -187,7 +187,8 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseContacts.count];
         for (NSDictionary *user in responseContacts) {
             NCUser *ncUser = [NCUser userWithDictionary:user];
-            if (ncUser) {
+            TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+            if (ncUser && ![ncUser.userId isEqualToString:activeAccount.userId]) {
                 [users addObject:ncUser];
             }
         }
