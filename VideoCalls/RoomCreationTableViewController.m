@@ -319,9 +319,11 @@
     
     cell.labelTitle.text = participant.name;
     
-    if ([participant.source isEqualToString:@"users"]) {
+    if ([participant.source isEqualToString:kParticipantTypeUser]) {
         [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                  placeholderImage:nil success:nil failure:nil];
+    } else if ([participant.source isEqualToString:kParticipantTypeEmail]) {
+        [cell.contactImage setImage:[UIImage imageNamed:@"mail-bg"]];
     } else {
         [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
     }

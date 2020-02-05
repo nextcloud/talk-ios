@@ -103,8 +103,14 @@
     
     cell.labelTitle.text = contact.name;
     
-    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                             placeholderImage:nil success:nil failure:nil];
+    if ([contact.source isEqualToString:kParticipantTypeUser]) {
+        [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                                 placeholderImage:nil success:nil failure:nil];
+    } else if ([contact.source isEqualToString:kParticipantTypeEmail]) {
+        [cell.contactImage setImage:[UIImage imageNamed:@"mail-bg"]];
+    } else {
+        [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
+    }
     
     cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-unchecked"]];
     for (NCUser *user in _selectedParticipants) {
