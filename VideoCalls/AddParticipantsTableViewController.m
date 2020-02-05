@@ -212,6 +212,8 @@
     for (NCUser *user in contacts) {
         if (![_participantsInRoom containsObject:user.userId]) {
             [participants addObject:user];
+        } else if (![user.source isEqualToString:kParticipantTypeUser]) {
+            [participants addObject:user];
         }
     }
     return participants;
