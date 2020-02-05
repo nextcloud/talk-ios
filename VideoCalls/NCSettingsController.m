@@ -53,12 +53,14 @@ NSString * const kNCUserDefaultBrowser          = @"ncUserDefaultBrowser";
 NSString * const kNCLockScreenPasscode          = @"ncLockScreenPasscode";
 NSString * const kNCLockScreenPasscodeType      = @"ncLockScreenPasscodeType";
 
-NSString * const kCapabilitySystemMessages      = @"system-messages";
-NSString * const kCapabilityNotificationLevels  = @"notification-levels";
-NSString * const kCapabilityLockedOneToOneRooms = @"locked-one-to-one-rooms";
-NSString * const kCapabilityWebinaryLobby       = @"webinary-lobby";
-NSString * const kCapabilityChatReadMarker      = @"chat-read-marker";
-NSString * const kCapabilityStartCallFlag       = @"start-call-flag";
+NSString * const kCapabilitySystemMessages          = @"system-messages";
+NSString * const kCapabilityNotificationLevels      = @"notification-levels";
+NSString * const kCapabilityInviteGroupsAndMails    = @"invite-groups-and-mails";
+NSString * const kCapabilityLockedOneToOneRooms     = @"locked-one-to-one-rooms";
+NSString * const kCapabilityWebinaryLobby           = @"webinary-lobby";
+NSString * const kCapabilityChatReadMarker          = @"chat-read-marker";
+NSString * const kCapabilityStartCallFlag           = @"start-call-flag";
+NSString * const kCapabilityCirclesSupport          = @"circles-support";
 
 NSInteger const kDefaultChatMaxLength           = 1000;
 NSString * const kMinimumRequiredTalkCapability = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version

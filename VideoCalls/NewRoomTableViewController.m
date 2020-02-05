@@ -187,7 +187,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 
 - (void)getContacts
 {
-    [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:nil groupRoom:NO withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             _contacts = contacts;
             _indexes = [NSMutableArray arrayWithArray:indexes];
@@ -204,7 +204,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 - (void)searchForContactsWithString:(NSString *)searchString
 {
     [_searchContactsTask cancel];
-    _searchContactsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    _searchContactsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:nil groupRoom:NO withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             [_resultTableViewController setSearchResultContacts:contacts withIndexes:indexes];
         } else {

@@ -8,6 +8,11 @@
 
 #import "NCUser.h"
 
+NSString * const kParticipantTypeUser   = @"users";
+NSString * const kParticipantTypeGroup  = @"groups";
+NSString * const kParticipantTypeEmail  = @"emails";
+NSString * const kParticipantTypeCircle = @"circles";
+
 @implementation NCUser
 
 + (instancetype)userWithDictionary:(NSDictionary *)userDict
