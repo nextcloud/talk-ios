@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <Realm/Realm.h>
 
 #import "NCRoomParticipant.h"
 #import "NCChatMessage.h"
@@ -38,7 +39,7 @@ typedef enum NCRoomLobbyState {
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;
 
-@interface NCRoom : NSObject
+@interface NCRoom : RLMObject
 
 @property (nonatomic, assign) NSInteger roomId;
 @property (nonatomic, copy) NSString *token;
@@ -53,7 +54,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, assign) NSInteger unreadMessages;
 @property (nonatomic, assign) BOOL unreadMention;
 @property (nonatomic, copy) NSString *guestList;
-@property (nonatomic, copy) NSDictionary *participants;
+@property (nonatomic, strong) RLMArray<RLMString> *participants;
 @property (nonatomic, assign) NSInteger lastActivity;
 @property (nonatomic, strong) NCChatMessage *lastMessage;
 @property (nonatomic, assign) BOOL isFavorite;

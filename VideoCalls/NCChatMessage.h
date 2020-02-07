@@ -8,19 +8,20 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <Realm/Realm.h>
 #import "NCMessageParameter.h"
 
 extern NSInteger const kChatMessageMaxGroupNumber;
 extern NSInteger const kChatMessageGroupTimeDifference;
 
-@interface NCChatMessage : NSObject
+@interface NCChatMessage : RLMObject
 
 @property (nonatomic, strong) NSString *actorDisplayName;
 @property (nonatomic, strong) NSString *actorId;
 @property (nonatomic, strong) NSString *actorType;
 @property (nonatomic, assign) NSInteger messageId;
 @property (nonatomic, strong) NSString *message;
-@property (nonatomic, strong) NSDictionary *messageParameters;
+@property (nonatomic, strong) NSString *messageParametersJSONString;
 @property (nonatomic, assign) NSInteger timestamp;
 @property (nonatomic, strong) NSString *token;
 @property (nonatomic, strong) NSString *systemMessage;
@@ -33,6 +34,7 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 - (BOOL)isSystemMessage;
 - (NCMessageParameter *)file;
+- (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)systemMessageFormat;
 
