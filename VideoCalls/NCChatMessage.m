@@ -63,7 +63,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
 
 - (BOOL)isSystemMessage
 {
-    if (_systemMessage && ![_systemMessage isEqualToString:@""]) {
+    if (self.systemMessage && ![self.systemMessage isEqualToString:@""]) {
         return YES;
     }
     return NO;
@@ -90,7 +90,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
 - (NSDictionary *)messageParameters
 {
     NSDictionary *messageParametersDict = @{};
-    NSData *data = [_messageParametersJSONString dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *data = [self.messageParametersJSONString dataUsingEncoding:NSUTF8StringEncoding];
     if (data) {
         NSError* error;
         NSDictionary* jsonData = [NSJSONSerialization JSONObjectWithData:data
@@ -107,10 +107,10 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
 
 - (NSMutableAttributedString *)parsedMessage
 {
-    if (!_message) {
+    if (!self.message) {
         return nil;
     }
-    NSString *originalMessage = _message;
+    NSString *originalMessage = self.message;
     NSString *parsedMessage = originalMessage;
     NSError *error = nil;
     

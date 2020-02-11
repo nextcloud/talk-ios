@@ -67,27 +67,27 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (BOOL)isPublic
 {
-    return _type == kNCRoomTypePublic;
+    return self.type == kNCRoomTypePublic;
 }
 
 - (BOOL)canModerate
 {
-    return (_participantType == kNCParticipantTypeOwner || _participantType == kNCParticipantTypeModerator) && ![self isLockedOneToOne];
+    return (self.participantType == kNCParticipantTypeOwner || self.participantType == kNCParticipantTypeModerator) && ![self isLockedOneToOne];
 }
 
 - (BOOL)isNameEditable
 {
-    return [self canModerate] && _type != kNCRoomTypeOneToOne;
+    return [self canModerate] && self.type != kNCRoomTypeOneToOne;
 }
 
 - (BOOL)isLockedOneToOne
 {
-    return _type == kNCRoomTypeOneToOne && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLockedOneToOneRooms];
+    return self.type == kNCRoomTypeOneToOne && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLockedOneToOneRooms];
 }
 
 - (BOOL)userCanStartCall
 {
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityStartCallFlag] && !_canStartCall) {
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityStartCallFlag] && !self.canStartCall) {
         return NO;
     }
     return YES;
@@ -98,15 +98,15 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     // Allow users to leave when there are no moderators in the room
     // (No need to check room type because in one2one rooms users will always be moderators)
     // or when in a group call and there are other participants.
-    return ![self canModerate] || (_type != kNCRoomTypeOneToOne && [_participants count] > 1);
+    return ![self canModerate] || (self.type != kNCRoomTypeOneToOne && [self.participants count] > 1);
 }
 
 - (NSString *)deletionMessage
 {
     NSString *message = @"Do you really want to delete this conversation?";
-    if (_type == kNCRoomTypeOneToOne) {
-        message = [NSString stringWithFormat:@"If you delete the conversation, it will also be deleted for %@", _displayName];
-    } else if ([_participants count] > 1) {
+    if (self.type == kNCRoomTypeOneToOne) {
+        message = [NSString stringWithFormat:@"If you delete the conversation, it will also be deleted for %@", self.displayName];
+    } else if ([self.participants count] > 1) {
         message = @"If you delete the conversation, it will also be deleted for all other participants.";
     }
     
@@ -115,7 +115,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (NSString *)notificationLevelString
 {
-    return [self stringForNotificationLevel:_notificationLevel];
+    return [self stringForNotificationLevel:self.notificationLevel];
 }
 
 - (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level
@@ -140,18 +140,18 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 - (NSString *)lastMessageString
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    BOOL ownMessage = [_lastMessage.actorId isEqualToString:activeAccount.userId];
-    NSString *actorName = [[_lastMessage.actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0];
+    BOOL ownMessage = [self.lastMessage.actorId isEqualToString:activeAccount.userId];
+    NSString *actorName = [[self.lastMessage.actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0];
     // For own messages
     if (ownMessage) {
         actorName = @"You";
     }
     // For guests
-    if ([_lastMessage.actorDisplayName isEqualToString:@""]) {
+    if ([self.lastMessage.actorDisplayName isEqualToString:@""]) {
         actorName = @"Guest";
     }
     // No actor name cases
-    if (_lastMessage.isSystemMessage || (_type == kNCRoomTypeOneToOne && !ownMessage) || _type == kNCRoomTypeChangelog) {
+    if (self.lastMessage.isSystemMessage || (self.type == kNCRoomTypeOneToOne && !ownMessage) || self.type == kNCRoomTypeChangelog) {
         actorName = @"";
     }
     // Use only the first name
@@ -159,7 +159,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
         actorName = [NSString stringWithFormat:@"%@: ", [[actorName componentsSeparatedByString:@" "] objectAtIndex:0]];
     }
     // Add the last message
-    NSString *lastMessage = [NSString stringWithFormat:@"%@%@", actorName, _lastMessage.parsedMessage.string];
+    NSString *lastMessage = [NSString stringWithFormat:@"%@%@", actorName, self.lastMessage.parsedMessage.string];
     
     return lastMessage;
 }
