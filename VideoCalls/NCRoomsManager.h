@@ -27,6 +27,7 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 
 + (instancetype)sharedInstance;
 // Room
+- (NSArray *)roomsForAccountId:(NSString *)accountId;
 - (void)updateRooms;
 - (void)updateRoom:(NSString *)token;
 - (void)joinRoom:(NSString *)token;

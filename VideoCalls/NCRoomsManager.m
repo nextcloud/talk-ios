@@ -8,6 +8,8 @@
 
 #import "NCRoomsManager.h"
 
+#import <Realm/Realm.h>
+
 #import "NCChatViewController.h"
 #import "NewRoomTableViewController.h"
 #import "RoomCreation2TableViewController.h"
@@ -195,13 +197,52 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
+- (NSArray *)roomsForAccountId:(NSString *)accountId
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    RLMResults *results = [NCRoom objectsWithPredicate:query];
+    NSMutableArray *sortedRooms = [NSMutableArray new];
+    for (RLMObject *object in results) {
+        [sortedRooms addObject:object];
+    }
+    // Sort by favorites
+    NSSortDescriptor *favoriteSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+        NCRoom *first = (NCRoom*)obj1;
+        NCRoom *second = (NCRoom*)obj2;
+        BOOL favorite1 = first.isFavorite;
+        BOOL favorite2 = second.isFavorite;
+        if (favorite1 != favorite2) {
+            return favorite2 - favorite1;
+        }
+        return NSOrderedSame;
+    }];
+    // Sort by lastActivity
+    NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"lastActivity" ascending:NO];
+    NSArray *descriptors = [NSArray arrayWithObjects:favoriteSorting, valueDescriptor, nil];
+    [sortedRooms sortUsingDescriptors:descriptors];
+    
+    return sortedRooms;
+}
+
 - (void)updateRooms
 {
-    [[NCAPIController sharedInstance] getRoomsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *rooms, NSError *error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] getRoomsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
-            self.rooms = rooms;
-            [userInfo setObject:rooms forKey:@"rooms"];
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm transactionWithBlock:^{
+                TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+                [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
+                for (NSDictionary *roomDict in rooms) {
+                    NCRoom *room = [NCRoom roomWithDictionary:roomDict];
+                    if (room) {
+                        room.internalId = [room internalIdForAccountId:account.accountId];
+                        room.accountId = account.accountId;
+                        [realm addOrUpdateObject:room];
+                    }
+                }
+            }];
         } else {
             [userInfo setObject:error forKey:@"error"];
             NSLog(@"Could not update rooms. Error: %@", error.description);

@@ -235,29 +235,8 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-        NSMutableArray *rooms = [[NSMutableArray alloc] initWithCapacity:responseRooms.count];
-        for (NSDictionary *room in responseRooms) {
-            NCRoom *ncRoom = [NCRoom roomWithDictionary:room];
-            [rooms addObject:ncRoom];
-        }
-        // Sort by favorites
-        NSSortDescriptor *favoriteSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-            NCRoom *first = (NCRoom*)obj1;
-            NCRoom *second = (NCRoom*)obj2;
-            BOOL favorite1 = first.isFavorite;
-            BOOL favorite2 = second.isFavorite;
-            if (favorite1 != favorite2) {
-                return favorite2 - favorite1;
-            }
-            return NSOrderedSame;
-        }];
-        // Sort by lastActivity
-        NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"lastActivity" ascending:NO];
-        NSArray *descriptors = [NSArray arrayWithObjects:favoriteSorting, valueDescriptor, nil];
-        [rooms sortUsingDescriptors:descriptors];
-
         if (block) {
-            block(rooms, nil, 0);
+            block(responseRooms, nil, 0);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {

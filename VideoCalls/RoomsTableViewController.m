@@ -8,6 +8,8 @@
 
 #import "RoomsTableViewController.h"
 
+#import <Realm/Realm.h>
+
 #import "AFNetworking.h"
 #import "RoomTableViewCell.h"
 #import "CCCertificate.h"
@@ -36,6 +38,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 @interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
+    RLMNotificationToken *_rlmNotificationToken;
     NSMutableArray *_rooms;
     UIRefreshControl *_refreshControl;
     BOOL _allowEmptyGroupRooms;
@@ -52,8 +55,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    _rooms = [[NSMutableArray alloc] init];
+    
+    _rlmNotificationToken = [[RLMRealm defaultRealm] addNotificationBlock:^(NSString *notification, RLMRealm * realm) {
+        [self refreshRoomList];
+    }];
     
     [self.tableView registerNib:[UINib nibWithNibName:kRoomTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomCellIdentifier];
     // Align header's title to ContactsTableViewCell's label
@@ -130,6 +135,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)dealloc
 {
+    [_rlmNotificationToken invalidate];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -146,6 +152,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    [self refreshRoomList];
     
     if (@available(iOS 13.1, *)) {
         self.navigationItem.hidesSearchBarWhenScrolling = NO;
@@ -177,11 +185,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NSMutableArray *rooms = [notification.userInfo objectForKey:@"rooms"];
     NSError *error = [notification.userInfo objectForKey:@"error"];
     if (!error) {
-        _rooms = rooms;
         [_roomsBackgroundView.loadingView stopAnimating];
         [_roomsBackgroundView.loadingView setHidden:YES];
         [_roomsBackgroundView.placeholderView setHidden:(rooms.count > 0)];
-        [self.tableView reloadData];
         if (_searchController.isActive) {
             [self searchForRoomsWithString:_searchController.searchBar.text];
         }
@@ -336,6 +342,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 }
 
 #pragma mark - User Interface
+
+- (void)refreshRoomList
+{
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId];
+    _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
+    [self.tableView reloadData];
+}
 
 - (void)adaptInterfaceForAppState:(AppState)appState
 {

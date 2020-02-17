@@ -65,6 +65,10 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return room;
 }
 
++ (NSString *)primaryKey {
+    return @"internalId";
+}
+
 - (BOOL)isPublic
 {
     return self.type == kNCRoomTypePublic;
@@ -162,6 +166,11 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     NSString *lastMessage = [NSString stringWithFormat:@"%@%@", actorName, self.lastMessage.parsedMessage.string];
     
     return lastMessage;
+}
+
+- (NSString *)internalIdForAccountId:(NSString *)accountId
+{
+    return [NSString stringWithFormat:@"%@@%@", accountId, self.token];
 }
 
 

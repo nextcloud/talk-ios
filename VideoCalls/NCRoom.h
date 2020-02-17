@@ -41,7 +41,9 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 
 @interface NCRoom : RLMObject
 
+@property (nonatomic, copy) NSString *internalId; // accountId@token
 @property (nonatomic, assign) NSInteger roomId;
+@property (nonatomic, copy) NSString *accountId;
 @property (nonatomic, copy) NSString *token;
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *displayName;
@@ -70,6 +72,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 
+- (NSString *)internalIdForAccountId:(NSString *)accountId;
 - (BOOL)isPublic;
 - (BOOL)canModerate;
 - (BOOL)isNameEditable;
