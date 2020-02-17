@@ -185,9 +185,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NSMutableArray *rooms = [notification.userInfo objectForKey:@"rooms"];
     NSError *error = [notification.userInfo objectForKey:@"error"];
     if (!error) {
-        [_roomsBackgroundView.loadingView stopAnimating];
-        [_roomsBackgroundView.loadingView setHidden:YES];
-        [_roomsBackgroundView.placeholderView setHidden:(rooms.count > 0)];
         if (_searchController.isActive) {
             [self searchForRoomsWithString:_searchController.searchBar.text];
         }
@@ -348,6 +345,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
     NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
+    
+    // Show/Hide placeholder view
+    [_roomsBackgroundView.loadingView stopAnimating];
+    [_roomsBackgroundView.loadingView setHidden:YES];
+    [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
+    
     [self.tableView reloadData];
 }
 
