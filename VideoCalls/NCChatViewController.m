@@ -45,6 +45,7 @@ typedef enum NCChatMessageAction {
 
 @interface NCChatViewController () <UIGestureRecognizerDelegate>
 
+@property (nonatomic, strong) RLMNotificationToken *rlmNotificationToken;
 @property (nonatomic, strong) NCRoomController *roomController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
 @property (nonatomic, strong) PlaceholderView *chatBackgroundView;
@@ -89,7 +90,6 @@ typedef enum NCChatMessageAction {
         [self registerClassForTypingIndicatorView:[ReplyMessageView class]];
         // Set image downloader to file preview imageviews.
         [FilePreviewImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistory:) name:NCRoomControllerDidReceiveInitialChatHistoryNotification object:nil];
@@ -106,6 +106,7 @@ typedef enum NCChatMessageAction {
     
 - (void)dealloc
 {
+    [_rlmNotificationToken invalidate];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -114,6 +115,18 @@ typedef enum NCChatMessageAction {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    _rlmNotificationToken = [[RLMRealm defaultRealm] addNotificationBlock:^(NSString *notification, RLMRealm * realm) {
+        TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+        NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:_room.token forAccountId:account.accountId];
+        if (room) {
+            _room = room;
+            [self setTitleView];
+            [self checkLobbyState];
+        } else {
+            // Leave the room
+        }
+    }];
     
     self.titleView = [[NCChatTitleView alloc] init];
     self.titleView.frame = CGRectMake(0, 0, 800, 30);
@@ -595,21 +608,6 @@ typedef enum NCChatMessageAction {
 }
 
 #pragma mark - Room Manager notifications
-
-- (void)roomsDidUpdate:(NSNotification *)notification
-{
-    NSMutableArray *rooms = [notification.userInfo objectForKey:@"rooms"];
-    if (rooms) {
-        for (NCRoom *room in rooms) {
-            if ([room.token isEqualToString:_room.token]) {
-                NSLog(@"Room updated");
-                _room = room;
-                [self setTitleView];
-                [self checkLobbyState];
-            }
-        }
-    }
-}
 
 - (void)didUpdateRoom:(NSNotification *)notification
 {

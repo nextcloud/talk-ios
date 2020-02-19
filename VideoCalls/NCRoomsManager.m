@@ -228,6 +228,15 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     return sortedRooms;
 }
 
+- (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, accountId];
+    RLMResults *result = [NCRoom objectsWithPredicate:query].firstObject;
+    // Create a unmanaged copy of the room
+    NCRoom *room = [[NCRoom alloc] initWithValue:result];
+    return room;
+}
+
 - (void)updateRooms
 {
     [[NCAPIController sharedInstance] getRoomsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
