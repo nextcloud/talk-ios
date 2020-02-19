@@ -203,7 +203,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     RLMResults *results = [NCRoom objectsWithPredicate:query];
     NSMutableArray *sortedRooms = [NSMutableArray new];
     for (RLMObject *object in results) {
-        [sortedRooms addObject:object];
+        // Create a unmanaged copy of the room list
+        NCRoom *room = [[NCRoom alloc] initWithValue:object];
+        NCChatMessage *lastMessage = [[NCChatMessage alloc] initWithValue:room.lastMessage];
+        room.lastMessage = lastMessage;
+        [sortedRooms addObject:room];
     }
     // Sort by favorites
     NSSortDescriptor *favoriteSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
