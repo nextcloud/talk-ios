@@ -182,14 +182,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)roomsDidUpdate:(NSNotification *)notification
 {
-    NSMutableArray *rooms = [notification.userInfo objectForKey:@"rooms"];
     NSError *error = [notification.userInfo objectForKey:@"error"];
-    if (!error) {
-        if (_searchController.isActive) {
-            [self searchForRoomsWithString:_searchController.searchBar.text];
-        }
-        NSLog(@"Rooms updated");
-    } else {
+    if (error) {
         NSLog(@"Error while trying to get rooms: %@", error);
         if ([error code] == NSURLErrorServerCertificateUntrusted) {
             NSLog(@"Untrusted certificate");
@@ -346,11 +340,19 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     
+    NSLog(@"Rooms updated");
+    
     // Show/Hide placeholder view
     [_roomsBackgroundView.loadingView stopAnimating];
     [_roomsBackgroundView.loadingView setHidden:YES];
     [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
     
+    // Reload search controller if active
+    if (_searchController.isActive) {
+        [self searchForRoomsWithString:_searchController.searchBar.text];
+    }
+    
+    // Reload room list
     [self.tableView reloadData];
 }
 
