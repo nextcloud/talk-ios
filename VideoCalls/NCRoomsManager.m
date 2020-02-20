@@ -279,10 +279,20 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)updateRoom:(NSString *)token
 {
-    [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+    [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
-            [userInfo setObject:room forKey:@"room"];
+            [userInfo setObject:[NCRoom roomWithDictionary:roomDict] forKey:@"room"];
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm transactionWithBlock:^{
+                TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+                NCRoom *room = [NCRoom roomWithDictionary:roomDict];
+                if (room) {
+                    room.internalId = [room internalIdForAccountId:account.accountId];
+                    room.accountId = account.accountId;
+                    [realm addOrUpdateObject:room];
+                }
+            }];
         } else {
             [userInfo setObject:error forKey:@"error"];
             NSLog(@"Could not update rooms. Error: %@", error.description);
@@ -339,8 +349,9 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [self startChatInRoom:room];
     } else {
         //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
             if (!error) {
+                NCRoom *room = [NCRoom roomWithDictionary:roomDict];
                 [self startChatInRoom:room];
             }
         }];
@@ -411,8 +422,9 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
     } else {
         //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
             if (!error) {
+                NCRoom *room = [NCRoom roomWithDictionary:roomDict];
                 [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
             }
         }];
@@ -426,8 +438,9 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [self startCall:video inRoom:room];
     } else {
         //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NCRoom *room, NSError *error) {
+        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
             if (!error) {
+                NCRoom *room = [NCRoom roomWithDictionary:roomDict];
                 [self startCall:video inRoom:room];
             }
         }];

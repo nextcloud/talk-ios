@@ -259,9 +259,8 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *roomDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-        NCRoom *room = [NCRoom roomWithDictionary:roomDict];
         if (block) {
-            block(room, nil);
+            block(roomDict, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
