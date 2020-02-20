@@ -118,7 +118,7 @@ typedef enum NCChatMessageAction {
     
     _rlmNotificationToken = [[RLMRealm defaultRealm] addNotificationBlock:^(NSString *notification, RLMRealm * realm) {
         TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-        NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:_room.token forAccountId:account.accountId];
+        NCRoom *room = [[NCRoomsManager sharedInstance] unmanagedRoomWithToken:_room.token forAccountId:account.accountId];
         if (room) {
             _room = room;
             [self setTitleView];

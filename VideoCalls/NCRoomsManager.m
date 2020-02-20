@@ -203,11 +203,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     RLMResults *results = [NCRoom objectsWithPredicate:query];
     NSMutableArray *sortedRooms = [NSMutableArray new];
     for (RLMObject *object in results) {
-        // Create a unmanaged copy of the room list
-        NCRoom *room = [[NCRoom alloc] initWithValue:object];
-        NCChatMessage *lastMessage = [[NCChatMessage alloc] initWithValue:room.lastMessage];
-        room.lastMessage = lastMessage;
-        [sortedRooms addObject:room];
+        [sortedRooms addObject:object];
     }
     // Sort by favorites
     NSSortDescriptor *favoriteSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
@@ -228,13 +224,28 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     return sortedRooms;
 }
 
+- (NSArray *)unmanagedRoomsForAccountId:(NSString *)accountId
+{
+    NSArray *managedRooms = [self roomsForAccountId:accountId];
+    NSMutableArray *unmanagedRooms = [NSMutableArray new];
+    for (NCRoom *managedRoom in managedRooms) {
+        NCRoom *unmanagedRoom = [NCRoom unmanagedRoomFromManagedRoom:managedRoom];
+        [unmanagedRooms addObject:unmanagedRoom];
+    }
+    
+    return unmanagedRooms;
+}
+
 - (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
 {
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, accountId];
-    RLMResults *result = [NCRoom objectsWithPredicate:query].firstObject;
-    // Create a unmanaged copy of the room
-    NCRoom *room = [[NCRoom alloc] initWithValue:result];
-    return room;
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, @"test"];
+    return [NCRoom objectsWithPredicate:query].firstObject;
+}
+
+- (NCRoom *)unmanagedRoomWithToken:(NSString *)token forAccountId:(NSString *)accountId
+{
+    NCRoom *managedRoom = [self roomWithToken:token forAccountId:accountId];
+    return [NCRoom unmanagedRoomFromManagedRoom:managedRoom];
 }
 
 - (void)updateRooms

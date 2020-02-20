@@ -69,6 +69,17 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return @"internalId";
 }
 
++ (instancetype)unmanagedRoomFromManagedRoom:(NCRoom *)managedRoom
+{
+    NCRoom *room = nil;
+    if (managedRoom) {
+        room = [[NCRoom alloc] initWithValue:managedRoom];
+        NCChatMessage *lastMessage = [[NCChatMessage alloc] initWithValue:managedRoom.lastMessage];
+        room.lastMessage = lastMessage;
+    }
+    return room;
+}
+
 - (BOOL)isPublic
 {
     return self.type == kNCRoomTypePublic;

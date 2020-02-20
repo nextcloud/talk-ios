@@ -337,7 +337,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)refreshRoomList
 {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId];
+    NSArray *accountRooms = [[NCRoomsManager sharedInstance] unmanagedRoomsForAccountId:account.accountId];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     
     NSLog(@"Rooms updated");
