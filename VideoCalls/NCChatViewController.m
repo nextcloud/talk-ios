@@ -116,13 +116,14 @@ typedef enum NCChatMessageAction {
 {
     [super viewDidLoad];
     
+    __weak typeof(self) weakSelf = self;
     _rlmNotificationToken = [[RLMRealm defaultRealm] addNotificationBlock:^(NSString *notification, RLMRealm * realm) {
         TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-        NCRoom *room = [[NCRoomsManager sharedInstance] unmanagedRoomWithToken:_room.token forAccountId:account.accountId];
+        NCRoom *room = [[NCRoomsManager sharedInstance] unmanagedRoomWithToken:weakSelf.room.token forAccountId:account.accountId];
         if (room) {
-            _room = room;
-            [self setTitleView];
-            [self checkLobbyState];
+            weakSelf.room = room;
+            [weakSelf setTitleView];
+            [weakSelf checkLobbyState];
         } else {
             // Leave the room
         }

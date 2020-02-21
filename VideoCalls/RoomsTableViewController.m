@@ -56,8 +56,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     [super viewDidLoad];
     
+    __weak typeof(self) weakSelf = self;
     _rlmNotificationToken = [[RLMRealm defaultRealm] addNotificationBlock:^(NSString *notification, RLMRealm * realm) {
-        [self refreshRoomList];
+        [weakSelf refreshRoomList];
     }];
     
     [self.tableView registerNib:[UINib nibWithNibName:kRoomTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomCellIdentifier];
