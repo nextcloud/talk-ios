@@ -45,7 +45,6 @@ typedef enum NCChatMessageAction {
 
 @interface NCChatViewController () <UIGestureRecognizerDelegate>
 
-@property (nonatomic, strong) RLMNotificationToken *rlmNotificationToken;
 @property (nonatomic, strong) NCRoomController *roomController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
 @property (nonatomic, strong) PlaceholderView *chatBackgroundView;
@@ -106,7 +105,6 @@ typedef enum NCChatMessageAction {
     
 - (void)dealloc
 {
-    [_rlmNotificationToken invalidate];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -115,19 +113,6 @@ typedef enum NCChatMessageAction {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    __weak typeof(self) weakSelf = self;
-    _rlmNotificationToken = [[RLMRealm defaultRealm] addNotificationBlock:^(NSString *notification, RLMRealm * realm) {
-        TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-        NCRoom *room = [[NCRoomsManager sharedInstance] unmanagedRoomWithToken:weakSelf.room.token forAccountId:account.accountId];
-        if (room) {
-            weakSelf.room = room;
-            [weakSelf setTitleView];
-            [weakSelf checkLobbyState];
-        } else {
-            // Leave the room
-        }
-    }];
     
     self.titleView = [[NCChatTitleView alloc] init];
     self.titleView.frame = CGRectMake(0, 0, 800, 30);
