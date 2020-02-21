@@ -61,6 +61,15 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     return message;
 }
 
++ (NSString *)primaryKey {
+    return @"internalId";
+}
+
+- (NSString *)internalIdForAccountId:(NSString *)accountId
+{
+    return [NSString stringWithFormat:@"%@@%@@%ld", accountId, self.token, (long)self.messageId];
+}
+
 - (BOOL)isSystemMessage
 {
     if (self.systemMessage && ![self.systemMessage isEqualToString:@""]) {

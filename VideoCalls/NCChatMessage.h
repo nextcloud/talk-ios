@@ -16,6 +16,8 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 
 @interface NCChatMessage : RLMObject
 
+@property (nonatomic, strong) NSString *internalId; // accountId@token@messageId
+@property (nonatomic, strong) NSString *accountId;
 @property (nonatomic, strong) NSString *actorDisplayName;
 @property (nonatomic, strong) NSString *actorId;
 @property (nonatomic, strong) NSString *actorType;
@@ -32,6 +34,7 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 @property (nonatomic, assign) NSInteger groupMessageNumber;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
+- (NSString *)internalIdForAccountId:(NSString *)accountId;
 - (BOOL)isSystemMessage;
 - (NCMessageParameter *)file;
 - (NSDictionary *)messageParameters;
