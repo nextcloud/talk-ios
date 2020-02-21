@@ -266,6 +266,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                         [realm addOrUpdateObject:room];
                     }
                 }
+                NSLog(@"Rooms updated");
             }];
         } else {
             [userInfo setObject:error forKey:@"error"];
@@ -292,6 +293,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                     room.accountId = account.accountId;
                     [realm addOrUpdateObject:room];
                 }
+                NSLog(@"Room updated");
             }];
         } else {
             [userInfo setObject:error forKey:@"error"];

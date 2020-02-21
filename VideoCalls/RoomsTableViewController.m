@@ -341,8 +341,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NSArray *accountRooms = [[NCRoomsManager sharedInstance] unmanagedRoomsForAccountId:account.accountId];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     
-    NSLog(@"Rooms updated");
-    
     // Show/Hide placeholder view
     [_roomsBackgroundView.loadingView stopAnimating];
     [_roomsBackgroundView.loadingView setHidden:YES];
