@@ -26,7 +26,6 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     message.actorType = [messageDict objectForKey:@"actorType"];
     message.messageId = [[messageDict objectForKey:@"id"] integerValue];
     message.message = [messageDict objectForKey:@"message"];
-    message.messageParameters = [messageDict objectForKey:@"messageParameters"];
     message.timestamp = [[messageDict objectForKey:@"timestamp"] integerValue];
     message.token = [messageDict objectForKey:@"token"];
     message.systemMessage = [messageDict objectForKey:@"systemMessage"];
@@ -43,19 +42,47 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
         }
     }
     
-    if (![message.messageParameters isKindOfClass:[NSDictionary class]]) {
-        message.messageParameters = @{};
+    id messageParameters = [messageDict objectForKey:@"messageParameters"];
+    if ([messageParameters isKindOfClass:[NSDictionary class]]) {
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:messageParameters
+                                                           options:0
+                                                             error:&error];
+        if (jsonData) {
+            message.messageParametersJSONString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        } else {
+            NSLog(@"Error generating message parameters JSON string: %@", error);
+        }
     }
     
-    id parent = [messageDict objectForKey:@"parent"];
-    message.parent = [NCChatMessage messageWithDictionary:parent];
+    message.parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"]];
     
     return message;
 }
 
++ (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId
+{
+    NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict];
+    if (message) {
+        message.accountId = accountId;
+        message.internalId = [NSString stringWithFormat:@"%@@%@@%ld", accountId, message.token, (long)message.messageId];
+        
+        NCChatMessage *messageParent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:accountId];
+        if (messageParent) {
+            message.parent = messageParent;
+        }
+    }
+    
+    return message;
+}
+
++ (NSString *)primaryKey {
+    return @"internalId";
+}
+
 - (BOOL)isSystemMessage
 {
-    if (_systemMessage && ![_systemMessage isEqualToString:@""]) {
+    if (self.systemMessage && ![self.systemMessage isEqualToString:@""]) {
         return YES;
     }
     return NO;
@@ -64,7 +91,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
 - (NCMessageParameter *)file;
 {
     NCMessageParameter *fileParam = nil;
-    for (NSDictionary *parameterDict in _messageParameters.allValues) {
+    for (NSDictionary *parameterDict in [[self messageParameters] allValues]) {
         NCMessageParameter *parameter = [NCMessageParameter parameterWithDictionary:parameterDict] ;
         if ([parameter.type isEqualToString:@"file"]) {
             if (!fileParam) {
@@ -79,12 +106,30 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     return fileParam;
 }
 
+- (NSDictionary *)messageParameters
+{
+    NSDictionary *messageParametersDict = @{};
+    NSData *data = [self.messageParametersJSONString dataUsingEncoding:NSUTF8StringEncoding];
+    if (data) {
+        NSError* error;
+        NSDictionary* jsonData = [NSJSONSerialization JSONObjectWithData:data
+                                                                 options:0
+                                                                   error:&error];
+        if (jsonData) {
+            messageParametersDict = jsonData;
+        } else {
+            NSLog(@"Error retrieving message parameters JSON data: %@", error);
+        }
+    }
+    return messageParametersDict;
+}
+
 - (NSMutableAttributedString *)parsedMessage
 {
-    if (!_message) {
+    if (!self.message) {
         return nil;
     }
-    NSString *originalMessage = _message;
+    NSString *originalMessage = self.message;
     NSString *parsedMessage = originalMessage;
     NSError *error = nil;
     
@@ -100,7 +145,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
         NSString* parameter = [originalMessage substringWithRange:match.range];
         NSString *parameterKey = [[parameter stringByReplacingOccurrencesOfString:@"{" withString:@""]
                                  stringByReplacingOccurrencesOfString:@"}" withString:@""];
-        NSDictionary *parameterDict = [_messageParameters objectForKey:parameterKey];
+        NSDictionary *parameterDict = [[self messageParameters] objectForKey:parameterKey];
         if (parameterDict) {
             NCMessageParameter *messageParameter = [NCMessageParameter parameterWithDictionary:parameterDict] ;
             // Default replacement string is the parameter name

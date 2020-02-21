@@ -39,7 +39,7 @@
     }
     
     _room = room;
-    _participantsInRoom = [room.participants allKeys];
+    _participantsInRoom = [room.participants valueForKey:@"self"];
     _participants = [[NSMutableDictionary alloc] init];
     _indexes = [[NSArray alloc] init];
     _selectedParticipants = [[NSMutableArray alloc] init];

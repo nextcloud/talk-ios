@@ -19,8 +19,8 @@
 
 typedef void (^GetContactsCompletionBlock)(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error);
 
-typedef void (^GetRoomsCompletionBlock)(NSMutableArray *rooms, NSError *error, NSInteger statusCode);
-typedef void (^GetRoomCompletionBlock)(NCRoom *room, NSError *error);
+typedef void (^GetRoomsCompletionBlock)(NSArray *rooms, NSError *error, NSInteger statusCode);
+typedef void (^GetRoomCompletionBlock)(NSDictionary *roomDict, NSError *error);
 typedef void (^CreateRoomCompletionBlock)(NSString *token, NSError *error);
 typedef void (^RenameRoomCompletionBlock)(NSError *error);
 typedef void (^MakeRoomPublicCompletionBlock)(NSError *error);
