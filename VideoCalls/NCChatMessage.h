@@ -34,7 +34,7 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 @property (nonatomic, assign) NSInteger groupMessageNumber;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
-- (NSString *)internalIdForAccountId:(NSString *)accountId;
++ (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;
 - (BOOL)isSystemMessage;
 - (NCMessageParameter *)file;
 - (NSDictionary *)messageParameters;

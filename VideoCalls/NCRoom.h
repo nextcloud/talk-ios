@@ -71,9 +71,9 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, assign) BOOL hasCall;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
++ (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;
 + (instancetype)unmanagedRoomFromManagedRoom:(NCRoom *)managedRoom;
 
-- (NSString *)internalIdForAccountId:(NSString *)accountId;
 - (BOOL)isPublic;
 - (BOOL)canModerate;
 - (BOOL)isNameEditable;

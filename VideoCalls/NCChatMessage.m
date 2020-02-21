@@ -55,19 +55,29 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
         }
     }
     
-    id parent = [messageDict objectForKey:@"parent"];
-    message.parent = [NCChatMessage messageWithDictionary:parent];
+    message.parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"]];
+    
+    return message;
+}
+
++ (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId
+{
+    NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict];
+    if (message) {
+        message.accountId = accountId;
+        message.internalId = [NSString stringWithFormat:@"%@@%@@%ld", accountId, message.token, (long)message.messageId];
+        
+        NCChatMessage *messageParent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:accountId];
+        if (messageParent) {
+            message.parent = messageParent;
+        }
+    }
     
     return message;
 }
 
 + (NSString *)primaryKey {
     return @"internalId";
-}
-
-- (NSString *)internalIdForAccountId:(NSString *)accountId
-{
-    return [NSString stringWithFormat:@"%@@%@@%ld", accountId, self.token, (long)self.messageId];
 }
 
 - (BOOL)isSystemMessage

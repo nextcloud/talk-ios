@@ -259,10 +259,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
                 [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
                 for (NSDictionary *roomDict in rooms) {
-                    NCRoom *room = [NCRoom roomWithDictionary:roomDict];
+                    NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:account.accountId];
                     if (room) {
-                        room.internalId = [room internalIdForAccountId:account.accountId];
-                        room.accountId = account.accountId;
                         [realm addOrUpdateObject:room];
                     }
                 }
@@ -287,10 +285,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
                 TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-                NCRoom *room = [NCRoom roomWithDictionary:roomDict];
+                NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:account.accountId];
                 if (room) {
-                    room.internalId = [room internalIdForAccountId:account.accountId];
-                    room.accountId = account.accountId;
                     [realm addOrUpdateObject:room];
                 }
                 NSLog(@"Room updated");

@@ -65,6 +65,22 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return room;
 }
 
++ (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId
+{
+    NCRoom *room = [NCRoom roomWithDictionary:roomDict];
+    if (room) {
+        room.accountId = accountId;
+        room.internalId = [NSString stringWithFormat:@"%@@%@", room.accountId, room.token];
+        
+        NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"] andAccountId:accountId];
+        if (lastMessage) {
+            room.lastMessage = lastMessage;
+        }
+    }
+    
+    return room;
+}
+
 + (NSString *)primaryKey {
     return @"internalId";
 }
@@ -177,11 +193,6 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     NSString *lastMessage = [NSString stringWithFormat:@"%@%@", actorName, self.lastMessage.parsedMessage.string];
     
     return lastMessage;
-}
-
-- (NSString *)internalIdForAccountId:(NSString *)accountId
-{
-    return [NSString stringWithFormat:@"%@@%@", accountId, self.token];
 }
 
 
