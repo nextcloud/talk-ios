@@ -205,7 +205,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)userProfileImageUpdated:(NSNotification *)notification
 {
-    [self setProfileButtonWithUserImage];
+    [self setProfileButton];
 }
 
 - (void)appWillEnterForeground:(NSNotification *)notification
@@ -363,12 +363,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         case kAppStateMissingServerCapabilities:
         case kAppStateMissingSignalingConfiguration:
         {
-            [self setProfileButtonWithUserImage];
+            [self setProfileButton];
         }
             break;
         case kAppStateReady:
         {
-            [self setProfileButtonWithUserImage];
+            [self setProfileButton];
             [[NCRoomsManager sharedInstance] updateRooms];
         }
             break;
@@ -412,7 +412,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 #pragma mark - User profile
 
-- (void)setProfileButtonWithUserImage
+- (void)setProfileButton
 {
     UIButton *profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [profileButton addTarget:self action:@selector(showUserProfile) forControlEvents:UIControlEventTouchUpInside];
