@@ -474,6 +474,7 @@ typedef enum ModificationError {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error renaming the room: %@", error.description);
+            [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorRename];
         }
     }];
@@ -486,7 +487,8 @@ typedef enum ModificationError {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
-            NSLog(@"Error making private the room: %@", error.description);
+            NSLog(@"Error adding the room to favorites: %@", error.description);
+            [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorFavorite];
         }
     }];
@@ -499,7 +501,8 @@ typedef enum ModificationError {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
-            NSLog(@"Error making private the room: %@", error.description);
+            NSLog(@"Error removing the room from favorites: %@", error.description);
+            [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorFavorite];
         }
     }];
@@ -515,7 +518,8 @@ typedef enum ModificationError {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
-            NSLog(@"Error making private the room: %@", error.description);
+            NSLog(@"Error setting room notification level: %@", error.description);
+            [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorNotifications];
         }
     }];
@@ -547,6 +551,7 @@ typedef enum ModificationError {
                 [[NCRoomsManager sharedInstance] updateRoom:_room.token];
             } else {
                 NSLog(@"Error setting room password: %@", error.description);
+                [self.tableView reloadData];
                 [self showRoomModificationError:kModificationErrorPassword];
             }
         }];
@@ -562,6 +567,7 @@ typedef enum ModificationError {
                     [[NCRoomsManager sharedInstance] updateRoom:_room.token];
                 } else {
                     NSLog(@"Error changing room password: %@", error.description);
+                    [self.tableView reloadData];
                     [self showRoomModificationError:kModificationErrorPassword];
                 }
             }];
@@ -585,6 +591,7 @@ typedef enum ModificationError {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
+            [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorShare];
         }
         _publicSwtich.enabled = YES;
@@ -599,6 +606,7 @@ typedef enum ModificationError {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error making private the room: %@", error.description);
+            [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorShare];
         }
         _publicSwtich.enabled = YES;
@@ -689,6 +697,7 @@ typedef enum ModificationError {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
             NSLog(@"Error changing lobby state in room: %@", error.description);
+            [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorLobby];
         }
         _lobbySwtich.enabled = YES;
