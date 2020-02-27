@@ -487,7 +487,7 @@ typedef enum ModificationError {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
-            NSLog(@"Error making private the room: %@", error.description);
+            NSLog(@"Error adding the room to favorites: %@", error.description);
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorFavorite];
         }
@@ -501,7 +501,7 @@ typedef enum ModificationError {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
-            NSLog(@"Error making private the room: %@", error.description);
+            NSLog(@"Error removing the room from favorites: %@", error.description);
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorFavorite];
         }
@@ -518,7 +518,7 @@ typedef enum ModificationError {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:_room.token];
         } else {
-            NSLog(@"Error making private the room: %@", error.description);
+            NSLog(@"Error setting room notification level: %@", error.description);
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorNotifications];
         }
