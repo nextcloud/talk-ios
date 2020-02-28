@@ -394,7 +394,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 {
     [[NCAPIController sharedInstance] getSignalingSettingsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *settings, NSError *error) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        if (!error && !activeAccount.invalidated) {
+        if (!error) {
             NSDictionary *signalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
             [_signalingConfigutations setObject:signalingConfiguration forKey:activeAccount.accountId];
             if (block) block(nil);
@@ -438,7 +438,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 {
     [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        if (!error && !activeAccount.invalidated) {
+        if (!error) {
             [[NCDatabaseManager sharedInstance] setServerCapabilities:serverCapabilities forAccountId:activeAccount.accountId];
             [self checkServerCapabilities];
             if (block) block(nil);
