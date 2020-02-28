@@ -259,16 +259,16 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block
 {
     [[NCAPIController sharedInstance] getUserProfileForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        if (!error && !activeAccount.invalidated) {
+        if (!error) {
             NSString *userDisplayName = [userProfile objectForKey:@"display-name"];
             NSString *userId = [userProfile objectForKey:@"id"];
             RLMRealm *realm = [RLMRealm defaultRealm];
+            TalkAccount *managedActiveAccount = [TalkAccount objectsWhere:(@"active = true")].firstObject;
             [realm beginWriteTransaction];
-            activeAccount.userDisplayName = userDisplayName;
-            activeAccount.userId = userId;
+            managedActiveAccount.userDisplayName = userDisplayName;
+            managedActiveAccount.userId = userId;
             [realm commitWriteTransaction];
-            [[NCAPIController sharedInstance] saveProfileImageForAccount:activeAccount];
+            [[NCAPIController sharedInstance] saveProfileImageForAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
             if (block) block(nil);
         } else {
             NSLog(@"Error while getting the user profile");
