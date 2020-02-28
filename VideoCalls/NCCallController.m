@@ -76,7 +76,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         _signalingController = [[NCSignalingController alloc] initForRoom:room];
         _signalingController.observer = self;
         
-        _account = [[TalkAccount alloc] initWithValue:[[NCDatabaseManager sharedInstance] activeAccount]];
+        _account = [[NCDatabaseManager sharedInstance] activeAccount];
         _externalSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:_account.accountId];
         _externalSignalingController.delegate = self;
         
