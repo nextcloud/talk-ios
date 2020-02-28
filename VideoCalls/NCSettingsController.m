@@ -558,11 +558,12 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     keyBytes  = malloc(len);
     
     BIO_read(publicKeyBIO, keyBytes, len);
-    TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:account];
-    RLMRealm *realm = [RLMRealm defaultRealm];
     NSData *pnPublicKey = [NSData dataWithBytes:keyBytes length:len];
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account];
+    TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
     [realm beginWriteTransaction];
-    talkAccount.pushNotificationPublicKey = pnPublicKey;
+    managedAccount.pushNotificationPublicKey = pnPublicKey;
     [realm commitWriteTransaction];
     NSLog(@"Push Notifications Key Pair generated: \n%@", [[NSString alloc] initWithData:pnPublicKey encoding:NSUTF8StringEncoding]);
     
