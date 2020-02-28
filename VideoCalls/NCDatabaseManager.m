@@ -73,18 +73,31 @@
 
 - (TalkAccount *)activeAccount
 {
-    return [TalkAccount objectsWhere:(@"active = true")].firstObject;
+    TalkAccount *managedActiveAccount = [TalkAccount objectsWhere:(@"active = true")].firstObject;
+    if (managedActiveAccount) {
+        return [[TalkAccount alloc] initWithValue:managedActiveAccount];
+    }
+    return nil;
 }
 
-- (RLMResults *)nonActiveAccounts
+- (NSArray *)inactiveAccounts
 {
-    return [TalkAccount objectsWhere:(@"active = false")];
+    NSMutableArray *inactiveAccounts = [NSMutableArray new];
+    for (TalkAccount *managedInactiveAccount in [TalkAccount objectsWhere:(@"active = false")]) {
+        TalkAccount *inactiveAccount = [[TalkAccount alloc] initWithValue:managedInactiveAccount];
+        [inactiveAccounts addObject:inactiveAccount];
+    }
+    return inactiveAccounts;
 }
 
 - (TalkAccount *)talkAccountForAccountId:(NSString *)accountId
 {
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
-    return [TalkAccount objectsWithPredicate:query].firstObject;
+    TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+    if (managedAccount) {
+        return [[TalkAccount alloc] initWithValue:managedAccount];
+    }
+    return nil;
 }
 
 - (void)setActiveAccount:(NSString *)accountId

@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSInteger)numberOfAccounts;
 - (TalkAccount *)activeAccount;
-- (RLMResults *)nonActiveAccounts;
+- (NSArray *)inactiveAccounts;
 - (TalkAccount *)talkAccountForAccountId:(NSString *)accountId;
 - (void)setActiveAccount:(NSString *)accountId;
 - (NSString *)accountIdForUser:(NSString *)user inServer:(NSString *)server;

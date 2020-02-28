@@ -305,8 +305,9 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     [[NCDatabaseManager sharedInstance] removeAccount:removingAccount.accountId];
     
     // Activate any of the inactive accounts
-    TalkAccount *inactiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts].firstObject;
-    if (inactiveAccount) {
+    NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
+    if (inactiveAccounts.count > 0) {
+        TalkAccount *inactiveAccount = [inactiveAccounts objectAtIndex:0];
         [self setAccountActive:inactiveAccount.accountId];
     }
     
