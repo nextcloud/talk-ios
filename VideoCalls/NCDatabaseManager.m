@@ -151,7 +151,11 @@
 - (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId
 {
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
-    return [ServerCapabilities objectsWithPredicate:query].firstObject;
+    ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsWithPredicate:query].firstObject;
+    if (managedServerCapabilities) {
+        return [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
+    }
+    return nil;
 }
 
 - (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId
