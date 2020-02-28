@@ -60,7 +60,8 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     _apiSessionManagers = [NSMutableDictionary new];
     _apiUsingCookiesSessionManagers = [NSMutableDictionary new];
     
-    for (TalkAccount *account in [TalkAccount allObjects]) {
+    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
+        TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
         [self createAPISessionManagerForAccount:account];
     }
 }
@@ -96,7 +97,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 - (NSString *)authHeaderForAccount:(TalkAccount *)account
 {
-    NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCSettingsController sharedInstance] tokenForAccount:account.accountId]];
+    NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCSettingsController sharedInstance] tokenForAccountId:account.accountId]];
     NSData *data = [userTokenString dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
     
@@ -940,7 +941,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     OCCommunication *communication = [self sharedOCCommunication];
-    [communication setCredentialsWithUser:account.user andUserID:account.userId andPassword:[[NCSettingsController sharedInstance] tokenForAccount:account.accountId]];
+    [communication setCredentialsWithUser:account.user andUserID:account.userId andPassword:[[NCSettingsController sharedInstance] tokenForAccountId:account.accountId]];
     [communication setUserAgent:apiSessionManager.userAgent];
     
     NSString *urlString = [NSString stringWithFormat:@"%@%@%@", account.server, k_webDAV, path ? path : @""];

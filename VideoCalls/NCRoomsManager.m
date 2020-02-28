@@ -101,7 +101,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 [_joinRoomAttempts removeObjectForKey:token];
                 [userInfo setObject:controller forKey:@"roomController"];
                 TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
                     [extSignalingController joinRoom:token withSessionId:sessionId];
                 }
@@ -153,7 +153,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 roomController.userSessionId = sessionId;
                 roomController.inChat = YES;
                 TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
                     [extSignalingController joinRoom:token withSessionId:sessionId];
                 }
@@ -182,7 +182,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
             if (!error) {
                 TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
                     [extSignalingController leaveRoom:token];
                 }
@@ -200,10 +200,12 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (NSArray *)roomsForAccountId:(NSString *)accountId
 {
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
-    RLMResults *results = [NCRoom objectsWithPredicate:query];
-    NSMutableArray *sortedRooms = [NSMutableArray new];
-    for (RLMObject *object in results) {
-        [sortedRooms addObject:object];
+    RLMResults *managedRooms = [NCRoom objectsWithPredicate:query];
+    // Create an unmanaged copy of the rooms
+    NSMutableArray *unmanagedRooms = [NSMutableArray new];
+    for (NCRoom *managedRoom in managedRooms) {
+        NCRoom *unmanagedRoom = [NCRoom unmanagedRoomFromManagedRoom:managedRoom];
+        [unmanagedRooms addObject:unmanagedRoom];
     }
     // Sort by favorites
     NSSortDescriptor *favoriteSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
@@ -219,32 +221,15 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     // Sort by lastActivity
     NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"lastActivity" ascending:NO];
     NSArray *descriptors = [NSArray arrayWithObjects:favoriteSorting, valueDescriptor, nil];
-    [sortedRooms sortUsingDescriptors:descriptors];
-    
-    return sortedRooms;
-}
-
-- (NSArray *)unmanagedRoomsForAccountId:(NSString *)accountId
-{
-    NSArray *managedRooms = [self roomsForAccountId:accountId];
-    NSMutableArray *unmanagedRooms = [NSMutableArray new];
-    for (NCRoom *managedRoom in managedRooms) {
-        NCRoom *unmanagedRoom = [NCRoom unmanagedRoomFromManagedRoom:managedRoom];
-        [unmanagedRooms addObject:unmanagedRoom];
-    }
+    [unmanagedRooms sortUsingDescriptors:descriptors];
     
     return unmanagedRooms;
 }
 
 - (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
 {
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, @"test"];
-    return [NCRoom objectsWithPredicate:query].firstObject;
-}
-
-- (NCRoom *)unmanagedRoomWithToken:(NSString *)token forAccountId:(NSString *)accountId
-{
-    NCRoom *managedRoom = [self roomWithToken:token forAccountId:accountId];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, accountId];
+    NCRoom *managedRoom = [NCRoom objectsWithPredicate:query].firstObject;
     return [NCRoom unmanagedRoomFromManagedRoom:managedRoom];
 }
 
@@ -325,7 +310,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (!roomController) {
         // Workaround until external signaling supports multi-room
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
         if ([extSignalingController isEnabled]) {
             NSString *currentRoom = extSignalingController.currentRoom;
             if (![currentRoom isEqualToString:room.token]) {
@@ -395,7 +380,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [_callViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
         _callViewController.delegate = self;
         // Workaround until external signaling supports multi-room
-        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
         if ([extSignalingController isEnabled]) {
             NSString *currentRoom = extSignalingController.currentRoom;
             if (![currentRoom isEqualToString:room.token]) {

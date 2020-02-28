@@ -120,7 +120,7 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
             } else {
                 // SetSignalingConfiguration should be called just once
                 TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-                [[NCSettingsController sharedInstance] setSignalingConfigurationForAccount:account.accountId];
+                [[NCSettingsController sharedInstance] setSignalingConfigurationForAccountId:account.accountId];
                 [self checkAppState];
             }
         }];

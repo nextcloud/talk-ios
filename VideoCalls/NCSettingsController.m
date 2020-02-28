@@ -122,8 +122,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
         account.userPublicKey = _ncUserPublicKey;
         account.active = YES;
         
-        [self setToken:_ncToken forAccount:account.accountId];
-        [self setPushNotificationPrivateKey:_ncPNPrivateKey forAccount:account.accountId];
+        [self setToken:_ncToken forAccountId:account.accountId];
+        [self setPushNotificationPrivateKey:_ncPNPrivateKey forAccountId:account.accountId];
         
         RLMRealm *realm = [RLMRealm defaultRealm];
         [realm transactionWithBlock:^{
@@ -154,43 +154,43 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
     if (!account) {
         [[NCDatabaseManager sharedInstance] createAccountForUser:user inServer:server];
-        [[NCDatabaseManager sharedInstance] setActiveAccount:accountId];
-        [self setToken:token forAccount:accountId];
+        [[NCDatabaseManager sharedInstance] setActiveAccountWithAccountId:accountId];
+        [self setToken:token forAccountId:accountId];
         TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
         [[NCAPIController sharedInstance] createAPISessionManagerForAccount:talkAccount];
-        [self subscribeForPushNotificationsForAccount:accountId];
+        [self subscribeForPushNotificationsForAccountId:accountId];
     } else {
-        [self setAccountActive:accountId];
+        [self setActiveAccountWithAccountId:accountId];
         [JDStatusBarNotification showWithStatus:@"Account already added" dismissAfter:4.0f styleName:JDStatusBarStyleSuccess];
     }
 }
 
-- (void)setAccountActive:(NSString *)account
+- (void)setActiveAccountWithAccountId:(NSString *)accountId
 {
     [[NCUserInterfaceController sharedInstance] presentConversationsList];
-    [[NCDatabaseManager sharedInstance] setActiveAccount:account];
+    [[NCDatabaseManager sharedInstance] setActiveAccountWithAccountId:accountId];
     [[NSHTTPCookieStorage sharedHTTPCookieStorage] removeCookiesSinceDate:[NSDate dateWithTimeIntervalSince1970:0]];
     [[NCConnectionController sharedInstance] checkAppState];
 }
 
-- (void)setToken:(NSString *)token forAccount:(NSString *)account
+- (void)setToken:(NSString *)token forAccountId:(NSString *)accountId
 {
-    [_keychain setString:token forKey:[NSString stringWithFormat:@"%@-%@", kNCTokenKey, account]];
+    [_keychain setString:token forKey:[NSString stringWithFormat:@"%@-%@", kNCTokenKey, accountId]];
 }
 
-- (NSString *)tokenForAccount:(NSString *)account
+- (NSString *)tokenForAccountId:(NSString *)accountId
 {
-    return [_keychain stringForKey:[NSString stringWithFormat:@"%@-%@", kNCTokenKey, account]];
+    return [_keychain stringForKey:[NSString stringWithFormat:@"%@-%@", kNCTokenKey, accountId]];
 }
 
-- (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccount:(NSString *)account
+- (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccountId:(NSString *)accountId
 {
-    [_keychain setData:privateKey forKey:[NSString stringWithFormat:@"%@-%@", kNCPNPrivateKey, account]];
+    [_keychain setData:privateKey forKey:[NSString stringWithFormat:@"%@-%@", kNCPNPrivateKey, accountId]];
 }
 
-- (NSData *)pushNotificationPrivateKeyForAccount:(NSString *)account
+- (NSData *)pushNotificationPrivateKeyForAccountId:(NSString *)accountId
 {
-    return [_keychain dataForKey:[NSString stringWithFormat:@"%@-%@", kNCPNPrivateKey, account]];
+    return [_keychain dataForKey:[NSString stringWithFormat:@"%@-%@", kNCPNPrivateKey, accountId]];
 }
 
 #pragma mark - User defaults
@@ -259,16 +259,16 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block
 {
     [[NCAPIController sharedInstance] getUserProfileForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        if (!error && !activeAccount.invalidated) {
+        if (!error) {
             NSString *userDisplayName = [userProfile objectForKey:@"display-name"];
             NSString *userId = [userProfile objectForKey:@"id"];
             RLMRealm *realm = [RLMRealm defaultRealm];
+            TalkAccount *managedActiveAccount = [TalkAccount objectsWhere:(@"active = true")].firstObject;
             [realm beginWriteTransaction];
-            activeAccount.userDisplayName = userDisplayName;
-            activeAccount.userId = userId;
+            managedActiveAccount.userDisplayName = userDisplayName;
+            managedActiveAccount.userId = userId;
             [realm commitWriteTransaction];
-            [[NCAPIController sharedInstance] saveProfileImageForAccount:activeAccount];
+            [[NCAPIController sharedInstance] saveProfileImageForAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
             if (block) block(nil);
         } else {
             NSLog(@"Error while getting the user profile");
@@ -298,16 +298,17 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
             }
         }];
     }
-    NCExternalSignalingController *extSignalingController = [self externalSignalingControllerForAccount:removingAccount.accountId];
+    NCExternalSignalingController *extSignalingController = [self externalSignalingControllerForAccountId:removingAccount.accountId];
     [extSignalingController disconnect];
     [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
     [[NCAPIController sharedInstance] removeProfileImageForAccount:removingAccount];
-    [[NCDatabaseManager sharedInstance] removeAccount:removingAccount.accountId];
+    [[NCDatabaseManager sharedInstance] removeAccountWithAccountId:removingAccount.accountId];
     
     // Activate any of the inactive accounts
-    TalkAccount *inactiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts].firstObject;
-    if (inactiveAccount) {
-        [self setAccountActive:inactiveAccount.accountId];
+    NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
+    if (inactiveAccounts.count > 0) {
+        TalkAccount *inactiveAccount = [inactiveAccounts objectAtIndex:0];
+        [self setActiveAccountWithAccountId:inactiveAccount.accountId];
     }
     
     if (block) block(nil);
@@ -393,7 +394,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 {
     [[NCAPIController sharedInstance] getSignalingSettingsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *settings, NSError *error) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        if (!error && !activeAccount.invalidated) {
+        if (!error) {
             NSDictionary *signalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
             [_signalingConfigutations setObject:signalingConfiguration forKey:activeAccount.accountId];
             if (block) block(nil);
@@ -405,7 +406,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 }
 
 // SetSignalingConfiguration should be called just once
-- (void)setSignalingConfigurationForAccount:(NSString *)accountId
+- (void)setSignalingConfigurationForAccountId:(NSString *)accountId
 {
     NSDictionary *signalingConfiguration = [_signalingConfigutations objectForKey:accountId];
     NSString *externalSignalingServer = nil;
@@ -426,7 +427,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     }
 }
 
-- (NCExternalSignalingController *)externalSignalingControllerForAccount:(NSString *)accountId
+- (NCExternalSignalingController *)externalSignalingControllerForAccountId:(NSString *)accountId
 {
     return [_externalSignalingControllers objectForKey:accountId];
 }
@@ -437,7 +438,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 {
     [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        if (!error && !activeAccount.invalidated) {
+        if (!error) {
             [[NCDatabaseManager sharedInstance] setServerCapabilities:serverCapabilities forAccountId:activeAccount.accountId];
             [self checkServerCapabilities];
             if (block) block(nil);
@@ -493,13 +494,12 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 
 #pragma mark - Push Notifications
 
-- (void)subscribeForPushNotificationsForAccount:(NSString *)account
+- (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId
 {
 #if !TARGET_IPHONE_SIMULATOR
-    TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:account];
-    if ([self generatePushNotificationsKeyPairForAccount:account]) {
-        [[NCAPIController sharedInstance] subscribeAccount:talkAccount toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
-            if (!error && !talkAccount.invalidated) {
+    if ([self generatePushNotificationsKeyPairForAccountId:accountId]) {
+        [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId] toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
+            if (!error) {
                 NSLog(@"Subscribed to NC server successfully.");
                 
                 NSString *publicKey = [responseDict objectForKey:@"publicKey"];
@@ -507,16 +507,21 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
                 NSString *signature = [responseDict objectForKey:@"signature"];
                 
                 RLMRealm *realm = [RLMRealm defaultRealm];
+                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+                TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
                 [realm beginWriteTransaction];
-                talkAccount.userPublicKey = publicKey;
-                talkAccount.deviceIdentifier = deviceIdentifier;
-                talkAccount.deviceSignature = signature;
+                managedAccount.userPublicKey = publicKey;
+                managedAccount.deviceIdentifier = deviceIdentifier;
+                managedAccount.deviceSignature = signature;
                 [realm commitWriteTransaction];
                 
-                [[NCAPIController sharedInstance] subscribeAccount:talkAccount toPushServerWithCompletionBlock:^(NSError *error) {
-                    if (!error && !talkAccount.invalidated) {
+                [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId] toPushServerWithCompletionBlock:^(NSError *error) {
+                    if (!error) {
+                        RLMRealm *realm = [RLMRealm defaultRealm];
+                        NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+                        TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
                         [realm beginWriteTransaction];
-                        talkAccount.pushNotificationSubscribed = YES;
+                        managedAccount.pushNotificationSubscribed = YES;
                         [realm commitWriteTransaction];
                         NSLog(@"Subscribed to Push Notification server successfully.");
                     } else {
@@ -531,7 +536,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 #endif
 }
 
-- (BOOL)generatePushNotificationsKeyPairForAccount:(NSString *)account
+- (BOOL)generatePushNotificationsKeyPairForAccountId:(NSString *)accountId
 {
     EVP_PKEY *pkey;
     NSError *keyError;
@@ -552,11 +557,12 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     keyBytes  = malloc(len);
     
     BIO_read(publicKeyBIO, keyBytes, len);
-    TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:account];
-    RLMRealm *realm = [RLMRealm defaultRealm];
     NSData *pnPublicKey = [NSData dataWithBytes:keyBytes length:len];
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
     [realm beginWriteTransaction];
-    talkAccount.pushNotificationPublicKey = pnPublicKey;
+    managedAccount.pushNotificationPublicKey = pnPublicKey;
     [realm commitWriteTransaction];
     NSLog(@"Push Notifications Key Pair generated: \n%@", [[NSString alloc] initWithData:pnPublicKey encoding:NSUTF8StringEncoding]);
     
@@ -569,7 +575,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     
     BIO_read(privateKeyBIO, keyBytes, len);
     NSData *pnPrivateKey = [NSData dataWithBytes:keyBytes length:len];
-    [[NCSettingsController sharedInstance] setPushNotificationPrivateKey:pnPrivateKey forAccount:account];
+    [self setPushNotificationPrivateKey:pnPrivateKey forAccountId:accountId];
     EVP_PKEY_free(pkey);
     
     return YES;

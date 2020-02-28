@@ -271,7 +271,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NSMutableArray *menuArray = [NSMutableArray new];
     NSMutableArray *actionsArray = [NSMutableArray new];
-    for (TalkAccount *account in [TalkAccount allObjects]) {
+    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
+        TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
         NSString *accountName = account.userDisplayName;
         UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(72, 72)];
         UIImageView *accessoryImageView = (account.active) ? [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]] : nil;
@@ -307,7 +308,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                            id action = [actionsArray objectAtIndex:selectedIndex];
                            if ([action isKindOfClass:[TalkAccount class]]) {
                                TalkAccount *account = action;
-                               [[NCSettingsController sharedInstance] setAccountActive:account.accountId];
+                               [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
                            } else {
                                [[NCUserInterfaceController sharedInstance] presentLoginViewController];
                            }
@@ -338,7 +339,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)refreshRoomList
 {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSArray *accountRooms = [[NCRoomsManager sharedInstance] unmanagedRoomsForAccountId:account.accountId];
+    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     
     // Show/Hide placeholder view

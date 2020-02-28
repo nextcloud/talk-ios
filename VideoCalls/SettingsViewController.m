@@ -295,7 +295,7 @@ typedef enum AboutSection {
             
         case kSettingsSectionAccounts:
         {
-            return [[NCDatabaseManager sharedInstance] nonActiveAccounts].count + 1;
+            return [[NCDatabaseManager sharedInstance] inactiveAccounts].count + 1;
         }
             break;
             
@@ -388,9 +388,9 @@ typedef enum AboutSection {
             break;
         case kSettingsSectionAccounts:
         {
-            RLMResults *nonActiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts];
-            if (indexPath.row < nonActiveAccount.count) {
-                TalkAccount *account = [nonActiveAccount objectAtIndex:indexPath.row];
+            NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
+            if (indexPath.row < inactiveAccounts.count) {
+                TalkAccount *account = [inactiveAccounts objectAtIndex:indexPath.row];
                 AccountTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kAccountCellIdentifier];
                 if (!cell) {
                     cell = [[AccountTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAccountCellIdentifier];
@@ -536,10 +536,10 @@ typedef enum AboutSection {
             break;
         case kSettingsSectionAccounts:
         {
-            RLMResults *nonActiveAccount = [[NCDatabaseManager sharedInstance] nonActiveAccounts];
-            if (indexPath.row < nonActiveAccount.count) {
-                TalkAccount *account = [nonActiveAccount objectAtIndex:indexPath.row];
-                [[NCSettingsController sharedInstance] setAccountActive:account.accountId];
+            NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
+            if (indexPath.row < inactiveAccounts.count) {
+                TalkAccount *account = [inactiveAccounts objectAtIndex:indexPath.row];
+                [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
                 
             } else {
                 [self dismissViewControllerAnimated:true completion:^{
