@@ -128,14 +128,15 @@
     NSString *devicePushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
     BOOL tokenChanged = ![devicePushKitToken isEqualToString:pushKitToken];
     
-    for (TalkAccount *account in [TalkAccount allObjects]) {
+    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
         if (tokenChanged) {
             // Remove subscribed flag if token has changed
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm beginWriteTransaction];
-            account.pushNotificationSubscribed = NO;
+            talkAccount.pushNotificationSubscribed = NO;
             [realm commitWriteTransaction];
         }
+        TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
         if (!account.pushNotificationSubscribed) {
             [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId];
         }
@@ -149,7 +150,8 @@
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
 {
     NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
-    for (TalkAccount *account in [TalkAccount allObjects]) {
+    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
+        TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
         NSData *pushNotificationPrivateKey = [[NCSettingsController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
         if (message && pushNotificationPrivateKey) {
             NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];

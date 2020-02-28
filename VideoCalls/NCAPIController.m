@@ -60,7 +60,8 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     _apiSessionManagers = [NSMutableDictionary new];
     _apiUsingCookiesSessionManagers = [NSMutableDictionary new];
     
-    for (TalkAccount *account in [TalkAccount allObjects]) {
+    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
+        TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
         [self createAPISessionManagerForAccount:account];
     }
 }
