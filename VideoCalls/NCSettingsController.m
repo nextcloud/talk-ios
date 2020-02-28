@@ -497,10 +497,9 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 - (void)subscribeForPushNotificationsForAccount:(NSString *)account
 {
 #if !TARGET_IPHONE_SIMULATOR
-    TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:account];
     if ([self generatePushNotificationsKeyPairForAccount:account]) {
-        [[NCAPIController sharedInstance] subscribeAccount:talkAccount toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
-            if (!error && !talkAccount.invalidated) {
+        [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:account] toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
+            if (!error) {
                 NSLog(@"Subscribed to NC server successfully.");
                 
                 NSString *publicKey = [responseDict objectForKey:@"publicKey"];
@@ -508,16 +507,22 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
                 NSString *signature = [responseDict objectForKey:@"signature"];
                 
                 RLMRealm *realm = [RLMRealm defaultRealm];
+                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account];
+                TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
                 [realm beginWriteTransaction];
-                talkAccount.userPublicKey = publicKey;
-                talkAccount.deviceIdentifier = deviceIdentifier;
-                talkAccount.deviceSignature = signature;
+                managedAccount.userPublicKey = publicKey;
+                managedAccount.deviceIdentifier = deviceIdentifier;
+                managedAccount.deviceSignature = signature;
                 [realm commitWriteTransaction];
                 
-                [[NCAPIController sharedInstance] subscribeAccount:talkAccount toPushServerWithCompletionBlock:^(NSError *error) {
-                    if (!error && !talkAccount.invalidated) {
+                [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:account] toPushServerWithCompletionBlock:^(NSError *error) {
+                    if (!error) {
+                        RLMRealm *realm = [RLMRealm defaultRealm];
+                        NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account];
+                        TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
                         [realm beginWriteTransaction];
-                        talkAccount.pushNotificationSubscribed = YES;
+                        managedAccount
+                        .pushNotificationSubscribed = YES;
                         [realm commitWriteTransaction];
                         NSLog(@"Subscribed to Push Notification server successfully.");
                     } else {
