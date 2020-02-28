@@ -521,8 +521,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
                         NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
                         TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
                         [realm beginWriteTransaction];
-                        managedAccount
-                        .pushNotificationSubscribed = YES;
+                        managedAccount.pushNotificationSubscribed = YES;
                         [realm commitWriteTransaction];
                         NSLog(@"Subscribed to Push Notification server successfully.");
                     } else {
