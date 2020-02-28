@@ -307,7 +307,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                            id action = [actionsArray objectAtIndex:selectedIndex];
                            if ([action isKindOfClass:[TalkAccount class]]) {
                                TalkAccount *account = action;
-                               [[NCSettingsController sharedInstance] setAccountActive:account.accountId];
+                               [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
                            } else {
                                [[NCUserInterfaceController sharedInstance] presentLoginViewController];
                            }

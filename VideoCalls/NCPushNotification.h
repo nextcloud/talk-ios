@@ -38,10 +38,10 @@ extern NSString * const NCPushNotificationJoinVideoCallAcceptedNotification;
 @property (nonatomic, copy) NSString *roomToken;
 @property (nonatomic, assign) NSInteger roomId;
 @property (nonatomic, assign) NSInteger notificationId;
-@property (nonatomic, copy) NSString *account;
+@property (nonatomic, copy) NSString *accountId;
 @property (nonatomic, copy) NSString *jsonString;
 
-+ (instancetype)pushNotificationFromDecryptedString:(NSString *)decryptedString withAccount:(NSString *)account;
++ (instancetype)pushNotificationFromDecryptedString:(NSString *)decryptedString withAccountId:(NSString *)accountId;
 - (NSString *)bodyForRemoteAlerts;
 
 @end

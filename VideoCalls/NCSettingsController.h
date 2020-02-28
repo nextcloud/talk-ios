@@ -87,12 +87,10 @@ typedef enum NCPasscodeType {
 @property (nonatomic, copy) NSMutableDictionary *externalSignalingControllers; // accountId -> externalSignalingController
 
 + (instancetype)sharedInstance;
-- (void)setToken:(NSString *)token forAccount:(NSString *)account;
 - (void)addNewAccountForUser:(NSString *)user withToken:(NSString *)token inServer:(NSString *)server;
-- (void)setAccountActive:(NSString *)account;
-- (NSString *)tokenForAccount:(NSString *)account;
-- (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccount:(NSString *)account;
-- (NSData *)pushNotificationPrivateKeyForAccount:(NSString *)account;
+- (void)setActiveAccountWithAccountId:(NSString *)accountId;
+- (NSString *)tokenForAccountId:(NSString *)accountId;
+- (NSData *)pushNotificationPrivateKeyForAccountId:(NSString *)accountId;
 - (void)cleanUserAndServerStoredValues;
 - (NSString *)pushTokenSHA512;
 - (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
@@ -100,9 +98,9 @@ typedef enum NCPasscodeType {
 - (void)logoutWithCompletionBlock:(LogoutCompletionBlock)block;
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
 - (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block;
-- (void)setSignalingConfigurationForAccount:(NSString *)accountId;
-- (NCExternalSignalingController *)externalSignalingControllerForAccount:(NSString *)accountId;
-- (void)subscribeForPushNotificationsForAccount:(NSString *)account;
+- (void)setSignalingConfigurationForAccountId:(NSString *)accountId;
+- (NCExternalSignalingController *)externalSignalingControllerForAccountId:(NSString *)accountId;
+- (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
 - (NSInteger)chatMaxLengthConfigCapability;
 - (NCPreferredFileSorting)getPreferredFileSorting;

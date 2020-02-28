@@ -539,7 +539,7 @@ typedef enum AboutSection {
             NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
             if (indexPath.row < inactiveAccounts.count) {
                 TalkAccount *account = [inactiveAccounts objectAtIndex:indexPath.row];
-                [[NCSettingsController sharedInstance] setAccountActive:account.accountId];
+                [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
                 
             } else {
                 [self dismissViewControllerAnimated:true completion:^{

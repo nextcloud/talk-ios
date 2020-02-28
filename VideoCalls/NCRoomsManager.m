@@ -101,7 +101,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 [_joinRoomAttempts removeObjectForKey:token];
                 [userInfo setObject:controller forKey:@"roomController"];
                 TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
                     [extSignalingController joinRoom:token withSessionId:sessionId];
                 }
@@ -153,7 +153,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 roomController.userSessionId = sessionId;
                 roomController.inChat = YES;
                 TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
                     [extSignalingController joinRoom:token withSessionId:sessionId];
                 }
@@ -182,7 +182,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
             if (!error) {
                 TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
                     [extSignalingController leaveRoom:token];
                 }
@@ -310,7 +310,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (!roomController) {
         // Workaround until external signaling supports multi-room
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
         if ([extSignalingController isEnabled]) {
             NSString *currentRoom = extSignalingController.currentRoom;
             if (![currentRoom isEqualToString:room.token]) {
@@ -380,7 +380,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [_callViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
         _callViewController.delegate = self;
         // Workaround until external signaling supports multi-room
-        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccount:activeAccount.accountId];
+        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
         if ([extSignalingController isEnabled]) {
             NSString *currentRoom = extSignalingController.currentRoom;
             if (![currentRoom isEqualToString:room.token]) {

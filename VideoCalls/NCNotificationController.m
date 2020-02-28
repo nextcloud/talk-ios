@@ -85,7 +85,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     content.sound = [UNNotificationSound defaultSound];
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
     [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
-    [userInfo setObject:pushNotification.account forKey:@"account"];
+    [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
     content.userInfo = userInfo;
     
     if (serverNotification) {
@@ -116,7 +116,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     if (retryAttempts < 3 && notificationId) {
         retryAttempts += 1;
         [_serverNotificationsAttempts setObject:@(retryAttempts) forKey:@(notificationId)];
-        TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:pushNotification.account];
+        TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:pushNotification.accountId];
         [[NCAPIController sharedInstance] getServerNotification:notificationId forAccount:talkAccount withCompletionBlock:^(NSDictionary *notification, NSError *error, NSInteger statusCode) {
             if (statusCode == 404) {
                 // Notification has been treated/deleted in another device
@@ -182,7 +182,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     NSString *roomToken = serverNotification.objectId;
     NSString *displayName = serverNotification.callDisplayName;
     // Set active account
-    [[NCSettingsController sharedInstance] setAccountActive:pushNotification.account];
+    [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:pushNotification.accountId];
     // Present call
     [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName];
 }
@@ -243,17 +243,17 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     UNNotificationRequest *notificationRequest = response.notification.request;
     NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notificationRequest.content.userInfo objectForKey:@"localNotificationType"] integerValue];
     NSString *notificationString = [notificationRequest.content.userInfo objectForKey:@"pushNotification"];
-    NSString *notificationAccount = [notificationRequest.content.userInfo objectForKey:@"account"];
-    NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccount:notificationAccount];
+    NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
+    NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
     
     // Change account if notification is from another account
-    if (![[[NCDatabaseManager sharedInstance] activeAccount].accountId isEqualToString:notificationAccount]) {
+    if (![[[NCDatabaseManager sharedInstance] activeAccount].accountId isEqualToString:notificationAccountId]) {
         // Leave chat before changing accounts
         if ([[NCRoomsManager sharedInstance] chatViewController]) {
             [[[NCRoomsManager sharedInstance] chatViewController] leaveChat];
         }
         // Set notification account active
-        [[NCSettingsController sharedInstance] setAccountActive:notificationAccount];
+        [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:notificationAccountId];
     }
     
     // Handle notification response

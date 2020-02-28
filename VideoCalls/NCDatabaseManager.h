@@ -55,10 +55,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (TalkAccount *)activeAccount;
 - (NSArray *)inactiveAccounts;
 - (TalkAccount *)talkAccountForAccountId:(NSString *)accountId;
-- (void)setActiveAccount:(NSString *)accountId;
+- (void)setActiveAccountWithAccountId:(NSString *)accountId;
 - (NSString *)accountIdForUser:(NSString *)user inServer:(NSString *)server;
 - (void)createAccountForUser:(NSString *)user inServer:(NSString *)server;
-- (void)removeAccount:(NSString *)accountId;
+- (void)removeAccountWithAccountId:(NSString *)accountId;
 
 - (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId;
 - (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId;

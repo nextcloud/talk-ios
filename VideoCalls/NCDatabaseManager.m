@@ -100,7 +100,7 @@
     return nil;
 }
 
-- (void)setActiveAccount:(NSString *)accountId
+- (void)setActiveAccountWithAccountId:(NSString *)accountId
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm beginWriteTransaction];
@@ -132,7 +132,7 @@
     }];
 }
 
-- (void)removeAccount:(NSString *)accountId
+- (void)removeAccountWithAccountId:(NSString *)accountId
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
