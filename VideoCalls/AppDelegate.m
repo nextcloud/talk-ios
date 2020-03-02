@@ -125,8 +125,12 @@
     UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
                                                                 accessGroup:@"group.com.nextcloud.Talk"];
     NSString *pushKitToken = [self stringWithDeviceToken:credentials.token];
-    NSString *devicePushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
+    NSString *devicePushKitToken = [[NSString alloc] initWithString:[NCSettingsController sharedInstance].ncPushKitToken];
     BOOL tokenChanged = ![devicePushKitToken isEqualToString:pushKitToken];
+    
+    // Store new PushKit token in Keychain
+    [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
+    [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
     
     for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
         if (tokenChanged) {
@@ -141,10 +145,6 @@
             [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId];
         }
     }
-    
-    // Store new PushKit token in Keychain
-    [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
-    [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
 }
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
