@@ -74,7 +74,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 
 #pragma mark - Actions
 
-- (void)reportIncomingCallForRoom:(NSString *)token withDisplayName:(NSString *)displayName
+- (void)reportIncomingCallForRoom:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId
 {
     CXCallUpdate *update = [[CXCallUpdate alloc] init];
     update.supportsHolding = NO;
@@ -88,6 +88,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     _currentCallUUID = [NSUUID new];
     _currentCallToken = token;
     _currentCallDisplayName = displayName;
+    _currentCalleeAccountId = accountId;
     _hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(hangUpCurrentCall) userInfo:nil repeats:NO];
     
     __weak CallKitManager *weakSelf = self;
@@ -97,6 +98,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
             weakSelf.currentCallUUID = nil;
             weakSelf.currentCallToken = nil;
             weakSelf.currentCallDisplayName = nil;
+            weakSelf.currentCalleeAccountId = nil;
         }
     }];
 }
@@ -109,10 +111,11 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 
 - (void)hangUpCurrentCall
 {
-    if (_currentCallUUID && _currentCallToken && _currentCallDisplayName) {
+    if (_currentCallUUID && _currentCallToken && _currentCallDisplayName && _currentCalleeAccountId) {
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
         [userInfo setValue:_currentCallDisplayName forKey:@"displayName"];
         [userInfo setValue:@(kNCLocalNotificationTypeMissedCall) forKey:@"localNotificationType"];
+        [userInfo setObject:_currentCalleeAccountId forKey:@"accountId"];
         [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeMissedCall withUserInfo:userInfo];
     }
     
@@ -211,6 +214,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
         self.currentCallUUID = nil;
         self.currentCallToken = nil;
         self.currentCallDisplayName = nil;
+        self.currentCalleeAccountId = nil;
         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:leaveCallToken forKey:@"roomToken"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidEndCallNotification
                                                             object:self

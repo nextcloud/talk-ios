@@ -184,7 +184,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     // Set active account
     [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:pushNotification.accountId];
     // Present call
-    [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName];
+    [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName forAccountId:pushNotification.accountId];
 }
 
 - (void)updateAppIconBadgeNumber:(NSInteger)update
@@ -247,7 +247,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
     
     // Change account if notification is from another account
-    if (![[[NCDatabaseManager sharedInstance] activeAccount].accountId isEqualToString:notificationAccountId]) {
+    if (notificationAccountId && ![[[NCDatabaseManager sharedInstance] activeAccount].accountId isEqualToString:notificationAccountId]) {
         // Leave chat before changing accounts
         if ([[NCRoomsManager sharedInstance] chatViewController]) {
             [[[NCRoomsManager sharedInstance] chatViewController] leaveChat];
