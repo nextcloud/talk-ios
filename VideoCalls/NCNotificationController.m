@@ -184,7 +184,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     // Set active account
     [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:pushNotification.accountId];
     // Present call
-    [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName];
+    [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName forAccountId:pushNotification.accountId];
 }
 
 - (void)updateAppIconBadgeNumber:(NSInteger)update
