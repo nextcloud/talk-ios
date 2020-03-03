@@ -246,8 +246,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 for (NSDictionary *roomDict in rooms) {
                     NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
                     room.lastUpdate = updateTimestamp;
-                    if (room) {
-                        [realm addOrUpdateObject:room];
+                    NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
+                    if (managedRoom) {
+                        [self updateRoom:managedRoom withRoom:room];
+                    } else {
+                        [realm addObject:room];
                     }
                 }
                 // Delete old rooms
@@ -276,8 +279,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             [realm transactionWithBlock:^{
                 NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
                 room.lastUpdate = [[NSDate date] timeIntervalSince1970];
-                if (room) {
-                    [realm addOrUpdateObject:room];
+                NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
+                if (managedRoom) {
+                    [self updateRoom:managedRoom withRoom:room];
+                } else {
+                    [realm addObject:room];
                 }
                 NSLog(@"Room updated");
             }];
@@ -289,6 +295,38 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                                                             object:self
                                                           userInfo:userInfo];
     }];
+}
+
+- (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room
+{
+    managedRoom.name = room.name;
+    managedRoom.displayName = room.displayName;
+    managedRoom.type = room.type;
+    managedRoom.count = room.count;
+    managedRoom.hasPassword = room.hasPassword;
+    managedRoom.participantType = room.participantType;
+    managedRoom.lastPing = room.lastPing;
+    managedRoom.numGuests = room.numGuests;
+    managedRoom.unreadMessages = room.unreadMessages;
+    managedRoom.unreadMention = room.unreadMention;
+    managedRoom.guestList = room.guestList;
+    managedRoom.participants = room.participants;
+    managedRoom.lastActivity = room.lastActivity;
+    managedRoom.isFavorite = room.isFavorite;
+    managedRoom.notificationLevel = room.notificationLevel;
+    managedRoom.objectType = room.objectType;
+    managedRoom.objectId = room.objectId;
+    managedRoom.readOnlyState = room.readOnlyState;
+    managedRoom.lobbyState = room.lobbyState;
+    managedRoom.lobbyTimer = room.lobbyTimer;
+    managedRoom.lastReadMessage = room.lastReadMessage;
+    managedRoom.canStartCall = room.canStartCall;
+    managedRoom.hasCall = room.hasCall;
+    managedRoom.lastUpdate = room.lastUpdate;
+    
+    if (![managedRoom.lastMessage.internalId isEqualToString:room.lastMessage.internalId]) {
+        managedRoom.lastMessage = room.lastMessage;
+    }
 }
 
 - (NCRoom *)getRoomForToken:(NSString *)token
