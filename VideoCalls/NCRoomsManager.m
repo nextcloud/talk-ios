@@ -235,20 +235,24 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)updateRooms
 {
-    [[NCAPIController sharedInstance] getRoomsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
-                TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
-                [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
+                // Add or update rooms
+                NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];
                 for (NSDictionary *roomDict in rooms) {
-                    NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:account.accountId];
+                    NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
+                    room.lastUpdate = updateTimestamp;
                     if (room) {
                         [realm addOrUpdateObject:room];
                     }
                 }
+                // Delete old rooms
+                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND lastUpdate != %ld", activeAccount.accountId, (long)updateTimestamp];
+                [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
                 NSLog(@"Rooms updated");
             }];
         } else {
@@ -263,14 +267,15 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)updateRoom:(NSString *)token
 {
-    [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
             [userInfo setObject:[NCRoom roomWithDictionary:roomDict] forKey:@"room"];
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
-                TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-                NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:account.accountId];
+                NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
+                room.lastUpdate = [[NSDate date] timeIntervalSince1970];
                 if (room) {
                     [realm addOrUpdateObject:room];
                 }
