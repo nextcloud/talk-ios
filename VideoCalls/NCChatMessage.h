@@ -35,6 +35,8 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;
++ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage;
+
 - (BOOL)isSystemMessage;
 - (NCMessageParameter *)file;
 - (NSDictionary *)messageParameters;

@@ -82,6 +82,35 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return room;
 }
 
++ (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room
+{
+    managedRoom.name = room.name;
+    managedRoom.displayName = room.displayName;
+    managedRoom.type = room.type;
+    managedRoom.count = room.count;
+    managedRoom.hasPassword = room.hasPassword;
+    managedRoom.participantType = room.participantType;
+    managedRoom.lastPing = room.lastPing;
+    managedRoom.numGuests = room.numGuests;
+    managedRoom.unreadMessages = room.unreadMessages;
+    managedRoom.unreadMention = room.unreadMention;
+    managedRoom.guestList = room.guestList;
+    managedRoom.participants = room.participants;
+    managedRoom.lastActivity = room.lastActivity;
+    managedRoom.lastMessageId = room.lastMessageId;
+    managedRoom.isFavorite = room.isFavorite;
+    managedRoom.notificationLevel = room.notificationLevel;
+    managedRoom.objectType = room.objectType;
+    managedRoom.objectId = room.objectId;
+    managedRoom.readOnlyState = room.readOnlyState;
+    managedRoom.lobbyState = room.lobbyState;
+    managedRoom.lobbyTimer = room.lobbyTimer;
+    managedRoom.lastReadMessage = room.lastReadMessage;
+    managedRoom.canStartCall = room.canStartCall;
+    managedRoom.hasCall = room.hasCall;
+    managedRoom.lastUpdate = room.lastUpdate;
+}
+
 + (NSString *)primaryKey {
     return @"internalId";
 }

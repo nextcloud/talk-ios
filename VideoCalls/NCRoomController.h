@@ -24,8 +24,6 @@ extern NSString * const NCRoomControllerDidReceiveChatBlockedNotification;
 @property (nonatomic, assign) BOOL inChat;
 @property (nonatomic, assign) BOOL hasHistory;
 
-+ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage;
-
 - (instancetype)initForUser:(NSString *)sessionId inRoom:(NSString *)token;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo;
 - (void)getInitialChatHistory:(NSInteger)lastReadMessage;

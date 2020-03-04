@@ -252,7 +252,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                     room.lastUpdate = updateTimestamp;
                     NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
                     if (managedRoom) {
-                        [self updateRoom:managedRoom withRoom:room];
+                        [NCRoom updateRoom:managedRoom withRoom:room];
                     } else if (room) {
                         [realm addObject:room];
                     }
@@ -260,7 +260,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                     NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"] andAccountId:activeAccount.accountId];
                     NCChatMessage *managedLastMessage = [NCChatMessage objectsWhere:@"internalId = %@", lastMessage.internalId].firstObject;
                     if (managedLastMessage) {
-                        [NCRoomController updateChatMessage:managedLastMessage withChatMessage:lastMessage];
+                        [NCChatMessage updateChatMessage:managedLastMessage withChatMessage:lastMessage];
                     } else if (lastMessage) {
                         [realm addObject:lastMessage];
                     }
@@ -293,7 +293,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 room.lastUpdate = [[NSDate date] timeIntervalSince1970];
                 NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
                 if (managedRoom) {
-                    [self updateRoom:managedRoom withRoom:room];
+                    [NCRoom updateRoom:managedRoom withRoom:room];
                 } else if (room) {
                     [realm addObject:room];
                 }
@@ -301,7 +301,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"] andAccountId:activeAccount.accountId];
                 NCChatMessage *managedLastMessage = [NCChatMessage objectsWhere:@"internalId = %@", lastMessage.internalId].firstObject;
                 if (managedLastMessage) {
-                    [NCRoomController updateChatMessage:managedLastMessage withChatMessage:lastMessage];
+                    [NCChatMessage updateChatMessage:managedLastMessage withChatMessage:lastMessage];
                 } else if (lastMessage) {
                     [realm addObject:lastMessage];
                 }
@@ -315,35 +315,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                                                             object:self
                                                           userInfo:userInfo];
     }];
-}
-
-- (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room
-{
-    managedRoom.name = room.name;
-    managedRoom.displayName = room.displayName;
-    managedRoom.type = room.type;
-    managedRoom.count = room.count;
-    managedRoom.hasPassword = room.hasPassword;
-    managedRoom.participantType = room.participantType;
-    managedRoom.lastPing = room.lastPing;
-    managedRoom.numGuests = room.numGuests;
-    managedRoom.unreadMessages = room.unreadMessages;
-    managedRoom.unreadMention = room.unreadMention;
-    managedRoom.guestList = room.guestList;
-    managedRoom.participants = room.participants;
-    managedRoom.lastActivity = room.lastActivity;
-    managedRoom.lastMessageId = room.lastMessageId;
-    managedRoom.isFavorite = room.isFavorite;
-    managedRoom.notificationLevel = room.notificationLevel;
-    managedRoom.objectType = room.objectType;
-    managedRoom.objectId = room.objectId;
-    managedRoom.readOnlyState = room.readOnlyState;
-    managedRoom.lobbyState = room.lobbyState;
-    managedRoom.lobbyTimer = room.lobbyTimer;
-    managedRoom.lastReadMessage = room.lastReadMessage;
-    managedRoom.canStartCall = room.canStartCall;
-    managedRoom.hasCall = room.hasCall;
-    managedRoom.lastUpdate = room.lastUpdate;
 }
 
 - (NCRoom *)getRoomForToken:(NSString *)token

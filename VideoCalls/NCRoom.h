@@ -73,6 +73,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;
++ (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room;
 
 - (BOOL)isPublic;
 - (BOOL)canModerate;
