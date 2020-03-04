@@ -58,7 +58,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, copy) NSString *guestList;
 @property (nonatomic, strong) RLMArray<RLMString> *participants;
 @property (nonatomic, assign) NSInteger lastActivity;
-@property (nonatomic, assign) NSInteger lastMessageId;
+@property (nonatomic, copy) NSString *lastMessageId;
 @property (nonatomic, assign) BOOL isFavorite;
 @property (nonatomic, assign) NCRoomNotificationLevel notificationLevel;
 @property (nonatomic, copy) NSString *objectType;

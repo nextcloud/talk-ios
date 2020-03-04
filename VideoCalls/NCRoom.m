@@ -61,13 +61,6 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
         room.displayName = [displayName stringValue];
     }
     
-    id lastMessage = [roomDict objectForKey:@"lastMessage"];
-    if ([lastMessage isKindOfClass:[NSDictionary class]]) {
-        room.lastMessageId = [[lastMessage objectForKey:@"id"] integerValue];
-    } else {
-        room.lastMessageId = 0;
-    }
-    
     return room;
 }
 
@@ -216,10 +209,9 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (NCChatMessage *)lastMessage
 {
-    if (self.lastMessageId > 0) {
+    if (self.lastMessageId) {
         NCChatMessage *unmanagedChatMessage = nil;
-        NSPredicate *query = [NSPredicate predicateWithFormat:@"messageId = %ld AND token = %@ AND accountId = %@", (long)self.lastMessageId, self.token, self.accountId];
-        NCChatMessage *managedChatMessage = [NCChatMessage objectsWithPredicate:query].firstObject;
+        NCChatMessage *managedChatMessage = [NCChatMessage objectsWhere:@"internalId = %@", self.lastMessageId].firstObject;
         if (managedChatMessage) {
             unmanagedChatMessage = [[NCChatMessage alloc] initWithValue:managedChatMessage];
         }

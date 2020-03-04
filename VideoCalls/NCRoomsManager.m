@@ -249,15 +249,17 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];
                 for (NSDictionary *roomDict in rooms) {
                     NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
+                    NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"] andAccountId:activeAccount.accountId];
                     room.lastUpdate = updateTimestamp;
+                    room.lastMessageId = lastMessage.internalId;
+                    
                     NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
                     if (managedRoom) {
                         [NCRoom updateRoom:managedRoom withRoom:room];
                     } else if (room) {
                         [realm addObject:room];
                     }
-                    // Add or update last message
-                    NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"] andAccountId:activeAccount.accountId];
+                    
                     NCChatMessage *managedLastMessage = [NCChatMessage objectsWhere:@"internalId = %@", lastMessage.internalId].firstObject;
                     if (managedLastMessage) {
                         [NCChatMessage updateChatMessage:managedLastMessage withChatMessage:lastMessage];
@@ -290,15 +292,17 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
                 NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
+                NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"] andAccountId:activeAccount.accountId];
                 room.lastUpdate = [[NSDate date] timeIntervalSince1970];
+                room.lastMessageId = lastMessage.internalId;
+                
                 NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
                 if (managedRoom) {
                     [NCRoom updateRoom:managedRoom withRoom:room];
                 } else if (room) {
                     [realm addObject:room];
                 }
-                // Add or update last message
-                NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"] andAccountId:activeAccount.accountId];
+                
                 NCChatMessage *managedLastMessage = [NCChatMessage objectsWhere:@"internalId = %@", lastMessage.internalId].firstObject;
                 if (managedLastMessage) {
                     [NCChatMessage updateChatMessage:managedLastMessage withChatMessage:lastMessage];
