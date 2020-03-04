@@ -58,7 +58,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, copy) NSString *guestList;
 @property (nonatomic, strong) RLMArray<RLMString> *participants;
 @property (nonatomic, assign) NSInteger lastActivity;
-@property (nonatomic, strong) NCChatMessage *lastMessage;
+@property (nonatomic, assign) NSInteger lastMessageId;
 @property (nonatomic, assign) BOOL isFavorite;
 @property (nonatomic, assign) NCRoomNotificationLevel notificationLevel;
 @property (nonatomic, copy) NSString *objectType;
@@ -73,7 +73,6 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;
-+ (instancetype)unmanagedRoomFromManagedRoom:(NCRoom *)managedRoom;
 
 - (BOOL)isPublic;
 - (BOOL)canModerate;
@@ -84,5 +83,6 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 - (NSString *)notificationLevelString;
 - (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level;
 - (NSString *)lastMessageString;
+- (NCChatMessage *)lastMessage;
 
 @end

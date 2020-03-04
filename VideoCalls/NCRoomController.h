@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class NCRoomController;
+@class NCChatMessage;
 
 extern NSString * const NCRoomControllerDidReceiveInitialChatHistoryNotification;
 extern NSString * const NCRoomControllerDidReceiveChatHistoryNotification;
@@ -23,6 +23,8 @@ extern NSString * const NCRoomControllerDidReceiveChatBlockedNotification;
 @property (nonatomic, assign) BOOL inCall;
 @property (nonatomic, assign) BOOL inChat;
 @property (nonatomic, assign) BOOL hasHistory;
+
++ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage;
 
 - (instancetype)initForUser:(NSString *)sessionId inRoom:(NSString *)token;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo;

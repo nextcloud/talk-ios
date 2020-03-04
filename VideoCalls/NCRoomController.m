@@ -43,7 +43,21 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
     return self;
 }
 
-#pragma mark - Chat
+#pragma mark - Chat messages
+
++ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage
+{
+    managedChatMessage.actorDisplayName = chatMessage.actorDisplayName;
+    managedChatMessage.actorId = chatMessage.actorId;
+    managedChatMessage.actorType = chatMessage.actorType;
+    managedChatMessage.message = chatMessage.message;
+    managedChatMessage.messageParametersJSONString = chatMessage.messageParametersJSONString;
+    managedChatMessage.timestamp = chatMessage.timestamp;
+    managedChatMessage.systemMessage = chatMessage.systemMessage;
+    managedChatMessage.isReplyable = chatMessage.isReplyable;
+}
+
+#pragma mark - Chat functions
 
 - (void)getInitialChatHistory:(NSInteger)lastReadMessage
 {
