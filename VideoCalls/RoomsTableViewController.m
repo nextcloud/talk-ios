@@ -875,11 +875,7 @@ API_AVAILABLE(ios(11.0)){
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([NCConnectionController sharedInstance].connectionState == kConnectionStateDisconnected) {
-        [[NCUserInterfaceController sharedInstance] presentOfflineWarningAlert];
-    } else {
-        [self presentChatForRoomAtIndexPath:indexPath];
-    }
+    [self presentChatForRoomAtIndexPath:indexPath];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
