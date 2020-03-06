@@ -70,6 +70,8 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, assign) BOOL canStartCall;
 @property (nonatomic, assign) BOOL hasCall;
 @property (nonatomic, assign) NSInteger lastUpdate;
+@property (nonatomic, assign) NSInteger oldestMessageReceived;
+@property (nonatomic, assign) NSInteger newestMessageReceived;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;

@@ -42,7 +42,7 @@ typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *e
 typedef void (^JoinCallCompletionBlock)(NSError *error);
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
 
-typedef void (^GetChatMessagesCompletionBlock)(NSMutableArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
+typedef void (^GetChatMessagesCompletionBlock)(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
 typedef void (^SendChatMessagesCompletionBlock)(NSError *error);
 typedef void (^GetMentionSuggestionsCompletionBlock)(NSMutableArray *mentions, NSError *error);
 
@@ -62,6 +62,8 @@ typedef void (^SubscribeToNextcloudServerCompletionBlock)(NSDictionary *response
 typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
 typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
 typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
+
+extern NSInteger const kReceivedChatMessagesLimit;
 
 @interface OCURLSessionManager : AFURLSessionManager
 @end

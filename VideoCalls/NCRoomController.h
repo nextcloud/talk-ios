@@ -18,13 +18,14 @@ extern NSString * const NCRoomControllerDidReceiveChatBlockedNotification;
 
 @interface NCRoomController : NSObject
 
+@property (nonatomic, strong) NSString *accountId;
 @property (nonatomic, strong) NSString *userSessionId;
 @property (nonatomic, strong) NSString *roomToken;
 @property (nonatomic, assign) BOOL inCall;
 @property (nonatomic, assign) BOOL inChat;
 @property (nonatomic, assign) BOOL hasHistory;
 
-- (instancetype)initForUser:(NSString *)sessionId inRoom:(NSString *)token;
+- (instancetype)initForAccountId:(NSString *)accountId withSessionId:(NSString *)sessionId inRoom:(NSString *)token;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo;
 - (void)getInitialChatHistory:(NSInteger)lastReadMessage;
 - (void)getChatHistoryFromMessagesId:(NSInteger)messageId;
