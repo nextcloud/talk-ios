@@ -416,9 +416,7 @@ typedef enum NCChatMessageAction {
                                                              preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction* okButton = [UIAlertAction actionWithTitle:@"OK"
                                                        style:UIAlertActionStyleDefault
-                                                     handler:^(UIAlertAction * _Nonnull action) {
-                                                         [self.navigationController popViewControllerAnimated:YES];
-                                                     }];
+                                                     handler:nil];
     [alert addAction:okButton];
     [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
 }
