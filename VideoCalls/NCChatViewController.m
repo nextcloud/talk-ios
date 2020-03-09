@@ -20,6 +20,7 @@
 #import "DateHeaderView.h"
 #import "PlaceholderView.h"
 #import "NCAPIController.h"
+#import "NCChatController.h"
 #import "NCChatMessage.h"
 #import "NCDatabaseManager.h"
 #import "NCMessageParameter.h"
@@ -27,7 +28,6 @@
 #import "NCMessageTextView.h"
 #import "NCImageSessionManager.h"
 #import "NCRoomsManager.h"
-#import "NCRoomController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
@@ -45,7 +45,7 @@ typedef enum NCChatMessageAction {
 
 @interface NCChatViewController () <UIGestureRecognizerDelegate>
 
-@property (nonatomic, strong) NCRoomController *roomController;
+@property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
 @property (nonatomic, strong) PlaceholderView *chatBackgroundView;
 @property (nonatomic, strong) NSMutableDictionary *messages;
@@ -79,6 +79,7 @@ typedef enum NCChatMessageAction {
     self = [super initWithTableViewStyle:UITableViewStylePlain];
     if (self) {
         self.room = room;
+        self.chatController = [[NCRoomsManager sharedInstance] chatContollerForRoom:room];
         self.hidesBottomBarWhenPushed = YES;
         // Fixes problem with tableView contentSize on iOS 11
         self.tableView.estimatedRowHeight = 0;
@@ -91,11 +92,11 @@ typedef enum NCChatMessageAction {
         [FilePreviewImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistory:) name:NCRoomControllerDidReceiveInitialChatHistoryNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatHistory:) name:NCRoomControllerDidReceiveChatHistoryNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCRoomControllerDidReceiveChatMessagesNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCRoomControllerDidSendChatMessageNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatBlocked:) name:NCRoomControllerDidReceiveChatBlockedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistory:) name:NCChatControllerDidReceiveInitialChatHistoryNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatHistory:) name:NCChatControllerDidReceiveChatHistoryNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCChatControllerDidReceiveChatMessagesNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCChatControllerDidSendChatMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatBlocked:) name:NCChatControllerDidReceiveChatBlockedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     }
@@ -215,10 +216,19 @@ typedef enum NCChatMessageAction {
     [super viewWillAppear:animated];
     
     [self checkRoomControlsAvailability];
+    [_chatController getInitialChatHistory:[self getLastReadMessage]];
     
     _isVisible = YES;
     
     [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    // Just in case the initial history was loaded from the DB
+    [self.tableView slk_scrollToBottomAnimated:NO];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -354,7 +364,7 @@ typedef enum NCChatMessageAction {
         [_lobbyCheckTimer invalidate];
         // Retrieve initial chat history
         if (!_hasReceiveInitialHistory) {
-            [_roomController getInitialChatHistory:[self getLastReadMessage]];
+            [_chatController getInitialChatHistory:[self getLastReadMessage]];
         }
     }
     [self checkRoomControlsAvailability];
@@ -542,7 +552,7 @@ typedef enum NCChatMessageAction {
             [self showLoadingHistoryView];
             NSDate *dateSection = [_dateSections objectAtIndex:0];
             NCChatMessage *firstMessage = [[_messages objectForKey:dateSection] objectAtIndex:0];
-            [_roomController getChatHistoryFromMessagesId:firstMessage.messageId];
+            [_chatController getChatHistoryFromMessagesId:firstMessage.messageId];
         }
     }
     
@@ -585,11 +595,8 @@ typedef enum NCChatMessageAction {
 
 -(void)appWillResignActive:(NSNotification*)notification
 {
-    if (_roomController) {
-        _hasReceiveNewMessages = NO;
-        _leftChatWithVisibleChatVC = YES;
-        _roomController = nil;
-    }
+    _hasReceiveNewMessages = NO;
+    _leftChatWithVisibleChatVC = YES;
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
@@ -623,15 +630,9 @@ typedef enum NCChatMessageAction {
     _hasJoinedRoom = YES;
     [self checkRoomControlsAvailability];
     
-    NCRoomController *roomController = [notification.userInfo objectForKey:@"roomController"];
-    if (!_roomController) {
-        _roomController = roomController;
-        if (_leftChatWithVisibleChatVC && _hasReceiveInitialHistory) {
-            _leftChatWithVisibleChatVC = NO;
-            [_roomController startReceivingChatMessagesFromMessagesId:_lastReadMessage withTimeout:YES];
-        } else {
-            [_roomController getInitialChatHistory:[self getLastReadMessage]];
-        }
+    if (_leftChatWithVisibleChatVC && _hasReceiveInitialHistory) {
+        _leftChatWithVisibleChatVC = NO;
+        [_chatController startReceivingChatMessagesFromMessagesId:_lastReadMessage withTimeout:YES];
     }
 }
 
@@ -650,6 +651,8 @@ typedef enum NCChatMessageAction {
         NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
         _lastReadMessage = lastReceivedMessage.messageId;
         [self sortMessages:messages inDictionary:_messages];
+        [self.tableView reloadData];
+        [self.tableView slk_scrollToBottomAnimated:NO];
     } else {
         [_chatBackgroundView.placeholderView setHidden:NO];
     }
@@ -945,7 +948,7 @@ typedef enum NCChatMessageAction {
 
 - (BOOL)shouldRetireveHistory
 {
-    return _hasReceiveInitialHistory && !_retrievingHistory && [_roomController hasHistory] && _dateSections.count > 0;
+    return _hasReceiveInitialHistory && !_retrievingHistory && [_chatController hasHistory] && _dateSections.count > 0;
 }
 
 - (void)showLoadingHistoryView

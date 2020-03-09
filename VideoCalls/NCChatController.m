@@ -1,45 +1,41 @@
 //
-//  NCRoomController.m
+//  NCChatController.m
 //  VideoCalls
 //
 //  Created by Ivan Sein on 23.05.18.
 //  Copyright © 2018 struktur AG. All rights reserved.
 //
 
-#import "NCRoomController.h"
+#import "NCChatController.h"
 
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 
-NSString * const NCRoomControllerDidReceiveInitialChatHistoryNotification   = @"NCRoomControllerDidReceiveInitialChatHistoryNotification";
-NSString * const NCRoomControllerDidReceiveChatHistoryNotification          = @"NCRoomControllerDidReceiveChatHistoryNotification";
-NSString * const NCRoomControllerDidReceiveChatMessagesNotification         = @"NCRoomControllerDidReceiveChatMessagesNotification";
-NSString * const NCRoomControllerDidSendChatMessageNotification             = @"NCRoomControllerDidSendChatMessageNotification";
-NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"NCRoomControllerDidReceiveChatBlockedNotification";
+NSString * const NCChatControllerDidReceiveInitialChatHistoryNotification   = @"NCChatControllerDidReceiveInitialChatHistoryNotification";
+NSString * const NCChatControllerDidReceiveChatHistoryNotification          = @"NCChatControllerDidReceiveChatHistoryNotification";
+NSString * const NCChatControllerDidReceiveChatMessagesNotification         = @"NCChatControllerDidReceiveChatMessagesNotification";
+NSString * const NCChatControllerDidSendChatMessageNotification             = @"NCChatControllerDidSendChatMessageNotification";
+NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"NCChatControllerDidReceiveChatBlockedNotification";
 
-@interface NCRoomController ()
+@interface NCChatController ()
 
-@property (nonatomic, strong) TalkAccount *account;
-@property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, assign) BOOL stopChatMessagesPoll;
+@property (nonatomic, strong) TalkAccount *account;
 @property (nonatomic, strong) NSURLSessionTask *getHistoryTask;
 @property (nonatomic, strong) NSURLSessionTask *pullMessagesTask;
 
 @end
 
-@implementation NCRoomController
+@implementation NCChatController
 
-- (instancetype)initForAccountId:(NSString *)accountId withSessionId:(NSString *)sessionId inRoom:(NSString *)token
+- (instancetype)initForRoom:(NCRoom *)room
 {
     self = [super init];
     if (self) {
-        _accountId = accountId;
-        _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
-        _userSessionId = sessionId;
-        _roomToken = token;
-        _room = [[NCRoomsManager sharedInstance] roomWithToken:token forAccountId:accountId];
+        _room = room;
+        _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
         _hasHistory = YES;
     }
     
@@ -130,17 +126,17 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 - (void)getInitialChatHistory:(NSInteger)lastReadMessage
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    [userInfo setObject:_roomToken forKey:@"room"];
+    [userInfo setObject:_room.token forKey:@"room"];
     
     if (_room.newestMessageReceived >= lastReadMessage) {
         NSArray *storedMessages = [self getStoredMessagesFromMessageId:lastReadMessage included:YES];
         [userInfo setObject:storedMessages forKey:@"messages"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveInitialChatHistoryNotification
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                             object:self
                                                           userInfo:userInfo];
         [self startReceivingChatMessagesFromMessagesId:_room.newestMessageReceived withTimeout:NO];
     } else {
-        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:lastReadMessage history:YES includeLastMessage:YES timeout:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessage history:YES includeLastMessage:YES timeout:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
             if (_stopChatMessagesPoll) {
                 return;
             }
@@ -158,7 +154,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
                 [userInfo setObject:storedMessages forKey:@"messages"];
                 [self updateOldestAndNewestStoredMessagesForRoom];
             }
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveInitialChatHistoryNotification
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                                 object:self
                                                               userInfo:userInfo];
             if (!error) {
@@ -171,16 +167,16 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 - (void)getChatHistoryFromMessagesId:(NSInteger)messageId
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    [userInfo setObject:_roomToken forKey:@"room"];
+    [userInfo setObject:_room.token forKey:@"room"];
     
     if (_room.oldestMessageReceived > 0 && _room.oldestMessageReceived < messageId) {
         NSArray *storedMessages = [self getStoredMessagesFromMessageId:messageId included:NO];
         [userInfo setObject:storedMessages forKey:@"messages"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveChatHistoryNotification
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
                                                             object:self
                                                           userInfo:userInfo];
     } else {
-        _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+        _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
             if (statusCode == 304) {
                 _hasHistory = NO;
             }
@@ -201,7 +197,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
                 [self updateOldestAndNewestStoredMessagesForRoom];
                 
             }
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveChatHistoryNotification
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
                                                                 object:self
                                                               userInfo:userInfo];
         }];
@@ -217,7 +213,7 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_roomToken fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
         if (_stopChatMessagesPoll) {
             return;
         }
@@ -238,8 +234,8 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
             [userInfo setObject:storedMessages forKey:@"messages"];
             [self updateOldestAndNewestStoredMessagesForRoom];
         }
-        [userInfo setObject:_roomToken forKey:@"room"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveChatMessagesNotification
+        [userInfo setObject:_room.token forKey:@"room"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
                                                             object:self
                                                           userInfo:userInfo];
         if (error.code != -999) {
@@ -258,12 +254,12 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:message forKey:@"message"];
-    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_roomToken displayName:nil replyTo:replyTo forAccount:_account withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token displayName:nil replyTo:replyTo forAccount:_account withCompletionBlock:^(NSError *error) {
         if (error) {
             [userInfo setObject:error forKey:@"error"];
             NSLog(@"Could not send chat message. Error: %@", error.description);
         }
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidSendChatMessageNotification
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidSendChatMessageNotification
                                                             object:self
                                                           userInfo:userInfo];
     }];
@@ -280,13 +276,13 @@ NSString * const NCRoomControllerDidReceiveChatBlockedNotification          = @"
 - (void)notifyChatIsBlocked
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    [userInfo setObject:_roomToken forKey:@"room"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomControllerDidReceiveChatBlockedNotification
+    [userInfo setObject:_room.token forKey:@"room"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatBlockedNotification
                                                         object:self
                                                       userInfo:userInfo];
 }
 
-- (void)stopRoomController
+- (void)stopChatController
 {
     [self stopReceivingChatMessages];
     [self stopReceivingChatHistory];

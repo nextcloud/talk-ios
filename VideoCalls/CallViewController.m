@@ -20,7 +20,6 @@
 #import "NCCallController.h"
 #import "NCAPIController.h"
 #import "NCAudioController.h"
-#import "NCRoomController.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingMessage.h"

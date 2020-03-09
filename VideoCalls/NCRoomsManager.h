@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #import "NCRoom.h"
+#import "NCChatController.h"
 #import "NCChatViewController.h"
 #import "CallViewController.h"
 
@@ -19,6 +20,14 @@ extern NSString * const NCRoomsManagerDidUpdateRoomsNotification;
 extern NSString * const NCRoomsManagerDidUpdateRoomNotification;
 // Call
 extern NSString * const NCRoomsManagerDidStartCallNotification;
+
+@interface NCRoomController : NSObject
+
+@property (nonatomic, strong) NSString *userSessionId;
+@property (nonatomic, assign) BOOL inCall;
+@property (nonatomic, assign) BOOL inChat;
+
+@end
 
 @interface NCRoomsManager : NSObject
 
@@ -34,6 +43,7 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 - (void)joinRoom:(NSString *)token;
 - (void)rejoinRoom:(NSString *)token;
 // Chat
+- (NCChatController *)chatContollerForRoom:(NCRoom *)room;
 - (void)startChatInRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo toRoom:(NCRoom *)room;
 - (void)stopReceivingChatMessagesInRoom:(NCRoom *)room;
