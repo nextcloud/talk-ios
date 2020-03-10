@@ -106,17 +106,48 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
     }];
 }
 
-- (void)updateOldestAndNewestStoredMessagesForRoom
+- (void)updateRoomOldestMessage:(NSInteger)messageId
+{
+    if (messageId > 0) {
+        NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", _room.internalId].firstObject;
+        RLMRealm *realm = [RLMRealm defaultRealm];
+        [realm transactionWithBlock:^{
+            managedRoom.oldestMessageReceived = messageId;
+        }];
+        _room = [[NCRoom alloc] initWithValue:managedRoom];
+    }
+}
+
+- (void)updateRoomNewestMessage:(NSInteger)messageId
+{
+    if (messageId > 0) {
+        NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", _room.internalId].firstObject;
+        RLMRealm *realm = [RLMRealm defaultRealm];
+        [realm transactionWithBlock:^{
+            managedRoom.newestMessageReceived = messageId;
+        }];
+        _room = [[NCRoom alloc] initWithValue:managedRoom];
+    }
+}
+
+- (void)updateRoomNewestMessageWithReceivedMessages:(NSArray *)messages
 {
     NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", _room.internalId].firstObject;
-    RLMResults *managedMessages = [NCChatMessage objectsWhere:@"accountId = %@ AND token = %@", _account.accountId, _room.token];
-    RLMResults *managedSortedMessages = [managedMessages sortedResultsUsingKeyPath:@"messageId" ascending:YES];
-    NCChatMessage *firstMessage = managedSortedMessages.firstObject;
-    NCChatMessage *lastMessage = managedSortedMessages.lastObject;
+    NSMutableArray *receivedMessages = [[NSMutableArray alloc] initWithCapacity:messages.count];
+    for (NSDictionary *messageDict in messages) {
+        NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict];
+        [receivedMessages addObject:message];
+    }
+    
+    // Sort by messageId
+    NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"messageId" ascending:YES];
+    NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];
+    [receivedMessages sortUsingDescriptors:descriptors];
+    NCChatMessage *lastMessageReceived = receivedMessages.lastObject;
+    
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
-        managedRoom.oldestMessageReceived = firstMessage.messageId;
-        managedRoom.newestMessageReceived = lastMessage.messageId;
+        managedRoom.newestMessageReceived = lastMessageReceived.messageId;
     }];
     _room = [[NCRoom alloc] initWithValue:managedRoom];
 }
@@ -152,7 +183,8 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
                 [self storeMessages:messages];
                 NSArray *storedMessages = [self getStoredMessagesFromMessageId:lastReadMessage included:YES];
                 [userInfo setObject:storedMessages forKey:@"messages"];
-                [self updateOldestAndNewestStoredMessagesForRoom];
+                [self updateRoomOldestMessage:lastKnownMessage];
+                [self updateRoomNewestMessageWithReceivedMessages:messages];
             }
             [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                                 object:self
@@ -194,8 +226,7 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
                 [self storeMessages:messages];
                 NSArray *storedMessages = [self getStoredMessagesFromMessageId:messageId included:NO];
                 [userInfo setObject:storedMessages forKey:@"messages"];
-                [self updateOldestAndNewestStoredMessagesForRoom];
-                
+                [self updateRoomOldestMessage:lastKnownMessage];
             }
             [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
                                                                 object:self
@@ -232,7 +263,7 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
             [self storeMessages:messages];
             NSArray *storedMessages = [self getNewStoredMessagesSinceMessageId:messageId];
             [userInfo setObject:storedMessages forKey:@"messages"];
-            [self updateOldestAndNewestStoredMessagesForRoom];
+            [self updateRoomNewestMessage:lastKnownMessage];
         }
         [userInfo setObject:_room.token forKey:@"room"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
