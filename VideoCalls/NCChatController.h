@@ -29,9 +29,6 @@ extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
 @interface NCChatController : NSObject
 
 @property (nonatomic, strong) NCRoom *room;
-@property (nonatomic, strong) NSString *userSessionId;
-@property (nonatomic, assign) BOOL inCall;
-@property (nonatomic, assign) BOOL inChat;
 @property (nonatomic, assign) BOOL hasHistory;
 
 - (instancetype)initForRoom:(NCRoom *)room;
