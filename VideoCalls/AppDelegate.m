@@ -125,7 +125,7 @@
     UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
                                                                 accessGroup:@"group.com.nextcloud.Talk"];
     NSString *pushKitToken = [self stringWithDeviceToken:credentials.token];
-    NSString *devicePushKitToken = [[NSString alloc] initWithString:[NCSettingsController sharedInstance].ncPushKitToken];
+    NSString *devicePushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
     BOOL tokenChanged = ![devicePushKitToken isEqualToString:pushKitToken];
     
     // Store new PushKit token in Keychain
