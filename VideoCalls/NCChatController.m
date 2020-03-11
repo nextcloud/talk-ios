@@ -341,8 +341,9 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
                                                             object:self
                                                           userInfo:userInfo];
-        if (error.code != -999 && lastKnownMessage > 0) {
-            [self startReceivingChatMessagesFromMessagesId:lastKnownMessage withTimeout:YES];
+        if (error.code != -999) {
+            NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+            [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:YES];
         }
     }];
 }
