@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <Realm/Realm.h>
 
 @class NCRoom;
 
@@ -15,6 +16,15 @@ extern NSString * const NCChatControllerDidReceiveChatHistoryNotification;
 extern NSString * const NCChatControllerDidReceiveChatMessagesNotification;
 extern NSString * const NCChatControllerDidSendChatMessageNotification;
 extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
+
+@interface NCChatBlock : RLMObject
+
+@property (nonatomic, strong) NSString *internalId; // same as room internal id
+@property (nonatomic, assign) NSInteger oldestMessageId;
+@property (nonatomic, assign) NSInteger newestMessageId;
+@property (nonatomic, assign) BOOL hasHistory;
+
+@end
 
 @interface NCChatController : NSObject
 
