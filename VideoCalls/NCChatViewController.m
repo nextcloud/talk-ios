@@ -644,7 +644,7 @@ typedef enum NCChatMessageAction {
     _hasReceiveInitialHistory = YES;
     
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
-    if (messages) {
+    if (messages.count > 0) {
         // Set last received message as last read message
         NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
         _lastReadMessage = lastReceivedMessage.messageId;
@@ -752,8 +752,10 @@ typedef enum NCChatMessageAction {
         // as it was done when only initial history was loaded.
         [self.tableView reloadData];
         NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
-        NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
-        [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
+        if (messagesForLastDate.count > 0) {
+            NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+            [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
+        }
     }
     
     if (firstNewMessagesAfterHistory) {
