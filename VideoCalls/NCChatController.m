@@ -224,7 +224,7 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
     
     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
     if (lastChatBlock.newestMessageId >= lastReadMessageId) {
-        NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastReadMessageId included:YES];
+        NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastChatBlock.newestMessageId included:YES];
         [userInfo setObject:storedMessages forKey:@"messages"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                             object:self
