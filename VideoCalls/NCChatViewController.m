@@ -216,7 +216,10 @@ typedef enum NCChatMessageAction {
     [super viewWillAppear:animated];
     
     [self checkRoomControlsAvailability];
-    [_chatController getInitialChatHistory:[self getLastReadMessage]];
+    
+    if (!_hasReceiveInitialHistory) {
+        [_chatController getInitialChatHistory:[self getLastReadMessage]];
+    }
     
     _isVisible = YES;
     
@@ -550,7 +553,7 @@ typedef enum NCChatMessageAction {
             [self showLoadingHistoryView];
             NSDate *dateSection = [_dateSections objectAtIndex:0];
             NCChatMessage *firstMessage = [[_messages objectForKey:dateSection] objectAtIndex:0];
-            [_chatController getChatHistoryFromMessagesId:firstMessage.messageId];
+            [_chatController getHistoryBatchFromMessagesId:firstMessage.messageId];
         }
     }
     
@@ -630,7 +633,7 @@ typedef enum NCChatMessageAction {
     
     if (_leftChatWithVisibleChatVC && _hasReceiveInitialHistory) {
         _leftChatWithVisibleChatVC = NO;
-        [_chatController startReceivingChatMessagesFromMessagesId:_lastReadMessage withTimeout:YES];
+        [_chatController startReceivingNewChatMessages];
     }
 }
 
@@ -653,6 +656,11 @@ typedef enum NCChatMessageAction {
         [self.tableView slk_scrollToBottomAnimated:NO];
     } else {
         [_chatBackgroundView.placeholderView setHidden:NO];
+    }
+    
+    NSError *error = [notification.userInfo objectForKey:@"error"];
+    if (!error) {
+        [_chatController startReceivingNewChatMessages];
     }
 }
 

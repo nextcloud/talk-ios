@@ -34,9 +34,9 @@ extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
 - (instancetype)initForRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo;
 - (void)getInitialChatHistory:(NSInteger)lastReadMessage;
-- (void)getChatHistoryFromMessagesId:(NSInteger)messageId;
-- (void)startReceivingChatMessagesFromMessagesId:(NSInteger)messageId withTimeout:(BOOL)timeout;
-- (void)stopReceivingChatMessages;
+- (void)getHistoryBatchFromMessagesId:(NSInteger)messageId;
+- (void)startReceivingNewChatMessages;
+- (void)stopReceivingNewChatMessages;
 - (void)stopChatController;
 
 @end

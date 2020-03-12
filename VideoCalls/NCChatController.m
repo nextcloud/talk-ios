@@ -224,7 +224,6 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                             object:self
                                                           userInfo:userInfo];
-        [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:NO];
     } else {
         _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessage history:YES includeLastMessage:YES timeout:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
             if (_stopChatMessagesPoll) {
@@ -251,15 +250,11 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
             [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                                 object:self
                                                               userInfo:userInfo];
-            if (!error) {
-                NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-                [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:NO];
-            }
         }];
     }
 }
 
-- (void)getChatHistoryFromMessagesId:(NSInteger)messageId
+- (void)getHistoryBatchFromMessagesId:(NSInteger)messageId
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:_room.token forKey:@"room"];
@@ -292,8 +287,8 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
                 if (messages.count > 0) {
                     [self storeMessages:messages];
                     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-                    NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO];
-                    [userInfo setObject:storedMessages forKey:@"messages"];
+                    NSArray *historyBatch = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO];
+                    [userInfo setObject:historyBatch forKey:@"messages"];
                 }
             }
             [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
@@ -348,7 +343,13 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
     }];
 }
 
-- (void)stopReceivingChatMessages
+- (void)startReceivingNewChatMessages
+{
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:NO];
+}
+
+- (void)stopReceivingNewChatMessages
 {
     _stopChatMessagesPoll = YES;
     [_pullMessagesTask cancel];
@@ -388,7 +389,7 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
 
 - (void)stopChatController
 {
-    [self stopReceivingChatMessages];
+    [self stopReceivingNewChatMessages];
     [self stopReceivingChatHistory];
 }
 
