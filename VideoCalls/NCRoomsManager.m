@@ -266,7 +266,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
-            [userInfo setObject:[NCRoom roomWithDictionary:roomDict] forKey:@"room"];
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
                 TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -276,6 +275,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 }
                 NSLog(@"Room updated");
             }];
+            NCRoom *updatedRoom = [self roomWithToken:token forAccountId:activeAccount.accountId];
+            [userInfo setObject:updatedRoom forKey:@"room"];
         } else {
             [userInfo setObject:error forKey:@"error"];
             NSLog(@"Could not update rooms. Error: %@", error.description);
