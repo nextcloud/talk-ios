@@ -218,7 +218,7 @@ typedef enum NCChatMessageAction {
     [self checkRoomControlsAvailability];
     
     if (!_hasReceiveInitialHistory) {
-        [_chatController getInitialChatHistory:[self getLastReadMessage]];
+        [_chatController getInitialChatHistory];
     }
     
     _isVisible = YES;
@@ -367,7 +367,7 @@ typedef enum NCChatMessageAction {
         [_lobbyCheckTimer invalidate];
         // Retrieve initial chat history
         if (!_hasReceiveInitialHistory) {
-            [_chatController getInitialChatHistory:[self getLastReadMessage]];
+            [_chatController getInitialChatHistory];
         }
     }
     [self checkRoomControlsAvailability];
@@ -635,7 +635,7 @@ typedef enum NCChatMessageAction {
         _leftChatWithVisibleChatVC = NO;
         [_chatController startReceivingNewChatMessages];
     } else if (!_hasReceiveInitialHistory) {
-        [_chatController getInitialChatHistory:[self getLastReadMessage]];
+        [_chatController getInitialChatHistory];
     }
 }
 

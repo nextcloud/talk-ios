@@ -212,20 +212,25 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
 
 #pragma mark - Chat
 
-- (void)getInitialChatHistory:(NSInteger)lastReadMessage
+- (void)getInitialChatHistory
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:_room.token forKey:@"room"];
     
+    NSInteger lastReadMessageId = 0;
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
+        lastReadMessageId = _room.lastReadMessage;
+    }
+    
     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-    if (lastChatBlock.newestMessageId >= lastReadMessage) {
-        NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastReadMessage included:YES];
+    if (lastChatBlock.newestMessageId >= lastReadMessageId) {
+        NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastReadMessageId included:YES];
         [userInfo setObject:storedMessages forKey:@"messages"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                             object:self
                                                           userInfo:userInfo];
     } else {
-        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessage history:YES includeLastMessage:YES timeout:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessageId history:YES includeLastMessage:YES timeout:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
             if (_stopChatMessagesPoll) {
                 return;
             }
@@ -238,12 +243,12 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
                 NSLog(@"Could not get initial chat history. Error: %@", error.description);
             } else {
                 // Update chat blocks
-                [self updateChatBlocksWithReceivedMessages:messages newestKnown:lastReadMessage andLastKnown:lastKnownMessage];
+                [self updateChatBlocksWithReceivedMessages:messages newestKnown:lastReadMessageId andLastKnown:lastKnownMessage];
                 // Store new messages
                 if (messages.count > 0) {
                     [self storeMessages:messages];
                     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-                    NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastReadMessage included:YES];
+                    NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastReadMessageId included:YES];
                     [userInfo setObject:storedMessages forKey:@"messages"];
                 }
             }
