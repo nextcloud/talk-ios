@@ -634,6 +634,8 @@ typedef enum NCChatMessageAction {
     if (_leftChatWithVisibleChatVC && _hasReceiveInitialHistory) {
         _leftChatWithVisibleChatVC = NO;
         [_chatController startReceivingNewChatMessages];
+    } else if (!_hasReceiveInitialHistory) {
+        [_chatController getInitialChatHistory:[self getLastReadMessage]];
     }
 }
 
@@ -643,8 +645,6 @@ typedef enum NCChatMessageAction {
     if (![room isEqualToString:_room.token]) {
         return;
     }
-    
-    _hasReceiveInitialHistory = YES;
     
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
     if (messages.count > 0) {
@@ -660,6 +660,7 @@ typedef enum NCChatMessageAction {
     
     NSError *error = [notification.userInfo objectForKey:@"error"];
     if (!error) {
+        _hasReceiveInitialHistory = YES;
         [_chatController startReceivingNewChatMessages];
     }
 }
