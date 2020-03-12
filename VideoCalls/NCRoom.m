@@ -61,9 +61,6 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
         room.displayName = [displayName stringValue];
     }
     
-    room.oldestMessageReceived = -1;
-    room.newestMessageReceived = -1;
-    
     return room;
 }
 
