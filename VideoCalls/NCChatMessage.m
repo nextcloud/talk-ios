@@ -55,8 +55,6 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
         }
     }
     
-    message.parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"]];
-    
     return message;
 }
 
@@ -66,14 +64,25 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     if (message) {
         message.accountId = accountId;
         message.internalId = [NSString stringWithFormat:@"%@@%@@%ld", accountId, message.token, (long)message.messageId];
-        
-        NCChatMessage *messageParent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:accountId];
-        if (messageParent) {
-            message.parent = messageParent;
-        }
     }
     
     return message;
+}
+
++ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage
+{
+    managedChatMessage.actorDisplayName = chatMessage.actorDisplayName;
+    managedChatMessage.actorId = chatMessage.actorId;
+    managedChatMessage.actorType = chatMessage.actorType;
+    managedChatMessage.message = chatMessage.message;
+    managedChatMessage.messageParametersJSONString = chatMessage.messageParametersJSONString;
+    managedChatMessage.timestamp = chatMessage.timestamp;
+    managedChatMessage.systemMessage = chatMessage.systemMessage;
+    managedChatMessage.isReplyable = chatMessage.isReplyable;
+    
+    if (!managedChatMessage.parentId && chatMessage.parentId) {
+        managedChatMessage.parentId = chatMessage.parentId;
+    }
 }
 
 + (NSString *)primaryKey {
@@ -199,6 +208,20 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     [message addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.3] range:NSMakeRange(0,message.length)];
     
     return message;
+}
+
+- (NCChatMessage *)parent
+{
+    if (self.parentId) {
+        NCChatMessage *unmanagedChatMessage = nil;
+        NCChatMessage *managedChatMessage = [NCChatMessage objectsWhere:@"internalId = %@", self.parentId].firstObject;
+        if (managedChatMessage) {
+            unmanagedChatMessage = [[NCChatMessage alloc] initWithValue:managedChatMessage];
+        }
+        return unmanagedChatMessage;
+    }
+    
+    return nil;
 }
 
 @end

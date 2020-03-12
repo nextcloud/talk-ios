@@ -17,7 +17,7 @@
 #import "NCDatabaseManager.h"
 #import "NCChatMessage.h"
 #import "NCExternalSignalingController.h"
-#import "NCRoomController.h"
+#import "NCChatController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "CallKitManager.h"
@@ -33,12 +33,16 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 @property (nonatomic, strong) NSMutableArray *rooms;
 @property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
+@property (nonatomic, strong) NSMutableDictionary *chatControllers; //roomInternalId -> chatController
 @property (nonatomic, strong) NSString *joiningRoom;
 @property (nonatomic, strong) NSURLSessionTask *joinRoomTask;
 @property (nonatomic, strong) NSMutableDictionary *joinRoomAttempts; //roomToken -> attempts
 @property (nonatomic, strong) NSString *upgradeCallToken;
 
 
+@end
+
+@implementation NCRoomController
 @end
 
 @implementation NCRoomsManager
@@ -59,6 +63,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (self) {
         _rooms = [[NSMutableArray alloc] init];
         _activeRooms = [[NSMutableDictionary alloc] init];
+        _chatControllers = [[NSMutableDictionary alloc] init];
         _joinRoomAttempts = [[NSMutableDictionary alloc] init];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChatWithLocalNotification:) name:NCLocalNotificationJoinChatNotification object:nil];
@@ -86,21 +91,21 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     NCRoomController *roomController = [_activeRooms objectForKey:token];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if (!roomController) {
         _joiningRoom = token;
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
             if (!_joiningRoom) {
                 NSLog(@"Not joining the room any more. Ignore response.");
                 return;
             }
             if (!error) {
-                NCRoomController *controller = [[NCRoomController alloc] initForUser:sessionId inRoom:token];
+                NCRoomController *controller = [[NCRoomController alloc] init];
                 controller.inChat = !call;
                 controller.inCall = call;
                 [_activeRooms setObject:controller forKey:token];
                 [_joinRoomAttempts removeObjectForKey:token];
                 [userInfo setObject:controller forKey:@"roomController"];
-                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
                 NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
                     [extSignalingController joinRoom:token withSessionId:sessionId];
@@ -146,13 +151,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)rejoinRoom:(NSString *)token
 {
     NCRoomController *roomController = [_activeRooms objectForKey:token];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if (roomController) {
         _joiningRoom = [token copy];
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
             if (!error) {
                 roomController.userSessionId = sessionId;
                 roomController.inChat = YES;
-                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
                 NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
                     [extSignalingController joinRoom:token withSessionId:sessionId];
@@ -173,15 +178,19 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [_joinRoomTask cancel];
     }
     
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    // Stop and remove chat controller
+    NCRoom *room = [self roomWithToken:token forAccountId:activeAccount.accountId];
+    NCChatController *chatController = [_chatControllers objectForKey:room.internalId];
+    [chatController stopChatController];
+    [_chatControllers removeObjectForKey:room.internalId];
+    // Remove room controller and exit room
     NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (roomController && !roomController.inCall && !roomController.inChat) {
-        [roomController stopRoomController];
         [_activeRooms removeObjectForKey:token];
-        
-        [[NCAPIController sharedInstance] exitRoom:token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] exitRoom:token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
             if (!error) {
-                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
                 NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
                     [extSignalingController leaveRoom:token];
@@ -204,7 +213,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     // Create an unmanaged copy of the rooms
     NSMutableArray *unmanagedRooms = [NSMutableArray new];
     for (NCRoom *managedRoom in managedRooms) {
-        NCRoom *unmanagedRoom = [NCRoom unmanagedRoomFromManagedRoom:managedRoom];
+        NCRoom *unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
         [unmanagedRooms addObject:unmanagedRoom];
     }
     // Sort by favorites
@@ -226,29 +235,60 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     return unmanagedRooms;
 }
 
+- (NCChatController *)chatContollerForRoom:(NCRoom *)room
+{
+    NCChatController *chatController = [_chatControllers objectForKey:room.internalId];
+    if (!chatController) {
+        chatController = [[NCChatController alloc] initForRoom:room];
+        [_chatControllers setObject:chatController forKey:room.internalId];
+    }
+    return chatController;
+}
+
 - (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
 {
+    NCRoom *unmanagedRoom = nil;
     NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, accountId];
     NCRoom *managedRoom = [NCRoom objectsWithPredicate:query].firstObject;
-    return [NCRoom unmanagedRoomFromManagedRoom:managedRoom];
+    if (managedRoom) {
+        unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
+    }
+    return unmanagedRoom;
 }
 
 - (void)updateRooms
 {
-    [[NCAPIController sharedInstance] getRoomsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
-                TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
-                [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
+                // Add or update rooms
+                NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];
                 for (NSDictionary *roomDict in rooms) {
-                    NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:account.accountId];
-                    if (room) {
-                        [realm addOrUpdateObject:room];
+                    NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
+                    NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"] andAccountId:activeAccount.accountId];
+                    room.lastUpdate = updateTimestamp;
+                    room.lastMessageId = lastMessage.internalId;
+                    
+                    NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
+                    if (managedRoom) {
+                        [NCRoom updateRoom:managedRoom withRoom:room];
+                    } else if (room) {
+                        [realm addObject:room];
+                    }
+                    
+                    NCChatMessage *managedLastMessage = [NCChatMessage objectsWhere:@"internalId = %@", lastMessage.internalId].firstObject;
+                    if (managedLastMessage) {
+                        [NCChatMessage updateChatMessage:managedLastMessage withChatMessage:lastMessage];
+                    } else if (lastMessage) {
+                        [realm addObject:lastMessage];
                     }
                 }
+                // Delete old rooms
+                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND lastUpdate != %ld", activeAccount.accountId, (long)updateTimestamp];
+                [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
                 NSLog(@"Rooms updated");
             }];
         } else {
@@ -263,15 +303,29 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)updateRoom:(NSString *)token
 {
-    [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
-                TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-                NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:account.accountId];
-                if (room) {
-                    [realm addOrUpdateObject:room];
+                NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
+                NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:[roomDict objectForKey:@"lastMessage"] andAccountId:activeAccount.accountId];
+                room.lastUpdate = [[NSDate date] timeIntervalSince1970];
+                room.lastMessageId = lastMessage.internalId;
+                
+                NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
+                if (managedRoom) {
+                    [NCRoom updateRoom:managedRoom withRoom:room];
+                } else if (room) {
+                    [realm addObject:room];
+                }
+                
+                NCChatMessage *managedLastMessage = [NCChatMessage objectsWhere:@"internalId = %@", lastMessage.internalId].firstObject;
+                if (managedLastMessage) {
+                    [NCChatMessage updateChatMessage:managedLastMessage withChatMessage:lastMessage];
+                } else if (lastMessage) {
+                    [realm addObject:lastMessage];
                 }
                 NSLog(@"Room updated");
             }];
@@ -344,9 +398,9 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo toRoom:(NCRoom *)room
 {
-    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
-    if (roomController) {
-        [roomController sendChatMessage:message replyTo:replyTo];
+    NCChatController *chatController = [_chatControllers objectForKey:room.internalId];
+    if (chatController) {
+        [chatController sendChatMessage:message replyTo:replyTo];
     } else {
         NSLog(@"Trying to send a message to a room where you are not active.");
     }
@@ -354,9 +408,9 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)stopReceivingChatMessagesInRoom:(NCRoom *)room
 {
-    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
-    if (roomController) {
-        [roomController stopReceivingChatMessages];
+    NCChatController *chatController = [_chatControllers objectForKey:room.internalId];
+    if (chatController) {
+        [chatController stopReceivingNewChatMessages];
     } else {
         NSLog(@"Trying to stop receiving message from a room where you are not active.");
     }

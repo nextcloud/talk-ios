@@ -28,17 +28,20 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 @property (nonatomic, strong) NSString *token;
 @property (nonatomic, strong) NSString *systemMessage;
 @property (nonatomic, assign) BOOL isReplyable;
-@property (nonatomic, strong) NCChatMessage *parent;
+@property (nonatomic, strong) NSString *parentId;
 // Group messages
 @property (nonatomic, assign) BOOL groupMessage;
 @property (nonatomic, assign) NSInteger groupMessageNumber;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;
++ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage;
+
 - (BOOL)isSystemMessage;
 - (NCMessageParameter *)file;
 - (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)systemMessageFormat;
+- (NCChatMessage *)parent;
 
 @end

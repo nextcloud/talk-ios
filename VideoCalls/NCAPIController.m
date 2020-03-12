@@ -22,6 +22,8 @@
 NSString * const kNCOCSAPIVersion       = @"/ocs/v2.php";
 NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
+NSInteger const kReceivedChatMessagesLimit = 100;
+
 @interface NCAPIController () <NSURLSessionTaskDelegate, NSURLSessionDelegate>
 
 @property (nonatomic, strong) NCAPISessionManager *defaultAPISessionManager;
@@ -775,7 +777,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"chat/%@", token]];
     NSDictionary *parameters = @{@"lookIntoFuture" : history ? @(0) : @(1),
-                                 @"limit" : @(100),
+                                 @"limit" : @(kReceivedChatMessagesLimit),
                                  @"timeout" : timeout ? @(30) : @(0),
                                  @"lastKnownMessageId" : @(messageId),
                                  @"setReadMarker" : @(1),
@@ -784,17 +786,6 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseMessages = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-        NSMutableArray *messages = [[NSMutableArray alloc] initWithCapacity:responseMessages.count];
-        for (NSDictionary *message in responseMessages) {
-            NCChatMessage *ncMessage = [NCChatMessage messageWithDictionary:message];
-            [messages addObject:ncMessage];
-        }
-        
-        // Sort by messageId
-        NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"messageId" ascending:YES];
-        NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];
-        [messages sortUsingDescriptors:descriptors];
-        
         // Get X-Chat-Last-Given header
         NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
         NSDictionary *headers = [response allHeaderFields];
@@ -805,7 +796,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
         }
         
         if (block) {
-            block(messages, lastKnownMessage, nil, 0);
+            block(responseMessages, lastKnownMessage, nil, 0);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = 0;
