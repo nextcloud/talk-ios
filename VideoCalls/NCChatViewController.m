@@ -548,12 +548,14 @@ typedef enum NCChatMessageAction {
     [super scrollViewDidScroll:scrollView];
     
     if ([scrollView isEqual:self.tableView] && scrollView.contentOffset.y < 0) {
-        if ([self shouldRetireveHistory]) {
-            _retrievingHistory = YES;
-            [self showLoadingHistoryView];
+        if ([self couldRetireveHistory]) {
             NSDate *dateSection = [_dateSections objectAtIndex:0];
             NCChatMessage *firstMessage = [[_messages objectForKey:dateSection] objectAtIndex:0];
-            [_chatController getHistoryBatchFromMessagesId:firstMessage.messageId];
+            if ([_chatController hasHistoryFromMessageId:firstMessage.messageId]) {
+                _retrievingHistory = YES;
+                [self showLoadingHistoryView];
+                [_chatController getHistoryBatchFromMessagesId:firstMessage.messageId];
+            }
         }
     }
     
@@ -955,9 +957,9 @@ typedef enum NCChatMessageAction {
     return sameActor & sameType & timeDiff & notMaxGroup;
 }
 
-- (BOOL)shouldRetireveHistory
+- (BOOL)couldRetireveHistory
 {
-    return _hasReceiveInitialHistory && !_retrievingHistory && [_chatController hasHistory] && _dateSections.count > 0;
+    return _hasReceiveInitialHistory && !_retrievingHistory && _dateSections.count > 0;
 }
 
 - (void)showLoadingHistoryView

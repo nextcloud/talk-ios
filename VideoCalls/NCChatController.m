@@ -39,7 +39,6 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
     if (self) {
         _room = room;
         _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
-        _hasHistory = YES;
     }
     
     return self;
@@ -195,6 +194,17 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
     }];
 }
 
+- (void)updateHistoryFlagInFirstBlock
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        RLMResults *managedBlocks = [NCChatBlock objectsWhere:@"internalId = %@", _room.internalId];
+        RLMResults *managedSortedBlocks = [managedBlocks sortedResultsUsingKeyPath:@"newestMessageId" ascending:YES];
+        NCChatBlock *firstChatBlock = managedSortedBlocks.firstObject;
+        firstChatBlock.hasHistory = NO;
+    }];
+}
+
 - (NSArray *)sortedMessagesFromMessageArray:(NSArray *)messages
 {
     NSMutableArray *sortedMessages = [[NSMutableArray alloc] initWithCapacity:messages.count];
@@ -274,7 +284,7 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
     } else {
         _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
             if (statusCode == 304) {
-                _hasHistory = NO;
+                [self updateHistoryFlagInFirstBlock];
             }
             if (error) {
                 if ([self isChatBeingBlocked:statusCode]) {
@@ -396,6 +406,15 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
 {
     [self stopReceivingNewChatMessages];
     [self stopReceivingChatHistory];
+}
+
+- (BOOL)hasHistoryFromMessageId:(NSInteger)messageId
+{
+    NCChatBlock *firstChatBlock = [self chatBlocksForRoom].firstObject;
+    if (firstChatBlock && firstChatBlock.oldestMessageId == messageId) {
+        return firstChatBlock.hasHistory;
+    }
+    return YES;
 }
 
 @end

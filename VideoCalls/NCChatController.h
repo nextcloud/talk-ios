@@ -29,7 +29,6 @@ extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
 @interface NCChatController : NSObject
 
 @property (nonatomic, strong) NCRoom *room;
-@property (nonatomic, assign) BOOL hasHistory;
 
 - (instancetype)initForRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo;
@@ -38,5 +37,6 @@ extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
 - (void)startReceivingNewChatMessages;
 - (void)stopReceivingNewChatMessages;
 - (void)stopChatController;
+- (BOOL)hasHistoryFromMessageId:(NSInteger)messageId;
 
 @end
