@@ -123,10 +123,11 @@ typedef enum NCChatMessageAction {
     [self setTitleView];
     [self configureActionItems];
     
-    // Disable room info and call buttons until joining the room
+    // Disable room info, input bar and call buttons until joining the room
     _titleView.userInteractionEnabled = NO;
     [_videoCallButton setEnabled:NO];
     [_voiceCallButton setEnabled:NO];
+    self.textInputbar.userInteractionEnabled = NO;
     
     self.messages = [[NSMutableDictionary alloc] init];
     self.mentions = [[NSMutableArray alloc] init];
@@ -316,10 +317,11 @@ typedef enum NCChatMessageAction {
 - (void)checkRoomControlsAvailability
 {
     if (_hasJoinedRoom) {
-        // Enable room info and call buttons
+        // Enable room info, input bar and call buttons
         _titleView.userInteractionEnabled = YES;
         [_videoCallButton setEnabled:YES];
         [_voiceCallButton setEnabled:YES];
+        self.textInputbar.userInteractionEnabled = YES;
     }
     
     if (![_room userCanStartCall] && !_room.hasCall) {
