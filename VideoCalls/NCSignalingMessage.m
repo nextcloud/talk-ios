@@ -30,6 +30,7 @@ static NSString * const kNCSignalingMessageFromKey = @"from";
 static NSString * const kNCSignalingMessageToKey = @"to";
 static NSString * const kNCSignalingMessageSidKey = @"sid";
 static NSString * const kNCSignalingMessageTypeKey = @"type";
+static NSString * const kNCSignalingMessageActionKey = @"action";
 static NSString * const kNCSignalingMessagePayloadKey = @"payload";
 static NSString * const kNCSignalingMessageRoomTypeKey = @"roomType";
 static NSString * const kNCSignalingMessageNickKey = @"nick";
@@ -39,6 +40,8 @@ static NSString * const kNCSignalingMessageTypeAnswerKey = @"answer";
 static NSString * const kNCSignalingMessageTypeCandidateKey = @"candidate";
 static NSString * const kNCSignalingMessageTypeUnshareScreenKey = @"unshareScreen";
 static NSString * const kNCSignalingMessageTypeRemoveCandidatesKey = @"remove-candidates";
+static NSString * const kNCSignalingMessageTypeControlKey = @"control";
+static NSString * const kNCSignalingMessageTypeForceMuteKey = @"forceMute";
 
 static NSString * const kNCSignalingMessageSdpKey = @"sdp";
 
@@ -97,6 +100,8 @@ NSString *const kRoomTypeScreen = @"screen";
         message = [[NCSessionDescriptionMessage alloc] initWithValues:jsonDict];
     } else if ([typeString isEqualToString:kNCSignalingMessageTypeUnshareScreenKey]) {
         message = [[NCUnshareScreenMessage alloc] initWithValues:jsonDict];
+    } else if ([typeString isEqualToString:kNCSignalingMessageTypeControlKey]) {
+        message = [[NCControlMessage alloc] initWithValues:jsonDict];
     } else {
         NSLog(@"Unexpected type: %@", typeString);
     }
@@ -105,15 +110,22 @@ NSString *const kRoomTypeScreen = @"screen";
 }
 
 + (NCSignalingMessage *)messageFromExternalSignalingJSONDictionary:(NSDictionary *)jsonDict {
+    NSDictionary *data = [jsonDict objectForKey:kNCExternalSignalingMessageDataKey];
+    
+    NSString *dataType = [data objectForKey:kNCSignalingMessageTypeKey];
+    if ([dataType isEqualToString:kNCSignalingMessageTypeUnshareScreenKey]) {
+        return [[NCUnshareScreenMessage alloc] initWithValues:jsonDict];
+    }
+    
+    NSString *dataAction = [data objectForKey:kNCSignalingMessageActionKey];
+    if ([dataAction isEqualToString:kNCSignalingMessageTypeForceMuteKey]) {
+        return [[NCControlMessage alloc] initWithValues:jsonDict];
+    }
+    
     NSDictionary *sender = [jsonDict objectForKey:kNCExternalSignalingMessageSenderKey];
     NSString *messageType = [sender objectForKey:kNCSignalingMessageTypeKey];
     if ([messageType isEqualToString:kNCExternalSignalingMessageTypeSessionKey]) {
         return [self messageFromJSONDictionary:[jsonDict objectForKey:kNCExternalSignalingMessageDataKey]];
-    }
-    NSDictionary *data = [jsonDict objectForKey:kNCExternalSignalingMessageDataKey];
-    NSString *dataType = [data objectForKey:kNCSignalingMessageTypeKey];
-    if ([dataType isEqualToString:kNCSignalingMessageTypeUnshareScreenKey]) {
-        return [[NCUnshareScreenMessage alloc] initWithValues:jsonDict];
     }
     
     return [self messageFromJSONDictionary:jsonDict];
@@ -377,6 +389,33 @@ NSString *const kRoomTypeScreen = @"screen";
 
 - (NCSignalingMessageType)messageType {
     return kNCSignalingMessageTypeUnshareScreen;
+}
+
+@end
+
+@implementation NCControlMessage
+
+- (instancetype)initWithValues:(NSDictionary *)values {
+    NSDictionary *dataDict = [[NSDictionary alloc] initWithDictionary:values];
+    NSDictionary *payload = [dataDict objectForKey:kNCSignalingMessagePayloadKey];
+    NSString *from = [values objectForKey:kNCSignalingMessageFromKey];
+    // Get 'from' value from 'sender' using External Signaling
+    NSDictionary *sender = [values objectForKey:kNCExternalSignalingMessageSenderKey];
+    if (sender) {
+        from = [sender objectForKey:kNCExternalSignalingMessageSessionIdKey];
+        dataDict = [values objectForKey:kNCExternalSignalingMessageDataKey];
+        payload = dataDict;
+    }
+    return [super initWithFrom:from
+                            to:[dataDict objectForKey:kNCSignalingMessageToKey]
+                           sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
+                          type:kNCSignalingMessageTypeControlKey
+                       payload:payload
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+}
+
+- (NCSignalingMessageType)messageType {
+    return kNCSignalingMessageTypeControl;
 }
 
 @end
