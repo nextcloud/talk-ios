@@ -101,6 +101,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             }
             if (!error) {
                 NCRoomController *controller = [[NCRoomController alloc] init];
+                controller.userSessionId = sessionId;
                 controller.inChat = !call;
                 controller.inCall = call;
                 [_activeRooms setObject:controller forKey:token];
