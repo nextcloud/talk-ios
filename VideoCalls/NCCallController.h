@@ -33,6 +33,7 @@ typedef void (^GetUserIdForSessionIdCompletionBlock)(NSString *userId, NSError *
 - (void)callController:(NCCallController *)callController didReceiveDataChannelMessage:(NSString *)message fromPeer:(NCPeerConnection *)peer;
 - (void)callController:(NCCallController *)callController didReceiveNick:(NSString *)nick fromPeer:(NCPeerConnection *)peer;
 - (void)callController:(NCCallController *)callController didReceiveUnshareScreenFromPeer:(NCPeerConnection *)peer;
+- (void)callController:(NCCallController *)callController didReceiveForceMuteActionForPeerId:(NSString *)peerId;
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController;
 
 @end

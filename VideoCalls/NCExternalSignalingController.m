@@ -422,6 +422,8 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
             [self eventMessageReceived:[messageDict objectForKey:@"event"]];
         } else if ([messageType isEqualToString:@"message"]) {
             [self messageReceived:[messageDict objectForKey:@"message"]];
+        } else if ([messageType isEqualToString:@"control"]) {
+            [self messageReceived:[messageDict objectForKey:@"control"]];
         }
     }
 }

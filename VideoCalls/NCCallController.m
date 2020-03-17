@@ -556,11 +556,11 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)processSignalingMessage:(NCSignalingMessage *)signalingMessage
 {
     if (signalingMessage) {
-        NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
         switch (signalingMessage.messageType) {
             case kNCSignalingMessageTypeOffer:
             case kNCSignalingMessageTypeAnswer:
             {
+                NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
                 NCSessionDescriptionMessage *sdpMessage = (NCSessionDescriptionMessage *)signalingMessage;
                 RTCSessionDescription *description = sdpMessage.sessionDescription;
                 [peerConnectionWrapper setPeerName:sdpMessage.nick];
@@ -569,12 +569,14 @@ static NSString * const kNCVideoTrackKind = @"video";
             }
             case kNCSignalingMessageTypeCandidate:
             {
+                NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
                 NCICECandidateMessage *candidateMessage = (NCICECandidateMessage *)signalingMessage;
                 [peerConnectionWrapper addICECandidate:candidateMessage.candidate];
                 break;
             }
             case kNCSignalingMessageTypeUnshareScreen:
             {
+                NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
                 NSString *peerKey = [peerConnectionWrapper.peerId stringByAppendingString:kRoomTypeScreen];
                 NCPeerConnection *screenPeerConnection = [_connectionsDict objectForKey:peerKey];
                 if (screenPeerConnection) {
@@ -582,6 +584,15 @@ static NSString * const kNCVideoTrackKind = @"video";
                     [_connectionsDict removeObjectForKey:peerKey];
                 }
                 [self.delegate callController:self didReceiveUnshareScreenFromPeer:peerConnectionWrapper];
+                break;
+            }
+            case kNCSignalingMessageTypeControl:
+            {
+                NSString *action = [signalingMessage.payload objectForKey:@"action"];
+                if ([action isEqualToString:@"forceMute"]) {
+                    NSString *peerId = [signalingMessage.payload objectForKey:@"peerId"];
+                    [self.delegate callController:self didReceiveForceMuteActionForPeerId:peerId];
+                }
                 break;
             }
             case kNCSignalingMessageTypeUknown:

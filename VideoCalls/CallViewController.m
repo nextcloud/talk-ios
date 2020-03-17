@@ -522,13 +522,17 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)muteAudio
 {
     [_callController enableAudio:NO];
-    [_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+    });
 }
 
 - (void)unmuteAudio
 {
     [_callController enableAudio:YES];
-    [_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+    });
 }
 
 - (IBAction)videoButtonPressed:(id)sender
@@ -845,6 +849,15 @@ typedef NS_ENUM(NSInteger, CallState) {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.collectionView reloadData];
     });
+}
+
+- (void)callController:(NCCallController *)callController didReceiveForceMuteActionForPeerId:(NSString *)peerId
+{
+    if ([peerId isEqualToString:callController.userSessionId]) {
+        [self muteAudio];
+    } else {
+        NSLog(@"Peer was force muted: %@", peerId);
+    }
 }
 
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController
