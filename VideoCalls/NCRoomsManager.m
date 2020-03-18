@@ -180,11 +180,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    // Stop and remove chat controller
-    NCRoom *room = [self roomWithToken:token forAccountId:activeAccount.accountId];
-    NCChatController *chatController = [_chatControllers objectForKey:room.internalId];
-    [chatController stopChatController];
-    [_chatControllers removeObjectForKey:room.internalId];
     // Remove room controller and exit room
     NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (roomController && !roomController.inCall && !roomController.inChat) {
@@ -423,6 +418,12 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (roomController) {
         roomController.inChat = NO;
     }
+    // Stop and remove chat controller
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NCRoom *room = [self roomWithToken:token forAccountId:activeAccount.accountId];
+    NCChatController *chatController = [_chatControllers objectForKey:room.internalId];
+    [chatController stopChatController];
+    [_chatControllers removeObjectForKey:room.internalId];
     [self leaveRoom:token];
 }
 
