@@ -62,9 +62,10 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
 
 - (NSArray *)getBatchOfMessagesInBlock:(NCChatBlock *)chatBlock fromMessageId:(NSInteger)messageId included:(BOOL)included
 {
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId >= %ld AND messageId < %ld", _account.accountId, _room.token, (long)chatBlock.oldestMessageId, (long)messageId];
+    NSInteger fromMessageId = messageId > 0 ? messageId : chatBlock.newestMessageId;
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId >= %ld AND messageId < %ld", _account.accountId, _room.token, (long)chatBlock.oldestMessageId, (long)fromMessageId];
     if (included) {
-        query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId >= %ld AND messageId <= %ld", _account.accountId, _room.token, (long)chatBlock.oldestMessageId, (long)messageId];
+        query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId >= %ld AND messageId <= %ld", _account.accountId, _room.token, (long)chatBlock.oldestMessageId, (long)fromMessageId];
     }
     RLMResults *managedMessages = [NCChatMessage objectsWithPredicate:query];
     RLMResults *managedSortedMessages = [managedMessages sortedResultsUsingKeyPath:@"messageId" ascending:YES];
@@ -233,7 +234,7 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
     }
     
     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-    if (lastChatBlock.newestMessageId >= lastReadMessageId) {
+    if (lastChatBlock.newestMessageId > 0 && lastChatBlock.newestMessageId >= lastReadMessageId) {
         NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastChatBlock.newestMessageId included:YES];
         [userInfo setObject:storedMessages forKey:@"messages"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
