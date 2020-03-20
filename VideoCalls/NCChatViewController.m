@@ -58,6 +58,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, assign) BOOL isVisible;
 @property (nonatomic, assign) BOOL hasJoinedRoom;
 @property (nonatomic, assign) BOOL leftChatWithVisibleChatVC;
+@property (nonatomic, assign) BOOL offlineMode;
 @property (nonatomic, assign) NSInteger lastReadMessage;
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
 @property (nonatomic, strong) NSIndexPath *unreadMessagesSeparatorIP;
@@ -93,6 +94,7 @@ typedef enum NCChatMessageAction {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistory:) name:NCChatControllerDidReceiveInitialChatHistoryNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistoryOffline:) name:NCChatControllerDidReceiveInitialChatHistoryOfflineNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatHistory:) name:NCChatControllerDidReceiveChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCChatControllerDidReceiveChatMessagesNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCChatControllerDidSendChatMessageNotification object:nil];
@@ -628,6 +630,8 @@ typedef enum NCChatMessageAction {
     
     NSError *error = [notification.userInfo objectForKey:@"error"];
     if (error && _isVisible) {
+        _offlineMode = YES;
+        [_chatController stopReceivingNewChatMessages];
         [self presentJoinRoomError];
         return;
     }
@@ -662,10 +666,31 @@ typedef enum NCChatMessageAction {
         [_chatBackgroundView.placeholderView setHidden:NO];
     }
     
+    _hasReceiveInitialHistory = YES;
+    
     NSError *error = [notification.userInfo objectForKey:@"error"];
     if (!error) {
-        _hasReceiveInitialHistory = YES;
         [_chatController startReceivingNewChatMessages];
+    } else {
+        _offlineMode = YES;
+        [_chatController getInitialChatHistoryForOfflineMode];
+    }
+}
+
+- (void)didReceiveInitialChatHistoryOffline:(NSNotification *)notification
+{
+    NSString *room = [notification.userInfo objectForKey:@"room"];
+    if (![room isEqualToString:_room.token]) {
+        return;
+    }
+    
+    NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
+    if (messages.count > 0) {
+        [self sortMessages:messages inDictionary:_messages];
+        [self.tableView reloadData];
+        [self.tableView slk_scrollToBottomAnimated:NO];
+    } else {
+        [_chatBackgroundView.placeholderView setHidden:NO];
     }
 }
 

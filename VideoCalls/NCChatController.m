@@ -13,11 +13,12 @@
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 
-NSString * const NCChatControllerDidReceiveInitialChatHistoryNotification   = @"NCChatControllerDidReceiveInitialChatHistoryNotification";
-NSString * const NCChatControllerDidReceiveChatHistoryNotification          = @"NCChatControllerDidReceiveChatHistoryNotification";
-NSString * const NCChatControllerDidReceiveChatMessagesNotification         = @"NCChatControllerDidReceiveChatMessagesNotification";
-NSString * const NCChatControllerDidSendChatMessageNotification             = @"NCChatControllerDidSendChatMessageNotification";
-NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"NCChatControllerDidReceiveChatBlockedNotification";
+NSString * const NCChatControllerDidReceiveInitialChatHistoryNotification           = @"NCChatControllerDidReceiveInitialChatHistoryNotification";
+NSString * const NCChatControllerDidReceiveInitialChatHistoryOfflineNotification    = @"NCChatControllerDidReceiveInitialChatHistoryOfflineNotification";
+NSString * const NCChatControllerDidReceiveChatHistoryNotification                  = @"NCChatControllerDidReceiveChatHistoryNotification";
+NSString * const NCChatControllerDidReceiveChatMessagesNotification                 = @"NCChatControllerDidReceiveChatMessagesNotification";
+NSString * const NCChatControllerDidSendChatMessageNotification                     = @"NCChatControllerDidSendChatMessageNotification";
+NSString * const NCChatControllerDidReceiveChatBlockedNotification                  = @"NCChatControllerDidReceiveChatBlockedNotification";
 
 @interface NCChatController ()
 
@@ -268,6 +269,19 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
                                                               userInfo:userInfo];
         }];
     }
+}
+
+- (void)getInitialChatHistoryForOfflineMode
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    [userInfo setObject:_room.token forKey:@"room"];
+    
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastChatBlock.newestMessageId included:YES];
+    [userInfo setObject:storedMessages forKey:@"messages"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryOfflineNotification
+                                                        object:self
+                                                      userInfo:userInfo];
 }
 
 - (void)getHistoryBatchFromMessagesId:(NSInteger)messageId

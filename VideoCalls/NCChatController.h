@@ -12,6 +12,7 @@
 @class NCRoom;
 
 extern NSString * const NCChatControllerDidReceiveInitialChatHistoryNotification;
+extern NSString * const NCChatControllerDidReceiveInitialChatHistoryOfflineNotification;;
 extern NSString * const NCChatControllerDidReceiveChatHistoryNotification;
 extern NSString * const NCChatControllerDidReceiveChatMessagesNotification;
 extern NSString * const NCChatControllerDidSendChatMessageNotification;
@@ -33,6 +34,7 @@ extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
 - (instancetype)initForRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo;
 - (void)getInitialChatHistory;
+- (void)getInitialChatHistoryForOfflineMode;
 - (void)getHistoryBatchFromMessagesId:(NSInteger)messageId;
 - (void)startReceivingNewChatMessages;
 - (void)stopReceivingNewChatMessages;
