@@ -328,6 +328,34 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
     }
 }
 
+- (void)getHistoryBatchOfflineFromMessagesId:(NSInteger)messageId
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    [userInfo setObject:_room.token forKey:@"room"];
+    
+    NSArray *chatBlocks = [self chatBlocksForRoom];
+    NSMutableArray *historyBatch = nil;
+    if (chatBlocks.count > 0) {
+        for (NSInteger i = chatBlocks.count - 1; i < chatBlocks.count; i--) {
+            NCChatBlock *currentBlock = chatBlocks[i];
+            if (currentBlock.oldestMessageId < messageId) {
+                NSArray *storedMessages = [self getBatchOfMessagesInBlock:currentBlock fromMessageId:messageId included:NO];
+                historyBatch = [[NSMutableArray alloc] initWithArray:storedMessages];
+            }
+            if (i > 0 && currentBlock.oldestMessageId == messageId) {
+                NCChatBlock *previousBlock = chatBlocks[i - 1];
+                NSArray *storedMessages = [self getBatchOfMessagesInBlock:previousBlock fromMessageId:previousBlock.newestMessageId included:NO];
+                historyBatch = [[NSMutableArray alloc] initWithArray:storedMessages];
+            }
+        }
+    }
+    
+    [userInfo setObject:historyBatch forKey:@"messages"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
+                                                        object:self
+                                                      userInfo:userInfo];
+}
+
 - (void)stopReceivingChatHistory
 {
     [_getHistoryTask cancel];

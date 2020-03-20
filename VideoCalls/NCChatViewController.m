@@ -558,7 +558,11 @@ typedef enum NCChatMessageAction {
             if ([_chatController hasHistoryFromMessageId:firstMessage.messageId]) {
                 _retrievingHistory = YES;
                 [self showLoadingHistoryView];
-                [_chatController getHistoryBatchFromMessagesId:firstMessage.messageId];
+                if (_offlineMode) {
+                    [_chatController getHistoryBatchOfflineFromMessagesId:firstMessage.messageId];
+                } else {
+                    [_chatController getHistoryBatchFromMessagesId:firstMessage.messageId];
+                }
             }
         }
     }

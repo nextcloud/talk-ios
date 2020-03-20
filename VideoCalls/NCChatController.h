@@ -36,6 +36,7 @@ extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
 - (void)getInitialChatHistory;
 - (void)getInitialChatHistoryForOfflineMode;
 - (void)getHistoryBatchFromMessagesId:(NSInteger)messageId;
+- (void)getHistoryBatchOfflineFromMessagesId:(NSInteger)messageId;
 - (void)startReceivingNewChatMessages;
 - (void)stopReceivingNewChatMessages;
 - (void)stopChatController;
