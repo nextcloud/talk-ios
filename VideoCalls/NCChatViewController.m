@@ -59,6 +59,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, assign) BOOL hasJoinedRoom;
 @property (nonatomic, assign) BOOL leftChatWithVisibleChatVC;
 @property (nonatomic, assign) BOOL offlineMode;
+@property (nonatomic, assign) BOOL hasStoredHistory;
 @property (nonatomic, assign) NSInteger lastReadMessage;
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
 @property (nonatomic, strong) NSIndexPath *unreadMessagesSeparatorIP;
@@ -201,6 +202,8 @@ typedef enum NCChatMessageAction {
     // Unread messages separator
     _unreadMessagesSeparator = [[NCChatMessage alloc] init];
     _unreadMessagesSeparator.messageId = kMessageSeparatorIdentifier;
+    
+    self.hasStoredHistory = YES;
     
     [self.view addSubview:_unreadMessageButton];
     _chatViewPresentedTimestamp = [[NSDate date] timeIntervalSince1970];
@@ -706,12 +709,16 @@ typedef enum NCChatMessageAction {
     }
     
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
-    if (messages) {
+    if (messages.count > 0) {
         NSIndexPath *lastHistoryMessageIP = [self sortHistoryMessages:messages];
         [self.tableView reloadData];
         [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionNone animated:NO];
     }
     
+    BOOL noMoreStoredHistory = [[notification.userInfo objectForKey:@"noMoreStoredHistory"] boolValue];
+    if (noMoreStoredHistory) {
+        _hasStoredHistory = NO;
+    }
     _retrievingHistory = NO;
     [self hideLoadingHistoryView];
 }
@@ -990,7 +997,7 @@ typedef enum NCChatMessageAction {
 
 - (BOOL)couldRetireveHistory
 {
-    return _hasReceiveInitialHistory && !_retrievingHistory && _dateSections.count > 0;
+    return _hasReceiveInitialHistory && !_retrievingHistory && _dateSections.count > 0 && _hasStoredHistory;
 }
 
 - (void)showLoadingHistoryView

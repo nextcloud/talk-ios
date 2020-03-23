@@ -334,7 +334,7 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
     [userInfo setObject:_room.token forKey:@"room"];
     
     NSArray *chatBlocks = [self chatBlocksForRoom];
-    NSMutableArray *historyBatch = nil;
+    NSMutableArray *historyBatch = [NSMutableArray new];
     if (chatBlocks.count > 0) {
         for (NSInteger i = chatBlocks.count - 1; i < chatBlocks.count; i--) {
             NCChatBlock *currentBlock = chatBlocks[i];
@@ -348,6 +348,10 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
                 historyBatch = [[NSMutableArray alloc] initWithArray:storedMessages];
             }
         }
+    }
+    
+    if (historyBatch.count == 0) {
+        [userInfo setObject:@(YES) forKey:@"noMoreStoredHistory"];
     }
     
     [userInfo setObject:historyBatch forKey:@"messages"];
