@@ -201,7 +201,7 @@ typedef enum NCChatMessageAction {
     
     // Unread messages separator
     _unreadMessagesSeparator = [[NCChatMessage alloc] init];
-    _unreadMessagesSeparator.messageId = kMessageSeparatorIdentifier;
+    _unreadMessagesSeparator.messageId = kUnreadMessagesSeparatorIdentifier;
     
     self.hasStoredHistory = YES;
     
@@ -709,10 +709,11 @@ typedef enum NCChatMessageAction {
     }
     
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
+    BOOL shouldAddBlockSeparator = [[notification.userInfo objectForKey:@"shouldAddBlockSeparator"] boolValue];
     if (messages.count > 0) {
-        NSIndexPath *lastHistoryMessageIP = [self sortHistoryMessages:messages];
+        NSIndexPath *lastHistoryMessageIP = [self sortHistoryMessages:messages addingBlockSeparator:shouldAddBlockSeparator];
         [self.tableView reloadData];
-        [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionNone animated:NO];
+        [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionTop animated:NO];
     }
     
     BOOL noMoreStoredHistory = [[notification.userInfo objectForKey:@"noMoreStoredHistory"] boolValue];
@@ -880,7 +881,7 @@ typedef enum NCChatMessageAction {
     return keyDate;
 }
 
-- (NSIndexPath *)sortHistoryMessages:(NSMutableArray *)historyMessages
+- (NSIndexPath *)sortHistoryMessages:(NSMutableArray *)historyMessages addingBlockSeparator:(BOOL)shouldAddBlockSeparator
 {
     NSMutableDictionary *historyDict = [[NSMutableDictionary alloc] init];
     [self sortMessages:historyMessages inDictionary:historyDict];
@@ -900,6 +901,13 @@ typedef enum NCChatMessageAction {
     }
     
     [self sortDateSections];
+    
+    if (shouldAddBlockSeparator) {
+        // Chat block separator
+        NCChatMessage *blockSeparatorMessage = [[NCChatMessage alloc] init];
+        blockSeparatorMessage.messageId = kChatBlockSeparatorIdentifier;
+        [historyMessagesForSection addObject:blockSeparatorMessage];
+    }
     
     NSMutableArray *lastHistoryMessages = [historyDict objectForKey:[historySections lastObject]];
     NSIndexPath *lastHistoryMessageIP = [NSIndexPath indexPathForRow:lastHistoryMessages.count - 1 inSection:historySections.count - 1];
@@ -1201,8 +1209,16 @@ typedef enum NCChatMessageAction {
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
     UITableViewCell *cell = [UITableViewCell new];
-    if (message.messageId == kMessageSeparatorIdentifier) {
+    if (message.messageId == kUnreadMessagesSeparatorIdentifier) {
         MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
+        separatorCell.messageId = message.messageId;
+        separatorCell.separatorLabel.text = @"Unread messages";
+        return separatorCell;
+    }
+    if (message.messageId == kChatBlockSeparatorIdentifier) {
+        MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
+        separatorCell.messageId = message.messageId;
+        separatorCell.separatorLabel.text = @"Missing not downloaded messages";
         return separatorCell;
     }
     if (message.isSystemMessage) {
@@ -1309,7 +1325,8 @@ typedef enum NCChatMessageAction {
         paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
         paragraphStyle.alignment = NSTextAlignmentLeft;
         
-        if (message.messageId == kMessageSeparatorIdentifier) {
+        if (message.messageId == kUnreadMessagesSeparatorIdentifier ||
+            message.messageId == kChatBlockSeparatorIdentifier) {
             return kMessageSeparatorCellHeight;
         }
         
