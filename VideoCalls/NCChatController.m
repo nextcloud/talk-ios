@@ -338,14 +338,23 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
     if (chatBlocks.count > 0) {
         for (NSInteger i = chatBlocks.count - 1; i < chatBlocks.count; i--) {
             NCChatBlock *currentBlock = chatBlocks[i];
+            BOOL noMoreMessagesToRetrieveInBlock = NO;
             if (currentBlock.oldestMessageId < messageId) {
                 NSArray *storedMessages = [self getBatchOfMessagesInBlock:currentBlock fromMessageId:messageId included:NO];
                 historyBatch = [[NSMutableArray alloc] initWithArray:storedMessages];
+                if (storedMessages.count > 0) {
+                    break;
+                } else {
+                    // We use this flag in case the rest of the messages in current block
+                    // are system messages invisible for the user.
+                    noMoreMessagesToRetrieveInBlock = YES;
+                }
             }
-            if (i > 0 && currentBlock.oldestMessageId == messageId) {
+            if (i > 0 && (currentBlock.oldestMessageId == messageId || noMoreMessagesToRetrieveInBlock)) {
                 NCChatBlock *previousBlock = chatBlocks[i - 1];
                 NSArray *storedMessages = [self getBatchOfMessagesInBlock:previousBlock fromMessageId:previousBlock.newestMessageId included:NO];
                 historyBatch = [[NSMutableArray alloc] initWithArray:storedMessages];
+                break;
             }
         }
     }
