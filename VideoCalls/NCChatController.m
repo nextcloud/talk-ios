@@ -139,6 +139,10 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
 
 - (void)updateChatBlocksWithLastKnown:(NSInteger)lastKnown
 {
+    if (lastKnown <= 0) {
+        return;
+    }
+    
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         RLMResults *managedBlocks = [NCChatBlock objectsWhere:@"internalId = %@", _room.internalId];
@@ -146,16 +150,26 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
         NCChatBlock *lastBlock = managedSortedBlocks.lastObject;
         // There is more than one chat block stored
         if (managedSortedBlocks.count > 1) {
-            NCChatBlock *previousBlock = managedSortedBlocks[managedSortedBlocks.count - 2];
-            // Merge blocks if the oldest message received is inside the previous block
-            if (lastKnown >= previousBlock.oldestMessageId && lastKnown <= previousBlock.newestMessageId) {
-                previousBlock.newestMessageId = lastBlock.newestMessageId;
-                [realm deleteObject:lastBlock];
-            // Update lastBlock
-            } else if (lastKnown > previousBlock.newestMessageId) {
-                lastBlock.oldestMessageId = lastKnown;
+            for (NSInteger i = managedSortedBlocks.count - 2; i >= 0; i--) {
+                NCChatBlock *block = managedSortedBlocks[i];
+                // Merge blocks if the lastKnown message is inside the current block
+                if (lastKnown >= block.oldestMessageId && lastKnown <= block.newestMessageId) {
+                    lastBlock.oldestMessageId = block.oldestMessageId;
+                    [realm deleteObject:block];
+                    break;
+                // Update lastBlock if the lastKnown message is between the 2 blocks
+                } else if (lastKnown > block.newestMessageId) {
+                    lastBlock.oldestMessageId = lastKnown;
+                    break;
+                // The current block is completely included in the retrieved history
+                // This could happen if we vary the message limit when fetching messages
+                // Delete included block
+                } else if (lastKnown < block.oldestMessageId) {
+                    [realm deleteObject:block];
+                }
             }
-        } else if (lastKnown > 0) {
+        // There is just one chat block stored
+        } else {
             lastBlock.oldestMessageId = lastKnown;
         }
     }];
@@ -179,15 +193,24 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
         newBlock.newestMessageId = newestMessageKnown;
         newBlock.hasHistory = YES;
         
-        NCChatBlock *lastBlock = managedSortedBlocks.lastObject;
-        // There is already a chat block stored
-        if (lastBlock) {
-            // Merge blocks if the oldest message received is inside the previous block
-            if (lastKnown >= lastBlock.oldestMessageId && lastKnown <= lastBlock.newestMessageId) {
-                lastBlock.newestMessageId = newestMessageKnown;
-            // Add new block if the oldest message is still in the gap between last block and new block
-            } else if (lastKnown > lastBlock.newestMessageId) {
-                [realm addObject:newBlock];
+        // There is at least one chat block stored
+        if (managedSortedBlocks.count > 0) {
+            for (NSInteger i = managedSortedBlocks.count - 1; i >= 0; i--) {
+                NCChatBlock *block = managedSortedBlocks[i];
+                // Merge blocks if the lastKnown message is inside the current block
+                if (lastKnown >= block.oldestMessageId && lastKnown <= block.newestMessageId) {
+                    block.newestMessageId = newestMessageKnown;
+                    break;
+                // Add new block if it didn't reach the previous block
+                } else if (lastKnown > block.newestMessageId) {
+                    [realm addObject:newBlock];
+                    break;
+                // The current block is completely included in the retrieved history
+                // This could happen if we vary the message limit when fetching messages
+                // Delete included block
+                } else if (lastKnown < block.oldestMessageId) {
+                    [realm deleteObject:block];
+                }
             }
         // No chat blocks stored yet, add new chat block
         } else {
