@@ -380,6 +380,18 @@ typedef enum NCChatMessageAction {
     [self checkRoomControlsAvailability];
 }
 
+- (void)setOfflineFooterView
+{
+    UILabel *footerLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 350, 24)];
+    footerLabel.textAlignment = NSTextAlignmentCenter;
+    footerLabel.textColor = [UIColor lightGrayColor];
+    footerLabel.font = [UIFont systemFontOfSize:12.0];
+    footerLabel.backgroundColor = [UIColor clearColor];
+    footerLabel.text = @"New messages will not be received while offline";
+    self.tableView.tableFooterView = footerLabel;
+    self.tableView.tableFooterView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
+}
+
 #pragma mark - Utils
 
 - (NSInteger)getLastReadMessage
@@ -638,6 +650,7 @@ typedef enum NCChatMessageAction {
     NSError *error = [notification.userInfo objectForKey:@"error"];
     if (error && _isVisible) {
         _offlineMode = YES;
+        [self setOfflineFooterView];
         [_chatController stopReceivingNewChatMessages];
         [self presentJoinRoomError];
         return;
@@ -694,6 +707,7 @@ typedef enum NCChatMessageAction {
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
     if (messages.count > 0) {
         [self sortMessages:messages inDictionary:_messages];
+        [self setOfflineFooterView];
         [self.tableView reloadData];
         [self.tableView slk_scrollToBottomAnimated:NO];
     } else {
