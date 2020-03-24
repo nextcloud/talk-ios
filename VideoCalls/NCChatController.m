@@ -352,7 +352,7 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
             }
             if (i > 0 && (currentBlock.oldestMessageId == messageId || noMoreMessagesToRetrieveInBlock)) {
                 NCChatBlock *previousBlock = chatBlocks[i - 1];
-                NSArray *storedMessages = [self getBatchOfMessagesInBlock:previousBlock fromMessageId:previousBlock.newestMessageId included:NO];
+                NSArray *storedMessages = [self getBatchOfMessagesInBlock:previousBlock fromMessageId:previousBlock.newestMessageId included:YES];
                 historyBatch = [[NSMutableArray alloc] initWithArray:storedMessages];
                 [userInfo setObject:@(YES) forKey:@"shouldAddBlockSeparator"];
                 break;
