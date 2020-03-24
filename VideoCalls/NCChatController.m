@@ -336,7 +336,7 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
     NSArray *chatBlocks = [self chatBlocksForRoom];
     NSMutableArray *historyBatch = [NSMutableArray new];
     if (chatBlocks.count > 0) {
-        for (NSInteger i = chatBlocks.count - 1; i < chatBlocks.count; i--) {
+        for (NSInteger i = chatBlocks.count - 1; i >= 0; i--) {
             NCChatBlock *currentBlock = chatBlocks[i];
             BOOL noMoreMessagesToRetrieveInBlock = NO;
             if (currentBlock.oldestMessageId < messageId) {
