@@ -12,9 +12,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static CGFloat kMessageSeparatorCellHeight      = 24.0;
-static NSInteger kMessageSeparatorIdentifier    = -99;
-static NSString *MessageSeparatorCellIdentifier = @"MessageSeparatorCellIdentifier";
+static CGFloat kMessageSeparatorCellHeight          = 24.0;
+static NSInteger kUnreadMessagesSeparatorIdentifier = -99;
+static NSInteger kChatBlockSeparatorIdentifier      = -98;
+static NSString *MessageSeparatorCellIdentifier     = @"MessageSeparatorCellIdentifier";
 
 @interface MessageSeparatorTableViewCell : ChatTableViewCell
 

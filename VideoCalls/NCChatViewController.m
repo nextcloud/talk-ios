@@ -58,6 +58,8 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, assign) BOOL isVisible;
 @property (nonatomic, assign) BOOL hasJoinedRoom;
 @property (nonatomic, assign) BOOL leftChatWithVisibleChatVC;
+@property (nonatomic, assign) BOOL offlineMode;
+@property (nonatomic, assign) BOOL hasStoredHistory;
 @property (nonatomic, assign) NSInteger lastReadMessage;
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
 @property (nonatomic, strong) NSIndexPath *unreadMessagesSeparatorIP;
@@ -93,6 +95,7 @@ typedef enum NCChatMessageAction {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistory:) name:NCChatControllerDidReceiveInitialChatHistoryNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistoryOffline:) name:NCChatControllerDidReceiveInitialChatHistoryOfflineNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatHistory:) name:NCChatControllerDidReceiveChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCChatControllerDidReceiveChatMessagesNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCChatControllerDidSendChatMessageNotification object:nil];
@@ -198,7 +201,9 @@ typedef enum NCChatMessageAction {
     
     // Unread messages separator
     _unreadMessagesSeparator = [[NCChatMessage alloc] init];
-    _unreadMessagesSeparator.messageId = kMessageSeparatorIdentifier;
+    _unreadMessagesSeparator.messageId = kUnreadMessagesSeparatorIdentifier;
+    
+    self.hasStoredHistory = YES;
     
     [self.view addSubview:_unreadMessageButton];
     _chatViewPresentedTimestamp = [[NSDate date] timeIntervalSince1970];
@@ -224,7 +229,9 @@ typedef enum NCChatMessageAction {
     
     _isVisible = YES;
     
-    [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+    if (!_offlineMode) {
+        [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -373,6 +380,18 @@ typedef enum NCChatMessageAction {
         }
     }
     [self checkRoomControlsAvailability];
+}
+
+- (void)setOfflineFooterView
+{
+    UILabel *footerLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 350, 24)];
+    footerLabel.textAlignment = NSTextAlignmentCenter;
+    footerLabel.textColor = [UIColor lightGrayColor];
+    footerLabel.font = [UIFont systemFontOfSize:12.0];
+    footerLabel.backgroundColor = [UIColor clearColor];
+    footerLabel.text = @"Showing downloaded messages while offline";
+    self.tableView.tableFooterView = footerLabel;
+    self.tableView.tableFooterView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
 }
 
 #pragma mark - Utils
@@ -556,7 +575,11 @@ typedef enum NCChatMessageAction {
             if ([_chatController hasHistoryFromMessageId:firstMessage.messageId]) {
                 _retrievingHistory = YES;
                 [self showLoadingHistoryView];
-                [_chatController getHistoryBatchFromMessagesId:firstMessage.messageId];
+                if (_offlineMode) {
+                    [_chatController getHistoryBatchOfflineFromMessagesId:firstMessage.messageId];
+                } else {
+                    [_chatController getHistoryBatchFromMessagesId:firstMessage.messageId];
+                }
             }
         }
     }
@@ -595,7 +618,9 @@ typedef enum NCChatMessageAction {
 -(void)appDidBecomeActive:(NSNotification*)notification
 {
     [self removeUnreadMessagesSeparator];
-    [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+    if (!_offlineMode) {
+        [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+    }
 }
 
 -(void)appWillResignActive:(NSNotification*)notification
@@ -628,6 +653,9 @@ typedef enum NCChatMessageAction {
     
     NSError *error = [notification.userInfo objectForKey:@"error"];
     if (error && _isVisible) {
+        _offlineMode = YES;
+        [self setOfflineFooterView];
+        [_chatController stopReceivingNewChatMessages];
         [self presentJoinRoomError];
         return;
     }
@@ -662,10 +690,32 @@ typedef enum NCChatMessageAction {
         [_chatBackgroundView.placeholderView setHidden:NO];
     }
     
+    _hasReceiveInitialHistory = YES;
+    
     NSError *error = [notification.userInfo objectForKey:@"error"];
     if (!error) {
-        _hasReceiveInitialHistory = YES;
         [_chatController startReceivingNewChatMessages];
+    } else {
+        _offlineMode = YES;
+        [_chatController getInitialChatHistoryForOfflineMode];
+    }
+}
+
+- (void)didReceiveInitialChatHistoryOffline:(NSNotification *)notification
+{
+    NSString *room = [notification.userInfo objectForKey:@"room"];
+    if (![room isEqualToString:_room.token]) {
+        return;
+    }
+    
+    NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
+    if (messages.count > 0) {
+        [self sortMessages:messages inDictionary:_messages];
+        [self setOfflineFooterView];
+        [self.tableView reloadData];
+        [self.tableView slk_scrollToBottomAnimated:NO];
+    } else {
+        [_chatBackgroundView.placeholderView setHidden:NO];
     }
 }
 
@@ -677,12 +727,17 @@ typedef enum NCChatMessageAction {
     }
     
     NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
-    if (messages) {
-        NSIndexPath *lastHistoryMessageIP = [self sortHistoryMessages:messages];
+    BOOL shouldAddBlockSeparator = [[notification.userInfo objectForKey:@"shouldAddBlockSeparator"] boolValue];
+    if (messages.count > 0) {
+        NSIndexPath *lastHistoryMessageIP = [self sortHistoryMessages:messages addingBlockSeparator:shouldAddBlockSeparator];
         [self.tableView reloadData];
-        [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionNone animated:NO];
+        [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionTop animated:NO];
     }
     
+    BOOL noMoreStoredHistory = [[notification.userInfo objectForKey:@"noMoreStoredHistory"] boolValue];
+    if (noMoreStoredHistory) {
+        _hasStoredHistory = NO;
+    }
     _retrievingHistory = NO;
     [self hideLoadingHistoryView];
 }
@@ -844,7 +899,7 @@ typedef enum NCChatMessageAction {
     return keyDate;
 }
 
-- (NSIndexPath *)sortHistoryMessages:(NSMutableArray *)historyMessages
+- (NSIndexPath *)sortHistoryMessages:(NSMutableArray *)historyMessages addingBlockSeparator:(BOOL)shouldAddBlockSeparator
 {
     NSMutableDictionary *historyDict = [[NSMutableDictionary alloc] init];
     [self sortMessages:historyMessages inDictionary:historyDict];
@@ -864,6 +919,13 @@ typedef enum NCChatMessageAction {
     }
     
     [self sortDateSections];
+    
+    if (shouldAddBlockSeparator) {
+        // Chat block separator
+        NCChatMessage *blockSeparatorMessage = [[NCChatMessage alloc] init];
+        blockSeparatorMessage.messageId = kChatBlockSeparatorIdentifier;
+        [historyMessagesForSection addObject:blockSeparatorMessage];
+    }
     
     NSMutableArray *lastHistoryMessages = [historyDict objectForKey:[historySections lastObject]];
     NSIndexPath *lastHistoryMessageIP = [NSIndexPath indexPathForRow:lastHistoryMessages.count - 1 inSection:historySections.count - 1];
@@ -961,7 +1023,7 @@ typedef enum NCChatMessageAction {
 
 - (BOOL)couldRetireveHistory
 {
-    return _hasReceiveInitialHistory && !_retrievingHistory && _dateSections.count > 0;
+    return _hasReceiveInitialHistory && !_retrievingHistory && _dateSections.count > 0 && _hasStoredHistory;
 }
 
 - (void)showLoadingHistoryView
@@ -1165,8 +1227,16 @@ typedef enum NCChatMessageAction {
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
     UITableViewCell *cell = [UITableViewCell new];
-    if (message.messageId == kMessageSeparatorIdentifier) {
+    if (message.messageId == kUnreadMessagesSeparatorIdentifier) {
         MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
+        separatorCell.messageId = message.messageId;
+        separatorCell.separatorLabel.text = @"Unread messages";
+        return separatorCell;
+    }
+    if (message.messageId == kChatBlockSeparatorIdentifier) {
+        MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
+        separatorCell.messageId = message.messageId;
+        separatorCell.separatorLabel.text = @"Some messages not shown, will be downloaded when online";
         return separatorCell;
     }
     if (message.isSystemMessage) {
@@ -1273,7 +1343,8 @@ typedef enum NCChatMessageAction {
         paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
         paragraphStyle.alignment = NSTextAlignmentLeft;
         
-        if (message.messageId == kMessageSeparatorIdentifier) {
+        if (message.messageId == kUnreadMessagesSeparatorIdentifier ||
+            message.messageId == kChatBlockSeparatorIdentifier) {
             return kMessageSeparatorCellHeight;
         }
         

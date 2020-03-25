@@ -13,11 +13,12 @@
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 
-NSString * const NCChatControllerDidReceiveInitialChatHistoryNotification   = @"NCChatControllerDidReceiveInitialChatHistoryNotification";
-NSString * const NCChatControllerDidReceiveChatHistoryNotification          = @"NCChatControllerDidReceiveChatHistoryNotification";
-NSString * const NCChatControllerDidReceiveChatMessagesNotification         = @"NCChatControllerDidReceiveChatMessagesNotification";
-NSString * const NCChatControllerDidSendChatMessageNotification             = @"NCChatControllerDidSendChatMessageNotification";
-NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"NCChatControllerDidReceiveChatBlockedNotification";
+NSString * const NCChatControllerDidReceiveInitialChatHistoryNotification           = @"NCChatControllerDidReceiveInitialChatHistoryNotification";
+NSString * const NCChatControllerDidReceiveInitialChatHistoryOfflineNotification    = @"NCChatControllerDidReceiveInitialChatHistoryOfflineNotification";
+NSString * const NCChatControllerDidReceiveChatHistoryNotification                  = @"NCChatControllerDidReceiveChatHistoryNotification";
+NSString * const NCChatControllerDidReceiveChatMessagesNotification                 = @"NCChatControllerDidReceiveChatMessagesNotification";
+NSString * const NCChatControllerDidSendChatMessageNotification                     = @"NCChatControllerDidSendChatMessageNotification";
+NSString * const NCChatControllerDidReceiveChatBlockedNotification                  = @"NCChatControllerDidReceiveChatBlockedNotification";
 
 @interface NCChatController ()
 
@@ -138,6 +139,10 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
 
 - (void)updateChatBlocksWithLastKnown:(NSInteger)lastKnown
 {
+    if (lastKnown <= 0) {
+        return;
+    }
+    
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         RLMResults *managedBlocks = [NCChatBlock objectsWhere:@"internalId = %@", _room.internalId];
@@ -145,16 +150,26 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
         NCChatBlock *lastBlock = managedSortedBlocks.lastObject;
         // There is more than one chat block stored
         if (managedSortedBlocks.count > 1) {
-            NCChatBlock *previousBlock = managedSortedBlocks[managedSortedBlocks.count - 2];
-            // Merge blocks if the oldest message received is inside the previous block
-            if (lastKnown >= previousBlock.oldestMessageId && lastKnown <= previousBlock.newestMessageId) {
-                previousBlock.newestMessageId = lastBlock.newestMessageId;
-                [realm deleteObject:lastBlock];
-            // Update lastBlock
-            } else if (lastKnown > previousBlock.newestMessageId) {
-                lastBlock.oldestMessageId = lastKnown;
+            for (NSInteger i = managedSortedBlocks.count - 2; i >= 0; i--) {
+                NCChatBlock *block = managedSortedBlocks[i];
+                // Merge blocks if the lastKnown message is inside the current block
+                if (lastKnown >= block.oldestMessageId && lastKnown <= block.newestMessageId) {
+                    lastBlock.oldestMessageId = block.oldestMessageId;
+                    [realm deleteObject:block];
+                    break;
+                // Update lastBlock if the lastKnown message is between the 2 blocks
+                } else if (lastKnown > block.newestMessageId) {
+                    lastBlock.oldestMessageId = lastKnown;
+                    break;
+                // The current block is completely included in the retrieved history
+                // This could happen if we vary the message limit when fetching messages
+                // Delete included block
+                } else if (lastKnown < block.oldestMessageId) {
+                    [realm deleteObject:block];
+                }
             }
-        } else if (lastKnown > 0) {
+        // There is just one chat block stored
+        } else {
             lastBlock.oldestMessageId = lastKnown;
         }
     }];
@@ -178,15 +193,24 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
         newBlock.newestMessageId = newestMessageKnown;
         newBlock.hasHistory = YES;
         
-        NCChatBlock *lastBlock = managedSortedBlocks.lastObject;
-        // There is already a chat block stored
-        if (lastBlock) {
-            // Merge blocks if the oldest message received is inside the previous block
-            if (lastKnown >= lastBlock.oldestMessageId && lastKnown <= lastBlock.newestMessageId) {
-                lastBlock.newestMessageId = newestMessageKnown;
-            // Add new block if the oldest message is still in the gap between last block and new block
-            } else if (lastKnown > lastBlock.newestMessageId) {
-                [realm addObject:newBlock];
+        // There is at least one chat block stored
+        if (managedSortedBlocks.count > 0) {
+            for (NSInteger i = managedSortedBlocks.count - 1; i >= 0; i--) {
+                NCChatBlock *block = managedSortedBlocks[i];
+                // Merge blocks if the lastKnown message is inside the current block
+                if (lastKnown >= block.oldestMessageId && lastKnown <= block.newestMessageId) {
+                    block.newestMessageId = newestMessageKnown;
+                    break;
+                // Add new block if it didn't reach the previous block
+                } else if (lastKnown > block.newestMessageId) {
+                    [realm addObject:newBlock];
+                    break;
+                // The current block is completely included in the retrieved history
+                // This could happen if we vary the message limit when fetching messages
+                // Delete included block
+                } else if (lastKnown < block.oldestMessageId) {
+                    [realm deleteObject:block];
+                }
             }
         // No chat blocks stored yet, add new chat block
         } else {
@@ -270,6 +294,19 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
     }
 }
 
+- (void)getInitialChatHistoryForOfflineMode
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    [userInfo setObject:_room.token forKey:@"room"];
+    
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastChatBlock.newestMessageId included:YES];
+    [userInfo setObject:storedMessages forKey:@"messages"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryOfflineNotification
+                                                        object:self
+                                                      userInfo:userInfo];
+}
+
 - (void)getHistoryBatchFromMessagesId:(NSInteger)messageId
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
@@ -312,6 +349,48 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification          = @"
                                                               userInfo:userInfo];
         }];
     }
+}
+
+- (void)getHistoryBatchOfflineFromMessagesId:(NSInteger)messageId
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    [userInfo setObject:_room.token forKey:@"room"];
+    
+    NSArray *chatBlocks = [self chatBlocksForRoom];
+    NSMutableArray *historyBatch = [NSMutableArray new];
+    if (chatBlocks.count > 0) {
+        for (NSInteger i = chatBlocks.count - 1; i >= 0; i--) {
+            NCChatBlock *currentBlock = chatBlocks[i];
+            BOOL noMoreMessagesToRetrieveInBlock = NO;
+            if (currentBlock.oldestMessageId < messageId) {
+                NSArray *storedMessages = [self getBatchOfMessagesInBlock:currentBlock fromMessageId:messageId included:NO];
+                historyBatch = [[NSMutableArray alloc] initWithArray:storedMessages];
+                if (storedMessages.count > 0) {
+                    break;
+                } else {
+                    // We use this flag in case the rest of the messages in current block
+                    // are system messages invisible for the user.
+                    noMoreMessagesToRetrieveInBlock = YES;
+                }
+            }
+            if (i > 0 && (currentBlock.oldestMessageId == messageId || noMoreMessagesToRetrieveInBlock)) {
+                NCChatBlock *previousBlock = chatBlocks[i - 1];
+                NSArray *storedMessages = [self getBatchOfMessagesInBlock:previousBlock fromMessageId:previousBlock.newestMessageId included:YES];
+                historyBatch = [[NSMutableArray alloc] initWithArray:storedMessages];
+                [userInfo setObject:@(YES) forKey:@"shouldAddBlockSeparator"];
+                break;
+            }
+        }
+    }
+    
+    if (historyBatch.count == 0) {
+        [userInfo setObject:@(YES) forKey:@"noMoreStoredHistory"];
+    }
+    
+    [userInfo setObject:historyBatch forKey:@"messages"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
+                                                        object:self
+                                                      userInfo:userInfo];
 }
 
 - (void)stopReceivingChatHistory

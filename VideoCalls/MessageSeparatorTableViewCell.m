@@ -16,7 +16,6 @@
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         self.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
-        self.messageId = kMessageSeparatorIdentifier;
         
         [self configureSubviews];
     }
@@ -40,7 +39,7 @@
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-    
+    self.separatorLabel.text = @"";
     self.selectionStyle = UITableViewCellSelectionStyleNone;
 }
 
