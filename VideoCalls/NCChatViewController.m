@@ -229,7 +229,9 @@ typedef enum NCChatMessageAction {
     
     _isVisible = YES;
     
-    [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+    if (!_offlineMode) {
+        [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -616,7 +618,9 @@ typedef enum NCChatMessageAction {
 -(void)appDidBecomeActive:(NSNotification*)notification
 {
     [self removeUnreadMessagesSeparator];
-    [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+    if (!_offlineMode) {
+        [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+    }
 }
 
 -(void)appWillResignActive:(NSNotification*)notification
