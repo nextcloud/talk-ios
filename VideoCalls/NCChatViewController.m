@@ -389,7 +389,7 @@ typedef enum NCChatMessageAction {
     footerLabel.textColor = [UIColor lightGrayColor];
     footerLabel.font = [UIFont systemFontOfSize:12.0];
     footerLabel.backgroundColor = [UIColor clearColor];
-    footerLabel.text = @"New messages will not be received while offline";
+    footerLabel.text = @"Showing downloaded messages while offline";
     self.tableView.tableFooterView = footerLabel;
     self.tableView.tableFooterView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
 }
@@ -1236,7 +1236,7 @@ typedef enum NCChatMessageAction {
     if (message.messageId == kChatBlockSeparatorIdentifier) {
         MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
         separatorCell.messageId = message.messageId;
-        separatorCell.separatorLabel.text = @"Missing not downloaded messages";
+        separatorCell.separatorLabel.text = @"Some messages not shown, will be downloaded when online";
         return separatorCell;
     }
     if (message.isSystemMessage) {
