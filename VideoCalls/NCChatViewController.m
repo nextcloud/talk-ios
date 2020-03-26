@@ -389,7 +389,7 @@ typedef enum NCChatMessageAction {
     footerLabel.textColor = [UIColor lightGrayColor];
     footerLabel.font = [UIFont systemFontOfSize:12.0];
     footerLabel.backgroundColor = [UIColor clearColor];
-    footerLabel.text = @"Showing downloaded messages while offline";
+    footerLabel.text = @"Offline, only showing downloaded messages";
     self.tableView.tableFooterView = footerLabel;
     self.tableView.tableFooterView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
 }
