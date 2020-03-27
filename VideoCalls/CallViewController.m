@@ -120,6 +120,20 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.videoCallButton.layer setCornerRadius:30.0f];
     [self.closeScreensharingButton.layer setCornerRadius:16.0f];
     
+    self.audioMuteButton.accessibilityLabel = @"Microphone";
+    self.audioMuteButton.accessibilityValue = @"Microphone enabled";
+    self.audioMuteButton.accessibilityHint = @"Doble tap to enable or disable the microphone";
+    self.speakerButton.accessibilityLabel = @"Speaker";
+    self.speakerButton.accessibilityValue = @"Speaker disabled";
+    self.speakerButton.accessibilityHint = @"Doble tap to enable or disable the speaker";
+    self.videoDisableButton.accessibilityLabel = @"Camera";
+    self.videoDisableButton.accessibilityValue = @"Camera enabled";
+    self.videoDisableButton.accessibilityHint = @"Doble tap to enable or disable the camera";
+    self.hangUpButton.accessibilityLabel = @"Hang up";
+    self.hangUpButton.accessibilityHint = @"Doble tap to hang up the call";
+    self.videoCallButton.accessibilityLabel = @"Camera";
+    self.videoCallButton.accessibilityHint = @"Doble tap to upgrade this voice call to a video call";
+    
     [self adjustButtonsConainer];
     
     self.collectionView.delegate = self;
@@ -537,6 +551,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController enableAudio:NO];
     dispatch_async(dispatch_get_main_queue(), ^{
         [_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+        _audioMuteButton.accessibilityValue = @"Microphone disabled";
     });
 }
 
@@ -545,6 +560,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController enableAudio:YES];
     dispatch_async(dispatch_get_main_queue(), ^{
         [_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+        _audioMuteButton.accessibilityValue = @"Microphone enabled";
     });
 }
 
@@ -565,6 +581,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_captureController stopCapture];
     [_localVideoView setHidden:YES];
     [_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
+    _videoDisableButton.accessibilityValue = @"Camera disabled";
 }
 
 - (void)enableLocalVideo
@@ -573,6 +590,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_captureController startCapture];
     [_localVideoView setHidden:NO];
     [_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
+    _videoDisableButton.accessibilityValue = @"Camera enabled";
 }
 
 - (IBAction)switchCameraButtonPressed:(id)sender
@@ -610,12 +628,14 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
     [_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
+    _speakerButton.accessibilityValue = @"Speaker disabled";
 }
 
 - (void)enableSpeaker
 {
     [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
     [_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
+    _speakerButton.accessibilityValue = @"Speaker enabled";
 }
 
 - (IBAction)hangupButtonPressed:(id)sender

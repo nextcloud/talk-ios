@@ -101,6 +101,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
+    self.navigationController.navigationBar.topItem.leftBarButtonItem.accessibilityHint = @"Cancel conversation creation";
     
     UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStylePlain
                                                                   target:nil action:nil];
@@ -277,12 +278,16 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         switch (indexPath.row) {
             case kHeaderSectionNewGroup:
                 cell.labelTitle.text = @"Group conversation";
+                cell.labelTitle.accessibilityLabel = @"Create a new group conversation";
+                cell.labelTitle.accessibilityHint = @"Double tap to start creating a new group conversation";
                 cell.labelTitle.textColor = [UIColor colorWithRed:0.00 green:0.48 blue:1.00 alpha:1.0]; //#007AFF
                 [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
                 break;
                 
             case kHeaderSectionNewPublic:
                 cell.labelTitle.text = @"Public conversation";
+                cell.labelTitle.accessibilityLabel = @"Create a new public conversation";
+                cell.labelTitle.accessibilityHint = @"Double tap to start creating a new public conversation";
                 cell.labelTitle.textColor = [UIColor colorWithRed:0.00 green:0.48 blue:1.00 alpha:1.0]; //#007AFF
                 [cell.contactImage setImage:[UIImage imageNamed:@"public-bg"]];
                 break;
@@ -301,6 +306,8 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     }
     
     cell.labelTitle.text = contact.name;
+    cell.labelTitle.accessibilityLabel = [NSString stringWithFormat:@"Create a conversation with %@", contact.name];
+    cell.labelTitle.accessibilityHint = [NSString stringWithFormat:@"Double tap to create a conversation with %@", contact.name];
     
     [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                              placeholderImage:nil success:nil failure:nil];
