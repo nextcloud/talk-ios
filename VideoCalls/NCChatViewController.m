@@ -144,7 +144,11 @@ typedef enum NCChatMessageAction {
     
     [self.rightButton setTitle:@"" forState:UIControlStateNormal];
     [self.rightButton setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
+    self.rightButton.accessibilityLabel = @"Send message";
+    self.rightButton.accessibilityHint = @"Double tap to send message";
     [self.leftButton setImage:[UIImage imageNamed:@"add"] forState:UIControlStateNormal];
+    self.leftButton.accessibilityLabel = @"Share a file from your Nextcloud";
+    self.leftButton.accessibilityHint = @"Double tap to open file browser";
     
     self.textInputbar.autoHideRightButton = NO;
     NSInteger chatMaxLength = [[NCSettingsController sharedInstance] chatMaxLengthConfigCapability];
@@ -302,6 +306,8 @@ typedef enum NCChatMessageAction {
     } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
         [_titleView.image setImage:[UIImage imageNamed:@"password-bg"]];
     }
+    
+    _titleView.title.accessibilityHint = @"Double tap to go to conversation information";
 }
 
 - (void)configureActionItems
@@ -310,11 +316,15 @@ typedef enum NCChatMessageAction {
                                                         style:UIBarButtonItemStylePlain
                                                        target:self
                                                        action:@selector(videoCallButtonPressed:)];
+    _videoCallButton.accessibilityLabel = @"Video call";
+    _videoCallButton.accessibilityHint = @"Double tap to start a video call";
     
     _voiceCallButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"call-action"]
                                                         style:UIBarButtonItemStylePlain
                                                        target:self
                                                        action:@selector(voiceCallButtonPressed:)];
+    _voiceCallButton.accessibilityLabel = @"Voice call";
+    _voiceCallButton.accessibilityHint = @"Double tap to start a voice call";
     
     self.navigationItem.rightBarButtonItems = @[_videoCallButton, _voiceCallButton];
 }
