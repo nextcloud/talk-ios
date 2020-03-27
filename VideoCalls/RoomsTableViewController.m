@@ -65,6 +65,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
+    self.addButton.accessibilityLabel = @"Create a new conversation";
+    self.addButton.accessibilityHint = @"Double tap to create group, public or one to one conversations.";
+    
     [self createRefreshControl];
     [self setNavigationLogoButton];
     
@@ -265,6 +268,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     } else {
         self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
     }
+    self.navigationItem.titleView.accessibilityLabel = @"Nextcloud Talk logo";
+    self.navigationItem.titleView.accessibilityHint = @"Double tap to change accounts or add a new one.";
 }
 
 -(void)showAccountsMenu:(UIButton*)sender
@@ -420,6 +425,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     profileButton.frame = CGRectMake(0, 0, 30, 30);
     profileButton.layer.masksToBounds = YES;
     profileButton.layer.cornerRadius = 15;
+    profileButton.accessibilityLabel = @"User profile and settings";
+    profileButton.accessibilityHint = @"Double tap to go to user profile and application settings";
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withSize:CGSizeMake(90, 90)];
