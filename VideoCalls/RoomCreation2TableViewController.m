@@ -77,11 +77,13 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     _passwordTextField.adjustsFontSizeToFitWidth = YES;
     _passwordTextField.textColor = [UIColor blackColor];
     _passwordTextField.secureTextEntry = YES;
+    _passwordTextField.accessibilityLabel = @"Password field for public conversation";
     
     _creatingRoomView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     _createRoomButton = [[UIBarButtonItem alloc] initWithTitle:@"Create" style:UIBarButtonItemStyleDone
                                                         target:self action:@selector(createButtonPressed)];
     _createRoomButton.enabled = NO;
+    _createRoomButton.accessibilityHint = @"Double tap to create the conversation";
     self.navigationItem.rightBarButtonItem = _createRoomButton;
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];

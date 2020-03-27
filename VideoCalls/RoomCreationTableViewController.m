@@ -106,6 +106,7 @@
     UIBarButtonItem *nextButton = [[UIBarButtonItem alloc] initWithTitle:@"Next" style:UIBarButtonItemStylePlain
                                                                   target:self action:@selector(nextButtonPressed)];
     self.navigationItem.rightBarButtonItem = nextButton;
+    self.navigationItem.rightBarButtonItem.accessibilityHint = @"Continue to next step of conversation creation";
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
@@ -171,6 +172,7 @@
     titleLabel.textColor = [UIColor whiteColor];
     titleLabel.font = [UIFont boldSystemFontOfSize:16];
     titleLabel.text = @"New group conversation";
+    titleLabel.accessibilityLabel = @"Add participants to new group conversation";
     [titleLabel sizeToFit];
     
     UILabel *subTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 18, 0, 0)];
@@ -178,6 +180,7 @@
     subTitleLabel.textColor = [UIColor whiteColor];
     subTitleLabel.font = [UIFont systemFontOfSize:12];
     subTitleLabel.text = (_selectedParticipants.count == 1) ? @"1 participant" : [NSString stringWithFormat:@"%ld participants", _selectedParticipants.count];
+    subTitleLabel.accessibilityLabel = [NSString stringWithFormat:@"%@ added to this new group conversation", subTitleLabel.text];
     [subTitleLabel sizeToFit];
     
     UIView *twoLineTitleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, MAX(subTitleLabel.frame.size.width, titleLabel.frame.size.width), 30)];
