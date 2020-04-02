@@ -268,7 +268,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     } else {
         self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
     }
-    self.navigationItem.titleView.accessibilityLabel = @"Nextcloud Talk logo";
+    self.navigationItem.titleView.accessibilityLabel = @"Nextcloud Talk";
     self.navigationItem.titleView.accessibilityHint = @"Double tap to change accounts or add a new one.";
 }
 
