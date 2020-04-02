@@ -52,6 +52,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) NSMutableArray *dateSections;
 @property (nonatomic, strong) NSMutableArray *mentions;
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
+@property (nonatomic, assign) BOOL hasRequestedInitialHistory;
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
 @property (nonatomic, assign) BOOL hasReceiveNewMessages;
 @property (nonatomic, assign) BOOL retrievingHistory;
@@ -227,7 +228,8 @@ typedef enum NCChatMessageAction {
     
     [self checkRoomControlsAvailability];
     
-    if (!_hasReceiveInitialHistory) {
+    if (!_hasReceiveInitialHistory && !_hasRequestedInitialHistory) {
+        _hasRequestedInitialHistory = YES;
         [_chatController getInitialChatHistory];
     }
     
@@ -385,7 +387,8 @@ typedef enum NCChatMessageAction {
         // Stop checking lobby flag
         [_lobbyCheckTimer invalidate];
         // Retrieve initial chat history
-        if (!_hasReceiveInitialHistory) {
+        if (!_hasReceiveInitialHistory && !_hasRequestedInitialHistory) {
+            _hasRequestedInitialHistory = YES;
             [_chatController getInitialChatHistory];
         }
     }
@@ -676,7 +679,8 @@ typedef enum NCChatMessageAction {
     if (_leftChatWithVisibleChatVC && _hasReceiveInitialHistory) {
         _leftChatWithVisibleChatVC = NO;
         [_chatController startReceivingNewChatMessages];
-    } else if (!_hasReceiveInitialHistory) {
+    } else if (!_hasReceiveInitialHistory && !_hasRequestedInitialHistory) {
+        _hasRequestedInitialHistory = YES;
         [_chatController getInitialChatHistory];
     }
 }
