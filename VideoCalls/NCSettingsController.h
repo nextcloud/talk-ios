@@ -38,6 +38,7 @@ extern NSString * const kCapabilityWebinaryLobby;
 extern NSString * const kCapabilityChatReadMarker;
 extern NSString * const kCapabilityStartCallFlag;
 extern NSString * const kCapabilityCirclesSupport;
+extern NSString * const kCapabilityChatReferenceId;
 
 extern NSInteger const kDefaultChatMaxLength;
 extern NSString * const kMinimumRequiredTalkCapability;
