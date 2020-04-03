@@ -45,7 +45,7 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 // Chat
 - (NCChatController *)chatContollerForRoom:(NCRoom *)room;
 - (void)startChatInRoom:(NCRoom *)room;
-- (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo toRoom:(NCRoom *)room;
+- (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId toRoom:(NCRoom *)room;
 - (void)stopReceivingChatMessagesInRoom:(NCRoom *)room;
 - (void)leaveChatInRoom:(NSString *)token;
 // Call

@@ -450,11 +450,11 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
     [_pullMessagesTask cancel];
 }
 
-- (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo
+- (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:message forKey:@"message"];
-    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token displayName:nil replyTo:replyTo forAccount:_account withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token displayName:nil replyTo:replyTo referenceId:referenceId forAccount:_account withCompletionBlock:^(NSError *error) {
         if (error) {
             [userInfo setObject:error forKey:@"error"];
             NSLog(@"Could not send chat message. Error: %@", error.description);

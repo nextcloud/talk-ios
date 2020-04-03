@@ -32,7 +32,7 @@ extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
 @property (nonatomic, strong) NCRoom *room;
 
 - (instancetype)initForRoom:(NCRoom *)room;
-- (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo;
+- (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId;
 - (void)getInitialChatHistory;
 - (void)getInitialChatHistoryForOfflineMode;
 - (void)getHistoryBatchFromMessagesId:(NSInteger)messageId;
