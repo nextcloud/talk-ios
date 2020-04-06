@@ -766,163 +766,171 @@ typedef enum NCChatMessageAction {
 
 - (void)didReceiveInitialChatHistory:(NSNotification *)notification
 {
-    NSString *room = [notification.userInfo objectForKey:@"room"];
-    if (![room isEqualToString:_room.token]) {
-        return;
-    }
-    
-    NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
-    if (messages.count > 0) {
-        // Set last received message as last read message
-        NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
-        _lastReadMessage = lastReceivedMessage.messageId;
-        [self sortMessages:messages inDictionary:_messages];
-        [self.tableView reloadData];
-        [self.tableView slk_scrollToBottomAnimated:NO];
-    } else {
-        [_chatBackgroundView.placeholderView setHidden:NO];
-    }
-    
-    _hasReceiveInitialHistory = YES;
-    
-    NSError *error = [notification.userInfo objectForKey:@"error"];
-    if (!error) {
-        [_chatController startReceivingNewChatMessages];
-    } else {
-        _offlineMode = YES;
-        [_chatController getInitialChatHistoryForOfflineMode];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *room = [notification.userInfo objectForKey:@"room"];
+        if (![room isEqualToString:_room.token]) {
+            return;
+        }
+        
+        NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
+        if (messages.count > 0) {
+            // Set last received message as last read message
+            NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
+            _lastReadMessage = lastReceivedMessage.messageId;
+            [self sortMessages:messages inDictionary:_messages];
+            [self.tableView reloadData];
+            [self.tableView slk_scrollToBottomAnimated:NO];
+        } else {
+            [_chatBackgroundView.placeholderView setHidden:NO];
+        }
+        
+        _hasReceiveInitialHistory = YES;
+        
+        NSError *error = [notification.userInfo objectForKey:@"error"];
+        if (!error) {
+            [_chatController startReceivingNewChatMessages];
+        } else {
+            _offlineMode = YES;
+            [_chatController getInitialChatHistoryForOfflineMode];
+        }
+    });
 }
 
 - (void)didReceiveInitialChatHistoryOffline:(NSNotification *)notification
 {
-    NSString *room = [notification.userInfo objectForKey:@"room"];
-    if (![room isEqualToString:_room.token]) {
-        return;
-    }
-    
-    NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
-    if (messages.count > 0) {
-        [self sortMessages:messages inDictionary:_messages];
-        [self setOfflineFooterView];
-        [self.tableView reloadData];
-        [self.tableView slk_scrollToBottomAnimated:NO];
-    } else {
-        [_chatBackgroundView.placeholderView setHidden:NO];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *room = [notification.userInfo objectForKey:@"room"];
+        if (![room isEqualToString:_room.token]) {
+            return;
+        }
+        
+        NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
+        if (messages.count > 0) {
+            [self sortMessages:messages inDictionary:_messages];
+            [self setOfflineFooterView];
+            [self.tableView reloadData];
+            [self.tableView slk_scrollToBottomAnimated:NO];
+        } else {
+            [_chatBackgroundView.placeholderView setHidden:NO];
+        }
+    });
 }
 
 - (void)didReceiveChatHistory:(NSNotification *)notification
 {
-    NSString *room = [notification.userInfo objectForKey:@"room"];
-    if (![room isEqualToString:_room.token]) {
-        return;
-    }
-    
-    NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
-    BOOL shouldAddBlockSeparator = [[notification.userInfo objectForKey:@"shouldAddBlockSeparator"] boolValue];
-    if (messages.count > 0) {
-        NSIndexPath *lastHistoryMessageIP = [self sortHistoryMessages:messages addingBlockSeparator:shouldAddBlockSeparator];
-        [self.tableView reloadData];
-        [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionTop animated:NO];
-    }
-    
-    BOOL noMoreStoredHistory = [[notification.userInfo objectForKey:@"noMoreStoredHistory"] boolValue];
-    if (noMoreStoredHistory) {
-        _hasStoredHistory = NO;
-    }
-    _retrievingHistory = NO;
-    [self hideLoadingHistoryView];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *room = [notification.userInfo objectForKey:@"room"];
+        if (![room isEqualToString:_room.token]) {
+            return;
+        }
+        
+        NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
+        BOOL shouldAddBlockSeparator = [[notification.userInfo objectForKey:@"shouldAddBlockSeparator"] boolValue];
+        if (messages.count > 0) {
+            NSIndexPath *lastHistoryMessageIP = [self sortHistoryMessages:messages addingBlockSeparator:shouldAddBlockSeparator];
+            [self.tableView reloadData];
+            [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionTop animated:NO];
+        }
+        
+        BOOL noMoreStoredHistory = [[notification.userInfo objectForKey:@"noMoreStoredHistory"] boolValue];
+        if (noMoreStoredHistory) {
+            _hasStoredHistory = NO;
+        }
+        _retrievingHistory = NO;
+        [self hideLoadingHistoryView];
+    });
 }
 
 - (void)didReceiveChatMessages:(NSNotification *)notification
 {
-    NSString *room = [notification.userInfo objectForKey:@"room"];
-    NSError *error = [notification.userInfo objectForKey:@"error"];
-    if (![room isEqualToString:_room.token] || error) {
-        return;
-    }
-    
-    BOOL firstNewMessagesAfterHistory = !_hasReceiveNewMessages;
-    _hasReceiveNewMessages = YES;
-    
-    NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
-    if (messages.count > 0) {
-        NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
-        BOOL unreadMessagesReceived = NO;
-        // Check if unread messages separator should be added
-        if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && messages.count > 0) {
-            unreadMessagesReceived = YES;
-            NSMutableArray *messagesForLastDateBeforeUpdate = [_messages objectForKey:[_dateSections lastObject]];
-            [messagesForLastDateBeforeUpdate addObject:_unreadMessagesSeparator];
-            _unreadMessagesSeparatorIP = [NSIndexPath indexPathForRow:messagesForLastDateBeforeUpdate.count - 1 inSection: _dateSections.count - 1];
-            [_messages setObject:messagesForLastDateBeforeUpdate forKey:[_dateSections lastObject]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *room = [notification.userInfo objectForKey:@"room"];
+        NSError *error = [notification.userInfo objectForKey:@"error"];
+        if (![room isEqualToString:_room.token] || error) {
+            return;
         }
         
-        // Sort received messages
-        [self sortMessages:messages inDictionary:_messages];
+        BOOL firstNewMessagesAfterHistory = !_hasReceiveNewMessages;
+        _hasReceiveNewMessages = YES;
         
-        NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
-        NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
-        
-        // Load messages in chat view
-        if (messages.count > 1 || unreadMessagesReceived) {
-            [self.tableView reloadData];
-        } else if (messages.count == 1) {
-            [self.tableView beginUpdates];
-            NSInteger newLastSection = _dateSections.count - 1;
-            BOOL newSection = lastSectionBeforeUpdate != newLastSection;
-            if (newSection) {
-                [self.tableView insertSections:[NSIndexSet indexSetWithIndex:newLastSection] withRowAnimation:UITableViewRowAnimationNone];
-            } else {
-                [self.tableView insertRowsAtIndexPaths:@[lastMessageIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+        NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
+        if (messages.count > 0) {
+            NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
+            BOOL unreadMessagesReceived = NO;
+            // Check if unread messages separator should be added
+            if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && messages.count > 0) {
+                unreadMessagesReceived = YES;
+                NSMutableArray *messagesForLastDateBeforeUpdate = [_messages objectForKey:[_dateSections lastObject]];
+                [messagesForLastDateBeforeUpdate addObject:_unreadMessagesSeparator];
+                _unreadMessagesSeparatorIP = [NSIndexPath indexPathForRow:messagesForLastDateBeforeUpdate.count - 1 inSection: _dateSections.count - 1];
+                [_messages setObject:messagesForLastDateBeforeUpdate forKey:[_dateSections lastObject]];
             }
-            [self.tableView endUpdates];
-        }
-        
-        BOOL newMessagesContainUserMessage = [self newMessagesContainUserMessage:messages];
-        // Remove unread messages separator when user writes a message
-        if (newMessagesContainUserMessage) {
-            [self removeUnreadMessagesSeparator];
-            // Update last message index path
-            lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
-        }
-        
-        NCChatMessage *firstNewMessage = [messages objectAtIndex:0];
-        NSIndexPath *firstMessageIndexPath = [self indexPathForMessage:firstNewMessage];
-        // This variable is needed since several calls to receiveMessages API might be needed
-        // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
-        // to receive all the unread messages.
-        BOOL areReallyNewMessages = firstNewMessage.timestamp >= _chatViewPresentedTimestamp;
-        
-        // Position chat view
-        if (unreadMessagesReceived) {
-            [self.tableView scrollToRowAtIndexPath:firstMessageIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
-        } else if ([self shouldScrollOnNewMessages] || newMessagesContainUserMessage) {
-            [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-        } else if (!_firstUnreadMessageIP && areReallyNewMessages) {
-            [self showNewMessagesViewUntilIndexPath:firstMessageIndexPath];
-        }
-        
-        // Set last received message as last read message
-        NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
-        _lastReadMessage = lastReceivedMessage.messageId;
-    } else if (firstNewMessagesAfterHistory) {
-        // Now the chat is loaded after getting the initial history and the first new messages block.
-        // Even if there are no new messages, tableview should be reloaded and scrolled to the bottom
-        // as it was done when only initial history was loaded.
-        [self.tableView reloadData];
-        NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
-        if (messagesForLastDate.count > 0) {
+            
+            // Sort received messages
+            [self sortMessages:messages inDictionary:_messages];
+            
+            NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
             NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
-            [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
+            
+            // Load messages in chat view
+            if (messages.count > 1 || unreadMessagesReceived) {
+                [self.tableView reloadData];
+            } else if (messages.count == 1) {
+                [self.tableView beginUpdates];
+                NSInteger newLastSection = _dateSections.count - 1;
+                BOOL newSection = lastSectionBeforeUpdate != newLastSection;
+                if (newSection) {
+                    [self.tableView insertSections:[NSIndexSet indexSetWithIndex:newLastSection] withRowAnimation:UITableViewRowAnimationNone];
+                } else {
+                    [self.tableView insertRowsAtIndexPaths:@[lastMessageIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+                }
+                [self.tableView endUpdates];
+            }
+            
+            BOOL newMessagesContainUserMessage = [self newMessagesContainUserMessage:messages];
+            // Remove unread messages separator when user writes a message
+            if (newMessagesContainUserMessage) {
+                [self removeUnreadMessagesSeparator];
+                // Update last message index path
+                lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+            }
+            
+            NCChatMessage *firstNewMessage = [messages objectAtIndex:0];
+            NSIndexPath *firstMessageIndexPath = [self indexPathForMessage:firstNewMessage];
+            // This variable is needed since several calls to receiveMessages API might be needed
+            // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
+            // to receive all the unread messages.
+            BOOL areReallyNewMessages = firstNewMessage.timestamp >= _chatViewPresentedTimestamp;
+            
+            // Position chat view
+            if (unreadMessagesReceived) {
+                [self.tableView scrollToRowAtIndexPath:firstMessageIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+            } else if ([self shouldScrollOnNewMessages] || newMessagesContainUserMessage) {
+                [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+            } else if (!_firstUnreadMessageIP && areReallyNewMessages) {
+                [self showNewMessagesViewUntilIndexPath:firstMessageIndexPath];
+            }
+            
+            // Set last received message as last read message
+            NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
+            _lastReadMessage = lastReceivedMessage.messageId;
+        } else if (firstNewMessagesAfterHistory) {
+            // Now the chat is loaded after getting the initial history and the first new messages block.
+            // Even if there are no new messages, tableview should be reloaded and scrolled to the bottom
+            // as it was done when only initial history was loaded.
+            [self.tableView reloadData];
+            NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
+            if (messagesForLastDate.count > 0) {
+                NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+                [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
+            }
         }
-    }
-    
-    if (firstNewMessagesAfterHistory) {
-        [_chatBackgroundView.loadingView stopAnimating];
-        [_chatBackgroundView.loadingView setHidden:YES];
-    }
+        
+        if (firstNewMessagesAfterHistory) {
+            [_chatBackgroundView.loadingView stopAnimating];
+            [_chatBackgroundView.loadingView setHidden:YES];
+        }
+    });
 }
 
 - (void)didSendChatMessage:(NSNotification *)notification
