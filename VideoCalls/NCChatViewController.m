@@ -101,6 +101,7 @@ typedef enum NCChatMessageAction {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCChatControllerDidReceiveChatMessagesNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCChatControllerDidSendChatMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatBlocked:) name:NCChatControllerDidReceiveChatBlockedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didRemoveTemporaryMessages:) name:NCChatControllerDidRemoveTemporaryMessagesNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     }
@@ -458,6 +459,75 @@ typedef enum NCChatMessageAction {
     [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
 }
 
+#pragma mark - Temporary messages
+
+- (NCChatMessage *)createTemporaryMessage:(NSString *)text
+{
+    NCChatMessage *temporaryMessage = [[NCChatMessage alloc] init];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    temporaryMessage.actorDisplayName = activeAccount.userDisplayName;
+    temporaryMessage.actorId = activeAccount.userId;
+    temporaryMessage.timestamp = [[NSDate date] timeIntervalSince1970];
+    temporaryMessage.token = _room.token;
+    NSString *sendingMessage = [text copy];
+    temporaryMessage.message = sendingMessage;
+    NSString * referenceId = [NSString stringWithFormat:@"temp-%f",[[NSDate date] timeIntervalSince1970] * 1000];
+    temporaryMessage.referenceId = referenceId;
+    temporaryMessage.internalId = referenceId;
+    temporaryMessage.isTemporary = YES;
+    
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        [realm addObject:temporaryMessage];
+    }];
+    
+    NCChatMessage *unmanagedTemporaryMessage = [[NCChatMessage alloc] initWithValue:temporaryMessage];
+    return unmanagedTemporaryMessage;
+}
+
+- (void)addTemporaryMessage:(NCChatMessage *)temporaryMessage
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
+        NSMutableArray *messages = [[NSMutableArray alloc] initWithObjects:temporaryMessage, nil];
+        [self sortMessages:messages inDictionary:_messages];
+        
+        NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
+        NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+        
+        [self.tableView beginUpdates];
+        NSInteger newLastSection = _dateSections.count - 1;
+        BOOL newSection = lastSectionBeforeUpdate != newLastSection;
+        if (newSection) {
+            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:newLastSection] withRowAnimation:UITableViewRowAnimationNone];
+        } else {
+            [self.tableView insertRowsAtIndexPaths:@[lastMessageIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+        }
+        [self.tableView endUpdates];
+        
+        [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+        
+        [_temporaryMessages addObject:temporaryMessage];
+    });
+}
+
+- (void)removeTemporaryMessages:(NSArray *)messages
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSMutableArray *deleteIndexPaths = [NSMutableArray new];
+        for (NCChatMessage *message in messages) {
+            NSIndexPath *indexPath = [self removeMessage:message];
+            if (indexPath) {
+                [deleteIndexPaths addObject:indexPath];
+            }
+        }
+        
+        [self.tableView beginUpdates];
+        [self.tableView deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView endUpdates];
+    });
+}
+
 #pragma mark - Action Methods
 
 - (void)titleButtonPressed:(id)sender
@@ -485,10 +555,19 @@ typedef enum NCChatMessageAction {
 
 - (void)didPressRightButton:(id)sender
 {
+    // Create temporary message
+    NSString *referenceId = nil;
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
+        NCChatMessage *temporaryMessage = [self createTemporaryMessage:self.textView.text];
+        referenceId = temporaryMessage.referenceId;
+        [self addTemporaryMessage:temporaryMessage];
+    }
+
+    // Send message
     NSString *sendingText = [self createSendingMessage:self.textView.text];
     NSInteger replyTo = (_replyMessageView.isVisible) ? _replyMessageView.message.messageId : -1;
+    [[NCRoomsManager sharedInstance] sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId toRoom:_room];
     
-    [[NCRoomsManager sharedInstance] sendChatMessage:sendingText replyTo:replyTo toRoom:_room];
     [_replyMessageView dismiss];
     [super didPressRightButton:sender];
 }
@@ -878,6 +957,17 @@ typedef enum NCChatMessageAction {
     [self startObservingRoomLobbyFlag];
 }
 
+- (void)didRemoveTemporaryMessages:(NSNotification *)notification
+{
+    NSString *room = [notification.userInfo objectForKey:@"room"];
+    if (![room isEqualToString:_room.token]) {
+        return;
+    }
+    
+    NSArray *removedTemporaryMessages = [notification.userInfo objectForKey:@"messages"];
+    [self removeTemporaryMessages:removedTemporaryMessages];
+}
+
 #pragma mark - Lobby functions
 
 - (void)startObservingRoomLobbyFlag
@@ -1010,7 +1100,28 @@ typedef enum NCChatMessageAction {
         NSMutableArray *messages = [_messages objectForKey:keyDate];
         for (int i = 0; i < messages.count; i++) {
             NCChatMessage *currentMessage = messages[i];
-            if (currentMessage.messageId == message.messageId) {
+            if (currentMessage.messageId == message.messageId ||
+                [currentMessage.referenceId isEqualToString:message.referenceId]) {
+                return [NSIndexPath indexPathForRow:i inSection:section];
+            }
+        }
+    }
+    
+    return nil;
+}
+
+- (NSIndexPath *)removeMessage:(NCChatMessage *)message
+{
+    NSDate *messageDate = [NSDate dateWithTimeIntervalSince1970: message.timestamp];
+    NSDate *keyDate = [self getKeyForDate:messageDate inDictionary:_messages];
+    NSInteger section = [_dateSections indexOfObject:keyDate];
+    if (NSNotFound != section) {
+        NSMutableArray *messages = [_messages objectForKey:keyDate];
+        for (int i = 0; i < messages.count; i++) {
+            NCChatMessage *currentMessage = messages[i];
+            if (currentMessage.messageId == message.messageId ||
+                [currentMessage.referenceId isEqualToString:message.referenceId]) {
+                [messages removeObjectAtIndex:i];
                 return [NSIndexPath indexPathForRow:i inSection:section];
             }
         }

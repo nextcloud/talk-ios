@@ -19,6 +19,7 @@ NSString * const NCChatControllerDidReceiveChatHistoryNotification              
 NSString * const NCChatControllerDidReceiveChatMessagesNotification                 = @"NCChatControllerDidReceiveChatMessagesNotification";
 NSString * const NCChatControllerDidSendChatMessageNotification                     = @"NCChatControllerDidSendChatMessageNotification";
 NSString * const NCChatControllerDidReceiveChatBlockedNotification                  = @"NCChatControllerDidReceiveChatBlockedNotification";
+NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification             = @"NCChatControllerDidRemoveTemporaryMessagesNotification";
 
 @interface NCChatController ()
 
@@ -101,11 +102,20 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
+        NSMutableArray *removedTemporaryMessages = [NSMutableArray new];
         // Add or update messages
         for (NSDictionary *messageDict in messages) {
             NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:_account.accountId];
             NCChatMessage *parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:_account.accountId];
             message.parentId = parent.internalId;
+            
+            if (message.referenceId && ![message.referenceId isEqualToString:@""]) {
+                NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@", message.referenceId].firstObject;
+                if (managedTemporaryMessage) {
+                    [realm deleteObject:managedTemporaryMessage];
+                    [removedTemporaryMessages addObject:message];
+                }
+            }
             
             NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", message.internalId].firstObject;
             if (managedMessage) {
@@ -120,6 +130,15 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
             } else if (parent) {
                 [realm addObject:parent];
             }
+        }
+        // Send notification with removed temprary messages
+        if (removedTemporaryMessages.count > 0) {
+            NSMutableDictionary *userInfo = [NSMutableDictionary new];
+            [userInfo setObject:_room.token forKey:@"room"];
+            [userInfo setObject:removedTemporaryMessages forKey:@"messages"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidRemoveTemporaryMessagesNotification
+                                                                object:self
+                                                              userInfo:userInfo];
         }
     }];
 }

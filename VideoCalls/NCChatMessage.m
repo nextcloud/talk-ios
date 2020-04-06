@@ -30,6 +30,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     message.token = [messageDict objectForKey:@"token"];
     message.systemMessage = [messageDict objectForKey:@"systemMessage"];
     message.isReplyable = [[messageDict objectForKey:@"isReplyable"] boolValue];
+    message.referenceId = [messageDict objectForKey:@"referenceId"];
     
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
