@@ -513,23 +513,21 @@ typedef enum NCChatMessageAction {
 
 - (void)removeTemporaryMessages:(NSArray *)messages
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        for (NCChatMessage *message in messages) {
-            NSMutableArray *deleteIndexPaths = [NSMutableArray new];
-            NSIndexPath *indexPath = [self indexPathForMessage:message];
-            if (indexPath) {
-                [deleteIndexPaths addObject:indexPath];
-            }
-            
-            for (NSIndexPath *indexPath in deleteIndexPaths) {
-                [self removeMessageAtIndexPath:indexPath];
-            }
-            
-            [self.tableView beginUpdates];
-            [self.tableView deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationNone];
-            [self.tableView endUpdates];
+    for (NCChatMessage *message in messages) {
+        NSMutableArray *deleteIndexPaths = [NSMutableArray new];
+        NSIndexPath *indexPath = [self indexPathForMessage:message];
+        if (indexPath) {
+            [deleteIndexPaths addObject:indexPath];
         }
-    });
+        
+        for (NSIndexPath *indexPath in deleteIndexPaths) {
+            [self removeMessageAtIndexPath:indexPath];
+        }
+        
+        [self.tableView beginUpdates];
+        [self.tableView deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView endUpdates];
+    }
 }
 
 #pragma mark - Action Methods
