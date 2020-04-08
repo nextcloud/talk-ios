@@ -1403,6 +1403,10 @@ typedef enum NCChatMessageAction {
                                              weakPreviewImageView.layer.borderColor = [[UIColor colorWithWhite:0.9 alpha:1.0] CGColor];
                                              weakPreviewImageView.layer.borderWidth = 1.0f;
                                          } failure:nil];
+        if (message.isTemporary){
+            [fileCell setDeliveryState:ChatMessageDeliveryStateSending];
+        }
+        
         return fileCell;
     }
     if (message.parent) {
@@ -1429,6 +1433,9 @@ typedef enum NCChatMessageAction {
         
         normalCell.quotedMessageView.actorLabel.text = message.parent.actorDisplayName;
         normalCell.quotedMessageView.messageLabel.text = message.parent.parsedMessage.string;
+        if (message.isTemporary){
+            [normalCell setDeliveryState:ChatMessageDeliveryStateSending];
+        }
         
         return normalCell;
     }
@@ -1436,6 +1443,9 @@ typedef enum NCChatMessageAction {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
         groupedCell.bodyTextView.attributedText = message.parsedMessage;
         groupedCell.messageId = message.messageId;
+        if (message.isTemporary){
+            [groupedCell setDeliveryState:ChatMessageDeliveryStateSending];
+        }
         return groupedCell;
     } else {
         ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
@@ -1457,6 +1467,10 @@ typedef enum NCChatMessageAction {
         } else {
             [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                          placeholderImage:nil success:nil failure:nil];
+        }
+        
+        if (message.isTemporary){
+            [normalCell setDeliveryState:ChatMessageDeliveryStateSending];
         }
         
         return normalCell;

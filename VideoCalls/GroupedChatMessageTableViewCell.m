@@ -25,15 +25,25 @@
 {
     [self.contentView addSubview:self.bodyTextView];
     
-    NSDictionary *views = @{@"bodyTextView": self.bodyTextView};
+    _statusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
+    _statusView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.contentView addSubview:_statusView];
+    
+    NSDictionary *views = @{@"bodyTextView": self.bodyTextView,
+                            @"statusView": self.statusView
+                            };
     
     NSDictionary *metrics = @{@"avatar": @50,
+                              @"statusSize": @(kChatCellStatusViewHeight),
+                              @"padding": @15,
                               @"right": @10,
                               @"left": @5
                               };
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatar-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
 }
 
 - (void)prepareForReuse
@@ -45,6 +55,18 @@
     self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
     
     self.bodyTextView.text = @"";
+}
+
+- (void)setDeliveryState:(ChatMessageDeliveryState)state
+{
+    [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
+    
+    if (state == ChatMessageDeliveryStateSending) {
+        UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        activityIndicator.color = [UIColor darkGrayColor];
+        [activityIndicator startAnimating];
+        [self.statusView addSubview:activityIndicator];
+    }
 }
 
 #pragma mark - Getters
