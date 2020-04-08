@@ -514,17 +514,21 @@ typedef enum NCChatMessageAction {
 - (void)removeTemporaryMessages:(NSArray *)messages
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSMutableArray *deleteIndexPaths = [NSMutableArray new];
         for (NCChatMessage *message in messages) {
-            NSIndexPath *indexPath = [self removeMessage:message];
+            NSMutableArray *deleteIndexPaths = [NSMutableArray new];
+            NSIndexPath *indexPath = [self indexPathForMessage:message];
             if (indexPath) {
                 [deleteIndexPaths addObject:indexPath];
             }
+            
+            for (NSIndexPath *indexPath in deleteIndexPaths) {
+                [self removeMessageAtIndexPath:indexPath];
+            }
+            
+            [self.tableView beginUpdates];
+            [self.tableView deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+            [self.tableView endUpdates];
         }
-        
-        [self.tableView beginUpdates];
-        [self.tableView deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationNone];
-        [self.tableView endUpdates];
     });
 }
 
@@ -973,7 +977,9 @@ typedef enum NCChatMessageAction {
     }
     
     NSArray *removedTemporaryMessages = [notification.userInfo objectForKey:@"messages"];
-    [self removeTemporaryMessages:removedTemporaryMessages];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self removeTemporaryMessages:removedTemporaryMessages];
+    });
 }
 
 #pragma mark - Lobby functions
@@ -1118,20 +1124,13 @@ typedef enum NCChatMessageAction {
     return nil;
 }
 
-- (NSIndexPath *)removeMessage:(NCChatMessage *)message
+- (NSIndexPath *)removeMessageAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSDate *messageDate = [NSDate dateWithTimeIntervalSince1970: message.timestamp];
-    NSDate *keyDate = [self getKeyForDate:messageDate inDictionary:_messages];
-    NSInteger section = [_dateSections indexOfObject:keyDate];
-    if (NSNotFound != section) {
-        NSMutableArray *messages = [_messages objectForKey:keyDate];
-        for (int i = 0; i < messages.count; i++) {
-            NCChatMessage *currentMessage = messages[i];
-            if (currentMessage.messageId == message.messageId ||
-                [currentMessage.referenceId isEqualToString:message.referenceId]) {
-                [messages removeObjectAtIndex:i];
-                return [NSIndexPath indexPathForRow:i inSection:section];
-            }
+    NSDate *sectionKey = [_dateSections objectAtIndex:indexPath.section];
+    if (sectionKey) {
+        NSMutableArray *messages = [_messages objectForKey:sectionKey];
+        if (indexPath.row < messages.count) {
+            [messages removeObjectAtIndex:indexPath.row];
         }
     }
     
