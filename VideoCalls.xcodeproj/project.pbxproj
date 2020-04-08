@@ -805,6 +805,46 @@
 			name = Network;
 			sourceTree = "<group>";
 		};
+		2C6DEAB2243CCC7F00AE8437 /* Chat cells */ = {
+			isa = PBXGroup;
+			children = (
+				2CC7159220C54D080045C789 /* ChatTableViewCell.h */,
+				2CC7159320C54D080045C789 /* ChatTableViewCell.m */,
+				2CA15546208EA1EA00CE8EF0 /* ChatMessageTableViewCell.h */,
+				2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */,
+				2C415F992136BDD6005F7F37 /* FileMessageTableViewCell.h */,
+				2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */,
+				2CA155542099E07700CE8EF0 /* GroupedChatMessageTableViewCell.h */,
+				2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */,
+				2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */,
+				2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */,
+				2C8E2A19232174C20022BFC9 /* MessageSeparatorTableViewCell.h */,
+				2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */,
+			);
+			name = "Chat cells";
+			sourceTree = "<group>";
+		};
+		2C6DEAB3243CCCCA00AE8437 /* Chat views */ = {
+			isa = PBXGroup;
+			children = (
+				2C06BF6520AC647A0031EB46 /* DateHeaderView.h */,
+				2C06BF6620AC647A0031EB46 /* DateHeaderView.m */,
+				2C06BF6320AC64370031EB46 /* DateHeaderView.xib */,
+				2CC007CC20E50B0A0096D91F /* MessageBodyTextView.h */,
+				2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */,
+				2C7381542106136000CDB8DB /* NCChatTitleView.h */,
+				2C7381552106136000CDB8DB /* NCChatTitleView.m */,
+				2C738157210613A200CDB8DB /* NCChatTitleView.xib */,
+				2CA15549208F2E5700CE8EF0 /* NCMessageTextView.h */,
+				2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */,
+				2C6E7447238C1A0800AE396C /* QuotedMessageView.h */,
+				2C6E7448238C1A0800AE396C /* QuotedMessageView.m */,
+				2C6E74442386D33200AE396C /* ReplyMessageView.h */,
+				2C6E74452386D33200AE396C /* ReplyMessageView.m */,
+			);
+			name = "Chat views";
+			sourceTree = "<group>";
+		};
 		2C78EF961F7E720A008AFA74 /* WebRTC */ = {
 			isa = PBXGroup;
 			children = (
@@ -1085,40 +1125,16 @@
 		2CF0679E208A2A430070A79B /* Chat */ = {
 			isa = PBXGroup;
 			children = (
-				2CA15546208EA1EA00CE8EF0 /* ChatMessageTableViewCell.h */,
-				2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */,
-				2CC7159220C54D080045C789 /* ChatTableViewCell.h */,
-				2CC7159320C54D080045C789 /* ChatTableViewCell.m */,
-				2C06BF6520AC647A0031EB46 /* DateHeaderView.h */,
-				2C06BF6620AC647A0031EB46 /* DateHeaderView.m */,
-				2C06BF6320AC64370031EB46 /* DateHeaderView.xib */,
-				2C415F992136BDD6005F7F37 /* FileMessageTableViewCell.h */,
-				2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */,
-				2CA155542099E07700CE8EF0 /* GroupedChatMessageTableViewCell.h */,
-				2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */,
-				2CC007CC20E50B0A0096D91F /* MessageBodyTextView.h */,
-				2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */,
-				2C8E2A19232174C20022BFC9 /* MessageSeparatorTableViewCell.h */,
-				2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */,
+				2C6DEAB2243CCC7F00AE8437 /* Chat cells */,
+				2C6DEAB3243CCCCA00AE8437 /* Chat views */,
 				2CA1553F208E350300CE8EF0 /* NCChatMessage.h */,
 				2CA15540208E350300CE8EF0 /* NCChatMessage.m */,
-				2C7381542106136000CDB8DB /* NCChatTitleView.h */,
-				2C7381552106136000CDB8DB /* NCChatTitleView.m */,
-				2C738157210613A200CDB8DB /* NCChatTitleView.xib */,
 				2C42ADB220B58E6300296DEA /* NCChatController.h */,
 				2C42ADB320B58E6300296DEA /* NCChatController.m */,
 				2CA15543208E41B500CE8EF0 /* NCChatViewController.h */,
 				2CA15544208E41B500CE8EF0 /* NCChatViewController.m */,
 				2C43BA7421309A1000B3068A /* NCMessageParameter.h */,
 				2C43BA7521309A1000B3068A /* NCMessageParameter.m */,
-				2CA15549208F2E5700CE8EF0 /* NCMessageTextView.h */,
-				2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */,
-				2C6E7447238C1A0800AE396C /* QuotedMessageView.h */,
-				2C6E7448238C1A0800AE396C /* QuotedMessageView.m */,
-				2C6E74442386D33200AE396C /* ReplyMessageView.h */,
-				2C6E74452386D33200AE396C /* ReplyMessageView.m */,
-				2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */,
-				2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
