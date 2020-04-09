@@ -45,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL extendedSupport;
 @property RLMArray<RLMString> *talkCapabilities;
 @property NSInteger chatMaxLength;
+@property BOOL canCreate;
 @end
 
 @interface NCDatabaseManager : NSObject

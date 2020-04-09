@@ -492,6 +492,16 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     return kDefaultChatMaxLength;
 }
 
+- (BOOL)canCreateGroupAndPublicRooms
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    if (serverCapabilities) {
+        return serverCapabilities.canCreate;
+    }
+    return YES;
+}
+
 #pragma mark - Push Notifications
 
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId

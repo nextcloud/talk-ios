@@ -103,6 +103,7 @@ typedef enum NCPasscodeType {
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
 - (NSInteger)chatMaxLengthConfigCapability;
+- (BOOL)canCreateGroupAndPublicRooms;
 - (NCPreferredFileSorting)getPreferredFileSorting;
 - (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting;
 
