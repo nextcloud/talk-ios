@@ -50,6 +50,7 @@
         RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
         NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:k_TalkDatabaseFileName];
         configuration.fileURL = databaseURL;
+        configuration.schemaVersion = 1;
         [RLMRealmConfiguration setDefaultConfiguration:configuration];
         
 #ifdef DEBUG
@@ -185,6 +186,11 @@
     capabilities.extendedSupport = [[version objectForKey:@"extendedSupport"] boolValue];
     capabilities.talkCapabilities = [talkCaps objectForKey:@"features"];
     capabilities.chatMaxLength = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"max-length"] integerValue];
+    if ([[[[talkCaps objectForKey:@"config"] objectForKey:@"conversations"] allKeys] containsObject:@"can-create"]) {
+        capabilities.canCreate = [[[[talkCaps objectForKey:@"config"] objectForKey:@"conversations"] objectForKey:@"can-create"] boolValue];
+    } else {
+        capabilities.canCreate = YES;
+    }
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
