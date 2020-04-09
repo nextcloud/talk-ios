@@ -1026,6 +1026,7 @@ typedef enum NCChatMessageAction {
     NSMutableArray *historySections = [NSMutableArray arrayWithArray:historyDict.allKeys];
     [historySections sortUsingSelector:@selector(compare:)];
     
+    // Add every section in history that can't be merged with current chat messages
     for (NSDate *historySection in historySections) {
         historyMessagesForSection = [historyDict objectForKey:historySection];
         chatSection = [self getKeyForDate:historySection inDictionary:_messages];
@@ -1046,33 +1047,12 @@ typedef enum NCChatMessageAction {
     NSMutableArray *lastHistoryMessages = [historyDict objectForKey:[historySections lastObject]];
     NSIndexPath *lastHistoryMessageIP = [NSIndexPath indexPathForRow:lastHistoryMessages.count - 1 inSection:historySections.count - 1];
     
+    // Merge last section of history messages with first section in current chat
     if (chatSection) {
         NSMutableArray *chatMessages = [_messages objectForKey:chatSection];
         NCChatMessage *lastHistoryMessage = [historyMessagesForSection lastObject];
         NCChatMessage *firstChatMessage = [chatMessages firstObject];
-        
-        BOOL canGroup = [self shouldGroupMessage:firstChatMessage withMessage:lastHistoryMessage];
-        if (canGroup) {
-            firstChatMessage.groupMessage = YES;
-            firstChatMessage.groupMessageNumber = lastHistoryMessage.groupMessageNumber + 1;
-            for (int i = 1; i < chatMessages.count; i++) {
-                NCChatMessage *currentMessage = chatMessages[i];
-                NCChatMessage *messageBefore = chatMessages[i-1];
-                if ([self shouldGroupMessage:currentMessage withMessage:messageBefore]) {
-                    currentMessage.groupMessage = YES;
-                    currentMessage.groupMessageNumber = messageBefore.groupMessageNumber + 1;
-                } else if ([currentMessage.actorId isEqualToString:messageBefore.actorId] &&
-                           (currentMessage.timestamp - messageBefore.timestamp) < kChatMessageGroupTimeDifference &&
-                           messageBefore.groupMessageNumber == kChatMessageMaxGroupNumber) {
-                    // Check if message groups need to be changed
-                    currentMessage.groupMessage = NO;
-                    currentMessage.groupMessageNumber = 0;
-                } else {
-                    break;
-                }
-            }
-        }
-        
+        firstChatMessage.isGroupMessage = [self shouldGroupMessage:firstChatMessage withMessage:lastHistoryMessage];
         [historyMessagesForSection addObjectsFromArray:chatMessages];
         [_messages setObject:historyMessagesForSection forKey:chatSection];
     }
@@ -1088,10 +1068,7 @@ typedef enum NCChatMessageAction {
         NSMutableArray *messagesForDate = [dictionary objectForKey:keyDate];
         if (messagesForDate) {
             NCChatMessage *lastMessage = [messagesForDate lastObject];
-            if ([self shouldGroupMessage:newMessage withMessage:lastMessage]) {
-                newMessage.groupMessage = YES;
-                newMessage.groupMessageNumber = lastMessage.groupMessageNumber + 1;
-            }
+            newMessage.isGroupMessage = [self shouldGroupMessage:newMessage withMessage:lastMessage];
             [messagesForDate addObject:newMessage];
         } else {
             NSMutableArray *newMessagesInDate = [NSMutableArray new];
@@ -1146,9 +1123,8 @@ typedef enum NCChatMessageAction {
     BOOL sameActor = [newMessage.actorId isEqualToString:lastMessage.actorId];
     BOOL sameType = ([newMessage isSystemMessage] == [lastMessage isSystemMessage]);
     BOOL timeDiff = (newMessage.timestamp - lastMessage.timestamp) < kChatMessageGroupTimeDifference;
-    BOOL notMaxGroup = lastMessage.groupMessageNumber < kChatMessageMaxGroupNumber;
     
-    return sameActor & sameType & timeDiff & notMaxGroup;
+    return sameActor & sameType & timeDiff;
 }
 
 - (BOOL)couldRetireveHistory
@@ -1373,14 +1349,14 @@ typedef enum NCChatMessageAction {
         SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
         systemCell.bodyTextView.attributedText = message.systemMessageFormat;
         systemCell.messageId = message.messageId;
-        if (!message.groupMessage) {
+        if (!message.isGroupMessage) {
             NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
             systemCell.dateLabel.text = [self getTimeFromDate:date];
         }
         return systemCell;
     }
     if (message.file) {
-        NSString *fileCellIdentifier = (message.groupMessage) ? GroupedFileMessageCellIdentifier : FileMessageCellIdentifier;
+        NSString *fileCellIdentifier = (message.isGroupMessage) ? GroupedFileMessageCellIdentifier : FileMessageCellIdentifier;
         FileMessageTableViewCell *fileCell = (FileMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:fileCellIdentifier];
         fileCell.titleLabel.text = message.actorDisplayName;
         fileCell.bodyTextView.attributedText = message.parsedMessage;
@@ -1437,7 +1413,7 @@ typedef enum NCChatMessageAction {
         
         return normalCell;
     }
-    if (message.groupMessage) {
+    if (message.isGroupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
         groupedCell.bodyTextView.attributedText = message.parsedMessage;
         groupedCell.messageId = message.messageId;
@@ -1523,7 +1499,7 @@ typedef enum NCChatMessageAction {
             return height;
         }
         
-        if (message.groupMessage || message.isSystemMessage) {
+        if (message.isGroupMessage || message.isSystemMessage) {
             height = CGRectGetHeight(bodyBounds) + 20;
             
             if (height < kGroupedChatMessageCellMinimumHeight) {

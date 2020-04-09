@@ -11,7 +11,6 @@
 #import <Realm/Realm.h>
 #import "NCMessageParameter.h"
 
-extern NSInteger const kChatMessageMaxGroupNumber;
 extern NSInteger const kChatMessageGroupTimeDifference;
 
 @interface NCChatMessage : RLMObject
@@ -31,9 +30,7 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 @property (nonatomic, strong) NSString *parentId;
 @property (nonatomic, strong) NSString *referenceId;
 @property (nonatomic, assign) BOOL isTemporary;
-// Group messages
-@property (nonatomic, assign) BOOL groupMessage;
-@property (nonatomic, assign) NSInteger groupMessageNumber;
+@property (nonatomic, assign) BOOL isGroupMessage;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;
