@@ -11,6 +11,7 @@
 #import "RoomCreationTableViewController.h"
 #import "RoomCreation2TableViewController.h"
 #import "NCAPIController.h"
+#import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "PlaceholderView.h"
 #import "SearchTableViewController.h"
@@ -244,7 +245,8 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (section == 0) {
-        return kHeaderSectionNumber;
+        BOOL canCreate = [[NCSettingsController sharedInstance] canCreateGroupAndPublicRooms];
+        return canCreate ? kHeaderSectionNumber : 0;
     }
     NSString *index = [_indexes objectAtIndex:section];
     NSArray *contacts = [_contacts objectForKey:index];
