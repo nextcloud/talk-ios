@@ -176,7 +176,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NSString *URLString = [NSString stringWithFormat:@"%@%@/core/autocomplete/get", account.server, kNCOCSAPIVersion];
-    NSDictionary *parameters = @{@"fomat" : @"json",
+    NSDictionary *parameters = @{@"format" : @"json",
                                  @"search" : search ? search : @"",
                                  @"limit" : @"50",
                                  @"itemType" : @"call",
@@ -998,7 +998,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)getUserProfileForAccount:(TalkAccount *)account withCompletionBlock:(GetUserProfileCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/user", account.server];
-    NSDictionary *parameters = @{@"fomat" : @"json"};
+    NSDictionary *parameters = @{@"format" : @"json"};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -1067,7 +1067,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)getServerCapabilitiesForServer:(NSString *)server withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/capabilities", server];
-    NSDictionary *parameters = @{@"fomat" : @"json"};
+    NSDictionary *parameters = @{@"format" : @"json"};
     
     NSURLSessionDataTask *task = [_defaultAPISessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *capabilities = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
@@ -1086,7 +1086,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)getServerCapabilitiesForAccount:(TalkAccount *)account withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/capabilities", account.server];
-    NSDictionary *parameters = @{@"fomat" : @"json"};
+    NSDictionary *parameters = @{@"format" : @"json"};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
