@@ -176,7 +176,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NSString *URLString = [NSString stringWithFormat:@"%@%@/core/autocomplete/get", account.server, kNCOCSAPIVersion];
-    NSDictionary *parameters = @{@"fomat" : @"json",
+    NSDictionary *parameters = @{@"format" : @"json",
                                  @"search" : search ? search : @"",
                                  @"limit" : @"50",
                                  @"itemType" : @"call",
