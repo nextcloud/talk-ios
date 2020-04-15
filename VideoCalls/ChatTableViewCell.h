@@ -12,7 +12,8 @@ static CGFloat kChatCellStatusViewHeight     = 20.0;
 
 typedef enum ChatMessageDeliveryState {
     ChatMessageDeliveryStateSent = 0,
-    ChatMessageDeliveryStateSending
+    ChatMessageDeliveryStateSending,
+    ChatMessageDeliveryStateFailed
 } ChatMessageDeliveryState;
 
 @interface ChatTableViewCell : UITableViewCell

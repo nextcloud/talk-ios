@@ -49,6 +49,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) NCChatTitleView *titleView;
 @property (nonatomic, strong) PlaceholderView *chatBackgroundView;
 @property (nonatomic, strong) NSMutableDictionary *messages;
+@property (nonatomic, strong) NSMutableArray *temporaryMessages;
 @property (nonatomic, strong) NSMutableArray *dateSections;
 @property (nonatomic, strong) NSMutableArray *mentions;
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
@@ -134,6 +135,7 @@ typedef enum NCChatMessageAction {
     [_voiceCallButton setEnabled:NO];
     self.textInputbar.userInteractionEnabled = NO;
     
+    self.temporaryMessages = [_chatController getTemporaryMessages];
     self.messages = [[NSMutableDictionary alloc] init];
     self.mentions = [[NSMutableArray alloc] init];
     self.dateSections = [[NSMutableArray alloc] init];
@@ -528,6 +530,25 @@ typedef enum NCChatMessageAction {
         [self.tableView deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationNone];
         [self.tableView endUpdates];
     }
+}
+
+- (void)setFailedStatusToMessageWithReferenceId:(NSString *)referenceId
+{
+    NSMutableArray *reloadIndexPaths = [NSMutableArray new];
+    NSIndexPath *indexPath = [self indexPathForMessageWithReferenceId:referenceId];
+    if (indexPath) {
+        [reloadIndexPaths addObject:indexPath];
+        
+        // Set failed status
+        NSDate *keyDate = [_dateSections objectAtIndex:indexPath.section];
+        NSMutableArray *messages = [_messages objectForKey:keyDate];
+        NCChatMessage *failedMessage = [messages objectAtIndex:indexPath.row];
+        failedMessage.sendingFailed = YES;
+    }
+    
+    [self.tableView beginUpdates];
+    [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+    [self.tableView endUpdates];
 }
 
 #pragma mark - Action Methods
@@ -939,6 +960,7 @@ typedef enum NCChatMessageAction {
 {
     NSError *error = [notification.userInfo objectForKey:@"error"];
     NSString *message = [notification.userInfo objectForKey:@"message"];
+    NSString *referenceId = [notification.userInfo objectForKey:@"referenceId"];
     if (error) {
         self.textView.text = message;
         UIAlertController * alert = [UIAlertController
@@ -953,6 +975,9 @@ typedef enum NCChatMessageAction {
         
         [alert addAction:okButton];
         
+        if (referenceId) {
+            [self setFailedStatusToMessageWithReferenceId:referenceId];
+        }
         [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
     }
 }
@@ -1092,6 +1117,22 @@ typedef enum NCChatMessageAction {
             if (currentMessage.messageId == message.messageId ||
                 [currentMessage.referenceId isEqualToString:message.referenceId]) {
                 return [NSIndexPath indexPathForRow:i inSection:section];
+            }
+        }
+    }
+    
+    return nil;
+}
+
+- (NSIndexPath *)indexPathForMessageWithReferenceId:(NSString *)referenceId
+{
+    for (NSInteger i = _dateSections.count - 1; i >= 0; i--) {
+        NSDate *keyDate = [_dateSections objectAtIndex:i];
+        NSMutableArray *messages = [_messages objectForKey:keyDate];
+        for (int j = 0; j < messages.count; j++) {
+            NCChatMessage *currentMessage = messages[j];
+            if ([currentMessage.referenceId isEqualToString:referenceId]) {
+                return [NSIndexPath indexPathForRow:j inSection:i];
             }
         }
     }
@@ -1381,6 +1422,10 @@ typedef enum NCChatMessageAction {
             [fileCell setDeliveryState:ChatMessageDeliveryStateSending];
         }
         
+        if (message.sendingFailed) {
+            [fileCell setDeliveryState:ChatMessageDeliveryStateFailed];
+        }
+        
         return fileCell;
     }
     if (message.parent) {
@@ -1410,6 +1455,9 @@ typedef enum NCChatMessageAction {
         if (message.isTemporary){
             [normalCell setDeliveryState:ChatMessageDeliveryStateSending];
         }
+        if (message.sendingFailed) {
+            [normalCell setDeliveryState:ChatMessageDeliveryStateFailed];
+        }
         
         return normalCell;
     }
@@ -1419,6 +1467,9 @@ typedef enum NCChatMessageAction {
         groupedCell.messageId = message.messageId;
         if (message.isTemporary){
             [groupedCell setDeliveryState:ChatMessageDeliveryStateSending];
+        }
+        if (message.sendingFailed) {
+            [groupedCell setDeliveryState:ChatMessageDeliveryStateFailed];
         }
         return groupedCell;
     } else {
@@ -1445,6 +1496,10 @@ typedef enum NCChatMessageAction {
         
         if (message.isTemporary){
             [normalCell setDeliveryState:ChatMessageDeliveryStateSending];
+        }
+        
+        if (message.sendingFailed) {
+            [normalCell setDeliveryState:ChatMessageDeliveryStateFailed];
         }
         
         return normalCell;

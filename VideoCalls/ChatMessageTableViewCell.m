@@ -195,6 +195,10 @@
         activityIndicator.color = [UIColor darkGrayColor];
         [activityIndicator startAnimating];
         [self.statusView addSubview:activityIndicator];
+    } else if (state == ChatMessageDeliveryStateFailed) {
+        UIImageView *errorView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        [errorView setImage:[UIImage imageNamed:@"error"]];
+        [self.statusView addSubview:errorView];
     }
 }
 

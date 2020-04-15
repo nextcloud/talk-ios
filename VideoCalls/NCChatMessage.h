@@ -30,6 +30,7 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 @property (nonatomic, strong) NSString *parentId;
 @property (nonatomic, strong) NSString *referenceId;
 @property (nonatomic, assign) BOOL isTemporary;
+@property (nonatomic, assign) BOOL sendingFailed;
 @property (nonatomic, assign) BOOL isGroupMessage;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;

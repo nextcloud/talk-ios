@@ -249,6 +249,15 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
     }];
 }
 
+- (void)setSendingFailedToMessageWithReferenceId:(NSString *)referenceId
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        NCChatMessage *managedChatMessage = [NCChatMessage objectsWhere:@"referenceId = %@", referenceId].firstObject;
+        managedChatMessage.sendingFailed = YES;
+    }];
+}
+
 - (NSArray *)sortedMessagesFromMessageArray:(NSArray *)messages
 {
     NSMutableArray *sortedMessages = [[NSMutableArray alloc] initWithCapacity:messages.count];
@@ -265,6 +274,21 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
 }
 
 #pragma mark - Chat
+
+- (NSMutableArray *)getTemporaryMessages
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND isTemporary = true", _account.accountId, _room.token];
+    RLMResults *managedTemporaryMessages = [NCChatMessage objectsWithPredicate:query];
+    RLMResults *managedSortedTemporaryMessages = [managedTemporaryMessages sortedResultsUsingKeyPath:@"timestamp" ascending:YES];
+    // Create an unmanaged copy of the messages
+    NSMutableArray *sortedMessages = [NSMutableArray new];
+    for (NCChatMessage *managedMessage in managedSortedTemporaryMessages) {
+        NCChatMessage *sortedMessage = [[NCChatMessage alloc] initWithValue:managedMessage];
+        [sortedMessages addObject:sortedMessage];
+    }
+    
+    return sortedMessages;
+}
 
 - (void)getInitialChatHistory
 {
@@ -474,8 +498,14 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:message forKey:@"message"];
     [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token displayName:nil replyTo:replyTo referenceId:referenceId forAccount:_account withCompletionBlock:^(NSError *error) {
+        if (referenceId) {
+            [userInfo setObject:referenceId forKey:@"referenceId"];
+        }
         if (error) {
             [userInfo setObject:error forKey:@"error"];
+            if (referenceId) {
+                [self setSendingFailedToMessageWithReferenceId:referenceId];
+            }
             NSLog(@"Could not send chat message. Error: %@", error.description);
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidSendChatMessageNotification

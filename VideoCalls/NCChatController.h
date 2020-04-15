@@ -34,6 +34,7 @@ extern NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification;
 
 - (instancetype)initForRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId;
+- (NSMutableArray *)getTemporaryMessages;
 - (void)getInitialChatHistory;
 - (void)getInitialChatHistoryForOfflineMode;
 - (void)getHistoryBatchFromMessagesId:(NSInteger)messageId;
