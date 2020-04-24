@@ -467,6 +467,7 @@ typedef enum NCChatMessageAction {
 {
     NCChatMessage *temporaryMessage = [[NCChatMessage alloc] init];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    temporaryMessage.accountId = activeAccount.accountId;
     temporaryMessage.actorDisplayName = activeAccount.userDisplayName;
     temporaryMessage.actorId = activeAccount.userId;
     temporaryMessage.timestamp = [[NSDate date] timeIntervalSince1970];
