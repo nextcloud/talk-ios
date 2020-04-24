@@ -963,23 +963,23 @@ typedef enum NCChatMessageAction {
     NSString *message = [notification.userInfo objectForKey:@"message"];
     NSString *referenceId = [notification.userInfo objectForKey:@"referenceId"];
     if (error) {
-        self.textView.text = message;
-        UIAlertController * alert = [UIAlertController
-                                     alertControllerWithTitle:@"Could not send the message"
-                                     message:@"An error occurred while sending the message"
-                                     preferredStyle:UIAlertControllerStyleAlert];
-        
-        UIAlertAction* okButton = [UIAlertAction
-                                   actionWithTitle:@"OK"
-                                   style:UIAlertActionStyleDefault
-                                   handler:nil];
-        
-        [alert addAction:okButton];
-        
         if (referenceId) {
             [self setFailedStatusToMessageWithReferenceId:referenceId];
+        } else {
+            self.textView.text = message;
+            UIAlertController * alert = [UIAlertController
+                                         alertControllerWithTitle:@"Could not send the message"
+                                         message:@"An error occurred while sending the message"
+                                         preferredStyle:UIAlertControllerStyleAlert];
+            
+            UIAlertAction* okButton = [UIAlertAction
+                                       actionWithTitle:@"OK"
+                                       style:UIAlertActionStyleDefault
+                                       handler:nil];
+            
+            [alert addAction:okButton];
+            [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
         }
-        [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
     }
 }
 
