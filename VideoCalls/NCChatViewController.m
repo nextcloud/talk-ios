@@ -475,7 +475,7 @@ typedef enum NCChatMessageAction {
     NSString *sendingMessage = [text copy];
     temporaryMessage.message = sendingMessage;
     NSString * referenceId = [NSString stringWithFormat:@"temp-%f",[[NSDate date] timeIntervalSince1970] * 1000];
-    temporaryMessage.referenceId = referenceId;
+    temporaryMessage.referenceId = [NCUtils sha1FromString:referenceId];
     temporaryMessage.internalId = referenceId;
     temporaryMessage.isTemporary = YES;
     
