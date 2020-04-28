@@ -808,6 +808,13 @@ typedef enum NCChatMessageAction {
             [_chatBackgroundView.placeholderView setHidden:NO];
         }
         
+        NSMutableArray *storedTemporaryMessages = [_chatController getTemporaryMessages];
+        if (storedTemporaryMessages) {
+            [self insertMessages:storedTemporaryMessages];
+            [self.tableView reloadData];
+            [self.tableView slk_scrollToBottomAnimated:NO];
+        }
+        
         _hasReceiveInitialHistory = YES;
         
         NSError *error = [notification.userInfo objectForKey:@"error"];
@@ -836,6 +843,13 @@ typedef enum NCChatMessageAction {
             [self.tableView slk_scrollToBottomAnimated:NO];
         } else {
             [_chatBackgroundView.placeholderView setHidden:NO];
+        }
+        
+        NSMutableArray *storedTemporaryMessages = [_chatController getTemporaryMessages];
+        if (storedTemporaryMessages) {
+            [self insertMessages:storedTemporaryMessages];
+            [self.tableView reloadData];
+            [self.tableView slk_scrollToBottomAnimated:NO];
         }
     });
 }
@@ -1099,6 +1113,41 @@ typedef enum NCChatMessageAction {
         } else {
             NSMutableArray *newMessagesInDate = [NSMutableArray new];
             [dictionary setObject:newMessagesInDate forKey:newMessageDate];
+            [newMessagesInDate addObject:newMessage];
+        }
+    }
+    
+    [self sortDateSections];
+}
+
+- (void)insertMessages:(NSMutableArray *)messages
+{
+    for (NCChatMessage *newMessage in messages) {
+        NSDate *newMessageDate = [NSDate dateWithTimeIntervalSince1970: newMessage.timestamp];
+        NSDate *keyDate = [self getKeyForDate:newMessageDate inDictionary:_messages];
+        NSMutableArray *messagesForDate = [_messages objectForKey:keyDate];
+        if (messagesForDate) {
+            for (int i = 0; i < messagesForDate.count; i++) {
+                NCChatMessage *currentMessage = [messagesForDate objectAtIndex:i];
+                if (currentMessage.timestamp > newMessage.timestamp) {
+                    // Message inserted in between other messages
+                    if (i > 0) {
+                        NCChatMessage *previousMessage = [messagesForDate objectAtIndex:i-1];
+                        newMessage.isGroupMessage = [self shouldGroupMessage:newMessage withMessage:previousMessage];
+                    }
+                    currentMessage.isGroupMessage = [self shouldGroupMessage:currentMessage withMessage:newMessage];
+                    [messagesForDate insertObject:newMessage atIndex:i];
+                    break;
+                // Message inserted at the end of a date section
+                } else if (i == messagesForDate.count - 1) {
+                    newMessage.isGroupMessage = [self shouldGroupMessage:newMessage withMessage:currentMessage];
+                    [messagesForDate addObject:newMessage];
+                    break;
+                }
+            }
+        } else {
+            NSMutableArray *newMessagesInDate = [NSMutableArray new];
+            [_messages setObject:newMessagesInDate forKey:newMessageDate];
             [newMessagesInDate addObject:newMessage];
         }
     }
