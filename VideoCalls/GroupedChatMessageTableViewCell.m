@@ -55,6 +55,8 @@
     self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
     
     self.bodyTextView.text = @"";
+    
+    [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 
 - (void)setDeliveryState:(ChatMessageDeliveryState)state

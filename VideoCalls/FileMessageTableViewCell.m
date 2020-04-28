@@ -115,6 +115,8 @@
     
     self.previewImageView.layer.borderWidth = 0.0f;
     self.previewImageView.image = nil;
+    
+    [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 
 #pragma mark - Getters

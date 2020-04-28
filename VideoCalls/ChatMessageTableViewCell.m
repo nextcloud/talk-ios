@@ -107,6 +107,8 @@
     
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
+    
+    [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 
 #pragma mark - Getters
