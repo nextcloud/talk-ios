@@ -488,12 +488,12 @@ typedef enum NCChatMessageAction {
     return unmanagedTemporaryMessage;
 }
 
-- (void)addTemporaryMessage:(NCChatMessage *)temporaryMessage
+- (void)appendTemporaryMessage:(NCChatMessage *)temporaryMessage
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
         NSMutableArray *messages = [[NSMutableArray alloc] initWithObjects:temporaryMessage, nil];
-        [self sortMessages:messages inDictionary:_messages];
+        [self appendMessages:messages inDictionary:_messages];
         
         NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
         NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
@@ -584,7 +584,7 @@ typedef enum NCChatMessageAction {
     if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
         NCChatMessage *temporaryMessage = [self createTemporaryMessage:self.textView.text];
         referenceId = temporaryMessage.referenceId;
-        [self addTemporaryMessage:temporaryMessage];
+        [self appendTemporaryMessage:temporaryMessage];
     }
 
     // Send message
@@ -801,7 +801,7 @@ typedef enum NCChatMessageAction {
             // Set last received message as last read message
             NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
             _lastReadMessage = lastReceivedMessage.messageId;
-            [self sortMessages:messages inDictionary:_messages];
+            [self appendMessages:messages inDictionary:_messages];
             [self.tableView reloadData];
             [self.tableView slk_scrollToBottomAnimated:NO];
         } else {
@@ -830,7 +830,7 @@ typedef enum NCChatMessageAction {
         
         NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
         if (messages.count > 0) {
-            [self sortMessages:messages inDictionary:_messages];
+            [self appendMessages:messages inDictionary:_messages];
             [self setOfflineFooterView];
             [self.tableView reloadData];
             [self.tableView slk_scrollToBottomAnimated:NO];
@@ -851,7 +851,7 @@ typedef enum NCChatMessageAction {
         NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
         BOOL shouldAddBlockSeparator = [[notification.userInfo objectForKey:@"shouldAddBlockSeparator"] boolValue];
         if (messages.count > 0) {
-            NSIndexPath *lastHistoryMessageIP = [self sortHistoryMessages:messages addingBlockSeparator:shouldAddBlockSeparator];
+            NSIndexPath *lastHistoryMessageIP = [self prependMessages:messages addingBlockSeparator:shouldAddBlockSeparator];
             [self.tableView reloadData];
             [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionTop animated:NO];
         }
@@ -891,7 +891,7 @@ typedef enum NCChatMessageAction {
             }
             
             // Sort received messages
-            [self sortMessages:messages inDictionary:_messages];
+            [self appendMessages:messages inDictionary:_messages];
             
             NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
             NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
@@ -1041,10 +1041,10 @@ typedef enum NCChatMessageAction {
     return keyDate;
 }
 
-- (NSIndexPath *)sortHistoryMessages:(NSMutableArray *)historyMessages addingBlockSeparator:(BOOL)shouldAddBlockSeparator
+- (NSIndexPath *)prependMessages:(NSMutableArray *)historyMessages addingBlockSeparator:(BOOL)shouldAddBlockSeparator
 {
     NSMutableDictionary *historyDict = [[NSMutableDictionary alloc] init];
-    [self sortMessages:historyMessages inDictionary:historyDict];
+    [self appendMessages:historyMessages inDictionary:historyDict];
     
     NSDate *chatSection = nil;
     NSMutableArray *historyMessagesForSection = nil;
@@ -1086,7 +1086,7 @@ typedef enum NCChatMessageAction {
     return lastHistoryMessageIP;
 }
 
-- (void)sortMessages:(NSMutableArray *)messages inDictionary:(NSMutableDictionary *)dictionary
+- (void)appendMessages:(NSMutableArray *)messages inDictionary:(NSMutableDictionary *)dictionary
 {
     for (NCChatMessage *newMessage in messages) {
         NSDate *newMessageDate = [NSDate dateWithTimeIntervalSince1970: newMessage.timestamp];
