@@ -7,6 +7,7 @@
 //
 
 #import "GroupedChatMessageTableViewCell.h"
+#import "MaterialActivityIndicator.h"
 #import "SLKUIConstants.h"
 
 @implementation GroupedChatMessageTableViewCell
@@ -64,8 +65,9 @@
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
     
     if (state == ChatMessageDeliveryStateSending) {
-        UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
-        activityIndicator.color = [UIColor darkGrayColor];
+        MDCActivityIndicator *activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        activityIndicator.radius = 7.0f;
+        activityIndicator.cycleColors = @[UIColor.grayColor];
         [activityIndicator startAnimating];
         [self.statusView addSubview:activityIndicator];
     } else if (state == ChatMessageDeliveryStateFailed) {
