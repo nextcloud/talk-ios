@@ -61,6 +61,7 @@ NSString * const kCapabilityWebinaryLobby           = @"webinary-lobby";
 NSString * const kCapabilityChatReadMarker          = @"chat-read-marker";
 NSString * const kCapabilityStartCallFlag           = @"start-call-flag";
 NSString * const kCapabilityCirclesSupport          = @"circles-support";
+NSString * const kCapabilityChatReferenceId         = @"chat-reference-id";
 
 NSInteger const kDefaultChatMaxLength           = 1000;
 NSString * const kMinimumRequiredTalkCapability = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version

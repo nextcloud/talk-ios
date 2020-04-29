@@ -8,6 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
+static CGFloat kChatCellStatusViewHeight     = 20.0;
+
+typedef enum ChatMessageDeliveryState {
+    ChatMessageDeliveryStateSent = 0,
+    ChatMessageDeliveryStateSending,
+    ChatMessageDeliveryStateFailed
+} ChatMessageDeliveryState;
+
 @interface ChatTableViewCell : UITableViewCell
 
 @property (nonatomic, assign) NSInteger messageId;

@@ -17,6 +17,7 @@ extern NSString * const NCChatControllerDidReceiveChatHistoryNotification;
 extern NSString * const NCChatControllerDidReceiveChatMessagesNotification;
 extern NSString * const NCChatControllerDidSendChatMessageNotification;
 extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
+extern NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification;
 
 @interface NCChatBlock : RLMObject
 
@@ -32,7 +33,8 @@ extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
 @property (nonatomic, strong) NCRoom *room;
 
 - (instancetype)initForRoom:(NCRoom *)room;
-- (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo;
+- (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId;
+- (NSMutableArray *)getTemporaryMessages;
 - (void)getInitialChatHistory;
 - (void)getInitialChatHistoryForOfflineMode;
 - (void)getHistoryBatchFromMessagesId:(NSInteger)messageId;
