@@ -590,7 +590,7 @@ typedef enum NCChatMessageAction {
     // Send message
     NSString *sendingText = [self createSendingMessage:self.textView.text];
     NSInteger replyTo = (_replyMessageView.isVisible) ? _replyMessageView.message.messageId : -1;
-    [[NCRoomsManager sharedInstance] sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId toRoom:_room];
+    [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId];
     
     [_replyMessageView dismiss];
     [super didPressRightButton:sender];
