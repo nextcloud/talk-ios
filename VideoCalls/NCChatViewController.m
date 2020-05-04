@@ -40,7 +40,9 @@
 
 typedef enum NCChatMessageAction {
     kNCChatMessageActionReply = 1,
-    kNCChatMessageActionCopy
+    kNCChatMessageActionCopy,
+    kNCChatMessageActionResend,
+    kNCChatMessageActionDelete
 } NCChatMessageAction;
 
 @interface NCChatViewController () <UIGestureRecognizerDelegate>
@@ -514,23 +516,28 @@ typedef enum NCChatMessageAction {
     });
 }
 
+- (void)removePermanentlyTemporaryMessage:(NCChatMessage *)temporaryMessage
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@", temporaryMessage.referenceId].firstObject;
+        if (managedTemporaryMessage) {
+            [realm deleteObject:managedTemporaryMessage];
+        }
+    }];
+    [self removeTemporaryMessages:@[temporaryMessage]];
+}
+
 - (void)removeTemporaryMessages:(NSArray *)messages
 {
-    for (NCChatMessage *message in messages) {
-        NSMutableArray *deleteIndexPaths = [NSMutableArray new];
-        NSIndexPath *indexPath = [self indexPathForMessage:message];
-        if (indexPath) {
-            [deleteIndexPaths addObject:indexPath];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (NCChatMessage *message in messages) {
+            NSIndexPath *indexPath = [self indexPathForMessage:message];
+            if (indexPath) {
+                [self removeMessageAtIndexPath:indexPath];
+            }
         }
-        
-        for (NSIndexPath *indexPath in deleteIndexPaths) {
-            [self removeMessageAtIndexPath:indexPath];
-        }
-        
-        [self.tableView beginUpdates];
-        [self.tableView deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationNone];
-        [self.tableView endUpdates];
-    }
+    });
 }
 
 - (void)setFailedStatusToMessageWithReferenceId:(NSString *)referenceId
@@ -577,21 +584,25 @@ typedef enum NCChatMessageAction {
     [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:NO andDisplayName:_room.displayName];
 }
 
-- (void)didPressRightButton:(id)sender
+- (void)sendChatMessage:(NSString *)message fromInputField:(BOOL)fromInputField
 {
     // Create temporary message
     NSString *referenceId = nil;
     if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
-        NCChatMessage *temporaryMessage = [self createTemporaryMessage:self.textView.text];
+        NCChatMessage *temporaryMessage = [self createTemporaryMessage:message];
         referenceId = temporaryMessage.referenceId;
         [self appendTemporaryMessage:temporaryMessage];
     }
-
-    // Send message
-    NSString *sendingText = [self createSendingMessage:self.textView.text];
-    NSInteger replyTo = (_replyMessageView.isVisible) ? _replyMessageView.message.messageId : -1;
-    [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId];
     
+    // Send message
+    NSString *sendingText = [self createSendingMessage:message];
+    NSInteger replyTo = (_replyMessageView.isVisible && fromInputField) ? _replyMessageView.message.messageId : -1;
+    [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId];
+}
+
+- (void)didPressRightButton:(id)sender
+{
+    [self sendChatMessage:self.textView.text fromInputField:YES];
     [_replyMessageView dismiss];
     [super didPressRightButton:sender];
 }
@@ -639,10 +650,22 @@ typedef enum NCChatMessageAction {
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Reply" image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
             }
+            // Re-send option
+            if (message.sendingFailed) {
+                NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionResend) forKey:@"action"];
+                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Resend" image:[UIImage imageNamed:@"refresh"] userInfo:replyInfo];
+                [menuArray addObject:replyModel];
+            }
             // Copy option
             NSDictionary *copyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionCopy) forKey:@"action"];
             FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Copy" image:[UIImage imageNamed:@"clippy"] userInfo:copyInfo];
             [menuArray addObject:copyModel];
+            // Delete option
+            if (message.sendingFailed) {
+                NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionDelete) forKey:@"action"];
+                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Delete" image:[UIImage imageNamed:@"delete"] userInfo:replyInfo];
+                [menuArray addObject:replyModel];
+            }
             
             CGRect frame = [self.tableView rectForRowAtIndexPath:indexPath];
             CGPoint yOffset = self.tableView.contentOffset;
@@ -666,6 +689,17 @@ typedef enum NCChatMessageAction {
                     {
                         UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
                         pasteboard.string = message.parsedMessage.string;
+                    }
+                        break;
+                    case kNCChatMessageActionResend:
+                    {
+                        [weakSelf removePermanentlyTemporaryMessage:message];
+                        [weakSelf sendChatMessage:message.message fromInputField:NO];
+                    }
+                        break;
+                    case kNCChatMessageActionDelete:
+                    {
+                        [weakSelf removePermanentlyTemporaryMessage:message];
                     }
                         break;
                     default:
@@ -1015,9 +1049,7 @@ typedef enum NCChatMessageAction {
     }
     
     NSArray *removedTemporaryMessages = [notification.userInfo objectForKey:@"messages"];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self removeTemporaryMessages:removedTemporaryMessages];
-    });
+    [self removeTemporaryMessages:removedTemporaryMessages];
 }
 
 #pragma mark - Lobby functions
@@ -1164,8 +1196,8 @@ typedef enum NCChatMessageAction {
         NSMutableArray *messages = [_messages objectForKey:keyDate];
         for (int i = 0; i < messages.count; i++) {
             NCChatMessage *currentMessage = messages[i];
-            if (currentMessage.messageId == message.messageId ||
-                [currentMessage.referenceId isEqualToString:message.referenceId]) {
+            if ((!currentMessage.isTemporary && currentMessage.messageId == message.messageId) ||
+                (currentMessage.isTemporary && [currentMessage.referenceId isEqualToString:message.referenceId])) {
                 return [NSIndexPath indexPathForRow:i inSection:section];
             }
         }
@@ -1196,7 +1228,33 @@ typedef enum NCChatMessageAction {
     if (sectionKey) {
         NSMutableArray *messages = [_messages objectForKey:sectionKey];
         if (indexPath.row < messages.count) {
-            [messages removeObjectAtIndex:indexPath.row];
+            if (messages.count == 1) {
+                // Remove section
+                [_messages removeObjectForKey:sectionKey];
+                [self sortDateSections];
+                [self.tableView beginUpdates];
+                [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:indexPath.section] withRowAnimation:UITableViewRowAnimationNone];
+                [self.tableView endUpdates];
+            } else {
+                // Remove message
+                BOOL isLastMessage = indexPath.row == messages.count - 1;
+                [messages removeObjectAtIndex:indexPath.row];
+                [self.tableView beginUpdates];
+                [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+                [self.tableView endUpdates];
+                if (!isLastMessage) {
+                    // Update the message next to removed message
+                    NCChatMessage *nextMessage = [messages objectAtIndex:indexPath.row];
+                    nextMessage.isGroupMessage = NO;
+                    if (indexPath.row > 0) {
+                        NCChatMessage *previousMessage = [messages objectAtIndex:indexPath.row - 1];
+                        nextMessage.isGroupMessage = [self shouldGroupMessage:nextMessage withMessage:previousMessage];
+                    }
+                    [self.tableView beginUpdates];
+                    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+                    [self.tableView endUpdates];
+                }
+            }
         }
     }
     
