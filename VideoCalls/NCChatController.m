@@ -113,7 +113,9 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
                 NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@", message.referenceId].firstObject;
                 if (managedTemporaryMessage) {
                     [realm deleteObject:managedTemporaryMessage];
-                    [removedTemporaryMessages addObject:message];
+                    // Create a unmanaged copy of message, since 'message' will point to a managed object when added to the DB.
+                    NCChatMessage *unmanagedMessage = [[NCChatMessage alloc] initWithValue:message];
+                    [removedTemporaryMessages addObject:unmanagedMessage];
                 }
             }
             
