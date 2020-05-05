@@ -383,9 +383,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [self startChatInRoom:room];
     } else {
         //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
             if (!error) {
-                NCRoom *room = [NCRoom roomWithDictionary:roomDict];
+                NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
                 [self startChatInRoom:room];
             }
         }];
