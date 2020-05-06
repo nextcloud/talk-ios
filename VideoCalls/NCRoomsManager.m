@@ -284,7 +284,14 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 }
                 // Delete old rooms
                 NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND lastUpdate != %ld", activeAccount.accountId, (long)updateTimestamp];
-                [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
+                RLMResults *managedRoomsToBeDeleted = [NCRoom objectsWithPredicate:query];
+                // Delete messages and chat blocks from old rooms
+                for (NCRoom *managedRoom in managedRoomsToBeDeleted) {
+                    NSPredicate *query2 = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@", activeAccount.accountId, managedRoom.token];
+                    [realm deleteObjects:[NCChatMessage objectsWithPredicate:query2]];
+                    [realm deleteObjects:[NCChatBlock objectsWithPredicate:query2]];
+                }
+                [realm deleteObjects:managedRoomsToBeDeleted];
                 NSLog(@"Rooms updated");
             }];
         } else {
