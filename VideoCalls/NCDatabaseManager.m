@@ -8,6 +8,9 @@
 
 #import "NCDatabaseManager.h"
 
+#import "NCChatMessage.h"
+#import "NCRoom.h"
+
 #define k_TalkDatabaseFolder    @"Library/Application Support/Talk"
 #define k_TalkDatabaseFileName  @"talk.realm"
 
@@ -144,6 +147,8 @@
     if (serverCapabilities) {
         [realm deleteObject:serverCapabilities];
     }
+    [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
+    [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
     [realm commitWriteTransaction];
 }
 
