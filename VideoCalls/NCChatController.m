@@ -210,6 +210,8 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
         // Create new chat block
         NCChatBlock *newBlock = [[NCChatBlock alloc] init];
         newBlock.internalId = _room.internalId;
+        newBlock.accountId = _room.accountId;
+        newBlock.token = _room.token;
         newBlock.oldestMessageId = lastKnown;
         newBlock.newestMessageId = newestMessageKnown;
         newBlock.hasHistory = YES;

@@ -8,6 +8,7 @@
 
 #import "NCDatabaseManager.h"
 
+#import "NCChatController.h"
 #import "NCChatMessage.h"
 #import "NCRoom.h"
 
@@ -149,6 +150,7 @@
     }
     [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
+    [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
     [realm commitWriteTransaction];
 }
 

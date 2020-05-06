@@ -21,7 +21,9 @@ extern NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification;
 
 @interface NCChatBlock : RLMObject
 
-@property (nonatomic, strong) NSString *internalId; // same as room internal id
+@property (nonatomic, strong) NSString *internalId; // accountId@token (same as room internal id)
+@property (nonatomic, strong) NSString *accountId;
+@property (nonatomic, strong) NSString *token;
 @property (nonatomic, assign) NSInteger oldestMessageId;
 @property (nonatomic, assign) NSInteger newestMessageId;
 @property (nonatomic, assign) BOOL hasHistory;
