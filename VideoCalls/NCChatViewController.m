@@ -85,7 +85,7 @@ typedef enum NCChatMessageAction {
     self = [super initWithTableViewStyle:UITableViewStylePlain];
     if (self) {
         self.room = room;
-        self.chatController = [[NCRoomsManager sharedInstance] chatContollerForRoom:room];
+        self.chatController = [[NCChatController alloc] initForRoom:room];
         self.hidesBottomBarWhenPushed = YES;
         // Fixes problem with tableView contentSize on iOS 11
         self.tableView.estimatedRowHeight = 0;
@@ -276,6 +276,7 @@ typedef enum NCChatMessageAction {
 - (void)leaveChat
 {
     [_lobbyCheckTimer invalidate];
+    [_chatController stopChatController];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
@@ -777,6 +778,7 @@ typedef enum NCChatMessageAction {
 {
     _hasReceiveNewMessages = NO;
     _leftChatWithVisibleChatVC = YES;
+    [_chatController stopChatController];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
@@ -821,6 +823,8 @@ typedef enum NCChatMessageAction {
         [_chatController getInitialChatHistory];
     }
 }
+
+#pragma mark - Chat Controller notifications
 
 - (void)didReceiveInitialChatHistory:(NSNotification *)notification
 {
