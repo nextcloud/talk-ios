@@ -85,7 +85,7 @@ typedef enum NCChatMessageAction {
     self = [super initWithTableViewStyle:UITableViewStylePlain];
     if (self) {
         self.room = room;
-        self.chatController = [[NCRoomsManager sharedInstance] chatContollerForRoom:room];
+        self.chatController = [[NCChatController alloc] initForRoom:room];
         self.hidesBottomBarWhenPushed = YES;
         // Fixes problem with tableView contentSize on iOS 11
         self.tableView.estimatedRowHeight = 0;
@@ -276,6 +276,7 @@ typedef enum NCChatMessageAction {
 - (void)leaveChat
 {
     [_lobbyCheckTimer invalidate];
+    [_chatController stopChatController];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
@@ -777,6 +778,7 @@ typedef enum NCChatMessageAction {
 {
     _hasReceiveNewMessages = NO;
     _leftChatWithVisibleChatVC = YES;
+    [_chatController stopChatController];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
@@ -822,11 +824,12 @@ typedef enum NCChatMessageAction {
     }
 }
 
+#pragma mark - Chat Controller notifications
+
 - (void)didReceiveInitialChatHistory:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *room = [notification.userInfo objectForKey:@"room"];
-        if (![room isEqualToString:_room.token]) {
+        if (notification.object != _chatController) {
             return;
         }
         
@@ -864,8 +867,7 @@ typedef enum NCChatMessageAction {
 - (void)didReceiveInitialChatHistoryOffline:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *room = [notification.userInfo objectForKey:@"room"];
-        if (![room isEqualToString:_room.token]) {
+        if (notification.object != _chatController) {
             return;
         }
         
@@ -891,8 +893,7 @@ typedef enum NCChatMessageAction {
 - (void)didReceiveChatHistory:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *room = [notification.userInfo objectForKey:@"room"];
-        if (![room isEqualToString:_room.token]) {
+        if (notification.object != _chatController) {
             return;
         }
         
@@ -916,9 +917,8 @@ typedef enum NCChatMessageAction {
 - (void)didReceiveChatMessages:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *room = [notification.userInfo objectForKey:@"room"];
         NSError *error = [notification.userInfo objectForKey:@"error"];
-        if (![room isEqualToString:_room.token] || error) {
+        if (notification.object != _chatController || error) {
             return;
         }
         
@@ -1007,34 +1007,39 @@ typedef enum NCChatMessageAction {
 
 - (void)didSendChatMessage:(NSNotification *)notification
 {
-    NSError *error = [notification.userInfo objectForKey:@"error"];
-    NSString *message = [notification.userInfo objectForKey:@"message"];
-    NSString *referenceId = [notification.userInfo objectForKey:@"referenceId"];
-    if (error) {
-        if (referenceId) {
-            [self setFailedStatusToMessageWithReferenceId:referenceId];
-        } else {
-            self.textView.text = message;
-            UIAlertController * alert = [UIAlertController
-                                         alertControllerWithTitle:@"Could not send the message"
-                                         message:@"An error occurred while sending the message"
-                                         preferredStyle:UIAlertControllerStyleAlert];
-            
-            UIAlertAction* okButton = [UIAlertAction
-                                       actionWithTitle:@"OK"
-                                       style:UIAlertActionStyleDefault
-                                       handler:nil];
-            
-            [alert addAction:okButton];
-            [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (notification.object != _chatController) {
+            return;
         }
-    }
+        
+        NSError *error = [notification.userInfo objectForKey:@"error"];
+        NSString *message = [notification.userInfo objectForKey:@"message"];
+        NSString *referenceId = [notification.userInfo objectForKey:@"referenceId"];
+        if (error) {
+            if (referenceId) {
+                [self setFailedStatusToMessageWithReferenceId:referenceId];
+            } else {
+                self.textView.text = message;
+                UIAlertController * alert = [UIAlertController
+                                             alertControllerWithTitle:@"Could not send the message"
+                                             message:@"An error occurred while sending the message"
+                                             preferredStyle:UIAlertControllerStyleAlert];
+                
+                UIAlertAction* okButton = [UIAlertAction
+                                           actionWithTitle:@"OK"
+                                           style:UIAlertActionStyleDefault
+                                           handler:nil];
+                
+                [alert addAction:okButton];
+                [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+            }
+        }
+    });
 }
 
 - (void)didReceiveChatBlocked:(NSNotification *)notification
 {
-    NSString *room = [notification.userInfo objectForKey:@"room"];
-    if (![room isEqualToString:_room.token]) {
+    if (notification.object != _chatController) {
         return;
     }
     
@@ -1043,8 +1048,7 @@ typedef enum NCChatMessageAction {
 
 - (void)didRemoveTemporaryMessages:(NSNotification *)notification
 {
-    NSString *room = [notification.userInfo objectForKey:@"room"];
-    if (![room isEqualToString:_room.token]) {
+    if (notification.object != _chatController) {
         return;
     }
     
