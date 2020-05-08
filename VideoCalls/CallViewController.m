@@ -863,6 +863,10 @@ typedef NS_ENUM(NSInteger, CallState) {
                 [cell setVideoDisabled:peer.isRemoteVideoDisabled];
             }];
         }
+    } else if ([message isEqualToString:@"speaking"] || [message isEqualToString:@"stoppedSpeaking"]) {
+        [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+            [cell setSpeaking:peer.isPeerSpeaking];
+        }];
     }
 }
 

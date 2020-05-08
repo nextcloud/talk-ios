@@ -37,6 +37,7 @@ extern NSString *const kCallParticipantCellNibName;
 
 
 - (void)setVideoView:(RTCEAGLVideoView *)videoView;
+- (void)setSpeaking:(BOOL)speaking;
 - (void)setUserAvatar:(NSString *)userId;
 - (void)resizeRemoteVideoView;
 

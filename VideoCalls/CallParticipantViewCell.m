@@ -215,6 +215,16 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
     }
 }
 
+- (void)setSpeaking:(BOOL)speaking
+{
+    if (speaking) {
+        self.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.layer.borderWidth = 2.0f;
+    } else {
+        self.layer.borderWidth = 0.0f;
+    }
+}
+
 - (void)setVideoView:(RTCEAGLVideoView *)videoView
 {
     dispatch_async(dispatch_get_main_queue(), ^{
