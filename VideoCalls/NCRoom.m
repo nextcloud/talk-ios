@@ -149,6 +149,8 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     NSString *message = @"Do you really want to delete this conversation?";
     if (self.type == kNCRoomTypeOneToOne) {
         message = [NSString stringWithFormat:@"If you delete the conversation, it will also be deleted for %@", self.displayName];
+    } else if (self.type == kNCRoomTypeNotes) {
+        message = @"Do you really want to delete \"My notes\"?";
     } else if ([self.participants count] > 1) {
         message = @"If you delete the conversation, it will also be deleted for all other participants.";
     }
