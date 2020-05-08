@@ -54,6 +54,7 @@
 @property (nonatomic, strong) RTCDataChannel *remoteDataChannel;
 @property (nonatomic, assign) BOOL isRemoteAudioDisabled;
 @property (nonatomic, assign) BOOL isRemoteVideoDisabled;
+@property (nonatomic, assign) BOOL isPeerSpeaking;
 @property (nonatomic, strong, readonly) NSMutableArray *queuedRemoteCandidates;
 @property (nonatomic, strong) RTCMediaStream *remoteStream;
 

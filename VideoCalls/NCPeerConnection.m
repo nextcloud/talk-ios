@@ -287,6 +287,10 @@
             _isRemoteVideoDisabled = NO;
         } else if ([messageType isEqualToString:@"videoOff"]) {
             _isRemoteVideoDisabled = YES;
+        } else if ([messageType isEqualToString:@"speaking"]) {
+            _isPeerSpeaking = YES;
+        } else if ([messageType isEqualToString:@"stoppedSpeaking"]) {
+            _isPeerSpeaking = NO;
         }
         
         [self.delegate peerConnection:self didReceiveStatusDataChannelMessage:messageType];
