@@ -638,7 +638,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [favoriteAction setValue:[[UIImage imageNamed:favImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     [optionsActionSheet addAction:favoriteAction];
     // Notification levels
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels] && !room.isMyNotes) {
         UIAlertAction *notificationsAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"Notifications: %@", room.notificationLevelString]
                                                                       style:UIAlertActionStyleDefault
                                                                     handler:^void (UIAlertAction *action) {

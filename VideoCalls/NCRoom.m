@@ -128,6 +128,11 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return self.type == kNCRoomTypeOneToOne && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLockedOneToOneRooms];
 }
 
+- (BOOL)isMyNotes
+{
+    return self.type == kNCRoomTypeNotes;
+}
+
 - (BOOL)userCanStartCall
 {
     if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityStartCallFlag] && !self.canStartCall) {

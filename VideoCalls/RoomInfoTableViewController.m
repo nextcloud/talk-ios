@@ -199,7 +199,7 @@ typedef enum ModificationError {
     // Room actions section
     [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionActions]];
     // Moderator sections
-    if (_room.canModerate) {
+    if (_room.canModerate && !_room.isMyNotes) {
         // Public room section
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionPublic]];
         // Webinar section
@@ -229,7 +229,7 @@ typedef enum ModificationError {
     // Favorite action
     [actions addObject:[NSNumber numberWithInt:kRoomActionFavorite]];
     // Notification levels action
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels] && !_room.isMyNotes) {
         [actions addObject:[NSNumber numberWithInt:kRoomActionNotifications]];
     }
     // Public room actions
