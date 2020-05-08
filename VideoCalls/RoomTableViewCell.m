@@ -40,7 +40,7 @@ CGFloat const kRoomTableCellHeight = 74.0f;
 {
     [super layoutSubviews];
     
-    if (_unreadMessages > 0) {
+    if (!_unreadMessagesBadge) {
         _unreadMessagesBadge = [[RoundedNumberView alloc] init];
         _unreadMessagesBadge.important = _metioned;
         _unreadMessagesBadge.number = _unreadMessages;
@@ -69,7 +69,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     self.favoriteImage.image = nil;
     self.subtitleLabel.text = @"";
     self.dateLabel.text = @"";
-
+    
+    _unreadMessagesBadge = nil;
     for (UIView *subview in [self.unreadMessagesView subviews]) {
         [subview removeFromSuperview];
     }
@@ -92,10 +93,12 @@ CGFloat const kRoomTableCellHeight = 74.0f;
         _titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightBold];
         _subtitleLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightBold];
         _dateLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightSemibold];
+        _unreadMessagesView.hidden = NO;
     } else {
         _titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightMedium];
         _subtitleLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightRegular];
         _dateLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
+        _unreadMessagesView.hidden = YES;
     }
 }
 
