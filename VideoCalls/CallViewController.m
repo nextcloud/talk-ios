@@ -864,9 +864,11 @@ typedef NS_ENUM(NSInteger, CallState) {
             }];
         }
     } else if ([message isEqualToString:@"speaking"] || [message isEqualToString:@"stoppedSpeaking"]) {
-        [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
-            [cell setSpeaking:peer.isPeerSpeaking];
-        }];
+        if ([_peersInCall count] > 1) {
+            [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+                [cell setSpeaking:peer.isPeerSpeaking];
+            }];
+        }
     }
 }
 
