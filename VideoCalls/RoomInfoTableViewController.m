@@ -1091,6 +1091,13 @@ typedef enum ModificationError {
                 }
                     break;
                     
+                case kNCRoomTypeNotes:
+                {
+                    cell.roomNameTextField.text = _room.displayName;
+                    [cell.roomImage setImage:[UIImage imageNamed:@"notes"]];
+                }
+                    break;
+                    
                 default:
                     break;
             }

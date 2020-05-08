@@ -189,6 +189,11 @@
     [_avatarView setImage:[UIImage imageNamed:@"changelog"]];
 }
 
+- (void)setNotesAvatar
+{
+    [_avatarView setImage:[UIImage imageNamed:@"notes"]];
+}
+
 - (void)setDeliveryState:(ChatMessageDeliveryState)state
 {
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];

@@ -194,7 +194,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
         actorName = @"Guest";
     }
     // No actor name cases
-    if (self.lastMessage.isSystemMessage || (self.type == kNCRoomTypeOneToOne && !ownMessage) || self.type == kNCRoomTypeChangelog) {
+    if (self.lastMessage.isSystemMessage || (self.type == kNCRoomTypeOneToOne && !ownMessage) || self.type == kNCRoomTypeChangelog || self.type == kNCRoomTypeNotes) {
         actorName = @"";
     }
     // Use only the first name

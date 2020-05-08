@@ -861,6 +861,10 @@ API_AVAILABLE(ios(11.0)){
             [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
             break;
             
+        case kNCRoomTypeNotes:
+            [cell.roomImage setImage:[UIImage imageNamed:@"notes"]];
+            break;
+            
         default:
             break;
     }
