@@ -381,7 +381,8 @@ typedef enum AboutSection {
             
             TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
             cell.userDisplayNameLabel.text = activeAccount.userDisplayName;
-            cell.serverAddressLabel.text = activeAccount.server;
+            NSString *accountServer = [activeAccount.server stringByReplacingOccurrencesOfString:[[NSURL URLWithString:activeAccount.server] scheme] withString:@""];
+            cell.serverAddressLabel.text = [accountServer stringByReplacingOccurrencesOfString:@"://" withString:@""];
             [cell.userImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withSize:CGSizeMake(160, 160)]];
             return cell;
         }
@@ -396,7 +397,8 @@ typedef enum AboutSection {
                     cell = [[AccountTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAccountCellIdentifier];
                 }
                 cell.accountNameLabel.text = account.userDisplayName;
-                cell.accountServerLabel.text = account.server;
+                NSString *accountServer = [account.server stringByReplacingOccurrencesOfString:[[NSURL URLWithString:account.server] scheme] withString:@""];
+                cell.accountServerLabel.text = [accountServer stringByReplacingOccurrencesOfString:@"://" withString:@""];
                 [cell.accountImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(90, 90)]];
                 return cell;
             } else {
