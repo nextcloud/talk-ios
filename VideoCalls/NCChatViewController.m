@@ -152,7 +152,7 @@ typedef enum NCChatMessageAction {
     [self.rightButton setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
     self.rightButton.accessibilityLabel = @"Send message";
     self.rightButton.accessibilityHint = @"Double tap to send message";
-    [self.leftButton setImage:[UIImage imageNamed:@"add"] forState:UIControlStateNormal];
+    [self.leftButton setImage:[UIImage imageNamed:@"attachment"] forState:UIControlStateNormal];
     self.leftButton.accessibilityLabel = @"Share a file from your Nextcloud";
     self.leftButton.accessibilityHint = @"Double tap to open file browser";
     
