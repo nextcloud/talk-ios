@@ -16,6 +16,8 @@ extern NSString *const kAccountTableViewCellNibName;
 @interface AccountTableViewCell : UITableViewCell
 
 @property(nonatomic, weak) IBOutlet UIImageView *accountImageView;
+@property (weak, nonatomic) IBOutlet UILabel *accountNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *accountServerLabel;
 
 @end
 

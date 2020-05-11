@@ -25,7 +25,8 @@ NSString *const kAccountTableViewCellNibName    = @"AccountTableViewCell";
     [super prepareForReuse];
     
     self.accountImageView.image = nil;
-    self.textLabel.text = @"";
+    self.accountNameLabel.text = @"";
+    self.accountServerLabel.text = @"";
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

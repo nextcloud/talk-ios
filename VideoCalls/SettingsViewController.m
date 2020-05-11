@@ -395,7 +395,8 @@ typedef enum AboutSection {
                 if (!cell) {
                     cell = [[AccountTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAccountCellIdentifier];
                 }
-                cell.textLabel.text = account.userDisplayName;
+                cell.accountNameLabel.text = account.userDisplayName;
+                cell.accountServerLabel.text = account.server;
                 [cell.accountImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(90, 90)]];
                 return cell;
             } else {
