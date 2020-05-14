@@ -25,6 +25,7 @@
 #import "NCSignalingMessage.h"
 #import "UIImageView+AFNetworking.h"
 #import "CallKitManager.h"
+#import "UIView+Toast.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
@@ -552,6 +553,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     dispatch_async(dispatch_get_main_queue(), ^{
         [_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
         _audioMuteButton.accessibilityValue = @"Microphone disabled";
+        [self.view makeToast:@"Microphone disabled" duration:1.5 position:CSToastPositionCenter];
     });
 }
 
@@ -561,6 +563,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     dispatch_async(dispatch_get_main_queue(), ^{
         [_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
         _audioMuteButton.accessibilityValue = @"Microphone enabled";
+        [self.view makeToast:@"Microphone enabled" duration:1.5 position:CSToastPositionCenter];
     });
 }
 
@@ -582,6 +585,9 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_localVideoView setHidden:YES];
     [_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
     _videoDisableButton.accessibilityValue = @"Camera disabled";
+    if (!_isAudioOnly) {
+        [self.view makeToast:@"Camera disabled" duration:1.5 position:CSToastPositionCenter];
+    }
 }
 
 - (void)enableLocalVideo
@@ -629,6 +635,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
     [_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
     _speakerButton.accessibilityValue = @"Speaker disabled";
+    [self.view makeToast:@"Speaker disabled" duration:1.5 position:CSToastPositionCenter];
 }
 
 - (void)enableSpeaker
@@ -636,6 +643,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
     [_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
     _speakerButton.accessibilityValue = @"Speaker enabled";
+    [self.view makeToast:@"Speaker enabled" duration:1.5 position:CSToastPositionCenter];
 }
 
 - (IBAction)hangupButtonPressed:(id)sender

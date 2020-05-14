@@ -37,6 +37,7 @@
 #import "RoomInfoTableViewController.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
+#import "UIView+Toast.h"
 
 typedef enum NCChatMessageAction {
     kNCChatMessageActionReply = 1,
@@ -690,6 +691,7 @@ typedef enum NCChatMessageAction {
                     {
                         UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
                         pasteboard.string = message.parsedMessage.string;
+                        [weakSelf.view makeToast:@"Message copied" duration:1.5 position:CSToastPositionCenter];
                     }
                         break;
                     case kNCChatMessageActionResend:
