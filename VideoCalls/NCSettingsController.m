@@ -412,7 +412,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     NSDictionary *signalingConfiguration = [_signalingConfigutations objectForKey:accountId];
     NSString *externalSignalingServer = nil;
     id server = [signalingConfiguration objectForKey:@"server"];
-    if ([server isKindOfClass:[NSString class]]) {
+    if ([server isKindOfClass:[NSString class]] && ![server isEqualToString:@""]) {
         externalSignalingServer = server;
     }
     NSString *externalSignalingTicket = [signalingConfiguration objectForKey:@"ticket"];
