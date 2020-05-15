@@ -1569,8 +1569,11 @@ typedef enum NCChatMessageAction {
                                          placeholderImage:nil success:nil failure:nil];
         }
         
-        normalCell.quotedMessageView.actorLabel.text = ([message.parent.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.parent.actorDisplayName;
-        normalCell.quotedMessageView.messageLabel.text = message.parent.parsedMessage.string;
+        // This check is just a workaround to fix the issue with the deleted parents returned by the API.
+        if (message.parent.message) {
+            normalCell.quotedMessageView.actorLabel.text = ([message.parent.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.parent.actorDisplayName;
+            normalCell.quotedMessageView.messageLabel.text = message.parent.parsedMessage.string;
+        }
         if (message.isTemporary){
             [normalCell setDeliveryState:ChatMessageDeliveryStateSending];
         }
