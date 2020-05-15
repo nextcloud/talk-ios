@@ -1569,7 +1569,7 @@ typedef enum NCChatMessageAction {
                                          placeholderImage:nil success:nil failure:nil];
         }
         
-        normalCell.quotedMessageView.actorLabel.text = message.parent.actorDisplayName;
+        normalCell.quotedMessageView.actorLabel.text = ([message.parent.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.parent.actorDisplayName;
         normalCell.quotedMessageView.messageLabel.text = message.parent.parsedMessage.string;
         if (message.isTemporary){
             [normalCell setDeliveryState:ChatMessageDeliveryStateSending];
