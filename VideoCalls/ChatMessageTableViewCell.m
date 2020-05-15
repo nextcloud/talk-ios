@@ -106,6 +106,9 @@
     self.bodyTextView.text = @"";
     self.dateLabel.text = @"";
     
+    self.quotedMessageView.actorLabel.text = @"";
+    self.quotedMessageView.messageLabel.text = @"";
+    
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
     
