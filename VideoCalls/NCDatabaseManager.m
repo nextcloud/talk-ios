@@ -185,6 +185,11 @@
     return NO;
 }
 
+- (NSInteger)numberOfInactiveAccountsWithUnreadNotifications
+{
+    return [TalkAccount objectsWhere:(@"unreadNotification = true")].count;
+}
+
 - (void)removeUnreadNotificationForInactiveAccounts
 {
     RLMRealm *realm = [RLMRealm defaultRealm];

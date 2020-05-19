@@ -65,6 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)increaseUnreadBadgeNumberForAccountId:(NSString *)accountId;
 - (void)resetUnreadBadgeNumberForAccountId:(NSString *)accountId;
 - (BOOL)shouldShowUnreadNotificationForInactiveAccounts;
+- (NSInteger)numberOfInactiveAccountsWithUnreadNotifications;
 - (void)removeUnreadNotificationForInactiveAccounts;
 
 - (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId;

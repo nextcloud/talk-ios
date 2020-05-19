@@ -33,6 +33,7 @@
 #import "RoomSearchTableViewController.h"
 #import "SettingsViewController.h"
 #import "PlaceholderView.h"
+#import "UIBarButtonItem+Badge.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
@@ -45,6 +46,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UISearchController *_searchController;
     RoomSearchTableViewController *_resultTableViewController;
     PlaceholderView *_roomsBackgroundView;
+    UIBarButtonItem *_settingsButton;
     UINavigationController *_settingsNC;
 }
 
@@ -204,6 +206,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)notificationWillBePresented:(NSNotification *)notification
 {
     [[NCRoomsManager sharedInstance] updateRooms];
+    [self setUnreadMessageForInactiveAccountsIndicator];
 }
 
 - (void)userProfileImageUpdated:(NSNotification *)notification
@@ -423,30 +426,41 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIButton *profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [profileButton addTarget:self action:@selector(showUserProfile) forControlEvents:UIControlEventTouchUpInside];
     profileButton.frame = CGRectMake(0, 0, 30, 30);
-    profileButton.layer.masksToBounds = YES;
-    profileButton.layer.cornerRadius = 15;
     profileButton.accessibilityLabel = @"User profile and settings";
     profileButton.accessibilityHint = @"Double tap to go to user profile and application settings";
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withSize:CGSizeMake(90, 90)];
     if (profileImage) {
+        UIGraphicsBeginImageContextWithOptions(profileButton.bounds.size, NO, 3.0);
+        [[UIBezierPath bezierPathWithRoundedRect:profileButton.bounds cornerRadius:profileButton.bounds.size.height] addClip];
+        [profileImage drawInRect:profileButton.bounds];
+        profileImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
         [profileButton setImage:profileImage forState:UIControlStateNormal];
     } else {
         [profileButton setImage:[UIImage imageNamed:@"settings-white"] forState:UIControlStateNormal];
         profileButton.contentMode = UIViewContentModeCenter;
     }
     
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithCustomView:profileButton];
+    _settingsButton = [[UIBarButtonItem alloc] initWithCustomView:profileButton];
+    [self setUnreadMessageForInactiveAccountsIndicator];
     
     if (@available(iOS 11.0, *)) {
-        NSLayoutConstraint *width = [leftButton.customView.widthAnchor constraintEqualToConstant:30];
+        NSLayoutConstraint *width = [_settingsButton.customView.widthAnchor constraintEqualToConstant:30];
         width.active = YES;
-        NSLayoutConstraint *height = [leftButton.customView.heightAnchor constraintEqualToConstant:30];
+        NSLayoutConstraint *height = [_settingsButton.customView.heightAnchor constraintEqualToConstant:30];
         height.active = YES;
     }
     
-    [self.navigationItem setLeftBarButtonItem:leftButton];
+    [self.navigationItem setLeftBarButtonItem:_settingsButton];
+}
+
+- (void)setUnreadMessageForInactiveAccountsIndicator
+{
+    if ([[NCDatabaseManager sharedInstance] shouldShowUnreadNotificationForInactiveAccounts]) {
+        _settingsButton.badgeValue = [NSString stringWithFormat:@"%ld", (long)[[NCDatabaseManager sharedInstance] numberOfInactiveAccountsWithUnreadNotifications]];
+    }
 }
 
 - (void)showUserProfile
