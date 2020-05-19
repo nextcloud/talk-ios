@@ -21,6 +21,7 @@
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 #import "CCBKPasscode.h"
+#import "RoundedNumberView.h"
 #import <SafariServices/SafariServices.h>
 
 typedef enum SettingsSection {
@@ -400,6 +401,13 @@ typedef enum AboutSection {
                 NSString *accountServer = [account.server stringByReplacingOccurrencesOfString:[[NSURL URLWithString:account.server] scheme] withString:@""];
                 cell.accountServerLabel.text = [accountServer stringByReplacingOccurrencesOfString:@"://" withString:@""];
                 [cell.accountImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(90, 90)]];
+                cell.accessoryView = nil;
+                if (account.unreadBadgeNumber > 0) {
+                    RoundedNumberView *badgeView = [[RoundedNumberView alloc] init];
+                    badgeView.important = YES;
+                    badgeView.number = account.unreadBadgeNumber;
+                    cell.accessoryView = badgeView;
+                }
                 return cell;
             } else {
                 cell = [tableView dequeueReusableCellWithIdentifier:addAccountCellIdentifier];

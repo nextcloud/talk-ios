@@ -72,6 +72,7 @@
 		2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5681EDDE13A0093D85A /* UIKit.framework */; };
 		2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5CE1EDF23A00093D85A /* WebKit.framework */; };
 		2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */; };
+		2C9200C32474262C0050084F /* UIBarButtonItem+Badge.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */; };
 		2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
 		2C961E0C2216BF4B00F5C23F /* NCRichDocumentTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DD92216BF4A00F5C23F /* NCRichDocumentTemplate.m */; };
 		2C961E0D2216BF4B00F5C23F /* OCActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDB2216BF4A00F5C23F /* OCActivity.m */; };
@@ -360,6 +361,8 @@
 		2C90E5CE1EDF23A00093D85A /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		2C90E5D01EE80C870093D85A /* AuthenticationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthenticationViewController.h; sourceTree = "<group>"; };
 		2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthenticationViewController.m; sourceTree = "<group>"; };
+		2C9200C12474262C0050084F /* UIBarButtonItem+Badge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIBarButtonItem+Badge.h"; sourceTree = "<group>"; };
+		2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIBarButtonItem+Badge.m"; sourceTree = "<group>"; };
 		2C92195A1F58530B008AC1A3 /* UIImageView+Letters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+Letters.h"; sourceTree = "<group>"; };
 		2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+Letters.m"; sourceTree = "<group>"; };
 		2C961DD82216BF4A00F5C23F /* NCRichDocumentTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCRichDocumentTemplate.h; sourceTree = "<group>"; };
@@ -616,6 +619,8 @@
 				2CC7158A20B8394A0045C789 /* PlaceholderView.h */,
 				2CC7158B20B8394A0045C789 /* PlaceholderView.m */,
 				2CC7158820B837140045C789 /* PlaceholderView.xib */,
+				2C9200C12474262C0050084F /* UIBarButtonItem+Badge.h */,
+				2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -1445,6 +1450,7 @@
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
 				2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */,
+				2C9200C32474262C0050084F /* UIBarButtonItem+Badge.m in Sources */,
 				2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

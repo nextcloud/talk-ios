@@ -54,7 +54,7 @@
         RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
         NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:k_TalkDatabaseFileName];
         configuration.fileURL = databaseURL;
-        configuration.schemaVersion = 1;
+        configuration.schemaVersion = 2;
         [RLMRealmConfiguration setDefaultConfiguration:configuration];
         
 #ifdef DEBUG
@@ -151,6 +151,52 @@
     [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
+    [realm commitWriteTransaction];
+}
+
+- (void)increaseUnreadBadgeNumberForAccountId:(NSString *)accountId
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
+    account.unreadBadgeNumber += 1;
+    account.unreadNotification = YES;
+    [realm commitWriteTransaction];
+}
+
+- (void)resetUnreadBadgeNumberForAccountId:(NSString *)accountId
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
+    account.unreadBadgeNumber = 0;
+    account.unreadNotification = NO;
+    [realm commitWriteTransaction];
+}
+
+- (BOOL)shouldShowUnreadNotificationForInactiveAccounts
+{
+    TalkAccount *accountToBeNotified = [TalkAccount objectsWhere:(@"unreadNotification = true")].firstObject;
+    if (accountToBeNotified) {
+        return YES;
+    }
+    return NO;
+}
+
+- (NSInteger)numberOfInactiveAccountsWithUnreadNotifications
+{
+    return [TalkAccount objectsWhere:(@"unreadNotification = true")].count;
+}
+
+- (void)removeUnreadNotificationForInactiveAccounts
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    for (TalkAccount *account in [TalkAccount allObjects]) {
+        account.unreadNotification = NO;
+    }
     [realm commitWriteTransaction];
 }
 
