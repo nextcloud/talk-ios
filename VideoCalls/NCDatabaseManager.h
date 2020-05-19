@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *deviceIdentifier;
 @property NSString *deviceSignature;
 @property NSString *userPublicKey;
+@property NSInteger unreadBadgeNumber;
+@property BOOL unreadNotification;
 @property BOOL active;
 @end
 
@@ -60,6 +62,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)accountIdForUser:(NSString *)user inServer:(NSString *)server;
 - (void)createAccountForUser:(NSString *)user inServer:(NSString *)server;
 - (void)removeAccountWithAccountId:(NSString *)accountId;
+- (void)increaseUnreadBadgeNumberForAccountId:(NSString *)accountId;
+- (void)resetUnreadBadgeNumberForAccountId:(NSString *)accountId;
+- (BOOL)shouldShowUnreadNotificationForInactiveAccounts;
+- (void)removeUnreadNotificationForInactiveAccounts;
 
 - (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId;
 - (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId;

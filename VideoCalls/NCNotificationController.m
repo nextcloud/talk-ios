@@ -106,6 +106,11 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     
     [self updateAppIconBadgeNumber:1];
     
+    NSString *activeAccountId = [[[NCDatabaseManager sharedInstance] activeAccount] accountId];
+    if (![activeAccountId isEqualToString:pushNotification.accountId]) {
+        [[NCDatabaseManager sharedInstance] increaseUnreadBadgeNumberForAccountId:pushNotification.accountId];
+    }
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
 }
 
