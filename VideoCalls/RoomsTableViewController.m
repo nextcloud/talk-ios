@@ -465,6 +465,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)showUserProfile
 {
+    [[NCDatabaseManager sharedInstance] removeUnreadNotificationForInactiveAccounts];
+    [self setUnreadMessageForInactiveAccountsIndicator];
     [self presentViewController:_settingsNC animated:YES completion:nil];
 }
 
