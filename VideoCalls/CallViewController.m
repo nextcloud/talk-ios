@@ -527,6 +527,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (IBAction)audioButtonPressed:(id)sender
 {
+    if (!_callController) {return;}
+    
     if ([_callController isAudioEnabled]) {
         [self muteAudio];
     } else {
@@ -569,6 +571,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (IBAction)videoButtonPressed:(id)sender
 {
+    if (!_callController) {return;}
+    
     if ([_callController isVideoEnabled]) {
         [self disableLocalVideo];
         _userDisabledVideo = YES;
