@@ -737,6 +737,9 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_chatViewController didMoveToParentViewController:self];
         
         [self.view bringSubviewToFront:_chatButton];
+        if (!_isAudioOnly) {
+            [self.view bringSubviewToFront:_localVideoView];
+        }
     } else {
         [_chatViewController willMoveToParentViewController:nil];
         [_chatViewController.view removeFromSuperview];
