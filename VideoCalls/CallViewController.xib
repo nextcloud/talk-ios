@@ -15,6 +15,7 @@
                 <outlet property="audioMuteButton" destination="kDR-Ds-I7B" id="9NJ-iO-JMY"/>
                 <outlet property="avatarBackgroundImageView" destination="H1v-6g-V21" id="ASI-wy-zPa"/>
                 <outlet property="buttonsContainerView" destination="ybF-7q-HlR" id="8Mk-fB-QML"/>
+                <outlet property="chatButton" destination="iRE-oh-vZ4" id="EfP-bT-Oeo"/>
                 <outlet property="closeScreensharingButton" destination="N0N-Ny-Aeg" id="NrD-JV-Hec"/>
                 <outlet property="collectionView" destination="aUh-Z0-hO6" id="jmc-BV-dTa"/>
                 <outlet property="hangUpButton" destination="Rl8-bS-FJ5" id="jNg-Ly-6wz"/>
@@ -80,6 +81,15 @@
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <viewLayoutGuide key="safeArea" id="j53-tu-e0T"/>
                 </view>
+                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iRE-oh-vZ4">
+                    <rect key="frame" x="307" y="68" width="60" height="60"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" red="0.60784313729999995" green="0.60784313729999995" blue="0.60784313729999995" alpha="0.74973244859999999" colorSpace="custom" customColorSpace="sRGB"/>
+                    <state key="normal" image="chat"/>
+                    <connections>
+                        <action selector="chatButtonPressed:" destination="-1" eventType="touchUpInside" id="KhR-dg-Tez"/>
+                    </connections>
+                </button>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-7q-HlR">
                     <rect key="frame" x="37" y="477" width="300" height="170"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -159,6 +169,7 @@
     </objects>
     <resources>
         <image name="audio" width="24" height="24"/>
+        <image name="chat" width="24" height="24"/>
         <image name="close" width="24" height="24"/>
         <image name="hang-up" width="24" height="24"/>
         <image name="speaker-off" width="24" height="24"/>

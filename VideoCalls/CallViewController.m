@@ -41,6 +41,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSMutableDictionary *_videoRenderersDict;
     NSMutableDictionary *_screenRenderersDict;
     NCCallController *_callController;
+    NCChatViewController *_chatViewController;
     ARDCaptureController *_captureController;
     UIView <RTCVideoRenderer> *_screenView;
     CGSize _screensharingSize;
@@ -60,6 +61,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 @property (nonatomic, strong) IBOutlet UIButton *switchCameraButton;
 @property (nonatomic, strong) IBOutlet UIButton *hangUpButton;
 @property (nonatomic, strong) IBOutlet UIButton *videoCallButton;
+@property (nonatomic, strong) IBOutlet UIButton *chatButton;
 @property (nonatomic, strong) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) IBOutlet UICollectionViewFlowLayout *flowLayout;
 
@@ -119,6 +121,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.videoDisableButton.layer setCornerRadius:30.0f];
     [self.hangUpButton.layer setCornerRadius:30.0f];
     [self.videoCallButton.layer setCornerRadius:30.0f];
+    [self.chatButton.layer setCornerRadius:30.0f];
     [self.closeScreensharingButton.layer setCornerRadius:16.0f];
     
     self.audioMuteButton.accessibilityLabel = @"Microphone";
@@ -134,6 +137,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     self.hangUpButton.accessibilityHint = @"Doble tap to hang up the call";
     self.videoCallButton.accessibilityLabel = @"Camera";
     self.videoCallButton.accessibilityHint = @"Doble tap to upgrade this voice call to a video call";
+    self.chatButton.accessibilityLabel = @"Chat";
+    self.chatButton.accessibilityHint = @"Doble tap to show call's chat";
     
     [self adjustButtonsConainer];
     
@@ -713,6 +718,32 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     _videoCallUpgrade = YES;
     [self hangup];
+}
+
+- (IBAction)chatButtonPressed:(id)sender
+{
+    [self toggleChatView];
+}
+
+- (void)toggleChatView
+{
+    if (!_chatViewController) {
+        _chatViewController = [[NCChatViewController alloc] initForRoom:_room];
+        [self addChildViewController:_chatViewController];
+        
+        [self.view addSubview:_chatViewController.view];
+        _chatViewController.view.frame = self.view.bounds;
+        _chatViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [_chatViewController didMoveToParentViewController:self];
+        
+        [self.view bringSubviewToFront:_chatButton];
+    } else {
+        [_chatViewController willMoveToParentViewController:nil];
+        [_chatViewController.view removeFromSuperview];
+        [_chatViewController removeFromParentViewController];
+        
+        _chatViewController = nil;
+    }
 }
 
 - (void)finishCall
