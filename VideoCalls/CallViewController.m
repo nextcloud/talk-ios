@@ -26,6 +26,7 @@
 #import "UIImageView+AFNetworking.h"
 #import "CallKitManager.h"
 #import "UIView+Toast.h"
+#import "PulsingHaloLayer.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
@@ -52,6 +53,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     BOOL _userDisabledVideo;
     BOOL _videoCallUpgrade;
     BOOL _hangingUp;
+    PulsingHaloLayer *_halo;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -169,6 +171,10 @@ typedef NS_ENUM(NSInteger, CallState) {
         [participantCell resizeRemoteVideoView];
     }
     [self resizeScreensharingView];
+    [_halo setHidden:YES];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(duration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self setHaloToChatButton];
+    });
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -736,16 +742,42 @@ typedef NS_ENUM(NSInteger, CallState) {
         _chatViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         [_chatViewController didMoveToParentViewController:self];
         
+        _chatButton.backgroundColor = [UIColor lightGrayColor];
+        [_chatButton setImage:[UIImage imageNamed:@"call-white"] forState:UIControlStateNormal];
+        
+        [self setHaloToChatButton];
+        
         [self.view bringSubviewToFront:_chatButton];
         if (!_isAudioOnly) {
             [self.view bringSubviewToFront:_localVideoView];
         }
     } else {
+        _chatButton.backgroundColor = [UIColor colorWithRed:155/255.f green:155/255.f blue:155/255.f alpha:0.75];
+        [_chatButton setImage:[UIImage imageNamed:@"chat"] forState:UIControlStateNormal];
+        
         [_chatViewController willMoveToParentViewController:nil];
         [_chatViewController.view removeFromSuperview];
         [_chatViewController removeFromParentViewController];
         
         _chatViewController = nil;
+    }
+}
+
+- (void)setHaloToChatButton
+{
+    [_halo removeFromSuperlayer];
+    
+    if (_chatViewController) {
+        _halo = [PulsingHaloLayer layer];
+        _halo.position = _chatButton.center;
+        UIColor *color = [UIColor colorWithRed:118/255.f green:213/255.f blue:114/255.f alpha:1];
+        _halo.backgroundColor = color.CGColor;
+        _halo.radius = 40.0;
+        _halo.haloLayerNumber = 2;
+        _halo.keyTimeForHalfOpacity = 0.75;
+        _halo.fromValueForRadius = 0.75;
+        [_chatViewController.view.layer addSublayer:_halo];
+        [_halo start];
     }
 }
 

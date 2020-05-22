@@ -82,7 +82,7 @@
                     <viewLayoutGuide key="safeArea" id="j53-tu-e0T"/>
                 </view>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iRE-oh-vZ4">
-                    <rect key="frame" x="307" y="68" width="60" height="60"/>
+                    <rect key="frame" x="307" y="80" width="60" height="60"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" red="0.60784313729999995" green="0.60784313729999995" blue="0.60784313729999995" alpha="0.74973244859999999" colorSpace="custom" customColorSpace="sRGB"/>
                     <state key="normal" image="chat"/>
