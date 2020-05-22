@@ -460,6 +460,7 @@ typedef NS_ENUM(NSInteger, CallState) {
             [self.switchCameraButton setAlpha:1.0f];
             [self.videoCallButton setAlpha:1.0f];
             [self.closeScreensharingButton setAlpha:1.0f];
+            [self.chatButton setAlpha:1.0f];
             [self.view layoutIfNeeded];
         }];
     });
@@ -473,6 +474,7 @@ typedef NS_ENUM(NSInteger, CallState) {
             [self.switchCameraButton setAlpha:0.0f];
             [self.videoCallButton setAlpha:0.0f];
             [self.closeScreensharingButton setAlpha:0.0f];
+            [self.chatButton setAlpha:(_chatViewController) ? 1.0f : 0.0f];
             [self.view layoutIfNeeded];
         }];
     });
@@ -760,6 +762,10 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_chatViewController removeFromParentViewController];
         
         _chatViewController = nil;
+        
+        if ((!_isAudioOnly && _callState == CallStateInCall) || _screenView) {
+            [self showDetailedViewWithTimer];
+        }
     }
 }
 
