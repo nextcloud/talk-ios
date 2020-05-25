@@ -1348,7 +1348,7 @@ typedef enum NCChatMessageAction {
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     for (NCChatMessage *message in messages) {
-        if ([message.actorId isEqualToString:activeAccount.userId]) {
+        if ([message.actorId isEqualToString:activeAccount.userId] && !message.isSystemMessage) {
             return YES;
         }
     }
