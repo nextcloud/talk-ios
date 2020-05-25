@@ -31,7 +31,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 @interface NCRoomsManager () <CallViewControllerDelegate>
 
-@property (nonatomic, strong) NSMutableArray *rooms;
 @property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
 @property (nonatomic, strong) NSString *joiningRoom;
 @property (nonatomic, strong) NSURLSessionTask *joinRoomTask;
@@ -60,7 +59,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     self = [super init];
     if (self) {
-        _rooms = [[NSMutableArray alloc] init];
         _activeRooms = [[NSMutableDictionary alloc] init];
         _joinRoomAttempts = [[NSMutableDictionary alloc] init];
         
@@ -332,17 +330,6 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }];
 }
 
-- (NCRoom *)getRoomForToken:(NSString *)token
-{
-    NCRoom *room = nil;
-    for (NCRoom *localRoom in _rooms) {
-        if (localRoom.token == token) {
-            room = localRoom;
-        }
-    }
-    return room;
-}
-
 #pragma mark - Chat
 
 - (void)startChatInRoom:(NCRoom *)room
@@ -373,12 +360,12 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)startChatWithRoomToken:(NSString *)token
 {
-    NCRoom *room = [self getRoomForToken:token];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NCRoom *room = [self roomWithToken:token forAccountId:activeAccount.accountId];
     if (room) {
         [self startChatInRoom:room];
     } else {
         //TODO: Show spinner?
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
             if (!error) {
                 NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
@@ -431,12 +418,12 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video
 {
-    NCRoom *room = [self getRoomForToken:token];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NCRoom *room = [self roomWithToken:token forAccountId:activeAccount.accountId];
     if (room) {
         [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
     } else {
         //TODO: Show spinner?
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
             if (!error) {
                 NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
@@ -448,12 +435,12 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)startCallWithCallToken:(NSString *)token withVideo:(BOOL)video
 {
-    NCRoom *room = [self getRoomForToken:token];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NCRoom *room = [self roomWithToken:token forAccountId:activeAccount.accountId];
     if (room) {
         [self startCall:video inRoom:room];
     } else {
         //TODO: Show spinner?
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
             if (!error) {
                 NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
