@@ -15,6 +15,8 @@
 @property (nonatomic, strong) NCRoom *room;
 
 - (instancetype)initForRoom:(NCRoom *)room;
+- (void)stopChat;
+- (void)resumeChat;
 - (void)leaveChat;
 
 @end

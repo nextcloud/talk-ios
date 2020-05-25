@@ -65,6 +65,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, assign) BOOL leftChatWithVisibleChatVC;
 @property (nonatomic, assign) BOOL offlineMode;
 @property (nonatomic, assign) BOOL hasStoredHistory;
+@property (nonatomic, assign) BOOL hasStopped;
 @property (nonatomic, assign) NSInteger lastReadMessage;
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
 @property (nonatomic, strong) NSIndexPath *unreadMessagesSeparatorIP;
@@ -271,6 +272,22 @@ typedef enum NCChatMessageAction {
     }
 }
 
+- (void)stopChat
+{
+    _hasStopped = YES;
+    [_chatController stopChatController];
+    [self cleanChat];
+}
+
+- (void)resumeChat
+{
+    _hasStopped = NO;
+    if (!_hasReceiveInitialHistory && !_hasRequestedInitialHistory) {
+        _hasRequestedInitialHistory = YES;
+        [_chatController getInitialChatHistory];
+    }
+}
+
 - (void)leaveChat
 {
     [_lobbyCheckTimer invalidate];
@@ -284,6 +301,24 @@ typedef enum NCChatMessageAction {
         [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
         [NCRoomsManager sharedInstance].chatViewController = nil;
     }
+}
+
+#pragma mark - App lifecycle notifications
+
+-(void)appDidBecomeActive:(NSNotification*)notification
+{
+    [self removeUnreadMessagesSeparator];
+    if (!_offlineMode) {
+        [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+    }
+}
+
+-(void)appWillResignActive:(NSNotification*)notification
+{
+    _hasReceiveNewMessages = NO;
+    _leftChatWithVisibleChatVC = YES;
+    [_chatController stopChatController];
+    [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
 #pragma mark - Configuration
@@ -771,24 +806,6 @@ typedef enum NCChatMessageAction {
     return [super textView:textView shouldChangeTextInRange:range replacementText:text];
 }
 
-#pragma mark - App lifecycle notifications
-
--(void)appDidBecomeActive:(NSNotification*)notification
-{
-    [self removeUnreadMessagesSeparator];
-    if (!_offlineMode) {
-        [[NCRoomsManager sharedInstance] joinRoom:_room.token];
-    }
-}
-
--(void)appWillResignActive:(NSNotification*)notification
-{
-    _hasReceiveNewMessages = NO;
-    _leftChatWithVisibleChatVC = YES;
-    [_chatController stopChatController];
-    [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
-}
-
 #pragma mark - Room Manager notifications
 
 - (void)didUpdateRoom:(NSNotification *)notification
@@ -821,6 +838,10 @@ typedef enum NCChatMessageAction {
     
     _hasJoinedRoom = YES;
     [self checkRoomControlsAvailability];
+    
+    if (_hasStopped) {
+        return;
+    }
     
     if (_leftChatWithVisibleChatVC && _hasReceiveInitialHistory) {
         _leftChatWithVisibleChatVC = NO;
@@ -1372,6 +1393,7 @@ typedef enum NCChatMessageAction {
     _messages = [[NSMutableDictionary alloc] init];
     _dateSections = [[NSMutableArray alloc] init];
     _hasReceiveInitialHistory = NO;
+    _hasRequestedInitialHistory = NO;
     _hasReceiveNewMessages = NO;
     _unreadMessagesSeparatorIP = nil;
     [self hideNewMessagesView];

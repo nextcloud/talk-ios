@@ -419,6 +419,9 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 extSignalingController.currentRoom = nil;
             }
         }
+        if ([_chatViewController.room.token isEqualToString:room.token]) {
+            [_chatViewController stopChat];
+        }
         [[NCUserInterfaceController sharedInstance] presentCallViewController:_callViewController];
         [self joinRoom:room.token forCall:YES];
     } else {
@@ -478,6 +481,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
     [[CallKitManager sharedInstance] endCurrentCall];
     [self leaveRoom:room.token];
+    
+    if ([_chatViewController.room.token isEqualToString:room.token]) {
+        [_chatViewController resumeChat];
+    }
 }
 
 #pragma mark - CallViewControllerDelegate
