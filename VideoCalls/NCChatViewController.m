@@ -65,6 +65,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, assign) BOOL leftChatWithVisibleChatVC;
 @property (nonatomic, assign) BOOL offlineMode;
 @property (nonatomic, assign) BOOL hasStoredHistory;
+@property (nonatomic, assign) BOOL hasStopped;
 @property (nonatomic, assign) NSInteger lastReadMessage;
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
 @property (nonatomic, strong) NSIndexPath *unreadMessagesSeparatorIP;
@@ -267,16 +268,55 @@ typedef enum NCChatMessageAction {
     
     // Leave chat when the view controller has been removed from its parent view.
     if (self.isMovingFromParentViewController) {
-        if ([[NCRoomsManager sharedInstance].chatViewController.room.token isEqualToString:_room.token]) {
-            [NCRoomsManager sharedInstance].chatViewController = nil;
-        }
         [self leaveChat];
+    }
+}
+
+- (void)stopChat
+{
+    _hasStopped = YES;
+    [_chatController stopChatController];
+    [self cleanChat];
+}
+
+- (void)resumeChat
+{
+    _hasStopped = NO;
+    if (!_hasReceiveInitialHistory && !_hasRequestedInitialHistory) {
+        _hasRequestedInitialHistory = YES;
+        [_chatController getInitialChatHistory];
     }
 }
 
 - (void)leaveChat
 {
     [_lobbyCheckTimer invalidate];
+    [_chatController stopChatController];
+    
+    // Leave chat and remove chat view controller owned by rooms manager
+    // only in the chat presented by the rooms manager.
+    // Call's chat should not try to leave the chat neither remove the
+    // chat view controller owned by the rooms manager.
+    if ([NCRoomsManager sharedInstance].chatViewController == self) {
+        [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
+        [NCRoomsManager sharedInstance].chatViewController = nil;
+    }
+}
+
+#pragma mark - App lifecycle notifications
+
+-(void)appDidBecomeActive:(NSNotification*)notification
+{
+    [self removeUnreadMessagesSeparator];
+    if (!_offlineMode) {
+        [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+    }
+}
+
+-(void)appWillResignActive:(NSNotification*)notification
+{
+    _hasReceiveNewMessages = NO;
+    _leftChatWithVisibleChatVC = YES;
     [_chatController stopChatController];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
@@ -766,24 +806,6 @@ typedef enum NCChatMessageAction {
     return [super textView:textView shouldChangeTextInRange:range replacementText:text];
 }
 
-#pragma mark - App lifecycle notifications
-
--(void)appDidBecomeActive:(NSNotification*)notification
-{
-    [self removeUnreadMessagesSeparator];
-    if (!_offlineMode) {
-        [[NCRoomsManager sharedInstance] joinRoom:_room.token];
-    }
-}
-
--(void)appWillResignActive:(NSNotification*)notification
-{
-    _hasReceiveNewMessages = NO;
-    _leftChatWithVisibleChatVC = YES;
-    [_chatController stopChatController];
-    [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
-}
-
 #pragma mark - Room Manager notifications
 
 - (void)didUpdateRoom:(NSNotification *)notification
@@ -816,6 +838,10 @@ typedef enum NCChatMessageAction {
     
     _hasJoinedRoom = YES;
     [self checkRoomControlsAvailability];
+    
+    if (_hasStopped) {
+        return;
+    }
     
     if (_leftChatWithVisibleChatVC && _hasReceiveInitialHistory) {
         _leftChatWithVisibleChatVC = NO;
@@ -1322,7 +1348,7 @@ typedef enum NCChatMessageAction {
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     for (NCChatMessage *message in messages) {
-        if ([message.actorId isEqualToString:activeAccount.userId]) {
+        if ([message.actorId isEqualToString:activeAccount.userId] && !message.isSystemMessage) {
             return YES;
         }
     }
@@ -1367,6 +1393,7 @@ typedef enum NCChatMessageAction {
     _messages = [[NSMutableDictionary alloc] init];
     _dateSections = [[NSMutableArray alloc] init];
     _hasReceiveInitialHistory = NO;
+    _hasRequestedInitialHistory = NO;
     _hasReceiveNewMessages = NO;
     _unreadMessagesSeparatorIP = nil;
     [self hideNewMessagesView];

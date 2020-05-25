@@ -26,6 +26,7 @@
 #import "UIImageView+AFNetworking.h"
 #import "CallKitManager.h"
 #import "UIView+Toast.h"
+#import "PulsingHaloLayer.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
@@ -41,6 +42,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSMutableDictionary *_videoRenderersDict;
     NSMutableDictionary *_screenRenderersDict;
     NCCallController *_callController;
+    NCChatViewController *_chatViewController;
     ARDCaptureController *_captureController;
     UIView <RTCVideoRenderer> *_screenView;
     CGSize _screensharingSize;
@@ -51,6 +53,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     BOOL _userDisabledVideo;
     BOOL _videoCallUpgrade;
     BOOL _hangingUp;
+    PulsingHaloLayer *_halo;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -60,6 +63,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 @property (nonatomic, strong) IBOutlet UIButton *switchCameraButton;
 @property (nonatomic, strong) IBOutlet UIButton *hangUpButton;
 @property (nonatomic, strong) IBOutlet UIButton *videoCallButton;
+@property (nonatomic, strong) IBOutlet UIButton *chatButton;
 @property (nonatomic, strong) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) IBOutlet UICollectionViewFlowLayout *flowLayout;
 
@@ -119,6 +123,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.videoDisableButton.layer setCornerRadius:30.0f];
     [self.hangUpButton.layer setCornerRadius:30.0f];
     [self.videoCallButton.layer setCornerRadius:30.0f];
+    [self.chatButton.layer setCornerRadius:30.0f];
     [self.closeScreensharingButton.layer setCornerRadius:16.0f];
     
     self.audioMuteButton.accessibilityLabel = @"Microphone";
@@ -134,6 +139,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     self.hangUpButton.accessibilityHint = @"Doble tap to hang up the call";
     self.videoCallButton.accessibilityLabel = @"Camera";
     self.videoCallButton.accessibilityHint = @"Doble tap to upgrade this voice call to a video call";
+    self.chatButton.accessibilityLabel = @"Chat";
+    self.chatButton.accessibilityHint = @"Doble tap to show call's chat";
     
     [self adjustButtonsConainer];
     
@@ -164,6 +171,10 @@ typedef NS_ENUM(NSInteger, CallState) {
         [participantCell resizeRemoteVideoView];
     }
     [self resizeScreensharingView];
+    [_halo setHidden:YES];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(duration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self setHaloToChatButton];
+    });
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -449,6 +460,7 @@ typedef NS_ENUM(NSInteger, CallState) {
             [self.switchCameraButton setAlpha:1.0f];
             [self.videoCallButton setAlpha:1.0f];
             [self.closeScreensharingButton setAlpha:1.0f];
+            [self.chatButton setAlpha:1.0f];
             [self.view layoutIfNeeded];
         }];
     });
@@ -462,6 +474,7 @@ typedef NS_ENUM(NSInteger, CallState) {
             [self.switchCameraButton setAlpha:0.0f];
             [self.videoCallButton setAlpha:0.0f];
             [self.closeScreensharingButton setAlpha:0.0f];
+            [self.chatButton setAlpha:(_chatViewController) ? 1.0f : 0.0f];
             [self.view layoutIfNeeded];
         }];
     });
@@ -713,6 +726,65 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     _videoCallUpgrade = YES;
     [self hangup];
+}
+
+- (IBAction)chatButtonPressed:(id)sender
+{
+    [self toggleChatView];
+}
+
+- (void)toggleChatView
+{
+    if (!_chatViewController) {
+        _chatViewController = [[NCChatViewController alloc] initForRoom:_room];
+        [self addChildViewController:_chatViewController];
+        
+        [self.view addSubview:_chatViewController.view];
+        _chatViewController.view.frame = self.view.bounds;
+        _chatViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [_chatViewController didMoveToParentViewController:self];
+        
+        _chatButton.backgroundColor = [UIColor lightGrayColor];
+        [_chatButton setImage:[UIImage imageNamed:@"call-white"] forState:UIControlStateNormal];
+        
+        [self setHaloToChatButton];
+        
+        [self.view bringSubviewToFront:_chatButton];
+        if (!_isAudioOnly) {
+            [self.view bringSubviewToFront:_localVideoView];
+        }
+    } else {
+        _chatButton.backgroundColor = [UIColor colorWithRed:155/255.f green:155/255.f blue:155/255.f alpha:0.75];
+        [_chatButton setImage:[UIImage imageNamed:@"chat"] forState:UIControlStateNormal];
+        
+        [_chatViewController willMoveToParentViewController:nil];
+        [_chatViewController.view removeFromSuperview];
+        [_chatViewController removeFromParentViewController];
+        
+        _chatViewController = nil;
+        
+        if ((!_isAudioOnly && _callState == CallStateInCall) || _screenView) {
+            [self showDetailedViewWithTimer];
+        }
+    }
+}
+
+- (void)setHaloToChatButton
+{
+    [_halo removeFromSuperlayer];
+    
+    if (_chatViewController) {
+        _halo = [PulsingHaloLayer layer];
+        _halo.position = _chatButton.center;
+        UIColor *color = [UIColor colorWithRed:118/255.f green:213/255.f blue:114/255.f alpha:1];
+        _halo.backgroundColor = color.CGColor;
+        _halo.radius = 40.0;
+        _halo.haloLayerNumber = 2;
+        _halo.keyTimeForHalfOpacity = 0.75;
+        _halo.fromValueForRadius = 0.75;
+        [_chatViewController.view.layer addSublayer:_halo];
+        [_halo start];
+    }
 }
 
 - (void)finishCall
