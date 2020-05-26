@@ -293,12 +293,19 @@ typedef enum NCChatMessageAction {
     [_lobbyCheckTimer invalidate];
     [_chatController stopChatController];
     
-    // Leave chat and remove chat view controller owned by rooms manager
-    // only in the chat presented by the rooms manager.
-    // Call's chat should not try to leave the chat neither remove the
-    // chat view controller owned by the rooms manager.
+    // If this chat view controller is for the same room as the one owned by the rooms manager
+    // then we should not try to leave the chat. Since we will leave the chat when the
+    // chat view controller owned by rooms manager moves from parent view controller.
+    if ([[NCRoomsManager sharedInstance].chatViewController.room.token isEqualToString:_room.token] &&
+        [NCRoomsManager sharedInstance].chatViewController != self) {
+        return;
+    }
+    
+    [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
+    
+    // Remove chat view controller pointer if this chat is owned by rooms manager
+    // and the chat view is moving from parent view controller
     if ([NCRoomsManager sharedInstance].chatViewController == self) {
-        [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
         [NCRoomsManager sharedInstance].chatViewController = nil;
     }
 }
