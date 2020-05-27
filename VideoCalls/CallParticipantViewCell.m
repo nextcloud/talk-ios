@@ -54,6 +54,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
     [_videoView removeFromSuperview];
     _videoView = nil;
     _showOriginalSize = NO;
+    self.layer.borderWidth = 0.0f;
 }
 
 - (void)toggleZoom
