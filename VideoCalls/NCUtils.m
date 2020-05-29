@@ -8,7 +8,6 @@
 
 #import "NCUtils.h"
 
-#import <UIKit/UIKit.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <CommonCrypto/CommonDigest.h>
 
@@ -112,6 +111,21 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     }
     
     return output;
+}
+
++ (UIImage *)blurImageFromImage:(UIImage *)image
+{
+    CGFloat inputRadius = 8.0f;
+    CIContext *context = [CIContext contextWithOptions:nil];
+    CIImage *inputImage = [[CIImage alloc] initWithImage:image];
+    CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
+    [filter setValue:inputImage forKey:kCIInputImageKey];
+    [filter setValue:[NSNumber numberWithFloat:inputRadius] forKey:@"inputRadius"];
+    CIImage *result = [filter valueForKey:kCIOutputImageKey];
+    CGRect imageRect = [inputImage extent];
+    CGRect cropRect = CGRectMake(imageRect.origin.x + inputRadius, imageRect.origin.y + inputRadius, imageRect.size.width - inputRadius * 2, imageRect.size.height - inputRadius * 2);
+    CGImageRef cgImage = [context createCGImage:result fromRect:imageRect];
+    return [UIImage imageWithCGImage:CGImageCreateWithImageInRect(cgImage, cropRect)];
 }
 
 @end

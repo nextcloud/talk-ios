@@ -23,6 +23,7 @@
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingMessage.h"
+#import "NCUtils.h"
 #import "UIImageView+AFNetworking.h"
 #import "CallKitManager.h"
 #import "UIView+Toast.h"
@@ -361,21 +362,20 @@ typedef NS_ENUM(NSInteger, CallState) {
         __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
         [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                               placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
-                                                  if ([response statusCode] == 200) {
-                                                      CGFloat inputRadius = 8.0f;
-                                                      CIContext *context = [CIContext contextWithOptions:nil];
-                                                      CIImage *inputImage = [[CIImage alloc] initWithImage:image];
-                                                      CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
-                                                      [filter setValue:inputImage forKey:kCIInputImageKey];
-                                                      [filter setValue:[NSNumber numberWithFloat:inputRadius] forKey:@"inputRadius"];
-                                                      CIImage *result = [filter valueForKey:kCIOutputImageKey];
-                                                      CGRect imageRect = [inputImage extent];
-                                                      CGRect cropRect = CGRectMake(imageRect.origin.x + inputRadius, imageRect.origin.y + inputRadius, imageRect.size.width - inputRadius * 2, imageRect.size.height - inputRadius * 2);
-                                                      CGImageRef cgImage = [context createCGImage:result fromRect:imageRect];
-                                                      UIImage *finalImage = [UIImage imageWithCGImage:CGImageCreateWithImageInRect(cgImage, cropRect)];
-                                                      [weakBGView setImage:finalImage];
-                                                      weakBGView.contentMode = UIViewContentModeScaleAspectFill;
+                                                  NSDictionary *headers = [response allHeaderFields];
+                                                  id customAvatarHeader = [headers objectForKey:@"X-NC-IsCustomAvatar"];
+                                                  BOOL shouldShowBlurBackground = YES;
+                                                  if (customAvatarHeader) {
+                                                      shouldShowBlurBackground = [customAvatarHeader boolValue];
                                                   } else if ([response statusCode] == 201) {
+                                                      shouldShowBlurBackground = NO;
+                                                  }
+                                                  
+                                                  if (shouldShowBlurBackground) {
+                                                      UIImage *blurImage = [NCUtils blurImageFromImage:image];
+                                                      [weakBGView setImage:blurImage];
+                                                      weakBGView.contentMode = UIViewContentModeScaleAspectFill;
+                                                  } else {
                                                       DBImageColorPicker *colorPicker = [[DBImageColorPicker alloc] initFromImage:image withBackgroundType:DBImageColorPickerBackgroundTypeDefault];
                                                       [weakBGView setBackgroundColor:colorPicker.backgroundColor];
                                                       weakBGView.backgroundColor = [weakBGView.backgroundColor colorWithAlphaComponent:0.8];
