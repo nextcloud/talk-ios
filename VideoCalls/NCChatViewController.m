@@ -52,7 +52,6 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) NCChatTitleView *titleView;
 @property (nonatomic, strong) PlaceholderView *chatBackgroundView;
 @property (nonatomic, strong) NSMutableDictionary *messages;
-@property (nonatomic, strong) NSMutableArray *temporaryMessages;
 @property (nonatomic, strong) NSMutableArray *dateSections;
 @property (nonatomic, strong) NSMutableArray *mentions;
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
@@ -139,7 +138,6 @@ typedef enum NCChatMessageAction {
     [_voiceCallButton setEnabled:NO];
     self.textInputbar.userInteractionEnabled = NO;
     
-    self.temporaryMessages = [_chatController getTemporaryMessages];
     self.messages = [[NSMutableDictionary alloc] init];
     self.mentions = [[NSMutableArray alloc] init];
     self.dateSections = [[NSMutableArray alloc] init];
@@ -560,8 +558,6 @@ typedef enum NCChatMessageAction {
         [self.tableView endUpdates];
         
         [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-        
-        [_temporaryMessages addObject:temporaryMessage];
     });
 }
 
