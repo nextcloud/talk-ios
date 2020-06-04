@@ -284,6 +284,16 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND isTemporary = true", _account.accountId, _room.token];
     RLMResults *managedTemporaryMessages = [NCChatMessage objectsWithPredicate:query];
     RLMResults *managedSortedTemporaryMessages = [managedTemporaryMessages sortedResultsUsingKeyPath:@"timestamp" ascending:YES];
+    // Mark temporary messages sent more than 1 min ago as failed-to-send messages
+    NSInteger oneMinAgoTimestamp = [[NSDate date] timeIntervalSince1970] - 60;
+    for (NCChatMessage *temporaryMessage in managedTemporaryMessages) {
+        if (temporaryMessage.timestamp < oneMinAgoTimestamp) {
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm transactionWithBlock:^{
+                temporaryMessage.sendingFailed = YES;
+            }];
+        }
+    }
     // Create an unmanaged copy of the messages
     NSMutableArray *sortedMessages = [NSMutableArray new];
     for (NCChatMessage *managedMessage in managedSortedTemporaryMessages) {
