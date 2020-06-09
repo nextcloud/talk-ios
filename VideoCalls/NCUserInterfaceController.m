@@ -12,6 +12,7 @@
 #import "AuthenticationViewController.h"
 #import "LoginViewController.h"
 #import "NCConnectionController.h"
+#import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "JDStatusBarNotification.h"
@@ -79,6 +80,9 @@
 {
     _loginViewController = [[LoginViewController alloc] init];
     _loginViewController.delegate = self;
+    if (@available(iOS 13.0, *)) {
+        _loginViewController.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
+    }
     [_mainNavigationController presentViewController:_loginViewController animated:YES completion:nil];
 }
 
