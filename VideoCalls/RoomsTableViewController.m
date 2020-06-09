@@ -799,7 +799,7 @@ API_AVAILABLE(ios(11.0)){
                                                                                 [self deleteRoomAtIndexPath:indexPath];
                                                                                 completionHandler(false);
                                                                             }];
-    deleteAction.image = [UIImage imageNamed:@"delete-action"];
+    deleteAction.image = [UIImage imageNamed:@"delete"];
     
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     if (room.isLeavable) {
@@ -808,7 +808,7 @@ API_AVAILABLE(ios(11.0)){
                                                                  [self leaveRoomAtIndexPath:indexPath];
                                                                  completionHandler(false);
                                                              }];
-        deleteAction.image = [UIImage imageNamed:@"exit-action"];
+        deleteAction.image = [UIImage imageNamed:@"exit-white"];
     }
     
     return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction, moreAction]];
@@ -826,7 +826,7 @@ API_AVAILABLE(ios(11.0)){
                                                                                    }
                                                                                    completionHandler(true);
                                                                                }];
-    favoriteAction.image = [UIImage imageNamed:@"fav-setting"];
+    favoriteAction.image = [UIImage imageNamed:@"fav-white"];
     favoriteAction.backgroundColor = [UIColor colorWithRed:0.97 green:0.80 blue:0.27 alpha:1.0]; // Favorite yellow
     
     return [UISwipeActionsConfiguration configurationWithActions:@[favoriteAction]];
