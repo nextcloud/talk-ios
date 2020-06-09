@@ -81,6 +81,8 @@ typedef NS_ENUM(NSInteger, CallState) {
         return nil;
     }
     
+    self.modalPresentationStyle = UIModalPresentationFullScreen;
+    
     _room = room;
     _displayName = displayName;
     _isAudioOnly = audioOnly;
