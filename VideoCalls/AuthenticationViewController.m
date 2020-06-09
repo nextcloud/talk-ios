@@ -31,6 +31,9 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
     self = [super init];
     if (self) {
         self.serverUrl = serverUrl;
+        if (@available(iOS 13.0, *)) {
+            self.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
+        }
     }
     
     return self;
