@@ -1007,10 +1007,8 @@ typedef enum NCChatMessageAction {
             
             // Position chat view
             if (unreadMessagesReceived) {
-                // Adding this delay due to an unpredictable behaviour in scrollToRow.
-                // It seems that scrollToRow doesn't always wait until reloadData is completely finished.
-                // Might be because of this whole function is now wrapped inside a dispatch_async?
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                // Dispatch it in the next cycle so reloadData is always completed.
+                dispatch_async(dispatch_get_main_queue(), ^{
                     [self.tableView scrollToRowAtIndexPath:firstMessageIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
                 });
             } else if ([self shouldScrollOnNewMessages] || newMessagesContainUserMessage) {
