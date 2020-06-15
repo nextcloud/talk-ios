@@ -22,7 +22,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
         return nil;
     }
     
-    NCRoom *room = [[NCRoom alloc] init];
+    NCRoom *room = [[self alloc] init];
     room.roomId = [[roomDict objectForKey:@"id"] integerValue];
     room.token = [roomDict objectForKey:@"token"];
     room.type = (NCRoomType)[[roomDict objectForKey:@"type"] integerValue];
@@ -66,7 +66,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId
 {
-    NCRoom *room = [NCRoom roomWithDictionary:roomDict];
+    NCRoom *room = [self roomWithDictionary:roomDict];
     if (room) {
         room.accountId = accountId;
         room.internalId = [NSString stringWithFormat:@"%@@%@", room.accountId, room.token];

@@ -71,6 +71,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, assign) BOOL hasCall;
 @property (nonatomic, assign) NSInteger lastUpdate;
 
++ (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;
 + (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room;
 
