@@ -256,6 +256,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)cleanCurrentPeerConnections
 {
     for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
+        [self.delegate callController:self peerLeft:peerConnectionWrapper];
+        peerConnectionWrapper.delegate = nil;
         [peerConnectionWrapper close];
     }
     for (NSTimer *pendingOfferTimer in [_pendingOffersDict allValues]) {
