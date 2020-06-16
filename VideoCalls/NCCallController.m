@@ -455,6 +455,10 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)createOwnPublishPeerConnection
 {
+    if (_ownPeerConnection) {
+        _ownPeerConnection.delegate = nil;
+        [_ownPeerConnection close];
+    }
     NSLog(@"Creating own pusblish peer connection: %@", _userSessionId);
     NSArray *iceServers = [_signalingController getIceServers];
     _ownPeerConnection = [[NCPeerConnection alloc] initForMCUWithSessionId:_userSessionId andICEServers:iceServers forAudioOnlyCall:YES];
