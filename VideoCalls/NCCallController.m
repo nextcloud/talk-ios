@@ -33,6 +33,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, assign) BOOL isAudioOnly;
 @property (nonatomic, assign) BOOL inCall;
 @property (nonatomic, assign) BOOL leavingCall;
+@property (nonatomic, assign) BOOL preparedForRejoin;
+@property (nonatomic, assign) BOOL joinedCallOnce;
 @property (nonatomic, assign) NSInteger joinCallAttempts;
 @property (nonatomic, strong) AVAudioRecorder *recorder;
 @property (nonatomic, strong) NSTimer *micAudioLevelTimer;
@@ -119,6 +121,7 @@ static NSString * const kNCVideoTrackKind = @"video";
             } else {
                 [_signalingController startPullingSignalingMessages];
             }
+            _joinedCallOnce = YES;
             [self setInCall:YES];
         } else {
             if (_joinCallAttempts < 3) {
@@ -162,6 +165,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     [self setInCall:NO];
     [self cleanCurrentPeerConnections];
     [self.delegate callControllerIsReconnectingCall:self];
+    _preparedForRejoin = YES;
 }
 
 
@@ -527,7 +531,12 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)externalSignalingControllerShouldRejoinCall:(NCExternalSignalingController *)externalSignalingController
 {
-    [self shouldRejoinCall];
+    // Call controller should rejoin the call if it was notifiy with the willRejoin notification first.
+    // Also we should check that it has joined the call first with the startCall method.
+    if (_preparedForRejoin && _joinedCallOnce) {
+        _preparedForRejoin = NO;
+        [self shouldRejoinCall];
+    }
 }
 
 - (void)externalSignalingControllerWillRejoinCall:(NCExternalSignalingController *)externalSignalingController
