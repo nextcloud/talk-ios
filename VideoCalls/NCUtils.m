@@ -128,4 +128,15 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return [UIImage imageWithCGImage:CGImageCreateWithImageInRect(cgImage, cropRect)];
 }
 
++ (UIColor *)darkerColorFromColor:(UIColor *)color
+{
+    CGFloat h, s, b, a;
+    if ([color getHue:&h saturation:&s brightness:&b alpha:&a])
+        return [UIColor colorWithHue:h
+                          saturation:s
+                          brightness:b * 0.95
+                               alpha:a];
+    return nil;
+}
+
 @end

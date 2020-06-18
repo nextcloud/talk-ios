@@ -28,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (UIImage *)blurImageFromImage:(UIImage *)image;
 
++ (UIColor *)darkerColorFromColor:(UIColor *)color;
+
 @end
 
 NS_ASSUME_NONNULL_END
