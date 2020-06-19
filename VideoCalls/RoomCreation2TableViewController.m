@@ -71,6 +71,17 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
+    if (@available(iOS 13.0, *)) {
+        UIColor *themeColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        appearance.backgroundColor = themeColor;
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+        self.navigationItem.standardAppearance = appearance;
+        self.navigationItem.compactAppearance = appearance;
+        self.navigationItem.scrollEdgeAppearance = appearance;
+    }
+    
     _passwordTextField = [[UITextField alloc] initWithFrame:CGRectMake(180, 10, 115, 30)];
     _passwordTextField.textAlignment = NSTextAlignmentRight;
     _passwordTextField.placeholder = @"No password";

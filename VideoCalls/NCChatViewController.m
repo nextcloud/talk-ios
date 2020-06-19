@@ -174,6 +174,17 @@ typedef enum NCChatMessageAction {
     
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     
+    if (@available(iOS 13.0, *)) {
+        UIColor *themeColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        appearance.backgroundColor = themeColor;
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+        self.navigationItem.standardAppearance = appearance;
+        self.navigationItem.compactAppearance = appearance;
+        self.navigationItem.scrollEdgeAppearance = appearance;
+    }
+    
     // Add long press gesture recognizer
     UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
     longPressGesture.delegate = self;

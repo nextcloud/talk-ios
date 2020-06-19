@@ -13,6 +13,7 @@
 #import "NCAPIController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
+#import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "SearchTableViewController.h"
 #import "UIImageView+AFNetworking.h"
@@ -58,7 +59,17 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     [_searchController.searchBar sizeToFit];
     
     if (@available(iOS 13.0, *)) {
+        UIColor *themeColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        appearance.backgroundColor = themeColor;
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+        self.navigationItem.standardAppearance = appearance;
+        self.navigationItem.compactAppearance = appearance;
+        self.navigationItem.scrollEdgeAppearance = appearance;
+        
         self.navigationItem.searchController = _searchController;
+        self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils darkerColorFromColor:themeColor];
         _searchController.searchBar.tintColor = [UIColor whiteColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
         searchTextField.tintColor = [UIColor whiteColor];

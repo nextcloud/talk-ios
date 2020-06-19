@@ -63,6 +63,17 @@ typedef enum AboutSection {
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
+    if (@available(iOS 13.0, *)) {
+        UIColor *themeColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        appearance.backgroundColor = themeColor;
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+        self.navigationItem.standardAppearance = appearance;
+        self.navigationItem.compactAppearance = appearance;
+        self.navigationItem.scrollEdgeAppearance = appearance;
+    }
+    
     [self.tableView registerNib:[UINib nibWithNibName:kUserSettingsTableCellNibName bundle:nil] forCellReuseIdentifier:kUserSettingsCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:kAccountTableViewCellNibName bundle:nil] forCellReuseIdentifier:kAccountCellIdentifier];
     
