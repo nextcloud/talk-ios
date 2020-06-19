@@ -168,6 +168,7 @@
 
 - (void)close
 {
+    [self.delegate addParticipantsTableViewControllerDidFinish:self];
     [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
