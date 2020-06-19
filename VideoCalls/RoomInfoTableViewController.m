@@ -69,7 +69,7 @@ typedef enum ModificationError {
 
 #define k_set_password_textfield_tag    98
 
-@interface RoomInfoTableViewController () <UITextFieldDelegate, UIGestureRecognizerDelegate>
+@interface RoomInfoTableViewController () <UITextFieldDelegate, UIGestureRecognizerDelegate, AddParticipantsTableViewControllerDelegate>
 
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) NCChatViewController *chatViewController;
@@ -766,8 +766,14 @@ typedef enum ModificationError {
 - (void)addParticipantsButtonPressed
 {
     AddParticipantsTableViewController *addParticipantsVC = [[AddParticipantsTableViewController alloc] initForRoom:_room];
+    addParticipantsVC.delegate = self;
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:addParticipantsVC];
     [self presentViewController:navigationController animated:YES completion:nil];
+}
+
+- (void)addParticipantsTableViewControllerDidFinish:(AddParticipantsTableViewController *)viewController
+{
+    [self getRoomParticipants];
 }
 
 - (void)showModerationOptionsForParticipantAtIndexPath:(NSIndexPath *)indexPath
