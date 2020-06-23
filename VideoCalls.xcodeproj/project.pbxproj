@@ -137,6 +137,8 @@
 		2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
 		2CBF82BD1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
 		2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
+		2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC0015224A1F0E900A20167 /* NotificationService.m */; };
+		2CC0015724A1F0E900A20167 /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */; };
 		2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */; };
 		2CC007B920D8139D0096D91F /* RoomCreationTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007B720D8139D0096D91F /* RoomCreationTableViewController.xib */; };
@@ -156,6 +158,16 @@
 		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		2CC0015524A1F0E900A20167 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2CC0014E24A1F0E900A20167;
+			remoteInfo = NotificationServiceExtension;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -163,6 +175,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				2CC0015724A1F0E900A20167 /* NotificationServiceExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -487,6 +500,11 @@
 		2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCImageSessionManager.m; sourceTree = "<group>"; };
 		2CBF82BF1FD5AE3F00636459 /* NCPushProxySessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushProxySessionManager.h; sourceTree = "<group>"; };
 		2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushProxySessionManager.m; sourceTree = "<group>"; };
+		2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CC0015124A1F0E900A20167 /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
+		2CC0015224A1F0E900A20167 /* NotificationService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
+		2CC0015424A1F0E900A20167 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2CC0015B24A1F1D700A20167 /* NotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		2CC007B220D7AE990096D91F /* ResultMultiSelectionTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResultMultiSelectionTableViewController.h; sourceTree = "<group>"; };
 		2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResultMultiSelectionTableViewController.m; sourceTree = "<group>"; };
 		2CC007B520D8139D0096D91F /* RoomCreationTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomCreationTableViewController.h; sourceTree = "<group>"; };
@@ -535,12 +553,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2CC0014C24A1F0E900A20167 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		2C0574741EDD9E8E00D9E7F2 = {
 			isa = PBXGroup;
 			children = (
+				2CC0015024A1F0E900A20167 /* NotificationServiceExtension */,
 				2C05747E1EDD9E8E00D9E7F2 /* Products */,
 				2C05749C1EDDA01700D9E7F2 /* ThirdParty */,
 				2C05747F1EDD9E8E00D9E7F2 /* VideoCalls */,
@@ -553,6 +579,7 @@
 			isa = PBXGroup;
 			children = (
 				2C05747D1EDD9E8E00D9E7F2 /* VideoCalls.app */,
+				2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1127,6 +1154,17 @@
 			name = Security;
 			sourceTree = "<group>";
 		};
+		2CC0015024A1F0E900A20167 /* NotificationServiceExtension */ = {
+			isa = PBXGroup;
+			children = (
+				2CC0015B24A1F1D700A20167 /* NotificationServiceExtension.entitlements */,
+				2CC0015124A1F0E900A20167 /* NotificationService.h */,
+				2CC0015224A1F0E900A20167 /* NotificationService.m */,
+				2CC0015424A1F0E900A20167 /* Info.plist */,
+			);
+			path = NotificationServiceExtension;
+			sourceTree = "<group>";
+		};
 		2CF0679E208A2A430070A79B /* Chat */ = {
 			isa = PBXGroup;
 			children = (
@@ -1172,11 +1210,29 @@
 			buildRules = (
 			);
 			dependencies = (
+				2CC0015624A1F0E900A20167 /* PBXTargetDependency */,
 			);
 			name = VideoCalls;
 			productName = VideoCalls;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* VideoCalls.app */;
 			productType = "com.apple.product-type.application";
+		};
+		2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2CC0015A24A1F0E900A20167 /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */;
+			buildPhases = (
+				2CC0014B24A1F0E900A20167 /* Sources */,
+				2CC0014C24A1F0E900A20167 /* Frameworks */,
+				2CC0014D24A1F0E900A20167 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NotificationServiceExtension;
+			productName = NotificationServiceExtension;
+			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -1206,6 +1262,11 @@
 							};
 						};
 					};
+					2CC0014E24A1F0E900A20167 = {
+						CreatedOnToolsVersion = 11.5;
+						DevelopmentTeam = NKUJUXUJ3B;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 2C0574781EDD9E8E00D9E7F2 /* Build configuration list for PBXProject "VideoCalls" */;
@@ -1223,6 +1284,7 @@
 			projectRoot = "";
 			targets = (
 				2C05747C1EDD9E8E00D9E7F2 /* VideoCalls */,
+				2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -1254,6 +1316,13 @@
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 				2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2CC0014D24A1F0E900A20167 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1455,7 +1524,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2CC0014B24A1F0E900A20167 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2CC0015624A1F0E900A20167 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
+			targetProxy = 2CC0015524A1F0E900A20167 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */ = {
@@ -1649,6 +1734,69 @@
 			};
 			name = Release;
 		};
+		2CC0015824A1F0E900A20167 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2CC0015924A1F0E900A20167 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1666,6 +1814,15 @@
 			buildConfigurations = (
 				2C0574981EDD9E8E00D9E7F2 /* Debug */,
 				2C0574991EDD9E8E00D9E7F2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2CC0015A24A1F0E900A20167 /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2CC0015824A1F0E900A20167 /* Debug */,
+				2CC0015924A1F0E900A20167 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
