@@ -139,6 +139,122 @@
 		2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC0015224A1F0E900A20167 /* NotificationService.m */; };
 		2CC0015724A1F0E900A20167 /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2CC0015D24A257B800A20167 /* NCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */; };
+		2CC0015E24A25A8000A20167 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60131FB4A9DA006E87EF /* libcrypto.a */; };
+		2CC0015F24A25A8000A20167 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60141FB4A9DA006E87EF /* libssl.a */; };
+		2CC0016124A25B5500A20167 /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
+		2CC0016224A25B6B00A20167 /* NCConnectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC901F014354002FE6A2 /* NCConnectionController.m */; };
+		2CC0016324A25B7400A20167 /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
+		2CC0016524A25B8900A20167 /* NCUserInterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06330E2046CC8B0043481A /* NCUserInterfaceController.m */; };
+		2CC0016624A25BD600A20167 /* NCChatController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C42ADB320B58E6300296DEA /* NCChatController.m */; };
+		2CC0016724A25BE100A20167 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
+		2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
+		2CC0017024A3792800A20167 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
+		2CC0017124A3793700A20167 /* OCCommunication.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDF2216BF4A00F5C23F /* OCCommunication.m */; };
+		2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
+		2CC0017424A3796400A20167 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
+		2CC0017524A3797600A20167 /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
+		2CC0017824A37A3600A20167 /* FTPopOverMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C20269F236832D300DFC89B /* FTPopOverMenu.m */; };
+		2CC0017924A37A4200A20167 /* SLKTextInput+Implementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */; };
+		2CC0017A24A37A4400A20167 /* SLKInputAccessoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */; };
+		2CC0017B24A37A4800A20167 /* SLKTextInputbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A12264775E0053078A /* SLKTextInputbar.m */; };
+		2CC0017C24A37A4B00A20167 /* SLKTextView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A32264775E0053078A /* SLKTextView+SLKAdditions.m */; };
+		2CC0017D24A37A4D00A20167 /* SLKTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A52264775E0053078A /* SLKTextView.m */; };
+		2CC0017E24A37A5000A20167 /* SLKTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A72264775E0053078A /* SLKTextViewController.m */; };
+		2CC0017F24A37A5200A20167 /* SLKTypingIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AA2264775E0053078A /* SLKTypingIndicatorView.m */; };
+		2CC0018024A37A5500A20167 /* UIResponder+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AD2264775E0053078A /* UIResponder+SLKAdditions.m */; };
+		2CC0018124A37A5800A20167 /* UIScrollView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AF2264775E0053078A /* UIScrollView+SLKAdditions.m */; };
+		2CC0018224A37A5B00A20167 /* UIView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303B12264775E0053078A /* UIView+SLKAdditions.m */; };
+		2CC0018324A37A5E00A20167 /* NCRichDocumentTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DD92216BF4A00F5C23F /* NCRichDocumentTemplate.m */; };
+		2CC0018424A37A6600A20167 /* OCActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDB2216BF4A00F5C23F /* OCActivity.m */; };
+		2CC0018524A37A6600A20167 /* OCCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDD2216BF4A00F5C23F /* OCCapabilities.m */; };
+		2CC0018624A37A6600A20167 /* OCExternalSites.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE22216BF4A00F5C23F /* OCExternalSites.m */; };
+		2CC0018724A37A6600A20167 /* OCFileDto.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE42216BF4A00F5C23F /* OCFileDto.m */; };
+		2CC0018824A37A6600A20167 /* OCNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE72216BF4A00F5C23F /* OCNotifications.m */; };
+		2CC0018924A37A6600A20167 /* OCNotificationsAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE92216BF4A00F5C23F /* OCNotificationsAction.m */; };
+		2CC0018A24A37A6600A20167 /* OCRichObjectStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DEB2216BF4A00F5C23F /* OCRichObjectStrings.m */; };
+		2CC0018B24A37A6600A20167 /* OCSharedDto.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DED2216BF4A00F5C23F /* OCSharedDto.m */; };
+		2CC0018C24A37A6600A20167 /* OCShareUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DEF2216BF4A00F5C23F /* OCShareUser.m */; };
+		2CC0018D24A37A6600A20167 /* OCUserProfile.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF12216BF4A00F5C23F /* OCUserProfile.m */; };
+		2CC0018E24A37A6B00A20167 /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF42216BF4A00F5C23F /* NSDate+ISO8601.m */; };
+		2CC0018F24A37A6B00A20167 /* NSDate+RFC1123.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF62216BF4A00F5C23F /* NSDate+RFC1123.m */; };
+		2CC0019024A37A6B00A20167 /* OCHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF82216BF4A00F5C23F /* OCHTTPRequestOperation.m */; };
+		2CC0019124A37A6B00A20167 /* OCWebDAVClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFA2216BF4A00F5C23F /* OCWebDAVClient.m */; };
+		2CC0019224A37A7000A20167 /* OCXMLListParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFD2216BF4A00F5C23F /* OCXMLListParser.m */; };
+		2CC0019324A37A7000A20167 /* OCXMLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFF2216BF4A00F5C23F /* OCXMLParser.m */; };
+		2CC0019424A37A7000A20167 /* OCXMLServerErrorsParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E012216BF4A00F5C23F /* OCXMLServerErrorsParser.m */; };
+		2CC0019524A37A7000A20167 /* OCXMLShareByLinkParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E032216BF4A00F5C23F /* OCXMLShareByLinkParser.m */; };
+		2CC0019624A37A7000A20167 /* OCXMLSharedParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E052216BF4A00F5C23F /* OCXMLSharedParser.m */; };
+		2CC0019724A37A7400A20167 /* NSString+Encode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E082216BF4A00F5C23F /* NSString+Encode.m */; };
+		2CC0019824A37A7400A20167 /* UtilsFramework.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E0B2216BF4A00F5C23F /* UtilsFramework.m */; };
+		2CC0019924A37A7700A20167 /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
+		2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
+		2CC0019B24A37A8100A20167 /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
+		2CC0019C24A37A8100A20167 /* ARDSDPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */; };
+		2CC0019D24A37A8100A20167 /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
+		2CC0019E24A37A8100A20167 /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
+		2CC0019F24A37A8100A20167 /* ARDUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */; };
+		2CC001A024A37A8100A20167 /* RTCIceCandidate+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D6E1F309DA500FF4A0D /* RTCIceCandidate+JSON.m */; };
+		2CC001A124A37A8100A20167 /* RTCSessionDescription+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D701F309DA500FF4A0D /* RTCSessionDescription+JSON.m */; };
+		2CC001A224A37A8B00A20167 /* CallParticipantViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EFA31F86FF4A008AFA74 /* CallParticipantViewCell.m */; };
+		2CC001A324A37A8B00A20167 /* CallViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF9E1F828C41008AFA74 /* CallViewController.m */; };
+		2CC001A424A37A8B00A20167 /* NBMPeersFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EFA81F87EF39008AFA74 /* NBMPeersFlowLayout.m */; };
+		2CC001A524A37A8B00A20167 /* NCCallController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF9B1F826B22008AFA74 /* NCCallController.m */; };
+		2CC001A624A37A8B00A20167 /* AvatarBackgroundImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8CDD0521C2EDE8004E2997 /* AvatarBackgroundImageView.m */; };
+		2CC001A724A37A8B00A20167 /* CallKitManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4987BC21E640E20060AC27 /* CallKitManager.m */; };
+		2CC001A824A37A8B00A20167 /* NCAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4DE9F121F732B40096940D /* NCAudioController.m */; };
+		2CC001A924A37A8F00A20167 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
+		2CC001AA24A37A8F00A20167 /* ChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */; };
+		2CC001AB24A37A8F00A20167 /* FileMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */; };
+		2CC001AC24A37A8F00A20167 /* GroupedChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */; };
+		2CC001AD24A37A8F00A20167 /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
+		2CC001AE24A37A8F00A20167 /* MessageSeparatorTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */; };
+		2CC001AF24A37A9500A20167 /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
+		2CC001B024A37A9500A20167 /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
+		2CC001B124A37A9500A20167 /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
+		2CC001B224A37A9500A20167 /* NCMessageTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */; };
+		2CC001B324A37A9500A20167 /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
+		2CC001B424A37A9500A20167 /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
+		2CC001B524A37A9500A20167 /* NCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15544208E41B500CE8EF0 /* NCChatViewController.m */; };
+		2CC001B624A37A9A00A20167 /* ContactsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */; };
+		2CC001B724A37A9A00A20167 /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
+		2CC001B824A37A9A00A20167 /* SearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCF1F1E1779002FE6A2 /* SearchTableViewController.m */; };
+		2CC001B924A37A9A00A20167 /* AddParticipantsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A12402017872600864818 /* AddParticipantsTableViewController.m */; };
+		2CC001BA24A37A9A00A20167 /* ResultMultiSelectionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */; };
+		2CC001BB24A37AA700A20167 /* DirectoryTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */; };
+		2CC001BC24A37AA700A20167 /* DirectoryTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */; };
+		2CC001BD24A37ABD00A20167 /* AuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */; };
+		2CC001BE24A37ABD00A20167 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */; };
+		2CC001C124A37AC500A20167 /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
+		2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
+		2CC001C324A37AC500A20167 /* NCNotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */; };
+		2CC001CD24A37ACA00A20167 /* RoundedNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */; };
+		2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
+		2CC001CF24A37ACA00A20167 /* RoomsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */; };
+		2CC001D024A37ACA00A20167 /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
+		2CC001D124A37ACA00A20167 /* NCRoomsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */; };
+		2CC001D224A37ACA00A20167 /* RoomCreationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */; };
+		2CC001D324A37ACA00A20167 /* RoomCreation2TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007BB20D8F24B0096D91F /* RoomCreation2TableViewController.m */; };
+		2CC001D424A37ACA00A20167 /* RoomNameTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */; };
+		2CC001D524A37ACA00A20167 /* NewRoomTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C820E125C20096D91F /* NewRoomTableViewController.m */; };
+		2CC001D624A37ACA00A20167 /* RoomInfoTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C440D0F20EA4A770005F9BB /* RoomInfoTableViewController.m */; };
+		2CC001D724A37ACA00A20167 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
+		2CC001D824A37ACA00A20167 /* RoomSearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */; };
+		2CC001DA24A37AD000A20167 /* CCBKPasscode.m in Sources */ = {isa = PBXBuildFile; fileRef = C1292B8B237313590004C3B7 /* CCBKPasscode.m */; };
+		2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
+		2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
+		2CC001DD24A37AD400A20167 /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
+		2CC001DE24A37AD400A20167 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7C106021AF199300461817 /* SettingsViewController.m */; };
+		2CC001DF24A37AD400A20167 /* AccountTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2026A22369F47400DFC89B /* AccountTableViewCell.m */; };
+		2CC001E024A37AD400A20167 /* UserSettingsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A1234200E0A5700864818 /* UserSettingsTableViewCell.m */; };
+		2CC001E124A37AD400A20167 /* VideoResolutionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063317205ACB140043481A /* VideoResolutionsViewController.m */; };
+		2CC001E224A37AD400A20167 /* VideoSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063312205A85850043481A /* VideoSettingsViewController.m */; };
+		2CC001E324A37ADB00A20167 /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
+		2CC001E424A37ADB00A20167 /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
+		2CC001E524A37ADB00A20167 /* UIBarButtonItem+Badge.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */; };
+		2CC001E624A37ADF00A20167 /* NCPeerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF941F7E70EB008AFA74 /* NCPeerConnection.m */; };
+		2CC001E724A37ADF00A20167 /* NCSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF981F80F81E008AFA74 /* NCSignalingController.m */; };
+		2CC001E824A37ADF00A20167 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
 		2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */; };
 		2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */; };
 		2CC007B920D8139D0096D91F /* RoomCreationTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007B720D8139D0096D91F /* RoomCreationTableViewController.xib */; };
@@ -154,6 +270,7 @@
 		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
 		2CC7187F2007A9930055E02C /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7187D2007A9920055E02C /* LaunchScreen.xib */; };
 		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
+		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
 		C1292B8C237313590004C3B7 /* CCBKPasscode.m in Sources */ = {isa = PBXBuildFile; fileRef = C1292B8B237313590004C3B7 /* CCBKPasscode.m */; };
 		DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */; };
 /* End PBXBuildFile section */
@@ -531,8 +648,11 @@
 		2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCExternalSignalingController.m; sourceTree = "<group>"; };
 		6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VideoCalls.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.debug.xcconfig"; sourceTree = "<group>"; };
+		9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1292B8A237313590004C3B7 /* CCBKPasscode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCBKPasscode.h; sourceTree = "<group>"; };
 		C1292B8B237313590004C3B7 /* CCBKPasscode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCBKPasscode.m; sourceTree = "<group>"; };
+		D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCalls.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoCalls/Pods-VideoCalls.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -557,6 +677,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CC0015E24A25A8000A20167 /* libcrypto.a in Frameworks */,
+				2CC0015F24A25A8000A20167 /* libssl.a in Frameworks */,
+				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -997,6 +1120,7 @@
 				2C90E5661EDDE1340093D85A /* CoreGraphics.framework */,
 				2C90E5631EDDE0FB0093D85A /* Foundation.framework */,
 				6267808DF11BEB859C0BE9F1 /* libPods-VideoCalls.a */,
+				9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1187,6 +1311,8 @@
 			children = (
 				8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */,
 				E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */,
+				D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */,
+				D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -1221,9 +1347,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2CC0015A24A1F0E900A20167 /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */;
 			buildPhases = (
+				E75968B5C5288222BC8FCA99 /* [CP] Check Pods Manifest.lock */,
 				2CC0014B24A1F0E900A20167 /* Sources */,
 				2CC0014C24A1F0E900A20167 /* Frameworks */,
 				2CC0014D24A1F0E900A20167 /* Resources */,
+				9B62A9AE088A26962648F117 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1378,6 +1506,26 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		9B62A9AE088A26962648F117 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension-resources.sh",
+				"${PODS_ROOT}/DateTools/DateTools/DateTools/DateTools.bundle",
+				"${PODS_ROOT}/MaterialComponents/components/ActivityIndicator/src/MaterialActivityIndicator.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DateTools.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MaterialActivityIndicator.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1396,6 +1544,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E75968B5C5288222BC8FCA99 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-NotificationServiceExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -1528,7 +1698,121 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CC0018724A37A6600A20167 /* OCFileDto.m in Sources */,
+				2CC001E724A37ADF00A20167 /* NCSignalingController.m in Sources */,
+				2CC001DA24A37AD000A20167 /* CCBKPasscode.m in Sources */,
+				2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */,
+				2CC0017024A3792800A20167 /* NCPushProxySessionManager.m in Sources */,
+				2CC0018024A37A5500A20167 /* UIResponder+SLKAdditions.m in Sources */,
+				2CC001B024A37A9500A20167 /* MessageBodyTextView.m in Sources */,
+				2CC001DD24A37AD400A20167 /* NCUtils.m in Sources */,
+				2CC0019B24A37A8100A20167 /* ARDCaptureController.m in Sources */,
+				2CC0017B24A37A4800A20167 /* SLKTextInputbar.m in Sources */,
 				2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */,
+				2CC0017D24A37A4D00A20167 /* SLKTextView.m in Sources */,
+				2CC001AE24A37A8F00A20167 /* MessageSeparatorTableViewCell.m in Sources */,
+				2CC001D124A37ACA00A20167 /* NCRoomsManager.m in Sources */,
+				2CC001C324A37AC500A20167 /* NCNotificationController.m in Sources */,
+				2CC0017524A3797600A20167 /* NCExternalSignalingController.m in Sources */,
+				2CC0018424A37A6600A20167 /* OCActivity.m in Sources */,
+				2CC0018124A37A5800A20167 /* UIScrollView+SLKAdditions.m in Sources */,
+				2CC0018224A37A5B00A20167 /* UIView+SLKAdditions.m in Sources */,
+				2CC001B324A37A9500A20167 /* QuotedMessageView.m in Sources */,
+				2CC001CD24A37ACA00A20167 /* RoundedNumberView.m in Sources */,
+				2CC001CF24A37ACA00A20167 /* RoomsTableViewController.m in Sources */,
+				2CC001BE24A37ABD00A20167 /* LoginViewController.m in Sources */,
+				2CC001D624A37ACA00A20167 /* RoomInfoTableViewController.m in Sources */,
+				2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */,
+				2CC001B224A37A9500A20167 /* NCMessageTextView.m in Sources */,
+				2CC001A324A37A8B00A20167 /* CallViewController.m in Sources */,
+				2CC001AB24A37A8F00A20167 /* FileMessageTableViewCell.m in Sources */,
+				2CC001DE24A37AD400A20167 /* SettingsViewController.m in Sources */,
+				2CC0018D24A37A6600A20167 /* OCUserProfile.m in Sources */,
+				2CC0019D24A37A8100A20167 /* ARDSettingsModel.m in Sources */,
+				2CC0017824A37A3600A20167 /* FTPopOverMenu.m in Sources */,
+				2CC001D724A37ACA00A20167 /* NCRoomParticipants.m in Sources */,
+				2CC001A224A37A8B00A20167 /* CallParticipantViewCell.m in Sources */,
+				2CC0019C24A37A8100A20167 /* ARDSDPUtils.m in Sources */,
+				2CC0019324A37A7000A20167 /* OCXMLParser.m in Sources */,
+				2CC001D524A37ACA00A20167 /* NewRoomTableViewController.m in Sources */,
+				2CC001BB24A37AA700A20167 /* DirectoryTableViewCell.m in Sources */,
+				2CC001B124A37A9500A20167 /* NCChatTitleView.m in Sources */,
+				2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */,
+				2CC0018F24A37A6B00A20167 /* NSDate+RFC1123.m in Sources */,
+				2CC0017124A3793700A20167 /* OCCommunication.m in Sources */,
+				2CC0019224A37A7000A20167 /* OCXMLListParser.m in Sources */,
+				2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */,
+				2CC0018A24A37A6600A20167 /* OCRichObjectStrings.m in Sources */,
+				2CC0019F24A37A8100A20167 /* ARDUtilities.m in Sources */,
+				2CC0019E24A37A8100A20167 /* ARDSettingsStore.m in Sources */,
+				2CC001E324A37ADB00A20167 /* HeaderWithButton.m in Sources */,
+				2CC001AC24A37A8F00A20167 /* GroupedChatMessageTableViewCell.m in Sources */,
+				2CC001C124A37AC500A20167 /* NCNotification.m in Sources */,
+				2CC001E124A37AD400A20167 /* VideoResolutionsViewController.m in Sources */,
+				2CC001AD24A37A8F00A20167 /* SystemMessageTableViewCell.m in Sources */,
+				2CC001E824A37ADF00A20167 /* NCSignalingMessage.m in Sources */,
+				2CC0019024A37A6B00A20167 /* OCHTTPRequestOperation.m in Sources */,
+				2CC0019924A37A7700A20167 /* OpenInFirefoxControllerObjC.m in Sources */,
+				2CC001A624A37A8B00A20167 /* AvatarBackgroundImageView.m in Sources */,
+				2CC0018824A37A6600A20167 /* OCNotifications.m in Sources */,
+				2CC001B424A37A9500A20167 /* ReplyMessageView.m in Sources */,
+				2CC001D424A37ACA00A20167 /* RoomNameTableViewCell.m in Sources */,
+				2CC001D824A37ACA00A20167 /* RoomSearchTableViewController.m in Sources */,
+				2CC001B624A37A9A00A20167 /* ContactsTableViewCell.m in Sources */,
+				2CC0019124A37A6B00A20167 /* OCWebDAVClient.m in Sources */,
+				2CC001A424A37A8B00A20167 /* NBMPeersFlowLayout.m in Sources */,
+				2CC0019524A37A7000A20167 /* OCXMLShareByLinkParser.m in Sources */,
+				2CC0017C24A37A4B00A20167 /* SLKTextView+SLKAdditions.m in Sources */,
+				2CC0019624A37A7000A20167 /* OCXMLSharedParser.m in Sources */,
+				2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */,
+				2CC0016524A25B8900A20167 /* NCUserInterfaceController.m in Sources */,
+				2CC0018B24A37A6600A20167 /* OCSharedDto.m in Sources */,
+				2CC001A024A37A8100A20167 /* RTCIceCandidate+JSON.m in Sources */,
+				2CC001E624A37ADF00A20167 /* NCPeerConnection.m in Sources */,
+				2CC0017A24A37A4400A20167 /* SLKInputAccessoryView.m in Sources */,
+				2CC0018624A37A6600A20167 /* OCExternalSites.m in Sources */,
+				2CC001A924A37A8F00A20167 /* ChatTableViewCell.m in Sources */,
+				2CC0017924A37A4200A20167 /* SLKTextInput+Implementation.m in Sources */,
+				2CC001A824A37A8B00A20167 /* NCAudioController.m in Sources */,
+				2CC001A524A37A8B00A20167 /* NCCallController.m in Sources */,
+				2CC0018324A37A5E00A20167 /* NCRichDocumentTemplate.m in Sources */,
+				2CC001BD24A37ABD00A20167 /* AuthenticationViewController.m in Sources */,
+				2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */,
+				2CC001B524A37A9500A20167 /* NCChatViewController.m in Sources */,
+				2CC0017E24A37A5000A20167 /* SLKTextViewController.m in Sources */,
+				2CC0019724A37A7400A20167 /* NSString+Encode.m in Sources */,
+				2CC001E224A37AD400A20167 /* VideoSettingsViewController.m in Sources */,
+				2CC001AA24A37A8F00A20167 /* ChatMessageTableViewCell.m in Sources */,
+				2CC001BA24A37A9A00A20167 /* ResultMultiSelectionTableViewController.m in Sources */,
+				2CC001B824A37A9A00A20167 /* SearchTableViewController.m in Sources */,
+				2CC001D324A37ACA00A20167 /* RoomCreation2TableViewController.m in Sources */,
+				2CC0016724A25BE100A20167 /* NCChatMessage.m in Sources */,
+				2CC0018524A37A6600A20167 /* OCCapabilities.m in Sources */,
+				2CC0019824A37A7400A20167 /* UtilsFramework.m in Sources */,
+				2CC001D024A37ACA00A20167 /* RoomTableViewCell.m in Sources */,
+				2CC0015D24A257B800A20167 /* NCSettingsController.m in Sources */,
+				2CC0017424A3796400A20167 /* NCAPISessionManager.m in Sources */,
+				2CC0016324A25B7400A20167 /* NCDatabaseManager.m in Sources */,
+				2CC001D224A37ACA00A20167 /* RoomCreationTableViewController.m in Sources */,
+				2CC001A724A37A8B00A20167 /* CallKitManager.m in Sources */,
+				2CC0016224A25B6B00A20167 /* NCConnectionController.m in Sources */,
+				2CC0019424A37A7000A20167 /* OCXMLServerErrorsParser.m in Sources */,
+				2CC001B924A37A9A00A20167 /* AddParticipantsTableViewController.m in Sources */,
+				2CC001AF24A37A9500A20167 /* DateHeaderView.m in Sources */,
+				2CC0017F24A37A5200A20167 /* SLKTypingIndicatorView.m in Sources */,
+				2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */,
+				2CC001DF24A37AD400A20167 /* AccountTableViewCell.m in Sources */,
+				2CC0018E24A37A6B00A20167 /* NSDate+ISO8601.m in Sources */,
+				2CC001A124A37A8100A20167 /* RTCSessionDescription+JSON.m in Sources */,
+				2CC0018C24A37A6600A20167 /* OCShareUser.m in Sources */,
+				2CC001E424A37ADB00A20167 /* PlaceholderView.m in Sources */,
+				2CC0018924A37A6600A20167 /* OCNotificationsAction.m in Sources */,
+				2CC001B724A37A9A00A20167 /* NCUser.m in Sources */,
+				2CC001BC24A37AA700A20167 /* DirectoryTableViewController.m in Sources */,
+				2CC0016624A25BD600A20167 /* NCChatController.m in Sources */,
+				2CC001E024A37AD400A20167 /* UserSettingsTableViewCell.m in Sources */,
+				2CC001E524A37ADB00A20167 /* UIBarButtonItem+Badge.m in Sources */,
+				2CC0016124A25B5500A20167 /* NCAPIController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1736,7 +2020,9 @@
 		};
 		2CC0015824A1F0E900A20167 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -1753,10 +2039,35 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				ENABLE_BITCODE = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/AFNetworking\"",
+					"\"${PODS_ROOT}/Headers/Public/AFViewShaker\"",
+					"\"${PODS_ROOT}/Headers/Public/BKPasscodeView\"",
+					"\"${PODS_ROOT}/Headers/Public/DBImageColorPicker\"",
+					"\"${PODS_ROOT}/Headers/Public/DateTools\"",
+					"\"${PODS_ROOT}/Headers/Public/JDStatusBarNotification\"",
+					"\"${PODS_ROOT}/Headers/Public/MDFInternationalization\"",
+					"\"${PODS_ROOT}/Headers/Public/MaterialComponents\"",
+					"\"${PODS_ROOT}/Headers/Public/MotionAnimator\"",
+					"\"${PODS_ROOT}/Headers/Public/MotionInterchange\"",
+					"\"${PODS_ROOT}/Headers/Public/PulsingHalo\"",
+					"\"${PODS_ROOT}/Headers/Public/Realm\"",
+					"\"${PODS_ROOT}/Headers/Public/SocketRocket\"",
+					"\"${PODS_ROOT}/Headers/Public/Toast\"",
+					"\"${PODS_ROOT}/Headers/Public/UICKeyChainStore\"",
+					"\"$(PROJECT_DIR)/ThirdParty\"/**",
+				);
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/ThirdParty/openssl",
+				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
@@ -1768,7 +2079,9 @@
 		};
 		2CC0015924A1F0E900A20167 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -1785,10 +2098,35 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				ENABLE_BITCODE = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/AFNetworking\"",
+					"\"${PODS_ROOT}/Headers/Public/AFViewShaker\"",
+					"\"${PODS_ROOT}/Headers/Public/BKPasscodeView\"",
+					"\"${PODS_ROOT}/Headers/Public/DBImageColorPicker\"",
+					"\"${PODS_ROOT}/Headers/Public/DateTools\"",
+					"\"${PODS_ROOT}/Headers/Public/JDStatusBarNotification\"",
+					"\"${PODS_ROOT}/Headers/Public/MDFInternationalization\"",
+					"\"${PODS_ROOT}/Headers/Public/MaterialComponents\"",
+					"\"${PODS_ROOT}/Headers/Public/MotionAnimator\"",
+					"\"${PODS_ROOT}/Headers/Public/MotionInterchange\"",
+					"\"${PODS_ROOT}/Headers/Public/PulsingHalo\"",
+					"\"${PODS_ROOT}/Headers/Public/Realm\"",
+					"\"${PODS_ROOT}/Headers/Public/SocketRocket\"",
+					"\"${PODS_ROOT}/Headers/Public/Toast\"",
+					"\"${PODS_ROOT}/Headers/Public/UICKeyChainStore\"",
+					"\"$(PROJECT_DIR)/ThirdParty\"/**",
+				);
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/ThirdParty/openssl",
+				);
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
