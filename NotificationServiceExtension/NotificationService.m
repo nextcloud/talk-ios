@@ -49,6 +49,16 @@
                 if (decryptedMessage) {
                     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
                     self.bestAttemptContent.body = pushNotification.subject;
+                    // Create title and body structure if there is a new line in the subject
+                    NSArray* components = [pushNotification.subject componentsSeparatedByString:@"\n"];
+                    if (components.count > 1) {
+                        NSString *title = [components objectAtIndex:0];
+                        NSMutableArray *mutableComponents = [[NSMutableArray alloc] initWithArray:components];
+                        [mutableComponents removeObjectAtIndex:0];
+                        NSString *body = [mutableComponents componentsJoinedByString:@"\n"];
+                        self.bestAttemptContent.title = title;
+                        self.bestAttemptContent.body = body;
+                    }
                 }
             } @catch (NSException *exception) {
                 continue;
