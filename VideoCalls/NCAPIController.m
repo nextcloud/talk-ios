@@ -1181,7 +1181,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account toPushServerWithCompletionBlock:(SubscribeToPushProxyCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
-    NSDictionary *parameters = @{@"pushToken" : [NCSettingsController sharedInstance].ncPushKitToken,
+    NSDictionary *parameters = @{@"pushToken" : [[NCSettingsController sharedInstance] combinedPushToken],
                                  @"deviceIdentifier" : account.deviceIdentifier,
                                  @"deviceIdentifierSignature" : account.deviceSignature,
                                  @"userPublicKey" : account.userPublicKey

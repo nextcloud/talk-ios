@@ -41,6 +41,7 @@ NSString * const kNCUserIdKey                   = @"ncUserId";
 NSString * const kNCUserDisplayNameKey          = @"ncUserDisplayName";
 NSString * const kNCTokenKey                    = @"ncToken";
 NSString * const kNCPushTokenKey                = @"ncPushToken";
+NSString * const kNCNormalPushTokenKey          = @"ncNormalPushToken";
 NSString * const kNCPushKitTokenKey             = @"ncPushKitToken";
 NSString * const kNCPushSubscribedKey           = @"ncPushSubscribed";
 NSString * const kNCPushServer                  = @"https://push-notifications.nextcloud.com";
@@ -222,6 +223,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     _ncUserDisplayName = [_keychain stringForKey:kNCUserDisplayNameKey];
     _ncToken = [_keychain stringForKey:kNCTokenKey];
     _ncPushToken = [_keychain stringForKey:kNCPushTokenKey];
+    _ncNormalPushToken = [_keychain stringForKey:kNCNormalPushTokenKey];
     _ncPushKitToken = [_keychain stringForKey:kNCPushKitTokenKey];
     _pushNotificationSubscribed = [_keychain stringForKey:kNCPushSubscribedKey];
     _ncPNPublicKey = [_keychain dataForKey:kNCPNPublicKey];
@@ -661,7 +663,12 @@ cleanup:
 
 - (NSString *)pushTokenSHA512
 {
-    return [self createSHA512:_ncPushKitToken];
+    return [self createSHA512:[self combinedPushToken]];
+}
+
+- (NSString *)combinedPushToken
+{
+    return [NSString stringWithFormat:@"%@ %@", self.ncNormalPushToken, self.ncPushKitToken];
 }
 
 #pragma mark - Utils

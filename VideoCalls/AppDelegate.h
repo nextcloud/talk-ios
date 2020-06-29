@@ -14,6 +14,8 @@
 @interface AppDelegate : UIResponder <UIApplicationDelegate, PKPushRegistryDelegate, BKPasscodeLockScreenManagerDelegate, BKPasscodeViewControllerDelegate>
 {
     PKPushRegistry *pushRegistry;
+    NSString *normalPushToken;
+    NSString *pushKitToken;
 }
 @property (strong, nonatomic) UIWindow *window;
 
