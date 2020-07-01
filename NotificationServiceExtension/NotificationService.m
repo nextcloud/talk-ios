@@ -8,7 +8,9 @@
 
 #import "NotificationService.h"
 
+#import "NCAPIController.h"
 #import "NCDatabaseManager.h"
+#import "NCNotification.h"
 #import "NCPushNotification.h"
 #import "NCSettingsController.h"
 
@@ -59,6 +61,20 @@
                         self.bestAttemptContent.title = title;
                         self.bestAttemptContent.body = body;
                     }
+                    // Try to get the notification from the server
+                    [[NCAPIController sharedInstance] getServerNotification:pushNotification.notificationId forAccount:account withCompletionBlock:^(NSDictionary *notification, NSError *error, NSInteger statusCode) {
+                        if (!error) {
+                            NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
+                            if (serverNotification && serverNotification.notificationType == kNCNotificationTypeChat) {
+                                self.bestAttemptContent.title = serverNotification.chatMessageTitle;
+                                self.bestAttemptContent.body = serverNotification.message;
+                                if (@available(iOS 12.0, *)) {
+                                    self.bestAttemptContent.summaryArgument = serverNotification.chatMessageAuthor;
+                                }
+                            }
+                        }
+                        self.contentHandler(self.bestAttemptContent);
+                    }];
                 }
             } @catch (NSException *exception) {
                 continue;
@@ -66,8 +82,6 @@
             }
         }
     }
-    
-    self.contentHandler(self.bestAttemptContent);
 }
 
 - (void)serviceExtensionTimeWillExpire {
