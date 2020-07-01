@@ -51,6 +51,12 @@
                 if (decryptedMessage) {
                     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
                     self.bestAttemptContent.body = pushNotification.bodyForRemoteAlerts;
+                    self.bestAttemptContent.threadIdentifier = pushNotification.roomToken;
+                    self.bestAttemptContent.sound = [UNNotificationSound defaultSound];
+                    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+                    [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
+                    [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
+                    self.bestAttemptContent.userInfo = userInfo;
                     // Create title and body structure if there is a new line in the subject
                     NSArray* components = [pushNotification.subject componentsSeparatedByString:@"\n"];
                     if (components.count > 1) {
