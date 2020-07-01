@@ -50,7 +50,7 @@
                 NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
                 if (decryptedMessage) {
                     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
-                    self.bestAttemptContent.body = pushNotification.subject;
+                    self.bestAttemptContent.body = pushNotification.bodyForRemoteAlerts;
                     // Create title and body structure if there is a new line in the subject
                     NSArray* components = [pushNotification.subject componentsSeparatedByString:@"\n"];
                     if (components.count > 1) {
