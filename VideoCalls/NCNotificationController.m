@@ -259,9 +259,15 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler
 {
-    //Called when a notification is delivered to a foreground app.
+    // Called when a notification is delivered to a foreground app.
     [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
     completionHandler(UNNotificationPresentationOptionAlert);
+    
+    // Remove the notification from Notification Center if it is from the active account
+    NSString *notificationAccountId = [notification.request.content.userInfo objectForKey:@"accountId"];
+    if (notificationAccountId && [[[NCDatabaseManager sharedInstance] activeAccount].accountId isEqualToString:notificationAccountId]) {
+        [self cleanAllNotificationsForAccountId:notificationAccountId];
+    }
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler
