@@ -191,6 +191,15 @@ uint64_t const kTalkDatabaseSchemaVersion   = 2;
     return [TalkAccount objectsWhere:(@"unreadNotification = true")].count;
 }
 
+- (NSInteger)numberOfUnreadNotifications
+{
+    NSInteger unreadNotifications = 0;
+    for (TalkAccount *account in [TalkAccount allObjects]) {
+        unreadNotifications += account.unreadBadgeNumber;
+    }
+    return unreadNotifications;
+}
+
 - (void)removeUnreadNotificationForInactiveAccounts
 {
     RLMRealm *realm = [RLMRealm defaultRealm];

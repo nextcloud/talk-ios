@@ -201,10 +201,35 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     });
 }
 
-- (void)cleanAllNotifications
+- (void)cleanAllNotificationsForAccountId:(NSString *)accountId
 {
-    [_notificationCenter removeAllDeliveredNotifications];
-    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+    [self removeAllNotificationsForAccountId:accountId];
+    [[NCDatabaseManager sharedInstance] resetUnreadBadgeNumberForAccountId:accountId];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [UIApplication sharedApplication].applicationIconBadgeNumber = [[NCDatabaseManager sharedInstance] numberOfUnreadNotifications];
+    });
+}
+
+- (void)removeAllNotificationsForAccountId:(NSString *)accountId
+{
+    // Check in pending notifications
+    [_notificationCenter getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> * _Nonnull requests) {
+        for (UNNotificationRequest *notificationRequest in requests) {
+            NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
+            if (notificationAccountId && [notificationAccountId isEqualToString:accountId]) {
+                [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notificationRequest.identifier]];
+            }
+        }
+    }];
+    // Check in delivered notifications
+    [_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+        for (UNNotification *notification in notifications) {
+            NSString *notificationAccountId = [notification.request.content.userInfo objectForKey:@"accountId"];
+            if (notificationAccountId && [notificationAccountId isEqualToString:accountId]) {
+                [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notification.request.identifier]];
+            }
+        }
+    }];
 }
 
 - (void)removeNotificationWithNotificationId:(NSInteger)notificationId
