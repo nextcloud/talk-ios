@@ -260,6 +260,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler
 {
     //Called when a notification is delivered to a foreground app.
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
     completionHandler(UNNotificationPresentationOptionAlert);
 }
 
