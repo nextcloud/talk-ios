@@ -113,6 +113,58 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+#pragma mark - Push Notifications Registration
+
+- (void)checkForPushNotificationSubscription
+{
+    if (normalPushToken && pushKitToken) {
+        UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
+                                                                    accessGroup:@"group.com.nextcloud.Talk"];
+        NSString *deviceNormalPushToken = [NCSettingsController sharedInstance].ncNormalPushToken;
+        NSString *devicePushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
+        BOOL tokenChanged = ![deviceNormalPushToken isEqualToString:normalPushToken] || ![devicePushKitToken isEqualToString:devicePushKitToken];
+        
+        // Store new Normal Push & PushKit tokens in Keychain
+        [NCSettingsController sharedInstance].ncNormalPushToken = normalPushToken;
+        [keychain setString:normalPushToken forKey:kNCNormalPushTokenKey];
+        [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
+        [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
+        
+        for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
+            if (tokenChanged) {
+                // Remove subscribed flag if token has changed
+                RLMRealm *realm = [RLMRealm defaultRealm];
+                [realm beginWriteTransaction];
+                talkAccount.pushNotificationSubscribed = NO;
+                [realm commitWriteTransaction];
+            }
+            TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
+            if (!account.pushNotificationSubscribed) {
+                [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId];
+            }
+        }
+    }
+}
+
+#pragma mark - Normal Push Notifications Delegate Methods
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    if([deviceToken length] == 0) {
+        NSLog(@"Failed to create Normal Push token.");
+        return;
+    }
+    
+    normalPushToken = [self stringWithDeviceToken:deviceToken];
+    [self checkForPushNotificationSubscription];
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    completionHandler(UIBackgroundFetchResultNewData);
+}
+
+
 #pragma mark - PushKit Delegate Methods
 
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type
@@ -122,29 +174,8 @@
         return;
     }
     
-    UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
-                                                                accessGroup:@"group.com.nextcloud.Talk"];
-    NSString *pushKitToken = [self stringWithDeviceToken:credentials.token];
-    NSString *devicePushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
-    BOOL tokenChanged = ![devicePushKitToken isEqualToString:pushKitToken];
-    
-    // Store new PushKit token in Keychain
-    [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
-    [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
-    
-    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
-        if (tokenChanged) {
-            // Remove subscribed flag if token has changed
-            RLMRealm *realm = [RLMRealm defaultRealm];
-            [realm beginWriteTransaction];
-            talkAccount.pushNotificationSubscribed = NO;
-            [realm commitWriteTransaction];
-        }
-        TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
-        if (!account.pushNotificationSubscribed) {
-            [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId];
-        }
-    }
+    pushKitToken = [self stringWithDeviceToken:credentials.token];
+    [self checkForPushNotificationSubscription];
 }
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type

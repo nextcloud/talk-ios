@@ -12,8 +12,9 @@
 #import "NCChatMessage.h"
 #import "NCRoom.h"
 
-#define k_TalkDatabaseFolder    @"Library/Application Support/Talk"
-#define k_TalkDatabaseFileName  @"talk.realm"
+NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
+NSString *const kTalkDatabaseFileName       = @"talk.realm";
+uint64_t const kTalkDatabaseSchemaVersion   = 2;
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
@@ -44,7 +45,7 @@
     self = [super init];
     if (self) {
         // Create Talk database directory
-        NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.com.nextcloud.Talk"] URLByAppendingPathComponent:k_TalkDatabaseFolder] path];
+        NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.com.nextcloud.Talk"] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
         if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
             [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
         }
@@ -52,14 +53,14 @@
         
         // Set Realm configuration
         RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
-        NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:k_TalkDatabaseFileName];
+        NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
         configuration.fileURL = databaseURL;
-        configuration.schemaVersion = 2;
+        configuration.schemaVersion = kTalkDatabaseSchemaVersion;
         [RLMRealmConfiguration setDefaultConfiguration:configuration];
         
 #ifdef DEBUG
         // Copy Talk DB to Documents directory
-        NSString *dbCopyPath = [NSString stringWithFormat:@"%@/%@", NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0], k_TalkDatabaseFileName];
+        NSString *dbCopyPath = [NSString stringWithFormat:@"%@/%@", NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0], kTalkDatabaseFileName];
         NSURL *dbCopyURL = [NSURL fileURLWithPath:dbCopyPath];
         [[NSFileManager defaultManager] removeItemAtURL:dbCopyURL error:nil];
         [[NSFileManager defaultManager] copyItemAtURL:databaseURL toURL:dbCopyURL error:nil];

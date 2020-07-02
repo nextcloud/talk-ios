@@ -11,6 +11,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString *const kTalkDatabaseFolder;
+extern NSString *const kTalkDatabaseFileName;
+extern uint64_t const kTalkDatabaseSchemaVersion;
+
 @interface TalkAccount : RLMObject
 @property NSString *accountId;
 @property NSString *server;

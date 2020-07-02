@@ -18,6 +18,7 @@ extern NSString * const kNCUserIdKey;
 extern NSString * const kNCUserDisplayNameKey;
 extern NSString * const kNCTokenKey;
 extern NSString * const kNCPushTokenKey;
+extern NSString * const kNCNormalPushTokenKey;
 extern NSString * const kNCPushKitTokenKey;
 extern NSString * const kNCPushSubscribedKey;
 extern NSString * const kNCPushServer;
@@ -72,6 +73,7 @@ typedef enum NCPasscodeType {
 @property (nonatomic, copy) NSString *ncUserDisplayName;
 @property (nonatomic, copy) NSString *ncToken;
 @property (nonatomic, copy) NSString *ncPushToken;
+@property (nonatomic, copy) NSString *ncNormalPushToken;
 @property (nonatomic, copy) NSString *ncPushKitToken;
 @property (nonatomic, copy) NSString *pushNotificationSubscribed;
 @property (nonatomic, copy) NSData *ncPNPublicKey;
@@ -94,6 +96,7 @@ typedef enum NCPasscodeType {
 - (NSData *)pushNotificationPrivateKeyForAccountId:(NSString *)accountId;
 - (void)cleanUserAndServerStoredValues;
 - (NSString *)pushTokenSHA512;
+- (NSString *)combinedPushToken;
 - (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
 - (void)logoutWithCompletionBlock:(LogoutCompletionBlock)block;

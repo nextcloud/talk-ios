@@ -70,7 +70,7 @@
         NSString *parameterKey = [[parameter stringByReplacingOccurrencesOfString:@"{" withString:@""]
                                   stringByReplacingOccurrencesOfString:@"}" withString:@""];
         if ([parameterKey isEqualToString:@"call"]) {
-            title = [title stringByAppendingString:[NSString stringWithFormat:@" @ %@", [[_subjectRichParameters objectForKey:@"call"] objectForKey:@"name"]]];
+            title = [title stringByAppendingString:[NSString stringWithFormat:@" in %@", [[_subjectRichParameters objectForKey:@"call"] objectForKey:@"name"]]];
         }
     }
     return title;
