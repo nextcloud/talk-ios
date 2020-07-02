@@ -221,6 +221,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
         [[NCRoomsManager sharedInstance] updateRooms];
+        [self setUnreadMessageForInactiveAccountsIndicator];
     }
 }
 
