@@ -166,6 +166,17 @@ uint64_t const kTalkDatabaseSchemaVersion   = 2;
     [realm commitWriteTransaction];
 }
 
+- (void)decreaseUnreadBadgeNumberForAccountId:(NSString *)accountId
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
+    account.unreadBadgeNumber = (account.unreadBadgeNumber > 0) ? account.unreadBadgeNumber - 1 : 0;
+    account.unreadNotification = (account.unreadBadgeNumber > 0) ? account.unreadNotification : NO;
+    [realm commitWriteTransaction];
+}
+
 - (void)resetUnreadBadgeNumberForAccountId:(NSString *)accountId
 {
     RLMRealm *realm = [RLMRealm defaultRealm];

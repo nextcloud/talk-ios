@@ -161,6 +161,19 @@
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
+    // Called when a background notification is delivered.
+    NSString *message = [userInfo objectForKey:@"subject"];
+    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
+        TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
+        NSData *pushNotificationPrivateKey = [[NCSettingsController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
+        if (message && pushNotificationPrivateKey) {
+            NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+            if (decryptedMessage) {
+                NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
+                [[NCNotificationController sharedInstance] processBackgroundPushNotification:pushNotification];
+            }
+        }
+    }
     completionHandler(UIBackgroundFetchResultNewData);
 }
 

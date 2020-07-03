@@ -38,7 +38,7 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
     
     NSString *app = [jsonDict objectForKey:kNCPNAppKey];
     if (![app isEqualToString:kNCPNAppIdKey]) {
-        return [self nonTalkPushNotification:jsonDict];
+        return [self nonTalkPushNotification:jsonDict withAccountId:accountId];
     }
     
     NCPushNotification *pushNotification = [[NCPushNotification alloc] init];
@@ -64,7 +64,7 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
     return pushNotification;
 }
 
-+ (instancetype)nonTalkPushNotification:(id)jsonNotification
++ (instancetype)nonTalkPushNotification:(id)jsonNotification withAccountId:(NSString *)accountId
 {
     NCPushNotification *pushNotification = [[NCPushNotification alloc] init];
     if ([jsonNotification objectForKey:kNCPNTypeDeleteKey]) {
@@ -75,6 +75,7 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
     } else {
         return nil;
     }
+    pushNotification.accountId = accountId;
     return pushNotification;
 }
 
