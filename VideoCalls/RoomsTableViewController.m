@@ -462,8 +462,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)setUnreadMessageForInactiveAccountsIndicator
 {
-    if ([[NCDatabaseManager sharedInstance] shouldShowUnreadNotificationForInactiveAccounts]) {
-        _settingsButton.badgeValue = [NSString stringWithFormat:@"%ld", (long)[[NCDatabaseManager sharedInstance] numberOfInactiveAccountsWithUnreadNotifications]];
+    NSInteger numberOfInactiveAccountsWithUnreadNotifications = [[NCDatabaseManager sharedInstance] numberOfInactiveAccountsWithUnreadNotifications];
+    if (numberOfInactiveAccountsWithUnreadNotifications > 0) {
+        _settingsButton.badgeValue = [NSString stringWithFormat:@"%ld", numberOfInactiveAccountsWithUnreadNotifications];
     }
 }
 

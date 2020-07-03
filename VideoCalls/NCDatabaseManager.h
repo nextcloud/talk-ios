@@ -70,7 +70,6 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 - (void)decreaseUnreadBadgeNumberForAccountId:(NSString *)accountId;
 - (void)resetUnreadBadgeNumberForAccountId:(NSString *)accountId;
 - (NSInteger)numberOfUnreadNotifications;
-- (BOOL)shouldShowUnreadNotificationForInactiveAccounts;
 - (NSInteger)numberOfInactiveAccountsWithUnreadNotifications;
 - (void)removeUnreadNotificationForInactiveAccounts;
 

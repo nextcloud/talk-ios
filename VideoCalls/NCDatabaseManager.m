@@ -188,15 +188,6 @@ uint64_t const kTalkDatabaseSchemaVersion   = 2;
     [realm commitWriteTransaction];
 }
 
-- (BOOL)shouldShowUnreadNotificationForInactiveAccounts
-{
-    TalkAccount *accountToBeNotified = [TalkAccount objectsWhere:(@"active = false AND unreadNotification = true")].firstObject;
-    if (accountToBeNotified) {
-        return YES;
-    }
-    return NO;
-}
-
 - (NSInteger)numberOfInactiveAccountsWithUnreadNotifications
 {
     return [TalkAccount objectsWhere:(@"active = false AND unreadNotification = true")].count;
