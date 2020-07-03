@@ -70,7 +70,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
         if (pushNotification.type == NCPushNotificationTypeDelete) {
             [self removeNotificationWithNotificationId:notificationId forAccountId:pushNotification.accountId];
         } else if (pushNotification.type == NCPushNotificationTypeDeleteAll) {
-            [self cleanAllNotificationsForAccountId:pushNotification.accountId];
+            [self removeAllNotificationsForAccountId:pushNotification.accountId];
         } else {
             NSLog(@"Push Notification of an unknown type received");
         }
@@ -98,8 +98,6 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
     [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
     [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
-    
-    [self updateAppIconBadgeNumber:1];
 }
 
 - (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification withServerNotification:(NCNotification *)serverNotification
@@ -112,19 +110,8 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName forAccountId:pushNotification.accountId];
 }
 
-- (void)updateAppIconBadgeNumber:(NSInteger)update
+- (void)updateAppIconBadgeNumber
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
-            [UIApplication sharedApplication].applicationIconBadgeNumber += update;
-        }
-    });
-}
-
-- (void)cleanAllNotificationsForAccountId:(NSString *)accountId
-{
-    [self removeAllNotificationsForAccountId:accountId];
-    [[NCDatabaseManager sharedInstance] resetUnreadBadgeNumberForAccountId:accountId];
     dispatch_async(dispatch_get_main_queue(), ^{
         [UIApplication sharedApplication].applicationIconBadgeNumber = [[NCDatabaseManager sharedInstance] numberOfUnreadNotifications];
     });
@@ -150,6 +137,9 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             }
         }
     }];
+    
+    [[NCDatabaseManager sharedInstance] resetUnreadBadgeNumberForAccountId:accountId];
+    [self updateAppIconBadgeNumber];
 }
 
 - (void)removeNotificationWithNotificationId:(NSInteger)notificationId forAccountId:(NSString *)accountId
@@ -179,9 +169,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
         }
     }];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [UIApplication sharedApplication].applicationIconBadgeNumber = [[NCDatabaseManager sharedInstance] numberOfUnreadNotifications];
-    });
+    [self updateAppIconBadgeNumber];
 }
 
 #pragma mark - UNUserNotificationCenter delegate
@@ -195,7 +183,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     // Remove the notification from Notification Center if it is from the active account
     NSString *notificationAccountId = [notification.request.content.userInfo objectForKey:@"accountId"];
     if (notificationAccountId && [[[NCDatabaseManager sharedInstance] activeAccount].accountId isEqualToString:notificationAccountId]) {
-        [self cleanAllNotificationsForAccountId:notificationAccountId];
+        [self removeAllNotificationsForAccountId:notificationAccountId];
     }
 }
 
