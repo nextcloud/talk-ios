@@ -190,7 +190,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 2;
 
 - (BOOL)shouldShowUnreadNotificationForInactiveAccounts
 {
-    TalkAccount *accountToBeNotified = [TalkAccount objectsWhere:(@"unreadNotification = true")].firstObject;
+    TalkAccount *accountToBeNotified = [TalkAccount objectsWhere:(@"active = false AND unreadNotification = true")].firstObject;
     if (accountToBeNotified) {
         return YES;
     }
@@ -199,7 +199,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 2;
 
 - (NSInteger)numberOfInactiveAccountsWithUnreadNotifications
 {
-    return [TalkAccount objectsWhere:(@"unreadNotification = true")].count;
+    return [TalkAccount objectsWhere:(@"active = false AND unreadNotification = true")].count;
 }
 
 - (NSInteger)numberOfUnreadNotifications
