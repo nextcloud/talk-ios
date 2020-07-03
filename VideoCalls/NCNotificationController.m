@@ -97,7 +97,10 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
     [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
+    
+    NSString *accountId = [userInfo objectForKey:@"accountId"];
+    [[NCDatabaseManager sharedInstance] increaseUnreadBadgeNumberForAccountId:accountId];
+    [self updateAppIconBadgeNumber];
 }
 
 - (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification withServerNotification:(NCNotification *)serverNotification
