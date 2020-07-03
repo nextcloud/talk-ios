@@ -172,6 +172,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     [[NCUserInterfaceController sharedInstance] presentConversationsList];
     [[NCDatabaseManager sharedInstance] setActiveAccountWithAccountId:accountId];
     [[NCDatabaseManager sharedInstance] resetUnreadBadgeNumberForAccountId:accountId];
+    [[NCNotificationController sharedInstance] cleanAllNotificationsForAccountId:accountId];
     [[NSHTTPCookieStorage sharedHTTPCookieStorage] removeCookiesSinceDate:[NSDate dateWithTimeIntervalSince1970:0]];
     [[NCConnectionController sharedInstance] checkAppState];
 }

@@ -50,9 +50,25 @@
                 NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
                 if (decryptedMessage) {
                     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
+                    
+                    // Update unread notifications counter for push notification account
+                    [realm beginWriteTransaction];
+                    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+                    TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+                    managedAccount.unreadBadgeNumber += 1;
+                    managedAccount.unreadNotification = (managedAccount.active) ? NO : YES;
+                    [realm commitWriteTransaction];
+                    
+                    // Get the total number of unread notifications
+                    NSInteger unreadNotifications = 0;
+                    for (TalkAccount *user in [TalkAccount allObjectsInRealm:realm]) {
+                        unreadNotifications += user.unreadBadgeNumber;
+                    }
+                    
                     self.bestAttemptContent.body = pushNotification.bodyForRemoteAlerts;
                     self.bestAttemptContent.threadIdentifier = pushNotification.roomToken;
                     self.bestAttemptContent.sound = [UNNotificationSound defaultSound];
+                    self.bestAttemptContent.badge = @(unreadNotifications);
                     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
                     [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
                     [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
