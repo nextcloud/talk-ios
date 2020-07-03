@@ -63,97 +63,17 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     }];
 }
 
-- (void)processIncomingPushNotification:(NCPushNotification *)pushNotification
+- (void)processBackgroundPushNotification:(NCPushNotification *)pushNotification
 {
     if (pushNotification) {
         NSInteger notificationId = pushNotification.notificationId;
         if (pushNotification.type == NCPushNotificationTypeDelete) {
-            [self removeNotificationWithNotificationId:notificationId];
+            [self removeNotificationWithNotificationId:notificationId forAccountId:pushNotification.accountId];
         } else if (pushNotification.type == NCPushNotificationTypeDeleteAll) {
-            [self cleanAllNotifications];
+            [self removeAllNotificationsForAccountId:pushNotification.accountId];
         } else {
-            [self handlePushNotification:pushNotification];
+            NSLog(@"Push Notification of an unknown type received");
         }
-    }
-}
-
-- (void)showLocalNotificationForPushNotification:(NCPushNotification *)pushNotification withServerNotification:(NCNotification *)serverNotification
-{
-    UNMutableNotificationContent *content = [UNMutableNotificationContent new];
-    content.body = pushNotification.bodyForRemoteAlerts;
-    content.threadIdentifier = pushNotification.roomToken;
-    content.sound = [UNNotificationSound defaultSound];
-    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-    [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
-    [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
-    content.userInfo = userInfo;
-    
-    if (serverNotification) {
-        content.threadIdentifier = serverNotification.objectId;
-        if (serverNotification.notificationType == kNCNotificationTypeChat) {
-            content.title = serverNotification.chatMessageTitle;
-            content.body = serverNotification.message;
-            if (@available(iOS 12.0, *)) {
-                content.summaryArgument = serverNotification.chatMessageAuthor;
-            }
-        }
-    }
-    
-    NSString *identifier = [NSString stringWithFormat:@"Notification-%ld", (long)pushNotification.notificationId];
-    UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
-    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
-    [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
-    
-    [self updateAppIconBadgeNumber:1];
-    
-    NSString *activeAccountId = [[[NCDatabaseManager sharedInstance] activeAccount] accountId];
-    if (![activeAccountId isEqualToString:pushNotification.accountId]) {
-        [[NCDatabaseManager sharedInstance] increaseUnreadBadgeNumberForAccountId:pushNotification.accountId];
-    }
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
-}
-
-- (void)handlePushNotification:(NCPushNotification *)pushNotification
-{
-    NSInteger notificationId = pushNotification.notificationId;
-    NSInteger retryAttempts = [[_serverNotificationsAttempts objectForKey:@(notificationId)] integerValue];
-    if (retryAttempts < 3 && notificationId) {
-        retryAttempts += 1;
-        [_serverNotificationsAttempts setObject:@(retryAttempts) forKey:@(notificationId)];
-        TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:pushNotification.accountId];
-        [[NCAPIController sharedInstance] getServerNotification:notificationId forAccount:talkAccount withCompletionBlock:^(NSDictionary *notification, NSError *error, NSInteger statusCode) {
-            if (statusCode == 404) {
-                // Notification has been treated/deleted in another device
-                return;
-            }
-            if (!error) {
-                NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
-                if (serverNotification) {
-                    if (serverNotification.notificationType == kNCNotificationTypeChat) {
-                        [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
-                    } else if (serverNotification.notificationType == kNCNotificationTypeCall) {
-                        NSString *callType = [[serverNotification.subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
-                        if ([CallKitManager isCallKitAvailable] && ![[CallKitManager sharedInstance] currentCallUUID] && [callType isEqualToString:@"one2one"]) {
-                            [self showIncomingCallForPushNotification:pushNotification withServerNotification:serverNotification];
-                        } else {
-                            [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
-                        }
-                    } else if (serverNotification.notificationType == kNCNotificationTypeRoom) {
-                        NSString *callType = [[serverNotification.subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
-                        // Only present invitation notifications for group conversations
-                        if (![callType isEqualToString:@"one2one"]) {
-                            [self showLocalNotificationForPushNotification:pushNotification withServerNotification:serverNotification];
-                        }
-                    }
-                }
-            } else {
-                NSLog(@"Could not retrieve server notification. Attempt:%ld", (long)retryAttempts);
-                [self handlePushNotification:pushNotification];
-            }
-        }];
-    } else {
-        [self showLocalNotificationForPushNotification:pushNotification withServerNotification:nil];
     }
 }
 
@@ -177,9 +97,10 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
     [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:NCNotificationControllerWillPresentNotification object:self userInfo:nil];
     
-    [self updateAppIconBadgeNumber:1];
+    NSString *accountId = [userInfo objectForKey:@"accountId"];
+    [[NCDatabaseManager sharedInstance] increaseUnreadBadgeNumberForAccountId:accountId];
+    [self updateAppIconBadgeNumber];
 }
 
 - (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification withServerNotification:(NCNotification *)serverNotification
@@ -192,19 +113,8 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName forAccountId:pushNotification.accountId];
 }
 
-- (void)updateAppIconBadgeNumber:(NSInteger)update
+- (void)updateAppIconBadgeNumber
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
-            [UIApplication sharedApplication].applicationIconBadgeNumber += update;
-        }
-    });
-}
-
-- (void)cleanAllNotificationsForAccountId:(NSString *)accountId
-{
-    [self removeAllNotificationsForAccountId:accountId];
-    [[NCDatabaseManager sharedInstance] resetUnreadBadgeNumberForAccountId:accountId];
     dispatch_async(dispatch_get_main_queue(), ^{
         [UIApplication sharedApplication].applicationIconBadgeNumber = [[NCDatabaseManager sharedInstance] numberOfUnreadNotifications];
     });
@@ -230,29 +140,39 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             }
         }
     }];
+    
+    [[NCDatabaseManager sharedInstance] resetUnreadBadgeNumberForAccountId:accountId];
+    [self updateAppIconBadgeNumber];
 }
 
-- (void)removeNotificationWithNotificationId:(NSInteger)notificationId
+- (void)removeNotificationWithNotificationId:(NSInteger)notificationId forAccountId:(NSString *)accountId
 {
-    NSString *identifier = [NSString stringWithFormat:@"Notification-%ld", (long)notificationId];
     // Check in pending notifications
     [_notificationCenter getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> * _Nonnull requests) {
         for (UNNotificationRequest *notificationRequest in requests) {
-            if ([notificationRequest.identifier isEqualToString:identifier]) {
-                [_notificationCenter removePendingNotificationRequestsWithIdentifiers:@[identifier]];
-                [self updateAppIconBadgeNumber:-1];
+            NSString *notificationString = [notificationRequest.content.userInfo objectForKey:@"pushNotification"];
+            NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
+            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
+            if (pushNotification && [pushNotification.accountId isEqualToString:accountId] && pushNotification.notificationId == notificationId) {
+                [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notificationRequest.identifier]];
+                [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:accountId];
             }
         }
     }];
     // Check in delivered notifications
     [_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
         for (UNNotification *notification in notifications) {
-            if ([notification.request.identifier isEqualToString:identifier]) {
-                [_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[identifier]];
-                [self updateAppIconBadgeNumber:-1];
+            NSString *notificationString = [notification.request.content.userInfo objectForKey:@"pushNotification"];
+            NSString *notificationAccountId = [notification.request.content.userInfo objectForKey:@"accountId"];
+            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
+            if (pushNotification && [pushNotification.accountId isEqualToString:accountId] && pushNotification.notificationId == notificationId) {
+                [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notification.request.identifier]];
+                [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:accountId];
             }
         }
     }];
+    
+    [self updateAppIconBadgeNumber];
 }
 
 #pragma mark - UNUserNotificationCenter delegate
@@ -266,7 +186,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     // Remove the notification from Notification Center if it is from the active account
     NSString *notificationAccountId = [notification.request.content.userInfo objectForKey:@"accountId"];
     if (notificationAccountId && [[[NCDatabaseManager sharedInstance] activeAccount].accountId isEqualToString:notificationAccountId]) {
-        [self cleanAllNotificationsForAccountId:notificationAccountId];
+        [self removeAllNotificationsForAccountId:notificationAccountId];
     }
 }
 

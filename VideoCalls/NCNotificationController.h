@@ -21,8 +21,8 @@ typedef enum {
 
 + (instancetype)sharedInstance;
 - (void)requestAuthorization;
-- (void)processIncomingPushNotification:(NCPushNotification *)pushNotification;
+- (void)processBackgroundPushNotification:(NCPushNotification *)pushNotification;
 - (void)showLocalNotification:(NCLocalNotificationType)type withUserInfo:(NSDictionary *)userInfo;
-- (void)cleanAllNotificationsForAccountId:(NSString *)accountId;
+- (void)removeAllNotificationsForAccountId:(NSString *)accountId;
 
 @end
