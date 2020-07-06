@@ -89,7 +89,6 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     _currentCallToken = token;
     _currentCallDisplayName = displayName;
     _currentCalleeAccountId = accountId;
-    _hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(hangUpCurrentCall) userInfo:nil repeats:NO];
     
     __weak CallKitManager *weakSelf = self;
     [self.provider reportNewIncomingCallWithUUID:_currentCallUUID update:update completion:^(NSError * _Nullable error) {
@@ -99,6 +98,8 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
             weakSelf.currentCallToken = nil;
             weakSelf.currentCallDisplayName = nil;
             weakSelf.currentCalleeAccountId = nil;
+        } else {
+            weakSelf.hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(hangUpCurrentCall) userInfo:nil repeats:NO];
         }
     }];
 }
