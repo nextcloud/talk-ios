@@ -11,6 +11,7 @@
 #import <CallKit/CXError.h>
 
 #import "NCAudioController.h"
+#import "NCAPIController.h"
 #import "NCNotificationController.h"
 #import "NCRoomsManager.h"
 
@@ -100,8 +101,35 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
             weakSelf.currentCalleeAccountId = nil;
         } else {
             weakSelf.hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(hangUpCurrentCall) userInfo:nil repeats:NO];
+            [weakSelf getCallInfoForRoom:token andAccountId:accountId];
         }
     }];
+}
+
+- (void)getCallInfoForRoom:(NSString *)token andAccountId:(NSString *)accountId
+{
+    NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:token forAccountId:accountId];
+    if (room) {
+        [self updateCallWithDisplayName:room.displayName];
+    } else {
+        TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
+        [[NCAPIController sharedInstance] getRoomForAccount:account withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+            if (!error) {
+                NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:accountId];
+                [self updateCallWithDisplayName:room.displayName];
+            }
+        }];
+    }
+}
+
+- (void)updateCallWithDisplayName:(NSString *)displayName
+{
+    CXCallUpdate *update = [[CXCallUpdate alloc] init];
+    update.localizedCallerName = displayName;
+    
+    _currentCallDisplayName = displayName;
+    
+    [self.provider reportCallWithUUID:_currentCallUUID updated:update];
 }
 
 - (void)stopHangUpTimer
