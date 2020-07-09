@@ -421,13 +421,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NCRoom *room = [self roomWithToken:token forAccountId:activeAccount.accountId];
     if (room) {
-        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
+        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName withAccountId:activeAccount.accountId];
     } else {
         //TODO: Show spinner?
         [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
             if (!error) {
                 NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
-                [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
+                [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName withAccountId:activeAccount.accountId];
             }
         }];
     }
@@ -457,7 +457,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         roomController.inCall = NO;
     }
     _upgradeCallToken = room.token;
-    [[CallKitManager sharedInstance] endCurrentCall];
+    [[CallKitManager sharedInstance] endCall:room.token];
 }
 
 - (void)callDidEndInRoom:(NCRoom *)room
@@ -466,7 +466,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (roomController) {
         roomController.inCall = NO;
     }
-    [[CallKitManager sharedInstance] endCurrentCall];
+    [[CallKitManager sharedInstance] endCall:room.token];
     [self leaveRoom:room.token];
     
     if ([_chatViewController.room.token isEqualToString:room.token]) {

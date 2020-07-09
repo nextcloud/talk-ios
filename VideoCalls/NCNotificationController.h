@@ -23,6 +23,7 @@ typedef enum {
 - (void)requestAuthorization;
 - (void)processBackgroundPushNotification:(NCPushNotification *)pushNotification;
 - (void)showLocalNotification:(NCLocalNotificationType)type withUserInfo:(NSDictionary *)userInfo;
+- (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification;
 - (void)removeAllNotificationsForAccountId:(NSString *)accountId;
 
 @end

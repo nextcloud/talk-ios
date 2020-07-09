@@ -103,14 +103,14 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     [self updateAppIconBadgeNumber];
 }
 
-- (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification withServerNotification:(NCNotification *)serverNotification
+- (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification
 {
-    NSString *roomToken = serverNotification.objectId;
-    NSString *displayName = serverNotification.callDisplayName;
     // Set active account
     [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:pushNotification.accountId];
     // Present call
-    [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName forAccountId:pushNotification.accountId];
+    if ([CallKitManager isCallKitAvailable]) {
+        [[CallKitManager sharedInstance] reportIncomingCall:pushNotification.roomToken withDisplayName:@"Incoming call" forAccountId:pushNotification.accountId];
+    }
 }
 
 - (void)updateAppIconBadgeNumber
