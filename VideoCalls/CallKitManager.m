@@ -155,6 +155,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 
 - (void)updateCall:(CallKitCall *)call withDisplayName:(NSString *)displayName
 {
+    call.displayName = displayName;
     call.update.localizedCallerName = displayName;
     
     [self.provider reportCallWithUUID:call.uuid updated:call.update];
