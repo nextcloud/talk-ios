@@ -34,6 +34,7 @@ extern NSString * const CallKitManagerWantsToUpgradeToVideoCall;
 - (void)reportIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId;
 - (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName withAccountId:(NSString *)accountId;
 - (void)endCall:(NSString *)token;
+- (void)reportAudioMuted:(BOOL)muted forCall:(NSString *)token;
 
 
 @end

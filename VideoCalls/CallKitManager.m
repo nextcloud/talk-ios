@@ -251,6 +251,21 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     }
 }
 
+- (void)reportAudioMuted:(BOOL)muted forCall:(NSString *)token
+{
+    CallKitCall *call = [self callForToken:token];
+    if (call) {
+        CXSetMutedCallAction *muteAction = [[CXSetMutedCallAction alloc] initWithCallUUID:call.uuid muted:muted];
+        CXTransaction *transaction = [[CXTransaction alloc] init];
+        [transaction addAction:muteAction];
+        [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
+            if (error) {
+                NSLog(@"%@", error.localizedDescription);
+            }
+        }];
+    }
+}
+
 #pragma mark - CXProviderDelegate
 
 - (void)providerDidReset:(CXProvider *)provider
