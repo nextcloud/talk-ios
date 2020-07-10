@@ -198,6 +198,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
         CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:token];
         update.remoteHandle = handle;
         update.localizedCallerName = displayName;
+        update.hasVideo = videoEnabled;
         
         NSUUID *callUUID = [NSUUID new];
         CallKitCall *call = [[CallKitCall alloc] init];
@@ -279,16 +280,20 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 
 - (void)provider:(CXProvider *)provider performStartCallAction:(nonnull CXStartCallAction *)action
 {
-    CXCallUpdate *update = [[CXCallUpdate alloc] init];
-    [update setLocalizedCallerName:action.contactIdentifier];
-    [_provider reportCallWithUUID:action.callUUID updated:update];
+    CallKitCall *call = [_calls objectForKey:action.callUUID];
+    if (call) {
+        // Seems to be needed to display the call name correctly
+        [_provider reportCallWithUUID:call.uuid updated:call.update];
+        
+        // Report outgoing call
+        [provider reportOutgoingCallWithUUID:action.callUUID connectedAtDate:[NSDate new]];
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:action.handle.value forKey:@"roomToken"];
+        [userInfo setValue:@(action.isVideo) forKey:@"isVideoEnabled"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+    }
     
-    [provider reportOutgoingCallWithUUID:action.callUUID connectedAtDate:[NSDate new]];
-    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:action.handle.value forKey:@"roomToken"];
-    [userInfo setValue:@(action.isVideo) forKey:@"isVideoEnabled"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
-                                                        object:self
-                                                      userInfo:userInfo];
     [action fulfill];
 }
 
