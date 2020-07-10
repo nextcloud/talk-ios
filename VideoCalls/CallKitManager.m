@@ -192,8 +192,8 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
         return;
     }
     
+    // Start a new call
     if (_calls.count == 0) {
-        
         CXCallUpdate *update = [self defaultCallUpdate];
         CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:token];
         update.remoteHandle = handle;
@@ -221,6 +221,9 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
                 NSLog(@"%@", error.localizedDescription);
             }
         }];
+    // Send notification for video call upgrade.
+    // Since we send the token in the notification, it will only ask
+    // for an upgrade if there is an ongoing (audioOnly) call in that room.
     } else if (videoEnabled) {
         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:token forKey:@"roomToken"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerWantsToUpgradeToVideoCall
