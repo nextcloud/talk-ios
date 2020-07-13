@@ -24,7 +24,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 
 @property (nonatomic, strong) CXProvider *provider;
 @property (nonatomic, strong) CXCallController *callController;
-@property (nonatomic, strong) NSTimer *hangUpTimer;
+@property (nonatomic, strong) NSMutableDictionary *hangUpTimers; // uuid -> hangUpTimer
 
 @end
 
@@ -49,6 +49,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     self = [super init];
     if (self) {
         self.calls = [[NSMutableDictionary alloc] init];
+        self.hangUpTimers = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -128,8 +129,12 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     __weak CallKitManager *weakSelf = self;
     [self.provider reportNewIncomingCallWithUUID:callUUID update:update completion:^(NSError * _Nullable error) {
         if (!error) {
+            // Add call to calls array
             [weakSelf.calls setObject:call forKey:callUUID];
-            weakSelf.hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(endCallWithMissedCallNotification:) userInfo:call repeats:NO];
+            // Add hangUpTimer to timers array
+            NSTimer *hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(endCallWithMissedCallNotification:) userInfo:call repeats:NO];
+            [weakSelf.hangUpTimers setObject:hangUpTimer forKey:callUUID];
+            // Get call info from server
             [weakSelf getCallInfoForCall:call];
         } else {
             NSLog(@"Provider could not present incoming call view.");
@@ -161,10 +166,13 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     [self.provider reportCallWithUUID:call.uuid updated:call.update];
 }
 
-- (void)stopHangUpTimer
+- (void)stopHangUpTimerForCallUUID:(NSUUID *)uuid
 {
-    [_hangUpTimer invalidate];
-    _hangUpTimer = nil;
+    NSTimer *hangUpTimer = [_hangUpTimers objectForKey:uuid];
+    if (hangUpTimer) {
+        [hangUpTimer invalidate];
+        [_hangUpTimers removeObjectForKey:uuid];
+    }
 }
 
 - (void)endCallWithMissedCallNotification:(NSTimer*)timer
@@ -301,7 +309,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 {
     CallKitCall *call = [_calls objectForKey:action.callUUID];
     if (call) {
-        [self stopHangUpTimer];
+        [self stopHangUpTimerForCallUUID:call.uuid];
         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidAnswerCallNotification
                                                             object:self
@@ -317,6 +325,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     
     CallKitCall *call = [_calls objectForKey:action.callUUID];
     if (call) {
+        [self stopHangUpTimerForCallUUID:call.uuid];
         NSString *leaveCallToken = [call.token copy];
         [_calls removeObjectForKey:action.callUUID];
         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:leaveCallToken forKey:@"roomToken"];
