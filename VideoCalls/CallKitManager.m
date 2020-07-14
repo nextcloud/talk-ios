@@ -11,8 +11,10 @@
 
 #import "NCAudioController.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCNotificationController.h"
 #import "NCRoomsManager.h"
+#import "NCSettingsController.h"
 
 NSString * const CallKitManagerDidAnswerCallNotification        = @"CallKitManagerDidAnswerCallNotification";
 NSString * const CallKitManagerDidEndCallNotification           = @"CallKitManagerDidEndCallNotification";
@@ -114,6 +116,21 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 
 - (void)reportIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId
 {
+    BOOL ongoingCalls = _calls.count > 0;
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    
+    // If the incoming call is from a different account
+    if (![activeAccount.accountId isEqualToString:accountId]) {
+        // If there is an ongoing call then show a local notification
+        if (ongoingCalls) {
+            [self reportAndCancelIncomingCall:token withDisplayName:displayName forAccountId:accountId];
+            return;
+        // Change accounts if there are no ongoing calls
+        } else {
+            [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:accountId];
+        }
+    }
+    
     CXCallUpdate *update = [self defaultCallUpdate];
     update.remoteHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:token];
     update.localizedCallerName = displayName;
@@ -125,7 +142,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     call.displayName = displayName;
     call.accountId = accountId;
     call.update = update;
-    call.reportedWhileInCall = _calls.count > 0;
+    call.reportedWhileInCall = ongoingCalls;
     
     __weak CallKitManager *weakSelf = self;
     [self.provider reportNewIncomingCallWithUUID:callUUID update:update completion:^(NSError * _Nullable error) {
@@ -137,6 +154,26 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
             [weakSelf.hangUpTimers setObject:hangUpTimer forKey:callUUID];
             // Get call info from server
             [weakSelf getCallInfoForCall:call];
+        } else {
+            NSLog(@"Provider could not present incoming call view.");
+        }
+    }];
+}
+
+- (void)reportAndCancelIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId
+{
+    CXCallUpdate *update = [self defaultCallUpdate];
+    NSUUID *callUUID = [NSUUID new];
+    CallKitCall *call = [[CallKitCall alloc] init];
+    call.uuid = callUUID;
+    call.token = token;
+    call.accountId = accountId;
+    call.update = update;
+    __weak CallKitManager *weakSelf = self;
+    [self.provider reportNewIncomingCallWithUUID:callUUID update:update completion:^(NSError * _Nullable error) {
+        if (!error) {
+            [weakSelf.calls setObject:call forKey:callUUID];
+            [weakSelf endCallWithUUID:callUUID];
         } else {
             NSLog(@"Provider could not present incoming call view.");
         }

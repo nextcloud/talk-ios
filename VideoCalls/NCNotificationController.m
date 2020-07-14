@@ -105,9 +105,6 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 
 - (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification
 {
-    // Set active account
-    [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:pushNotification.accountId];
-    // Present call
     if ([CallKitManager isCallKitAvailable]) {
         [[CallKitManager sharedInstance] reportIncomingCall:pushNotification.roomToken withDisplayName:@"Incoming call" forAccountId:pushNotification.accountId];
     }
