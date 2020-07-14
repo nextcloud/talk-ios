@@ -125,6 +125,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     call.displayName = displayName;
     call.accountId = accountId;
     call.update = update;
+    call.reportedWhileInCall = _calls.count > 0;
     
     __weak CallKitManager *weakSelf = self;
     [self.provider reportNewIncomingCallWithUUID:callUUID update:update completion:^(NSError * _Nullable error) {
@@ -310,7 +311,8 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     CallKitCall *call = [_calls objectForKey:action.callUUID];
     if (call) {
         [self stopHangUpTimerForCallUUID:call.uuid];
-        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
+        [userInfo setValue:@(call.reportedWhileInCall) forKey:@"waitForCallEnd"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidAnswerCallNotification
                                                             object:self
                                                           userInfo:userInfo];

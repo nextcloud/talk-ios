@@ -22,6 +22,7 @@ extern NSString * const CallKitManagerWantsToUpgradeToVideoCall;
 @property (nonatomic, strong) NSString *displayName;
 @property (nonatomic, strong) NSString *accountId;
 @property (nonatomic, strong) CXCallUpdate *update;
+@property (nonatomic, assign) BOOL reportedWhileInCall;
 
 @end
 
