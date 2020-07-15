@@ -26,6 +26,8 @@ extern NSString * const CallKitManagerWantsToUpgradeToVideoCall;
 
 @end
 
+@class NCPushNotification;
+
 @interface CallKitManager : NSObject
 
 @property (nonatomic, strong) NSMutableDictionary *calls; // uuid -> callKitCall
@@ -33,6 +35,7 @@ extern NSString * const CallKitManagerWantsToUpgradeToVideoCall;
 + (instancetype)sharedInstance;
 + (BOOL)isCallKitAvailable;
 - (void)reportIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId;
+- (void)reportIncomingCallForNonCallKitDevicesWithPushNotification:(NCPushNotification *)pushNotification;
 - (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName withAccountId:(NSString *)accountId;
 - (void)endCall:(NSString *)token;
 - (void)reportAudioMuted:(BOOL)muted forCall:(NSString *)token;

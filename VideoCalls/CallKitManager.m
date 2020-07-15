@@ -184,6 +184,27 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     }];
 }
 
+- (void)reportIncomingCallForNonCallKitDevicesWithPushNotification:(NCPushNotification *)pushNotification
+{
+    CXCallUpdate *update = [self defaultCallUpdate];
+    NSUUID *callUUID = [NSUUID new];
+    CallKitCall *call = [[CallKitCall alloc] init];
+    call.uuid = callUUID;
+    call.token = pushNotification.roomToken;
+    call.accountId = pushNotification.accountId;
+    call.update = update;
+    __weak CallKitManager *weakSelf = self;
+    [self.provider reportNewIncomingCallWithUUID:callUUID update:update completion:^(NSError * _Nullable error) {
+        if (!error) {
+            [weakSelf.calls setObject:call forKey:callUUID];
+            [[NCNotificationController sharedInstance] showLocalNotificationForIncomingCallWithPushNotificaion:pushNotification];
+            [weakSelf endCallWithUUID:callUUID];
+        } else {
+            NSLog(@"Provider could not present incoming call view.");
+        }
+    }];
+}
+
 - (void)getCallInfoForCall:(CallKitCall *)call
 {
     NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:call.token forAccountId:call.accountId];

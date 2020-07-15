@@ -110,10 +110,32 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     [self updateAppIconBadgeNumber];
 }
 
+- (void)showLocalNotificationForIncomingCallWithPushNotificaion:(NCPushNotification *)pushNotification
+{
+    UNMutableNotificationContent *content = [UNMutableNotificationContent new];
+    content.body = pushNotification.bodyForRemoteAlerts;
+    content.threadIdentifier = pushNotification.roomToken;
+    content.sound = [UNNotificationSound defaultSound];
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
+    [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
+    content.userInfo = userInfo;
+    
+    NSString *identifier = [NSString stringWithFormat:@"Notification-%f", [[NSDate date] timeIntervalSince1970]];
+    UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
+    [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
+    
+    [[NCDatabaseManager sharedInstance] increaseUnreadBadgeNumberForAccountId:pushNotification.accountId];
+    [self updateAppIconBadgeNumber];
+}
+
 - (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification
 {
     if ([CallKitManager isCallKitAvailable]) {
         [[CallKitManager sharedInstance] reportIncomingCall:pushNotification.roomToken withDisplayName:@"Incoming call" forAccountId:pushNotification.accountId];
+    } else {
+        [[CallKitManager sharedInstance] reportIncomingCallForNonCallKitDevicesWithPushNotification:pushNotification];
     }
 }
 
