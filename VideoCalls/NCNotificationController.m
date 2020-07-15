@@ -89,6 +89,13 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             }
             break;
             
+        case kNCLocalNotificationTypeCancelledCall:
+        {
+            content.body = [NSString stringWithFormat:@"☎️ Cancelled call from another account"];
+            content.userInfo = userInfo;
+        }
+            break;
+            
         default:
             break;
     }
@@ -247,6 +254,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     if (localNotificationType > 0) {
         switch (localNotificationType) {
             case kNCLocalNotificationTypeMissedCall:
+            case kNCLocalNotificationTypeCancelledCall:
             {
                 [[NCUserInterfaceController sharedInstance] presentChatForLocalNotification:notificationUserInfo];
             }

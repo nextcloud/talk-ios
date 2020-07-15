@@ -173,6 +173,10 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     [self.provider reportNewIncomingCallWithUUID:callUUID update:update completion:^(NSError * _Nullable error) {
         if (!error) {
             [weakSelf.calls setObject:call forKey:callUUID];
+            NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
+            [userInfo setValue:@(kNCLocalNotificationTypeCancelledCall) forKey:@"localNotificationType"];
+            [userInfo setObject:call.accountId forKey:@"accountId"];
+            [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeCancelledCall withUserInfo:userInfo];
             [weakSelf endCallWithUUID:callUUID];
         } else {
             NSLog(@"Provider could not present incoming call view.");
