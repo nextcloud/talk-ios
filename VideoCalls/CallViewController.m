@@ -545,9 +545,17 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (!_callController) {return;}
     
     if ([_callController isAudioEnabled]) {
-        [self muteAudio];
+        if ([CallKitManager isCallKitAvailable]) {
+            [[CallKitManager sharedInstance] reportAudioMuted:YES forCall:_room.token];
+        } else {
+            [self muteAudio];
+        }
     } else {
-        [self unmuteAudio];
+        if ([CallKitManager isCallKitAvailable]) {
+            [[CallKitManager sharedInstance] reportAudioMuted:NO forCall:_room.token];
+        } else {
+            [self unmuteAudio];
+        }
     }
 }
 

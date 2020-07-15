@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CallKit/CallKit.h>
 
 extern NSString * const CallKitManagerDidAnswerCallNotification;
 extern NSString * const CallKitManagerDidEndCallNotification;
@@ -14,18 +15,30 @@ extern NSString * const CallKitManagerDidStartCallNotification;
 extern NSString * const CallKitManagerDidChangeAudioMuteNotification;
 extern NSString * const CallKitManagerWantsToUpgradeToVideoCall;
 
+@interface CallKitCall : NSObject
+
+@property (nonatomic, strong) NSUUID *uuid;
+@property (nonatomic, strong) NSString *token;
+@property (nonatomic, strong) NSString *displayName;
+@property (nonatomic, strong) NSString *accountId;
+@property (nonatomic, strong) CXCallUpdate *update;
+@property (nonatomic, assign) BOOL reportedWhileInCall;
+
+@end
+
+@class NCPushNotification;
+
 @interface CallKitManager : NSObject
 
-@property (nonatomic, strong) NSUUID *currentCallUUID;
-@property (nonatomic, strong) NSString *currentCallToken;
-@property (nonatomic, strong) NSString *currentCallDisplayName;
-@property (nonatomic, strong) NSString *currentCalleeAccountId;
+@property (nonatomic, strong) NSMutableDictionary *calls; // uuid -> callKitCall
 
 + (instancetype)sharedInstance;
 + (BOOL)isCallKitAvailable;
-- (void)reportIncomingCallForRoom:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId;
-- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName;
-- (void)endCurrentCall;
+- (void)reportIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId;
+- (void)reportIncomingCallForNonCallKitDevicesWithPushNotification:(NCPushNotification *)pushNotification;
+- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName withAccountId:(NSString *)accountId;
+- (void)endCall:(NSString *)token;
+- (void)reportAudioMuted:(BOOL)muted forCall:(NSString *)token;
 
 
 @end

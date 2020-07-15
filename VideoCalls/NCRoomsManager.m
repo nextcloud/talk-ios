@@ -34,9 +34,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 @property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
 @property (nonatomic, strong) NSString *joiningRoom;
 @property (nonatomic, strong) NSURLSessionTask *joinRoomTask;
+@property (nonatomic, strong) NSURLSessionTask *leaveRoomTask;
 @property (nonatomic, strong) NSMutableDictionary *joinRoomAttempts; //roomToken -> attempts
 @property (nonatomic, strong) NSString *upgradeCallToken;
-
+@property (nonatomic, strong) NSString *pendingToStartCallToken;
 
 @end
 
@@ -180,7 +181,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (roomController && !roomController.inCall && !roomController.inChat) {
         [_activeRooms removeObjectForKey:token];
-        [[NCAPIController sharedInstance] exitRoom:token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
+        _leaveRoomTask = [[NCAPIController sharedInstance] exitRoom:token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
             if (!error) {
                 NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
@@ -191,10 +192,14 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 [userInfo setObject:error forKey:@"error"];
                 NSLog(@"Could not exit room. Error: %@", error.description);
             }
+            _leaveRoomTask = nil;
+            [self checkForPendingToStartCalls];
             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidLeaveRoomNotification
                                                                 object:self
                                                               userInfo:userInfo];
         }];
+    } else {
+        [self checkForPendingToStartCalls];
     }
 }
 
@@ -421,13 +426,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NCRoom *room = [self roomWithToken:token forAccountId:activeAccount.accountId];
     if (room) {
-        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
+        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName withAccountId:activeAccount.accountId];
     } else {
         //TODO: Show spinner?
         [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
             if (!error) {
                 NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
-                [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName];
+                [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName withAccountId:activeAccount.accountId];
             }
         }];
     }
@@ -450,6 +455,24 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
+- (void)checkForPendingToStartCalls
+{
+    if (_pendingToStartCallToken) {
+        [self startCallWithCallToken:_pendingToStartCallToken withVideo:NO];
+        _pendingToStartCallToken = nil;
+    }
+}
+
+- (BOOL)areThereActiveCalls
+{
+    for (NCRoomController *roomController in [_activeRooms allValues]) {
+        if (roomController.inCall) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 - (void)upgradeCallToVideoCall:(NCRoom *)room
 {
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
@@ -457,19 +480,19 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         roomController.inCall = NO;
     }
     _upgradeCallToken = room.token;
-    [[CallKitManager sharedInstance] endCurrentCall];
+    [[CallKitManager sharedInstance] endCall:room.token];
 }
 
-- (void)callDidEndInRoom:(NCRoom *)room
+- (void)callDidEndInRoomWithToken:(NSString *)token
 {
-    NCRoomController *roomController = [_activeRooms objectForKey:room.token];
+    NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (roomController) {
         roomController.inCall = NO;
     }
-    [[CallKitManager sharedInstance] endCurrentCall];
-    [self leaveRoom:room.token];
+    [[CallKitManager sharedInstance] endCall:token];
+    [self leaveRoom:token];
     
-    if ([_chatViewController.room.token isEqualToString:room.token]) {
+    if ([_chatViewController.room.token isEqualToString:token]) {
         [_chatViewController resumeChat];
     }
 }
@@ -495,8 +518,9 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)callViewControllerDidFinish:(CallViewController *)viewController
 {
     if (_callViewController == viewController) {
-        [self callDidEndInRoom:_callViewController.room];
+        NSString *token = [_callViewController.room.token copy];
         _callViewController = nil;
+        [self callDidEndInRoomWithToken:token];
     }
 }
 
@@ -517,7 +541,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)acceptCallForRoom:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
-    [self startCallWithCallToken:roomToken withVideo:NO];
+    BOOL waitForCallEnd = [[notification.userInfo objectForKey:@"waitForCallEnd"] boolValue];
+    BOOL activeCalls = [self areThereActiveCalls];
+    if (!waitForCallEnd || (!activeCalls && !_leaveRoomTask)) {
+        [self startCallWithCallToken:roomToken withVideo:NO];
+    } else {
+        _pendingToStartCallToken = roomToken;
+    }
 }
 
 - (void)startCallForRoom:(NSNotification *)notification

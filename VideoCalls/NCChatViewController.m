@@ -632,12 +632,12 @@ typedef enum NCChatMessageAction {
 
 - (void)videoCallButtonPressed:(id)sender
 {
-    [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:YES andDisplayName:_room.displayName];
+    [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:YES andDisplayName:_room.displayName withAccountId:_room.accountId];
 }
 
 - (void)voiceCallButtonPressed:(id)sender
 {
-    [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:NO andDisplayName:_room.displayName];
+    [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:NO andDisplayName:_room.displayName withAccountId:_room.accountId];
 }
 
 - (void)sendChatMessage:(NSString *)message fromInputField:(BOOL)fromInputField

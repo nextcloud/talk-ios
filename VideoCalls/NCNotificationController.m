@@ -89,6 +89,13 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             }
             break;
             
+        case kNCLocalNotificationTypeCancelledCall:
+        {
+            content.body = [NSString stringWithFormat:@"☎️ Cancelled call from another account"];
+            content.userInfo = userInfo;
+        }
+            break;
+            
         default:
             break;
     }
@@ -103,14 +110,33 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     [self updateAppIconBadgeNumber];
 }
 
-- (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification withServerNotification:(NCNotification *)serverNotification
+- (void)showLocalNotificationForIncomingCallWithPushNotificaion:(NCPushNotification *)pushNotification
 {
-    NSString *roomToken = serverNotification.objectId;
-    NSString *displayName = serverNotification.callDisplayName;
-    // Set active account
-    [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:pushNotification.accountId];
-    // Present call
-    [[CallKitManager sharedInstance] reportIncomingCallForRoom:roomToken withDisplayName:displayName forAccountId:pushNotification.accountId];
+    UNMutableNotificationContent *content = [UNMutableNotificationContent new];
+    content.body = pushNotification.bodyForRemoteAlerts;
+    content.threadIdentifier = pushNotification.roomToken;
+    content.sound = [UNNotificationSound defaultSound];
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
+    [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
+    content.userInfo = userInfo;
+    
+    NSString *identifier = [NSString stringWithFormat:@"Notification-%f", [[NSDate date] timeIntervalSince1970]];
+    UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
+    [_notificationCenter addNotificationRequest:request withCompletionHandler:nil];
+    
+    [[NCDatabaseManager sharedInstance] increaseUnreadBadgeNumberForAccountId:pushNotification.accountId];
+    [self updateAppIconBadgeNumber];
+}
+
+- (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification
+{
+    if ([CallKitManager isCallKitAvailable]) {
+        [[CallKitManager sharedInstance] reportIncomingCall:pushNotification.roomToken withDisplayName:@"Incoming call" forAccountId:pushNotification.accountId];
+    } else {
+        [[CallKitManager sharedInstance] reportIncomingCallForNonCallKitDevicesWithPushNotification:pushNotification];
+    }
 }
 
 - (void)updateAppIconBadgeNumber
@@ -250,6 +276,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     if (localNotificationType > 0) {
         switch (localNotificationType) {
             case kNCLocalNotificationTypeMissedCall:
+            case kNCLocalNotificationTypeCancelledCall:
             {
                 [[NCUserInterfaceController sharedInstance] presentChatForLocalNotification:notificationUserInfo];
             }

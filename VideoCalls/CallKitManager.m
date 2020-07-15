@@ -7,12 +7,14 @@
 //
 
 #import "CallKitManager.h"
-#import <CallKit/CallKit.h>
 #import <CallKit/CXError.h>
 
 #import "NCAudioController.h"
+#import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCNotificationController.h"
 #import "NCRoomsManager.h"
+#import "NCSettingsController.h"
 
 NSString * const CallKitManagerDidAnswerCallNotification        = @"CallKitManagerDidAnswerCallNotification";
 NSString * const CallKitManagerDidEndCallNotification           = @"CallKitManagerDidEndCallNotification";
@@ -24,8 +26,11 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 
 @property (nonatomic, strong) CXProvider *provider;
 @property (nonatomic, strong) CXCallController *callController;
-@property (nonatomic, strong) NSTimer *hangUpTimer;
+@property (nonatomic, strong) NSMutableDictionary *hangUpTimers; // uuid -> hangUpTimer
 
+@end
+
+@implementation CallKitCall
 @end
 
 @implementation CallKitManager
@@ -39,6 +44,16 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
         [sharedInstance provider];
     });
     return sharedInstance;
+}
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        self.calls = [[NSMutableDictionary alloc] init];
+        self.hangUpTimers = [[NSMutableDictionary alloc] init];
+    }
+    return self;
 }
 
 + (BOOL)isCallKitAvailable
@@ -72,57 +87,172 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     return _callController;
 }
 
-#pragma mark - Actions
+#pragma mark - Utils
 
-- (void)reportIncomingCallForRoom:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId
+- (CXCallUpdate *)defaultCallUpdate
 {
     CXCallUpdate *update = [[CXCallUpdate alloc] init];
     update.supportsHolding = NO;
     update.supportsGrouping = NO;
     update.supportsUngrouping = NO;
     update.supportsDTMF = NO;
-    update.remoteHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:token];
-    update.localizedCallerName = displayName;
     update.hasVideo = NO;
     
-    _currentCallUUID = [NSUUID new];
-    _currentCallToken = token;
-    _currentCallDisplayName = displayName;
-    _currentCalleeAccountId = accountId;
-    _hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(hangUpCurrentCall) userInfo:nil repeats:NO];
+    return update;
+}
+
+- (CallKitCall *)callForToken:(NSString *)token
+{
+    for (CallKitCall *call in [_calls allValues]) {
+        if ([call.token isEqualToString:token]) {
+            return call;
+        }
+    }
+    
+    return nil;;
+}
+
+#pragma mark - Actions
+
+- (void)reportIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId
+{
+    BOOL ongoingCalls = _calls.count > 0;
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    
+    // If the incoming call is from a different account
+    if (![activeAccount.accountId isEqualToString:accountId]) {
+        // If there is an ongoing call then show a local notification
+        if (ongoingCalls) {
+            [self reportAndCancelIncomingCall:token withDisplayName:displayName forAccountId:accountId];
+            return;
+        // Change accounts if there are no ongoing calls
+        } else {
+            [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:accountId];
+        }
+    }
+    
+    CXCallUpdate *update = [self defaultCallUpdate];
+    update.remoteHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:token];
+    update.localizedCallerName = displayName;
+    
+    NSUUID *callUUID = [NSUUID new];
+    CallKitCall *call = [[CallKitCall alloc] init];
+    call.uuid = callUUID;
+    call.token = token;
+    call.displayName = displayName;
+    call.accountId = accountId;
+    call.update = update;
+    call.reportedWhileInCall = ongoingCalls;
     
     __weak CallKitManager *weakSelf = self;
-    [self.provider reportNewIncomingCallWithUUID:_currentCallUUID update:update completion:^(NSError * _Nullable error) {
-        if (error) {
+    [self.provider reportNewIncomingCallWithUUID:callUUID update:update completion:^(NSError * _Nullable error) {
+        if (!error) {
+            // Add call to calls array
+            [weakSelf.calls setObject:call forKey:callUUID];
+            // Add hangUpTimer to timers array
+            NSTimer *hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(endCallWithMissedCallNotification:) userInfo:call repeats:NO];
+            [weakSelf.hangUpTimers setObject:hangUpTimer forKey:callUUID];
+            // Get call info from server
+            [weakSelf getCallInfoForCall:call];
+        } else {
             NSLog(@"Provider could not present incoming call view.");
-            weakSelf.currentCallUUID = nil;
-            weakSelf.currentCallToken = nil;
-            weakSelf.currentCallDisplayName = nil;
-            weakSelf.currentCalleeAccountId = nil;
         }
     }];
 }
 
-- (void)stopHangUpTimer
+- (void)reportAndCancelIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId
 {
-    [_hangUpTimer invalidate];
-    _hangUpTimer = nil;
+    CXCallUpdate *update = [self defaultCallUpdate];
+    NSUUID *callUUID = [NSUUID new];
+    CallKitCall *call = [[CallKitCall alloc] init];
+    call.uuid = callUUID;
+    call.token = token;
+    call.accountId = accountId;
+    call.update = update;
+    __weak CallKitManager *weakSelf = self;
+    [self.provider reportNewIncomingCallWithUUID:callUUID update:update completion:^(NSError * _Nullable error) {
+        if (!error) {
+            [weakSelf.calls setObject:call forKey:callUUID];
+            NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
+            [userInfo setValue:@(kNCLocalNotificationTypeCancelledCall) forKey:@"localNotificationType"];
+            [userInfo setObject:call.accountId forKey:@"accountId"];
+            [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeCancelledCall withUserInfo:userInfo];
+            [weakSelf endCallWithUUID:callUUID];
+        } else {
+            NSLog(@"Provider could not present incoming call view.");
+        }
+    }];
 }
 
-- (void)hangUpCurrentCall
+- (void)reportIncomingCallForNonCallKitDevicesWithPushNotification:(NCPushNotification *)pushNotification
 {
-    if (_currentCallUUID && _currentCallToken && _currentCallDisplayName && _currentCalleeAccountId) {
-        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
-        [userInfo setValue:_currentCallDisplayName forKey:@"displayName"];
+    CXCallUpdate *update = [self defaultCallUpdate];
+    NSUUID *callUUID = [NSUUID new];
+    CallKitCall *call = [[CallKitCall alloc] init];
+    call.uuid = callUUID;
+    call.token = pushNotification.roomToken;
+    call.accountId = pushNotification.accountId;
+    call.update = update;
+    __weak CallKitManager *weakSelf = self;
+    [self.provider reportNewIncomingCallWithUUID:callUUID update:update completion:^(NSError * _Nullable error) {
+        if (!error) {
+            [weakSelf.calls setObject:call forKey:callUUID];
+            [[NCNotificationController sharedInstance] showLocalNotificationForIncomingCallWithPushNotificaion:pushNotification];
+            [weakSelf endCallWithUUID:callUUID];
+        } else {
+            NSLog(@"Provider could not present incoming call view.");
+        }
+    }];
+}
+
+- (void)getCallInfoForCall:(CallKitCall *)call
+{
+    NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:call.token forAccountId:call.accountId];
+    if (room) {
+        [self updateCall:call withDisplayName:room.displayName];
+    } else {
+        TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:call.accountId];
+        [[NCAPIController sharedInstance] getRoomForAccount:account withToken:call.token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+            if (!error) {
+                NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:call.accountId];
+                [self updateCall:call withDisplayName:room.displayName];
+            }
+        }];
+    }
+}
+
+- (void)updateCall:(CallKitCall *)call withDisplayName:(NSString *)displayName
+{
+    call.displayName = displayName;
+    call.update.localizedCallerName = displayName;
+    
+    [self.provider reportCallWithUUID:call.uuid updated:call.update];
+}
+
+- (void)stopHangUpTimerForCallUUID:(NSUUID *)uuid
+{
+    NSTimer *hangUpTimer = [_hangUpTimers objectForKey:uuid];
+    if (hangUpTimer) {
+        [hangUpTimer invalidate];
+        [_hangUpTimers removeObjectForKey:uuid];
+    }
+}
+
+- (void)endCallWithMissedCallNotification:(NSTimer*)timer
+{
+    CallKitCall *call = [timer userInfo];
+    if (call) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
+        [userInfo setValue:call.displayName forKey:@"displayName"];
         [userInfo setValue:@(kNCLocalNotificationTypeMissedCall) forKey:@"localNotificationType"];
-        [userInfo setObject:_currentCalleeAccountId forKey:@"accountId"];
+        [userInfo setObject:call.accountId forKey:@"accountId"];
         [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeMissedCall withUserInfo:userInfo];
     }
     
-    [self endCurrentCall];
+    [self endCallWithUUID:call.uuid];
 }
 
-- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName
+- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName withAccountId:(NSString *)accountId
 {
     if (![CallKitManager isCallKitAvailable]) {
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:token forKey:@"roomToken"];
@@ -133,21 +263,39 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
         return;
     }
     
-    if (!_currentCallUUID) {
-        _currentCallUUID = [NSUUID new];
-        _currentCallToken = token;
+    // Start a new call
+    if (_calls.count == 0) {
+        CXCallUpdate *update = [self defaultCallUpdate];
         CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:token];
-        CXStartCallAction *startCallAction = [[CXStartCallAction alloc] initWithCallUUID:_currentCallUUID handle:handle];
+        update.remoteHandle = handle;
+        update.localizedCallerName = displayName;
+        update.hasVideo = videoEnabled;
+        
+        NSUUID *callUUID = [NSUUID new];
+        CallKitCall *call = [[CallKitCall alloc] init];
+        call.uuid = callUUID;
+        call.token = token;
+        call.displayName = displayName;
+        call.accountId = accountId;
+        call.update = update;
+        
+        CXStartCallAction *startCallAction = [[CXStartCallAction alloc] initWithCallUUID:callUUID handle:handle];
         startCallAction.video = videoEnabled;
         startCallAction.contactIdentifier = displayName;
         CXTransaction *transaction = [[CXTransaction alloc] init];
         [transaction addAction:startCallAction];
+        
+        __weak CallKitManager *weakSelf = self;
         [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
-            if (error) {
+            if (!error) {
+                [weakSelf.calls setObject:call forKey:callUUID];
+            } else {
                 NSLog(@"%@", error.localizedDescription);
-                _currentCallUUID = nil;
             }
         }];
+    // Send notification for video call upgrade.
+    // Since we send the token in the notification, it will only ask
+    // for an upgrade if there is an ongoing (audioOnly) call in that room.
     } else if (videoEnabled) {
         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:token forKey:@"roomToken"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerWantsToUpgradeToVideoCall
@@ -156,12 +304,36 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     }
 }
 
-- (void)endCurrentCall
+- (void)endCall:(NSString *)token
 {
-    if (_currentCallUUID) {
-        CXEndCallAction *endCallAction = [[CXEndCallAction alloc] initWithCallUUID:_currentCallUUID];
+    CallKitCall *call = [self callForToken:token];
+    if (call) {
+        [self endCallWithUUID:call.uuid];
+    }
+}
+
+- (void)endCallWithUUID:(NSUUID *)uuid
+{
+    CallKitCall *call = [_calls objectForKey:uuid];
+    if (call) {
+        CXEndCallAction *endCallAction = [[CXEndCallAction alloc] initWithCallUUID:call.uuid];
         CXTransaction *transaction = [[CXTransaction alloc] init];
         [transaction addAction:endCallAction];
+        [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
+            if (error) {
+                NSLog(@"%@", error.localizedDescription);
+            }
+        }];
+    }
+}
+
+- (void)reportAudioMuted:(BOOL)muted forCall:(NSString *)token
+{
+    CallKitCall *call = [self callForToken:token];
+    if (call) {
+        CXSetMutedCallAction *muteAction = [[CXSetMutedCallAction alloc] initWithCallUUID:call.uuid muted:muted];
+        CXTransaction *transaction = [[CXTransaction alloc] init];
+        [transaction addAction:muteAction];
         [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
             if (error) {
                 NSLog(@"%@", error.localizedDescription);
@@ -179,24 +351,30 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 
 - (void)provider:(CXProvider *)provider performStartCallAction:(nonnull CXStartCallAction *)action
 {
-    CXCallUpdate *update = [[CXCallUpdate alloc] init];
-    [update setLocalizedCallerName:action.contactIdentifier];
-    [_provider reportCallWithUUID:action.callUUID updated:update];
+    CallKitCall *call = [_calls objectForKey:action.callUUID];
+    if (call) {
+        // Seems to be needed to display the call name correctly
+        [_provider reportCallWithUUID:call.uuid updated:call.update];
+        
+        // Report outgoing call
+        [provider reportOutgoingCallWithUUID:action.callUUID connectedAtDate:[NSDate new]];
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:action.handle.value forKey:@"roomToken"];
+        [userInfo setValue:@(action.isVideo) forKey:@"isVideoEnabled"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+    }
     
-    [provider reportOutgoingCallWithUUID:action.callUUID connectedAtDate:[NSDate new]];
-    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:action.handle.value forKey:@"roomToken"];
-    [userInfo setValue:@(action.isVideo) forKey:@"isVideoEnabled"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
-                                                        object:self
-                                                      userInfo:userInfo];
     [action fulfill];
 }
 
 - (void)provider:(CXProvider *)provider performAnswerCallAction:(CXAnswerCallAction *)action
 {
-    if (_currentCallToken) {
-        [self stopHangUpTimer];
-        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
+    CallKitCall *call = [_calls objectForKey:action.callUUID];
+    if (call) {
+        [self stopHangUpTimerForCallUUID:call.uuid];
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
+        [userInfo setValue:@(call.reportedWhileInCall) forKey:@"waitForCallEnd"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidAnswerCallNotification
                                                             object:self
                                                           userInfo:userInfo];
@@ -209,12 +387,11 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 {
     [action fulfill];
     
-    if (_currentCallToken) {
-        NSString *leaveCallToken = [_currentCallToken copy];
-        self.currentCallUUID = nil;
-        self.currentCallToken = nil;
-        self.currentCallDisplayName = nil;
-        self.currentCalleeAccountId = nil;
+    CallKitCall *call = [_calls objectForKey:action.callUUID];
+    if (call) {
+        [self stopHangUpTimerForCallUUID:call.uuid];
+        NSString *leaveCallToken = [call.token copy];
+        [_calls removeObjectForKey:action.callUUID];
         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:leaveCallToken forKey:@"roomToken"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidEndCallNotification
                                                             object:self
@@ -224,8 +401,9 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 
 - (void)provider:(CXProvider *)provider performSetMutedCallAction:(CXSetMutedCallAction *)action
 {
-    if (_currentCallToken) {
-        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:_currentCallToken forKey:@"roomToken"];
+    CallKitCall *call = [_calls objectForKey:action.callUUID];
+    if (call) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
         [userInfo setValue:@(action.isMuted) forKey:@"isMuted"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidChangeAudioMuteNotification
                                                             object:self

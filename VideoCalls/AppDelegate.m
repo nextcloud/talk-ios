@@ -201,7 +201,9 @@
             NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
             if (decryptedMessage) {
                 NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
-                [[NCNotificationController sharedInstance] processIncomingPushNotification:pushNotification];
+                if (pushNotification && pushNotification.type == NCPushNotificationTypeCall) {
+                    [[NCNotificationController sharedInstance] showIncomingCallForPushNotification:pushNotification];
+                }
             }
         }
     }
