@@ -44,6 +44,9 @@
 		2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
 		2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
+		2C62AFA724C08845007E460A /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C62AFA624C08845007E460A /* ShareViewController.m */; };
+		2C62AFAA24C08845007E460A /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C62AFA824C08845007E460A /* MainInterface.storyboard */; };
+		2C62AFAE24C08845007E460A /* Nextcloud Talk.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C62AFA324C08845007E460A /* Nextcloud Talk.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
 		2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
 		2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
@@ -276,6 +279,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2C62AFAC24C08845007E460A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2C62AFA224C08845007E460A;
+			remoteInfo = ShareExtension;
+		};
 		2CC0015524A1F0E900A20167 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
@@ -292,6 +302,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				2C62AFAE24C08845007E460A /* Nextcloud Talk.appex in Embed App Extensions */,
 				2CC0015724A1F0E900A20167 /* NotificationServiceExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
@@ -371,6 +382,11 @@
 		2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SystemMessageTableViewCell.h; sourceTree = "<group>"; };
 		2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SystemMessageTableViewCell.m; sourceTree = "<group>"; };
 		2C6085C11FB1063700B36A6E /* VideoCalls.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VideoCalls.entitlements; sourceTree = "<group>"; };
+		2C62AFA324C08845007E460A /* Nextcloud Talk.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Nextcloud Talk.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C62AFA524C08845007E460A /* ShareViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
+		2C62AFA624C08845007E460A /* ShareViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
+		2C62AFA924C08845007E460A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		2C62AFAB24C08845007E460A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2C6E74442386D33200AE396C /* ReplyMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReplyMessageView.h; sourceTree = "<group>"; };
 		2C6E74452386D33200AE396C /* ReplyMessageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReplyMessageView.m; sourceTree = "<group>"; };
 		2C6E7447238C1A0800AE396C /* QuotedMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuotedMessageView.h; sourceTree = "<group>"; };
@@ -673,6 +689,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2C62AFA024C08845007E460A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2CC0014C24A1F0E900A20167 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -690,6 +713,7 @@
 			isa = PBXGroup;
 			children = (
 				2CC0015024A1F0E900A20167 /* NotificationServiceExtension */,
+				2C62AFA424C08845007E460A /* ShareExtension */,
 				2C05747E1EDD9E8E00D9E7F2 /* Products */,
 				2C05749C1EDDA01700D9E7F2 /* ThirdParty */,
 				2C05747F1EDD9E8E00D9E7F2 /* VideoCalls */,
@@ -703,6 +727,7 @@
 			children = (
 				2C05747D1EDD9E8E00D9E7F2 /* VideoCalls.app */,
 				2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */,
+				2C62AFA324C08845007E460A /* Nextcloud Talk.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -958,6 +983,17 @@
 				2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */,
 			);
 			name = Network;
+			sourceTree = "<group>";
+		};
+		2C62AFA424C08845007E460A /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				2C62AFA524C08845007E460A /* ShareViewController.h */,
+				2C62AFA624C08845007E460A /* ShareViewController.m */,
+				2C62AFA824C08845007E460A /* MainInterface.storyboard */,
+				2C62AFAB24C08845007E460A /* Info.plist */,
+			);
+			path = ShareExtension;
 			sourceTree = "<group>";
 		};
 		2C6DEAB2243CCC7F00AE8437 /* Chat cells */ = {
@@ -1337,11 +1373,29 @@
 			);
 			dependencies = (
 				2CC0015624A1F0E900A20167 /* PBXTargetDependency */,
+				2C62AFAD24C08845007E460A /* PBXTargetDependency */,
 			);
 			name = VideoCalls;
 			productName = VideoCalls;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* VideoCalls.app */;
 			productType = "com.apple.product-type.application";
+		};
+		2C62AFA224C08845007E460A /* ShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C62AFB124C08845007E460A /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildPhases = (
+				2C62AF9F24C08845007E460A /* Sources */,
+				2C62AFA024C08845007E460A /* Frameworks */,
+				2C62AFA124C08845007E460A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShareExtension;
+			productName = ShareExtension;
+			productReference = 2C62AFA324C08845007E460A /* Nextcloud Talk.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */ = {
 			isa = PBXNativeTarget;
@@ -1390,6 +1444,11 @@
 							};
 						};
 					};
+					2C62AFA224C08845007E460A = {
+						CreatedOnToolsVersion = 11.5;
+						DevelopmentTeam = NKUJUXUJ3B;
+						ProvisioningStyle = Automatic;
+					};
 					2CC0014E24A1F0E900A20167 = {
 						CreatedOnToolsVersion = 11.5;
 						DevelopmentTeam = NKUJUXUJ3B;
@@ -1413,6 +1472,7 @@
 			targets = (
 				2C05747C1EDD9E8E00D9E7F2 /* VideoCalls */,
 				2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */,
+				2C62AFA224C08845007E460A /* ShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -1444,6 +1504,14 @@
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 				2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C62AFA124C08845007E460A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C62AFAA24C08845007E460A /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1694,6 +1762,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2C62AF9F24C08845007E460A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C62AFA724C08845007E460A /* ShareViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2CC0014B24A1F0E900A20167 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1819,6 +1895,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2C62AFAD24C08845007E460A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2C62AFA224C08845007E460A /* ShareExtension */;
+			targetProxy = 2C62AFAC24C08845007E460A /* PBXContainerItemProxy */;
+		};
 		2CC0015624A1F0E900A20167 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
@@ -1833,6 +1914,14 @@
 				2C05748D1EDD9E8E00D9E7F2 /* Base */,
 			);
 			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		2C62AFA824C08845007E460A /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2C62AFA924C08845007E460A /* Base */,
+			);
+			name = MainInterface.storyboard;
 			sourceTree = "<group>";
 		};
 		2C7F47AC20289B9600081CC7 /* Localizable.strings */ = {
@@ -2018,6 +2107,67 @@
 			};
 			name = Release;
 		};
+		2C62AFAF24C08845007E460A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
+				PRODUCT_NAME = "Nextcloud Talk";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2C62AFB024C08845007E460A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
+				PRODUCT_NAME = "Nextcloud Talk";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		2CC0015824A1F0E900A20167 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */;
@@ -2152,6 +2302,15 @@
 			buildConfigurations = (
 				2C0574981EDD9E8E00D9E7F2 /* Debug */,
 				2C0574991EDD9E8E00D9E7F2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2C62AFB124C08845007E460A /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C62AFAF24C08845007E460A /* Debug */,
+				2C62AFB024C08845007E460A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
