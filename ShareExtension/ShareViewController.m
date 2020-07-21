@@ -52,11 +52,23 @@
     NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:_activeAccount.accountId witRealm:realm];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     
+    // Configure table views
     NSBundle *bundle = [NSBundle bundleForClass:[ShareTableViewCell class]];
     [self.tableView registerNib:[UINib nibWithNibName:kShareTableCellNibName bundle:bundle] forCellReuseIdentifier:kShareCellIdentifier];
-    // Align header's title to ShareTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 0, 0);
     
+    _resultTableViewController = [[UITableViewController alloc] init];
+    _resultTableViewController.tableView.delegate = self;
+    _resultTableViewController.tableView.dataSource = self;
+    [_resultTableViewController.tableView registerNib:[UINib nibWithNibName:kShareTableCellNibName bundle:bundle] forCellReuseIdentifier:kShareCellIdentifier];
+    _resultTableViewController.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 0, 0);
+    
+    _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
+    _searchController.delegate = self;
+    _searchController.searchResultsUpdater = self;
+    [_searchController.searchBar sizeToFit];
+    
+    // Configure navigation bar
     self.navigationItem.title = @"Share with";
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
@@ -73,15 +85,6 @@
                                                                   target:self action:@selector(sendButtonPressed)];
     sendButton.accessibilityHint = @"Double tap to share with selected conversations";
     self.navigationItem.rightBarButtonItem = sendButton;
-    
-    _resultTableViewController = [[UITableViewController alloc] init];
-    _resultTableViewController.tableView.dataSource = self;
-    [_resultTableViewController.tableView registerNib:[UINib nibWithNibName:kShareTableCellNibName bundle:bundle] forCellReuseIdentifier:kShareCellIdentifier];
-    // Align header's title to ShareTableViewCell's label
-    _resultTableViewController.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 0, 0);
-    _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
-    _searchController.searchResultsUpdater = self;
-    [_searchController.searchBar sizeToFit];
     
     if (@available(iOS 13.0, *)) {
         UIColor *themeColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
@@ -119,10 +122,7 @@
         _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
     }
     
-    // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
-    _resultTableViewController.tableView.delegate = self;
-    _searchController.delegate = self;
-    
+    // Place resultTableViewController correctly
     self.definesPresentationContext = YES;
     
     // Rooms placeholder view
