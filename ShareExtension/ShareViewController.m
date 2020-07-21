@@ -273,8 +273,10 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    BOOL isFilteredTable = NO;
     if (tableView == _resultTableViewController.tableView) {
         room = [_filteredRooms objectAtIndex:indexPath.row];
+        isFilteredTable = YES;
     }
     
     if (![self isRoomAlreadySelected:room]) {
@@ -286,6 +288,11 @@
     [tableView beginUpdates];
     [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
     [tableView endUpdates];
+    
+    // Refresh table view if selection was done in filtered table.
+    if (isFilteredTable) {
+        [self.tableView reloadData];
+    }
 }
 
 @end
