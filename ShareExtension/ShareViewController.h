@@ -2,13 +2,16 @@
 //  ShareViewController.h
 //  ShareExtension
 //
-//  Created by Ivan Sein on 16.07.20.
+//  Created by Ivan Sein on 17.07.20.
 //  Copyright © 2020 struktur AG. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
-#import <Social/Social.h>
 
-@interface ShareViewController : SLComposeServiceViewController
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShareViewController : UITableViewController
 
 @end
+
+NS_ASSUME_NONNULL_END
