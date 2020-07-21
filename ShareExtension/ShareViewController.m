@@ -25,6 +25,7 @@
     NSMutableArray *_filteredRooms;
     NSMutableArray *_rooms;
     PlaceholderView *_roomsBackgroundView;
+    PlaceholderView *_roomSearchBackgroundView;
     TalkAccount *_activeAccount;
 }
 
@@ -56,12 +57,14 @@
     NSBundle *bundle = [NSBundle bundleForClass:[ShareTableViewCell class]];
     [self.tableView registerNib:[UINib nibWithNibName:kShareTableCellNibName bundle:bundle] forCellReuseIdentifier:kShareCellIdentifier];
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 0, 0);
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
     _resultTableViewController = [[UITableViewController alloc] init];
     _resultTableViewController.tableView.delegate = self;
     _resultTableViewController.tableView.dataSource = self;
     [_resultTableViewController.tableView registerNib:[UINib nibWithNibName:kShareTableCellNibName bundle:bundle] forCellReuseIdentifier:kShareCellIdentifier];
     _resultTableViewController.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 0, 0);
+    _resultTableViewController.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.delegate = self;
@@ -132,6 +135,13 @@
     [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
     self.tableView.backgroundView = _roomsBackgroundView;
     
+    _roomSearchBackgroundView = [[PlaceholderView alloc] init];
+    [_roomSearchBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
+    [_roomSearchBackgroundView.placeholderText setText:@"No results found."];
+    [_roomSearchBackgroundView.placeholderView setHidden:YES];
+    [_roomSearchBackgroundView.loadingView setHidden:YES];
+    _resultTableViewController.tableView.backgroundView = _roomSearchBackgroundView;
+    
     // Fix uisearchcontroller animation
     self.extendedLayoutIncludesOpaqueBars = YES;
 }
@@ -187,6 +197,7 @@
 {
     NSArray *filteredRooms = [self filterRoomsWithString:searchString];
     _filteredRooms = [[NSMutableArray alloc] initWithArray:filteredRooms];
+    [_roomSearchBackgroundView.placeholderView setHidden:(_filteredRooms.count > 0)];
     [_resultTableViewController.tableView reloadData];
 }
 
