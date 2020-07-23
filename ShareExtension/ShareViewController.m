@@ -49,7 +49,8 @@
     configuration.objectClasses = @[TalkAccount.class, NCRoom.class];
     NSError *error = nil;
     RLMRealm *realm = [RLMRealm realmWithConfiguration:configuration error:&error];
-    _activeAccount = [TalkAccount objectsInRealm:realm where:(@"active = true")].firstObject;
+    TalkAccount *managedActiveAccount = [TalkAccount objectsInRealm:realm where:(@"active = true")].firstObject;
+    _activeAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
     NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:_activeAccount.accountId witRealm:realm];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     
