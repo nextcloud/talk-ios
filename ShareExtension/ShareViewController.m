@@ -147,6 +147,40 @@
     self.extendedLayoutIncludesOpaqueBars = YES;
 }
 
+#pragma mark - Shared items
+
+- (void)sendSharedItem
+{
+    [self.extensionContext.inputItems enumerateObjectsUsingBlock:^(NSExtensionItem * _Nonnull extItem, NSUInteger idx, BOOL * _Nonnull stop) {
+        [extItem.attachments enumerateObjectsUsingBlock:^(NSItemProvider * _Nonnull itemProvider, NSUInteger idx, BOOL * _Nonnull stop) {
+            // Check if shared URL
+            if ([itemProvider hasItemConformingToTypeIdentifier:@"public.url"]) {
+                [itemProvider loadItemForTypeIdentifier:@"public.url"
+                                                options:nil
+                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                                          if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
+                                              NSLog(@"Shared URL = %@", item);
+                                              NSURL *sharedURL = (NSURL *)item;
+                                              [self sendSharedString:sharedURL.absoluteString];
+                                          }
+                                      }];
+            }
+            // Check if shared text
+            if ([itemProvider hasItemConformingToTypeIdentifier:@"public.plain-text"]) {
+                [itemProvider loadItemForTypeIdentifier:@"public.plain-text"
+                                                options:nil
+                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                                          if ([(NSObject *)item isKindOfClass:[NSString class]]) {
+                                              NSLog(@"Shared Text = %@", item);
+                                              NSString *sharedText = (NSString *)item;
+                                              [self sendSharedString:sharedText];
+                                          }
+                                      }];
+            }
+        }];
+    }];
+}
+
 #pragma mark - Navigation buttons
 
 - (void)cancelButtonPressed
@@ -157,7 +191,21 @@
 
 - (void)sendButtonPressed
 {
+    [self sendSharedItem];
     [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
+}
+
+#pragma mark - Actions
+
+- (void)sendSharedString:(NSString *)sharedString
+{
+    for (NCRoom *room in _selectedRooms) {
+        [[NCAPIController sharedInstance] sendChatMessage:sharedString toRoom:room.token displayName:nil replyTo:-1 referenceId:nil forAccount:_activeAccount withCompletionBlock:^(NSError *error) {
+            if (error) {
+                NSLog(@"Failed to send shared item");
+            }
+        }];
+    }
 }
 
 #pragma mark - Utils
