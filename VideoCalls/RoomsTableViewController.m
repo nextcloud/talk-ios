@@ -351,7 +351,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)refreshRoomList
 {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId];
+    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId witRealm:nil];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     
     // Show/Hide placeholder view

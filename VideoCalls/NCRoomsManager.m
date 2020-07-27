@@ -203,10 +203,15 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
-- (NSArray *)roomsForAccountId:(NSString *)accountId
+- (NSArray *)roomsForAccountId:(NSString *)accountId witRealm:(RLMRealm *)realm
 {
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
-    RLMResults *managedRooms = [NCRoom objectsWithPredicate:query];
+    RLMResults *managedRooms = nil;
+    if (realm) {
+        managedRooms = [NCRoom objectsInRealm:realm withPredicate:query];
+    } else {
+        managedRooms = [NCRoom objectsWithPredicate:query];
+    }
     // Create an unmanaged copy of the rooms
     NSMutableArray *unmanagedRooms = [NSMutableArray new];
     for (NCRoom *managedRoom in managedRooms) {
