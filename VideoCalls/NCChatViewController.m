@@ -551,15 +551,15 @@ typedef enum NCChatMessageAction {
 - (void)appendTemporaryMessage:(NCChatMessage *)temporaryMessage
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
+        NSInteger lastSectionBeforeUpdate = self->_dateSections.count - 1;
         NSMutableArray *messages = [[NSMutableArray alloc] initWithObjects:temporaryMessage, nil];
-        [self appendMessages:messages inDictionary:_messages];
+        [self appendMessages:messages inDictionary:self->_messages];
         
-        NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
-        NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+        NSMutableArray *messagesForLastDate = [self->_messages objectForKey:[self->_dateSections lastObject]];
+        NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
         
         [self.tableView beginUpdates];
-        NSInteger newLastSection = _dateSections.count - 1;
+        NSInteger newLastSection = self->_dateSections.count - 1;
         BOOL newSection = lastSectionBeforeUpdate != newLastSection;
         if (newSection) {
             [self.tableView insertSections:[NSIndexSet indexSetWithIndex:newLastSection] withRowAnimation:UITableViewRowAnimationNone];
@@ -871,7 +871,7 @@ typedef enum NCChatMessageAction {
 - (void)didReceiveInitialChatHistory:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (notification.object != _chatController) {
+        if (notification.object != self->_chatController) {
             return;
         }
         
@@ -879,29 +879,29 @@ typedef enum NCChatMessageAction {
         if (messages.count > 0) {
             // Set last received message as last read message
             NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
-            _lastReadMessage = lastReceivedMessage.messageId;
-            [self appendMessages:messages inDictionary:_messages];
+            self->_lastReadMessage = lastReceivedMessage.messageId;
+            [self appendMessages:messages inDictionary:self->_messages];
             [self.tableView reloadData];
             [self.tableView slk_scrollToBottomAnimated:NO];
         } else {
-            [_chatBackgroundView.placeholderView setHidden:NO];
+            [self->_chatBackgroundView.placeholderView setHidden:NO];
         }
         
-        NSMutableArray *storedTemporaryMessages = [_chatController getTemporaryMessages];
+        NSMutableArray *storedTemporaryMessages = [self->_chatController getTemporaryMessages];
         if (storedTemporaryMessages) {
             [self insertMessages:storedTemporaryMessages];
             [self.tableView reloadData];
             [self.tableView slk_scrollToBottomAnimated:NO];
         }
         
-        _hasReceiveInitialHistory = YES;
+        self->_hasReceiveInitialHistory = YES;
         
         NSError *error = [notification.userInfo objectForKey:@"error"];
         if (!error) {
-            [_chatController startReceivingNewChatMessages];
+            [self->_chatController startReceivingNewChatMessages];
         } else {
-            _offlineMode = YES;
-            [_chatController getInitialChatHistoryForOfflineMode];
+            self->_offlineMode = YES;
+            [self->_chatController getInitialChatHistoryForOfflineMode];
         }
     });
 }
@@ -909,21 +909,21 @@ typedef enum NCChatMessageAction {
 - (void)didReceiveInitialChatHistoryOffline:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (notification.object != _chatController) {
+        if (notification.object != self->_chatController) {
             return;
         }
         
         NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
         if (messages.count > 0) {
-            [self appendMessages:messages inDictionary:_messages];
+            [self appendMessages:messages inDictionary:self->_messages];
             [self setOfflineFooterView];
             [self.tableView reloadData];
             [self.tableView slk_scrollToBottomAnimated:NO];
         } else {
-            [_chatBackgroundView.placeholderView setHidden:NO];
+            [self->_chatBackgroundView.placeholderView setHidden:NO];
         }
         
-        NSMutableArray *storedTemporaryMessages = [_chatController getTemporaryMessages];
+        NSMutableArray *storedTemporaryMessages = [self->_chatController getTemporaryMessages];
         if (storedTemporaryMessages) {
             [self insertMessages:storedTemporaryMessages];
             [self.tableView reloadData];
@@ -935,7 +935,7 @@ typedef enum NCChatMessageAction {
 - (void)didReceiveChatHistory:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (notification.object != _chatController) {
+        if (notification.object != self->_chatController) {
             return;
         }
         
@@ -949,9 +949,9 @@ typedef enum NCChatMessageAction {
         
         BOOL noMoreStoredHistory = [[notification.userInfo objectForKey:@"noMoreStoredHistory"] boolValue];
         if (noMoreStoredHistory) {
-            _hasStoredHistory = NO;
+            self->_hasStoredHistory = NO;
         }
-        _retrievingHistory = NO;
+        self->_retrievingHistory = NO;
         [self hideLoadingHistoryView];
     });
 }
@@ -960,38 +960,38 @@ typedef enum NCChatMessageAction {
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSError *error = [notification.userInfo objectForKey:@"error"];
-        if (notification.object != _chatController || error) {
+        if (notification.object != self->_chatController || error) {
             return;
         }
         
-        BOOL firstNewMessagesAfterHistory = !_hasReceiveNewMessages;
-        _hasReceiveNewMessages = YES;
+        BOOL firstNewMessagesAfterHistory = !self->_hasReceiveNewMessages;
+        self->_hasReceiveNewMessages = YES;
         
         NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
         if (messages.count > 0) {
-            NSInteger lastSectionBeforeUpdate = _dateSections.count - 1;
+            NSInteger lastSectionBeforeUpdate = self->_dateSections.count - 1;
             BOOL unreadMessagesReceived = NO;
             // Check if unread messages separator should be added
             if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && messages.count > 0) {
                 unreadMessagesReceived = YES;
-                NSMutableArray *messagesForLastDateBeforeUpdate = [_messages objectForKey:[_dateSections lastObject]];
-                [messagesForLastDateBeforeUpdate addObject:_unreadMessagesSeparator];
-                _unreadMessagesSeparatorIP = [NSIndexPath indexPathForRow:messagesForLastDateBeforeUpdate.count - 1 inSection: _dateSections.count - 1];
-                [_messages setObject:messagesForLastDateBeforeUpdate forKey:[_dateSections lastObject]];
+                NSMutableArray *messagesForLastDateBeforeUpdate = [self->_messages objectForKey:[self->_dateSections lastObject]];
+                [messagesForLastDateBeforeUpdate addObject:self->_unreadMessagesSeparator];
+                self->_unreadMessagesSeparatorIP = [NSIndexPath indexPathForRow:messagesForLastDateBeforeUpdate.count - 1 inSection: self->_dateSections.count - 1];
+                [self->_messages setObject:messagesForLastDateBeforeUpdate forKey:[self->_dateSections lastObject]];
             }
             
             // Sort received messages
-            [self appendMessages:messages inDictionary:_messages];
+            [self appendMessages:messages inDictionary:self->_messages];
             
-            NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
-            NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+            NSMutableArray *messagesForLastDate = [self->_messages objectForKey:[self->_dateSections lastObject]];
+            NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
             
             // Load messages in chat view
             if (messages.count > 1 || unreadMessagesReceived) {
                 [self.tableView reloadData];
             } else if (messages.count == 1) {
                 [self.tableView beginUpdates];
-                NSInteger newLastSection = _dateSections.count - 1;
+                NSInteger newLastSection = self->_dateSections.count - 1;
                 BOOL newSection = lastSectionBeforeUpdate != newLastSection;
                 if (newSection) {
                     [self.tableView insertSections:[NSIndexSet indexSetWithIndex:newLastSection] withRowAnimation:UITableViewRowAnimationNone];
@@ -1006,7 +1006,7 @@ typedef enum NCChatMessageAction {
             if (newMessagesContainUserMessage) {
                 [self removeUnreadMessagesSeparator];
                 // Update last message index path
-                lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+                lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
             }
             
             NCChatMessage *firstNewMessage = [messages objectAtIndex:0];
@@ -1014,7 +1014,7 @@ typedef enum NCChatMessageAction {
             // This variable is needed since several calls to receiveMessages API might be needed
             // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
             // to receive all the unread messages.
-            BOOL areReallyNewMessages = firstNewMessage.timestamp >= _chatViewPresentedTimestamp;
+            BOOL areReallyNewMessages = firstNewMessage.timestamp >= self->_chatViewPresentedTimestamp;
             
             // Position chat view
             if (unreadMessagesReceived) {
@@ -1024,28 +1024,28 @@ typedef enum NCChatMessageAction {
                 });
             } else if ([self shouldScrollOnNewMessages] || newMessagesContainUserMessage) {
                 [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-            } else if (!_firstUnreadMessageIP && areReallyNewMessages) {
+            } else if (!self->_firstUnreadMessageIP && areReallyNewMessages) {
                 [self showNewMessagesViewUntilIndexPath:firstMessageIndexPath];
             }
             
             // Set last received message as last read message
             NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
-            _lastReadMessage = lastReceivedMessage.messageId;
+            self->_lastReadMessage = lastReceivedMessage.messageId;
         } else if (firstNewMessagesAfterHistory) {
             // Now the chat is loaded after getting the initial history and the first new messages block.
             // Even if there are no new messages, tableview should be reloaded and scrolled to the bottom
             // as it was done when only initial history was loaded.
             [self.tableView reloadData];
-            NSMutableArray *messagesForLastDate = [_messages objectForKey:[_dateSections lastObject]];
+            NSMutableArray *messagesForLastDate = [self->_messages objectForKey:[self->_dateSections lastObject]];
             if (messagesForLastDate.count > 0) {
-                NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:_dateSections.count - 1];
+                NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
                 [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
             }
         }
         
         if (firstNewMessagesAfterHistory) {
-            [_chatBackgroundView.loadingView stopAnimating];
-            [_chatBackgroundView.loadingView setHidden:YES];
+            [self->_chatBackgroundView.loadingView stopAnimating];
+            [self->_chatBackgroundView.loadingView setHidden:YES];
         }
     });
 }
@@ -1053,7 +1053,7 @@ typedef enum NCChatMessageAction {
 - (void)didSendChatMessage:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (notification.object != _chatController) {
+        if (notification.object != self->_chatController) {
             return;
         }
         
@@ -1108,8 +1108,8 @@ typedef enum NCChatMessageAction {
     [self updateRoomInformation];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_lobbyCheckTimer invalidate];
-        _lobbyCheckTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(updateRoomInformation) userInfo:nil repeats:YES];
+        [self->_lobbyCheckTimer invalidate];
+        self->_lobbyCheckTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(updateRoomInformation) userInfo:nil repeats:YES];
     });
 }
 
