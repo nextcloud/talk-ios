@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -226,6 +226,7 @@
 		2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */; };
 		2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
 		2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */; };
+		2CA0C8EB24D1D3BF005702AC /* NCCommunication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA0C8EA24D1D3BF005702AC /* NCCommunication.framework */; };
 		2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
 		2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15544208E41B500CE8EF0 /* NCChatViewController.m */; };
 		2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */; };
@@ -695,6 +696,7 @@
 		2C9B0B9B217F756B00A4752C /* NCNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNotification.m; sourceTree = "<group>"; };
 		2C9E6CCC1F6F34F000399B7A /* ARDSDPUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSDPUtils.h; sourceTree = "<group>"; };
 		2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDSDPUtils.m; sourceTree = "<group>"; };
+		2CA0C8EA24D1D3BF005702AC /* NCCommunication.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NCCommunication.framework; path = Carthage/Build/iOS/NCCommunication.framework; sourceTree = "<group>"; };
 		2CA1553F208E350300CE8EF0 /* NCChatMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatMessage.h; sourceTree = "<group>"; };
 		2CA15540208E350300CE8EF0 /* NCChatMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatMessage.m; sourceTree = "<group>"; };
 		2CA15543208E41B500CE8EF0 /* NCChatViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatViewController.h; sourceTree = "<group>"; };
@@ -808,6 +810,7 @@
 			files = (
 				2CB5D0541FB4D20B00D7A5B7 /* libcrypto.a in Frameworks */,
 				2CB5D0531FB4D1FD00D7A5B7 /* libssl.a in Frameworks */,
+				2CA0C8EB24D1D3BF005702AC /* NCCommunication.framework in Frameworks */,
 				2CA1CCCA1F17C503002FE6A2 /* AudioToolbox.framework in Frameworks */,
 				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
@@ -1285,6 +1288,7 @@
 		2C90E5621EDDE0FB0093D85A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2CA0C8EA24D1D3BF005702AC /* NCCommunication.framework */,
 				2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */,
 				2CA1CC961F016117002FE6A2 /* Security.framework */,
 				2C90E5CE1EDF23A00093D85A /* WebKit.framework */,
@@ -1507,6 +1511,7 @@
 				A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */,
 				2C8035721F950BA800501B5C /* ShellScript */,
 				2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */,
+				2CA0C8EE24D1D40B005702AC /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1722,6 +1727,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "APP_PATH=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\n\n# This script loops through the frameworks embedded in the application and\n# removes unused architectures.\nfind \"$APP_PATH\" -name '*.framework' -type d | while read -r FRAMEWORK\ndo\nFRAMEWORK_EXECUTABLE_NAME=$(defaults read \"$FRAMEWORK/Info.plist\" CFBundleExecutable)\nFRAMEWORK_EXECUTABLE_PATH=\"$FRAMEWORK/$FRAMEWORK_EXECUTABLE_NAME\"\necho \"Executable is $FRAMEWORK_EXECUTABLE_PATH\"\n\nEXTRACTED_ARCHS=()\n\nfor ARCH in $ARCHS\ndo\necho \"Extracting $ARCH from $FRAMEWORK_EXECUTABLE_NAME\"\nlipo -extract \"$ARCH\" \"$FRAMEWORK_EXECUTABLE_PATH\" -o \"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\"\nEXTRACTED_ARCHS+=(\"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\")\ndone\n\necho \"Merging extracted architectures: ${ARCHS}\"\nlipo -o \"$FRAMEWORK_EXECUTABLE_PATH-merged\" -create \"${EXTRACTED_ARCHS[@]}\"\nrm \"${EXTRACTED_ARCHS[@]}\"\n\necho \"Replacing original executable with thinned version\"\nrm \"$FRAMEWORK_EXECUTABLE_PATH\"\nmv \"$FRAMEWORK_EXECUTABLE_PATH-merged\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n\ndone\n";
+		};
+		2CA0C8EE24D1D40B005702AC /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"$(SRCROOT)/input.xcfilelist",
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage copy-frameworks\n";
 		};
 		46C2B8CE823B269B819C0C97 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2338,9 +2361,13 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
@@ -2354,7 +2381,10 @@
 				);
 				INFOPLIST_FILE = VideoCalls/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
@@ -2374,9 +2404,13 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
@@ -2390,7 +2424,10 @@
 				);
 				INFOPLIST_FILE = VideoCalls/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
@@ -2446,7 +2483,11 @@
 				);
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AFNetworking\"",
@@ -2521,7 +2562,11 @@
 				);
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AFNetworking\"",
@@ -2595,7 +2640,11 @@
 				);
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
@@ -2654,7 +2703,11 @@
 				);
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
