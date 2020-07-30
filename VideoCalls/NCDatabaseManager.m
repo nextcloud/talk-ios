@@ -14,7 +14,7 @@
 
 NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName       = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion   = 2;
+uint64_t const kTalkDatabaseSchemaVersion   = 3;
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
@@ -248,6 +248,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 2;
     capabilities.versionMinor = [[version objectForKey:@"minor"] integerValue];
     capabilities.versionMicro = [[version objectForKey:@"micro"] integerValue];
     capabilities.edition = [version objectForKey:@"edition"];
+    capabilities.webDAVRoot = [[serverCaps objectForKey:@"core"] objectForKey:@"webdav-root"];
     capabilities.extendedSupport = [[version objectForKey:@"extendedSupport"] boolValue];
     capabilities.talkCapabilities = [talkCaps objectForKey:@"features"];
     capabilities.chatMaxLength = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"max-length"] integerValue];

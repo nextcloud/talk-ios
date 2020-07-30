@@ -48,6 +48,7 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 @property NSInteger versionMinor;
 @property NSInteger versionMicro;
 @property NSString *edition;
+@property NSString *webDAVRoot;
 @property BOOL extendedSupport;
 @property RLMArray<RLMString> *talkCapabilities;
 @property NSInteger chatMaxLength;
