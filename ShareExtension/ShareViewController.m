@@ -190,6 +190,18 @@
                                           }
                                       }];
             }
+            // Check if shared image
+            if ([itemProvider hasItemConformingToTypeIdentifier:(NSString *)kUTTypeImage]) {
+                [itemProvider loadItemForTypeIdentifier:(NSString *)kUTTypeImage
+                                                options:nil
+                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                                          if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
+                                              NSLog(@"Shared Image = %@", item);
+                                              UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:(NSURL *)item]];
+                                              [self sendSharedImage:image];
+                                          }
+                                      }];
+            }
         }];
     }];
 }
@@ -219,6 +231,21 @@
             }
         }];
     }
+}
+
+- (void)sendSharedImage:(UIImage *)image
+{
+    NSString *fileNameServer = [NSString stringWithFormat:@"%@/%@/%@", _activeAccount.server, _serverCapabilities.webDAVRoot, @"image.png"];
+    NSData *pngData = UIImagePNGRepresentation(image);
+    NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
+    NSURL *fileURL = [[tmpDirURL URLByAppendingPathComponent:@"image"] URLByAppendingPathExtension:@"jpg"];
+    [pngData writeToFile:[fileURL path] atomically:YES];
+    
+    [[NCCommunication shared] uploadWithServerUrlFileName:fileNameServer fileNameLocalPath:[fileURL path] dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
+        NSLog(@"Progress: %@", progress);
+    } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSInteger errorCode, NSString *errorDescription) {
+        NSLog(@"Error: %@", errorDescription);
+    }];
 }
 
 #pragma mark - Utils
