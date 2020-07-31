@@ -8,16 +8,20 @@
 
 #import "ShareViewController.h"
 
+#import <NCCommunication/NCCommunication.h>
+
+#import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "NCRoomsManager.h"
+#import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "ShareTableViewCell.h"
 #import "UIImageView+AFNetworking.h"
 
-@interface ShareViewController () <UISearchControllerDelegate, UISearchResultsUpdating>
+@interface ShareViewController () <UISearchControllerDelegate, UISearchResultsUpdating, NCCommunicationCommonDelegate>
 {
     UISearchController *_searchController;
     UITableViewController *_resultTableViewController;
@@ -27,6 +31,7 @@
     PlaceholderView *_roomsBackgroundView;
     PlaceholderView *_roomSearchBackgroundView;
     TalkAccount *_activeAccount;
+    ServerCapabilities *_serverCapabilities;
 }
 
 @end
@@ -46,13 +51,21 @@
     NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
     configuration.fileURL = databaseURL;
     configuration.schemaVersion= kTalkDatabaseSchemaVersion;
-    configuration.objectClasses = @[TalkAccount.class, NCRoom.class];
+    configuration.objectClasses = @[TalkAccount.class, ServerCapabilities.class, NCRoom.class];
     NSError *error = nil;
     RLMRealm *realm = [RLMRealm realmWithConfiguration:configuration error:&error];
     TalkAccount *managedActiveAccount = [TalkAccount objectsInRealm:realm where:(@"active = true")].firstObject;
     _activeAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
     NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:_activeAccount.accountId witRealm:realm];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
+    
+    // Configure communication lib
+    NSString *userToken = [[NCSettingsController sharedInstance] tokenForAccountId:_activeAccount.accountId];
+    NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", _activeAccount.accountId];
+    _serverCapabilities = [[ServerCapabilities alloc] initWithValue:[ServerCapabilities objectsWithPredicate:query].firstObject];
+    
+    [[NCCommunicationCommon shared] setupWithAccount:_activeAccount.accountId user:_activeAccount.user userId:_activeAccount.userId password:userToken url:_activeAccount.server userAgent:userAgent capabilitiesGroup:@"group.com.nextcloud.Talk" webDavRoot:_serverCapabilities.webDAVRoot davRoot:nil nextcloudVersion:_serverCapabilities.versionMajor delegate:self];
     
     // Configure table views
     NSBundle *bundle = [NSBundle bundleForClass:[ShareTableViewCell class]];
@@ -232,6 +245,18 @@
     
     if (roomToDelete) {
         [_selectedRooms removeObject:roomToDelete];
+    }
+}
+
+#pragma mark - NCCommunicationCommon Delegate
+
+- (void)authenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
+{
+    // The pinnning check
+    if ([[CCCertificate sharedManager] checkTrustedChallenge:challenge]) {
+        completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
+    } else {
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     }
 }
 
