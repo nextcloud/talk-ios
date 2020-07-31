@@ -197,8 +197,10 @@
                                       completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
                                           if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
                                               NSLog(@"Shared Image = %@", item);
-                                              UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:(NSURL *)item]];
-                                              [self sendSharedImage:image];
+                                              NSURL *imageURL = (NSURL *)item;
+                                              NSString *imageName = imageURL.lastPathComponent;
+                                              UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageURL]];
+                                              [self sendSharedImage:image withName:imageName];
                                           }
                                       }];
             }
@@ -233,9 +235,9 @@
     }
 }
 
-- (void)sendSharedImage:(UIImage *)image
+- (void)sendSharedImage:(UIImage *)image withName:(NSString *)name
 {
-    NSString *fileNameServer = [NSString stringWithFormat:@"%@/%@/%@", _activeAccount.server, _serverCapabilities.webDAVRoot, @"image.png"];
+    NSString *fileNameServer = [NSString stringWithFormat:@"%@/%@/%@", _activeAccount.server, _serverCapabilities.webDAVRoot, name];
     NSData *pngData = UIImagePNGRepresentation(image);
     NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
     NSURL *fileURL = [[tmpDirURL URLByAppendingPathComponent:@"image"] URLByAppendingPathExtension:@"jpg"];
