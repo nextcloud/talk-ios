@@ -53,6 +53,8 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 @property RLMArray<RLMString> *talkCapabilities;
 @property NSInteger chatMaxLength;
 @property BOOL canCreate;
+@property BOOL attachmentsAllowed;
+@property NSString *attachmentsFolder;
 @end
 
 @interface NCDatabaseManager : NSObject

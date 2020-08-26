@@ -14,7 +14,7 @@
 
 NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName       = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion   = 3;
+uint64_t const kTalkDatabaseSchemaVersion   = 4;
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
@@ -257,6 +257,8 @@ uint64_t const kTalkDatabaseSchemaVersion   = 3;
     } else {
         capabilities.canCreate = YES;
     }
+    capabilities.attachmentsAllowed = [[[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
+    capabilities.attachmentsFolder = [[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
