@@ -219,7 +219,6 @@
 - (void)sendButtonPressed
 {
     [self sendSharedItem];
-    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
 }
 
 #pragma mark - Actions
@@ -233,21 +232,32 @@
             }
         }];
     }
+    
+    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
 }
 
 - (void)sendSharedImage:(UIImage *)image withName:(NSString *)name
 {
-    NSString *fileNameServer = [NSString stringWithFormat:@"%@/%@/%@", _activeAccount.server, _serverCapabilities.webDAVRoot, name];
+    NSString *attachmentsFolder = _serverCapabilities.attachmentsFolder ? _serverCapabilities.attachmentsFolder : @"";
+    NSString *filePath = [NSString stringWithFormat:@"%@/%@", attachmentsFolder, name];
+    NSString *fileServerURL = [NSString stringWithFormat:@"%@/%@%@", _activeAccount.server, _serverCapabilities.webDAVRoot, filePath];
     NSData *pngData = UIImagePNGRepresentation(image);
     NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
-    NSURL *fileURL = [[tmpDirURL URLByAppendingPathComponent:@"image"] URLByAppendingPathExtension:@"jpg"];
-    [pngData writeToFile:[fileURL path] atomically:YES];
+    NSURL *fileLocalURL = [[tmpDirURL URLByAppendingPathComponent:@"image"] URLByAppendingPathExtension:@"jpg"];
+    [pngData writeToFile:[fileLocalURL path] atomically:YES];
     
-    [[NCCommunication shared] uploadWithServerUrlFileName:fileNameServer fileNameLocalPath:[fileURL path] dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
+    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:[fileLocalURL path] dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
         NSLog(@"Progress: %@", progress);
     } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSInteger errorCode, NSString *errorDescription) {
         NSLog(@"Error: %@", errorDescription);
+        for (NCRoom *room in self->_selectedRooms) {
+            [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_activeAccount atPath:filePath toRoom:room.token withCompletionBlock:^(NSError *error) {
+                NSLog(@"Error: %@", error);
+            }];
+        }
     }];
+    
+    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
 }
 
 #pragma mark - Utils
