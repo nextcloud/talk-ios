@@ -241,7 +241,7 @@
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didOpenDataChannel:(RTCDataChannel *)dataChannel
 {
-    if ([dataChannel.label isEqualToString:@"status"]) {
+    if ([dataChannel.label isEqualToString:@"status"] || [dataChannel.label isEqualToString:@"JanusDataChannel"]) {
         _remoteDataChannel = dataChannel;
         _remoteDataChannel.delegate = self;
         NSLog(@"Remote data channel '%@' was opened.", dataChannel.label);
