@@ -665,10 +665,44 @@ typedef enum NCChatMessageAction {
 
 - (void)didPressLeftButton:(id)sender
 {
+    [self presentAttachmentsOptions];
+    [super didPressLeftButton:sender];
+}
+
+- (void)presentAttachmentsOptions
+{
+    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:nil
+                                                                                message:nil
+                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:@"Photo Library"
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        // Open photo library
+    }];
+        
+    UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:@"Share from Files"
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:^void (UIAlertAction *action) {
+        [self presentNextcloudFilesBrowser];
+    }];
+    
+    [optionsActionSheet addAction:photoLibraryAction];
+    [optionsActionSheet addAction:ncFilesAction];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.leftButton;
+    optionsActionSheet.popoverPresentationController.sourceRect = self.leftButton.frame;
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (void)presentNextcloudFilesBrowser
+{
     DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:@"" inRoom:_room.token];
     UINavigationController *fileSharingNC = [[UINavigationController alloc] initWithRootViewController:directoryVC];
     [self presentViewController:fileSharingNC animated:YES completion:nil];
-    [super didPressLeftButton:sender];
 }
 
 #pragma mark - Gesture recognizer
