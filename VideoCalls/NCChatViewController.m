@@ -46,7 +46,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionDelete
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -76,6 +76,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) UIBarButtonItem *voiceCallButton;
 @property (nonatomic, strong) NSTimer *lobbyCheckTimer;
 @property (nonatomic, strong) ReplyMessageView *replyMessageView;
+@property (nonatomic, strong) UIImagePickerController *imagePicker;
 
 @end
 
@@ -678,7 +679,7 @@ typedef enum NCChatMessageAction {
     UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:@"Photo Library"
                                                                  style:UIAlertActionStyleDefault
                                                                handler:^void (UIAlertAction *action) {
-        // Open photo library
+        [self presentPhotoLibrary];
     }];
         
     UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:@"Share from Files"
@@ -703,6 +704,26 @@ typedef enum NCChatMessageAction {
     DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:@"" inRoom:_room.token];
     UINavigationController *fileSharingNC = [[UINavigationController alloc] initWithRootViewController:directoryVC];
     [self presentViewController:fileSharingNC animated:YES completion:nil];
+}
+
+- (void)presentPhotoLibrary
+{
+    _imagePicker = [[UIImagePickerController alloc] init];
+    _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    _imagePicker.delegate = self;
+    [self presentViewController:_imagePicker animated:YES completion:nil];
+}
+
+#pragma mark - UIImagePickerController Delegate
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - Gesture recognizer
