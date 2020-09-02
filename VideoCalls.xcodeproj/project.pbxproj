@@ -184,6 +184,10 @@
 		2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */; };
 		2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A12402017872600864818 /* AddParticipantsTableViewController.m */; };
 		2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */; };
+		2C7A245B24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A245924FE7B5300921A21 /* ShareConfirmationViewController.m */; };
+		2C7A245C24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A245924FE7B5300921A21 /* ShareConfirmationViewController.m */; };
+		2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A245A24FE7B5300921A21 /* ShareConfirmationViewController.xib */; };
+		2C7A245E24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A245A24FE7B5300921A21 /* ShareConfirmationViewController.xib */; };
 		2C7C106221AF199300461817 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7C106021AF199300461817 /* SettingsViewController.m */; };
 		2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */; };
@@ -542,6 +546,9 @@
 		2C7A123F2017872600864818 /* AddParticipantsTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AddParticipantsTableViewController.h; sourceTree = "<group>"; };
 		2C7A12402017872600864818 /* AddParticipantsTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AddParticipantsTableViewController.m; sourceTree = "<group>"; };
 		2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddParticipantsTableViewController.xib; sourceTree = "<group>"; };
+		2C7A245824FE7B5300921A21 /* ShareConfirmationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareConfirmationViewController.h; sourceTree = "<group>"; };
+		2C7A245924FE7B5300921A21 /* ShareConfirmationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareConfirmationViewController.m; sourceTree = "<group>"; };
+		2C7A245A24FE7B5300921A21 /* ShareConfirmationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShareConfirmationViewController.xib; sourceTree = "<group>"; };
 		2C7C105F21AF199300461817 /* SettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
 		2C7C106021AF199300461817 /* SettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
 		2C7F47AB20289B9600081CC7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1133,6 +1140,9 @@
 				2C3195BF24C5E2100066F221 /* ShareTableViewCell.h */,
 				2C3195C024C5E2100066F221 /* ShareTableViewCell.m */,
 				2C3195C124C5E2100066F221 /* ShareTableViewCell.xib */,
+				2C7A245824FE7B5300921A21 /* ShareConfirmationViewController.h */,
+				2C7A245924FE7B5300921A21 /* ShareConfirmationViewController.m */,
+				2C7A245A24FE7B5300921A21 /* ShareConfirmationViewController.xib */,
 			);
 			path = ShareExtension;
 			sourceTree = "<group>";
@@ -1650,6 +1660,7 @@
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
+				2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 				2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */,
@@ -1661,6 +1672,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C3195BC24C599130066F221 /* PlaceholderView.xib in Resources */,
+				2C7A245E24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2C3195C324C5E2100066F221 /* ShareTableViewCell.xib in Resources */,
 				2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */,
 				2C3195BD24C5A3D90066F221 /* ContactsTableViewCell.xib in Resources */,
@@ -1967,6 +1979,7 @@
 				2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
 				2C961E1C2216BF4B00F5C23F /* OCXMLListParser.m in Sources */,
+				2C7A245B24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
 				2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */,
 				2C2026A42369F47400DFC89B /* AccountTableViewCell.m in Sources */,
@@ -2090,6 +2103,7 @@
 				2C62AFDC24C1BD87007E460A /* NSString+Encode.m in Sources */,
 				2C62AFE924C1BD99007E460A /* NBMPeersFlowLayout.m in Sources */,
 				2C62B00B24C1BDBD007E460A /* NCPushProxySessionManager.m in Sources */,
+				2C7A245C24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
 				2C3195C224C5E2100066F221 /* ShareTableViewCell.m in Sources */,
 				2C62B01124C1BDC5007E460A /* RoomsTableViewController.m in Sources */,
 				2C62AFE324C1BD91007E460A /* ARDSettingsStore.m in Sources */,
