@@ -46,7 +46,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionDelete
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -76,6 +76,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) UIBarButtonItem *voiceCallButton;
 @property (nonatomic, strong) NSTimer *lobbyCheckTimer;
 @property (nonatomic, strong) ReplyMessageView *replyMessageView;
+@property (nonatomic, strong) UIImagePickerController *imagePicker;
 
 @end
 
@@ -665,10 +666,64 @@ typedef enum NCChatMessageAction {
 
 - (void)didPressLeftButton:(id)sender
 {
+    [self presentAttachmentsOptions];
+    [super didPressLeftButton:sender];
+}
+
+- (void)presentAttachmentsOptions
+{
+    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:nil
+                                                                                message:nil
+                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:@"Photo Library"
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        [self presentPhotoLibrary];
+    }];
+        
+    UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:@"Share from Files"
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:^void (UIAlertAction *action) {
+        [self presentNextcloudFilesBrowser];
+    }];
+    
+    [optionsActionSheet addAction:photoLibraryAction];
+    [optionsActionSheet addAction:ncFilesAction];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.leftButton;
+    optionsActionSheet.popoverPresentationController.sourceRect = self.leftButton.frame;
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (void)presentNextcloudFilesBrowser
+{
     DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:@"" inRoom:_room.token];
     UINavigationController *fileSharingNC = [[UINavigationController alloc] initWithRootViewController:directoryVC];
     [self presentViewController:fileSharingNC animated:YES completion:nil];
-    [super didPressLeftButton:sender];
+}
+
+- (void)presentPhotoLibrary
+{
+    _imagePicker = [[UIImagePickerController alloc] init];
+    _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    _imagePicker.delegate = self;
+    [self presentViewController:_imagePicker animated:YES completion:nil];
+}
+
+#pragma mark - UIImagePickerController Delegate
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - Gesture recognizer
