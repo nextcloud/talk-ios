@@ -170,6 +170,7 @@
 		2C62B03324C1BDDC007E460A /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
 		2C694D9525010C0100DD0008 /* ShareConfirmationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A245924FE7B5300921A21 /* ShareConfirmationViewController.m */; };
 		2C694D9625010E5700DD0008 /* NCCommunication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA0C8EA24D1D3BF005702AC /* NCCommunication.framework */; };
+		2C694D9B2501313900DD0008 /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C694D9A2501313900DD0008 /* Photos.framework */; };
 		2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
 		2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
 		2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
@@ -521,6 +522,7 @@
 		2C62AFB524C1A449007E460A /* Share.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Share.storyboard; sourceTree = "<group>"; };
 		2C62AFB724C1A4E6007E460A /* ShareViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
 		2C62AFB824C1A4E6007E460A /* ShareViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
+		2C694D9A2501313900DD0008 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		2C6E74442386D33200AE396C /* ReplyMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReplyMessageView.h; sourceTree = "<group>"; };
 		2C6E74452386D33200AE396C /* ReplyMessageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReplyMessageView.m; sourceTree = "<group>"; };
 		2C6E7447238C1A0800AE396C /* QuotedMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuotedMessageView.h; sourceTree = "<group>"; };
@@ -827,6 +829,7 @@
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
+				2C694D9B2501313900DD0008 /* Photos.framework in Frameworks */,
 				DB6A892B5CEBD4812F7C52EF /* libPods-VideoCalls.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1303,6 +1306,7 @@
 		2C90E5621EDDE0FB0093D85A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2C694D9A2501313900DD0008 /* Photos.framework */,
 				2CA0C8EA24D1D3BF005702AC /* NCCommunication.framework */,
 				2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */,
 				2CA1CC961F016117002FE6A2 /* Security.framework */,

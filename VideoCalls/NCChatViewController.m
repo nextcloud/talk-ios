@@ -8,6 +8,8 @@
 
 #import "NCChatViewController.h"
 
+#import <Photos/Photos.h>
+
 #import "AFImageDownloader.h"
 #import "CallKitManager.h"
 #import "ChatMessageTableViewCell.h"
@@ -35,6 +37,7 @@
 #import "ReplyMessageView.h"
 #import "QuotedMessageView.h"
 #import "RoomInfoTableViewController.h"
+#import "ShareConfirmationViewController.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 #import "UIView+Toast.h"
@@ -718,7 +721,22 @@ typedef enum NCChatMessageAction {
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
+    UIImage *originalImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+    NSURL *imageReferenceURL = [info objectForKey:UIImagePickerControllerReferenceURL];
+    PHFetchResult *result = [PHAsset fetchAssetsWithALAssetURLs:@[imageReferenceURL] options:nil];
+    NSString *imageName = [[result firstObject] filename];
+    
+    [self dismissViewControllerAnimated:YES completion:^{
+        [self.navigationController presentViewController:navigationController animated:YES completion:^{
+            shareConfirmationVC.type = ShareConfirmationTypeImage;
+            shareConfirmationVC.sharedImage = originalImage;
+            shareConfirmationVC.sharedImageName = imageName;
+        }];
+    }];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
