@@ -168,6 +168,8 @@
 		2C62B03124C1BDDC007E460A /* NCSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF981F80F81E008AFA74 /* NCSignalingController.m */; };
 		2C62B03224C1BDDC007E460A /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
 		2C62B03324C1BDDC007E460A /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
+		2C694D9525010C0100DD0008 /* ShareConfirmationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A245924FE7B5300921A21 /* ShareConfirmationViewController.m */; };
+		2C694D9625010E5700DD0008 /* NCCommunication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA0C8EA24D1D3BF005702AC /* NCCommunication.framework */; };
 		2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
 		2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
 		2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
@@ -844,6 +846,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C694D9625010E5700DD0008 /* NCCommunication.framework in Frameworks */,
 				2CC0015E24A25A8000A20167 /* libcrypto.a in Frameworks */,
 				2CC0015F24A25A8000A20167 /* libssl.a in Frameworks */,
 				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
@@ -1565,6 +1568,7 @@
 				2CC0014C24A1F0E900A20167 /* Frameworks */,
 				2CC0014D24A1F0E900A20167 /* Resources */,
 				9B62A9AE088A26962648F117 /* [CP] Copy Pods Resources */,
+				2C694D99250115BC00DD0008 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1729,6 +1733,24 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VideoCalls/Pods-VideoCalls-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		2C694D99250115BC00DD0008 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"$(SRCROOT)/input.xcfilelist",
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage copy-frameworks\n";
 		};
 		2C8035721F950BA800501B5C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2139,6 +2161,7 @@
 				2CC001DA24A37AD000A20167 /* CCBKPasscode.m in Sources */,
 				2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */,
 				2CC0017024A3792800A20167 /* NCPushProxySessionManager.m in Sources */,
+				2C694D9525010C0100DD0008 /* ShareConfirmationViewController.m in Sources */,
 				2CC0018024A37A5500A20167 /* UIResponder+SLKAdditions.m in Sources */,
 				2CC001B024A37A9500A20167 /* MessageBodyTextView.m in Sources */,
 				2CC001DD24A37AD400A20167 /* NCUtils.m in Sources */,
@@ -2662,6 +2685,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2725,6 +2752,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
