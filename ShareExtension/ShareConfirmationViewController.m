@@ -16,6 +16,10 @@
 #import "MBProgressHUD.h"
 
 @interface ShareConfirmationViewController () <NCCommunicationCommonDelegate>
+{
+    UIBarButtonItem *_sendButton;
+    UIActivityIndicatorView *_sharingIndicatorView;
+}
 
 @end
 
@@ -54,10 +58,12 @@
         self.navigationItem.scrollEdgeAppearance = appearance;
     }
     
-    UIBarButtonItem *sendButton = [[UIBarButtonItem alloc] initWithTitle:@"Send" style:UIBarButtonItemStyleDone
-                                                                  target:self action:@selector(sendButtonPressed)];
-    sendButton.accessibilityHint = @"Double tap to share with selected conversations";
-    self.navigationItem.rightBarButtonItem = sendButton;
+    _sendButton = [[UIBarButtonItem alloc] initWithTitle:@"Send" style:UIBarButtonItemStyleDone
+                                                  target:self action:@selector(sendButtonPressed)];
+    _sendButton.accessibilityHint = @"Double tap to share with selected conversations";
+    self.navigationItem.rightBarButtonItem = _sendButton;
+    
+    _sharingIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     
     // Configure communication lib
     NSString *userToken = [[NCSettingsController sharedInstance] tokenForAccountId:_account.accountId];
@@ -76,6 +82,8 @@
     } else if (_type == ShareConfirmationTypeImage) {
         [self sendSharedImage];
     }
+    
+    [self startAnimatingSharingIndicator];
 }
 
 - (void)setSharedText:(NSString *)sharedText
@@ -110,6 +118,7 @@
         } else {
             [self.delegate shareConfirmationViewControllerDidFinish:self];
         }
+        [self stopAnimatingSharingIndicator];
     }];
 }
 
@@ -140,11 +149,27 @@
                 } else {
                     [self.delegate shareConfirmationViewControllerDidFinish:self];
                 }
+                [self stopAnimatingSharingIndicator];
             }];
         } else {
             [self.delegate shareConfirmationViewControllerDidFailed:self];
         }
+        [self stopAnimatingSharingIndicator];
     }];
+}
+
+#pragma mark - User Interface
+
+- (void)startAnimatingSharingIndicator
+{
+    [_sharingIndicatorView startAnimating];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_sharingIndicatorView];
+}
+
+- (void)stopAnimatingSharingIndicator
+{
+    [_sharingIndicatorView stopAnimating];
+    self.navigationItem.rightBarButtonItem = _sendButton;
 }
 
 #pragma mark - NCCommunicationCommon Delegate
