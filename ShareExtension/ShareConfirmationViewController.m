@@ -13,6 +13,7 @@
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCSettingsController.h"
+#import "MBProgressHUD.h"
 
 @interface ShareConfirmationViewController () <NCCommunicationCommonDelegate>
 
@@ -122,10 +123,15 @@
     NSURL *fileLocalURL = [[tmpDirURL URLByAppendingPathComponent:@"image"] URLByAppendingPathExtension:@"jpg"];
     [pngData writeToFile:[fileLocalURL path] atomically:YES];
     
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    hud.mode = MBProgressHUDModeAnnularDeterminate;
+    hud.label.text = @"Uploading image";
+    
     [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:[fileLocalURL path] dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
-        NSLog(@"Progress: %@", progress);
+        hud.progress = progress.fractionCompleted;
     } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSInteger errorCode, NSString *errorDescription) {
         NSLog(@"Upload completed with error code: %ld", (long)errorCode);
+        [hud hideAnimated:YES];
         if (errorCode == 0) {
             [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token withCompletionBlock:^(NSError *error) {
                 if (error) {
