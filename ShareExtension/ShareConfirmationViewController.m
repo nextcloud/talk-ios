@@ -104,7 +104,10 @@
 {
     [[NCAPIController sharedInstance] sendChatMessage:_sharedText toRoom:_room.token displayName:nil replyTo:-1 referenceId:nil forAccount:_account withCompletionBlock:^(NSError *error) {
         if (error) {
+            [self.delegate shareConfirmationViewControllerDidFailed:self];
             NSLog(@"Failed to send shared item");
+        } else {
+            [self.delegate shareConfirmationViewControllerDidFinish:self];
         }
     }];
     
@@ -125,9 +128,18 @@
         NSLog(@"Progress: %@", progress);
     } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSInteger errorCode, NSString *errorDescription) {
         NSLog(@"Upload completed with error code: %ld", (long)errorCode);
-        [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token withCompletionBlock:^(NSError *error) {
-            NSLog(@"Error: %@", error);
-        }];
+        if (errorCode == 0) {
+            [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token withCompletionBlock:^(NSError *error) {
+                if (error) {
+                    [self.delegate shareConfirmationViewControllerDidFailed:self];
+                    NSLog(@"Failed to send shared image");
+                } else {
+                    [self.delegate shareConfirmationViewControllerDidFinish:self];
+                }
+            }];
+        } else {
+            [self.delegate shareConfirmationViewControllerDidFailed:self];
+        }
     }];
     
     [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];

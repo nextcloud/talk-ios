@@ -18,7 +18,17 @@ typedef enum ShareConfirmationType {
     ShareConfirmationTypeImage
 } ShareConfirmationType;
 
+@class ShareConfirmationViewController;
+@protocol ShareConfirmationViewControllerDelegate <NSObject>
+
+- (void)shareConfirmationViewControllerDidFailed:(ShareConfirmationViewController *)viewController;
+- (void)shareConfirmationViewControllerDidFinish:(ShareConfirmationViewController *)viewController;
+
+@end
+
 @interface ShareConfirmationViewController : UIViewController
+
+@property (weak, nonatomic) id<ShareConfirmationViewControllerDelegate> delegate;
 
 @property (strong, nonatomic) NCRoom *room;
 @property (strong, nonatomic) TalkAccount *account;
