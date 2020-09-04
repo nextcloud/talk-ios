@@ -22,7 +22,7 @@
 #import "ShareTableViewCell.h"
 #import "UIImageView+AFNetworking.h"
 
-@interface ShareViewController () <UISearchControllerDelegate, UISearchResultsUpdating>
+@interface ShareViewController () <UISearchControllerDelegate, UISearchResultsUpdating, ShareConfirmationViewControllerDelegate>
 {
     UISearchController *_searchController;
     UITableViewController *_resultTableViewController;
@@ -230,6 +230,18 @@
     return [_rooms filteredArrayUsingPredicate:sPredicate];
 }
 
+#pragma mark - ShareConfirmationViewController Delegate
+
+- (void)shareConfirmationViewControllerDidFailed:(ShareConfirmationViewController *)viewController
+{
+    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
+}
+
+- (void)shareConfirmationViewControllerDidFinish:(ShareConfirmationViewController *)viewController
+{
+    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
+}
+
 
 #pragma mark - Table view data source
 
@@ -312,6 +324,7 @@
     }
     
     ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:room account:_activeAccount serverCapabilities:_serverCapabilities];
+    shareConfirmationVC.delegate = self;
     [self setSharedItemToShareConfirmationViewController:shareConfirmationVC];
     [self.navigationController pushViewController:shareConfirmationVC animated:YES];
 }

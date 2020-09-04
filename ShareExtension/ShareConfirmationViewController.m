@@ -110,8 +110,6 @@
             [self.delegate shareConfirmationViewControllerDidFinish:self];
         }
     }];
-    
-    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
 }
 
 - (void)sendSharedImage
@@ -141,8 +139,6 @@
             [self.delegate shareConfirmationViewControllerDidFailed:self];
         }
     }];
-    
-    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
 }
 
 #pragma mark - NCCommunicationCommon Delegate

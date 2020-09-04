@@ -49,7 +49,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionDelete
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, ShareConfirmationViewControllerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -724,6 +724,7 @@ typedef enum NCChatMessageAction {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
+    shareConfirmationVC.delegate = self;
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
     UIImage *originalImage = [info objectForKey:UIImagePickerControllerOriginalImage];
     NSURL *imageReferenceURL = [info objectForKey:UIImagePickerControllerReferenceURL];
@@ -740,6 +741,18 @@ typedef enum NCChatMessageAction {
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - ShareConfirmationViewController Delegate
+
+- (void)shareConfirmationViewControllerDidFailed:(ShareConfirmationViewController *)viewController
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)shareConfirmationViewControllerDidFinish:(ShareConfirmationViewController *)viewController
 {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
