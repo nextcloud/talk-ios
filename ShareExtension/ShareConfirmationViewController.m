@@ -72,7 +72,13 @@
     [[NCCommunicationCommon shared] setupWithAccount:_account.accountId user:_account.user userId:_account.userId password:userToken url:_account.server userAgent:userAgent capabilitiesGroup:@"group.com.nextcloud.Talk" webDavRoot:_serverCapabilities.webDAVRoot davRoot:nil nextcloudVersion:_serverCapabilities.versionMajor delegate:self];
     
     // Set to section
-    self.toTextView.text = [NSString stringWithFormat:@"To: %@", _room.displayName];
+    NSDictionary *attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],
+                                 NSForegroundColorAttributeName:[UIColor darkTextColor]};
+    NSDictionary *subAttribute = @{NSFontAttributeName:[UIFont boldSystemFontOfSize:15],
+                                   NSForegroundColorAttributeName:[UIColor lightGrayColor]};
+    NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"To: %@", _room.displayName] attributes:attributes];
+    [toString addAttributes:subAttribute range:NSMakeRange(0, 3)];
+    self.toTextView.attributedText = toString;
 }
 
 - (void)sendButtonPressed
