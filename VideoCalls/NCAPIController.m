@@ -964,6 +964,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  };
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    // Work around: When sendChatMessage is called from Share Extension session managers are not initialized.
+    if (!apiSessionManager) {
+        [self initSessionManagers];
+        apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    }
     [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);

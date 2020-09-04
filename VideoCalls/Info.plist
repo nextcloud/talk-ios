@@ -75,5 +75,7 @@
 	<false/>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo Library access is needed to share pictures from your device</string>
 </dict>
 </plist>

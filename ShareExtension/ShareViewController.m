@@ -18,14 +18,14 @@
 #import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
+#import "ShareConfirmationViewController.h"
 #import "ShareTableViewCell.h"
 #import "UIImageView+AFNetworking.h"
 
-@interface ShareViewController () <UISearchControllerDelegate, UISearchResultsUpdating, NCCommunicationCommonDelegate>
+@interface ShareViewController () <UISearchControllerDelegate, UISearchResultsUpdating, ShareConfirmationViewControllerDelegate>
 {
     UISearchController *_searchController;
     UITableViewController *_resultTableViewController;
-    NSMutableArray *_selectedRooms;
     NSMutableArray *_filteredRooms;
     NSMutableArray *_rooms;
     PlaceholderView *_roomsBackgroundView;
@@ -42,7 +42,6 @@
 {
     [super viewDidLoad];
     
-    _selectedRooms = [[NSMutableArray alloc] init];
     _filteredRooms = [[NSMutableArray alloc] init];
     
     // Configure database
@@ -58,14 +57,9 @@
     _activeAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
     NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:_activeAccount.accountId witRealm:realm];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
-    
-    // Configure communication lib
-    NSString *userToken = [[NCSettingsController sharedInstance] tokenForAccountId:_activeAccount.accountId];
-    NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", _activeAccount.accountId];
-    _serverCapabilities = [[ServerCapabilities alloc] initWithValue:[ServerCapabilities objectsWithPredicate:query].firstObject];
-    
-    [[NCCommunicationCommon shared] setupWithAccount:_activeAccount.accountId user:_activeAccount.user userId:_activeAccount.userId password:userToken url:_activeAccount.server userAgent:userAgent capabilitiesGroup:@"group.com.nextcloud.Talk" webDavRoot:_serverCapabilities.webDAVRoot davRoot:nil nextcloudVersion:_serverCapabilities.versionMajor delegate:self];
+    ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsInRealm:realm withPredicate:query].firstObject;
+    _serverCapabilities = [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
     
     // Configure table views
     NSBundle *bundle = [NSBundle bundleForClass:[ShareTableViewCell class]];
@@ -97,11 +91,6 @@
                                                                                   target:self action:@selector(cancelButtonPressed)];
     cancelButton.accessibilityHint = @"Double tap to dismiss sharing options";
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
-    
-    UIBarButtonItem *sendButton = [[UIBarButtonItem alloc] initWithTitle:@"Send" style:UIBarButtonItemStyleDone
-                                                                  target:self action:@selector(sendButtonPressed)];
-    sendButton.accessibilityHint = @"Double tap to share with selected conversations";
-    self.navigationItem.rightBarButtonItem = sendButton;
     
     if (@available(iOS 13.0, *)) {
         UIColor *themeColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
@@ -160,9 +149,17 @@
     self.extendedLayoutIncludesOpaqueBars = YES;
 }
 
+#pragma mark - Navigation buttons
+
+- (void)cancelButtonPressed
+{
+    NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+    [self.extensionContext cancelRequestWithError:error];
+}
+
 #pragma mark - Shared items
 
-- (void)sendSharedItem
+- (void)setSharedItemToShareConfirmationViewController:(ShareConfirmationViewController *)shareConfirmationVC
 {
     [self.extensionContext.inputItems enumerateObjectsUsingBlock:^(NSExtensionItem * _Nonnull extItem, NSUInteger idx, BOOL * _Nonnull stop) {
         [extItem.attachments enumerateObjectsUsingBlock:^(NSItemProvider * _Nonnull itemProvider, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -174,7 +171,8 @@
                                           if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
                                               NSLog(@"Shared URL = %@", item);
                                               NSURL *sharedURL = (NSURL *)item;
-                                              [self sendSharedString:sharedURL.absoluteString];
+                                              shareConfirmationVC.type = ShareConfirmationTypeText;
+                                              shareConfirmationVC.sharedText = sharedURL.absoluteString;
                                           }
                                       }];
             }
@@ -186,7 +184,8 @@
                                           if ([(NSObject *)item isKindOfClass:[NSString class]]) {
                                               NSLog(@"Shared Text = %@", item);
                                               NSString *sharedText = (NSString *)item;
-                                              [self sendSharedString:sharedText];
+                                              shareConfirmationVC.type = ShareConfirmationTypeText;
+                                              shareConfirmationVC.sharedText = sharedText;
                                           }
                                       }];
             }
@@ -200,103 +199,14 @@
                                               NSURL *imageURL = (NSURL *)item;
                                               NSString *imageName = imageURL.lastPathComponent;
                                               UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageURL]];
-                                              [self sendSharedImage:image withName:imageName];
+                                              shareConfirmationVC.type = ShareConfirmationTypeImage;
+                                              shareConfirmationVC.sharedImageName = imageName;
+                                              shareConfirmationVC.sharedImage = image;
                                           }
                                       }];
             }
         }];
     }];
-}
-
-#pragma mark - Navigation buttons
-
-- (void)cancelButtonPressed
-{
-    NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
-    [self.extensionContext cancelRequestWithError:error];
-}
-
-- (void)sendButtonPressed
-{
-    [self sendSharedItem];
-}
-
-#pragma mark - Actions
-
-- (void)sendSharedString:(NSString *)sharedString
-{
-    for (NCRoom *room in _selectedRooms) {
-        [[NCAPIController sharedInstance] sendChatMessage:sharedString toRoom:room.token displayName:nil replyTo:-1 referenceId:nil forAccount:_activeAccount withCompletionBlock:^(NSError *error) {
-            if (error) {
-                NSLog(@"Failed to send shared item");
-            }
-        }];
-    }
-    
-    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
-}
-
-- (void)sendSharedImage:(UIImage *)image withName:(NSString *)name
-{
-    NSString *attachmentsFolder = _serverCapabilities.attachmentsFolder ? _serverCapabilities.attachmentsFolder : @"";
-    NSString *filePath = [NSString stringWithFormat:@"%@/%@", attachmentsFolder, name];
-    NSString *fileServerURL = [NSString stringWithFormat:@"%@/%@%@", _activeAccount.server, _serverCapabilities.webDAVRoot, filePath];
-    NSData *pngData = UIImagePNGRepresentation(image);
-    NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
-    NSURL *fileLocalURL = [[tmpDirURL URLByAppendingPathComponent:@"image"] URLByAppendingPathExtension:@"jpg"];
-    [pngData writeToFile:[fileLocalURL path] atomically:YES];
-    
-    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:[fileLocalURL path] dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
-        NSLog(@"Progress: %@", progress);
-    } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSInteger errorCode, NSString *errorDescription) {
-        NSLog(@"Error: %@", errorDescription);
-        for (NCRoom *room in self->_selectedRooms) {
-            [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_activeAccount atPath:filePath toRoom:room.token withCompletionBlock:^(NSError *error) {
-                NSLog(@"Error: %@", error);
-            }];
-        }
-    }];
-    
-    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
-}
-
-#pragma mark - Utils
-
-- (BOOL)isRoomAlreadySelected:(NCRoom *)selectedRoom
-{
-    for (NCRoom *room in _selectedRooms) {
-        if ([room.internalId isEqualToString:selectedRoom.internalId]) {
-            return YES;
-        }
-    }
-    return NO;
-}
-
-- (void)removeSelectedRoom:(NCRoom *)selectedRoom
-{
-    NCRoom *roomToDelete = nil;
-    for (NCRoom *room in _selectedRooms) {
-        if ([room.internalId isEqualToString:selectedRoom.internalId]) {
-            roomToDelete = room;
-            break;
-        }
-    }
-    
-    if (roomToDelete) {
-        [_selectedRooms removeObject:roomToDelete];
-    }
-}
-
-#pragma mark - NCCommunicationCommon Delegate
-
-- (void)authenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
-{
-    // The pinnning check
-    if ([[CCCertificate sharedManager] checkTrustedChallenge:challenge]) {
-        completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
-    } else {
-        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
-    }
 }
 
 #pragma mark - Search controller
@@ -318,6 +228,18 @@
 {
     NSPredicate *sPredicate = [NSPredicate predicateWithFormat:@"displayName CONTAINS[c] %@", searchString];
     return [_rooms filteredArrayUsingPredicate:sPredicate];
+}
+
+#pragma mark - ShareConfirmationViewController Delegate
+
+- (void)shareConfirmationViewControllerDidFailed:(ShareConfirmationViewController *)viewController
+{
+    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
+}
+
+- (void)shareConfirmationViewControllerDidFinish:(ShareConfirmationViewController *)viewController
+{
+    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
 }
 
 
@@ -387,9 +309,7 @@
         [cell.avatarImageView setImage:[UIImage imageNamed:@"password-bg"]];
     }
     
-    UIImageView *checkboxChecked = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]];
-    UIImageView *checkboxUnchecked = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-unchecked"]];
-    cell.accessoryView = ([self isRoomAlreadySelected:room]) ? checkboxChecked : checkboxUnchecked;
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         
     return cell;
 }
@@ -403,20 +323,10 @@
         isFilteredTable = YES;
     }
     
-    if (![self isRoomAlreadySelected:room]) {
-        [_selectedRooms addObject:room];
-    } else {
-        [self removeSelectedRoom:room];
-    }
-        
-    [tableView beginUpdates];
-    [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
-    [tableView endUpdates];
-    
-    // Refresh table view if selection was done in filtered table.
-    if (isFilteredTable) {
-        [self.tableView reloadData];
-    }
+    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:room account:_activeAccount serverCapabilities:_serverCapabilities];
+    shareConfirmationVC.delegate = self;
+    [self setSharedItemToShareConfirmationViewController:shareConfirmationVC];
+    [self.navigationController pushViewController:shareConfirmationVC animated:YES];
 }
 
 @end
