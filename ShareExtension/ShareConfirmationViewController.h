@@ -37,6 +37,7 @@ typedef enum ShareConfirmationType {
 @property (strong, nonatomic) NSString *sharedText;
 @property (strong, nonatomic) NSString *sharedImageName;
 @property (strong, nonatomic) UIImage *sharedImage;
+@property (assign, nonatomic) BOOL isModal;
 
 
 @property (weak, nonatomic) IBOutlet UIView *toBackgroundView;

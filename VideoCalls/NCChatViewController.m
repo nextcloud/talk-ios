@@ -725,6 +725,7 @@ typedef enum NCChatMessageAction {
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
     shareConfirmationVC.delegate = self;
+    shareConfirmationVC.isModal = YES;
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
     UIImage *originalImage = [info objectForKey:UIImagePickerControllerOriginalImage];
     NSURL *imageReferenceURL = [info objectForKey:UIImagePickerControllerReferenceURL];

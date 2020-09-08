@@ -58,6 +58,13 @@
         self.navigationItem.scrollEdgeAppearance = appearance;
     }
     
+    if (_isModal) {
+        UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                      target:self action:@selector(cancelButtonPressed)];
+        cancelButton.accessibilityHint = @"Double tap to dismiss sharing options";
+        self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
+    }
+    
     _sendButton = [[UIBarButtonItem alloc] initWithTitle:@"Send" style:UIBarButtonItemStyleDone
                                                   target:self action:@selector(sendButtonPressed)];
     _sendButton.accessibilityHint = @"Double tap to share with selected conversations";
@@ -79,6 +86,11 @@
     NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"To: %@", _room.displayName] attributes:attributes];
     [toString addAttributes:subAttribute range:NSMakeRange(0, 3)];
     self.toTextView.attributedText = toString;
+}
+
+- (void)cancelButtonPressed
+{
+    [self.delegate shareConfirmationViewControllerDidFinish:self];
 }
 
 - (void)sendButtonPressed
@@ -111,6 +123,11 @@
         [self.shareImageView setImage:self->_sharedImage];
         self.shareTextView.hidden = YES;
     });
+}
+
+- (void)setIsModal:(BOOL)isModal
+{
+    _isModal = isModal;
 }
 
 #pragma mark - Actions
