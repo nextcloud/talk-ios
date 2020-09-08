@@ -732,7 +732,7 @@ typedef enum NCChatMessageAction {
     NSString *imageName = [[result firstObject] filename];
     
     [self dismissViewControllerAnimated:YES completion:^{
-        [self.navigationController presentViewController:navigationController animated:YES completion:^{
+        [self presentViewController:navigationController animated:YES completion:^{
             shareConfirmationVC.type = ShareConfirmationTypeImage;
             shareConfirmationVC.sharedImage = originalImage;
             shareConfirmationVC.sharedImageName = imageName;
