@@ -14,7 +14,7 @@
 
 NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName       = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion   = 4;
+uint64_t const kTalkDatabaseSchemaVersion   = 5;
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
@@ -230,6 +230,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 4;
     NSDictionary *version = [serverCapabilities objectForKey:@"version"];
     NSDictionary *themingCaps = [serverCaps objectForKey:@"theming"];
     NSDictionary *talkCaps = [serverCaps objectForKey:@"spreed"];
+    NSDictionary *notificationsCaps = [serverCaps objectForKey:@"notifications"];
     
     ServerCapabilities *capabilities = [[ServerCapabilities alloc] init];
     capabilities.accountId = accountId;
@@ -259,6 +260,9 @@ uint64_t const kTalkDatabaseSchemaVersion   = 4;
     }
     capabilities.attachmentsAllowed = [[[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
     capabilities.attachmentsFolder = [[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
+    
+    NSArray *notificationsOCSEndpoints = [notificationsCaps objectForKey:@"ocs-endpoints"];
+    capabilities.userStatus = [notificationsOCSEndpoints containsObject:@"user-status"];
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
