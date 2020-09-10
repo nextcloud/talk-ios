@@ -99,6 +99,8 @@
         [self sendSharedText];
     } else if (_type == ShareConfirmationTypeImage) {
         [self sendSharedImage];
+    } else if (_type == ShareConfirmationTypeFile) {
+        [self sendSharedFile];
     }
     
     [self startAnimatingSharingIndicator];
@@ -111,7 +113,6 @@
     self.type = ShareConfirmationTypeText;
     self.shareTextView.text = _sharedText;
     self.shareTextView.editable = NO;
-    self.shareImageView.hidden = YES;
 }
 
 - (void)setSharedImage:(UIImage *)sharedImage
@@ -121,8 +122,28 @@
     self.type = ShareConfirmationTypeImage;
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.shareImageView setImage:self->_sharedImage];
-        self.shareTextView.hidden = YES;
     });
+}
+
+- (void)setSharedFileName:(NSString *)sharedFileName
+{
+    _sharedFileName = sharedFileName;
+    
+    self.shareFileTextView.text = _sharedFileName;
+    self.shareFileTextView.editable = NO;
+}
+
+- (void)setSharedFile:(NSData *)sharedFile
+{
+    _sharedFile = sharedFile;
+    
+    [self.shareFileImageView setImage:[UIImage imageNamed:@"file"]];
+}
+
+- (void)setType:(ShareConfirmationType)type
+{
+    _type = type;
+    [self setUIForShareType:_type];
 }
 
 - (void)setIsModal:(BOOL)isModal
@@ -181,6 +202,41 @@
     }];
 }
 
+- (void)sendSharedFile
+{
+    NSString *attachmentsFolder = _serverCapabilities.attachmentsFolder ? _serverCapabilities.attachmentsFolder : @"";
+    NSString *filePath = [NSString stringWithFormat:@"%@/%@", attachmentsFolder, _sharedFileName];
+    NSString *fileServerURL = [NSString stringWithFormat:@"%@/%@%@", _account.server, _serverCapabilities.webDAVRoot, filePath];
+    NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
+    NSURL *fileLocalURL = [[tmpDirURL URLByAppendingPathComponent:@"file"] URLByAppendingPathExtension:@"data"];
+    [_sharedFile writeToFile:[fileLocalURL path] atomically:YES];
+    
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    hud.mode = MBProgressHUDModeAnnularDeterminate;
+    hud.label.text = @"Uploading file";
+    
+    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:[fileLocalURL path] dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
+        hud.progress = progress.fractionCompleted;
+    } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSInteger errorCode, NSString *errorDescription) {
+        NSLog(@"Upload completed with error code: %ld", (long)errorCode);
+        [hud hideAnimated:YES];
+        if (errorCode == 0) {
+            [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token withCompletionBlock:^(NSError *error) {
+                if (error) {
+                    [self.delegate shareConfirmationViewControllerDidFailed:self];
+                    NSLog(@"Failed to send shared file");
+                } else {
+                    [self.delegate shareConfirmationViewControllerDidFinish:self];
+                }
+                [self stopAnimatingSharingIndicator];
+            }];
+        } else {
+            [self.delegate shareConfirmationViewControllerDidFailed:self];
+        }
+        [self stopAnimatingSharingIndicator];
+    }];
+}
+
 #pragma mark - User Interface
 
 - (void)startAnimatingSharingIndicator
@@ -193,6 +249,38 @@
 {
     [_sharingIndicatorView stopAnimating];
     self.navigationItem.rightBarButtonItem = _sendButton;
+}
+
+- (void)setUIForShareType:(ShareConfirmationType)shareConfirmationType
+{
+    switch (shareConfirmationType) {
+        case ShareConfirmationTypeText:
+        {
+            self.shareTextView.hidden = NO;
+            self.shareImageView.hidden = YES;
+            self.shareFileImageView.hidden = YES;
+            self.shareFileTextView.hidden = YES;
+        }
+            break;
+        case ShareConfirmationTypeImage:
+        {
+            self.shareTextView.hidden = YES;
+            self.shareImageView.hidden = NO;
+            self.shareFileImageView.hidden = YES;
+            self.shareFileTextView.hidden = YES;
+        }
+            break;
+        case ShareConfirmationTypeFile:
+        {
+            self.shareTextView.hidden = YES;
+            self.shareImageView.hidden = YES;
+            self.shareFileImageView.hidden = NO;
+            self.shareFileTextView.hidden = NO;
+        }
+            break;
+        default:
+            break;
+    }
 }
 
 #pragma mark - NCCommunicationCommon Delegate

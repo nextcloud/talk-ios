@@ -767,12 +767,53 @@ typedef enum NCChatMessageAction {
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
+    shareConfirmationVC.delegate = self;
+    shareConfirmationVC.isModal = YES;
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
     
+    if (controller.documentPickerMode == UIDocumentPickerModeImport) {
+        NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+        __block NSError *error;
+        [coordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
+            NSString *fileName = [url lastPathComponent];
+            NSData *data = [NSData dataWithContentsOfURL:newURL];
+            [self presentViewController:navigationController animated:YES completion:^{
+                shareConfirmationVC.type = ShareConfirmationTypeFile;
+                shareConfirmationVC.sharedFileName = fileName;
+                shareConfirmationVC.sharedFile = data;
+            }];
+        }];
+    }
 }
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
+    shareConfirmationVC.delegate = self;
+    shareConfirmationVC.isModal = YES;
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
     
+    // Just grab the first item for now
+    NSURL *url = urls.firstObject;
+    
+    if (controller.documentPickerMode == UIDocumentPickerModeImport) {
+        NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+        __block NSError *error;
+        [coordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
+            NSString *fileName = [url lastPathComponent];
+            NSData *data = [NSData dataWithContentsOfURL:newURL];
+            [self presentViewController:navigationController animated:YES completion:^{
+                shareConfirmationVC.type = ShareConfirmationTypeFile;
+                shareConfirmationVC.sharedFileName = fileName;
+                shareConfirmationVC.sharedFile = data;
+            }];
+        }];
+    }
 }
 
 - (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller
