@@ -49,7 +49,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionDelete
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, ShareConfirmationViewControllerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -684,14 +684,24 @@ typedef enum NCChatMessageAction {
                                                                handler:^void (UIAlertAction *action) {
         [self presentPhotoLibrary];
     }];
+    [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    
+    UIAlertAction *filesAction = [UIAlertAction actionWithTitle:@"Files"
+                                                          style:UIAlertActionStyleDefault
+                                                        handler:^void (UIAlertAction *action) {
+        [self presentDocumentPicker];
+    }];
+    [filesAction setValue:[[UIImage imageNamed:@"files"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         
-    UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:@"Share from Files"
+    UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:@"Nextcloud Files"
                                                      style:UIAlertActionStyleDefault
                                                    handler:^void (UIAlertAction *action) {
         [self presentNextcloudFilesBrowser];
     }];
+    [ncFilesAction setValue:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     
     [optionsActionSheet addAction:photoLibraryAction];
+    [optionsActionSheet addAction:filesAction];
     [optionsActionSheet addAction:ncFilesAction];
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
@@ -715,6 +725,13 @@ typedef enum NCChatMessageAction {
     _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     _imagePicker.delegate = self;
     [self presentViewController:_imagePicker animated:YES completion:nil];
+}
+
+- (void)presentDocumentPicker
+{
+    UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"public.item"] inMode:UIDocumentPickerModeImport];
+    documentPicker.delegate = self;
+    [self presentViewController:documentPicker animated:YES completion:nil];
 }
 
 #pragma mark - UIImagePickerController Delegate
@@ -744,6 +761,64 @@ typedef enum NCChatMessageAction {
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - UIImagePickerController Delegate
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
+    shareConfirmationVC.delegate = self;
+    shareConfirmationVC.isModal = YES;
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
+    
+    if (controller.documentPickerMode == UIDocumentPickerModeImport) {
+        NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+        __block NSError *error;
+        [coordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
+            NSString *fileName = [url lastPathComponent];
+            NSData *data = [NSData dataWithContentsOfURL:newURL];
+            [self presentViewController:navigationController animated:YES completion:^{
+                shareConfirmationVC.type = ShareConfirmationTypeFile;
+                shareConfirmationVC.sharedFileName = fileName;
+                shareConfirmationVC.sharedFile = data;
+            }];
+        }];
+    }
+}
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
+    shareConfirmationVC.delegate = self;
+    shareConfirmationVC.isModal = YES;
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
+    
+    // Just grab the first item for now
+    NSURL *url = urls.firstObject;
+    
+    if (controller.documentPickerMode == UIDocumentPickerModeImport) {
+        NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+        __block NSError *error;
+        [coordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
+            NSString *fileName = [url lastPathComponent];
+            NSData *data = [NSData dataWithContentsOfURL:newURL];
+            [self presentViewController:navigationController animated:YES completion:^{
+                shareConfirmationVC.type = ShareConfirmationTypeFile;
+                shareConfirmationVC.sharedFileName = fileName;
+                shareConfirmationVC.sharedFile = data;
+            }];
+        }];
+    }
+}
+
+- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller
+{
+    
 }
 
 #pragma mark - ShareConfirmationViewController Delegate
