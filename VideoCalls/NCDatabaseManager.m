@@ -230,7 +230,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 5;
     NSDictionary *version = [serverCapabilities objectForKey:@"version"];
     NSDictionary *themingCaps = [serverCaps objectForKey:@"theming"];
     NSDictionary *talkCaps = [serverCaps objectForKey:@"spreed"];
-    NSDictionary *notificationsCaps = [serverCaps objectForKey:@"notifications"];
+    NSDictionary *userStatusCaps = [serverCaps objectForKey:@"user_status"];
     
     ServerCapabilities *capabilities = [[ServerCapabilities alloc] init];
     capabilities.accountId = accountId;
@@ -249,6 +249,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 5;
     capabilities.versionMinor = [[version objectForKey:@"minor"] integerValue];
     capabilities.versionMicro = [[version objectForKey:@"micro"] integerValue];
     capabilities.edition = [version objectForKey:@"edition"];
+    capabilities.userStatus = [[userStatusCaps objectForKey:@"enabled"] boolValue];
     capabilities.webDAVRoot = [[serverCaps objectForKey:@"core"] objectForKey:@"webdav-root"];
     capabilities.extendedSupport = [[version objectForKey:@"extendedSupport"] boolValue];
     capabilities.talkCapabilities = [talkCaps objectForKey:@"features"];
@@ -260,9 +261,6 @@ uint64_t const kTalkDatabaseSchemaVersion   = 5;
     }
     capabilities.attachmentsAllowed = [[[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
     capabilities.attachmentsFolder = [[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
-    
-    NSArray *notificationsOCSEndpoints = [notificationsCaps objectForKey:@"ocs-endpoints"];
-    capabilities.userStatus = [notificationsOCSEndpoints containsObject:@"user-status"];
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
