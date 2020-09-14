@@ -55,6 +55,9 @@ typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
 
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
 
+typedef void (^GetUserStatusCompletionBlock)(NSDictionary *userStatus, NSError *error);
+typedef void (^SetUserStatusCompletionBlock)(NSError *error);
+
 typedef void (^GetServerCapabilitiesCompletionBlock)(NSDictionary *serverCapabilities, NSError *error);
 typedef void (^GetServerNotificationCompletionBlock)(NSDictionary *notification, NSError *error, NSInteger statusCode);
 
@@ -139,6 +142,10 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (void)saveProfileImageForAccount:(TalkAccount *)account;
 - (UIImage *)userProfileImageForAccount:(TalkAccount *)account withSize:(CGSize)size;
 - (void)removeProfileImageForAccount:(TalkAccount *)account;
+
+// User Status
+- (NSURLSessionDataTask *)getUserStatusForAccount:(TalkAccount *)account withCompletionBlock:(GetUserStatusCompletionBlock)block;
+- (NSURLSessionDataTask *)setUserStatus:(NSString *)status forAccount:(TalkAccount *)account withCompletionBlock:(SetUserStatusCompletionBlock)block;
 
 // Server capabilities
 - (NSURLSessionDataTask *)getServerCapabilitiesForServer:(NSString *)server withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;
