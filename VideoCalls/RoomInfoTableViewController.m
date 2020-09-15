@@ -1306,6 +1306,8 @@ typedef enum ModificationError {
             
             cell.layoutMargins = UIEdgeInsetsMake(0, 72, 0, 0);
             
+            [cell setUserStatus:participant.status];
+            
             return cell;
         }
             break;
