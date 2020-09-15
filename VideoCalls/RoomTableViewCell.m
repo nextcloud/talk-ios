@@ -102,4 +102,25 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     }
 }
 
+- (void)setUserStatus:(NSString *)userStatus
+{
+    UIImage *statusImage = nil;
+    if ([userStatus isEqualToString:@"online"]) {
+        statusImage = [UIImage imageNamed:@"user-status-online"];
+    } else if ([userStatus isEqualToString:@"away"]) {
+        statusImage = [UIImage imageNamed:@"user-status-away"];
+    } else if ([userStatus isEqualToString:@"dnd"]) {
+        statusImage = [UIImage imageNamed:@"user-status-dnd"];
+    }
+    
+    if (statusImage) {
+        [_userStatusImageView setImage:statusImage];
+        _userStatusImageView.contentMode = UIViewContentModeCenter;
+        _userStatusImageView.layer.cornerRadius = 10;
+        _userStatusImageView.clipsToBounds = YES;
+        // TODO: Change it when dark mode is implemented
+        _userStatusImageView.backgroundColor = [UIColor whiteColor];
+    }
+}
+
 @end
