@@ -43,6 +43,11 @@
     _statusView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.contentView addSubview:_statusView];
     
+    _userStatusImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 12, 12)];
+    _userStatusImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    _userStatusImageView.userInteractionEnabled = NO;
+    [self.contentView addSubview:_userStatusImageView];
+    
     [self.contentView addSubview:self.titleLabel];
     [self.contentView addSubview:self.dateLabel];
     [self.contentView addSubview:self.bodyTextView];
@@ -53,6 +58,7 @@
     }
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
+                            @"userStatusImageView": self.userStatusImageView,
                             @"statusView": self.statusView,
                             @"titleLabel": self.titleLabel,
                             @"dateLabel": self.dateLabel,
@@ -88,6 +94,8 @@
     } else {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[titleLabel]|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-32-[userStatusImageView(12)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-32-[userStatusImageView(12)]-(>=0)-|" options:0 metrics:metrics views:views]];
     }
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
@@ -111,6 +119,9 @@
     
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
+    
+    self.userStatusImageView.image = nil;
+    self.userStatusImageView.backgroundColor = [UIColor clearColor];
     
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
@@ -206,6 +217,27 @@
         UIImageView *errorView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
         [errorView setImage:[UIImage imageNamed:@"error"]];
         [self.statusView addSubview:errorView];
+    }
+}
+
+- (void)setUserStatus:(NSString *)userStatus
+{
+    UIImage *statusImage = nil;
+    if ([userStatus isEqualToString:@"online"]) {
+        statusImage = [UIImage imageNamed:@"user-status-online-10"];
+    } else if ([userStatus isEqualToString:@"away"]) {
+        statusImage = [UIImage imageNamed:@"user-status-away-10"];
+    } else if ([userStatus isEqualToString:@"dnd"]) {
+        statusImage = [UIImage imageNamed:@"user-status-dnd-10"];
+    }
+    
+    if (statusImage) {
+        [_userStatusImageView setImage:statusImage];
+        _userStatusImageView.contentMode = UIViewContentModeCenter;
+        _userStatusImageView.layer.cornerRadius = 6;
+        _userStatusImageView.clipsToBounds = YES;
+        // TODO: Change it when dark mode is implemented
+        _userStatusImageView.backgroundColor = [UIColor whiteColor];
     }
 }
 
