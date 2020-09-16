@@ -70,6 +70,9 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     self.subtitleLabel.text = @"";
     self.dateLabel.text = @"";
     
+    self.userStatusImageView.image = nil;
+    self.userStatusImageView.backgroundColor = [UIColor clearColor];
+    
     _unreadMessagesBadge = nil;
     for (UIView *subview in [self.unreadMessagesView subviews]) {
         [subview removeFromSuperview];

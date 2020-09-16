@@ -39,6 +39,9 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
     [self.contactImage cancelImageDownloadTask];
     self.contactImage.image = nil;
     
+    self.userStatusImageView.image = nil;
+    self.userStatusImageView.backgroundColor = [UIColor clearColor];
+    
     self.labelTitle.text = @"";
     self.labelTitle.textColor = [UIColor darkTextColor];
     self.labelTitle.font = [UIFont systemFontOfSize:kContactsTableCellTitleFontSize weight:UIFontWeightRegular];

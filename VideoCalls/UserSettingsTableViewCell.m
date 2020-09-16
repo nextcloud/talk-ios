@@ -25,6 +25,14 @@ NSString *const kUserSettingsTableCellNibName = @"UserSettingsTableViewCell";
     // Configure the view for the selected state
 }
 
+- (void)prepareForReuse
+{
+    [super prepareForReuse];
+    
+    self.userStatusImageView.image = nil;
+    self.userStatusImageView.backgroundColor = [UIColor clearColor];
+}
+
 - (void)setUserStatus:(NSString *)userStatus
 {
     UIImage *statusImage = nil;
