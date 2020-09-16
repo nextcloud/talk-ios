@@ -1676,8 +1676,10 @@ typedef enum NCChatMessageAction {
         NSString *suggestionId = [suggestion objectForKey:@"id"];
         NSString *suggestionName = [suggestion objectForKey:@"label"];
         NSString *suggestionSource = [suggestion objectForKey:@"source"];
+        NSString *suggestionUserStatus = [suggestion objectForKey:@"status"];
         ChatMessageTableViewCell *suggestionCell = (ChatMessageTableViewCell *)[self.autoCompletionView dequeueReusableCellWithIdentifier:AutoCompletionCellIdentifier];
         suggestionCell.titleLabel.text = suggestionName;
+        [suggestionCell setUserStatus:suggestionUserStatus];
         if ([suggestionId isEqualToString:@"all"]) {
             [suggestionCell.avatarView setImage:[UIImage imageNamed:@"group-bg"]];
         } else if ([suggestionSource isEqualToString:@"guests"]) {

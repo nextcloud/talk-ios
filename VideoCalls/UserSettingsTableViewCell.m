@@ -25,4 +25,33 @@ NSString *const kUserSettingsTableCellNibName = @"UserSettingsTableViewCell";
     // Configure the view for the selected state
 }
 
+- (void)prepareForReuse
+{
+    [super prepareForReuse];
+    
+    self.userStatusImageView.image = nil;
+    self.userStatusImageView.backgroundColor = [UIColor clearColor];
+}
+
+- (void)setUserStatus:(NSString *)userStatus
+{
+    UIImage *statusImage = nil;
+    if ([userStatus isEqualToString:@"online"]) {
+        statusImage = [UIImage imageNamed:@"user-status-online-24"];
+    } else if ([userStatus isEqualToString:@"away"]) {
+        statusImage = [UIImage imageNamed:@"user-status-away-24"];
+    } else if ([userStatus isEqualToString:@"dnd"]) {
+        statusImage = [UIImage imageNamed:@"user-status-dnd-24"];
+    }
+    
+    if (statusImage) {
+        [_userStatusImageView setImage:statusImage];
+        _userStatusImageView.contentMode = UIViewContentModeCenter;
+        _userStatusImageView.layer.cornerRadius = 16;
+        _userStatusImageView.clipsToBounds = YES;
+        // TODO: Change it when dark mode is implemented
+        _userStatusImageView.backgroundColor = [UIColor whiteColor];
+    }
+}
+
 @end

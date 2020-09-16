@@ -27,11 +27,13 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 @property (nonatomic, strong) UIImageView *avatarView;
 @property (nonatomic, strong) UIView *statusView;
+@property (nonatomic, strong) UIImageView *userStatusImageView;
 
 + (CGFloat)defaultFontSize;
 - (void)setGuestAvatar:(NSString *)displayName;
 - (void)setBotAvatar;
 - (void)setChangelogAvatar;
 - (void)setDeliveryState:(ChatMessageDeliveryState)state;
+- (void)setUserStatus:(NSString *)userStatus;
 
 @end

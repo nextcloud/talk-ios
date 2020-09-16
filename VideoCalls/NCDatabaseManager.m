@@ -14,7 +14,7 @@
 
 NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName       = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion   = 4;
+uint64_t const kTalkDatabaseSchemaVersion   = 5;
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
@@ -230,6 +230,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 4;
     NSDictionary *version = [serverCapabilities objectForKey:@"version"];
     NSDictionary *themingCaps = [serverCaps objectForKey:@"theming"];
     NSDictionary *talkCaps = [serverCaps objectForKey:@"spreed"];
+    NSDictionary *userStatusCaps = [serverCaps objectForKey:@"user_status"];
     
     ServerCapabilities *capabilities = [[ServerCapabilities alloc] init];
     capabilities.accountId = accountId;
@@ -248,6 +249,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 4;
     capabilities.versionMinor = [[version objectForKey:@"minor"] integerValue];
     capabilities.versionMicro = [[version objectForKey:@"micro"] integerValue];
     capabilities.edition = [version objectForKey:@"edition"];
+    capabilities.userStatus = [[userStatusCaps objectForKey:@"enabled"] boolValue];
     capabilities.webDAVRoot = [[serverCaps objectForKey:@"core"] objectForKey:@"webdav-root"];
     capabilities.extendedSupport = [[version objectForKey:@"extendedSupport"] boolValue];
     capabilities.talkCapabilities = [talkCaps objectForKey:@"features"];

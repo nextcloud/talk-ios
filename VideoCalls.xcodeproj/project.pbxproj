@@ -175,6 +175,9 @@
 		2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
 		2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
 		2C738158210613A200CDB8DB /* NCChatTitleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C738157210613A200CDB8DB /* NCChatTitleView.xib */; };
+		2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
+		2C78E9E42512136000E3D4CA /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
+		2C78E9E52512136100E3D4CA /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
 		2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF941F7E70EB008AFA74 /* NCPeerConnection.m */; };
 		2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF981F80F81E008AFA74 /* NCSignalingController.m */; };
 		2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF9B1F826B22008AFA74 /* NCCallController.m */; };
@@ -530,6 +533,8 @@
 		2C7381542106136000CDB8DB /* NCChatTitleView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatTitleView.h; sourceTree = "<group>"; };
 		2C7381552106136000CDB8DB /* NCChatTitleView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatTitleView.m; sourceTree = "<group>"; };
 		2C738157210613A200CDB8DB /* NCChatTitleView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NCChatTitleView.xib; sourceTree = "<group>"; };
+		2C78E9E125120DE500E3D4CA /* NCUserStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCUserStatus.h; sourceTree = "<group>"; };
+		2C78E9E225120DE500E3D4CA /* NCUserStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCUserStatus.m; sourceTree = "<group>"; };
 		2C78EF931F7E70EB008AFA74 /* NCPeerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCPeerConnection.h; sourceTree = "<group>"; };
 		2C78EF941F7E70EB008AFA74 /* NCPeerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCPeerConnection.m; sourceTree = "<group>"; };
 		2C78EF971F80F81E008AFA74 /* NCSignalingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSignalingController.h; sourceTree = "<group>"; };
@@ -1114,6 +1119,8 @@
 				2C063317205ACB140043481A /* VideoResolutionsViewController.m */,
 				2C063311205A85850043481A /* VideoSettingsViewController.h */,
 				2C063312205A85850043481A /* VideoSettingsViewController.m */,
+				2C78E9E125120DE500E3D4CA /* NCUserStatus.h */,
+				2C78E9E225120DE500E3D4CA /* NCUserStatus.m */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -1963,6 +1970,7 @@
 				2C961E122216BF4B00F5C23F /* OCNotifications.m in Sources */,
 				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
 				2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */,
+				2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
 				2C961E132216BF4B00F5C23F /* OCNotificationsAction.m in Sources */,
 				2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */,
@@ -2087,6 +2095,7 @@
 				2C62B00324C1BDB5007E460A /* DirectoryTableViewCell.m in Sources */,
 				2C62AFFC24C1BDA5007E460A /* NCChatViewController.m in Sources */,
 				2C62B00E24C1BDC1007E460A /* NCNotificationController.m in Sources */,
+				2C78E9E52512136100E3D4CA /* NCUserStatus.m in Sources */,
 				2C62B00D24C1BDC1007E460A /* NCPushNotification.m in Sources */,
 				2C62AFCD24C1BD78007E460A /* OCNotifications.m in Sources */,
 				2C62B01C24C1BDC9007E460A /* CCCertificate.m in Sources */,
@@ -2236,6 +2245,7 @@
 				2CC0019724A37A7400A20167 /* NSString+Encode.m in Sources */,
 				2CC001E224A37AD400A20167 /* VideoSettingsViewController.m in Sources */,
 				2CC001AA24A37A8F00A20167 /* ChatMessageTableViewCell.m in Sources */,
+				2C78E9E42512136000E3D4CA /* NCUserStatus.m in Sources */,
 				2CC001BA24A37A9A00A20167 /* ResultMultiSelectionTableViewController.m in Sources */,
 				2CC001B824A37A9A00A20167 /* SearchTableViewController.m in Sources */,
 				2CC001D324A37ACA00A20167 /* RoomCreation2TableViewController.m in Sources */,

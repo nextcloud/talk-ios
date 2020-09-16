@@ -21,9 +21,11 @@ extern CGFloat const kRoomTableCellHeight;
 @property (nonatomic, weak) IBOutlet UIView *unreadMessagesView;
 @property (nonatomic, weak) IBOutlet UILabel *dateLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *favoriteImage;
+@property (weak, nonatomic) IBOutlet UIImageView *userStatusImageView;
 
 @property (nonatomic, assign) BOOL titleOnly;
 
 - (void)setUnreadMessages:(NSInteger)number mentioned:(BOOL)mentioned;
+- (void)setUserStatus:(NSString *)userStatus;
 
 @end

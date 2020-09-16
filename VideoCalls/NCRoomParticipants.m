@@ -23,6 +23,7 @@
     participant.participantType = (NCParticipantType)[[participantDict objectForKey:@"participantType"] integerValue];
     participant.sessionId = [participantDict objectForKey:@"sessionId"];
     participant.userId = [participantDict objectForKey:@"userId"];
+    participant.status = [participantDict objectForKey:@"status"];
     
     id displayName = [participantDict objectForKey:@"displayName"];
     if ([displayName isKindOfClass:[NSString class]]) {
