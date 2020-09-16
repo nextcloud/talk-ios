@@ -41,7 +41,7 @@ NSString * const kUserStatusOffline     = @"offline";
     return userStatus;
 }
 
-- (NSString *)readableUserStatusFromUserStatus:(NSString *)userStatus
++ (NSString *)readableUserStatusFromUserStatus:(NSString *)userStatus
 {
     NSString *readableUserStatus = nil;
     
@@ -58,6 +58,34 @@ NSString * const kUserStatusOffline     = @"offline";
     }
     
     return readableUserStatus;
+}
+
++ (NSString *)userStatusImageNameForStatus:(NSString *)userStatus ofSize:(NSInteger)size
+{
+    NSString *userStatusImageName = nil;
+    NSString *sizeString = size ? [NSString stringWithFormat:@"-%ld", (long)size] : @"";
+    
+    if ([userStatus isEqualToString:kUserStatusOnline]) {
+        userStatusImageName = [NSString stringWithFormat:@"user-status-online%@", sizeString];
+    } else if ([userStatus isEqualToString:kUserStatusAway]) {
+        userStatusImageName = [NSString stringWithFormat:@"user-status-away%@", sizeString];
+    } else if ([userStatus isEqualToString:kUserStatusDND]) {
+        userStatusImageName = [NSString stringWithFormat:@"user-status-dnd%@", sizeString];
+    } else if ([userStatus isEqualToString:kUserStatusInvisible]) {
+        userStatusImageName = [NSString stringWithFormat:@"user-status-invisible%@", sizeString];
+    }
+    
+    return userStatusImageName;
+}
+
+- (NSString *)readableUserStatus
+{
+    return [NCUserStatus readableUserStatusFromUserStatus:_status];
+}
+
+- (NSString *)userStatusImageNameOfSize:(NSInteger)size
+{
+    return [NCUserStatus userStatusImageNameForStatus:_status ofSize:size];
 }
 
 @end

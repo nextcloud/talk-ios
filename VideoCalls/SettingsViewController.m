@@ -16,6 +16,7 @@
 #import "UserSettingsTableViewCell.h"
 #import "NCAPIController.h"
 #import "NCUserInterfaceController.h"
+#import "NCUserStatus.h"
 #import "NCConnectionController.h"
 #import "OpenInFirefoxControllerObjC.h"
 #import "UIImageView+AFNetworking.h"
@@ -52,7 +53,7 @@ typedef enum AboutSection {
 
 @interface SettingsViewController ()
 {
-    NSDictionary *_activeUserStatus;
+    NCUserStatus *_activeUserStatus;
 }
 
 @end
@@ -147,10 +148,15 @@ typedef enum AboutSection {
         [self.tableView reloadData];
     }];
     
+    [self getActiveUserStatus];
+}
+
+- (void)getActiveUserStatus
+{
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getUserStatusForAccount:activeAccount withCompletionBlock:^(NSDictionary *userStatus, NSError *error) {
         if (!error && userStatus) {
-            self->_activeUserStatus = userStatus;
+            self->_activeUserStatus = [NCUserStatus userStatusWithDictionary:userStatus];
             [self.tableView reloadData];
         }
     }];
@@ -192,6 +198,18 @@ typedef enum AboutSection {
     NSString *actionTitle = (multiAccountEnabled) ? @"Remove account" : @"Log out";
     UIImage *actionImage = (multiAccountEnabled) ? [UIImage imageNamed:@"delete-action"] : [UIImage imageNamed:@"logout"];
     
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    if (serverCapabilities.userStatus && _activeUserStatus) {
+        UIAlertAction *userStatusAction = [UIAlertAction actionWithTitle:[_activeUserStatus readableUserStatus]
+                                           style:UIAlertActionStyleDefault
+                                           handler:^void (UIAlertAction *action) {
+                                                [self presentUserStatusOptions];
+                                            }];
+        [userStatusAction setValue:[[UIImage imageNamed:[_activeUserStatus userStatusImageNameOfSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [optionsActionSheet addAction:userStatusAction];
+    }
+    
     UIAlertAction *logOutAction = [UIAlertAction actionWithTitle:actionTitle
                                                      style:UIAlertActionStyleDestructive
                                                    handler:^void (UIAlertAction *action) {
@@ -207,6 +225,66 @@ typedef enum AboutSection {
     
     [self presentViewController:optionsActionSheet animated:YES completion:^{
         [self.tableView deselectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser] animated:YES];
+    }];
+}
+
+- (void)presentUserStatusOptions
+{
+    UIAlertController *userStatusActionSheet =
+    [UIAlertController alertControllerWithTitle:nil
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *onlineAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusOnline]
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:^void (UIAlertAction *action) {
+                                                        [self setActiveUserStatus:kUserStatusOnline];
+                                                   }];
+    [onlineAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusOnline ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [userStatusActionSheet addAction:onlineAction];
+    
+    UIAlertAction *awayAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusAway]
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^void (UIAlertAction *action) {
+                                                            [self setActiveUserStatus:kUserStatusAway];
+                                                        }];
+    [awayAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusAway ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [userStatusActionSheet addAction:awayAction];
+    
+    UIAlertAction *dndAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusDND]
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:^void (UIAlertAction *action) {
+                                                        [self setActiveUserStatus:kUserStatusDND];
+                                                      }];
+    [dndAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusDND ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [userStatusActionSheet addAction:dndAction];
+    
+    UIAlertAction *invisibleAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusInvisible]
+                                                              style:UIAlertActionStyleDefault
+                                                            handler:^void (UIAlertAction *action) {
+                                                                [self setActiveUserStatus:kUserStatusInvisible];
+                                                            }];
+    [invisibleAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusInvisible ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [userStatusActionSheet addAction:invisibleAction];
+    
+    
+    
+    [userStatusActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    userStatusActionSheet.popoverPresentationController.sourceView = self.tableView;
+    userStatusActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser]];
+    
+    [self presentViewController:userStatusActionSheet animated:YES completion:^{
+        [self.tableView deselectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser] animated:YES];
+    }];
+}
+
+- (void)setActiveUserStatus:(NSString *)userStatus
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] setUserStatus:userStatus forAccount:activeAccount withCompletionBlock:^(NSError *error) {
+        [self getActiveUserStatus];
     }];
 }
 
@@ -411,7 +489,7 @@ typedef enum AboutSection {
             NSString *accountServer = [activeAccount.server stringByReplacingOccurrencesOfString:[[NSURL URLWithString:activeAccount.server] scheme] withString:@""];
             cell.serverAddressLabel.text = [accountServer stringByReplacingOccurrencesOfString:@"://" withString:@""];
             [cell.userImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withSize:CGSizeMake(160, 160)]];
-            [cell setUserStatus:[_activeUserStatus objectForKey:@"status"]];
+            [cell setUserStatus:_activeUserStatus.status];
             return cell;
         }
             break;

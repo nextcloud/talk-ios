@@ -28,6 +28,10 @@ extern NSString * const kUserStatusOffline;
 @property (nonatomic, assign) NSInteger clearAt;
 
 + (instancetype)userStatusWithDictionary:(NSDictionary *)userStatusDict;
++ (NSString *)readableUserStatusFromUserStatus:(NSString *)userStatus;
++ (NSString *)userStatusImageNameForStatus:(NSString *)userStatus ofSize:(NSInteger)size;
+- (NSString *)readableUserStatus;
+- (NSString *)userStatusImageNameOfSize:(NSInteger)size;
 
 @end
 
