@@ -721,10 +721,33 @@ typedef enum NCChatMessageAction {
 
 - (void)presentPhotoLibrary
 {
-    _imagePicker = [[UIImagePickerController alloc] init];
-    _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    _imagePicker.delegate = self;
-    [self presentViewController:_imagePicker animated:YES completion:nil];
+    if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized) {
+        _imagePicker = [[UIImagePickerController alloc] init];
+        _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        _imagePicker.delegate = self;
+        [self presentViewController:_imagePicker animated:YES completion:nil];
+    } else {
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            if (status != PHAuthorizationStatusAuthorized) {
+                NSString *accessDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
+                UIAlertController * alertController = [UIAlertController alertControllerWithTitle:@"Photo Library access not authorized"
+                                                                                          message:accessDescription
+                                                                                   preferredStyle:UIAlertControllerStyleAlert];
+                
+                UIAlertAction *settingsAction = [UIAlertAction actionWithTitle:@"Change settings"
+                                                                         style:UIAlertActionStyleDefault
+                                                                       handler:^(UIAlertAction * _Nonnull action) {
+                    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
+                }];
+                [alertController addAction:settingsAction];
+                
+                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+                [alertController addAction:cancelAction];
+                
+                [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
+            }
+        }];
+    }
 }
 
 - (void)presentDocumentPicker
