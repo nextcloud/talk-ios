@@ -34,7 +34,6 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.unreadMessages = [[roomDict objectForKey:@"unreadMessages"] integerValue];
     room.unreadMention = [[roomDict objectForKey:@"unreadMention"] boolValue];
     room.guestList = [roomDict objectForKey:@"guestList"];
-    room.participants = (RLMArray<RLMString> *)[[roomDict objectForKey:@"participants"] allKeys];
     room.lastActivity = [[roomDict objectForKey:@"lastActivity"] integerValue];
     room.isFavorite = [[roomDict objectForKey:@"isFavorite"] boolValue];
     room.notificationLevel = (NCRoomNotificationLevel)[[roomDict objectForKey:@"notificationLevel"] integerValue];
@@ -59,6 +58,11 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
         room.displayName = displayName;
     } else {
         room.displayName = [displayName stringValue];
+    }
+    
+    id participants = [roomDict objectForKey:@"participants"];
+    if ([participants isKindOfClass:[NSDictionary class]]) {
+        room.participants = (RLMArray<RLMString> *)[participants allKeys];
     }
     
     return room;
