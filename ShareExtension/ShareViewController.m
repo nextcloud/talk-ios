@@ -197,10 +197,9 @@
                                           if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
                                               NSLog(@"Shared Image = %@", item);
                                               NSURL *imageURL = (NSURL *)item;
-                                              NSString *imageName = imageURL.lastPathComponent;
                                               UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageURL]];
                                               shareConfirmationVC.type = ShareConfirmationTypeImage;
-                                              shareConfirmationVC.sharedImageName = imageName;
+                                              shareConfirmationVC.sharedImageName = [NSString stringWithFormat:@"IMG_%.f.png", [[NSDate date] timeIntervalSince1970] * 1000];
                                               shareConfirmationVC.sharedImage = image;
                                           }
                                       }];

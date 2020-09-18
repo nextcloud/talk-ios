@@ -8,8 +8,6 @@
 
 #import "NCChatViewController.h"
 
-#import <Photos/Photos.h>
-
 #import "AFImageDownloader.h"
 #import "CallKitManager.h"
 #import "ChatMessageTableViewCell.h"
@@ -721,33 +719,10 @@ typedef enum NCChatMessageAction {
 
 - (void)presentPhotoLibrary
 {
-    if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized) {
-        _imagePicker = [[UIImagePickerController alloc] init];
-        _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-        _imagePicker.delegate = self;
-        [self presentViewController:_imagePicker animated:YES completion:nil];
-    } else {
-        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-            if (status != PHAuthorizationStatusAuthorized) {
-                NSString *accessDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
-                UIAlertController * alertController = [UIAlertController alertControllerWithTitle:@"Photo Library access not authorized"
-                                                                                          message:accessDescription
-                                                                                   preferredStyle:UIAlertControllerStyleAlert];
-                
-                UIAlertAction *settingsAction = [UIAlertAction actionWithTitle:@"Change settings"
-                                                                         style:UIAlertActionStyleDefault
-                                                                       handler:^(UIAlertAction * _Nonnull action) {
-                    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
-                }];
-                [alertController addAction:settingsAction];
-                
-                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
-                [alertController addAction:cancelAction];
-                
-                [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
-            }
-        }];
-    }
+    _imagePicker = [[UIImagePickerController alloc] init];
+    _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    _imagePicker.delegate = self;
+    [self presentViewController:_imagePicker animated:YES completion:nil];
 }
 
 - (void)presentDocumentPicker
@@ -767,15 +742,13 @@ typedef enum NCChatMessageAction {
     shareConfirmationVC.delegate = self;
     shareConfirmationVC.isModal = YES;
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
-    UIImage *originalImage = [info objectForKey:UIImagePickerControllerOriginalImage];
-    NSURL *imageReferenceURL = [info objectForKey:UIImagePickerControllerReferenceURL];
-    PHFetchResult *result = [PHAsset fetchAssetsWithALAssetURLs:@[imageReferenceURL] options:nil];
-    NSString *imageName = [[result firstObject] filename];
+    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    NSString *imageName = [NSString stringWithFormat:@"IMG_%.f.png", [[NSDate date] timeIntervalSince1970] * 1000];
     
     [self dismissViewControllerAnimated:YES completion:^{
         [self presentViewController:navigationController animated:YES completion:^{
             shareConfirmationVC.type = ShareConfirmationTypeImage;
-            shareConfirmationVC.sharedImage = originalImage;
+            shareConfirmationVC.sharedImage = image;
             shareConfirmationVC.sharedImageName = imageName;
         }];
     }];
@@ -786,7 +759,7 @@ typedef enum NCChatMessageAction {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-#pragma mark - UIImagePickerController Delegate
+#pragma mark - UIDocumentPickerViewController Delegate
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url
 {
