@@ -111,8 +111,11 @@
     _sharedText = sharedText;
     
     self.type = ShareConfirmationTypeText;
-    self.shareTextView.text = _sharedText;
-    self.shareTextView.editable = NO;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.shareTextView.text = self->_sharedText;
+        self.shareTextView.editable = NO;
+    });
 }
 
 - (void)setSharedImage:(UIImage *)sharedImage
@@ -129,15 +132,19 @@
 {
     _sharedFileName = sharedFileName;
     
-    self.shareFileTextView.text = _sharedFileName;
-    self.shareFileTextView.editable = NO;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.shareFileTextView.text = self->_sharedFileName;
+        self.shareFileTextView.editable = NO;
+    });
 }
 
 - (void)setSharedFile:(NSData *)sharedFile
 {
     _sharedFile = sharedFile;
     
-    [self.shareFileImageView setImage:[UIImage imageNamed:@"file"]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.shareFileImageView setImage:[UIImage imageNamed:@"file"]];
+    });
 }
 
 - (void)setType:(ShareConfirmationType)type
@@ -241,46 +248,52 @@
 
 - (void)startAnimatingSharingIndicator
 {
-    [_sharingIndicatorView startAnimating];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_sharingIndicatorView];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_sharingIndicatorView startAnimating];
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self->_sharingIndicatorView];
+    });
 }
 
 - (void)stopAnimatingSharingIndicator
 {
-    [_sharingIndicatorView stopAnimating];
-    self.navigationItem.rightBarButtonItem = _sendButton;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_sharingIndicatorView stopAnimating];
+        self.navigationItem.rightBarButtonItem = self->_sendButton;
+    });
 }
 
 - (void)setUIForShareType:(ShareConfirmationType)shareConfirmationType
 {
-    switch (shareConfirmationType) {
-        case ShareConfirmationTypeText:
-        {
-            self.shareTextView.hidden = NO;
-            self.shareImageView.hidden = YES;
-            self.shareFileImageView.hidden = YES;
-            self.shareFileTextView.hidden = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        switch (shareConfirmationType) {
+            case ShareConfirmationTypeText:
+            {
+                self.shareTextView.hidden = NO;
+                self.shareImageView.hidden = YES;
+                self.shareFileImageView.hidden = YES;
+                self.shareFileTextView.hidden = YES;
+            }
+                break;
+            case ShareConfirmationTypeImage:
+            {
+                self.shareTextView.hidden = YES;
+                self.shareImageView.hidden = NO;
+                self.shareFileImageView.hidden = YES;
+                self.shareFileTextView.hidden = YES;
+            }
+                break;
+            case ShareConfirmationTypeFile:
+            {
+                self.shareTextView.hidden = YES;
+                self.shareImageView.hidden = YES;
+                self.shareFileImageView.hidden = NO;
+                self.shareFileTextView.hidden = NO;
+            }
+                break;
+            default:
+                break;
         }
-            break;
-        case ShareConfirmationTypeImage:
-        {
-            self.shareTextView.hidden = YES;
-            self.shareImageView.hidden = NO;
-            self.shareFileImageView.hidden = YES;
-            self.shareFileTextView.hidden = YES;
-        }
-            break;
-        case ShareConfirmationTypeFile:
-        {
-            self.shareTextView.hidden = YES;
-            self.shareImageView.hidden = YES;
-            self.shareFileImageView.hidden = NO;
-            self.shareFileTextView.hidden = NO;
-        }
-            break;
-        default:
-            break;
-    }
+    });
 }
 
 #pragma mark - NCCommunicationCommon Delegate
