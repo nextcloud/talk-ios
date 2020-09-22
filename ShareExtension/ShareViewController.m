@@ -163,6 +163,25 @@
 {
     [self.extensionContext.inputItems enumerateObjectsUsingBlock:^(NSExtensionItem * _Nonnull extItem, NSUInteger idx, BOOL * _Nonnull stop) {
         [extItem.attachments enumerateObjectsUsingBlock:^(NSItemProvider * _Nonnull itemProvider, NSUInteger idx, BOOL * _Nonnull stop) {
+            // Check if shared file
+            if ([itemProvider hasItemConformingToTypeIdentifier:@"public.file-url"]) {
+                [itemProvider loadItemForTypeIdentifier:@"public.file-url"
+                                                options:nil
+                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                                          if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
+                                              NSLog(@"Shared File URL = %@", item);
+                                              NSURL *fileUrl = (NSURL *)item;
+                                              NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+                                              __block NSError *error;
+                                              [coordinator coordinateReadingItemAtURL:fileUrl options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
+                                                  shareConfirmationVC.type = ShareConfirmationTypeFile;
+                                                  shareConfirmationVC.sharedFileName = [fileUrl lastPathComponent];
+                                                  shareConfirmationVC.sharedFile = [NSData dataWithContentsOfURL:newURL];
+                                              }];
+                                          }
+                                      }];
+                return;
+            }
             // Check if shared URL
             if ([itemProvider hasItemConformingToTypeIdentifier:@"public.url"]) {
                 [itemProvider loadItemForTypeIdentifier:@"public.url"
