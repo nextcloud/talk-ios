@@ -721,6 +721,7 @@ typedef enum NCChatMessageAction {
 {
     _imagePicker = [[UIImagePickerController alloc] init];
     _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    _imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:_imagePicker.sourceType];
     _imagePicker.delegate = self;
     [self presentViewController:_imagePicker animated:YES completion:nil];
 }
@@ -742,16 +743,31 @@ typedef enum NCChatMessageAction {
     shareConfirmationVC.delegate = self;
     shareConfirmationVC.isModal = YES;
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
-    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-    NSString *imageName = [NSString stringWithFormat:@"IMG_%.f.png", [[NSDate date] timeIntervalSince1970] * 1000];
-    
-    [self dismissViewControllerAnimated:YES completion:^{
-        [self presentViewController:navigationController animated:YES completion:^{
-            shareConfirmationVC.type = ShareConfirmationTypeImage;
-            shareConfirmationVC.sharedImage = image;
-            shareConfirmationVC.sharedImageName = imageName;
+    NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+    if ([mediaType isEqualToString:@"public.image"]) {
+        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        NSString *imageName = [NSString stringWithFormat:@"IMG_%.f.png", [[NSDate date] timeIntervalSince1970] * 1000];
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self presentViewController:navigationController animated:YES completion:^{
+                shareConfirmationVC.type = ShareConfirmationTypeImage;
+                shareConfirmationVC.sharedImage = image;
+                shareConfirmationVC.sharedImageName = imageName;
+            }];
         }];
-    }];
+    } else if ([mediaType isEqualToString:@"public.movie"]) {
+        NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
+        NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+        __block NSError *error;
+        [coordinator coordinateReadingItemAtURL:videoURL options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
+            [self dismissViewControllerAnimated:YES completion:^{
+                [self presentViewController:navigationController animated:YES completion:^{
+                    shareConfirmationVC.type = ShareConfirmationTypeFile;
+                    shareConfirmationVC.sharedFileName = [NSString stringWithFormat:@"IMG_%.f.%@", [[NSDate date] timeIntervalSince1970] * 1000, [videoURL pathExtension]];
+                    shareConfirmationVC.sharedFile = [NSData dataWithContentsOfURL:newURL];
+                }];
+            }];
+        }];
+    }
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
