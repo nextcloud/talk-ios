@@ -223,6 +223,24 @@
                                           }
                                       }];
             }
+            // Check if shared video
+            if ([itemProvider hasItemConformingToTypeIdentifier:(NSString *)kUTTypeMovie]) {
+                [itemProvider loadItemForTypeIdentifier:(NSString *)kUTTypeMovie
+                                                options:nil
+                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                                          if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
+                                              NSLog(@"Shared Video = %@", item);
+                                              NSURL *videoURL = (NSURL *)item;
+                                              NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+                                              __block NSError *error;
+                                              [coordinator coordinateReadingItemAtURL:videoURL options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
+                                                  shareConfirmationVC.type = ShareConfirmationTypeFile;
+                                                  shareConfirmationVC.sharedFileName = [videoURL lastPathComponent];
+                                                  shareConfirmationVC.sharedFile = [NSData dataWithContentsOfURL:newURL];
+                                              }];
+                                          }
+                                      }];
+            }
         }];
     }];
 }
