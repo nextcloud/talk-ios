@@ -99,7 +99,7 @@
         [self sendSharedText];
     } else if (_type == ShareConfirmationTypeImage) {
         [self sendSharedImage];
-    } else if (_type == ShareConfirmationTypeFile) {
+    } else if ((_type == ShareConfirmationTypeFile) || (_type == ShareConfirmationTypeImageFile)) {
         [self sendSharedFile];
     }
     
@@ -221,6 +221,9 @@
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     hud.mode = MBProgressHUDModeAnnularDeterminate;
     hud.label.text = @"Uploading file";
+    if (_type == ShareConfirmationTypeImageFile) {
+        hud.label.text = @"Uploading image";
+    }
     
     [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:[fileLocalURL path] dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
         hud.progress = progress.fractionCompleted;
@@ -275,6 +278,7 @@
             }
                 break;
             case ShareConfirmationTypeImage:
+            case ShareConfirmationTypeImageFile:
             {
                 self.shareTextView.hidden = YES;
                 self.shareImageView.hidden = NO;

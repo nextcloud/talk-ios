@@ -191,9 +191,10 @@
                                               NSLog(@"Shared Image = %@", item);
                                               NSURL *imageURL = (NSURL *)item;
                                               UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageURL]];
-                                              shareConfirmationVC.type = ShareConfirmationTypeImage;
-                                              shareConfirmationVC.sharedImageName = [NSString stringWithFormat:@"IMG_%.f.png", [[NSDate date] timeIntervalSince1970] * 1000];
+                                              shareConfirmationVC.type = ShareConfirmationTypeImageFile;
                                               shareConfirmationVC.sharedImage = image;
+                                              shareConfirmationVC.sharedFileName = [imageURL lastPathComponent];
+                                              shareConfirmationVC.sharedFile = [NSData dataWithContentsOfURL:imageURL];
                                           }
                                       }];
                 return;
