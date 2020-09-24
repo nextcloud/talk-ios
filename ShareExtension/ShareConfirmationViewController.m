@@ -110,8 +110,6 @@
 {
     _sharedText = sharedText;
     
-    self.type = ShareConfirmationTypeText;
-    
     dispatch_async(dispatch_get_main_queue(), ^{
         self.shareTextView.text = self->_sharedText;
         self.shareTextView.editable = NO;
@@ -122,7 +120,6 @@
 {
     _sharedImage = sharedImage;
     
-    self.type = ShareConfirmationTypeImage;
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.shareImageView setImage:self->_sharedImage];
     });
