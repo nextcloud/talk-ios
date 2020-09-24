@@ -163,6 +163,41 @@
 {
     [self.extensionContext.inputItems enumerateObjectsUsingBlock:^(NSExtensionItem * _Nonnull extItem, NSUInteger idx, BOOL * _Nonnull stop) {
         [extItem.attachments enumerateObjectsUsingBlock:^(NSItemProvider * _Nonnull itemProvider, NSUInteger idx, BOOL * _Nonnull stop) {
+            // Check if shared video
+            if ([itemProvider hasItemConformingToTypeIdentifier:(NSString *)kUTTypeMovie]) {
+                [itemProvider loadItemForTypeIdentifier:(NSString *)kUTTypeMovie
+                                                options:nil
+                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                                          if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
+                                              NSLog(@"Shared Video = %@", item);
+                                              NSURL *videoURL = (NSURL *)item;
+                                              NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+                                              __block NSError *error;
+                                              [coordinator coordinateReadingItemAtURL:videoURL options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
+                                                  shareConfirmationVC.type = ShareConfirmationTypeFile;
+                                                  shareConfirmationVC.sharedFileName = [videoURL lastPathComponent];
+                                                  shareConfirmationVC.sharedFile = [NSData dataWithContentsOfURL:newURL];
+                                              }];
+                                          }
+                                      }];
+                return;
+            }
+            // Check if shared image
+            if ([itemProvider hasItemConformingToTypeIdentifier:(NSString *)kUTTypeImage]) {
+                [itemProvider loadItemForTypeIdentifier:(NSString *)kUTTypeImage
+                                                options:nil
+                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                                          if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
+                                              NSLog(@"Shared Image = %@", item);
+                                              NSURL *imageURL = (NSURL *)item;
+                                              UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageURL]];
+                                              shareConfirmationVC.type = ShareConfirmationTypeImage;
+                                              shareConfirmationVC.sharedImageName = [NSString stringWithFormat:@"IMG_%.f.png", [[NSDate date] timeIntervalSince1970] * 1000];
+                                              shareConfirmationVC.sharedImage = image;
+                                          }
+                                      }];
+                return;
+            }
             // Check if shared file
             if ([itemProvider hasItemConformingToTypeIdentifier:@"public.file-url"]) {
                 [itemProvider loadItemForTypeIdentifier:@"public.file-url"
@@ -205,39 +240,6 @@
                                               NSString *sharedText = (NSString *)item;
                                               shareConfirmationVC.type = ShareConfirmationTypeText;
                                               shareConfirmationVC.sharedText = sharedText;
-                                          }
-                                      }];
-            }
-            // Check if shared image
-            if ([itemProvider hasItemConformingToTypeIdentifier:(NSString *)kUTTypeImage]) {
-                [itemProvider loadItemForTypeIdentifier:(NSString *)kUTTypeImage
-                                                options:nil
-                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
-                                          if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
-                                              NSLog(@"Shared Image = %@", item);
-                                              NSURL *imageURL = (NSURL *)item;
-                                              UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageURL]];
-                                              shareConfirmationVC.type = ShareConfirmationTypeImage;
-                                              shareConfirmationVC.sharedImageName = [NSString stringWithFormat:@"IMG_%.f.png", [[NSDate date] timeIntervalSince1970] * 1000];
-                                              shareConfirmationVC.sharedImage = image;
-                                          }
-                                      }];
-            }
-            // Check if shared video
-            if ([itemProvider hasItemConformingToTypeIdentifier:(NSString *)kUTTypeMovie]) {
-                [itemProvider loadItemForTypeIdentifier:(NSString *)kUTTypeMovie
-                                                options:nil
-                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
-                                          if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
-                                              NSLog(@"Shared Video = %@", item);
-                                              NSURL *videoURL = (NSURL *)item;
-                                              NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
-                                              __block NSError *error;
-                                              [coordinator coordinateReadingItemAtURL:videoURL options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
-                                                  shareConfirmationVC.type = ShareConfirmationTypeFile;
-                                                  shareConfirmationVC.sharedFileName = [videoURL lastPathComponent];
-                                                  shareConfirmationVC.sharedFile = [NSData dataWithContentsOfURL:newURL];
-                                              }];
                                           }
                                       }];
             }
