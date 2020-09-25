@@ -120,7 +120,7 @@
     [self setSharedFileWithFileURL:fileURL andFileName:nil];
 }
 
-- (void)setSharedFileWithFileURL:(NSURL *)fileURL andFileName:(NSString *)fileName
+- (void)setSharedFileWithFileURL:(NSURL *)fileURL andFileName:(NSString *_Nullable)fileName
 {
     _sharedFileURL = fileURL;
     _sharedFileName = fileName ? fileName : [fileURL lastPathComponent];

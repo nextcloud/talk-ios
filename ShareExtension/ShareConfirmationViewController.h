@@ -55,7 +55,7 @@ typedef enum ShareConfirmationType {
 
 - (id)initWithRoom:(NCRoom *)room account:(TalkAccount *)account serverCapabilities:(ServerCapabilities *)serverCapabilities;
 - (void)setSharedFileWithFileURL:(NSURL *)fileURL;
-- (void)setSharedFileWithFileURL:(NSURL *)fileURL andFileName:(NSString *)fileName;
+- (void)setSharedFileWithFileURL:(NSURL *)fileURL andFileName:(NSString *_Nullable)fileName;
 - (void)setSharedImage:(UIImage *)image withImageName:(NSString *)imageName;
 
 @end
