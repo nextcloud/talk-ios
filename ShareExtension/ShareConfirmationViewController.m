@@ -87,6 +87,8 @@
     NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"To: %@", _room.displayName] attributes:attributes];
     [toString addAttributes:subAttribute range:NSMakeRange(0, 3)];
     self.toTextView.attributedText = toString;
+    
+    [self setUIForShareType:_type];
 }
 
 - (void)cancelButtonPressed

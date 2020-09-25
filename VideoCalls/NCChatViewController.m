@@ -757,11 +757,10 @@ typedef enum NCChatMessageAction {
         NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
         __block NSError *error;
         [coordinator coordinateReadingItemAtURL:videoURL options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
+            NSString *fileName = [NSString stringWithFormat:@"IMG_%.f.%@", [[NSDate date] timeIntervalSince1970] * 1000, [videoURL pathExtension]];
+            [shareConfirmationVC setSharedFileWithFileURL:newURL andFileName:fileName];
             [self dismissViewControllerAnimated:YES completion:^{
-                [self presentViewController:navigationController animated:YES completion:^{
-                    NSString *fileName = [NSString stringWithFormat:@"IMG_%.f.%@", [[NSDate date] timeIntervalSince1970] * 1000, [videoURL pathExtension]];
-                    [shareConfirmationVC setSharedFileWithFileURL:newURL andFileName:fileName];
-                }];
+                [self presentViewController:navigationController animated:YES completion:nil];
             }];
         }];
     }
