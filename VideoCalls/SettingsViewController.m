@@ -218,7 +218,7 @@ typedef enum AboutSection {
     UIAlertAction *logOutAction = [UIAlertAction actionWithTitle:actionTitle
                                                      style:UIAlertActionStyleDestructive
                                                    handler:^void (UIAlertAction *action) {
-                                                       [self logout];
+                                                       [self showLogoutConfirmationDialog];
                                                    }];
     [logOutAction setValue:[actionImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     [optionsActionSheet addAction:logOutAction];
@@ -236,6 +236,25 @@ typedef enum AboutSection {
     [self dismissViewControllerAnimated:true completion:^{
         [[NCUserInterfaceController sharedInstance] presentLoginViewController];
     }];
+}
+
+- (void)showLogoutConfirmationDialog
+{
+    NSString *alertTitle = (multiAccountEnabled) ? @"Remove account" : @"Log out";
+    NSString *alertMessage = (multiAccountEnabled) ? @"Do you really want to remove this account?" : @"Do you really want to log out from this account?";
+    NSString *actionTitle = (multiAccountEnabled) ? @"Remove" : @"Log out";
+    
+    UIAlertController *confirmDialog =
+    [UIAlertController alertControllerWithTitle:alertTitle
+                                        message:alertMessage
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        [self logout];
+    }];
+    [confirmDialog addAction:confirmAction];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [confirmDialog addAction:cancelAction];
+    [self presentViewController:confirmDialog animated:YES completion:nil];
 }
 
 - (void)logout
@@ -487,7 +506,6 @@ typedef enum AboutSection {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
-    static NSString *addAccountCellIdentifier = @"AddAccountCellIdentifier";
     static NSString *videoConfigurationCellIdentifier = @"VideoConfigurationCellIdentifier";
     static NSString *browserConfigurationCellIdentifier = @"BrowserConfigurationCellIdentifier";
     static NSString *privacyCellIdentifier = @"PrivacyCellIdentifier";
