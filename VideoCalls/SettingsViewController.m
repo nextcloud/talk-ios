@@ -461,6 +461,9 @@ typedef enum AboutSection {
         NSString *copyright = @"© 2020 Nextcloud GmbH";
         return [NSString stringWithFormat:@"%@ %@ %@", appName, appVersion, copyright];
     }
+    if (settingsSection == kSettingsSectionUserStatus && [_activeUserStatus.status isEqualToString:kUserStatusDND]) {
+        return @"All notifications are muted";
+    }
     
     return nil;
 }
