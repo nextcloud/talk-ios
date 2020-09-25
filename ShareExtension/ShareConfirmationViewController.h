@@ -16,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef enum ShareConfirmationType {
     ShareConfirmationTypeText = 0,
     ShareConfirmationTypeImage,
-    ShareConfirmationTypeFile
+    ShareConfirmationTypeFile,
+    ShareConfirmationTypeImageFile
 } ShareConfirmationType;
 
 @class ShareConfirmationViewController;
@@ -39,6 +40,8 @@ typedef enum ShareConfirmationType {
 @property (strong, nonatomic) NSString *sharedImageName;
 @property (strong, nonatomic) UIImage *sharedImage;
 @property (strong, nonatomic) NSString *sharedFileName;
+@property (strong, nonatomic) UIImage *sharedFileImage;
+@property (strong, nonatomic) NSURL *sharedFileURL;
 @property (strong, nonatomic) NSData *sharedFile;
 @property (assign, nonatomic) BOOL isModal;
 
@@ -51,6 +54,9 @@ typedef enum ShareConfirmationType {
 @property (weak, nonatomic) IBOutlet UITextView *shareFileTextView;
 
 - (id)initWithRoom:(NCRoom *)room account:(TalkAccount *)account serverCapabilities:(ServerCapabilities *)serverCapabilities;
+- (void)setSharedFileWithFileURL:(NSURL *)fileURL;
+- (void)setSharedFileWithFileURL:(NSURL *)fileURL andFileName:(NSString *_Nullable)fileName;
+- (void)setSharedImage:(UIImage *)image withImageName:(NSString *)imageName;
 
 @end
 

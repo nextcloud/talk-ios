@@ -13,6 +13,7 @@
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCSettingsController.h"
+#import "NCUtils.h"
 #import "MBProgressHUD.h"
 
 @interface ShareConfirmationViewController () <NCCommunicationCommonDelegate>
@@ -99,7 +100,7 @@
         [self sendSharedText];
     } else if (_type == ShareConfirmationTypeImage) {
         [self sendSharedImage];
-    } else if (_type == ShareConfirmationTypeFile) {
+    } else if ((_type == ShareConfirmationTypeFile) || (_type == ShareConfirmationTypeImageFile)) {
         [self sendSharedFile];
     }
     
@@ -110,46 +111,47 @@
 {
     _sharedText = sharedText;
     
-    self.type = ShareConfirmationTypeText;
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.shareTextView.text = self->_sharedText;
-        self.shareTextView.editable = NO;
-    });
+    _type = ShareConfirmationTypeText;
+    [self setUIForShareType:_type];
 }
 
-- (void)setSharedImage:(UIImage *)sharedImage
+- (void)setSharedFileWithFileURL:(NSURL *)fileURL
 {
-    _sharedImage = sharedImage;
-    
-    self.type = ShareConfirmationTypeImage;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.shareImageView setImage:self->_sharedImage];
-    });
+    [self setSharedFileWithFileURL:fileURL andFileName:nil];
 }
 
-- (void)setSharedFileName:(NSString *)sharedFileName
+- (void)setSharedFileWithFileURL:(NSURL *)fileURL andFileName:(NSString *_Nullable)fileName
 {
-    _sharedFileName = sharedFileName;
+    _sharedFileURL = fileURL;
+    _sharedFileName = fileName ? fileName : [fileURL lastPathComponent];
+    _sharedFile = [NSData dataWithContentsOfURL:fileURL];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.shareFileTextView.text = self->_sharedFileName;
-        self.shareFileTextView.editable = NO;
-    });
+    _type = ShareConfirmationTypeFile;
+    
+    UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:fileURL]];
+    if (image) {
+        _type = ShareConfirmationTypeImageFile;
+        _sharedImage = image;
+    }
+    
+    CFStringRef fileExtension = (__bridge CFStringRef)[fileURL pathExtension];
+    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtension, NULL);
+    CFStringRef MIMEType = UTTypeCopyPreferredTagWithClass(UTI, kUTTagClassMIMEType);
+    CFRelease(UTI);
+    
+    NSString *mimeType = (__bridge NSString *)MIMEType;
+    NSString *imageName = [[NCUtils previewImageForFileMIMEType:mimeType] stringByAppendingString:@"-chat-preview"];
+    _sharedFileImage = [UIImage imageNamed:imageName];
+    
+    [self setUIForShareType:_type];
 }
 
-- (void)setSharedFile:(NSData *)sharedFile
+- (void)setSharedImage:(UIImage *)image withImageName:(NSString *)imageName
 {
-    _sharedFile = sharedFile;
+    _sharedImage = image;
+    _sharedImageName = imageName;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.shareFileImageView setImage:[UIImage imageNamed:@"file"]];
-    });
-}
-
-- (void)setType:(ShareConfirmationType)type
-{
-    _type = type;
+    _type = ShareConfirmationTypeImage;
     [self setUIForShareType:_type];
 }
 
@@ -221,6 +223,9 @@
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     hud.mode = MBProgressHUDModeAnnularDeterminate;
     hud.label.text = @"Uploading file";
+    if (_type == ShareConfirmationTypeImageFile) {
+        hud.label.text = @"Uploading image";
+    }
     
     [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:[fileLocalURL path] dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
         hud.progress = progress.fractionCompleted;
@@ -272,14 +277,20 @@
                 self.shareImageView.hidden = YES;
                 self.shareFileImageView.hidden = YES;
                 self.shareFileTextView.hidden = YES;
+                
+                self.shareTextView.text = self->_sharedText;
+                self.shareTextView.editable = NO;
             }
                 break;
             case ShareConfirmationTypeImage:
+            case ShareConfirmationTypeImageFile:
             {
                 self.shareTextView.hidden = YES;
                 self.shareImageView.hidden = NO;
                 self.shareFileImageView.hidden = YES;
                 self.shareFileTextView.hidden = YES;
+                
+                [self.shareImageView setImage:self->_sharedImage];
             }
                 break;
             case ShareConfirmationTypeFile:
@@ -288,6 +299,10 @@
                 self.shareImageView.hidden = YES;
                 self.shareFileImageView.hidden = NO;
                 self.shareFileTextView.hidden = NO;
+                
+                [self.shareFileImageView setImage:self->_sharedFileImage];
+                self.shareFileTextView.text = self->_sharedFileName;
+                self.shareFileTextView.editable = NO;
             }
                 break;
             default:
