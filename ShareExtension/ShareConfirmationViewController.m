@@ -140,7 +140,7 @@
     CFRelease(UTI);
     
     NSString *mimeType = (__bridge NSString *)MIMEType;
-    NSString *imageName = [NCUtils previewImageForFileMIMEType:mimeType];
+    NSString *imageName = [[NCUtils previewImageForFileMIMEType:mimeType] stringByAppendingString:@"-chat-preview"];
     _sharedFileImage = [UIImage imageNamed:imageName];
     
     [self setUIForShareType:_type];
