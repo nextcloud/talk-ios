@@ -27,6 +27,7 @@
 
 typedef enum SettingsSection {
     kSettingsSectionUser = 0,
+    kSettingsSectionUserStatus,
     kSettingsSectionAccounts,
     kSettingsSectionConfiguration,
     kSettingsSectionLock,
@@ -117,6 +118,12 @@ typedef enum AboutSection {
     NSMutableArray *sections = [[NSMutableArray alloc] init];
     // Active user sections
     [sections addObject:[NSNumber numberWithInt:kSettingsSectionUser]];
+    // User Status section
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    if (serverCapabilities.userStatus) {
+        [sections addObject:[NSNumber numberWithInt:kSettingsSectionUserStatus]];
+    }
     // Accounts section
     if (multiAccountEnabled) {
         [sections addObject:[NSNumber numberWithInt:kSettingsSectionAccounts]];
@@ -198,18 +205,6 @@ typedef enum AboutSection {
     NSString *actionTitle = (multiAccountEnabled) ? @"Remove account" : @"Log out";
     UIImage *actionImage = (multiAccountEnabled) ? [UIImage imageNamed:@"delete-action"] : [UIImage imageNamed:@"logout"];
     
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    if (serverCapabilities.userStatus && _activeUserStatus) {
-        UIAlertAction *userStatusAction = [UIAlertAction actionWithTitle:[_activeUserStatus readableUserStatus]
-                                           style:UIAlertActionStyleDefault
-                                           handler:^void (UIAlertAction *action) {
-                                                [self presentUserStatusOptions];
-                                            }];
-        [userStatusAction setValue:[[UIImage imageNamed:[_activeUserStatus userStatusImageNameOfSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-        [optionsActionSheet addAction:userStatusAction];
-    }
-    
     UIAlertAction *logOutAction = [UIAlertAction actionWithTitle:actionTitle
                                                      style:UIAlertActionStyleDestructive
                                                    handler:^void (UIAlertAction *action) {
@@ -223,10 +218,18 @@ typedef enum AboutSection {
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
     optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser]];
     
-    [self presentViewController:optionsActionSheet animated:YES completion:^{
-        [self.tableView deselectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser] animated:YES];
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (void)logout
+{
+    [[NCSettingsController sharedInstance] logoutWithCompletionBlock:^(NSError *error) {
+        [[NCUserInterfaceController sharedInstance] presentConversationsList];
+        [[NCConnectionController sharedInstance] checkAppState];
     }];
 }
+
+#pragma mark - User Status
 
 - (void)presentUserStatusOptions
 {
@@ -275,9 +278,7 @@ typedef enum AboutSection {
     userStatusActionSheet.popoverPresentationController.sourceView = self.tableView;
     userStatusActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser]];
     
-    [self presentViewController:userStatusActionSheet animated:YES completion:^{
-        [self.tableView deselectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser] animated:YES];
-    }];
+    [self presentViewController:userStatusActionSheet animated:YES completion:nil];
 }
 
 - (void)setActiveUserStatus:(NSString *)userStatus
@@ -285,14 +286,6 @@ typedef enum AboutSection {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] setUserStatus:userStatus forAccount:activeAccount withCompletionBlock:^(NSError *error) {
         [self getActiveUserStatus];
-    }];
-}
-
-- (void)logout
-{
-    [[NCSettingsController sharedInstance] logoutWithCompletionBlock:^(NSError *error) {
-        [[NCUserInterfaceController sharedInstance] presentConversationsList];
-        [[NCConnectionController sharedInstance] checkAppState];
     }];
 }
 
@@ -383,6 +376,10 @@ typedef enum AboutSection {
     NSArray *sections = [self getSettingsSections];
     SettingsSection settingsSection = [[sections objectAtIndex:section] intValue];
     switch (settingsSection) {
+        case kSettingsSectionUserStatus:
+            return 1;
+            break;
+            
         case kSettingsSectionConfiguration:
         {
             NSUInteger numberOfSupportedBrowsers = [NCSettingsController sharedInstance].supportedBrowsers.count;
@@ -427,6 +424,10 @@ typedef enum AboutSection {
     NSArray *sections = [self getSettingsSections];
     SettingsSection settingsSection = [[sections objectAtIndex:section] intValue];
     switch (settingsSection) {
+        case kSettingsSectionUserStatus:
+            return @"Status";
+            break;
+            
         case kSettingsSectionAccounts:
             return @"Accounts";
             break;
@@ -460,6 +461,9 @@ typedef enum AboutSection {
         NSString *copyright = @"© 2020 Nextcloud GmbH";
         return [NSString stringWithFormat:@"%@ %@ %@", appName, appVersion, copyright];
     }
+    if (settingsSection == kSettingsSectionUserStatus && [_activeUserStatus.status isEqualToString:kUserStatusDND]) {
+        return @"All notifications are muted";
+    }
     
     return nil;
 }
@@ -473,6 +477,7 @@ typedef enum AboutSection {
     static NSString *sourceCodeCellIdentifier = @"SourceCodeCellIdentifier";
     static NSString *lockOnCellIdentifier = @"LockOnCellIdentifier";
     static NSString *lockUseSimplyCellIdentifier = @"LockUseSimplyCellIdentifier";
+    static NSString *userStatusCellIdentifier = @"UserStatusCellIdentifier";
     
     NSArray *sections = [self getSettingsSections];
     SettingsSection settingsSection = [[sections objectAtIndex:indexPath.section] intValue];
@@ -489,8 +494,21 @@ typedef enum AboutSection {
             NSString *accountServer = [activeAccount.server stringByReplacingOccurrencesOfString:[[NSURL URLWithString:activeAccount.server] scheme] withString:@""];
             cell.serverAddressLabel.text = [accountServer stringByReplacingOccurrencesOfString:@"://" withString:@""];
             [cell.userImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withSize:CGSizeMake(160, 160)]];
-            [cell setUserStatus:_activeUserStatus.status];
             return cell;
+        }
+            break;
+        case kSettingsSectionUserStatus:
+        {
+            cell = [tableView dequeueReusableCellWithIdentifier:userStatusCellIdentifier];
+            if (!cell) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:userStatusCellIdentifier];
+            }
+            if (_activeUserStatus) {
+                cell.textLabel.text = [_activeUserStatus readableUserStatus];
+                [cell.imageView setImage:[UIImage imageNamed:[_activeUserStatus userStatusImageNameOfSize:24]]];
+            } else {
+                cell.textLabel.text = @"Fetching status…";
+            }
         }
             break;
         case kSettingsSectionAccounts:
@@ -650,6 +668,11 @@ typedef enum AboutSection {
             [self userProfilePressed];
         }
             break;
+        case kSettingsSectionUserStatus:
+        {
+            [self presentUserStatusOptions];
+        }
+            break;
         case kSettingsSectionAccounts:
         {
             NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
@@ -662,8 +685,6 @@ typedef enum AboutSection {
                     [[NCUserInterfaceController sharedInstance] presentLoginViewController];
                 }];
             }
-            
-            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
         }
             break;
         case kSettingsSectionConfiguration:
@@ -672,13 +693,11 @@ typedef enum AboutSection {
                 case kConfigurationSectionVideo:
                 {
                     [self presentVideoResolutionsSelector];
-                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                 }
                     break;
                 case kConfigurationSectionBrowser:
                 {
                     [self presentBrowserSelector];
-                    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                 }
                     break;
             }
@@ -704,23 +723,21 @@ typedef enum AboutSection {
                 case kAboutSectionPrivacy:
                 {
                     SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[NSURL URLWithString:@"https://nextcloud.com/privacy"]];
-                    [self presentViewController:safariVC animated:YES completion:^{
-                        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-                    }];
+                    [self presentViewController:safariVC animated:YES completion:nil];
                 }
                     break;
                 case kAboutSectionSourceCode:
                 {
                     SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[NSURL URLWithString:@"https://github.com/nextcloud/talk-ios"]];
-                    [self presentViewController:safariVC animated:YES completion:^{
-                        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-                    }];
+                    [self presentViewController:safariVC animated:YES completion:nil];
                 }
                     break;
             }
         }
             break;
     }
+    
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 #pragma mark - Lock screen
