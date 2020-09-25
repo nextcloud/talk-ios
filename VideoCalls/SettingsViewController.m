@@ -125,7 +125,7 @@ typedef enum AboutSection {
         [sections addObject:[NSNumber numberWithInt:kSettingsSectionUserStatus]];
     }
     // Accounts section
-    if (multiAccountEnabled) {
+    if ([[NCDatabaseManager sharedInstance] inactiveAccounts].count > 0) {
         [sections addObject:[NSNumber numberWithInt:kSettingsSectionAccounts]];
     }
     // Configuration section
@@ -205,6 +205,16 @@ typedef enum AboutSection {
     NSString *actionTitle = (multiAccountEnabled) ? @"Remove account" : @"Log out";
     UIImage *actionImage = (multiAccountEnabled) ? [UIImage imageNamed:@"delete-action"] : [UIImage imageNamed:@"logout"];
     
+    if (multiAccountEnabled) {
+        UIAlertAction *addAccountAction = [UIAlertAction actionWithTitle:@"Add account"
+                                           style:UIAlertActionStyleDefault
+                                           handler:^void (UIAlertAction *action) {
+                                                [self addNewAccount];
+                                            }];
+        [addAccountAction setValue:[[UIImage imageNamed:@"add-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [optionsActionSheet addAction:addAccountAction];
+    }
+    
     UIAlertAction *logOutAction = [UIAlertAction actionWithTitle:actionTitle
                                                      style:UIAlertActionStyleDestructive
                                                    handler:^void (UIAlertAction *action) {
@@ -219,6 +229,13 @@ typedef enum AboutSection {
     optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser]];
     
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (void)addNewAccount
+{
+    [self dismissViewControllerAnimated:true completion:^{
+        [[NCUserInterfaceController sharedInstance] presentLoginViewController];
+    }];
 }
 
 - (void)logout
@@ -397,7 +414,7 @@ typedef enum AboutSection {
             
         case kSettingsSectionAccounts:
         {
-            return [[NCDatabaseManager sharedInstance] inactiveAccounts].count + 1;
+            return [[NCDatabaseManager sharedInstance] inactiveAccounts].count;
         }
             break;
             
@@ -514,32 +531,23 @@ typedef enum AboutSection {
         case kSettingsSectionAccounts:
         {
             NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
-            if (indexPath.row < inactiveAccounts.count) {
-                TalkAccount *account = [inactiveAccounts objectAtIndex:indexPath.row];
-                AccountTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kAccountCellIdentifier];
-                if (!cell) {
-                    cell = [[AccountTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAccountCellIdentifier];
-                }
-                cell.accountNameLabel.text = account.userDisplayName;
-                NSString *accountServer = [account.server stringByReplacingOccurrencesOfString:[[NSURL URLWithString:account.server] scheme] withString:@""];
-                cell.accountServerLabel.text = [accountServer stringByReplacingOccurrencesOfString:@"://" withString:@""];
-                [cell.accountImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(90, 90)]];
-                cell.accessoryView = nil;
-                if (account.unreadBadgeNumber > 0) {
-                    RoundedNumberView *badgeView = [[RoundedNumberView alloc] init];
-                    badgeView.important = YES;
-                    badgeView.number = account.unreadBadgeNumber;
-                    cell.accessoryView = badgeView;
-                }
-                return cell;
-            } else {
-                cell = [tableView dequeueReusableCellWithIdentifier:addAccountCellIdentifier];
-                if (!cell) {
-                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:addAccountCellIdentifier];
-                    cell.textLabel.text = @"Add account";
-                    [cell.imageView setImage:[UIImage imageNamed:@"add-settings"]];
-                }
+            TalkAccount *account = [inactiveAccounts objectAtIndex:indexPath.row];
+            AccountTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kAccountCellIdentifier];
+            if (!cell) {
+                cell = [[AccountTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAccountCellIdentifier];
             }
+            cell.accountNameLabel.text = account.userDisplayName;
+            NSString *accountServer = [account.server stringByReplacingOccurrencesOfString:[[NSURL URLWithString:account.server] scheme] withString:@""];
+            cell.accountServerLabel.text = [accountServer stringByReplacingOccurrencesOfString:@"://" withString:@""];
+            [cell.accountImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(90, 90)]];
+            cell.accessoryView = nil;
+            if (account.unreadBadgeNumber > 0) {
+                RoundedNumberView *badgeView = [[RoundedNumberView alloc] init];
+                badgeView.important = YES;
+                badgeView.number = account.unreadBadgeNumber;
+                cell.accessoryView = badgeView;
+            }
+            return cell;
         }
             break;
         case kSettingsSectionConfiguration:
@@ -676,15 +684,8 @@ typedef enum AboutSection {
         case kSettingsSectionAccounts:
         {
             NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
-            if (indexPath.row < inactiveAccounts.count) {
-                TalkAccount *account = [inactiveAccounts objectAtIndex:indexPath.row];
-                [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
-                
-            } else {
-                [self dismissViewControllerAnimated:true completion:^{
-                    [[NCUserInterfaceController sharedInstance] presentLoginViewController];
-                }];
-            }
+            TalkAccount *account = [inactiveAccounts objectAtIndex:indexPath.row];
+            [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
         }
             break;
         case kSettingsSectionConfiguration:
