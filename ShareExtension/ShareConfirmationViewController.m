@@ -13,6 +13,7 @@
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCSettingsController.h"
+#import "NCUtils.h"
 #import "MBProgressHUD.h"
 
 @interface ShareConfirmationViewController () <NCCommunicationCommonDelegate>
@@ -110,43 +111,47 @@
 {
     _sharedText = sharedText;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.shareTextView.text = self->_sharedText;
-        self.shareTextView.editable = NO;
-    });
+    _type = ShareConfirmationTypeText;
+    [self setUIForShareType:_type];
 }
 
-- (void)setSharedImage:(UIImage *)sharedImage
+- (void)setSharedFileWithFileURL:(NSURL *)fileURL
 {
-    _sharedImage = sharedImage;
+    [self setSharedFileWithFileURL:fileURL andFileName:nil];
+}
+
+- (void)setSharedFileWithFileURL:(NSURL *)fileURL andFileName:(NSString *)fileName
+{
+    _sharedFileURL = fileURL;
+    _sharedFileName = fileName ? fileName : [fileURL lastPathComponent];
+    _sharedFile = [NSData dataWithContentsOfURL:fileURL];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.shareImageView setImage:self->_sharedImage];
-    });
-}
-
-- (void)setSharedFileName:(NSString *)sharedFileName
-{
-    _sharedFileName = sharedFileName;
+    _type = ShareConfirmationTypeFile;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.shareFileTextView.text = self->_sharedFileName;
-        self.shareFileTextView.editable = NO;
-    });
-}
-
-- (void)setSharedFile:(NSData *)sharedFile
-{
-    _sharedFile = sharedFile;
+    UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:fileURL]];
+    if (image) {
+        _type = ShareConfirmationTypeImageFile;
+        _sharedImage = image;
+    }
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.shareFileImageView setImage:[UIImage imageNamed:@"file"]];
-    });
+    CFStringRef fileExtension = (__bridge CFStringRef)[fileURL pathExtension];
+    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtension, NULL);
+    CFStringRef MIMEType = UTTypeCopyPreferredTagWithClass(UTI, kUTTagClassMIMEType);
+    CFRelease(UTI);
+    
+    NSString *mimeType = (__bridge NSString *)MIMEType;
+    NSString *imageName = [NCUtils previewImageForFileMIMEType:mimeType];
+    _sharedFileImage = [UIImage imageNamed:imageName];
+    
+    [self setUIForShareType:_type];
 }
 
-- (void)setType:(ShareConfirmationType)type
+- (void)setSharedImage:(UIImage *)image withImageName:(NSString *)imageName
 {
-    _type = type;
+    _sharedImage = image;
+    _sharedImageName = imageName;
+    
+    _type = ShareConfirmationTypeImage;
     [self setUIForShareType:_type];
 }
 
@@ -272,6 +277,9 @@
                 self.shareImageView.hidden = YES;
                 self.shareFileImageView.hidden = YES;
                 self.shareFileTextView.hidden = YES;
+                
+                self.shareTextView.text = self->_sharedText;
+                self.shareTextView.editable = NO;
             }
                 break;
             case ShareConfirmationTypeImage:
@@ -281,6 +289,8 @@
                 self.shareImageView.hidden = NO;
                 self.shareFileImageView.hidden = YES;
                 self.shareFileTextView.hidden = YES;
+                
+                [self.shareImageView setImage:self->_sharedImage];
             }
                 break;
             case ShareConfirmationTypeFile:
@@ -289,6 +299,10 @@
                 self.shareImageView.hidden = YES;
                 self.shareFileImageView.hidden = NO;
                 self.shareFileTextView.hidden = NO;
+                
+                [self.shareFileImageView setImage:self->_sharedFileImage];
+                self.shareFileTextView.text = self->_sharedFileName;
+                self.shareFileTextView.editable = NO;
             }
                 break;
             default:

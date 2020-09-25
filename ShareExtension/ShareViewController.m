@@ -174,9 +174,7 @@
                                               NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
                                               __block NSError *error;
                                               [coordinator coordinateReadingItemAtURL:videoURL options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
-                                                  shareConfirmationVC.type = ShareConfirmationTypeFile;
-                                                  shareConfirmationVC.sharedFileName = [videoURL lastPathComponent];
-                                                  shareConfirmationVC.sharedFile = [NSData dataWithContentsOfURL:newURL];
+                                                  [shareConfirmationVC setSharedFileWithFileURL:newURL];
                                               }];
                                           }
                                       }];
@@ -190,11 +188,7 @@
                                           if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
                                               NSLog(@"Shared Image = %@", item);
                                               NSURL *imageURL = (NSURL *)item;
-                                              UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageURL]];
-                                              shareConfirmationVC.type = ShareConfirmationTypeImageFile;
-                                              shareConfirmationVC.sharedImage = image;
-                                              shareConfirmationVC.sharedFileName = [imageURL lastPathComponent];
-                                              shareConfirmationVC.sharedFile = [NSData dataWithContentsOfURL:imageURL];
+                                              [shareConfirmationVC setSharedFileWithFileURL:imageURL];
                                           }
                                       }];
                 return;
@@ -210,9 +204,7 @@
                                               NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
                                               __block NSError *error;
                                               [coordinator coordinateReadingItemAtURL:fileUrl options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
-                                                  shareConfirmationVC.type = ShareConfirmationTypeFile;
-                                                  shareConfirmationVC.sharedFileName = [fileUrl lastPathComponent];
-                                                  shareConfirmationVC.sharedFile = [NSData dataWithContentsOfURL:newURL];
+                                                  [shareConfirmationVC setSharedFileWithFileURL:newURL];
                                               }];
                                           }
                                       }];
@@ -226,8 +218,7 @@
                                           if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
                                               NSLog(@"Shared URL = %@", item);
                                               NSURL *sharedURL = (NSURL *)item;
-                                              shareConfirmationVC.type = ShareConfirmationTypeText;
-                                              shareConfirmationVC.sharedText = sharedURL.absoluteString;
+                                              [shareConfirmationVC setSharedText:sharedURL.absoluteString];
                                           }
                                       }];
             }
@@ -239,8 +230,7 @@
                                           if ([(NSObject *)item isKindOfClass:[NSString class]]) {
                                               NSLog(@"Shared Text = %@", item);
                                               NSString *sharedText = (NSString *)item;
-                                              shareConfirmationVC.type = ShareConfirmationTypeText;
-                                              shareConfirmationVC.sharedText = sharedText;
+                                              [shareConfirmationVC setSharedText:sharedText];
                                           }
                                       }];
             }

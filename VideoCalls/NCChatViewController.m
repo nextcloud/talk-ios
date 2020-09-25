@@ -749,9 +749,7 @@ typedef enum NCChatMessageAction {
         NSString *imageName = [NSString stringWithFormat:@"IMG_%.f.png", [[NSDate date] timeIntervalSince1970] * 1000];
         [self dismissViewControllerAnimated:YES completion:^{
             [self presentViewController:navigationController animated:YES completion:^{
-                shareConfirmationVC.type = ShareConfirmationTypeImage;
-                shareConfirmationVC.sharedImage = image;
-                shareConfirmationVC.sharedImageName = imageName;
+                [shareConfirmationVC setSharedImage:image withImageName:imageName];
             }];
         }];
     } else if ([mediaType isEqualToString:@"public.movie"]) {
@@ -761,9 +759,8 @@ typedef enum NCChatMessageAction {
         [coordinator coordinateReadingItemAtURL:videoURL options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
             [self dismissViewControllerAnimated:YES completion:^{
                 [self presentViewController:navigationController animated:YES completion:^{
-                    shareConfirmationVC.type = ShareConfirmationTypeFile;
-                    shareConfirmationVC.sharedFileName = [NSString stringWithFormat:@"IMG_%.f.%@", [[NSDate date] timeIntervalSince1970] * 1000, [videoURL pathExtension]];
-                    shareConfirmationVC.sharedFile = [NSData dataWithContentsOfURL:newURL];
+                    NSString *fileName = [NSString stringWithFormat:@"IMG_%.f.%@", [[NSDate date] timeIntervalSince1970] * 1000, [videoURL pathExtension]];
+                    [shareConfirmationVC setSharedFileWithFileURL:newURL andFileName:fileName];
                 }];
             }];
         }];
@@ -790,13 +787,8 @@ typedef enum NCChatMessageAction {
         NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
         __block NSError *error;
         [coordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
-            NSString *fileName = [url lastPathComponent];
-            NSData *data = [NSData dataWithContentsOfURL:newURL];
-            [self presentViewController:navigationController animated:YES completion:^{
-                shareConfirmationVC.type = ShareConfirmationTypeFile;
-                shareConfirmationVC.sharedFileName = fileName;
-                shareConfirmationVC.sharedFile = data;
-            }];
+            [shareConfirmationVC setSharedFileWithFileURL:newURL];
+            [self presentViewController:navigationController animated:YES completion:nil];
         }];
     }
 }
@@ -817,13 +809,8 @@ typedef enum NCChatMessageAction {
         NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
         __block NSError *error;
         [coordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
-            NSString *fileName = [url lastPathComponent];
-            NSData *data = [NSData dataWithContentsOfURL:newURL];
-            [self presentViewController:navigationController animated:YES completion:^{
-                shareConfirmationVC.type = ShareConfirmationTypeFile;
-                shareConfirmationVC.sharedFileName = fileName;
-                shareConfirmationVC.sharedFile = data;
-            }];
+            [shareConfirmationVC setSharedFileWithFileURL:newURL];
+            [self presentViewController:navigationController animated:YES completion:nil];
         }];
     }
 }
