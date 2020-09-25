@@ -226,7 +226,7 @@ typedef enum AboutSection {
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
-    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser]];
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self getSectionForSettingsSection:kSettingsSectionUser]]];
     
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
@@ -312,7 +312,7 @@ typedef enum AboutSection {
     
     // Presentation on iPads
     userStatusActionSheet.popoverPresentationController.sourceView = self.tableView;
-    userStatusActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kSettingsSectionUser]];
+    userStatusActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self getSectionForSettingsSection:kSettingsSectionUserStatus]]];
     
     [self presentViewController:userStatusActionSheet animated:YES completion:nil];
 }
@@ -329,7 +329,7 @@ typedef enum AboutSection {
 
 - (void)presentVideoResolutionsSelector
 {
-    NSIndexPath *videoConfIndexPath = [NSIndexPath indexPathForRow:kConfigurationSectionVideo inSection:kSettingsSectionConfiguration];
+    NSIndexPath *videoConfIndexPath = [NSIndexPath indexPathForRow:kConfigurationSectionVideo inSection:[self getSectionForSettingsSection:kSettingsSectionConfiguration]];
     NSArray *videoResolutions = [[[NCSettingsController sharedInstance] videoSettingsModel] availableVideoResolutions];
     NSString *storedResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
     UIAlertController *optionsActionSheet =
@@ -366,7 +366,7 @@ typedef enum AboutSection {
 
 - (void)presentBrowserSelector
 {
-    NSIndexPath *browserConfIndexPath = [NSIndexPath indexPathForRow:kConfigurationSectionBrowser inSection:kSettingsSectionConfiguration];
+    NSIndexPath *browserConfIndexPath = [NSIndexPath indexPathForRow:kConfigurationSectionBrowser inSection:[self getSectionForSettingsSection:kSettingsSectionConfiguration]];
     NSArray *supportedBrowsers = [[NCSettingsController sharedInstance] supportedBrowsers];
     NSString *defaultBrowser = [[NCSettingsController sharedInstance] defaultBrowser];
     UIAlertController *optionsActionSheet =
