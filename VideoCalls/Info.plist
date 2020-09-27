@@ -30,7 +30,9 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Camera is used in video calls</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Microphone is used in video calls</string>
+	<string>Microphone is used in voice and video calls</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo Library access is needed to share pictures from your device</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
