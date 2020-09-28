@@ -91,11 +91,13 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[quoteContainerView]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-    } else {
+    } else if ([self.reuseIdentifier isEqualToString:AutoCompletionCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[titleLabel]|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-32-[userStatusImageView(12)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-32-[userStatusImageView(12)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        self.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        self.titleLabel.textColor = [UIColor darkTextColor];
     }
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
@@ -237,7 +239,7 @@
         _userStatusImageView.layer.cornerRadius = 6;
         _userStatusImageView.clipsToBounds = YES;
         // TODO: Change it when dark mode is implemented
-        _userStatusImageView.backgroundColor = [UIColor whiteColor];
+        _userStatusImageView.backgroundColor = [UIColor groupTableViewBackgroundColor];
     }
 }
 
