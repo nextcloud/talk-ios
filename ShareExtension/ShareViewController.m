@@ -136,6 +136,7 @@
     [_roomsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
     [_roomsBackgroundView.placeholderText setText:@"You are not part of any conversation."];
     [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
+    [_roomsBackgroundView.loadingView setHidden:YES];
     self.tableView.backgroundView = _roomsBackgroundView;
     
     _roomSearchBackgroundView = [[PlaceholderView alloc] init];
