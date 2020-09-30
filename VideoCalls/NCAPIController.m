@@ -231,12 +231,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Rooms Controller
 
-- (NSURLSessionDataTask *)getRoomsForAccount:(TalkAccount *)account withCompletionBlock:(GetRoomsCompletionBlock)block
+- (NSURLSessionDataTask *)getRoomsForAccount:(TalkAccount *)account updateStatus:(BOOL)updateStatus withCompletionBlock:(GetRoomsCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:@"room"];
+    NSDictionary *parameters = @{@"noStatusUpdate" : @(!updateStatus)};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(responseRooms, nil, 0);

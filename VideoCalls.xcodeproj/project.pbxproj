@@ -140,7 +140,6 @@
 		2C62B00E24C1BDC1007E460A /* NCNotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */; };
 		2C62B00F24C1BDC5007E460A /* RoundedNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */; };
 		2C62B01024C1BDC5007E460A /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
-		2C62B01124C1BDC5007E460A /* RoomsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */; };
 		2C62B01224C1BDC5007E460A /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
 		2C62B01324C1BDC5007E460A /* NCRoomsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */; };
 		2C62B01424C1BDC5007E460A /* RoomCreationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */; };
@@ -363,7 +362,6 @@
 		2CC001C324A37AC500A20167 /* NCNotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */; };
 		2CC001CD24A37ACA00A20167 /* RoundedNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */; };
 		2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
-		2CC001CF24A37ACA00A20167 /* RoomsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */; };
 		2CC001D024A37ACA00A20167 /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
 		2CC001D124A37ACA00A20167 /* NCRoomsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */; };
 		2CC001D224A37ACA00A20167 /* RoomCreationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */; };
@@ -2084,7 +2082,6 @@
 				2C62B00B24C1BDBD007E460A /* NCPushProxySessionManager.m in Sources */,
 				2C7A245C24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
 				2C3195C224C5E2100066F221 /* ShareTableViewCell.m in Sources */,
-				2C62B01124C1BDC5007E460A /* RoomsTableViewController.m in Sources */,
 				2C62AFE324C1BD91007E460A /* ARDSettingsStore.m in Sources */,
 				2C62AFF124C1BD9F007E460A /* GroupedChatMessageTableViewCell.m in Sources */,
 				2C62B00424C1BDB5007E460A /* DirectoryTableViewController.m in Sources */,
@@ -2135,7 +2132,6 @@
 				2CC0018224A37A5B00A20167 /* UIView+SLKAdditions.m in Sources */,
 				2CC001B324A37A9500A20167 /* QuotedMessageView.m in Sources */,
 				2CC001CD24A37ACA00A20167 /* RoundedNumberView.m in Sources */,
-				2CC001CF24A37ACA00A20167 /* RoomsTableViewController.m in Sources */,
 				2CC001BE24A37ABD00A20167 /* LoginViewController.m in Sources */,
 				2CC001D624A37ACA00A20167 /* RoomInfoTableViewController.m in Sources */,
 				2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */,
