@@ -38,7 +38,7 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 // Room
 - (NSArray *)roomsForAccountId:(NSString *)accountId witRealm:(RLMRealm *)realm;
 - (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId;
-- (void)updateRooms;
+- (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus;
 - (void)updateRoom:(NSString *)token;
 - (void)joinRoom:(NSString *)token;
 - (void)rejoinRoom:(NSString *)token;

@@ -248,10 +248,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     return unmanagedRoom;
 }
 
-- (void)updateRooms
+- (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus
 {
+    NSLog(@"Update rooms updating status: %@", updateStatus ? @"YES" : @"NO");
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount updateStatus:updateStatus withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
             RLMRealm *realm = [RLMRealm defaultRealm];
