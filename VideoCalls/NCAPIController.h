@@ -86,7 +86,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users;
 
 // Rooms Controller
-- (NSURLSessionDataTask *)getRoomsForAccount:(TalkAccount *)account withCompletionBlock:(GetRoomsCompletionBlock)block;
+- (NSURLSessionDataTask *)getRoomsForAccount:(TalkAccount *)account updateStatus:(BOOL)updateStatus withCompletionBlock:(GetRoomsCompletionBlock)block;
 - (NSURLSessionDataTask *)getRoomForAccount:(TalkAccount *)account withToken:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)createRoomForAccount:(TalkAccount *)account with:(NSString *)invite ofType:(NCRoomType)type andName:(NSString *)roomName withCompletionBlock:(CreateRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)renameRoom:(NSString *)token forAccount:(TalkAccount *)account withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;
