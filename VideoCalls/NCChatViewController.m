@@ -258,14 +258,6 @@ typedef enum NCChatMessageAction {
     }
 }
 
-- (void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-    
-    // Just in case the initial history was loaded from the DB
-    [self.tableView slk_scrollToBottomAnimated:NO];
-}
-
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
