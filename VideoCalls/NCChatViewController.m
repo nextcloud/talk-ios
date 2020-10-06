@@ -1040,7 +1040,7 @@ typedef enum NCChatMessageAction {
         }
         
         NSMutableArray *storedTemporaryMessages = [self->_chatController getTemporaryMessages];
-        if (storedTemporaryMessages) {
+        if (storedTemporaryMessages.count > 0) {
             [self insertMessages:storedTemporaryMessages];
             [self.tableView reloadData];
             [self.tableView slk_scrollToBottomAnimated:NO];
@@ -1076,7 +1076,7 @@ typedef enum NCChatMessageAction {
         }
         
         NSMutableArray *storedTemporaryMessages = [self->_chatController getTemporaryMessages];
-        if (storedTemporaryMessages) {
+        if (storedTemporaryMessages.count > 0) {
             [self insertMessages:storedTemporaryMessages];
             [self.tableView reloadData];
             [self.tableView slk_scrollToBottomAnimated:NO];
