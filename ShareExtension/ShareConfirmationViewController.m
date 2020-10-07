@@ -182,9 +182,9 @@
     NSString *attachmentsFolder = _serverCapabilities.attachmentsFolder ? _serverCapabilities.attachmentsFolder : @"";
     NSString *filePath = [NSString stringWithFormat:@"%@/%@", attachmentsFolder, _sharedImageName];
     NSString *fileServerURL = [NSString stringWithFormat:@"%@/%@%@", _account.server, _serverCapabilities.webDAVRoot, filePath];
-    NSData *pngData = UIImagePNGRepresentation(_sharedImage);
+    NSData *pngData = UIImageJPEGRepresentation(_sharedImage, 1);
     NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
-    NSURL *fileLocalURL = [[tmpDirURL URLByAppendingPathComponent:@"image"] URLByAppendingPathExtension:@"png"];
+    NSURL *fileLocalURL = [[tmpDirURL URLByAppendingPathComponent:@"image"] URLByAppendingPathExtension:@"jpg"];
     [pngData writeToFile:[fileLocalURL path] atomically:YES];
     
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];

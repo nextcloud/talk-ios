@@ -738,7 +738,7 @@ typedef enum NCChatMessageAction {
     NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
     if ([mediaType isEqualToString:@"public.image"]) {
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-        NSString *imageName = [NSString stringWithFormat:@"IMG_%.f.png", [[NSDate date] timeIntervalSince1970] * 1000];
+        NSString *imageName = [NSString stringWithFormat:@"IMG_%.f.jpg", [[NSDate date] timeIntervalSince1970] * 1000];
         [self dismissViewControllerAnimated:YES completion:^{
             [self presentViewController:navigationController animated:YES completion:^{
                 [shareConfirmationVC setSharedImage:image withImageName:imageName];
