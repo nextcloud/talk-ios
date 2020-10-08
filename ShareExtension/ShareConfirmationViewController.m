@@ -20,6 +20,7 @@
 {
     UIBarButtonItem *_sendButton;
     UIActivityIndicatorView *_sharingIndicatorView;
+    MBProgressHUD *_hud;
 }
 
 @end
@@ -100,10 +101,10 @@
 {
     if (_type == ShareConfirmationTypeText) {
         [self sendSharedText];
-    } else if (_type == ShareConfirmationTypeImage) {
-        [self sendSharedImage];
-    } else if ((_type == ShareConfirmationTypeFile) || (_type == ShareConfirmationTypeImageFile)) {
-        [self sendSharedFile];
+    } else if (_type == ShareConfirmationTypeImage ||
+               _type == ShareConfirmationTypeFile  ||
+               _type == ShareConfirmationTypeImageFile) {
+        [self uploadAndShareFile];
     }
     
     [self startAnimatingSharingIndicator];
@@ -177,63 +178,54 @@
     }];
 }
 
-- (void)sendSharedImage
+- (void)uploadAndShareFile
 {
-    NSString *attachmentsFolder = _serverCapabilities.attachmentsFolder ? _serverCapabilities.attachmentsFolder : @"";
-    NSString *filePath = [NSString stringWithFormat:@"%@/%@", attachmentsFolder, _sharedImageName];
-    NSString *fileServerURL = [NSString stringWithFormat:@"%@/%@%@", _account.server, _serverCapabilities.webDAVRoot, filePath];
-    NSData *pngData = UIImageJPEGRepresentation(_sharedImage, 1);
-    NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
-    NSURL *fileLocalURL = [[tmpDirURL URLByAppendingPathComponent:@"image"] URLByAppendingPathExtension:@"jpg"];
-    [pngData writeToFile:[fileLocalURL path] atomically:YES];
+    NSString *fileName = (_type == ShareConfirmationTypeImage) ? _sharedImageName : _sharedFileName;
+    NSString *fileLocalPath = [self localFilePath];
+    if (_type == ShareConfirmationTypeImage) {
+        NSData *pngData = UIImageJPEGRepresentation(_sharedImage, 1);
+        [pngData writeToFile:fileLocalPath atomically:YES];
+    } else {
+        [_sharedFile writeToFile:fileLocalPath atomically:YES];
+    }
     
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    hud.mode = MBProgressHUDModeAnnularDeterminate;
-    hud.label.text = @"Uploading image";
+    _hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    _hud.mode = MBProgressHUDModeAnnularDeterminate;
+    _hud.label.text = @"Uploading file";
+    if (_type == ShareConfirmationTypeImage || _type == ShareConfirmationTypeImageFile) {
+        _hud.label.text = @"Uploading image";
+    }
     
-    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:[fileLocalURL path] dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
-        hud.progress = progress.fractionCompleted;
-    } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSInteger errorCode, NSString *errorDescription) {
-        NSLog(@"Upload completed with error code: %ld", (long)errorCode);
-        [hud hideAnimated:YES];
-        if (errorCode == 0) {
-            [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token withCompletionBlock:^(NSError *error) {
-                if (error) {
-                    [self.delegate shareConfirmationViewControllerDidFailed:self];
-                    NSLog(@"Failed to send shared image");
-                } else {
-                    [self.delegate shareConfirmationViewControllerDidFinish:self];
-                }
-                [self stopAnimatingSharingIndicator];
-            }];
+    [self checkForUniqueNameAndUploadFileWithName:fileName withOriginalName:YES];
+}
+
+- (void)checkForUniqueNameAndUploadFileWithName:(NSString *)fileName withOriginalName:(BOOL)isOriginalName
+{
+    NSString *filePath = [self serverFilePathForFileName:fileName];
+    NSString *fileServerURL = [self serverFileURLForFilePath:filePath];
+    NSString *fileLocalPath = [self localFilePath];
+    
+    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:fileServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+        // File already exist
+        if (errorCode == 0 && files.count == 1) {
+            NSString *alternativeName = [self alternativeNameForFileName:fileName original:isOriginalName];
+            [self checkForUniqueNameAndUploadFileWithName:alternativeName withOriginalName:NO];
+        // File do not exist
+        } else if (errorCode == 404) {
+            [self uploadFileToServerURL:fileServerURL withFilePath:filePath locatedInLocalPath:fileLocalPath];
         } else {
-            [self.delegate shareConfirmationViewControllerDidFailed:self];
+            NSLog(@"Error checking file name");
         }
-        [self stopAnimatingSharingIndicator];
     }];
 }
 
-- (void)sendSharedFile
+- (void)uploadFileToServerURL:(NSString *)fileServerURL withFilePath:(NSString *)filePath locatedInLocalPath:(NSString *)fileLocalPath
 {
-    NSString *attachmentsFolder = _serverCapabilities.attachmentsFolder ? _serverCapabilities.attachmentsFolder : @"";
-    NSString *filePath = [NSString stringWithFormat:@"%@/%@", attachmentsFolder, _sharedFileName];
-    NSString *fileServerURL = [NSString stringWithFormat:@"%@/%@%@", _account.server, _serverCapabilities.webDAVRoot, filePath];
-    NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
-    NSURL *fileLocalURL = [[tmpDirURL URLByAppendingPathComponent:@"file"] URLByAppendingPathExtension:@"data"];
-    [_sharedFile writeToFile:[fileLocalURL path] atomically:YES];
-    
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    hud.mode = MBProgressHUDModeAnnularDeterminate;
-    hud.label.text = @"Uploading file";
-    if (_type == ShareConfirmationTypeImageFile) {
-        hud.label.text = @"Uploading image";
-    }
-    
-    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:[fileLocalURL path] dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
-        hud.progress = progress.fractionCompleted;
+    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:fileLocalPath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
+        self->_hud.progress = progress.fractionCompleted;
     } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSInteger errorCode, NSString *errorDescription) {
         NSLog(@"Upload completed with error code: %ld", (long)errorCode);
-        [hud hideAnimated:YES];
+        [self->_hud hideAnimated:YES];
         if (errorCode == 0) {
             [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token withCompletionBlock:^(NSError *error) {
                 if (error) {
@@ -249,6 +241,53 @@
         }
         [self stopAnimatingSharingIndicator];
     }];
+}
+
+#pragma mark - Utils
+
+- (NSString *)serverFilePathForFileName:(NSString *)fileName
+{
+    NSString *attachmentsFolder = _serverCapabilities.attachmentsFolder ? _serverCapabilities.attachmentsFolder : @"";
+    return [NSString stringWithFormat:@"%@/%@", attachmentsFolder, fileName];
+}
+
+- (NSString *)serverFileURLForFilePath:(NSString *)filePath
+{
+    return [NSString stringWithFormat:@"%@/%@%@", _account.server, _serverCapabilities.webDAVRoot, filePath];
+}
+
+- (NSString *)localFilePath
+{
+    NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
+    NSURL *fileLocalURL = [[tmpDirURL URLByAppendingPathComponent:@"file"] URLByAppendingPathExtension:@"data"];
+    
+    return [fileLocalURL path];
+}
+
+- (NSString *)alternativeNameForFileName:(NSString *)fileName original:(BOOL)isOriginal
+{
+    NSString *extension = [fileName pathExtension];
+    NSString *nameWithoutExtension = [fileName stringByDeletingPathExtension];
+    NSString *alternativeName = nameWithoutExtension;
+    NSString *newSuffix = @" (1)";
+    
+    if (!isOriginal) {
+        // Check if the name ends with ` (n)`
+        NSError *error = nil;
+        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@" \\((\\d+)\\)$" options:NSRegularExpressionCaseInsensitive error:&error];
+        NSTextCheckingResult *match = [regex firstMatchInString:nameWithoutExtension options:0 range:NSMakeRange(0, nameWithoutExtension.length)];
+        if ([match numberOfRanges] > 1) {
+            NSRange suffixRange = [match rangeAtIndex: 0];
+            NSInteger suffixNumber = [[nameWithoutExtension substringWithRange:[match rangeAtIndex: 1]] intValue];
+            newSuffix = [NSString stringWithFormat:@" (%ld)", suffixNumber + 1];
+            alternativeName = [nameWithoutExtension stringByReplacingCharactersInRange:suffixRange withString:@""];
+        }
+    }
+    
+    alternativeName = [alternativeName stringByAppendingString:newSuffix];
+    alternativeName = [alternativeName stringByAppendingPathExtension:extension];
+    
+    return alternativeName;
 }
 
 #pragma mark - User Interface
