@@ -215,6 +215,27 @@
             [self uploadFileToServerURL:fileServerURL withFilePath:filePath locatedInLocalPath:fileLocalPath];
         } else {
             NSLog(@"Error checking file name");
+            [self stopAnimatingSharingIndicator];
+            [self.delegate shareConfirmationViewControllerDidFailed:self];
+        }
+    }];
+}
+
+- (void)checkAttachmentFolderAndUploadFileToServerURL:(NSString *)fileServerURL withFilePath:(NSString *)filePath locatedInLocalPath:(NSString *)fileLocalPath
+{
+    NSString *attachmentFolderServerURL = [self attachmentFolderServerURL];
+    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+        // Attachment folder do not exist
+        if (errorCode == 404) {
+            [[NCCommunication shared] createFolder:attachmentFolderServerURL customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *account, NSString *nose, NSDate *date, NSInteger errorCode, NSString *errorDescription) {
+                if (errorCode == 0) {
+                    [self uploadFileToServerURL:fileServerURL withFilePath:filePath locatedInLocalPath:fileLocalPath];
+                }
+            }];
+        } else {
+            NSLog(@"Error checking attachment folder");
+            [self stopAnimatingSharingIndicator];
+            [self.delegate shareConfirmationViewControllerDidFailed:self];
         }
     }];
 }
@@ -236,6 +257,8 @@
                 }
                 [self stopAnimatingSharingIndicator];
             }];
+        } else if (errorCode == 404) {
+            [self checkAttachmentFolderAndUploadFileToServerURL:fileServerURL withFilePath:filePath locatedInLocalPath:fileLocalPath];
         } else {
             [self.delegate shareConfirmationViewControllerDidFailed:self];
         }
@@ -249,6 +272,12 @@
 {
     NSString *attachmentsFolder = _serverCapabilities.attachmentsFolder ? _serverCapabilities.attachmentsFolder : @"";
     return [NSString stringWithFormat:@"%@/%@", attachmentsFolder, fileName];
+}
+
+- (NSString *)attachmentFolderServerURL
+{
+    NSString *attachmentsFolder = _serverCapabilities.attachmentsFolder ? _serverCapabilities.attachmentsFolder : @"";
+    return [NSString stringWithFormat:@"%@/%@%@", _account.server, _serverCapabilities.webDAVRoot, attachmentsFolder];
 }
 
 - (NSString *)serverFileURLForFilePath:(NSString *)filePath
