@@ -2368,6 +2368,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8BD08DF13BF3479DEEECFEB1 /* Pods-VideoCalls.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = VideoCalls/VideoCalls.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -2412,6 +2413,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E8DF4DF89BBD55A5ED6488CB /* Pods-VideoCalls.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = VideoCalls/VideoCalls.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
