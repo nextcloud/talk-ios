@@ -183,7 +183,7 @@
     NSString *fileName = (_type == ShareConfirmationTypeImage) ? _sharedImageName : _sharedFileName;
     NSString *fileLocalPath = [self localFilePath];
     if (_type == ShareConfirmationTypeImage) {
-        NSData *pngData = UIImageJPEGRepresentation(_sharedImage, 1);
+        NSData *pngData = UIImageJPEGRepresentation(_sharedImage, 0.7);
         [pngData writeToFile:fileLocalPath atomically:YES];
     } else {
         [_sharedFile writeToFile:fileLocalPath atomically:YES];
