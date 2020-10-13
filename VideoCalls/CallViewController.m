@@ -129,21 +129,21 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.chatButton.layer setCornerRadius:30.0f];
     [self.closeScreensharingButton.layer setCornerRadius:16.0f];
     
-    self.audioMuteButton.accessibilityLabel = @"Microphone";
-    self.audioMuteButton.accessibilityValue = @"Microphone enabled";
-    self.audioMuteButton.accessibilityHint = @"Doble tap to enable or disable the microphone";
-    self.speakerButton.accessibilityLabel = @"Speaker";
-    self.speakerButton.accessibilityValue = @"Speaker disabled";
-    self.speakerButton.accessibilityHint = @"Doble tap to enable or disable the speaker";
-    self.videoDisableButton.accessibilityLabel = @"Camera";
-    self.videoDisableButton.accessibilityValue = @"Camera enabled";
-    self.videoDisableButton.accessibilityHint = @"Doble tap to enable or disable the camera";
-    self.hangUpButton.accessibilityLabel = @"Hang up";
-    self.hangUpButton.accessibilityHint = @"Doble tap to hang up the call";
-    self.videoCallButton.accessibilityLabel = @"Camera";
-    self.videoCallButton.accessibilityHint = @"Doble tap to upgrade this voice call to a video call";
-    self.chatButton.accessibilityLabel = @"Chat";
-    self.chatButton.accessibilityHint = @"Doble tap to show call's chat";
+    self.audioMuteButton.accessibilityLabel = NSLocalizedString(@"Microphone", nil);
+    self.audioMuteButton.accessibilityValue = NSLocalizedString(@"Microphone enabled", nil);
+    self.audioMuteButton.accessibilityHint = NSLocalizedString(@"Doble tap to enable or disable the microphone", nil);
+    self.speakerButton.accessibilityLabel = NSLocalizedString(@"Speaker", nil);
+    self.speakerButton.accessibilityValue = NSLocalizedString(@"Speaker disabled", nil);
+    self.speakerButton.accessibilityHint = NSLocalizedString(@"Doble tap to enable or disable the speaker", nil);
+    self.videoDisableButton.accessibilityLabel = NSLocalizedString(@"Camera", nil);
+    self.videoDisableButton.accessibilityValue = NSLocalizedString(@"Camera enabled", nil);
+    self.videoDisableButton.accessibilityHint = NSLocalizedString(@"Doble tap to enable or disable the camera", nil);
+    self.hangUpButton.accessibilityLabel = NSLocalizedString(@"Hang up", nil);
+    self.hangUpButton.accessibilityHint = NSLocalizedString(@"Doble tap to hang up the call", nil);
+    self.videoCallButton.accessibilityLabel = NSLocalizedString(@"Camera", nil);
+    self.videoCallButton.accessibilityHint = NSLocalizedString(@"Doble tap to upgrade this voice call to a video call", nil);
+    self.chatButton.accessibilityLabel = NSLocalizedString(@"Chat", nil);
+    self.chatButton.accessibilityHint = NSLocalizedString(@"Doble tap to show call's chat", nil);
     
     [self adjustButtonsConainer];
     
@@ -392,13 +392,13 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)setWaitingScreenText
 {
-    NSString *waitingMessage = @"Waiting for others to join call…";
+    NSString *waitingMessage = NSLocalizedString(@"Waiting for others to join call…", nil);
     if (_room.type == kNCRoomTypeOneToOne) {
-        waitingMessage = [NSString stringWithFormat:@"Waiting for %@ to join call…", _room.displayName];
+        waitingMessage = [NSString stringWithFormat:NSLocalizedString(@"Waiting for %@ to join call…", nil), _room.displayName];
     }
     
     if (_callState == CallStateReconnecting) {
-        waitingMessage = @"Connecting to the call…";
+        waitingMessage = NSLocalizedString(@"Connecting to the call…", nil);
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -520,14 +520,14 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)presentJoinCallError
 {
-    NSString *alertTitle = [NSString stringWithFormat:@"Could not join %@ call", _room.displayName];
+    NSString *alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join %@ call", nil), _room.displayName];
     if (_room.type == kNCRoomTypeOneToOne) {
-        alertTitle = [NSString stringWithFormat:@"Could not join call with %@", _room.displayName];
+        alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join call with %@", nil), _room.displayName];
     }
     UIAlertController * alert = [UIAlertController alertControllerWithTitle:alertTitle
-                                                                    message:@"An error occurred while joining the call"
+                                                                    message:NSLocalizedString(@"An error occurred while joining the call", nil)
                                                              preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction* okButton = [UIAlertAction actionWithTitle:@"OK"
+    UIAlertAction* okButton = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                                        style:UIAlertActionStyleDefault
                                                      handler:^(UIAlertAction * _Nonnull action) {
                                                          [self hangup];
@@ -562,10 +562,10 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)showForceMutedWarning
 {
     UIAlertController *confirmDialog =
-    [UIAlertController alertControllerWithTitle:@"You have been muted by a moderator"
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"You have been muted by a moderator", nil)
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleCancel handler:nil];
     [confirmDialog addAction:confirmAction];
     dispatch_async(dispatch_get_main_queue(), ^{
         [self presentViewController:confirmDialog animated:YES completion:nil];
@@ -577,8 +577,9 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController enableAudio:NO];
     dispatch_async(dispatch_get_main_queue(), ^{
         [_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
-        _audioMuteButton.accessibilityValue = @"Microphone disabled";
-        [self.view makeToast:@"Microphone disabled" duration:1.5 position:CSToastPositionCenter];
+        NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
+        _audioMuteButton.accessibilityValue = micDisabledString;
+        [self.view makeToast:micDisabledString duration:1.5 position:CSToastPositionCenter];
     });
 }
 
@@ -587,8 +588,9 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_callController enableAudio:YES];
     dispatch_async(dispatch_get_main_queue(), ^{
         [_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-        _audioMuteButton.accessibilityValue = @"Microphone enabled";
-        [self.view makeToast:@"Microphone enabled" duration:1.5 position:CSToastPositionCenter];
+        NSString *micEnabledString = NSLocalizedString(@"Microphone enabled", nil);
+        _audioMuteButton.accessibilityValue = micEnabledString;
+        [self.view makeToast:micEnabledString duration:1.5 position:CSToastPositionCenter];
     });
 }
 
@@ -611,9 +613,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_captureController stopCapture];
     [_localVideoView setHidden:YES];
     [_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
-    _videoDisableButton.accessibilityValue = @"Camera disabled";
+    NSString *cameraDisabledString = NSLocalizedString(@"Camera disabled", nil);
+    _videoDisableButton.accessibilityValue = cameraDisabledString;
     if (!_isAudioOnly) {
-        [self.view makeToast:@"Camera disabled" duration:1.5 position:CSToastPositionCenter];
+        [self.view makeToast:cameraDisabledString duration:1.5 position:CSToastPositionCenter];
     }
 }
 
@@ -623,7 +626,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_captureController startCapture];
     [_localVideoView setHidden:NO];
     [_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
-    _videoDisableButton.accessibilityValue = @"Camera enabled";
+    _videoDisableButton.accessibilityValue = NSLocalizedString(@"Camera enabled", nil);
 }
 
 - (IBAction)switchCameraButtonPressed:(id)sender
@@ -661,16 +664,18 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
     [_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
-    _speakerButton.accessibilityValue = @"Speaker disabled";
-    [self.view makeToast:@"Speaker disabled" duration:1.5 position:CSToastPositionCenter];
+    NSString *speakerDisabledString = NSLocalizedString(@"Speaker disabled", nil);
+    _speakerButton.accessibilityValue = speakerDisabledString;
+    [self.view makeToast:speakerDisabledString duration:1.5 position:CSToastPositionCenter];
 }
 
 - (void)enableSpeaker
 {
     [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
     [_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
-    _speakerButton.accessibilityValue = @"Speaker enabled";
-    [self.view makeToast:@"Speaker enabled" duration:1.5 position:CSToastPositionCenter];
+    NSString *speakerEnabledString = NSLocalizedString(@"Speaker enabled", nil);
+    _speakerButton.accessibilityValue = speakerEnabledString;
+    [self.view makeToast:speakerEnabledString duration:1.5 position:CSToastPositionCenter];
 }
 
 - (IBAction)hangupButtonPressed:(id)sender
@@ -720,14 +725,14 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)showUpgradeToVideoCallDialog
 {
     UIAlertController *confirmDialog =
-    [UIAlertController alertControllerWithTitle:@"Do you want to enable your video?"
-                                        message:@"If you enable your video, this call will be interrupted for a few seconds."
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Do you want to enable your video?", nil)
+                                        message:NSLocalizedString(@"If you enable your video, this call will be interrupted for a few seconds.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Enable" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Enable", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         [self upgradeToVideoCall];
     }];
     [confirmDialog addAction:confirmAction];
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
     [confirmDialog addAction:cancelAction];
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }

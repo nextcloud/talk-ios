@@ -107,17 +107,17 @@
     // Room creation placeholder view
     _roomCreationBackgroundView = [[PlaceholderView alloc] init];
     [_roomCreationBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"contacts-placeholder"]];
-    [_roomCreationBackgroundView.placeholderText setText:@"No participants found."];
+    [_roomCreationBackgroundView.placeholderText setText:NSLocalizedString(@"No participants found", nil)];
     [_roomCreationBackgroundView.placeholderView setHidden:YES];
     [_roomCreationBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _roomCreationBackgroundView;
     
     self.definesPresentationContext = YES;
     
-    UIBarButtonItem *nextButton = [[UIBarButtonItem alloc] initWithTitle:@"Next" style:UIBarButtonItemStylePlain
+    UIBarButtonItem *nextButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Next", nil) style:UIBarButtonItemStylePlain
                                                                   target:self action:@selector(nextButtonPressed)];
     self.navigationItem.rightBarButtonItem = nextButton;
-    self.navigationItem.rightBarButtonItem.accessibilityHint = @"Continue to next step of conversation creation";
+    self.navigationItem.rightBarButtonItem.accessibilityHint = NSLocalizedString(@"Continue to next step of conversation creation", nil);
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
@@ -182,16 +182,16 @@
     titleLabel.backgroundColor = [UIColor clearColor];
     titleLabel.textColor = [UIColor whiteColor];
     titleLabel.font = [UIFont boldSystemFontOfSize:16];
-    titleLabel.text = @"New group conversation";
-    titleLabel.accessibilityLabel = @"Add participants to new group conversation";
+    titleLabel.text = NSLocalizedString(@"New group conversation", nil);
+    titleLabel.accessibilityLabel = NSLocalizedString(@"Add participants to new group conversation", nil);
     [titleLabel sizeToFit];
     
     UILabel *subTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 18, 0, 0)];
     subTitleLabel.backgroundColor = [UIColor clearColor];
     subTitleLabel.textColor = [UIColor whiteColor];
     subTitleLabel.font = [UIFont systemFontOfSize:12];
-    subTitleLabel.text = (_selectedParticipants.count == 1) ? @"1 participant" : [NSString stringWithFormat:@"%ld participants", _selectedParticipants.count];
-    subTitleLabel.accessibilityLabel = [NSString stringWithFormat:@"%@ added to this new group conversation", subTitleLabel.text];
+    subTitleLabel.text = (_selectedParticipants.count == 1) ? NSLocalizedString(@"1 participant", nil) : [NSString stringWithFormat:NSLocalizedString(@"%ld participants", nil), _selectedParticipants.count];
+    subTitleLabel.accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"%@ added to this new group conversation", nil), subTitleLabel.text];
     [subTitleLabel sizeToFit];
     
     UIView *twoLineTitleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, MAX(subTitleLabel.frame.size.width, titleLabel.frame.size.width), 30)];

@@ -64,7 +64,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 {
     [super viewDidLoad];
     
-    self.navigationItem.title = (_publicRoom) ? @"New public conversation" : @"New group conversation";
+    self.navigationItem.title = (_publicRoom) ? NSLocalizedString(@"New public conversation", nil) : NSLocalizedString(@"New group conversation", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
@@ -84,17 +84,17 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     
     _passwordTextField = [[UITextField alloc] initWithFrame:CGRectMake(180, 10, 115, 30)];
     _passwordTextField.textAlignment = NSTextAlignmentRight;
-    _passwordTextField.placeholder = @"No password";
+    _passwordTextField.placeholder = NSLocalizedString(@"No password", nil);
     _passwordTextField.adjustsFontSizeToFitWidth = YES;
     _passwordTextField.textColor = [UIColor blackColor];
     _passwordTextField.secureTextEntry = YES;
-    _passwordTextField.accessibilityLabel = @"Password field for public conversation";
+    _passwordTextField.accessibilityLabel = NSLocalizedString(@"Password field for public conversation", nil);
     
     _creatingRoomView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-    _createRoomButton = [[UIBarButtonItem alloc] initWithTitle:@"Create" style:UIBarButtonItemStyleDone
+    _createRoomButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Create", nil) style:UIBarButtonItemStyleDone
                                                         target:self action:@selector(createButtonPressed)];
     _createRoomButton.enabled = NO;
-    _createRoomButton.accessibilityHint = @"Double tap to create the conversation";
+    _createRoomButton.accessibilityHint = NSLocalizedString(@"Double tap to create the conversation", nil);
     self.navigationItem.rightBarButtonItem = _createRoomButton;
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
@@ -221,11 +221,11 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     self.navigationItem.rightBarButtonItem = _createRoomButton;
     
     UIAlertController * alert = [UIAlertController
-                                 alertControllerWithTitle:@"Could not create conversation"
-                                 message:[NSString stringWithFormat:@"An error occurred while creating the conversation"]
+                                 alertControllerWithTitle:NSLocalizedString(@"Could not create conversation", nil)
+                                 message:NSLocalizedString(@"An error occurred while creating the conversation", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction* okButton = [UIAlertAction
-                               actionWithTitle:@"OK"
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
                                style:UIAlertActionStyleDefault
                                handler:nil];
     [alert addAction:okButton];
@@ -300,9 +300,9 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
         if (_participants.count == 0) {
             return @"";
         } else if (_participants.count == 1) {
-            return @"1 participant";
+            return NSLocalizedString(@"1 participant", nil);
         }
-        return [NSString stringWithFormat:@"%ld participants", _participants.count];
+        return [NSString stringWithFormat:NSLocalizedString(@"%ld participants", nil), _participants.count];
     }
     
     return nil;
@@ -311,9 +311,9 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
     if (section == kCreationSectionName) {
-        return @"Please, set a name for this conversation.";
+        return NSLocalizedString(@"Please, set a name for this conversation.", nil);
     } else if (section == kCreationSectionParticipantsOrPassword && _publicRoom ) {
-        return @"Anyone who knows the link to this conversation will be able to access it. You can protect it by setting a password.";
+        return NSLocalizedString(@"Anyone who knows the link to this conversation will be able to access it. You can protect it by setting a password.", nil);
     }
     
     return nil;
@@ -364,7 +364,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:publicCellIdentifier];
                 }
                 
-                cell.textLabel.text = @"Password";
+                cell.textLabel.text = NSLocalizedString(@"Password", nil);
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
                 cell.accessoryView = _passwordTextField;
                 [cell.imageView setImage:[UIImage imageNamed:@"password-settings"]];

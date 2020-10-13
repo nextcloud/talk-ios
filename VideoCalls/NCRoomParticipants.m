@@ -53,7 +53,8 @@
 - (NSString *)displayName
 {
     if (self.canModerate) {
-        return [NSString stringWithFormat:@"%@ %@", _displayName, @"(moderator)"];
+        NSString *moderatorString = NSLocalizedString(@"moderator", nil);
+        return [NSString stringWithFormat:@"%@ (%@)", _displayName, moderatorString];
     }
     return _displayName;
 }

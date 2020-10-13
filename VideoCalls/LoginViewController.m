@@ -34,7 +34,7 @@
     self.appLogo.image = [UIImage imageNamed:@"loginLogo"];
     self.view.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
     
-    NSString *serverUrlPlaceholderText = @"Server address https://…";
+    NSString *serverUrlPlaceholderText = NSLocalizedString(@"Server address https://…", nil);
     self.serverUrl.textColor = [UIColor whiteColor];
     self.serverUrl.tintColor = [UIColor whiteColor];
     self.serverUrl.attributedPlaceholder = [[NSAttributedString alloc] initWithString:serverUrlPlaceholderText
@@ -47,7 +47,7 @@
     self.activityIndicatorView.hidden = YES;
     
     self.cancel.hidden = !(multiAccountEnabled && [[NCDatabaseManager sharedInstance] numberOfAccounts] > 0);
-    [self.cancel setTitle:@"Cancel" forState:UIControlStateNormal];
+    [self.cancel setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
 }
 
 - (void)didReceiveMemoryWarning
@@ -87,7 +87,7 @@
     if (serverURL) {
         [self startLoginProcess];
     } else {
-        [self showAlertWithTitle:@"Invalid server address" andMessage:@"Please check that you entered a valid server address."];
+        [self showAlertWithTitle:NSLocalizedString(@"Invalid server address", nil) andMessage:NSLocalizedString(@"Please check that you entered a valid server address.", nil)];
     }
 }
 
@@ -122,9 +122,9 @@
             if ([talkFeatures containsObject:kMinimumRequiredTalkCapability]) {
                 [self presentAuthenticationView];
             } else if (talkFeatures.count == 0) {
-                [self showAlertWithTitle:@"Nextcloud Talk not installed" andMessage:@"It seems that Nextcloud Talk is not installed in your server."];
+                [self showAlertWithTitle:NSLocalizedString(@"Nextcloud Talk not installed", nil) andMessage:NSLocalizedString(@"It seems that Nextcloud Talk is not installed in your server.", nil)];
             } else {
-                [self showAlertWithTitle:@"Nextcloud Talk version not supported" andMessage:@"Please update your server with the latest Nextcloud Talk version available."];
+                [self showAlertWithTitle:NSLocalizedString(@"Nextcloud Talk version not supported", nil) andMessage:NSLocalizedString(@"Please update your server with the latest Nextcloud Talk version available.", nil)];
             }
         } else {
             // Self signed certificate
@@ -133,7 +133,7 @@
                     [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
                 });
             } else {
-                [self showAlertWithTitle:@"Nextcloud server not found" andMessage:@"Please check that you entered the correct Nextcloud server address."];
+                [self showAlertWithTitle:NSLocalizedString(@"Nextcloud server not found", nil) andMessage:NSLocalizedString(@"Please check that you entered the correct Nextcloud server address.", nil)];
             }
         }
     }];
@@ -156,7 +156,7 @@
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction* okButton = [UIAlertAction
-                               actionWithTitle:@"OK"
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
                                style:UIAlertActionStyleDefault
                                handler:^(UIAlertAction * _Nonnull action) {
                                    [_serverUrl becomeFirstResponder];

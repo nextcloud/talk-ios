@@ -152,11 +152,11 @@ typedef enum NCChatMessageAction {
     
     [self.rightButton setTitle:@"" forState:UIControlStateNormal];
     [self.rightButton setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
-    self.rightButton.accessibilityLabel = @"Send message";
-    self.rightButton.accessibilityHint = @"Double tap to send message";
+    self.rightButton.accessibilityLabel = NSLocalizedString(@"Send message", nil);
+    self.rightButton.accessibilityHint = NSLocalizedString(@"Double tap to send message", nil);
     [self.leftButton setImage:[UIImage imageNamed:@"attachment"] forState:UIControlStateNormal];
-    self.leftButton.accessibilityLabel = @"Share a file from your Nextcloud";
-    self.leftButton.accessibilityHint = @"Double tap to open file browser";
+    self.leftButton.accessibilityLabel = NSLocalizedString(@"Share a file from your Nextcloud", nil);
+    self.leftButton.accessibilityHint = NSLocalizedString(@"Double tap to open file browser", nil);
     
     self.textInputbar.autoHideRightButton = NO;
     NSInteger chatMaxLength = [[NCSettingsController sharedInstance] chatMaxLengthConfigCapability];
@@ -220,7 +220,7 @@ typedef enum NCChatMessageAction {
     _unreadMessageButton.hidden = YES;
     _unreadMessageButton.translatesAutoresizingMaskIntoConstraints = NO;
     [_unreadMessageButton addTarget:self action:@selector(unreadMessagesButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [_unreadMessageButton setTitle:@"↓ New messages" forState:UIControlStateNormal];
+    [_unreadMessageButton setTitle:NSLocalizedString(@"↓ New messages", nil) forState:UIControlStateNormal];
     
     // Unread messages separator
     _unreadMessagesSeparator = [[NCChatMessage alloc] init];
@@ -366,7 +366,7 @@ typedef enum NCChatMessageAction {
         [_titleView.image setImage:[UIImage imageNamed:@"password-bg"]];
     }
     
-    _titleView.title.accessibilityHint = @"Double tap to go to conversation information";
+    _titleView.title.accessibilityHint = NSLocalizedString(@"Double tap to go to conversation information", nil);
 }
 
 - (void)configureActionItems
@@ -375,15 +375,15 @@ typedef enum NCChatMessageAction {
                                                         style:UIBarButtonItemStylePlain
                                                        target:self
                                                        action:@selector(videoCallButtonPressed:)];
-    _videoCallButton.accessibilityLabel = @"Video call";
-    _videoCallButton.accessibilityHint = @"Double tap to start a video call";
+    _videoCallButton.accessibilityLabel = NSLocalizedString(@"Video call", nil);
+    _videoCallButton.accessibilityHint = NSLocalizedString(@"Double tap to start a video call", nil);
     
     _voiceCallButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"call-action"]
                                                         style:UIBarButtonItemStylePlain
                                                        target:self
                                                        action:@selector(voiceCallButtonPressed:)];
-    _voiceCallButton.accessibilityLabel = @"Voice call";
-    _voiceCallButton.accessibilityHint = @"Double tap to start a voice call";
+    _voiceCallButton.accessibilityLabel = NSLocalizedString(@"Voice call", nil);
+    _voiceCallButton.accessibilityHint = NSLocalizedString(@"Double tap to start a voice call", nil);
     
     self.navigationItem.rightBarButtonItems = @[_videoCallButton, _voiceCallButton];
 }
@@ -421,12 +421,12 @@ typedef enum NCChatMessageAction {
 - (void)checkLobbyState
 {
     if ([self shouldPresentLobbyView]) {
-        [_chatBackgroundView.placeholderText setText:@"You are currently waiting in the lobby."];
+        [_chatBackgroundView.placeholderText setText:NSLocalizedString(@"You are currently waiting in the lobby", nil)];
         [_chatBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"lobby-placeholder"]];
         if (_room.lobbyTimer > 0) {
             NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
             NSString *meetingStart = [NCUtils readableDateFromDate:date];
-            NSString *placeHolderText = [NSString stringWithFormat:@"You are currently waiting in the lobby.\nThis meeting is scheduled for\n%@", meetingStart];
+            NSString *placeHolderText = [NSString stringWithFormat:NSLocalizedString(@"You are currently waiting in the lobby.\nThis meeting is scheduled for\n%@", nil), meetingStart];
             [_chatBackgroundView.placeholderText setText:placeHolderText];
             [_chatBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"lobby-placeholder"]];
         }
@@ -436,7 +436,7 @@ typedef enum NCChatMessageAction {
         // Clear current chat since chat history will be retrieve when lobby is disabled
         [self cleanChat];
     } else {
-        [_chatBackgroundView.placeholderText setText:@"No messages yet, start the conversation!"];
+        [_chatBackgroundView.placeholderText setText:NSLocalizedString(@"No messages yet, start the conversation!", nil)];
         [_chatBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"chat-placeholder"]];
         [_chatBackgroundView.placeholderView setHidden:YES];
         [_chatBackgroundView.loadingView startAnimating];
@@ -459,7 +459,7 @@ typedef enum NCChatMessageAction {
     footerLabel.textColor = [UIColor lightGrayColor];
     footerLabel.font = [UIFont systemFontOfSize:12.0];
     footerLabel.backgroundColor = [UIColor clearColor];
-    footerLabel.text = @"Offline, only showing downloaded messages";
+    footerLabel.text = NSLocalizedString(@"Offline, only showing downloaded messages", nil);
     self.tableView.tableFooterView = footerLabel;
     self.tableView.tableFooterView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
 }
@@ -501,14 +501,14 @@ typedef enum NCChatMessageAction {
 
 - (void)presentJoinRoomError
 {
-    NSString *alertTitle = [NSString stringWithFormat:@"Could not join %@", _room.displayName];
+    NSString *alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join %@", nil), _room.displayName];
     if (_room.type == kNCRoomTypeOneToOne) {
-        alertTitle = [NSString stringWithFormat:@"Could not join conversation with %@", _room.displayName];
+        alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join conversation with %@", nil), _room.displayName];
     }
     UIAlertController * alert = [UIAlertController alertControllerWithTitle:alertTitle
-                                                                    message:@"An error occurred while joining the conversation"
+                                                                    message:NSLocalizedString(@"An error occurred while joining the conversation", nil)
                                                              preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction* okButton = [UIAlertAction actionWithTitle:@"OK"
+    UIAlertAction* okButton = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                                        style:UIAlertActionStyleDefault
                                                      handler:nil];
     [alert addAction:okButton];
@@ -669,21 +669,21 @@ typedef enum NCChatMessageAction {
                                                                                 message:nil
                                                                          preferredStyle:UIAlertControllerStyleActionSheet];
     
-    UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:@"Photo Library"
+    UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
                                                                  style:UIAlertActionStyleDefault
                                                                handler:^void (UIAlertAction *action) {
         [self presentPhotoLibrary];
     }];
     [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     
-    UIAlertAction *filesAction = [UIAlertAction actionWithTitle:@"Files"
+    UIAlertAction *filesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Files", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^void (UIAlertAction *action) {
         [self presentDocumentPicker];
     }];
     [filesAction setValue:[[UIImage imageNamed:@"files"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         
-    UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:@"Nextcloud Files"
+    UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Nextcloud Files", nil)
                                                      style:UIAlertActionStyleDefault
                                                    handler:^void (UIAlertAction *action) {
         [self presentNextcloudFilesBrowser];
@@ -693,7 +693,7 @@ typedef enum NCChatMessageAction {
     [optionsActionSheet addAction:photoLibraryAction];
     [optionsActionSheet addAction:filesAction];
     [optionsActionSheet addAction:ncFilesAction];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.leftButton;
@@ -855,23 +855,23 @@ typedef enum NCChatMessageAction {
             // Reply option
             if (message.isReplyable) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
-                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Reply" image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
+                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
             }
             // Re-send option
             if (message.sendingFailed) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionResend) forKey:@"action"];
-                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Resend" image:[UIImage imageNamed:@"refresh"] userInfo:replyInfo];
+                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Resend", nil) image:[UIImage imageNamed:@"refresh"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
             }
             // Copy option
             NSDictionary *copyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionCopy) forKey:@"action"];
-            FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Copy" image:[UIImage imageNamed:@"clippy"] userInfo:copyInfo];
+            FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Copy", nil) image:[UIImage imageNamed:@"clippy"] userInfo:copyInfo];
             [menuArray addObject:copyModel];
             // Delete option
             if (message.sendingFailed) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionDelete) forKey:@"action"];
-                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Delete" image:[UIImage imageNamed:@"delete"] userInfo:replyInfo];
+                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Delete", nil) image:[UIImage imageNamed:@"delete"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
             }
             
@@ -1218,12 +1218,12 @@ typedef enum NCChatMessageAction {
             } else {
                 self.textView.text = message;
                 UIAlertController * alert = [UIAlertController
-                                             alertControllerWithTitle:@"Could not send the message"
-                                             message:@"An error occurred while sending the message"
+                                             alertControllerWithTitle:NSLocalizedString(@"Could not send the message", nil)
+                                             message:NSLocalizedString(@"An error occurred while sending the message", nil)
                                              preferredStyle:UIAlertControllerStyleAlert];
                 
                 UIAlertAction* okButton = [UIAlertAction
-                                           actionWithTitle:@"OK"
+                                           actionWithTitle:NSLocalizedString(@"OK", nil)
                                            style:UIAlertActionStyleDefault
                                            handler:nil];
                 
@@ -1689,13 +1689,13 @@ typedef enum NCChatMessageAction {
     if (message.messageId == kUnreadMessagesSeparatorIdentifier) {
         MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
         separatorCell.messageId = message.messageId;
-        separatorCell.separatorLabel.text = @"Unread messages";
+        separatorCell.separatorLabel.text = NSLocalizedString(@"Unread messages", nil);
         return separatorCell;
     }
     if (message.messageId == kChatBlockSeparatorIdentifier) {
         MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
         separatorCell.messageId = message.messageId;
-        separatorCell.separatorLabel.text = @"Some messages not shown, will be downloaded when online";
+        separatorCell.separatorLabel.text = NSLocalizedString(@"Some messages not shown, will be downloaded when online", nil);
         return separatorCell;
     }
     if (message.isSystemMessage) {

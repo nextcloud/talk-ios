@@ -80,7 +80,7 @@
     [_searchController.searchBar sizeToFit];
     
     // Configure navigation bar
-    self.navigationItem.title = @"Share with";
+    self.navigationItem.title = NSLocalizedString(@"Share with", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
@@ -89,7 +89,7 @@
     
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
-    cancelButton.accessibilityHint = @"Double tap to dismiss sharing options";
+    cancelButton.accessibilityHint = NSLocalizedString(@"Double tap to dismiss sharing options", nil);
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     
     if (@available(iOS 13.0, *)) {
@@ -134,14 +134,14 @@
     // Rooms placeholder view
     _roomsBackgroundView = [[PlaceholderView alloc] init];
     [_roomsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
-    [_roomsBackgroundView.placeholderText setText:@"You are not part of any conversation."];
+    [_roomsBackgroundView.placeholderText setText:NSLocalizedString(@"You are not part of any conversation", nil)];
     [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
     [_roomsBackgroundView.loadingView setHidden:YES];
     self.tableView.backgroundView = _roomsBackgroundView;
     
     _roomSearchBackgroundView = [[PlaceholderView alloc] init];
     [_roomSearchBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
-    [_roomSearchBackgroundView.placeholderText setText:@"No results found."];
+    [_roomSearchBackgroundView.placeholderText setText:NSLocalizedString(@"No results found", nil)];
     [_roomSearchBackgroundView.placeholderView setHidden:YES];
     [_roomSearchBackgroundView.loadingView setHidden:YES];
     _resultTableViewController.tableView.backgroundView = _roomSearchBackgroundView;

@@ -63,13 +63,13 @@
     if (_isModal) {
         UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                       target:self action:@selector(cancelButtonPressed)];
-        cancelButton.accessibilityHint = @"Double tap to dismiss sharing options";
+        cancelButton.accessibilityHint = NSLocalizedString(@"Double tap to dismiss sharing options", nil);
         self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     }
     
-    _sendButton = [[UIBarButtonItem alloc] initWithTitle:@"Send" style:UIBarButtonItemStyleDone
+    _sendButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Send", nil) style:UIBarButtonItemStyleDone
                                                   target:self action:@selector(sendButtonPressed)];
-    _sendButton.accessibilityHint = @"Double tap to share with selected conversations";
+    _sendButton.accessibilityHint = NSLocalizedString(@"Double tap to share with selected conversations", nil);
     self.navigationItem.rightBarButtonItem = _sendButton;
     
     _sharingIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
@@ -85,7 +85,7 @@
                                  NSForegroundColorAttributeName:[UIColor darkTextColor]};
     NSDictionary *subAttribute = @{NSFontAttributeName:[UIFont boldSystemFontOfSize:15],
                                    NSForegroundColorAttributeName:[UIColor lightGrayColor]};
-    NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"To: %@", _room.displayName] attributes:attributes];
+    NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:NSLocalizedString(@"To: %@", nil), _room.displayName] attributes:attributes];
     [toString addAttributes:subAttribute range:NSMakeRange(0, 3)];
     self.toTextView.attributedText = toString;
     
@@ -191,9 +191,9 @@
     
     _hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     _hud.mode = MBProgressHUDModeAnnularDeterminate;
-    _hud.label.text = @"Uploading file";
+    _hud.label.text = NSLocalizedString(@"Uploading file", nil);
     if (_type == ShareConfirmationTypeImage || _type == ShareConfirmationTypeImageFile) {
-        _hud.label.text = @"Uploading image";
+        _hud.label.text = NSLocalizedString(@"Uploading image", nil);
     }
     
     [self checkForUniqueNameAndUploadFileWithName:fileName withOriginalName:YES];

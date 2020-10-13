@@ -113,13 +113,13 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
-    self.navigationController.navigationBar.topItem.leftBarButtonItem.accessibilityHint = @"Cancel conversation creation";
+    self.navigationController.navigationBar.topItem.leftBarButtonItem.accessibilityHint = NSLocalizedString(@"Cancel conversation creation", nil);
     
-    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStylePlain
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", nil) style:UIBarButtonItemStylePlain
                                                                   target:nil action:nil];
     self.navigationItem.backBarButtonItem = backButton;
     
-    self.navigationItem.title = @"New conversation";
+    self.navigationItem.title = NSLocalizedString(@"New conversation", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
@@ -290,17 +290,17 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         }
         switch (indexPath.row) {
             case kHeaderSectionNewGroup:
-                cell.labelTitle.text = @"Group conversation";
-                cell.labelTitle.accessibilityLabel = @"Create a new group conversation";
-                cell.labelTitle.accessibilityHint = @"Double tap to start creating a new group conversation";
+                cell.labelTitle.text = NSLocalizedString(@"Group conversation", nil);
+                cell.labelTitle.accessibilityLabel = NSLocalizedString(@"Create a new group conversation", nil);
+                cell.labelTitle.accessibilityHint = NSLocalizedString(@"Double tap to start creating a new group conversation", nil);
                 cell.labelTitle.textColor = [UIColor colorWithRed:0.00 green:0.48 blue:1.00 alpha:1.0]; //#007AFF
                 [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
                 break;
                 
             case kHeaderSectionNewPublic:
-                cell.labelTitle.text = @"Public conversation";
-                cell.labelTitle.accessibilityLabel = @"Create a new public conversation";
-                cell.labelTitle.accessibilityHint = @"Double tap to start creating a new public conversation";
+                cell.labelTitle.text = NSLocalizedString(@"Public conversation", nil);
+                cell.labelTitle.accessibilityLabel = NSLocalizedString(@"Create a new public conversation", nil);
+                cell.labelTitle.accessibilityHint = NSLocalizedString(@"Double tap to start creating a new public conversation", nil);
                 cell.labelTitle.textColor = [UIColor colorWithRed:0.00 green:0.48 blue:1.00 alpha:1.0]; //#007AFF
                 [cell.contactImage setImage:[UIImage imageNamed:@"public-bg"]];
                 break;
@@ -319,8 +319,8 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     }
     
     cell.labelTitle.text = contact.name;
-    cell.labelTitle.accessibilityLabel = [NSString stringWithFormat:@"Create a conversation with %@", contact.name];
-    cell.labelTitle.accessibilityHint = [NSString stringWithFormat:@"Double tap to create a conversation with %@", contact.name];
+    cell.labelTitle.accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Create a conversation with %@", nil), contact.name];
+    cell.labelTitle.accessibilityHint = [NSString stringWithFormat:NSLocalizedString(@"Double tap to create a conversation with %@", nil), contact.name];
     
     [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                              placeholderImage:nil success:nil failure:nil];

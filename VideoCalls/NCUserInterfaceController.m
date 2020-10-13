@@ -89,12 +89,12 @@
 - (void)presentOfflineWarningAlert
 {
     UIAlertController * alert = [UIAlertController
-                                 alertControllerWithTitle:@"Disconnected"
-                                 message:@"It seems that there is no Internet connection."
+                                 alertControllerWithTitle:NSLocalizedString(@"Disconnected", nil)
+                                 message:NSLocalizedString(@"It seems that there is no Internet connection.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction* okButton = [UIAlertAction
-                               actionWithTitle:@"OK"
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
                                style:UIAlertActionStyleDefault
                                handler:nil];
     
@@ -106,12 +106,12 @@
 - (void)presentTalkNotInstalledWarningAlert
 {
     UIAlertController * alert = [UIAlertController
-                                 alertControllerWithTitle:@"Nextcloud Talk not installed"
-                                 message:@"It seems that Nextcloud Talk is not installed in your server."
+                                 alertControllerWithTitle:NSLocalizedString(@"Nextcloud Talk not installed", nil)
+                                 message:NSLocalizedString(@"It seems that Nextcloud Talk is not installed in your server.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction* okButton = [UIAlertAction
-                               actionWithTitle:@"OK"
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
                                style:UIAlertActionStyleDefault
                                handler:^(UIAlertAction * _Nonnull action) {
                                    [self logOutCurrentUser];
@@ -125,12 +125,12 @@
 - (void)presentTalkOutdatedWarningAlert
 {
     UIAlertController * alert = [UIAlertController
-                                 alertControllerWithTitle:@"Nextcloud Talk version not supported"
-                                 message:@"Please update your server with the latest Nextcloud Talk version available."
+                                 alertControllerWithTitle:NSLocalizedString(@"Nextcloud Talk version not supported", nil)
+                                 message:NSLocalizedString(@"Please update your server with the latest Nextcloud Talk version available.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction* okButton = [UIAlertAction
-                               actionWithTitle:@"OK"
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
                                style:UIAlertActionStyleDefault
                                handler:^(UIAlertAction * _Nonnull action) {
                                    [self logOutCurrentUser];
@@ -183,11 +183,11 @@
     }
     UIAlertController * alert = [UIAlertController
                                  alertControllerWithTitle:[pushNotification bodyForRemoteAlerts]
-                                 message:@"Do you want to join this call?"
+                                 message:NSLocalizedString(@"Do you want to join this call?", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction *joinAudioButton = [UIAlertAction
-                                      actionWithTitle:@"Join call (audio only)"
+                                      actionWithTitle:NSLocalizedString(@"Join call (audio only)", nil)
                                       style:UIAlertActionStyleDefault
                                       handler:^(UIAlertAction * _Nonnull action) {
                                           NSDictionary *userInfo = [NSDictionary dictionaryWithObject:pushNotification forKey:@"pushNotification"];
@@ -197,7 +197,7 @@
                                       }];
     
     UIAlertAction *joinVideoButton = [UIAlertAction
-                                      actionWithTitle:@"Join call with video"
+                                      actionWithTitle:NSLocalizedString(@"Join call with video", nil)
                                       style:UIAlertActionStyleDefault
                                       handler:^(UIAlertAction * _Nonnull action) {
                                           NSDictionary *userInfo = [NSDictionary dictionaryWithObject:pushNotification forKey:@"pushNotification"];
@@ -207,7 +207,7 @@
                                       }];
     
     UIAlertAction* cancelButton = [UIAlertAction
-                                   actionWithTitle:@"Cancel"
+                                   actionWithTitle:NSLocalizedString(@"Cancel", nil)
                                    style:UIAlertActionStyleCancel
                                    handler:nil];
     

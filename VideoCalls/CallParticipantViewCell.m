@@ -110,7 +110,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 {
     _displayName = displayName;
     if (!displayName || [displayName isKindOfClass:[NSNull class]] || [displayName isEqualToString:@""]) {
-        _displayName = @"Guest";
+        _displayName = NSLocalizedString(@"Guest", nil);
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         self.peerNameLabel.text = _displayName;
@@ -162,7 +162,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 {
     if (_connectionState == RTCIceConnectionStateDisconnected) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.peerNameLabel.text = [NSString stringWithFormat:@"Connecting to %@…", _displayName];
+            self.peerNameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Connecting to %@…", nil), _displayName];
             self.peerAvatarImageView.alpha = 0.3;
         });
     }
@@ -171,7 +171,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 - (void)setFailedConnectionUI
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.peerNameLabel.text = [NSString stringWithFormat:@"Failed to connect to %@", _displayName];
+        self.peerNameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Failed to connect to %@", nil), _displayName];
         self.peerAvatarImageView.alpha = 0.3;
     });
 }

@@ -56,7 +56,7 @@
     // Directory placeholder view
     _directoryBackgroundView = [[PlaceholderView alloc] init];
     [_directoryBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"folder-placeholder"]];
-    [_directoryBackgroundView.placeholderText setText:@"No files in here"];
+    [_directoryBackgroundView.placeholderText setText:NSLocalizedString(@"No files in here", nil)];
     [_directoryBackgroundView.placeholderView setHidden:YES];
     [_directoryBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _directoryBackgroundView;
@@ -96,21 +96,21 @@
     [UIAlertController alertControllerWithTitle:nil
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
-    UIAlertAction *alphabetical = [UIAlertAction actionWithTitle:@"Alphabetical order"
+    UIAlertAction *alphabetical = [UIAlertAction actionWithTitle:NSLocalizedString(@"Alphabetical order", nil)
                                                            style:UIAlertActionStyleDefault
                                                          handler:^void (UIAlertAction *action) {
                                                              [[NCSettingsController sharedInstance] setPreferredFileSorting:NCAlphabeticalSorting];
                                                              [self sortItemsInDirectory];
                                                          }];
     [optionsActionSheet addAction:alphabetical];
-    UIAlertAction *modificationDate = [UIAlertAction actionWithTitle:@"Modification date"
+    UIAlertAction *modificationDate = [UIAlertAction actionWithTitle:NSLocalizedString(@"Modification date", nil)
                                                                style:UIAlertActionStyleDefault
                                                              handler:^void (UIAlertAction *action) {
                                                                  [[NCSettingsController sharedInstance] setPreferredFileSorting:NCModificationDateSorting];
                                                                  [self sortItemsInDirectory];
                                                              }];
     [optionsActionSheet addAction:modificationDate];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     UIAlertAction *selectedAction = modificationDate;
     switch ([[NCSettingsController sharedInstance] getPreferredFileSorting]) {
@@ -241,13 +241,13 @@
 {
     UIAlertController *confirmDialog =
     [UIAlertController alertControllerWithTitle:name
-                                        message:[NSString stringWithFormat:@"Do you want to share '%@' in the conversation?", name]
+                                        message:[NSString stringWithFormat:NSLocalizedString(@"Do you want to share '%@' in the conversation?", nil), name]
                                  preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Share" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Share", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         [self shareFileWithPath:path];
     }];
     [confirmDialog addAction:confirmAction];
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
     [confirmDialog addAction:cancelAction];
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
@@ -255,10 +255,10 @@
 - (void)showErrorSharingItem
 {
     UIAlertController *confirmDialog =
-    [UIAlertController alertControllerWithTitle:@"Could not share file"
-                                        message:@"An error occurred while sharing the file"
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Could not share file", nil)
+                                        message:NSLocalizedString(@"An error occurred while sharing the file", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
     [confirmDialog addAction:confirmAction];
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
@@ -270,19 +270,19 @@
     ti = ti * -1;
     if (ti < 60) {
         // This minute
-        return @"less than a minute ago";
+        return NSLocalizedString(@"less than a minute ago", nil);
     } else if (ti < 3600) {
         // This hour
         int diff = round(ti / 60);
-        return [NSString stringWithFormat:@"%d minutes ago", diff];
+        return [NSString stringWithFormat:NSLocalizedString(@"%d minutes ago", nil), diff];
     } else if (ti < 86400) {
         // This day
         int diff = round(ti / 60 / 60);
-        return[NSString stringWithFormat:@"%d hours ago", diff];
+        return[NSString stringWithFormat:NSLocalizedString(@"%d hours ago", nil), diff];
     } else if (ti < 86400 * 30) {
         // This month
         int diff = round(ti / 60 / 60 / 24);
-        return[NSString stringWithFormat:@"%d days ago", diff];
+        return[NSString stringWithFormat:NSLocalizedString(@"%d days ago", nil), diff];
     } else {
         // Older than one month
         NSDateFormatter *df = [[NSDateFormatter alloc] init];
