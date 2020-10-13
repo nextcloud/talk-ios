@@ -45,7 +45,7 @@ CGFloat const kShareTableCellHeight = 56.0f;
     [self.avatarImageView cancelImageDownloadTask];
     
     self.avatarImageView.image = nil;
-    self.titleLabel.text = @"asa";
+    self.titleLabel.text = @"";
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
