@@ -34,7 +34,7 @@
     // Contacts placeholder view
     _roomSearchBackgroundView = [[PlaceholderView alloc] init];
     [_roomSearchBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
-    [_roomSearchBackgroundView.placeholderText setText:@"No results found."];
+    [_roomSearchBackgroundView.placeholderText setText:NSLocalizedString(@"No results found", nil)];
     [_roomSearchBackgroundView.placeholderView setHidden:YES];
     [_roomSearchBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _roomSearchBackgroundView;
@@ -61,7 +61,7 @@
     if ([date isToday]) {
         [formatter setDateFormat:@"HH:mm"];
     } else if ([date isYesterday]) {
-        return @"Yesterday";
+        return NSLocalizedString(@"Yesterday", nil);
     } else {
         [formatter setDateFormat:@"dd/MM/yy"];
     }

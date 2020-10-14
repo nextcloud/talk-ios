@@ -150,11 +150,11 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (NSString *)deletionMessage
 {
-    NSString *message = @"Do you really want to delete this conversation?";
+    NSString *message = NSLocalizedString(@"Do you really want to delete this conversation?", nil);
     if (self.type == kNCRoomTypeOneToOne) {
-        message = [NSString stringWithFormat:@"If you delete the conversation, it will also be deleted for %@", self.displayName];
+        message = [NSString stringWithFormat:NSLocalizedString(@"If you delete the conversation, it will also be deleted for %@", nil), self.displayName];
     } else if ([self.participants count] > 1) {
-        message = @"If you delete the conversation, it will also be deleted for all other participants.";
+        message = NSLocalizedString(@"If you delete the conversation, it will also be deleted for all other participants.", nil);
     }
     
     return message;
@@ -167,16 +167,16 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level
 {
-    NSString *levelString = @"Default";
+    NSString *levelString = NSLocalizedString(@"Default", nil);
     switch (level) {
         case kNCRoomNotificationLevelAlways:
-            levelString = @"All messages";
+            levelString = NSLocalizedString(@"All messages", nil);
             break;
         case kNCRoomNotificationLevelMention:
-            levelString = @"@-mentions only";
+            levelString = NSLocalizedString(@"@-mentions only", nil);
             break;
         case kNCRoomNotificationLevelNever:
-            levelString = @"Off";
+            levelString = NSLocalizedString(@"Off", nil);
             break;
         default:
             break;
@@ -191,11 +191,11 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     NSString *actorName = [[self.lastMessage.actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0];
     // For own messages
     if (ownMessage) {
-        actorName = @"You";
+        actorName = NSLocalizedString(@"You", nil);
     }
     // For guests
     if ([self.lastMessage.actorDisplayName isEqualToString:@""]) {
-        actorName = @"Guest";
+        actorName = NSLocalizedString(@"Guest", nil);
     }
     // No actor name cases
     if (self.lastMessage.isSystemMessage || (self.type == kNCRoomTypeOneToOne && !ownMessage) || self.type == kNCRoomTypeChangelog) {

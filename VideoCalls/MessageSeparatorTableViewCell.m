@@ -56,7 +56,7 @@
         _separatorLabel.numberOfLines = 1;
         _separatorLabel.textColor = [UIColor lightGrayColor];
         _separatorLabel.font = [UIFont systemFontOfSize:12.0];
-        _separatorLabel.text = @"Unread messages";
+        _separatorLabel.text = NSLocalizedString(@"Unread messages", nil);
     }
     return _separatorLabel;
 }

@@ -68,8 +68,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
-    self.addButton.accessibilityLabel = @"Create a new conversation";
-    self.addButton.accessibilityHint = @"Double tap to create group, public or one to one conversations.";
+    self.addButton.accessibilityLabel = NSLocalizedString(@"Create a new conversation", nil);
+    self.addButton.accessibilityHint = NSLocalizedString(@"Double tap to create group, public or one to one conversations.", nil);
     
     [self createRefreshControl];
     [self setNavigationLogoButton];
@@ -132,7 +132,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Rooms placeholder view
     _roomsBackgroundView = [[PlaceholderView alloc] init];
     [_roomsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
-    [_roomsBackgroundView.placeholderText setText:@"You are not part of any conversation. Press + to start a new one."];
+    [_roomsBackgroundView.placeholderText setText:NSLocalizedString(@"You are not part of any conversation. Press + to start a new one.", nil)];
     [_roomsBackgroundView.placeholderView setHidden:YES];
     [_roomsBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _roomsBackgroundView;
@@ -276,7 +276,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
     }
     self.navigationItem.titleView.accessibilityLabel = @"Nextcloud Talk";
-    self.navigationItem.titleView.accessibilityHint = @"Double tap to change accounts or add a new one.";
+    self.navigationItem.titleView.accessibilityHint = NSLocalizedString(@"Double tap to change accounts or add a new one.", nil);
 }
 
 -(void)showAccountsMenu:(UIButton*)sender
@@ -292,7 +292,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [menuArray addObject:accountModel];
         [actionsArray addObject:account];
     }
-    FTPopOverMenuModel *addAccountModel = [[FTPopOverMenuModel alloc] initWithTitle:@"Add account" image:[UIImage imageNamed:@"add-settings"] selected:NO accessoryView:nil];
+    FTPopOverMenuModel *addAccountModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Add account", nil) image:[UIImage imageNamed:@"add-settings"] selected:NO accessoryView:nil];
     [menuArray addObject:addAccountModel];
     [actionsArray addObject:@"AddAccountAction"];
     
@@ -431,8 +431,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIButton *profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [profileButton addTarget:self action:@selector(showUserProfile) forControlEvents:UIControlEventTouchUpInside];
     profileButton.frame = CGRectMake(0, 0, 30, 30);
-    profileButton.accessibilityLabel = @"User profile and settings";
-    profileButton.accessibilityHint = @"Double tap to go to user profile and application settings";
+    profileButton.accessibilityLabel = NSLocalizedString(@"User profile and settings", nil);
+    profileButton.accessibilityHint = NSLocalizedString(@"Double tap to go to user profile and application settings", nil);
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withSize:CGSizeMake(90, 90)];
@@ -493,13 +493,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     
     UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:@"Notifications"
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Notifications", nil)
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelAlways forRoom:room]];
     [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelMention forRoom:room]];
     [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelNever forRoom:room]];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
@@ -537,17 +537,16 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSString *shareMessage = [NSString stringWithFormat:@"Join the conversation at %@/index.php/call/%@",
-                              activeAccount.server, room.token];
+    NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
     if (room.name && ![room.name isEqualToString:@""]) {
-        shareMessage = [NSString stringWithFormat:@"Join the conversation%@ at %@/index.php/call/%@",
-                        [NSString stringWithFormat:@" \"%@\"", room.name], activeAccount.server, room.token];
+        joinConversationString = [NSString stringWithFormat:NSLocalizedString(@"Join the conversation %@ at", nil), [NSString stringWithFormat:@"\"%@\"", room.name]];
     }
+    NSString *shareMessage = [NSString stringWithFormat:@"%@ %@/index.php/call/%@", joinConversationString, activeAccount.server, room.token];
     NSArray *items = @[shareMessage];
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
     
     NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
-    NSString *emailSubject = [NSString stringWithFormat:@"%@ invitation", appDisplayName];
+    NSString *emailSubject = [NSString stringWithFormat:NSLocalizedString(@"%@ invitation", nil), appDisplayName];
     [controller setValue:emailSubject forKey:@"subject"];
 
     // Presentation on iPads
@@ -616,10 +615,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     
     UIAlertController *confirmDialog =
-    [UIAlertController alertControllerWithTitle:@"Leave conversation"
-                                        message:@"Do you really want to leave this conversation?"
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Leave conversation", nil)
+                                        message:NSLocalizedString(@"Do you really want to leave this conversation?", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Leave" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Leave", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [_rooms removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [[NCAPIController sharedInstance] removeSelfFromRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSInteger errorCode, NSError *error) {
@@ -632,7 +631,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         }];
     }];
     [confirmDialog addAction:confirmAction];
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
     [confirmDialog addAction:cancelAction];
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
@@ -645,10 +644,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     
     UIAlertController *confirmDialog =
-    [UIAlertController alertControllerWithTitle:@"Delete conversation"
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Delete conversation", nil)
                                         message:room.deletionMessage
                                  preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [_rooms removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [[NCAPIController sharedInstance] deleteRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
@@ -659,7 +658,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         }];
     }];
     [confirmDialog addAction:confirmAction];
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
     [confirmDialog addAction:cancelAction];
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
@@ -677,7 +676,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
     // Add/Remove room to/from favorites
-    UIAlertAction *favoriteAction = [UIAlertAction actionWithTitle:(room.isFavorite) ? @"Remove from favorites" : @"Add to favorites"
+    UIAlertAction *favoriteAction = [UIAlertAction actionWithTitle:(room.isFavorite) ? NSLocalizedString(@"Remove from favorites", nil) : NSLocalizedString(@"Add to favorites", nil)
                                                              style:UIAlertActionStyleDefault
                                                            handler:^void (UIAlertAction *action) {
                                                                if (room.isFavorite) {
@@ -691,7 +690,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [optionsActionSheet addAction:favoriteAction];
     // Notification levels
     if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
-        UIAlertAction *notificationsAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"Notifications: %@", room.notificationLevelString]
+        UIAlertAction *notificationsAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Notifications: %@", nil), room.notificationLevelString]
                                                                       style:UIAlertActionStyleDefault
                                                                     handler:^void (UIAlertAction *action) {
                                                                         [self setNotificationLevelForRoomAtIndexPath:indexPath];
@@ -702,7 +701,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Share link
     if (room.isPublic) {
         // Share Link
-        UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:@"Share conversation link"
+        UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Share conversation link", nil)
                                                                   style:UIAlertActionStyleDefault
                                                                 handler:^void (UIAlertAction *action) {
                                                                     [self shareLinkFromRoomAtIndexPath:indexPath];
@@ -711,7 +710,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [optionsActionSheet addAction:shareLinkAction];
     }
     // Room info
-    UIAlertAction *roomInfoAction = [UIAlertAction actionWithTitle:@"Conversation info"
+    UIAlertAction *roomInfoAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Conversation info", nil)
                                                              style:UIAlertActionStyleDefault
                                                            handler:^void (UIAlertAction *action) {
                                                                [self presentRoomInfoForRoomAtIndexPath:indexPath];
@@ -719,7 +718,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [roomInfoAction setValue:[[UIImage imageNamed:@"room-info-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     [optionsActionSheet addAction:roomInfoAction];
     
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
@@ -747,7 +746,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     if ([date isToday]) {
         [formatter setDateFormat:@"HH:mm"];
     } else if ([date isYesterday]) {
-        return @"Yesterday";
+        return NSLocalizedString(@"Yesterday", nil);
     } else {
         [formatter setDateFormat:@"dd/MM/yy"];
     }
@@ -757,11 +756,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)showLeaveRoomLastModeratorErrorForRoom:(NCRoom *)room
 {
     UIAlertController *leaveRoomFailedDialog =
-    [UIAlertController alertControllerWithTitle:@"Could not leave conversation"
-                                        message:[NSString stringWithFormat:@"You need to promote a new moderator before you can leave %@.", room.displayName]
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Could not leave conversation", nil)
+                                        message:[NSString stringWithFormat:NSLocalizedString(@"You need to promote a new moderator before you can leave %@.", nil), room.displayName]
                                  preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
     [leaveRoomFailedDialog addAction:okAction];
     
     [self presentViewController:leaveRoomFailedDialog animated:YES completion:nil];
@@ -791,7 +790,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (NSString *)tableView:(UITableView *)tableView titleForSwipeAccessoryButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return @"More";
+    return NSLocalizedString(@"More", nil);
 }
 
 - (void)tableView:(UITableView *)tableView swipeAccessoryButtonPushedForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -806,9 +805,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
-    NSString *deleteButtonText = @"Delete";
+    NSString *deleteButtonText = NSLocalizedString(@"Delete", nil);
     if (room.isLeavable) {
-        deleteButtonText = @"Leave";
+        deleteButtonText = NSLocalizedString(@"Leave", nil);
     }
     return deleteButtonText;
 }

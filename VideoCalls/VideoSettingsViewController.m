@@ -36,7 +36,7 @@ typedef enum VideoSettingsSection {
 {
     [super viewDidLoad];
     
-    self.navigationItem.title = @"Video calls";
+    self.navigationItem.title = NSLocalizedString(@"Video calls", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
@@ -74,11 +74,11 @@ typedef enum VideoSettingsSection {
 {
     switch (section) {
         case kVideoSettingsSectionResolution:
-            return @"Quality";
+            return NSLocalizedString(@"Quality", nil);
             break;
             
         case kVideoSettingsSectionDefaultVideo:
-            return @"Settings";
+            return NSLocalizedString(@"Settings", nil);
             break;
     }
     
@@ -98,7 +98,7 @@ typedef enum VideoSettingsSection {
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:kVideoResolutionCellIdentifier];
             }
             
-            cell.textLabel.text = @"Video resolution";
+            cell.textLabel.text = NSLocalizedString(@"Video resolution", nil);
             NSString *resolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
             cell.detailTextLabel.text = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:resolution];
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -111,7 +111,7 @@ typedef enum VideoSettingsSection {
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDefaultVideoToggleCellIdentifier];
             }
             
-            cell.textLabel.text = @"Video disabled on start";
+            cell.textLabel.text = NSLocalizedString(@"Video disabled on start", nil);
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             BOOL videoDisabled = [[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore];
             [_videoDisabledSwitch setOn:videoDisabled];

@@ -84,14 +84,16 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     switch (type) {
         case kNCLocalNotificationTypeMissedCall:
             {
-                content.body = [NSString stringWithFormat:@"☎️ Missed call from %@", [userInfo objectForKey:@"displayName"]];
+                NSString *missedCallString = NSLocalizedString(@"Missed call from", nil);
+                content.body = [NSString stringWithFormat:@"☎️ %@ %@", missedCallString, [userInfo objectForKey:@"displayName"]];
                 content.userInfo = userInfo;
             }
             break;
             
         case kNCLocalNotificationTypeCancelledCall:
         {
-            content.body = [NSString stringWithFormat:@"☎️ Cancelled call from another account"];
+            NSString *cancelledCallString = NSLocalizedString(@"Cancelled call from another account", nil);
+            content.body = [NSString stringWithFormat:@"☎️ %@", cancelledCallString];
             content.userInfo = userInfo;
         }
             break;

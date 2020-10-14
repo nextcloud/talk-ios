@@ -46,15 +46,15 @@ NSString * const kUserStatusOffline     = @"offline";
     NSString *readableUserStatus = nil;
     
     if ([userStatus isEqualToString:kUserStatusOnline]) {
-        readableUserStatus = @"Online";
+        readableUserStatus = NSLocalizedString(@"Online", nil);
     } else if ([userStatus isEqualToString:kUserStatusAway]) {
-        readableUserStatus = @"Away";
+        readableUserStatus = NSLocalizedString(@"Away", nil);
     } else if ([userStatus isEqualToString:kUserStatusDND]) {
-        readableUserStatus = @"Do not disturb";
+        readableUserStatus = NSLocalizedString(@"Do not disturb", nil);
     } else if ([userStatus isEqualToString:kUserStatusInvisible]) {
-        readableUserStatus = @"Invisible";
+        readableUserStatus = NSLocalizedString(@"Invisible", nil);
     } else if ([userStatus isEqualToString:kUserStatusOffline]) {
-        readableUserStatus = @"Offline";
+        readableUserStatus = NSLocalizedString(@"Offline", nil);
     }
     
     return readableUserStatus;

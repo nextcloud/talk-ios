@@ -54,9 +54,9 @@
     NSString *author = [[_subjectRichParameters objectForKey:@"user"] objectForKey:@"name"];
     NSString *guest = [[_subjectRichParameters objectForKey:@"guest"] objectForKey:@"name"];
     if (guest) {
-        author = [NSString stringWithFormat:@"%@ (%@)", guest, @"guest"];
+        author = [NSString stringWithFormat:@"%@ (%@)", guest, NSLocalizedString(@"guest", nil)];
     }
-    return author ? author : @"Guest";
+    return author ? author : NSLocalizedString(@"Guest", nil);
 }
 
 - (NSString *)chatMessageTitle
@@ -70,7 +70,8 @@
         NSString *parameterKey = [[parameter stringByReplacingOccurrencesOfString:@"{" withString:@""]
                                   stringByReplacingOccurrencesOfString:@"}" withString:@""];
         if ([parameterKey isEqualToString:@"call"]) {
-            title = [title stringByAppendingString:[NSString stringWithFormat:@" in %@", [[_subjectRichParameters objectForKey:@"call"] objectForKey:@"name"]]];
+            NSString *inString = NSLocalizedString(@"in", nil);
+            title = [title stringByAppendingString:[NSString stringWithFormat:@" %@ %@", inString, [[_subjectRichParameters objectForKey:@"call"] objectForKey:@"name"]]];
         }
     }
     return title;
@@ -84,7 +85,7 @@
         displayName = [[_subjectRichParameters objectForKey:@"user"] objectForKey:@"name"];
     }
     if (!displayName || [displayName isEqualToString:@"a conversation"]) {
-        displayName = @"Incoming call";
+        displayName = NSLocalizedString(@"Incoming call", nil);
     }
     return displayName;
 }

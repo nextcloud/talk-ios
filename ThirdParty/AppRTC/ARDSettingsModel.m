@@ -43,15 +43,15 @@ static NSArray<NSString *> *videoCodecsStaticValues() {
 }
 
 - (NSString *)readableResolution:(NSString *)resolution {
-    NSString *readableResolution = @"Unknown";
+    NSString *readableResolution = NSLocalizedString(@"Unknown", nil);
     if ([resolution isEqualToString:videoResolutionsStaticValues()[0]]) {
-        readableResolution = @"Low";
+        readableResolution = NSLocalizedString(@"Low", nil);
     } else if ([resolution isEqualToString:videoResolutionsStaticValues()[1]]) {
-        readableResolution = @"Normal";
+        readableResolution = NSLocalizedString(@"Normal", nil);
     } else if ([resolution isEqualToString:videoResolutionsStaticValues()[2]]) {
-        readableResolution = @"High";
+        readableResolution = NSLocalizedString(@"High", nil);
     } else if ([resolution isEqualToString:videoResolutionsStaticValues()[3]]) {
-        readableResolution = @"HD";
+        readableResolution = NSLocalizedString(@"HD", nil);
     }
     return readableResolution;
 }

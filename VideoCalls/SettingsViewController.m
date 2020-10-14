@@ -65,7 +65,7 @@ typedef enum AboutSection {
 {
     [super viewDidLoad];
     
-    self.navigationItem.title = @"Profile";
+    self.navigationItem.title = NSLocalizedString(@"Profile", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
@@ -202,11 +202,11 @@ typedef enum AboutSection {
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
-    NSString *actionTitle = (multiAccountEnabled) ? @"Remove account" : @"Log out";
+    NSString *actionTitle = (multiAccountEnabled) ? NSLocalizedString(@"Remove account", nil) : NSLocalizedString(@"Log out", nil);
     UIImage *actionImage = (multiAccountEnabled) ? [UIImage imageNamed:@"delete-action"] : [UIImage imageNamed:@"logout"];
     
     if (multiAccountEnabled) {
-        UIAlertAction *addAccountAction = [UIAlertAction actionWithTitle:@"Add account"
+        UIAlertAction *addAccountAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Add account", nil)
                                            style:UIAlertActionStyleDefault
                                            handler:^void (UIAlertAction *action) {
                                                 [self addNewAccount];
@@ -222,7 +222,7 @@ typedef enum AboutSection {
                                                    }];
     [logOutAction setValue:[actionImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     [optionsActionSheet addAction:logOutAction];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
@@ -240,9 +240,9 @@ typedef enum AboutSection {
 
 - (void)showLogoutConfirmationDialog
 {
-    NSString *alertTitle = (multiAccountEnabled) ? @"Remove account" : @"Log out";
-    NSString *alertMessage = (multiAccountEnabled) ? @"Do you really want to remove this account?" : @"Do you really want to log out from this account?";
-    NSString *actionTitle = (multiAccountEnabled) ? @"Remove" : @"Log out";
+    NSString *alertTitle = (multiAccountEnabled) ? NSLocalizedString(@"Remove account", nil) : NSLocalizedString(@"Log out", nil);
+    NSString *alertMessage = (multiAccountEnabled) ? NSLocalizedString(@"Do you really want to remove this account?", nil) : NSLocalizedString(@"Do you really want to log out from this account?", nil);
+    NSString *actionTitle = (multiAccountEnabled) ? NSLocalizedString(@"Remove", nil) : NSLocalizedString(@"Log out", nil);
     
     UIAlertController *confirmDialog =
     [UIAlertController alertControllerWithTitle:alertTitle
@@ -252,7 +252,7 @@ typedef enum AboutSection {
         [self logout];
     }];
     [confirmDialog addAction:confirmAction];
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
     [confirmDialog addAction:cancelAction];
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
@@ -308,7 +308,7 @@ typedef enum AboutSection {
     
     
     
-    [userStatusActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [userStatusActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
     userStatusActionSheet.popoverPresentationController.sourceView = self.tableView;
@@ -333,7 +333,7 @@ typedef enum AboutSection {
     NSArray *videoResolutions = [[[NCSettingsController sharedInstance] videoSettingsModel] availableVideoResolutions];
     NSString *storedResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
     UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:@"Video quality"
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Video quality", nil)
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
@@ -355,7 +355,7 @@ typedef enum AboutSection {
         [optionsActionSheet addAction:action];
     }
     
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
@@ -370,7 +370,7 @@ typedef enum AboutSection {
     NSArray *supportedBrowsers = [[NCSettingsController sharedInstance] supportedBrowsers];
     NSString *defaultBrowser = [[NCSettingsController sharedInstance] defaultBrowser];
     UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:@"Open links in"
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Open links in", nil)
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
@@ -391,7 +391,7 @@ typedef enum AboutSection {
         [optionsActionSheet addAction:action];
     }
     
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
@@ -461,23 +461,23 @@ typedef enum AboutSection {
     SettingsSection settingsSection = [[sections objectAtIndex:section] intValue];
     switch (settingsSection) {
         case kSettingsSectionUserStatus:
-            return @"Status";
+            return NSLocalizedString(@"Status", nil);
             break;
             
         case kSettingsSectionAccounts:
-            return @"Accounts";
+            return NSLocalizedString(@"Accounts", nil);
             break;
             
         case kSettingsSectionConfiguration:
-            return @"Configuration";
+            return NSLocalizedString(@"Configuration", nil);
             break;
             
         case kSettingsSectionLock:
-            return @"Lock";
+            return NSLocalizedString(@"Lock", nil);
             break;
 
         case kSettingsSectionAbout:
-            return @"About";
+            return NSLocalizedString(@"About", nil);
             break;
             
         default:
@@ -498,7 +498,7 @@ typedef enum AboutSection {
         return [NSString stringWithFormat:@"%@ %@ %@", appName, appVersion, copyright];
     }
     if (settingsSection == kSettingsSectionUserStatus && [_activeUserStatus.status isEqualToString:kUserStatusDND]) {
-        return @"All notifications are muted";
+        return NSLocalizedString(@"All notifications are muted", nil);
     }
     
     return nil;
@@ -542,7 +542,7 @@ typedef enum AboutSection {
                 cell.textLabel.text = [_activeUserStatus readableUserStatus];
                 [cell.imageView setImage:[UIImage imageNamed:[_activeUserStatus userStatusImageNameOfSize:24]]];
             } else {
-                cell.textLabel.text = @"Fetching status…";
+                cell.textLabel.text = NSLocalizedString(@"Fetching status…", nil);
             }
         }
             break;
@@ -576,7 +576,7 @@ typedef enum AboutSection {
                     cell = [tableView dequeueReusableCellWithIdentifier:videoConfigurationCellIdentifier];
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:videoConfigurationCellIdentifier];
-                        cell.textLabel.text = @"Video quality";
+                        cell.textLabel.text = NSLocalizedString(@"Video quality", nil);
                         [cell.imageView setImage:[UIImage imageNamed:@"videocall-settings"]];
                     }
                     NSString *resolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
@@ -588,7 +588,7 @@ typedef enum AboutSection {
                     cell = [tableView dequeueReusableCellWithIdentifier:browserConfigurationCellIdentifier];
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:browserConfigurationCellIdentifier];
-                        cell.textLabel.text = @"Open links in";
+                        cell.textLabel.text = NSLocalizedString(@"Open links in", nil);
                         cell.imageView.contentMode = UIViewContentModeCenter;
                         [cell.imageView setImage:[UIImage imageNamed:@"browser-settings"]];
                     }
@@ -609,15 +609,15 @@ typedef enum AboutSection {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:lockOnCellIdentifier];
                     }
                     
-                    cell.textLabel.text = @"Lock screen";
+                    cell.textLabel.text = NSLocalizedString(@"Lock screen", nil);
 
                     if ([[[NCSettingsController sharedInstance] lockScreenPasscode] length] > 0) {
                         cell.imageView.image  = [UIImage imageNamed:@"password-settings"];
-                        cell.detailTextLabel.text = @"On";
+                        cell.detailTextLabel.text = NSLocalizedString(@"On", nil);
                     }
                     else {
                         cell.imageView.image  = [UIImage imageNamed:@"no-password-settings"];
-                        cell.detailTextLabel.text = @"Off";
+                        cell.detailTextLabel.text = NSLocalizedString(@"Off", nil);
                     }
                 }
                     break;
@@ -626,14 +626,14 @@ typedef enum AboutSection {
                         cell = [tableView dequeueReusableCellWithIdentifier:lockUseSimplyCellIdentifier];
                         if (!cell) {
                             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:lockUseSimplyCellIdentifier];
-                            cell.textLabel.text = @"Password type";
+                            cell.textLabel.text = NSLocalizedString(@"Password type", nil);
                             cell.imageView.image  = [UIImage imageNamed:@"key"];
                         }
 
                         if ([[NCSettingsController sharedInstance] lockScreenPasscodeType] == NCPasscodeTypeSimple) {
-                            cell.detailTextLabel.text = @"Simple";
+                            cell.detailTextLabel.text = NSLocalizedString(@"Simple", nil);
                         } else {
-                            cell.detailTextLabel.text = @"Strong";
+                            cell.detailTextLabel.text = NSLocalizedString(@"Strong", nil);
                         }
 
                     }
@@ -650,7 +650,7 @@ typedef enum AboutSection {
                     cell = [tableView dequeueReusableCellWithIdentifier:privacyCellIdentifier];
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:privacyCellIdentifier];
-                        cell.textLabel.text = @"Privacy";
+                        cell.textLabel.text = NSLocalizedString(@"Privacy", nil);
                         [cell.imageView setImage:[UIImage imageNamed:@"privacy"]];
                     }
                 }
@@ -660,7 +660,7 @@ typedef enum AboutSection {
                     cell = [tableView dequeueReusableCellWithIdentifier:sourceCodeCellIdentifier];
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sourceCodeCellIdentifier];
-                        cell.textLabel.text = @"Get source code";
+                        cell.textLabel.text = NSLocalizedString(@"Get source code", nil);
                         [cell.imageView setImage:[UIImage imageNamed:@"github"]];
                     }
                 }
@@ -859,10 +859,10 @@ typedef enum AboutSection {
         }
         
         BKTouchIDManager *touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:@"com.nextcloud.Talk"];
-        touchIDManager.promptText = @"Scan fingerprint to authenticate";
+        touchIDManager.promptText = NSLocalizedString(@"Scan fingerprint to authenticate", nil);
         viewController.touchIDManager = touchIDManager;
 
-        viewController.title = @"Activating lock screen";
+        viewController.title = NSLocalizedString(@"Activating lock screen", nil);
         
         viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(passcodeViewCloseButtonPressed:)];
         
@@ -886,10 +886,10 @@ typedef enum AboutSection {
         }
 
         BKTouchIDManager *touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:@"com.nextcloud.Talk"];
-        touchIDManager.promptText = @"Scan fingerprint to authenticate";
+        touchIDManager.promptText = NSLocalizedString(@"Scan fingerprint to authenticate", nil);
         viewController.touchIDManager = touchIDManager;
 
-        viewController.title = @"Removing lock screen";
+        viewController.title = NSLocalizedString(@"Removing lock screen", nil);
 
         viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(passcodeViewCloseButtonPressed:)];
 

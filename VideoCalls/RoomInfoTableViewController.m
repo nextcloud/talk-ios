@@ -107,7 +107,7 @@ typedef enum ModificationError {
 {
     [super viewDidLoad];
     
-    self.navigationItem.title = @"Conversation info";
+    self.navigationItem.title = NSLocalizedString(@"Conversation info", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
@@ -137,7 +137,7 @@ typedef enum ModificationError {
     _lobbyDatePicker.datePickerMode = UIDatePickerModeDateAndTime;
     _lobbyDateTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 00, 200, 30)];
     _lobbyDateTextField.textAlignment = NSTextAlignmentRight;
-    _lobbyDateTextField.placeholder = @"Manual";
+    _lobbyDateTextField.placeholder = NSLocalizedString(@"Manual", nil);
     _lobbyDateTextField.adjustsFontSizeToFitWidth = YES;
     [_lobbyDateTextField setInputView:_lobbyDatePicker];
     [self setupLobbyDatePicker];
@@ -145,7 +145,7 @@ typedef enum ModificationError {
     _modifyingRoomView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     
     _headerView = [[HeaderWithButton alloc] init];
-    [_headerView.button setTitle:@"Add" forState:UIControlStateNormal];
+    [_headerView.button setTitle:NSLocalizedString(@"Add", nil) forState:UIControlStateNormal];
     [_headerView.button addTarget:self action:@selector(addParticipantsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
@@ -327,47 +327,47 @@ typedef enum ModificationError {
     NSString *errorDescription = @"";
     switch (error) {
         case kModificationErrorRename:
-            errorDescription = @"Could not rename the conversation";
+            errorDescription = NSLocalizedString(@"Could not rename the conversation", nil);
             break;
             
         case kModificationErrorFavorite:
-            errorDescription = @"Could not change favorite setting";
+            errorDescription = NSLocalizedString(@"Could not change favorite setting", nil);
             break;
             
         case kModificationErrorNotifications:
-            errorDescription = @"Could not change notifications setting";
+            errorDescription = NSLocalizedString(@"Could not change notifications setting", nil);
             break;
             
         case kModificationErrorShare:
-            errorDescription = @"Could not change sharing permissions of the conversation";
+            errorDescription = NSLocalizedString(@"Could not change sharing permissions of the conversation", nil);
             break;
             
         case kModificationErrorPassword:
-            errorDescription = @"Could not change password protection settings";
+            errorDescription = NSLocalizedString(@"Could not change password protection settings", nil);
             break;
             
         case kModificationErrorLobby:
-            errorDescription = @"Could not change lobby state of the conversation";
+            errorDescription = NSLocalizedString(@"Could not change lobby state of the conversation", nil);
             break;
             
         case kModificationErrorModeration:
-            errorDescription = @"Could not change moderation permissions of the participant";
+            errorDescription = NSLocalizedString(@"Could not change moderation permissions of the participant", nil);
             break;
             
         case kModificationErrorRemove:
-            errorDescription = @"Could not remove participant";
+            errorDescription = NSLocalizedString(@"Could not remove participant", nil);
             break;
         
         case kModificationErrorLeave:
-            errorDescription = @"Could not leave conversation";
+            errorDescription = NSLocalizedString(@"Could not leave conversation", nil);
             break;
             
         case kModificationErrorLeaveModeration:
-            errorDescription = @"You need to promote a new moderator before you can leave this conversation";
+            errorDescription = NSLocalizedString(@"You need to promote a new moderator before you can leave this conversation", nil);
             break;
             
         case kModificationErrorDelete:
-            errorDescription = @"Could not delete conversation";
+            errorDescription = NSLocalizedString(@"Could not delete conversation", nil);
             break;
             
         default:
@@ -378,7 +378,7 @@ typedef enum ModificationError {
     [UIAlertController alertControllerWithTitle:errorDescription
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
     [renameDialog addAction:okAction];
     [self presentViewController:renameDialog animated:YES completion:nil];
 }
@@ -392,18 +392,18 @@ typedef enum ModificationError {
     switch (action) {
         case kDestructiveActionLeave:
         {
-            title = @"Leave conversation";
-            message = @"Do you really want to leave this conversation?";
-            confirmAction = [UIAlertAction actionWithTitle:@"Leave" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+            title = NSLocalizedString(@"Leave conversation", nil);
+            message = NSLocalizedString(@"Do you really want to leave this conversation?", nil);
+            confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Leave", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
                 [self leaveRoom];
             }];
         }
             break;
         case kDestructiveActionDelete:
         {
-            title = @"Delete conversation";
+            title = NSLocalizedString(@"Delete conversation", nil);
             message = _room.deletionMessage;
-            confirmAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+            confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
                 [self deleteRoom];
             }];
         }
@@ -415,7 +415,7 @@ typedef enum ModificationError {
                                         message:message
                                  preferredStyle:UIAlertControllerStyleAlert];
     [confirmDialog addAction:confirmAction];
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
     [confirmDialog addAction:cancelAction];
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
@@ -423,13 +423,13 @@ typedef enum ModificationError {
 - (void)presentNotificationLevelSelector
 {
     UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:@"Notifications"
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Notifications", nil)
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelAlways]];
     [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelMention]];
     [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelNever]];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
@@ -538,7 +538,7 @@ typedef enum ModificationError {
 
 - (void)showPasswordOptions
 {
-    NSString *alertTitle = _room.hasPassword ? @"Set new password:" : @"Set password:";
+    NSString *alertTitle = _room.hasPassword ? NSLocalizedString(@"Set new password:", nil) : NSLocalizedString(@"Set password:", nil);
     UIAlertController *passwordDialog =
     [UIAlertController alertControllerWithTitle:alertTitle
                                         message:nil
@@ -546,13 +546,13 @@ typedef enum ModificationError {
     
     __weak typeof(self) weakSelf = self;
     [passwordDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-        textField.placeholder = @"Password";
+        textField.placeholder = NSLocalizedString(@"Password", nil);
         textField.secureTextEntry = YES;
         textField.delegate = weakSelf;
         textField.tag = k_set_password_textfield_tag;
     }];
     
-    NSString *actionTitle = _room.hasPassword ? @"Change password" : @"OK";
+    NSString *actionTitle = _room.hasPassword ? NSLocalizedString(@"Change password", nil) : NSLocalizedString(@"OK", nil);
     _setPasswordAction = [UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *password = [[passwordDialog textFields][0] text];
         NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
@@ -571,7 +571,7 @@ typedef enum ModificationError {
     [passwordDialog addAction:_setPasswordAction];
     
     if (_room.hasPassword) {
-        UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:@"Remove password" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove password", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
             [self setModifyingRoomUI];
             [[NCAPIController sharedInstance] setPassword:@"" toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
                 if (!error) {
@@ -586,7 +586,7 @@ typedef enum ModificationError {
         [passwordDialog addAction:removePasswordAction];
     }
     
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
     [passwordDialog addAction:cancelAction];
     
     [self presentViewController:passwordDialog animated:YES completion:nil];
@@ -627,17 +627,16 @@ typedef enum ModificationError {
 - (void)shareRoomLinkFromIndexPath:(NSIndexPath *)indexPath
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSString *shareMessage = [NSString stringWithFormat:@"Join the conversation at %@/index.php/call/%@",
-                              activeAccount.server, _room.token];
+    NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
     if (_room.name && ![_room.name isEqualToString:@""]) {
-        shareMessage = [NSString stringWithFormat:@"Join the conversation%@ at %@/index.php/call/%@",
-                        [NSString stringWithFormat:@" \"%@\"", _room.name], activeAccount.server, _room.token];
+        joinConversationString = [NSString stringWithFormat:NSLocalizedString(@"Join the conversation %@ at", nil), [NSString stringWithFormat:@"\"%@\"", _room.name]];
     }
+    NSString *shareMessage = [NSString stringWithFormat:@"%@ %@/index.php/call/%@", joinConversationString, activeAccount.server, _room.token];
     NSArray *items = @[shareMessage];
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
     
     NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
-    NSString *emailSubject = [NSString stringWithFormat:@"%@ invitation", appDisplayName];
+    NSString *emailSubject = [NSString stringWithFormat:NSLocalizedString(@"%@ invitation", nil), appDisplayName];
     [controller setValue:emailSubject forKey:@"subject"];
     
     // Presentation on iPads
@@ -754,7 +753,7 @@ typedef enum ModificationError {
     
     if (_room.lobbyTimer > 0) {
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
-        UIBarButtonItem *clearButton = [[UIBarButtonItem alloc] initWithTitle:@"Remove" style:UIBarButtonItemStylePlain target:self action:@selector(removeLobbyDate)];
+        UIBarButtonItem *clearButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Remove", nil) style:UIBarButtonItemStylePlain target:self action:@selector(removeLobbyDate)];
         [clearButton setTintColor:[UIColor redColor]];
         [toolBar setItems:[NSArray arrayWithObjects:clearButton, space, doneButton, nil]];
         [_lobbyDatePicker setDate:date];
@@ -786,7 +785,7 @@ typedef enum ModificationError {
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
     if (participant.participantType == kNCParticipantTypeModerator) {
-        UIAlertAction *demoteFromModerator = [UIAlertAction actionWithTitle:@"Demote from moderator"
+        UIAlertAction *demoteFromModerator = [UIAlertAction actionWithTitle:NSLocalizedString(@"Demote from moderator", nil)
                                                                       style:UIAlertActionStyleDefault
                                                                     handler:^void (UIAlertAction *action) {
                                                                         [self demoteFromModerator:participant];
@@ -794,7 +793,7 @@ typedef enum ModificationError {
         [demoteFromModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:demoteFromModerator];
     } else if (participant.participantType == kNCParticipantTypeUser) {
-        UIAlertAction *promoteToModerator = [UIAlertAction actionWithTitle:@"Promote to moderator"
+        UIAlertAction *promoteToModerator = [UIAlertAction actionWithTitle:NSLocalizedString(@"Promote to moderator", nil)
                                                                      style:UIAlertActionStyleDefault
                                                                    handler:^void (UIAlertAction *action) {
                                                                        [self promoteToModerator:participant];
@@ -804,7 +803,7 @@ typedef enum ModificationError {
     }
     
     // Remove participant
-    UIAlertAction *removeParticipant = [UIAlertAction actionWithTitle:@"Remove participant"
+    UIAlertAction *removeParticipant = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove participant", nil)
                                                                 style:UIAlertActionStyleDestructive
                                                               handler:^void (UIAlertAction *action) {
                                                                   [self removeParticipant:participant];
@@ -813,7 +812,7 @@ typedef enum ModificationError {
     [optionsActionSheet addAction:removeParticipant];
     
     
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
@@ -1007,10 +1006,10 @@ typedef enum ModificationError {
     RoomInfoSection infoSection = [[sections objectAtIndex:section] intValue];
     switch (infoSection) {
         case kRoomInfoSectionPublic:
-            return @"Guests";
+            return NSLocalizedString(@"Guests", nil);
             break;
         case kRoomInfoSectionWebinar:
-            return @"Webinar";
+            return NSLocalizedString(@"Webinar", nil);
             break;
         default:
             break;
@@ -1026,9 +1025,9 @@ typedef enum ModificationError {
     switch (infoSection) {
         case kRoomInfoSectionParticipants:
         {
-            NSString *title = [NSString stringWithFormat:@"%lu participants", (unsigned long)_roomParticipants.count];
+            NSString *title = [NSString stringWithFormat:NSLocalizedString(@"%lu participants", nil), (unsigned long)_roomParticipants.count];
             if (_roomParticipants.count == 1) {
-                title = @"1 participant";
+                title = NSLocalizedString(@"1 participant", nil);
             }
             _headerView.label.text = [title uppercaseString];
             _headerView.button.hidden = (_room.canModerate) ? NO : YES;
@@ -1163,7 +1162,7 @@ typedef enum ModificationError {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:notificationLevelCellIdentifier];
                     }
                     
-                    cell.textLabel.text = @"Notifications";
+                    cell.textLabel.text = NSLocalizedString(@"Notifications", nil);
                     cell.detailTextLabel.text = _room.notificationLevelString;
                     [cell.imageView setImage:[UIImage imageNamed:@"notifications-settings"]];
                     
@@ -1177,7 +1176,7 @@ typedef enum ModificationError {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
                     }
                     
-                    cell.textLabel.text = @"Send conversation link";
+                    cell.textLabel.text = NSLocalizedString(@"Send conversation link", nil);
                     [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
                     
                     return cell;
@@ -1198,7 +1197,7 @@ typedef enum ModificationError {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
                     }
                     
-                    cell.textLabel.text = @"Share link";
+                    cell.textLabel.text = NSLocalizedString(@"Share link", nil);
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _publicSwtich;
                     _publicSwtich.on = (_room.type == kNCRoomTypePublic) ? YES : NO;
@@ -1215,7 +1214,7 @@ typedef enum ModificationError {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:passwordCellIdentifier];
                     }
                     
-                    cell.textLabel.text = (_room.hasPassword) ? @"Change password" : @"Set password";
+                    cell.textLabel.text = (_room.hasPassword) ? NSLocalizedString(@"Change password", nil) : NSLocalizedString(@"Set password", nil);
                     [cell.imageView setImage:(_room.hasPassword) ? [UIImage imageNamed:@"password-settings"] : [UIImage imageNamed:@"no-password-settings"]];
                     
                     return cell;
@@ -1236,7 +1235,7 @@ typedef enum ModificationError {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:lobbyCellIdentifier];
                     }
                     
-                    cell.textLabel.text = @"Lobby";
+                    cell.textLabel.text = NSLocalizedString(@"Lobby", nil);
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _lobbySwtich;
                     _lobbySwtich.on = (_room.lobbyState == NCRoomLobbyStateModeratorsOnly) ? YES : NO;
@@ -1252,7 +1251,7 @@ typedef enum ModificationError {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:lobbyTimerCellIdentifier];
                     }
                     
-                    cell.textLabel.text = @"Start time";
+                    cell.textLabel.text = NSLocalizedString(@"Start time", nil);
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _lobbyDateTextField;
                     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
@@ -1280,7 +1279,7 @@ typedef enum ModificationError {
             if (participant.participantType == kNCParticipantTypeGuest) {
                 UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
                 NSString *avatarName = ([participant.displayName isEqualToString:@""]) ? @"?" : participant.displayName;
-                NSString *guestName = ([participant.displayName isEqualToString:@""]) ? @"Guest" : participant.displayName;
+                NSString *guestName = ([participant.displayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : participant.displayName;
                 cell.labelTitle.text = guestName;
                 [cell.contactImage setImageWithString:avatarName color:guestAvatarColor circular:true];
             } else {
@@ -1323,7 +1322,7 @@ typedef enum ModificationError {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:leaveRoomCellIdentifier];
                     }
                     
-                    cell.textLabel.text = @"Leave conversation";
+                    cell.textLabel.text = NSLocalizedString(@"Leave conversation", nil);
                     cell.textLabel.textColor = [UIColor colorWithRed:1.00 green:0.23 blue:0.19 alpha:1.0]; //#FF3B30
                     [cell.imageView setImage:[UIImage imageNamed:@"exit-action"]];
                     
@@ -1337,7 +1336,7 @@ typedef enum ModificationError {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:deleteRoomCellIdentifier];
                     }
                     
-                    cell.textLabel.text = @"Delete conversation";
+                    cell.textLabel.text = NSLocalizedString(@"Delete conversation", nil);
                     cell.textLabel.textColor = [UIColor colorWithRed:1.00 green:0.23 blue:0.19 alpha:1.0]; //#FF3B30
                     [cell.imageView setImage:[UIImage imageNamed:@"delete-action"]];
                     

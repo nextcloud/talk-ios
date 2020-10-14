@@ -28,7 +28,7 @@
     self.bestAttemptContent = [request.content mutableCopy];
     
     self.bestAttemptContent.title = @"";
-    self.bestAttemptContent.body = @"You received a new notification";
+    self.bestAttemptContent.body = NSLocalizedString(@"You received a new notification", nil);
     
     // Configure database
     NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.com.nextcloud.Talk"] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
@@ -110,7 +110,7 @@
     // Called just before the extension will be terminated by the system.
     // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
     self.bestAttemptContent.title = @"";
-    self.bestAttemptContent.body = @"You received a new notification";
+    self.bestAttemptContent.body = NSLocalizedString(@"You received a new notification", nil);
     
     self.contentHandler(self.bestAttemptContent);
 }

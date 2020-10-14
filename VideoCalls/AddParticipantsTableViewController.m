@@ -101,7 +101,7 @@
     // Contacts placeholder view
     _participantsBackgroundView = [[PlaceholderView alloc] init];
     [_participantsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"contacts-placeholder"]];
-    [_participantsBackgroundView.placeholderText setText:@"No participants found."];
+    [_participantsBackgroundView.placeholderText setText:NSLocalizedString(@"No participants found", nil)];
     [_participantsBackgroundView.placeholderView setHidden:YES];
     [_participantsBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _participantsBackgroundView;
@@ -118,7 +118,7 @@
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
-    self.navigationItem.title = @"Add participants";
+    self.navigationItem.title = NSLocalizedString(@"Add participants", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
@@ -189,12 +189,12 @@
     [[NCAPIController sharedInstance] addParticipant:participant.userId ofType:participant.source toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             UIAlertController * alert = [UIAlertController
-                                         alertControllerWithTitle:@"Could not add participant"
-                                         message:[NSString stringWithFormat:@"An error occurred while adding %@ to the room", participant.name]
+                                         alertControllerWithTitle:NSLocalizedString(@"Could not add participant", nil)
+                                         message:[NSString stringWithFormat:NSLocalizedString(@"An error occurred while adding %@ to the room", nil), participant.name]
                                          preferredStyle:UIAlertControllerStyleAlert];
             
             UIAlertAction* okButton = [UIAlertAction
-                                       actionWithTitle:@"OK"
+                                       actionWithTitle:NSLocalizedString(@"OK", nil)
                                        style:UIAlertActionStyleDefault
                                        handler:nil];
             
@@ -208,7 +208,7 @@
 - (void)updateCounter
 {
     if (_selectedParticipants.count > 0) {
-        UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithTitle:[NSString stringWithFormat:@"Add (%lu)", (unsigned long)_selectedParticipants.count]
+        UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Add (%lu)", nil), (unsigned long)_selectedParticipants.count]
                                                                       style:UIBarButtonItemStylePlain target:self action:@selector(addButtonPressed)];
         self.navigationController.navigationBar.topItem.rightBarButtonItem = addButton;
     } else {

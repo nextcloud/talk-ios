@@ -27,7 +27,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.navigationItem.title = @"Resolutions";
+    self.navigationItem.title = NSLocalizedString(@"Resolutions", nil);
     _videoResolutions = [[[NCSettingsController sharedInstance] videoSettingsModel] availableVideoResolutions];
 }
 
