@@ -21,7 +21,7 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 $ pod install
 $ git submodule update --init
 $ carthage update --platform ios
-$ open VideoCalls.xcworkspace
+$ open NextcloudTalk.xcworkspace
 ```
 We are also available on [our public Talk team conversation](https://cloud.nextcloud.com/call/c7fz9qpr), if you want to join the discussion.
 
