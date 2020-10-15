@@ -406,9 +406,9 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)setWaitingScreenText
 {
-    NSString *waitingMessage = NSLocalizedString(@"Waiting for others to join call…", nil);
+    NSString *waitingMessage = NSLocalizedString(@"Waiting for others to join call …", nil);
     if (_room.type == kNCRoomTypeOneToOne) {
-        waitingMessage = [NSString stringWithFormat:NSLocalizedString(@"Waiting for %@ to join call…", nil), _room.displayName];
+        waitingMessage = [NSString stringWithFormat:NSLocalizedString(@"Waiting for %@ to join call …", nil), _room.displayName];
     }
     
     if (_callState == CallStateReconnecting) {
