@@ -145,19 +145,19 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     self.audioMuteButton.accessibilityLabel = NSLocalizedString(@"Microphone", nil);
     self.audioMuteButton.accessibilityValue = NSLocalizedString(@"Microphone enabled", nil);
-    self.audioMuteButton.accessibilityHint = NSLocalizedString(@"Doble tap to enable or disable the microphone", nil);
+    self.audioMuteButton.accessibilityHint = NSLocalizedString(@"Double tap to enable or disable the microphone", nil);
     self.speakerButton.accessibilityLabel = NSLocalizedString(@"Speaker", nil);
     self.speakerButton.accessibilityValue = NSLocalizedString(@"Speaker disabled", nil);
-    self.speakerButton.accessibilityHint = NSLocalizedString(@"Doble tap to enable or disable the speaker", nil);
+    self.speakerButton.accessibilityHint = NSLocalizedString(@"Double tap to enable or disable the speaker", nil);
     self.videoDisableButton.accessibilityLabel = NSLocalizedString(@"Camera", nil);
     self.videoDisableButton.accessibilityValue = NSLocalizedString(@"Camera enabled", nil);
-    self.videoDisableButton.accessibilityHint = NSLocalizedString(@"Doble tap to enable or disable the camera", nil);
+    self.videoDisableButton.accessibilityHint = NSLocalizedString(@"Double tap to enable or disable the camera", nil);
     self.hangUpButton.accessibilityLabel = NSLocalizedString(@"Hang up", nil);
-    self.hangUpButton.accessibilityHint = NSLocalizedString(@"Doble tap to hang up the call", nil);
+    self.hangUpButton.accessibilityHint = NSLocalizedString(@"Double tap to hang up the call", nil);
     self.videoCallButton.accessibilityLabel = NSLocalizedString(@"Camera", nil);
-    self.videoCallButton.accessibilityHint = NSLocalizedString(@"Doble tap to upgrade this voice call to a video call", nil);
+    self.videoCallButton.accessibilityHint = NSLocalizedString(@"Double tap to upgrade this voice call to a video call", nil);
     self.chatButton.accessibilityLabel = NSLocalizedString(@"Chat", nil);
-    self.chatButton.accessibilityHint = NSLocalizedString(@"Doble tap to show call's chat", nil);
+    self.chatButton.accessibilityHint = NSLocalizedString(@"Double tap to show call's chat", nil);
     
     [self adjustButtonsConainer];
     
