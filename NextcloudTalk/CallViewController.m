@@ -412,7 +412,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     if (_callState == CallStateReconnecting) {
-        waitingMessage = NSLocalizedString(@"Connecting to the call…", nil);
+        waitingMessage = NSLocalizedString(@"Connecting to the call …", nil);
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
