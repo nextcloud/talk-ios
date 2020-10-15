@@ -739,7 +739,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)showUpgradeToVideoCallDialog
 {
     UIAlertController *confirmDialog =
-    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Do you want to enable your video?", nil)
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Do you want to enable your camera?", nil)
                                         message:NSLocalizedString(@"If you enable your video, this call will be interrupted for a few seconds.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Enable", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
