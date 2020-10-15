@@ -176,7 +176,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 {
     if (_connectionState == RTCIceConnectionStateDisconnected) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.peerNameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Connecting to %@…", nil), _displayName];
+            self.peerNameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Connecting to %@ …", nil), _displayName];
             self.peerAvatarImageView.alpha = 0.3;
         });
     }
