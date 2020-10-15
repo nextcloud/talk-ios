@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NCAppBranding : NSObject
 
 extern BOOL const multiAccountEnabled;
+extern BOOL const forceDomain;
+extern NSString * const domain;
 
 @end
 

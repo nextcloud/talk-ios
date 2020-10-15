@@ -25,5 +25,7 @@
 @implementation NCAppBranding
 
 BOOL const multiAccountEnabled = YES;
+BOOL const forceDomain = NO;
+NSString * const domain = nil;
 
 @end
