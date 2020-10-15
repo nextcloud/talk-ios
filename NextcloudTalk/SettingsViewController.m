@@ -556,7 +556,7 @@ typedef enum AboutSection {
                 cell.textLabel.text = [_activeUserStatus readableUserStatus];
                 [cell.imageView setImage:[UIImage imageNamed:[_activeUserStatus userStatusImageNameOfSize:24]]];
             } else {
-                cell.textLabel.text = NSLocalizedString(@"Fetching status…", nil);
+                cell.textLabel.text = NSLocalizedString(@"Fetching status …", nil);
             }
         }
             break;
