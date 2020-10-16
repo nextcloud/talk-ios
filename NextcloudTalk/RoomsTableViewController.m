@@ -91,8 +91,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [UIImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
     [UIButton setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
     
-    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
-    self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
+    self.tabBarController.tabBar.tintColor = [NCAppBranding primaryColor];
     
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
@@ -102,7 +102,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [_searchController.searchBar sizeToFit];
     
     if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        UIColor *themeColor = [NCAppBranding primaryColor];
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
@@ -124,7 +124,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         self.navigationItem.searchController = _searchController;
         _searchController.searchBar.tintColor = [UIColor whiteColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        searchTextField.tintColor = [NCAppBranding primaryColor];
         UIView *backgroundview = [searchTextField.subviews firstObject];
         backgroundview.backgroundColor = [UIColor whiteColor];
         backgroundview.layer.cornerRadius = 8;

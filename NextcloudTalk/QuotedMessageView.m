@@ -22,6 +22,8 @@
 
 #import "QuotedMessageView.h"
 
+#import "NCAppBranding.h"
+
 @interface QuotedMessageView ()
 @property (nonatomic, strong) UIView *quoteView;
 @end
@@ -64,7 +66,7 @@
     if (!_quoteView) {
         _quoteView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 4, 50)];
         _quoteView.translatesAutoresizingMaskIntoConstraints = NO;
-        _quoteView.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1]; //#0082C9
+        _quoteView.backgroundColor = [NCAppBranding primaryColor];
     }
     return _quoteView;
 }

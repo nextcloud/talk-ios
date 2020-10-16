@@ -34,6 +34,7 @@
 #import "DateHeaderView.h"
 #import "PlaceholderView.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCChatController.h"
 #import "NCChatMessage.h"
 #import "NCDatabaseManager.h"
@@ -191,7 +192,7 @@ typedef enum NCChatMessageAction {
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     
     if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        UIColor *themeColor = [NCAppBranding primaryColor];
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
@@ -227,7 +228,7 @@ typedef enum NCChatMessageAction {
     // Unread messages indicator
     _firstUnreadMessageIP = nil;
     _unreadMessageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 126, 24)];
-    _unreadMessageButton.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1]; //#0082C9
+    _unreadMessageButton.backgroundColor = [NCAppBranding primaryColor];
     _unreadMessageButton.titleLabel.font = [UIFont systemFontOfSize:12];
     _unreadMessageButton.layer.cornerRadius = 12;
     _unreadMessageButton.clipsToBounds = YES;

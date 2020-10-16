@@ -46,7 +46,7 @@
     [super viewDidLoad];
     
     self.appLogo.image = [UIImage imageNamed:@"loginLogo"];
-    self.view.backgroundColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    self.view.backgroundColor = [NCAppBranding primaryColor];
     
     NSString *serverUrlPlaceholderText = NSLocalizedString(@"Server address https://…", nil);
     self.serverUrl.textColor = [UIColor whiteColor];
@@ -55,7 +55,7 @@
                                                                            attributes:@{NSForegroundColorAttributeName:[UIColor colorWithWhite:1 alpha:0.5]}];
     
     self.login.backgroundColor = [UIColor whiteColor];
-    [self.login setTitleColor:[UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0] forState:UIControlStateNormal]; //#0082C9
+    [self.login setTitleColor:[NCAppBranding primaryColor] forState:UIControlStateNormal];
     
     self.activityIndicatorView.color = [UIColor whiteColor];
     self.activityIndicatorView.hidden = YES;
