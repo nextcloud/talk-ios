@@ -24,8 +24,29 @@
 
 @implementation NCAppBranding
 
+#pragma mark - Domain & Accounts
+
 BOOL const multiAccountEnabled = YES;
 BOOL const forceDomain = NO;
 NSString * const domain = nil;
+
+#pragma mark - Theming
+
+NSString * const themeColor = @"#0082C9";
+
++ (UIColor *)primaryColor
+{
+    return [self colorFromHexString:themeColor];
+}
+
++ (UIColor *)colorFromHexString:(NSString *)hexString
+{
+    // Hex color "#00FF00" to UIColor.
+    unsigned rgbValue = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:hexString];
+    [scanner setScanLocation:1]; // bypass '#' character
+    [scanner scanHexInt:&rgbValue];
+    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
+}
 
 @end
