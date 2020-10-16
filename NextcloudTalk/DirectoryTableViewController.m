@@ -25,6 +25,7 @@
 #import "DirectoryTableViewCell.h"
 #import "OCFileDto.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
@@ -78,8 +79,8 @@
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
-    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
-    self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
+    self.tabBarController.tabBar.tintColor = [NCAppBranding primaryColor];
     self.navigationController.navigationBar.translucent = NO;
     
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 64, 0, 0);

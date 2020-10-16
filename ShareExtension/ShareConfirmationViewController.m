@@ -26,6 +26,7 @@
 
 #import "CCCertificate.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "MBProgressHUD.h"
@@ -60,11 +61,11 @@
     self.navigationController.navigationBar.translucent = NO;
     
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
-    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
-    self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
+    self.tabBarController.tabBar.tintColor = [NCAppBranding primaryColor];
     
     if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        UIColor *themeColor = [NCAppBranding primaryColor];
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;

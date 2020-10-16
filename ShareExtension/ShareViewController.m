@@ -26,6 +26,7 @@
 
 #import "CCCertificate.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "NCRoomsManager.h"
@@ -99,7 +100,7 @@
      @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.translucent = NO;
-    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
     
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
@@ -107,7 +108,7 @@
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     
     if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        UIColor *themeColor = [NCAppBranding primaryColor];
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
@@ -130,7 +131,7 @@
         self.navigationItem.searchController = _searchController;
         _searchController.searchBar.tintColor = [UIColor whiteColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        searchTextField.tintColor = [NCAppBranding primaryColor];
         UIView *backgroundview = [searchTextField.subviews firstObject];
         backgroundview.backgroundColor = [UIColor whiteColor];
         backgroundview.layer.cornerRadius = 8;

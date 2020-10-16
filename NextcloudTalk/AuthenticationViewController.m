@@ -24,6 +24,7 @@
 
 #import "CCCertificate.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 
@@ -84,7 +85,7 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
         
         _activityIndicatorView = [[UIActivityIndicatorView alloc] init];
         _activityIndicatorView.center = self.view.center;
-        _activityIndicatorView.color = [UIColor colorWithRed:0.00 green:0.51 blue:0.79 alpha:1.0]; //#0082C9
+        _activityIndicatorView.color = [NCAppBranding primaryColor];
         [_activityIndicatorView startAnimating];
         [self.view addSubview:_activityIndicatorView];
     }];
