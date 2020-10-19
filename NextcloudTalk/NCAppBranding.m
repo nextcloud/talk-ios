@@ -39,6 +39,22 @@ NSString * const themeColor = @"#0082C9";
     return [self colorFromHexString:themeColor];
 }
 
++ (UIColor *)primaryTextColor
+{
+    UIColor *primaryTextColor = [UIColor whiteColor];
+    if ([self calculateLuma] > 0.6) {
+        primaryTextColor = [UIColor blackColor];
+    }
+    return primaryTextColor;
+}
+
++ (CGFloat)calculateLuma
+{
+    CGFloat red, green, blue, alpha;
+    [[self primaryColor] getRed: &red green: &green blue: &blue alpha: &alpha];
+    return (0.2126 * red + 0.7152 * green + 0.0722 * blue);
+}
+
 + (UIColor *)colorFromHexString:(NSString *)hexString
 {
     // Hex color "#00FF00" to UIColor.
