@@ -97,8 +97,8 @@
     // Configure navigation bar
     self.navigationItem.title = NSLocalizedString(@"Share with", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+     @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]}];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
     
@@ -112,24 +112,24 @@
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]};
         self.navigationItem.standardAppearance = appearance;
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;
 
         self.navigationItem.searchController = _searchController;
         self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils darkerColorFromColor:themeColor];
-        _searchController.searchBar.tintColor = [UIColor whiteColor];
+        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [UIColor whiteColor];
-        searchTextField.textColor = [UIColor whiteColor];
+        searchTextField.tintColor = [NCAppBranding primaryTextColor];
+        searchTextField.textColor = [NCAppBranding primaryTextColor];
         dispatch_async(dispatch_get_main_queue(), ^{
             searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
             attributes:@{NSForegroundColorAttributeName:[UIColor colorWithWhite:1 alpha:0.5]}];
         });
     } else if (@available(iOS 11.0, *)) {
         self.navigationItem.searchController = _searchController;
-        _searchController.searchBar.tintColor = [UIColor whiteColor];
+        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
         searchTextField.tintColor = [NCAppBranding primaryColor];
         UIView *backgroundview = [searchTextField.subviews firstObject];

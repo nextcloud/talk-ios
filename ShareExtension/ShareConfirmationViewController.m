@@ -60,7 +60,7 @@
     
     self.navigationController.navigationBar.translucent = NO;
     
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
     self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
     self.tabBarController.tabBar.tintColor = [NCAppBranding primaryColor];
     
@@ -69,7 +69,7 @@
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]};
         self.navigationItem.standardAppearance = appearance;
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;

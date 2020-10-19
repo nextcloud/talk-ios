@@ -22,6 +22,7 @@
 
 #import "VideoSettingsViewController.h"
 
+#import "NCAppBranding.h"
 #import "NCSettingsController.h"
 #import "VideoResolutionsViewController.h"
 
@@ -52,8 +53,8 @@ typedef enum VideoSettingsSection {
     
     self.navigationItem.title = NSLocalizedString(@"Video calls", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+     @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]}];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
     
     _videoDisabledSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_videoDisabledSwitch addTarget: self action: @selector(videoDisabledValueChanged:) forControlEvents:UIControlEventValueChanged];

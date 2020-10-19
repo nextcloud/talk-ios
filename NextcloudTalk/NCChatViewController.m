@@ -189,14 +189,14 @@ typedef enum NCChatMessageAction {
     [self.textInputbar.editorLeftButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
     [self.textInputbar.editorRightButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
     
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
     
     if (@available(iOS 13.0, *)) {
         UIColor *themeColor = [NCAppBranding primaryColor];
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]};
         self.navigationItem.standardAppearance = appearance;
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;

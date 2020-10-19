@@ -112,17 +112,17 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
         self.navigationItem.searchController = _searchController;
         self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils darkerColorFromColor:themeColor];
-        _searchController.searchBar.tintColor = [UIColor whiteColor];
+        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [UIColor whiteColor];
-        searchTextField.textColor = [UIColor whiteColor];
+        searchTextField.tintColor = [NCAppBranding primaryTextColor];
+        searchTextField.textColor = [NCAppBranding primaryTextColor];
         dispatch_async(dispatch_get_main_queue(), ^{
             searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
             attributes:@{NSForegroundColorAttributeName:[UIColor colorWithWhite:1 alpha:0.5]}];
         });
     } else if (@available(iOS 11.0, *)) {
         self.navigationItem.searchController = _searchController;
-        _searchController.searchBar.tintColor = [UIColor whiteColor];
+        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
         searchTextField.tintColor = [NCAppBranding primaryColor];
         UIView *backgroundview = [searchTextField.subviews firstObject];
@@ -254,7 +254,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     _refreshControl = [UIRefreshControl new];
     if (@available(iOS 11.0, *)) {
-        _refreshControl.tintColor = [UIColor whiteColor];
+        _refreshControl.tintColor = [NCAppBranding primaryTextColor];
     } else {
         _refreshControl.tintColor = [UIColor colorWithWhite:0 alpha:0.3];
         _refreshControl.backgroundColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4

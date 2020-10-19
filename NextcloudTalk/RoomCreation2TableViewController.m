@@ -81,8 +81,8 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     
     self.navigationItem.title = (_publicRoom) ? NSLocalizedString(@"New public conversation", nil) : NSLocalizedString(@"New group conversation", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+     @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]}];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
     
@@ -91,7 +91,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]};
         self.navigationItem.standardAppearance = appearance;
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;

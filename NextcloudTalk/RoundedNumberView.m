@@ -123,7 +123,7 @@
 {
     _important = important;
     self.backgroundColor = _important ? [NCAppBranding primaryColor] : kRoundedNumberViewDefaultBackgroundColor;
-    _numberColor = _important ? kRoundedNumberViewImportantTextColor : kRoundedNumberViewDefaultTextColor;
+    _numberColor = _important ? [NCAppBranding primaryTextColor] : kRoundedNumberViewDefaultTextColor;
 }
 
 @end
