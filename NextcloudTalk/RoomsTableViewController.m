@@ -82,6 +82,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
+    self.addButton.tintColor = [NCAppBranding primaryTextColor];
     self.addButton.accessibilityLabel = NSLocalizedString(@"Create a new conversation", nil);
     self.addButton.accessibilityHint = NSLocalizedString(@"Double tap to create group, public or one to one conversations.", nil);
     
