@@ -49,19 +49,20 @@
     self.view.backgroundColor = [NCAppBranding primaryColor];
     
     NSString *serverUrlPlaceholderText = NSLocalizedString(@"Server address https://…", nil);
-    self.serverUrl.textColor = [UIColor whiteColor];
-    self.serverUrl.tintColor = [UIColor whiteColor];
+    self.serverUrl.textColor = [NCAppBranding primaryTextColor];
+    self.serverUrl.tintColor = [NCAppBranding primaryTextColor];
     self.serverUrl.attributedPlaceholder = [[NSAttributedString alloc] initWithString:serverUrlPlaceholderText
-                                                                           attributes:@{NSForegroundColorAttributeName:[UIColor colorWithWhite:1 alpha:0.5]}];
+                                                                           attributes:@{NSForegroundColorAttributeName:[[NCAppBranding primaryTextColor] colorWithAlphaComponent:0.5]}];
     
-    self.login.backgroundColor = [UIColor whiteColor];
+    self.login.backgroundColor = [NCAppBranding primaryTextColor];
     [self.login setTitleColor:[NCAppBranding primaryColor] forState:UIControlStateNormal];
     
-    self.activityIndicatorView.color = [UIColor whiteColor];
+    self.activityIndicatorView.color = [NCAppBranding primaryTextColor];
     self.activityIndicatorView.hidden = YES;
     
     self.cancel.hidden = !(multiAccountEnabled && [[NCDatabaseManager sharedInstance] numberOfAccounts] > 0);
     [self.cancel setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
+    [self.cancel setTitleColor:[NCAppBranding primaryTextColor] forState:UIControlStateNormal];
 }
 
 - (void)didReceiveMemoryWarning

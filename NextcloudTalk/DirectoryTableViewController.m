@@ -77,8 +77,8 @@
     self.tableView.backgroundView = _directoryBackgroundView;
     
     [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+     @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]}];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
     self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
     self.tabBarController.tabBar.tintColor = [NCAppBranding primaryColor];
     self.navigationController.navigationBar.translucent = NO;

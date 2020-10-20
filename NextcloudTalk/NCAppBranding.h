@@ -35,6 +35,7 @@ extern NSString * const domain;
 // Theming
 extern NSString * const themeColor;
 + (UIColor *)primaryColor;
++ (UIColor *)primaryTextColor;
 
 @end
 

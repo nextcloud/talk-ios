@@ -62,8 +62,8 @@
     [super viewDidLoad];
     
     [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[UIColor whiteColor]}];
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+     @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]}];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
 }

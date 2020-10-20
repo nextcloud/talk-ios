@@ -80,24 +80,24 @@
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]};
         self.navigationItem.standardAppearance = appearance;
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;
         
         self.navigationItem.searchController = _searchController;
         self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils darkerColorFromColor:themeColor];
-        _searchController.searchBar.tintColor = [UIColor whiteColor];
+        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [UIColor whiteColor];
-        searchTextField.textColor = [UIColor whiteColor];
+        searchTextField.tintColor = [NCAppBranding primaryTextColor];
+        searchTextField.textColor = [NCAppBranding primaryTextColor];
         dispatch_async(dispatch_get_main_queue(), ^{
             searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-            attributes:@{NSForegroundColorAttributeName:[UIColor colorWithWhite:1 alpha:0.5]}];
+            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding primaryTextColor] colorWithAlphaComponent:0.5]}];
         });
     } else if (@available(iOS 11.0, *)) {
         self.navigationItem.searchController = _searchController;
-        _searchController.searchBar.tintColor = [UIColor whiteColor];
+        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
         searchTextField.tintColor = [NCAppBranding primaryColor];
         UIView *backgroundview = [searchTextField.subviews firstObject];
@@ -133,7 +133,7 @@
                                                                   target:self action:@selector(nextButtonPressed)];
     self.navigationItem.rightBarButtonItem = nextButton;
     self.navigationItem.rightBarButtonItem.accessibilityHint = NSLocalizedString(@"Continue to next step of conversation creation", nil);
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
     
@@ -195,7 +195,7 @@
 {
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
     titleLabel.backgroundColor = [UIColor clearColor];
-    titleLabel.textColor = [UIColor whiteColor];
+    titleLabel.textColor = [NCAppBranding primaryTextColor];
     titleLabel.font = [UIFont boldSystemFontOfSize:16];
     titleLabel.text = NSLocalizedString(@"New group conversation", nil);
     titleLabel.accessibilityLabel = NSLocalizedString(@"Add participants to new group conversation", nil);
@@ -203,7 +203,7 @@
     
     UILabel *subTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 18, 0, 0)];
     subTitleLabel.backgroundColor = [UIColor clearColor];
-    subTitleLabel.textColor = [UIColor whiteColor];
+    subTitleLabel.textColor = [NCAppBranding primaryTextColor];
     subTitleLabel.font = [UIFont systemFontOfSize:12];
     subTitleLabel.text = (_selectedParticipants.count == 1) ? NSLocalizedString(@"1 participant", nil) : [NSString stringWithFormat:NSLocalizedString(@"%ld participants", nil), _selectedParticipants.count];
     subTitleLabel.accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"%@ added to this new group conversation", nil), subTitleLabel.text];
