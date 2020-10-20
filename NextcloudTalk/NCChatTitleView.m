@@ -22,6 +22,8 @@
 
 #import "NCChatTitleView.h"
 
+#import "NCAppBranding.h"
+
 @interface NCChatTitleView ()
 
 @property (strong, nonatomic) IBOutlet UIView *contentView;
@@ -44,6 +46,7 @@
         self.image.clipsToBounds = YES;
         self.title.titleLabel.adjustsFontSizeToFitWidth = YES;
         self.title.titleLabel.minimumScaleFactor = 0.75;
+        [self.title setTitleColor:[NCAppBranding primaryTextColor] forState:UIControlStateNormal];
     }
     
     return self;
