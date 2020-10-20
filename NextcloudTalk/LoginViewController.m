@@ -52,7 +52,7 @@
     self.serverUrl.textColor = [NCAppBranding primaryTextColor];
     self.serverUrl.tintColor = [NCAppBranding primaryTextColor];
     self.serverUrl.attributedPlaceholder = [[NSAttributedString alloc] initWithString:serverUrlPlaceholderText
-                                                                           attributes:@{NSForegroundColorAttributeName:[UIColor colorWithWhite:1 alpha:0.5]}];
+                                                                           attributes:@{NSForegroundColorAttributeName:[[NCAppBranding primaryTextColor] colorWithAlphaComponent:0.5]}];
     
     self.login.backgroundColor = [NCAppBranding primaryTextColor];
     [self.login setTitleColor:[NCAppBranding primaryColor] forState:UIControlStateNormal];
