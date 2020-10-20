@@ -62,6 +62,7 @@
     
     self.cancel.hidden = !(multiAccountEnabled && [[NCDatabaseManager sharedInstance] numberOfAccounts] > 0);
     [self.cancel setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
+    [self.cancel setTitleColor:[NCAppBranding primaryTextColor] forState:UIControlStateNormal];
 }
 
 - (void)didReceiveMemoryWarning

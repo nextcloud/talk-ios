@@ -85,6 +85,7 @@ typedef enum AboutSection {
     self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
     self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
     self.tabBarController.tabBar.tintColor = [NCAppBranding primaryColor];
+    self.cancelButton.tintColor = [NCAppBranding primaryTextColor];
     
     if (@available(iOS 13.0, *)) {
         UIColor *themeColor = [NCAppBranding primaryColor];

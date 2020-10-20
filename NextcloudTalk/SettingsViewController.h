@@ -25,4 +25,6 @@
 
 @interface SettingsViewController : UITableViewController<BKPasscodeViewControllerDelegate>
 
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *cancelButton;
+
 @end
