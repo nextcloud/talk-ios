@@ -36,6 +36,7 @@ extern NSString * const domain;
 extern NSString * const themeColor;
 + (UIColor *)primaryColor;
 + (UIColor *)primaryTextColor;
++ (NSString *)navigationLogoImageName;
 
 @end
 

@@ -33,6 +33,7 @@ NSString * const domain = nil;
 #pragma mark - Theming
 
 NSString * const themeColor = @"#0082C9";
+BOOL const customNavigationLogo = NO;
 
 + (UIColor *)primaryColor
 {
@@ -63,6 +64,15 @@ NSString * const themeColor = @"#0082C9";
     [scanner setScanLocation:1]; // bypass '#' character
     [scanner scanHexInt:&rgbValue];
     return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
+}
+
++ (NSString *)navigationLogoImageName
+{
+    NSString *imageName = @"navigationLogo";
+    if (!customNavigationLogo && [self calculateLuma] > 0.6) {
+        imageName = @"navigationLogoDark";
+    }
+    return imageName;
 }
 
 @end
