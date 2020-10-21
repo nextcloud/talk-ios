@@ -281,7 +281,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)setNavigationLogoButton
 {
-    UIImage *logoImage = [UIImage imageNamed:@"navigationLogo"];
+    UIImage *logoImage = [UIImage imageNamed:[NCAppBranding navigationLogoImageName]];
     if (multiAccountEnabled) {
         UIButton *logoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
         [logoButton setImage:logoImage forState:UIControlStateNormal];
