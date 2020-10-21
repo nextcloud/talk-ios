@@ -628,11 +628,11 @@ typedef enum AboutSection {
 
                     if ([[[NCSettingsController sharedInstance] lockScreenPasscode] length] > 0) {
                         cell.imageView.image  = [UIImage imageNamed:@"password-settings"];
-                        cell.detailTextLabel.text = NSLocalizedString(@"On", nil);
+                        cell.detailTextLabel.text = NSLocalizedString(@"On", @"TRANSLATORS this is for a On/Off setting switch");
                     }
                     else {
                         cell.imageView.image  = [UIImage imageNamed:@"no-password-settings"];
-                        cell.detailTextLabel.text = NSLocalizedString(@"Off", nil);
+                        cell.detailTextLabel.text = NSLocalizedString(@"Off", @"TRANSLATORS this is for a On/Off setting switch");
                     }
                 }
                     break;
