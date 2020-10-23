@@ -199,7 +199,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
         //Set color for mentions
         if ([param.type isEqualToString:@"user"] || [param.type isEqualToString:@"guest"] || [param.type isEqualToString:@"call"]) {
             UIColor *defaultColor = [UIColor darkGrayColor];
-            UIColor *highlightedColor = [NCAppBranding primaryColor];
+            UIColor *highlightedColor = [NCAppBranding themeColor];
             [attributedMessage addAttribute:NSForegroundColorAttributeName value:(param.shouldBeHighlighted) ? highlightedColor : defaultColor range:param.range];
             [attributedMessage addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:16.0f] range:param.range];
         }

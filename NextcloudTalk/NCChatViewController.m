@@ -189,14 +189,14 @@ typedef enum NCChatMessageAction {
     [self.textInputbar.editorLeftButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
     [self.textInputbar.editorRightButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
     
-    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     
     if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding primaryColor];
+        UIColor *themeColor = [NCAppBranding themeColor];
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]};
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
         self.navigationItem.standardAppearance = appearance;
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;
@@ -228,7 +228,7 @@ typedef enum NCChatMessageAction {
     // Unread messages indicator
     _firstUnreadMessageIP = nil;
     _unreadMessageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 126, 24)];
-    _unreadMessageButton.backgroundColor = [NCAppBranding primaryColor];
+    _unreadMessageButton.backgroundColor = [NCAppBranding themeColor];
     _unreadMessageButton.titleLabel.font = [UIFont systemFontOfSize:12];
     _unreadMessageButton.layer.cornerRadius = 12;
     _unreadMessageButton.clipsToBounds = YES;

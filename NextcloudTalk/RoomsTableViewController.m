@@ -82,7 +82,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
-    self.addButton.tintColor = [NCAppBranding primaryTextColor];
+    self.addButton.tintColor = [NCAppBranding themeTextColor];
     self.addButton.accessibilityLabel = NSLocalizedString(@"Create a new conversation", nil);
     self.addButton.accessibilityHint = NSLocalizedString(@"Double tap to create group, public or one to one conversations.", nil);
     
@@ -92,8 +92,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [UIImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
     [UIButton setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
     
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
-    self.tabBarController.tabBar.tintColor = [NCAppBranding primaryColor];
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+    self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
     
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
@@ -103,7 +103,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [_searchController.searchBar sizeToFit];
     
     if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding primaryColor];
+        UIColor *themeColor = [NCAppBranding themeColor];
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
@@ -113,19 +113,19 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
         self.navigationItem.searchController = _searchController;
         self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils darkerColorFromColor:themeColor];
-        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
+        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [NCAppBranding primaryTextColor];
-        searchTextField.textColor = [NCAppBranding primaryTextColor];
+        searchTextField.tintColor = [NCAppBranding themeTextColor];
+        searchTextField.textColor = [NCAppBranding themeTextColor];
         dispatch_async(dispatch_get_main_queue(), ^{
             searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding primaryTextColor] colorWithAlphaComponent:0.5]}];
+            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
         });
     } else if (@available(iOS 11.0, *)) {
         self.navigationItem.searchController = _searchController;
-        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
+        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [NCAppBranding primaryColor];
+        searchTextField.tintColor = [NCAppBranding themeColor];
         UIView *backgroundview = [searchTextField.subviews firstObject];
         backgroundview.backgroundColor = [UIColor whiteColor];
         backgroundview.layer.cornerRadius = 8;
@@ -255,7 +255,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     _refreshControl = [UIRefreshControl new];
     if (@available(iOS 11.0, *)) {
-        _refreshControl.tintColor = [NCAppBranding primaryTextColor];
+        _refreshControl.tintColor = [NCAppBranding themeTextColor];
     } else {
         _refreshControl.tintColor = [UIColor colorWithWhite:0 alpha:0.3];
         _refreshControl.backgroundColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4

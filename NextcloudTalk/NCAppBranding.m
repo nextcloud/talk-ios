@@ -22,6 +22,8 @@
 
 #import "NCAppBranding.h"
 
+#import "NCDatabaseManager.h"
+
 @implementation NCAppBranding
 
 #pragma mark - Domain & Accounts
@@ -32,38 +34,49 @@ NSString * const domain = nil;
 
 #pragma mark - Theming
 
-NSString * const brandColor = @"#0082C9";
-NSString * const brandTextColor = @"#FFFFFF";
+NSString * const brandColorHex = @"#0082C9";
+NSString * const brandTextColorHex = @"#FFFFFF";
 BOOL const customNavigationLogo = NO;
+BOOL const useServerThemimg = YES;
 
-+ (UIColor *)brandPrimaryColor
++ (UIColor *)brandColor
 {
-    return [self colorFromHexString:brandColor];
+    return [self colorFromHexString:brandColorHex];
 }
 
-+ (UIColor *)brandPrimaryTextColor
++ (UIColor *)brandTextColor
 {
-    return [self colorFromHexString:brandTextColor];
+    return [self colorFromHexString:brandTextColorHex];
 }
 
-+ (UIColor *)primaryColor
++ (UIColor *)themeColor
 {
-    return [self colorFromHexString:brandColor];
-}
-
-+ (UIColor *)primaryTextColor
-{
-    UIColor *primaryTextColor = [UIColor whiteColor];
-    if ([self calculateLuma] > 0.6) {
-        primaryTextColor = [UIColor blackColor];
+    if (useServerThemimg) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+        if (serverCapabilities && ![serverCapabilities.color isEqualToString:@""]) {
+            return [self colorFromHexString:serverCapabilities.color];
+        }
     }
-    return primaryTextColor;
+    return [self colorFromHexString:brandColorHex];
+}
+
++ (UIColor *)themeTextColor
+{
+    if (useServerThemimg) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+        if (serverCapabilities && ![serverCapabilities.colorText isEqualToString:@""]) {
+            return [self colorFromHexString:serverCapabilities.colorText];
+        }
+    }
+    return [self colorFromHexString:brandTextColorHex];
 }
 
 + (CGFloat)calculateLuma
 {
     CGFloat red, green, blue, alpha;
-    [[self primaryColor] getRed: &red green: &green blue: &blue alpha: &alpha];
+    [[self themeColor] getRed: &red green: &green blue: &blue alpha: &alpha];
     return (0.2126 * red + 0.7152 * green + 0.0722 * blue);
 }
 

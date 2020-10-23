@@ -62,10 +62,10 @@
     [super viewDidLoad];
     
     [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]}];
-    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
+     @{NSForegroundColorAttributeName:[NCAppBranding brandTextColor]}];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding brandTextColor];
     self.navigationController.navigationBar.translucent = NO;
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding brandColor];
 }
 
 - (void)customizePasscodeInputView:(BKPasscodeInputView *)aPasscodeInputView

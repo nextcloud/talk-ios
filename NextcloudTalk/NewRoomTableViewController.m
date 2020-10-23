@@ -74,30 +74,30 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     [_searchController.searchBar sizeToFit];
     
     if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding primaryColor];
+        UIColor *themeColor = [NCAppBranding themeColor];
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]};
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
         self.navigationItem.standardAppearance = appearance;
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;
         
         self.navigationItem.searchController = _searchController;
         self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils darkerColorFromColor:themeColor];
-        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
+        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [NCAppBranding primaryTextColor];
-        searchTextField.textColor = [NCAppBranding primaryTextColor];
+        searchTextField.tintColor = [NCAppBranding themeTextColor];
+        searchTextField.textColor = [NCAppBranding themeTextColor];
         dispatch_async(dispatch_get_main_queue(), ^{
             searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding primaryTextColor] colorWithAlphaComponent:0.5]}];
+            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
         });
     } else if (@available(iOS 11.0, *)) {
         self.navigationItem.searchController = _searchController;
-        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
+        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [NCAppBranding primaryColor];
+        searchTextField.tintColor = [NCAppBranding themeColor];
         UIView *backgroundview = [searchTextField.subviews firstObject];
         backgroundview.backgroundColor = [UIColor whiteColor];
         backgroundview.layer.cornerRadius = 8;
@@ -136,10 +136,10 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     
     self.navigationItem.title = NSLocalizedString(@"New conversation", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]}];
-    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
+     @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     self.navigationController.navigationBar.translucent = NO;
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
 }
 
 - (void)viewDidAppear:(BOOL)animated

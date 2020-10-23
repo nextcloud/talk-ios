@@ -33,12 +33,10 @@ extern BOOL const forceDomain;
 extern NSString * const domain;
 
 // Theming
-extern NSString * const brandColor;
-extern NSString * const brandTextColor;
-+ (UIColor *)brandPrimaryColor;
-+ (UIColor *)brandPrimaryTextColor;
-+ (UIColor *)primaryColor;
-+ (UIColor *)primaryTextColor;
++ (UIColor *)brandColor;
++ (UIColor *)brandTextColor;
++ (UIColor *)themeColor;
++ (UIColor *)themeTextColor;
 + (NSString *)navigationLogoImageName;
 
 @end

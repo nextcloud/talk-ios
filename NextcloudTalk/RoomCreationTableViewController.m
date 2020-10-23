@@ -76,30 +76,30 @@
     [_searchController.searchBar sizeToFit];
     
     if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding primaryColor];
+        UIColor *themeColor = [NCAppBranding themeColor];
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]};
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
         self.navigationItem.standardAppearance = appearance;
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;
         
         self.navigationItem.searchController = _searchController;
         self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils darkerColorFromColor:themeColor];
-        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
+        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [NCAppBranding primaryTextColor];
-        searchTextField.textColor = [NCAppBranding primaryTextColor];
+        searchTextField.tintColor = [NCAppBranding themeTextColor];
+        searchTextField.textColor = [NCAppBranding themeTextColor];
         dispatch_async(dispatch_get_main_queue(), ^{
             searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding primaryTextColor] colorWithAlphaComponent:0.5]}];
+            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
         });
     } else if (@available(iOS 11.0, *)) {
         self.navigationItem.searchController = _searchController;
-        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
+        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [NCAppBranding primaryColor];
+        searchTextField.tintColor = [NCAppBranding themeColor];
         UIView *backgroundview = [searchTextField.subviews firstObject];
         backgroundview.backgroundColor = [UIColor whiteColor];
         backgroundview.layer.cornerRadius = 8;
@@ -133,9 +133,9 @@
                                                                   target:self action:@selector(nextButtonPressed)];
     self.navigationItem.rightBarButtonItem = nextButton;
     self.navigationItem.rightBarButtonItem.accessibilityHint = NSLocalizedString(@"Continue to next step of conversation creation", nil);
-    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     self.navigationController.navigationBar.translucent = NO;
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     
     [self updateCounter];
     
@@ -195,7 +195,7 @@
 {
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
     titleLabel.backgroundColor = [UIColor clearColor];
-    titleLabel.textColor = [NCAppBranding primaryTextColor];
+    titleLabel.textColor = [NCAppBranding themeTextColor];
     titleLabel.font = [UIFont boldSystemFontOfSize:16];
     titleLabel.text = NSLocalizedString(@"New group conversation", nil);
     titleLabel.accessibilityLabel = NSLocalizedString(@"Add participants to new group conversation", nil);
@@ -203,7 +203,7 @@
     
     UILabel *subTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 18, 0, 0)];
     subTitleLabel.backgroundColor = [UIColor clearColor];
-    subTitleLabel.textColor = [NCAppBranding primaryTextColor];
+    subTitleLabel.textColor = [NCAppBranding themeTextColor];
     subTitleLabel.font = [UIFont systemFontOfSize:12];
     subTitleLabel.text = (_selectedParticipants.count == 1) ? NSLocalizedString(@"1 participant", nil) : [NSString stringWithFormat:NSLocalizedString(@"%ld participants", nil), _selectedParticipants.count];
     subTitleLabel.accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"%@ added to this new group conversation", nil), subTitleLabel.text];

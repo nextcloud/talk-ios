@@ -46,23 +46,23 @@
     [super viewDidLoad];
     
     self.appLogo.image = [UIImage imageNamed:@"loginLogo"];
-    self.view.backgroundColor = [NCAppBranding brandPrimaryColor];
+    self.view.backgroundColor = [NCAppBranding brandColor];
     
     NSString *serverUrlPlaceholderText = NSLocalizedString(@"Server address https://…", nil);
-    self.serverUrl.textColor = [NCAppBranding brandPrimaryTextColor];
-    self.serverUrl.tintColor = [NCAppBranding brandPrimaryTextColor];
+    self.serverUrl.textColor = [NCAppBranding brandTextColor];
+    self.serverUrl.tintColor = [NCAppBranding brandTextColor];
     self.serverUrl.attributedPlaceholder = [[NSAttributedString alloc] initWithString:serverUrlPlaceholderText
-                                                                           attributes:@{NSForegroundColorAttributeName:[[NCAppBranding brandPrimaryTextColor] colorWithAlphaComponent:0.5]}];
+                                                                           attributes:@{NSForegroundColorAttributeName:[[NCAppBranding brandTextColor] colorWithAlphaComponent:0.5]}];
     
-    self.login.backgroundColor = [NCAppBranding brandPrimaryTextColor];
-    [self.login setTitleColor:[NCAppBranding brandPrimaryColor] forState:UIControlStateNormal];
+    self.login.backgroundColor = [NCAppBranding brandTextColor];
+    [self.login setTitleColor:[NCAppBranding brandColor] forState:UIControlStateNormal];
     
-    self.activityIndicatorView.color = [NCAppBranding brandPrimaryTextColor];
+    self.activityIndicatorView.color = [NCAppBranding brandTextColor];
     self.activityIndicatorView.hidden = YES;
     
     self.cancel.hidden = !(multiAccountEnabled && [[NCDatabaseManager sharedInstance] numberOfAccounts] > 0);
     [self.cancel setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
-    [self.cancel setTitleColor:[NCAppBranding brandPrimaryTextColor] forState:UIControlStateNormal];
+    [self.cancel setTitleColor:[NCAppBranding brandTextColor] forState:UIControlStateNormal];
 }
 
 - (void)didReceiveMemoryWarning
