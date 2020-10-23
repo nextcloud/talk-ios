@@ -51,26 +51,28 @@ BOOL const useServerThemimg = YES;
 
 + (UIColor *)themeColor
 {
+    UIColor *color = [self colorFromHexString:brandColorHex];
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
         if (serverCapabilities && ![serverCapabilities.color isEqualToString:@""]) {
-            return [self colorFromHexString:serverCapabilities.color];
+            color = [self colorFromHexString:serverCapabilities.color];
         }
     }
-    return [self colorFromHexString:brandColorHex];
+    return color;
 }
 
 + (UIColor *)themeTextColor
 {
+    UIColor *textColor = [self colorFromHexString:brandTextColorHex];
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
         if (serverCapabilities && ![serverCapabilities.colorText isEqualToString:@""]) {
-            return [self colorFromHexString:serverCapabilities.colorText];
+            textColor = [self colorFromHexString:serverCapabilities.colorText];
         }
     }
-    return [self colorFromHexString:brandTextColorHex];
+    return textColor;
 }
 
 + (CGFloat)calculateLuma
