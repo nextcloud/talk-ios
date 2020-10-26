@@ -66,7 +66,7 @@
     if (!_quoteView) {
         _quoteView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 4, 50)];
         _quoteView.translatesAutoresizingMaskIntoConstraints = NO;
-        _quoteView.backgroundColor = [NCAppBranding primaryColor];
+        _quoteView.backgroundColor = [NCAppBranding themeColor];
     }
     return _quoteView;
 }

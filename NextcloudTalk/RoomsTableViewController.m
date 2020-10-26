@@ -62,7 +62,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     RoomSearchTableViewController *_resultTableViewController;
     PlaceholderView *_roomsBackgroundView;
     UIBarButtonItem *_settingsButton;
-    UINavigationController *_settingsNC;
 }
 
 @end
@@ -82,18 +81,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
-    self.addButton.tintColor = [NCAppBranding primaryTextColor];
     self.addButton.accessibilityLabel = NSLocalizedString(@"Create a new conversation", nil);
     self.addButton.accessibilityHint = NSLocalizedString(@"Double tap to create group, public or one to one conversations.", nil);
     
-    [self createRefreshControl];
-    [self setNavigationLogoButton];
-    
     [UIImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
     [UIButton setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
-    
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
-    self.tabBarController.tabBar.tintColor = [NCAppBranding primaryColor];
     
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
@@ -102,40 +94,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
     
-    if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding primaryColor];
-        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-        [appearance configureWithOpaqueBackground];
-        appearance.backgroundColor = themeColor;
-        self.navigationItem.standardAppearance = appearance;
-        self.navigationItem.compactAppearance = appearance;
-        self.navigationItem.scrollEdgeAppearance = appearance;
-
-        self.navigationItem.searchController = _searchController;
-        self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils darkerColorFromColor:themeColor];
-        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
-        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [NCAppBranding primaryTextColor];
-        searchTextField.textColor = [NCAppBranding primaryTextColor];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding primaryTextColor] colorWithAlphaComponent:0.5]}];
-        });
-    } else if (@available(iOS 11.0, *)) {
-        self.navigationItem.searchController = _searchController;
-        _searchController.searchBar.tintColor = [NCAppBranding primaryTextColor];
-        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [NCAppBranding primaryColor];
-        UIView *backgroundview = [searchTextField.subviews firstObject];
-        backgroundview.backgroundColor = [UIColor whiteColor];
-        backgroundview.layer.cornerRadius = 8;
-        backgroundview.clipsToBounds = YES;
-    } else {
-        self.tableView.tableHeaderView = _searchController.searchBar;
-        _searchController.searchBar.barTintColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
-        _searchController.searchBar.layer.borderWidth = 1;
-        _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
-    }
+    [self setupNavigationBar];
     
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
     _resultTableViewController.tableView.delegate = self;
@@ -152,16 +111,58 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [_roomsBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _roomsBackgroundView;
     
-    // Settings navigation controller
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    _settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationWillBePresented:) name:NCNotificationControllerWillPresentNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesUpdated:) name:NCServerCapabilitiesUpdatedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userProfileImageUpdated:) name:NCUserProfileImageUpdatedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)setupNavigationBar
+{
+    [self setNavigationLogoButton];
+    [self createRefreshControl];
+    
+    self.addButton.tintColor = [NCAppBranding themeTextColor];
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+    self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
+    
+    if (@available(iOS 13.0, *)) {
+        UIColor *themeColor = [NCAppBranding themeColor];
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        appearance.backgroundColor = themeColor;
+        self.navigationItem.standardAppearance = appearance;
+        self.navigationItem.compactAppearance = appearance;
+        self.navigationItem.scrollEdgeAppearance = appearance;
+
+        self.navigationItem.searchController = _searchController;
+        self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils darkerColorFromColor:themeColor];
+        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
+        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+        searchTextField.tintColor = [NCAppBranding themeTextColor];
+        searchTextField.textColor = [NCAppBranding themeTextColor];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
+            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
+        });
+    } else if (@available(iOS 11.0, *)) {
+        self.navigationItem.searchController = _searchController;
+        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
+        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+        searchTextField.tintColor = [NCAppBranding themeColor];
+        UIView *backgroundview = [searchTextField.subviews firstObject];
+        backgroundview.backgroundColor = [UIColor whiteColor];
+        backgroundview.layer.cornerRadius = 8;
+        backgroundview.clipsToBounds = YES;
+    } else {
+        self.tableView.tableHeaderView = _searchController.searchBar;
+        _searchController.searchBar.barTintColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
+        _searchController.searchBar.layer.borderWidth = 1;
+        _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
+    }
 }
 
 - (void)dealloc
@@ -227,6 +228,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self setUnreadMessageForInactiveAccountsIndicator];
 }
 
+- (void)serverCapabilitiesUpdated:(NSNotification *)notification
+{
+    [self setupNavigationBar];
+}
+
 - (void)userProfileImageUpdated:(NSNotification *)notification
 {
     [self setProfileButton];
@@ -255,7 +261,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     _refreshControl = [UIRefreshControl new];
     if (@available(iOS 11.0, *)) {
-        _refreshControl.tintColor = [NCAppBranding primaryTextColor];
+        _refreshControl.tintColor = [NCAppBranding themeTextColor];
     } else {
         _refreshControl.tintColor = [UIColor colorWithWhite:0 alpha:0.3];
         _refreshControl.backgroundColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
@@ -399,6 +405,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [self setProfileButton];
             BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
             [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:isAppActive];
+            [self setupNavigationBar];
         }
             break;
             
@@ -488,7 +495,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     [[NCDatabaseManager sharedInstance] removeUnreadNotificationForInactiveAccounts];
     [self setUnreadMessageForInactiveAccountsIndicator];
-    [self presentViewController:_settingsNC animated:YES completion:nil];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UINavigationController *settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
+    [self presentViewController:settingsNC animated:YES completion:nil];
 }
 
 #pragma mark - CCCertificateDelegate

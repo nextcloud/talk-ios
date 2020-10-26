@@ -81,18 +81,18 @@ typedef enum AboutSection {
     
     self.navigationItem.title = NSLocalizedString(@"Profile", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]}];
-    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
-    self.tabBarController.tabBar.tintColor = [NCAppBranding primaryColor];
-    self.cancelButton.tintColor = [NCAppBranding primaryTextColor];
+     @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+    self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
+    self.cancelButton.tintColor = [NCAppBranding themeTextColor];
     
     if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding primaryColor];
+        UIColor *themeColor = [NCAppBranding themeColor];
         UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
         [appearance configureWithOpaqueBackground];
         appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]};
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
         self.navigationItem.standardAppearance = appearance;
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;

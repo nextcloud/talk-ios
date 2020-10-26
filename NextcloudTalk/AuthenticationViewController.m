@@ -85,7 +85,7 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
         
         _activityIndicatorView = [[UIActivityIndicatorView alloc] init];
         _activityIndicatorView.center = self.view.center;
-        _activityIndicatorView.color = [NCAppBranding primaryColor];
+        _activityIndicatorView.color = [NCAppBranding brandColor];
         [_activityIndicatorView startAnimating];
         [self.view addSubview:_activityIndicatorView];
     }];

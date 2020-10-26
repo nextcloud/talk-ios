@@ -77,10 +77,10 @@
     self.tableView.backgroundView = _directoryBackgroundView;
     
     [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[NCAppBranding primaryTextColor]}];
-    self.navigationController.navigationBar.tintColor = [NCAppBranding primaryTextColor];
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding primaryColor];
-    self.tabBarController.tabBar.tintColor = [NCAppBranding primaryColor];
+     @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+    self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
     self.navigationController.navigationBar.translucent = NO;
     
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 64, 0, 0);

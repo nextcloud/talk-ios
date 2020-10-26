@@ -278,6 +278,8 @@
 {
     NSDictionary *message = [self getDataChannelMessageFromJSONData:buffer.data];
     NSString *messageType =[message objectForKey:@"type"];
+    
+    NSLog(@"DATACHANNEL MESSAGE: %@", message);
         
     if ([messageType isEqualToString:@"nickChanged"]) {
         id messagePayload = [message objectForKey:@"payload"];

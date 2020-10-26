@@ -122,8 +122,8 @@
 - (void)setImportant:(BOOL)important
 {
     _important = important;
-    self.backgroundColor = _important ? [NCAppBranding primaryColor] : kRoundedNumberViewDefaultBackgroundColor;
-    _numberColor = _important ? [NCAppBranding primaryTextColor] : kRoundedNumberViewDefaultTextColor;
+    self.backgroundColor = _important ? [NCAppBranding themeColor] : kRoundedNumberViewDefaultBackgroundColor;
+    _numberColor = _important ? [NCAppBranding themeTextColor] : kRoundedNumberViewDefaultTextColor;
 }
 
 @end
