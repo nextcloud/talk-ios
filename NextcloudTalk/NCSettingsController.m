@@ -85,6 +85,7 @@ NSString * const kPreferredFileSorting  = @"preferredFileSorting";
 
 NSString * const NCTalkNotInstalledNotification = @"NCTalkNotInstalledNotification";
 NSString * const NCOutdatedTalkVersionNotification = @"NCOutdatedTalkVersionNotification";
+NSString * const NCServerCapabilitiesUpdatedNotification = @"NCServerCapabilitiesUpdatedNotification";
 NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpdatedNotification";
 
 + (NCSettingsController *)sharedInstance
@@ -460,6 +461,9 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
         if (!error) {
             [[NCDatabaseManager sharedInstance] setServerCapabilities:serverCapabilities forAccountId:activeAccount.accountId];
             [self checkServerCapabilities];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCServerCapabilitiesUpdatedNotification
+                                                                object:self
+                                                              userInfo:nil];
             if (block) block(nil);
         } else {
             NSLog(@"Error while getting server capabilities");

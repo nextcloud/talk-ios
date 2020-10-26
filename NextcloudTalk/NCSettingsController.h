@@ -65,6 +65,7 @@ typedef void (^GetSignalingConfigCompletionBlock)(NSError *error);
 
 extern NSString * const NCTalkNotInstalledNotification;
 extern NSString * const NCOutdatedTalkVersionNotification;
+extern NSString * const NCServerCapabilitiesUpdatedNotification;
 extern NSString * const NCUserProfileImageUpdatedNotification;
 
 typedef enum NCPreferredFileSorting {

@@ -82,18 +82,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     
-    self.addButton.tintColor = [NCAppBranding themeTextColor];
     self.addButton.accessibilityLabel = NSLocalizedString(@"Create a new conversation", nil);
     self.addButton.accessibilityHint = NSLocalizedString(@"Double tap to create group, public or one to one conversations.", nil);
     
-    [self createRefreshControl];
-    [self setNavigationLogoButton];
-    
     [UIImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
     [UIButton setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
-    
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
-    self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
     
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
@@ -101,6 +94,45 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
+    
+    [self setupNavigationBar];
+    
+    // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
+    _resultTableViewController.tableView.delegate = self;
+    _searchController.delegate = self;
+    _searchController.searchBar.delegate = self;
+    
+    self.definesPresentationContext = YES;
+    
+    // Rooms placeholder view
+    _roomsBackgroundView = [[PlaceholderView alloc] init];
+    [_roomsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
+    [_roomsBackgroundView.placeholderText setText:NSLocalizedString(@"You are not part of any conversation. Press + to start a new one.", nil)];
+    [_roomsBackgroundView.placeholderView setHidden:YES];
+    [_roomsBackgroundView.loadingView startAnimating];
+    self.tableView.backgroundView = _roomsBackgroundView;
+    
+    // Settings navigation controller
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    _settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationWillBePresented:) name:NCNotificationControllerWillPresentNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesUpdated:) name:NCServerCapabilitiesUpdatedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userProfileImageUpdated:) name:NCUserProfileImageUpdatedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)setupNavigationBar
+{
+    [self setNavigationLogoButton];
+    [self createRefreshControl];
+    
+    self.addButton.tintColor = [NCAppBranding themeTextColor];
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+    self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
     
     if (@available(iOS 13.0, *)) {
         UIColor *themeColor = [NCAppBranding themeColor];
@@ -136,32 +168,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         _searchController.searchBar.layer.borderWidth = 1;
         _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
     }
-    
-    // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
-    _resultTableViewController.tableView.delegate = self;
-    _searchController.delegate = self;
-    _searchController.searchBar.delegate = self;
-    
-    self.definesPresentationContext = YES;
-    
-    // Rooms placeholder view
-    _roomsBackgroundView = [[PlaceholderView alloc] init];
-    [_roomsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
-    [_roomsBackgroundView.placeholderText setText:NSLocalizedString(@"You are not part of any conversation. Press + to start a new one.", nil)];
-    [_roomsBackgroundView.placeholderView setHidden:YES];
-    [_roomsBackgroundView.loadingView startAnimating];
-    self.tableView.backgroundView = _roomsBackgroundView;
-    
-    // Settings navigation controller
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    _settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationWillBePresented:) name:NCNotificationControllerWillPresentNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userProfileImageUpdated:) name:NCUserProfileImageUpdatedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
 - (void)dealloc
@@ -225,6 +231,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:NO];
     [self setUnreadMessageForInactiveAccountsIndicator];
+}
+
+- (void)serverCapabilitiesUpdated:(NSNotification *)notification
+{
+    [self setupNavigationBar];
 }
 
 - (void)userProfileImageUpdated:(NSNotification *)notification
