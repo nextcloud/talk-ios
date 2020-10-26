@@ -410,6 +410,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [self setProfileButton];
             BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
             [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:isAppActive];
+            [self setupNavigationBar];
         }
             break;
             
