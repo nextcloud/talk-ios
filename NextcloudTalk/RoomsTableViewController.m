@@ -62,7 +62,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     RoomSearchTableViewController *_resultTableViewController;
     PlaceholderView *_roomsBackgroundView;
     UIBarButtonItem *_settingsButton;
-    UINavigationController *_settingsNC;
 }
 
 @end
@@ -111,10 +110,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [_roomsBackgroundView.placeholderView setHidden:YES];
     [_roomsBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _roomsBackgroundView;
-    
-    // Settings navigation controller
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    _settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
@@ -500,7 +495,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     [[NCDatabaseManager sharedInstance] removeUnreadNotificationForInactiveAccounts];
     [self setUnreadMessageForInactiveAccountsIndicator];
-    [self presentViewController:_settingsNC animated:YES completion:nil];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UINavigationController *settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
+    [self presentViewController:settingsNC animated:YES completion:nil];
 }
 
 #pragma mark - CCCertificateDelegate
