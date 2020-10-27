@@ -24,6 +24,7 @@
 
 #import "CCCertificate.h"
 #import "NCAPISessionManager.h"
+#import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCImageSessionManager.h"
 #import "NCPushProxySessionManager.h"
@@ -1214,7 +1215,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
     NSDictionary *parameters = @{@"pushTokenHash" : [[NCSettingsController sharedInstance] pushTokenSHA512],
                                  @"devicePublicKey" : devicePublicKey,
-                                 @"proxyServer" : kNCPushServer
+                                 @"proxyServer" : pushNotificationServer
                                  };
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
@@ -1252,7 +1253,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account toPushServerWithCompletionBlock:(SubscribeToPushProxyCompletionBlock)block
 {
-    NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
+    NSString *URLString = [NSString stringWithFormat:@"%@/devices", pushNotificationServer];
     NSDictionary *parameters = @{@"pushToken" : [[NCSettingsController sharedInstance] combinedPushToken],
                                  @"deviceIdentifier" : account.deviceIdentifier,
                                  @"deviceIdentifierSignature" : account.deviceSignature,
@@ -1274,7 +1275,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSURLSessionDataTask *)unsubscribeAccount:(TalkAccount *)account fromPushServerWithCompletionBlock:(UnsubscribeToPushProxyCompletionBlock)block
 {    
-    NSString *URLString = [NSString stringWithFormat:@"%@/devices", kNCPushServer];
+    NSString *URLString = [NSString stringWithFormat:@"%@/devices", pushNotificationServer];
     NSDictionary *parameters = @{@"deviceIdentifier" : account.deviceIdentifier,
                                  @"deviceIdentifierSignature" : account.deviceSignature,
                                  @"userPublicKey" : account.userPublicKey

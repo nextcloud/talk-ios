@@ -31,6 +31,7 @@
 BOOL const multiAccountEnabled = YES;
 BOOL const forceDomain = NO;
 NSString * const domain = nil;
+NSString * const pushNotificationServer = @"https://push-notifications.nextcloud.com";
 
 #pragma mark - Theming
 

@@ -58,7 +58,6 @@ NSString * const kNCPushTokenKey                = @"ncPushToken";
 NSString * const kNCNormalPushTokenKey          = @"ncNormalPushToken";
 NSString * const kNCPushKitTokenKey             = @"ncPushKitToken";
 NSString * const kNCPushSubscribedKey           = @"ncPushSubscribed";
-NSString * const kNCPushServer                  = @"https://push-notifications.nextcloud.com";
 NSString * const kNCPNPublicKey                 = @"ncPNPublicKey";
 NSString * const kNCPNPrivateKey                = @"ncPNPrivateKey";
 NSString * const kNCDeviceIdentifier            = @"ncDeviceIdentifier";

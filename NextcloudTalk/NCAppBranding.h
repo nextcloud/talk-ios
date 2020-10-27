@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 extern BOOL const multiAccountEnabled;
 extern BOOL const forceDomain;
 extern NSString * const domain;
+extern NSString * const pushNotificationServer;
 
 // Theming
 + (UIColor *)brandColor;

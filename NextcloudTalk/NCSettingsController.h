@@ -35,7 +35,6 @@ extern NSString * const kNCPushTokenKey;
 extern NSString * const kNCNormalPushTokenKey;
 extern NSString * const kNCPushKitTokenKey;
 extern NSString * const kNCPushSubscribedKey;
-extern NSString * const kNCPushServer;
 extern NSString * const kNCPNPublicKey;
 extern NSString * const kNCPNPrivateKey;
 extern NSString * const kNCDeviceIdentifier;
