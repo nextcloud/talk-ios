@@ -31,6 +31,7 @@
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
 #import "NCAudioController.h"
+#import "NCAppBranding.h"
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCNotificationController.h"
@@ -132,8 +133,7 @@
 - (void)checkForPushNotificationSubscription
 {
     if (normalPushToken && pushKitToken) {
-        UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
-                                                                    accessGroup:@"group.com.nextcloud.Talk"];
+        UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:bundleIdentifier accessGroup:groupIdentifier];
         NSString *deviceNormalPushToken = [NCSettingsController sharedInstance].ncNormalPushToken;
         NSString *devicePushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
         BOOL tokenChanged = ![deviceNormalPushToken isEqualToString:normalPushToken] || ![devicePushKitToken isEqualToString:devicePushKitToken];
@@ -279,7 +279,7 @@
         viewController.passcodeInputView.maximumLength = 64;
     }
     
-    viewController.touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:@"com.nextcloud.Talk"];
+    viewController.touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:bundleIdentifier];
     viewController.touchIDManager.promptText = @"Scan fingerprint to authenticate";
 
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];

@@ -26,12 +26,14 @@
 
 @implementation NCAppBranding
 
-#pragma mark - Domain & Accounts
+#pragma mark - App configuration
 
+NSString * const bundleIdentifier = @"com.nextcloud.Talk";
+NSString * const groupIdentifier = @"group.com.nextcloud.Talk";
+NSString * const pushNotificationServer = @"https://push-notifications.nextcloud.com";
 BOOL const multiAccountEnabled = YES;
 BOOL const forceDomain = NO;
 NSString * const domain = nil;
-NSString * const pushNotificationServer = @"https://push-notifications.nextcloud.com";
 
 #pragma mark - Theming
 

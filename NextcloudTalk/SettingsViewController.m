@@ -845,7 +845,7 @@ typedef enum AboutSection {
         viewController.passcodeInputView.maximumLength = 64;
     }
     
-    BKTouchIDManager *touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:@"com.nextcloud.Talk"];
+    BKTouchIDManager *touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:bundleIdentifier];
     touchIDManager.promptText = NSLocalizedString(@"Scan fingerprint to authenticate", nil);
     viewController.touchIDManager = touchIDManager;
     
@@ -873,7 +873,7 @@ typedef enum AboutSection {
             viewController.passcodeInputView.maximumLength = 64;
         }
         
-        BKTouchIDManager *touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:@"com.nextcloud.Talk"];
+        BKTouchIDManager *touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:bundleIdentifier];
         touchIDManager.promptText = NSLocalizedString(@"Scan fingerprint to authenticate", nil);
         viewController.touchIDManager = touchIDManager;
 
@@ -900,7 +900,7 @@ typedef enum AboutSection {
             viewController.passcodeInputView.maximumLength = 64;
         }
 
-        BKTouchIDManager *touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:@"com.nextcloud.Talk"];
+        BKTouchIDManager *touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:bundleIdentifier];
         touchIDManager.promptText = NSLocalizedString(@"Scan fingerprint to authenticate", nil);
         viewController.touchIDManager = touchIDManager;
 

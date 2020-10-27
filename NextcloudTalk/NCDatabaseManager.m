@@ -22,6 +22,7 @@
 
 #import "NCDatabaseManager.h"
 
+#import "NCAppBranding.h"
 #import "NCChatController.h"
 #import "NCChatMessage.h"
 #import "NCRoom.h"
@@ -59,7 +60,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 5;
     self = [super init];
     if (self) {
         // Create Talk database directory
-        NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.com.nextcloud.Talk"] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
+        NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
         if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
             [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
         }

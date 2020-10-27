@@ -27,11 +27,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NCAppBranding : NSObject
 
-// Domain & Accounts
+// App configuration
+extern NSString * const bundleIdentifier;
+extern NSString * const groupIdentifier;
+extern NSString * const pushNotificationServer;
 extern BOOL const multiAccountEnabled;
 extern BOOL const forceDomain;
 extern NSString * const domain;
-extern NSString * const pushNotificationServer;
 
 // Theming
 + (UIColor *)brandColor;

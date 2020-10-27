@@ -31,6 +31,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "OpenInFirefoxControllerObjC.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCExternalSignalingController.h"
@@ -102,9 +103,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     self = [super init];
     if (self) {
         _videoSettingsModel = [[ARDSettingsModel alloc] init];
-        _keychain = [UICKeyChainStore keyChainStoreWithService:@"com.nextcloud.Talk"
-                                                   accessGroup:@"group.com.nextcloud.Talk"];
-        
+        _keychain = [UICKeyChainStore keyChainStoreWithService:bundleIdentifier accessGroup:groupIdentifier];
         _signalingConfigutations = [NSMutableDictionary new];
         _externalSignalingControllers = [NSMutableDictionary new];
         
@@ -157,8 +156,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     if ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) {
         NSLog(@"Removing all data stored in Keychain");
         [self cleanUserAndServerStoredValues];
-        [UICKeyChainStore removeAllItemsForService:@"com.nextcloud.Talk"
-                                       accessGroup:@"group.com.nextcloud.Talk"];
+        [UICKeyChainStore removeAllItemsForService:bundleIdentifier accessGroup:groupIdentifier];
     }
 }
 

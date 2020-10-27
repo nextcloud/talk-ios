@@ -28,6 +28,8 @@
 #import <openssl/err.h>
 #import <openssl/pem.h>
 
+#import "NCAppBranding.h"
+
 @implementation CCCertificate
 
 NSString *const appCertificates = @"Library/Application Support/Certificates";
@@ -187,7 +189,7 @@ static SecCertificateRef SecTrustGetLeafCertificate(SecTrustRef trust)
 
 - (NSString *)getDirectoryCerificates
 {
-    NSURL *dirGroup = [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.com.nextcloud.Talk"];
+    NSURL *dirGroup = [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier];
     
     NSString *dir = [[dirGroup URLByAppendingPathComponent:appCertificates] path];
     if (![[NSFileManager defaultManager] fileExistsAtPath:dir])

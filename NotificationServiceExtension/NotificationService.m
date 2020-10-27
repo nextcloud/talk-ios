@@ -23,6 +23,7 @@
 #import "NotificationService.h"
 
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCNotification.h"
 #import "NCPushNotification.h"
@@ -45,7 +46,7 @@
     self.bestAttemptContent.body = NSLocalizedString(@"You received a new notification", nil);
     
     // Configure database
-    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.com.nextcloud.Talk"] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
+    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
     RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
     NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
     configuration.fileURL = databaseURL;

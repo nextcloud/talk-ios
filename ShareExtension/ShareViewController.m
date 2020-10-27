@@ -60,7 +60,7 @@
     _filteredRooms = [[NSMutableArray alloc] init];
     
     // Configure database
-    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.com.nextcloud.Talk"] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
+    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
     RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
     NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
     configuration.fileURL = databaseURL;
