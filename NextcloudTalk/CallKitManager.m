@@ -25,6 +25,7 @@
 
 #import "NCAudioController.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCNotificationController.h"
 #import "NCRoomsManager.h"
@@ -81,7 +82,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 - (CXProvider *)provider
 {
     if (!_provider) {
-        CXProviderConfiguration *configuration = [[CXProviderConfiguration alloc] initWithLocalizedName:@"Nextcloud Talk"];
+        CXProviderConfiguration *configuration = [[CXProviderConfiguration alloc] initWithLocalizedName:talkAppName];
         configuration.supportsVideo = YES;
         configuration.maximumCallGroups = 1;
         configuration.maximumCallsPerCallGroup = 1;

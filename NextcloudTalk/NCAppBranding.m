@@ -28,6 +28,8 @@
 
 #pragma mark - App configuration
 
+NSString * const talkAppName = @"Nextcloud Talk";
+NSString * const filesAppName = @"Nextcloud";
 NSString * const bundleIdentifier = @"com.nextcloud.Talk";
 NSString * const groupIdentifier = @"group.com.nextcloud.Talk";
 NSString * const pushNotificationServer = @"https://push-notifications.nextcloud.com";

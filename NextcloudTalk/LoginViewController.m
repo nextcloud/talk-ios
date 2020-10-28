@@ -137,9 +137,13 @@
             if ([talkFeatures containsObject:kMinimumRequiredTalkCapability]) {
                 [self presentAuthenticationView];
             } else if (talkFeatures.count == 0) {
-                [self showAlertWithTitle:NSLocalizedString(@"Nextcloud Talk not installed", nil) andMessage:NSLocalizedString(@"It seems that Nextcloud Talk is not installed in your server.", nil)];
+                NSString *title = [NSString stringWithFormat:NSLocalizedString(@"%@ not installed", @"{app name} is not installed"), talkAppName];
+                NSString *message = [NSString stringWithFormat:NSLocalizedString(@"It seems that %@ is not installed in your server.", @"It seems that {app name} is not installed in your server."), talkAppName];
+                [self showAlertWithTitle:title andMessage:message];
             } else {
-                [self showAlertWithTitle:NSLocalizedString(@"Nextcloud Talk version not supported", nil) andMessage:NSLocalizedString(@"Please update your server with the latest Nextcloud Talk version available.", nil)];
+                NSString *title = [NSString stringWithFormat:NSLocalizedString(@"%@ version not supported", @"{app name} version not supported"), talkAppName];
+                NSString *message = [NSString stringWithFormat:NSLocalizedString(@"Please update your server with the latest %@ version available.", @"Please update your server with the latest {app name} version available."), talkAppName];
+                [self showAlertWithTitle:title andMessage:message];
             }
         } else {
             // Self signed certificate

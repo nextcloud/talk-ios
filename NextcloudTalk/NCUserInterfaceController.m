@@ -130,8 +130,8 @@
 - (void)presentTalkNotInstalledWarningAlert
 {
     UIAlertController * alert = [UIAlertController
-                                 alertControllerWithTitle:NSLocalizedString(@"Nextcloud Talk not installed", nil)
-                                 message:NSLocalizedString(@"It seems that Nextcloud Talk is not installed in your server.", nil)
+                                 alertControllerWithTitle:[NSString stringWithFormat:NSLocalizedString(@"%@ not installed", @"{app name} is not installed"), talkAppName]
+                                 message:[NSString stringWithFormat:NSLocalizedString(@"It seems that %@ is not installed in your server.", @"It seems that {app name} is not installed in your server."), talkAppName]
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction* okButton = [UIAlertAction
@@ -149,8 +149,8 @@
 - (void)presentTalkOutdatedWarningAlert
 {
     UIAlertController * alert = [UIAlertController
-                                 alertControllerWithTitle:NSLocalizedString(@"Nextcloud Talk version not supported", nil)
-                                 message:NSLocalizedString(@"Please update your server with the latest Nextcloud Talk version available.", nil)
+                                 alertControllerWithTitle:[NSString stringWithFormat:NSLocalizedString(@"%@ version not supported", @"{app name} version not supported"), talkAppName]
+                                 message:[NSString stringWithFormat:NSLocalizedString(@"Please update your server with the latest %@ version available.", @"Please update your server with the latest {app name} version available."), talkAppName]
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction* okButton = [UIAlertAction

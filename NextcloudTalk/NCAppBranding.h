@@ -28,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NCAppBranding : NSObject
 
 // App configuration
+extern NSString * const talkAppName;
+extern NSString * const filesAppName;
 extern NSString * const bundleIdentifier;
 extern NSString * const groupIdentifier;
 extern NSString * const pushNotificationServer;

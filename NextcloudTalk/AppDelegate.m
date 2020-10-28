@@ -268,7 +268,7 @@
     CCBKPasscode *viewController = [[CCBKPasscode alloc] initWithNibName:nil bundle:nil];
     viewController.type = BKPasscodeViewControllerCheckPasscodeType;
     viewController.delegate = self;
-    viewController.title = @"Nextcloud Talk";
+    viewController.title = talkAppName;
     viewController.fromType = CCBKPasscodeFromLockScreen;
 
     if ([NCSettingsController sharedInstance].lockScreenPasscodeType == NCPasscodeTypeSimple) {
