@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 // App configuration
 extern NSString * const talkAppName;
 extern NSString * const filesAppName;
+extern NSString * const copyright;
 extern NSString * const bundleIdentifier;
 extern NSString * const groupIdentifier;
 extern NSString * const pushNotificationServer;

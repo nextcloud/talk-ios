@@ -30,6 +30,7 @@
 
 NSString * const talkAppName = @"Nextcloud Talk";
 NSString * const filesAppName = @"Nextcloud";
+NSString * const copyright = @"© 2020 Nextcloud GmbH";
 NSString * const bundleIdentifier = @"com.nextcloud.Talk";
 NSString * const groupIdentifier = @"group.com.nextcloud.Talk";
 NSString * const pushNotificationServer = @"https://push-notifications.nextcloud.com";
