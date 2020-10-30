@@ -42,7 +42,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (UIImage *)blurImageFromImage:(UIImage *)image;
 
-+ (UIColor *)darkerColorFromColor:(UIColor *)color;
++ (UIColor *)searchbarBGColorForColor:(UIColor *)color;
+
++ (CGFloat)calculateLumaFromColor:(UIColor *)color;
++ (UIColor *)colorFromHexString:(NSString *)hexString;
 
 @end
 
