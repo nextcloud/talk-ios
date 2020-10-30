@@ -86,14 +86,25 @@
         self.navigationItem.scrollEdgeAppearance = appearance;
         
         self.navigationItem.searchController = _searchController;
-        self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils darkerColorFromColor:themeColor];
+        self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
         _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+        UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
         searchTextField.tintColor = [NCAppBranding themeTextColor];
         searchTextField.textColor = [NCAppBranding themeTextColor];
         dispatch_async(dispatch_get_main_queue(), ^{
+            // Search bar placeholder
             searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
             attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
+            // Search bar search icon
+            UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
+            searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
+            // Search bar search clear button
+            UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
+            [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
+            [clearButton setTintColor:[NCAppBranding themeTextColor]];
         });
     } else if (@available(iOS 11.0, *)) {
         self.navigationItem.searchController = _searchController;
