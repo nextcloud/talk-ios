@@ -23,6 +23,7 @@
 #import "NCAppBranding.h"
 
 #import "NCDatabaseManager.h"
+#import "NCUtils.h"
 
 @implementation NCAppBranding
 
@@ -47,22 +48,22 @@ BOOL const useServerThemimg = YES;
 
 + (UIColor *)brandColor
 {
-    return [self colorFromHexString:brandColorHex];
+    return [NCUtils colorFromHexString:brandColorHex];
 }
 
 + (UIColor *)brandTextColor
 {
-    return [self colorFromHexString:brandTextColorHex];
+    return [NCUtils colorFromHexString:brandTextColorHex];
 }
 
 + (UIColor *)themeColor
 {
-    UIColor *color = [self colorFromHexString:brandColorHex];
+    UIColor *color = [NCUtils colorFromHexString:brandColorHex];
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
         if (serverCapabilities && ![serverCapabilities.color isEqualToString:@""]) {
-            color = [self colorFromHexString:serverCapabilities.color];
+            color = [NCUtils colorFromHexString:serverCapabilities.color];
         }
     }
     return color;
@@ -70,38 +71,21 @@ BOOL const useServerThemimg = YES;
 
 + (UIColor *)themeTextColor
 {
-    UIColor *textColor = [self colorFromHexString:brandTextColorHex];
+    UIColor *textColor = [NCUtils colorFromHexString:brandTextColorHex];
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
         if (serverCapabilities && ![serverCapabilities.colorText isEqualToString:@""]) {
-            textColor = [self colorFromHexString:serverCapabilities.colorText];
+            textColor = [NCUtils colorFromHexString:serverCapabilities.colorText];
         }
     }
     return textColor;
 }
 
-+ (CGFloat)calculateLuma
-{
-    CGFloat red, green, blue, alpha;
-    [[self themeColor] getRed: &red green: &green blue: &blue alpha: &alpha];
-    return (0.2126 * red + 0.7152 * green + 0.0722 * blue);
-}
-
-+ (UIColor *)colorFromHexString:(NSString *)hexString
-{
-    // Hex color "#00FF00" to UIColor.
-    unsigned rgbValue = 0;
-    NSScanner *scanner = [NSScanner scannerWithString:hexString];
-    [scanner setScanLocation:1]; // bypass '#' character
-    [scanner scanHexInt:&rgbValue];
-    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
-}
-
 + (NSString *)navigationLogoImageName
 {
     NSString *imageName = @"navigationLogo";
-    if (!customNavigationLogo && [self calculateLuma] > 0.6) {
+    if (!customNavigationLogo && [NCUtils calculateLumaFromColor:[self themeColor]] > 0.6) {
         imageName = @"navigationLogoDark";
     }
     return imageName;

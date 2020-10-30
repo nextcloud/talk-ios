@@ -142,15 +142,27 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return [UIImage imageWithCGImage:CGImageCreateWithImageInRect(cgImage, cropRect)];
 }
 
-+ (UIColor *)darkerColorFromColor:(UIColor *)color
++ (UIColor *)searchbarBGColorForColor:(UIColor *)color
 {
-    CGFloat h, s, b, a;
-    if ([color getHue:&h saturation:&s brightness:&b alpha:&a])
-        return [UIColor colorWithHue:h
-                          saturation:s
-                          brightness:b * 0.95
-                               alpha:a];
-    return nil;
+    CGFloat luma = [self calculateLumaFromColor:color];
+    return (luma > 0.6) ? [UIColor colorWithWhite:0 alpha:0.1] : [UIColor colorWithWhite:1 alpha:0.2];
+}
+
++ (CGFloat)calculateLumaFromColor:(UIColor *)color
+{
+    CGFloat red, green, blue, alpha;
+    [color getRed: &red green: &green blue: &blue alpha: &alpha];
+    return (0.2126 * red + 0.7152 * green + 0.0722 * blue);
+}
+
++ (UIColor *)colorFromHexString:(NSString *)hexString
+{
+    // Hex color "#00FF00" to UIColor.
+    unsigned rgbValue = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:hexString];
+    [scanner setScanLocation:1]; // bypass '#' character
+    [scanner scanHexInt:&rgbValue];
+    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
 }
 
 @end
