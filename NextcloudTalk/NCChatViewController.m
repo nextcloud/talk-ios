@@ -116,6 +116,7 @@ typedef enum NCChatMessageAction {
         [FilePreviewImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didLeaveRoom:) name:NCRoomsManagerDidLeaveRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistory:) name:NCChatControllerDidReceiveInitialChatHistoryNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveInitialChatHistoryOffline:) name:NCChatControllerDidReceiveInitialChatHistoryOfflineNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatHistory:) name:NCChatControllerDidReceiveChatHistoryNotification object:nil];
@@ -150,10 +151,7 @@ typedef enum NCChatMessageAction {
     [self configureActionItems];
     
     // Disable room info, input bar and call buttons until joining the room
-    _titleView.userInteractionEnabled = NO;
-    [_videoCallButton setEnabled:NO];
-    [_voiceCallButton setEnabled:NO];
-    self.textInputbar.userInteractionEnabled = NO;
+    [self disableRoomControls];
     
     self.messages = [[NSMutableDictionary alloc] init];
     self.mentions = [[NSMutableArray alloc] init];
@@ -404,6 +402,14 @@ typedef enum NCChatMessageAction {
 }
 
 #pragma mark - User Interface
+
+- (void)disableRoomControls
+{
+    _titleView.userInteractionEnabled = NO;
+    [_videoCallButton setEnabled:NO];
+    [_voiceCallButton setEnabled:NO];
+    self.textInputbar.userInteractionEnabled = NO;
+}
 
 - (void)checkRoomControlsAvailability
 {
@@ -1032,6 +1038,11 @@ typedef enum NCChatMessageAction {
         _hasRequestedInitialHistory = YES;
         [_chatController getInitialChatHistory];
     }
+}
+
+- (void)didLeaveRoom:(NSNotification *)notification
+{
+    [self disableRoomControls];
 }
 
 #pragma mark - Chat Controller notifications
