@@ -54,6 +54,7 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 - (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId;
 - (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus;
 - (void)updateRoom:(NSString *)token;
+- (void)updateRoomLocal:(NCRoom *) room;
 - (void)joinRoom:(NSString *)token;
 - (void)rejoinRoom:(NSString *)token;
 // Chat

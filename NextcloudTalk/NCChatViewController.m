@@ -247,6 +247,13 @@ typedef enum NCChatMessageAction {
     _chatViewPresentedTimestamp = [[NSDate date] timeIntervalSince1970];
     _lastReadMessage = _room.lastReadMessage;
     
+    // Check if there's a stored pending message
+    if (_room.pendingMessage != nil) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.textView.text = self->_room.pendingMessage;
+        });
+    }
+    
     NSDictionary *views = @{@"unreadMessagesButton": _unreadMessageButton,
                             @"textInputbar": self.textInputbar};
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[unreadMessagesButton(24)]-5-[textInputbar]" options:0 metrics:nil views:views]];
@@ -276,6 +283,8 @@ typedef enum NCChatMessageAction {
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    
+    [self savePendingMessage];
     
     _isVisible = NO;
 }
@@ -670,6 +679,9 @@ typedef enum NCChatMessageAction {
     [self sendChatMessage:self.textView.text fromInputField:YES];
     [_replyMessageView dismiss];
     [super didPressRightButton:sender];
+    
+    // Input field is empty after send -> this clears a previously saved pending message
+    [self savePendingMessage];
 }
 
 - (void)didPressLeftButton:(id)sender
@@ -1578,6 +1590,12 @@ typedef enum NCChatMessageAction {
     _unreadMessagesSeparatorIP = nil;
     [self hideNewMessagesView];
     [self.tableView reloadData];
+}
+
+- (void)savePendingMessage
+{
+    _room.pendingMessage = self.textView.text;
+    [[NCRoomsManager sharedInstance] updateRoomLocal:_room];
 }
 
 #pragma mark - Autocompletion

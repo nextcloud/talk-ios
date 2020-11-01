@@ -60,6 +60,11 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.canStartCall = [[roomDict objectForKey:@"canStartCall"] boolValue];
     room.hasCall = [[roomDict objectForKey:@"hasCall"] boolValue];
     
+    // Local-only field -> update only if there's actually a value
+    if ([roomDict objectForKey:@"pendingMessage"] != nil) {
+        room.pendingMessage = [roomDict objectForKey:@"pendingMessage"];
+    }
+    
     id name = [roomDict objectForKey:@"name"];
     if ([name isKindOfClass:[NSString class]]) {
         room.name = name;
@@ -120,6 +125,11 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     managedRoom.canStartCall = room.canStartCall;
     managedRoom.hasCall = room.hasCall;
     managedRoom.lastUpdate = room.lastUpdate;
+    
+    // Local-only field -> update only if there's actually a value
+    if (room.pendingMessage != nil) {
+        managedRoom.pendingMessage = room.pendingMessage;
+    }
 }
 
 + (NSString *)primaryKey {
