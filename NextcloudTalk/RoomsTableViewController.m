@@ -33,6 +33,7 @@
 #import "NCDatabaseManager.h"
 #import "NCImageSessionManager.h"
 #import "NCConnectionController.h"
+#import "NCNavigationController.h"
 #import "NCNotificationController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
@@ -264,7 +265,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (IBAction)addButtonPressed:(id)sender
 {
     NewRoomTableViewController *newRoowVC = [[NewRoomTableViewController alloc] init];
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:newRoowVC];
+    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:newRoowVC];
     [self presentViewController:navigationController animated:YES completion:nil];
 }
 
@@ -509,7 +510,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NCDatabaseManager sharedInstance] removeUnreadNotificationForInactiveAccounts];
     [self setUnreadMessageForInactiveAccountsIndicator];
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    UINavigationController *settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
+    NCNavigationController *settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
     [self presentViewController:settingsNC animated:YES completion:nil];
 }
 
@@ -640,7 +641,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     
     RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:room];
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:roomInfoVC];
+    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:roomInfoVC];
     [self presentViewController:navigationController animated:YES completion:nil];
 }
 

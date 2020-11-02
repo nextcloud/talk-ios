@@ -30,6 +30,7 @@
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
+#import "NCNavigationController.h"
 #import "NCRoomsManager.h"
 #import "NCRoomParticipant.h"
 #import "NCSettingsController.h"
@@ -781,7 +782,7 @@ typedef enum ModificationError {
 {
     AddParticipantsTableViewController *addParticipantsVC = [[AddParticipantsTableViewController alloc] initForRoom:_room];
     addParticipantsVC.delegate = self;
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:addParticipantsVC];
+    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:addParticipantsVC];
     [self presentViewController:navigationController animated:YES completion:nil];
 }
 
