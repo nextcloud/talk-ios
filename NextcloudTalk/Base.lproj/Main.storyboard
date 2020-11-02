@@ -87,7 +87,7 @@
         <!--Navigation Controller-->
         <scene sceneID="WPn-o2-Zlg">
             <objects>
-                <navigationController storyboardIdentifier="settingsNC" id="h6t-CT-B8r" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="settingsNC" id="h6t-CT-B8r" customClass="NCNavigationController" sceneMemberID="viewController">
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" id="Mqg-tq-GRj">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -104,7 +104,7 @@
         <!--Navigation Controller-->
         <scene sceneID="ICr-oC-JdW">
             <objects>
-                <navigationController id="lDR-Z7-uv9" sceneMemberID="viewController">
+                <navigationController id="lDR-Z7-uv9" customClass="NCNavigationController" sceneMemberID="viewController">
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" id="hHa-bu-9bX">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>

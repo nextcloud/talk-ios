@@ -34,6 +34,7 @@
 #import "NCAppBranding.h"
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
+#import "NCNavigationController.h"
 #import "NCNotificationController.h"
 #import "NCPushNotification.h"
 #import "NCRoomsManager.h"
@@ -282,7 +283,7 @@
     viewController.touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:bundleIdentifier];
     viewController.touchIDManager.promptText = @"Scan fingerprint to authenticate";
 
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
+    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:viewController];
     navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
     return navigationController;
 }

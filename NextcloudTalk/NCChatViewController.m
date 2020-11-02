@@ -41,6 +41,7 @@
 #import "NCMessageParameter.h"
 #import "NCChatTitleView.h"
 #import "NCMessageTextView.h"
+#import "NCNavigationController.h"
 #import "NCImageSessionManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
@@ -733,7 +734,7 @@ typedef enum NCChatMessageAction {
 - (void)presentNextcloudFilesBrowser
 {
     DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:@"" inRoom:_room.token];
-    UINavigationController *fileSharingNC = [[UINavigationController alloc] initWithRootViewController:directoryVC];
+    NCNavigationController *fileSharingNC = [[NCNavigationController alloc] initWithRootViewController:directoryVC];
     [self presentViewController:fileSharingNC animated:YES completion:nil];
 }
 
@@ -762,7 +763,7 @@ typedef enum NCChatMessageAction {
     ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
     shareConfirmationVC.delegate = self;
     shareConfirmationVC.isModal = YES;
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
+    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:shareConfirmationVC];
     NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
     if ([mediaType isEqualToString:@"public.image"]) {
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
@@ -800,7 +801,7 @@ typedef enum NCChatMessageAction {
     ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
     shareConfirmationVC.delegate = self;
     shareConfirmationVC.isModal = YES;
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
+    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:shareConfirmationVC];
     
     if (controller.documentPickerMode == UIDocumentPickerModeImport) {
         NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
@@ -819,7 +820,7 @@ typedef enum NCChatMessageAction {
     ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
     shareConfirmationVC.delegate = self;
     shareConfirmationVC.isModal = YES;
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:shareConfirmationVC];
+    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:shareConfirmationVC];
     
     // Just grab the first item for now
     NSURL *url = urls.firstObject;
