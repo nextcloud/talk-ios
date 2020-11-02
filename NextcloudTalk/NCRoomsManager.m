@@ -354,6 +354,17 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }];
 }
 
+- (void)updateRoomLocal:(NCRoom *)room
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
+        if (managedRoom) {
+            [NCRoom updateRoom:managedRoom withRoom:room];
+        }
+    }];
+}
+
 #pragma mark - Chat
 
 - (void)startChatInRoom:(NCRoom *)room
