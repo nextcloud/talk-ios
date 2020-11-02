@@ -206,6 +206,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     [UIApplication sharedApplication].idleTimerDisabled = NO;
 }
 
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return UIStatusBarStyleLightContent;
+}
+
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
