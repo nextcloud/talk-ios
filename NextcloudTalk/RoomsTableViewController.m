@@ -174,6 +174,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         _searchController.searchBar.layer.borderWidth = 1;
         _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
     }
+    
+    [self setNeedsStatusBarAppearanceUpdate];
 }
 
 - (void)dealloc
