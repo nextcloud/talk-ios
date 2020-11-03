@@ -578,28 +578,35 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
-- (void)showForceMutedWarning
+- (void)forceMuteAudio
 {
-    UIAlertController *confirmDialog =
-    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"You have been muted by a moderator", nil)
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleCancel handler:nil];
-    [confirmDialog addAction:confirmAction];
+    NSString *forceMutedString = NSLocalizedString(@"You have been muted by a moderator", nil);
+    [self muteAudioWithReason:forceMutedString];
+}
+
+-(void)muteAudioWithReason:(NSString*)reason
+{
+    [_callController enableAudio:NO];
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self presentViewController:confirmDialog animated:YES completion:nil];
+        [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+        
+        NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
+        UIView *toast;
+        
+        if (reason) {
+            toast = [self.view toastViewForMessage:reason title:micDisabledString image:nil style:nil];
+        } else {
+            toast = [self.view toastViewForMessage:micDisabledString title:nil image:nil style:nil];
+        }
+        
+        // Nextcloud uses a default timeout of 7s for toasts
+        [self.view showToast:toast duration:7.0 position:CSToastPositionCenter completion:nil];
     });
 }
 
 - (void)muteAudio
 {
-    [_callController enableAudio:NO];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
-        NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
-        _audioMuteButton.accessibilityValue = micDisabledString;
-        [self.view makeToast:micDisabledString duration:1.5 position:CSToastPositionCenter];
-    });
+    [self muteAudioWithReason:nil];
 }
 
 - (void)unmuteAudio
@@ -1011,8 +1018,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callController:(NCCallController *)callController didReceiveForceMuteActionForPeerId:(NSString *)peerId
 {
     if ([peerId isEqualToString:callController.userSessionId]) {
-        [self muteAudio];
-        [self showForceMutedWarning];
+        [self forceMuteAudio];
     } else {
         NSLog(@"Peer was force muted: %@", peerId);
     }
