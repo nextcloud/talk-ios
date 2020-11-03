@@ -390,6 +390,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (!_chatViewController || ![_chatViewController.room.token isEqualToString:room.token]) {
         _chatViewController = [[NCChatViewController alloc] initForRoom:room];
         [[NCUserInterfaceController sharedInstance] presentChatViewController:_chatViewController];
+    } else {
+        NSLog(@"Not starting chat: chatViewController for room %@ does already exist.", room.token);
     }
 }
 
