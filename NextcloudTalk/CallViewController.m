@@ -591,16 +591,19 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
         
         NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
+        NSTimeInterval duration = 1.5;
         UIView *toast;
         
         if (reason) {
+            // Nextcloud uses a default timeout of 7s for toasts
+            duration = 7.0;
+
             toast = [self.view toastViewForMessage:reason title:micDisabledString image:nil style:nil];
         } else {
             toast = [self.view toastViewForMessage:micDisabledString title:nil image:nil style:nil];
         }
         
-        // Nextcloud uses a default timeout of 7s for toasts
-        [self.view showToast:toast duration:7.0 position:CSToastPositionCenter completion:nil];
+        [self.view showToast:toast duration:duration position:CSToastPositionCenter completion:nil];
     });
 }
 
