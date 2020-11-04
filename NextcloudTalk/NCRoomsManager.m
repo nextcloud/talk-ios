@@ -382,6 +382,9 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         if ([extSignalingController isEnabled]) {
             NSString *currentRoom = extSignalingController.currentRoom;
             if (![currentRoom isEqualToString:room.token]) {
+                // Since we are going to join another conversation, we don't need to leaveRoom() in extSignalingController.
+                // That's why we set currentRoom = nil, so when leaveRoom() is called in extSignalingController the currentRoom
+                // is no longer the room we want to leave (so no message is sent to the external signaling server).
                 extSignalingController.currentRoom = nil;
             }
         }
@@ -436,6 +439,9 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         if ([extSignalingController isEnabled]) {
             NSString *currentRoom = extSignalingController.currentRoom;
             if (![currentRoom isEqualToString:room.token] && [_chatViewController.room.token isEqualToString:currentRoom]) {
+                // Since we are going to join another conversation, we don't need to leaveRoom() in extSignalingController.
+                // That's why we set currentRoom = nil, so when leaveRoom() is called in extSignalingController the currentRoom
+                // is no longer the room we want to leave (so no message is sent to the external signaling server).
                 extSignalingController.currentRoom = nil;
                 [_chatViewController leaveChat];
                 [[NCUserInterfaceController sharedInstance] presentConversationsList];
