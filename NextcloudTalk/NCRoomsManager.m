@@ -435,12 +435,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
         if ([extSignalingController isEnabled]) {
             NSString *currentRoom = extSignalingController.currentRoom;
-            if (![currentRoom isEqualToString:room.token]) {
-                [[NCUserInterfaceController sharedInstance] presentConversationsList];
-                if (currentRoom) {
-                    [self leaveChatInRoom:currentRoom];
-                }
+            if (![currentRoom isEqualToString:room.token] && [_chatViewController.room.token isEqualToString:currentRoom]) {
                 extSignalingController.currentRoom = nil;
+                [_chatViewController leaveChat];
+                [[NCUserInterfaceController sharedInstance] presentConversationsList];
             }
         }
         if ([_chatViewController.room.token isEqualToString:room.token]) {
