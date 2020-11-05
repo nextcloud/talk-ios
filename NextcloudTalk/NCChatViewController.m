@@ -228,6 +228,7 @@ typedef enum NCChatMessageAction {
     _firstUnreadMessageIP = nil;
     _unreadMessageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 126, 24)];
     _unreadMessageButton.backgroundColor = [NCAppBranding themeColor];
+    [_unreadMessageButton setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
     _unreadMessageButton.titleLabel.font = [UIFont systemFontOfSize:12];
     _unreadMessageButton.layer.cornerRadius = 12;
     _unreadMessageButton.clipsToBounds = YES;
