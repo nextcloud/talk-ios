@@ -135,10 +135,10 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     BOOL ongoingCalls = _calls.count > 0;
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     
-    // If the app is not active (e.g. in background) and there is an open chat from another conversation
+    // If the app is not active (e.g. in background) and there is an open chat
     BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
     NCChatViewController *chatViewController = [[NCRoomsManager sharedInstance] chatViewController];
-    if (!isAppActive && chatViewController && ![chatViewController.room.token isEqualToString:token]) {
+    if (!isAppActive && chatViewController) {
         // Leave the chat so it doesn't try to join the chat conversation when the app becomes active.
         [chatViewController leaveChat];
         [[NCUserInterfaceController sharedInstance] presentConversationsList];
