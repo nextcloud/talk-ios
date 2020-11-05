@@ -234,8 +234,18 @@ typedef enum NCChatMessageAction {
     _unreadMessageButton.clipsToBounds = YES;
     _unreadMessageButton.hidden = YES;
     _unreadMessageButton.translatesAutoresizingMaskIntoConstraints = NO;
+    _unreadMessageButton.contentEdgeInsets = UIEdgeInsetsMake(0.0f, 10.0f, 0.0f, 10.0f);
+    _unreadMessageButton.titleLabel.minimumScaleFactor = 0.9f;
+    _unreadMessageButton.titleLabel.numberOfLines = 1;
+    _unreadMessageButton.titleLabel.adjustsFontSizeToFitWidth = YES;
+    
+    NSString *buttonText = NSLocalizedString(@"↓ New messages", nil);
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:12]};
+    CGRect textSize = [buttonText boundingRectWithSize:CGSizeMake(300, 24) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
+    CGFloat buttonWidth = textSize.size.width + 20;
+
     [_unreadMessageButton addTarget:self action:@selector(unreadMessagesButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [_unreadMessageButton setTitle:NSLocalizedString(@"↓ New messages", nil) forState:UIControlStateNormal];
+    [_unreadMessageButton setTitle:buttonText forState:UIControlStateNormal];
     
     // Unread messages separator
     _unreadMessagesSeparator = [[NCChatMessage alloc] init];
@@ -256,8 +266,9 @@ typedef enum NCChatMessageAction {
     
     NSDictionary *views = @{@"unreadMessagesButton": _unreadMessageButton,
                             @"textInputbar": self.textInputbar};
+    NSDictionary *metrics = @{@"buttonWidth": @(buttonWidth)};
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[unreadMessagesButton(24)]-5-[textInputbar]" options:0 metrics:nil views:views]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[unreadMessagesButton(126)]-(>=0)-|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[unreadMessagesButton(buttonWidth)]-(>=0)-|" options:0 metrics:metrics views:views]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual
                                                              toItem:_unreadMessageButton attribute:NSLayoutAttributeCenterX multiplier:1.f constant:0.f]];
 }
