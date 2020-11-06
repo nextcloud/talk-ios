@@ -139,10 +139,18 @@ NSString *const kRoomTypeScreen = @"screen";
     NSDictionary *sender = [jsonDict objectForKey:kNCExternalSignalingMessageSenderKey];
     NSString *messageType = [sender objectForKey:kNCSignalingMessageTypeKey];
     if ([messageType isEqualToString:kNCExternalSignalingMessageTypeSessionKey]) {
-        return [self messageFromJSONDictionary:[jsonDict objectForKey:kNCExternalSignalingMessageDataKey]];
+        NSDictionary *payload = [data objectForKey:kNCSignalingMessagePayloadKey];
+        NSString *type = [payload objectForKey:kNCSignalingMessageTypeKey];
+        if ([type isEqualToString:kNCSignalingMessageTypeCandidateKey]) {
+            return [[NCICECandidateMessage alloc] initWithValues:jsonDict];
+        } else if ([type isEqualToString:kNCSignalingMessageTypeOfferKey] ||
+                   [type isEqualToString:kNCSignalingMessageTypeAnswerKey]) {
+            return [[NCSessionDescriptionMessage alloc] initWithValues:jsonDict];
+        }
     }
     
-    return [self messageFromJSONDictionary:jsonDict];
+    NSLog(@"Unexpected external signaling message: %@", jsonDict);
+    return nil;
 }
 
 - (NSData *)JSONData {
@@ -173,12 +181,20 @@ NSString *const kRoomTypeScreen = @"screen";
 @synthesize candidate = _candidate;
 
 - (instancetype)initWithValues:(NSDictionary *)values {
-    RTCIceCandidate *candidate = [RTCIceCandidate candidateFromJSONDictionary:[[values objectForKey:kNCSignalingMessagePayloadKey] objectForKey:kNCSignalingMessageTypeCandidateKey]];
+    NSDictionary *dataDict = [[NSDictionary alloc] initWithDictionary:values];
+    NSString *from = [values objectForKey:kNCSignalingMessageFromKey];
+    // Get 'from' value from 'sender' using External Signaling
+    NSDictionary *sender = [values objectForKey:kNCExternalSignalingMessageSenderKey];
+    if (sender) {
+        from = [sender objectForKey:kNCExternalSignalingMessageSessionIdKey];
+        dataDict = [values objectForKey:kNCExternalSignalingMessageDataKey];
+    }
+    RTCIceCandidate *candidate = [RTCIceCandidate candidateFromJSONDictionary:[[dataDict objectForKey:kNCSignalingMessagePayloadKey] objectForKey:kNCSignalingMessageTypeCandidateKey]];
     return [self initWithCandidate:candidate
-                              from:[values objectForKey:kNCSignalingMessageFromKey]
-                                to:[values objectForKey:kNCSignalingMessageToKey]
-                               sid:[values objectForKey:kNCSignalingMessageSidKey]
-                          roomType:[values objectForKey:kNCSignalingMessageRoomTypeKey]];
+                              from:from
+                                to:[dataDict objectForKey:kNCSignalingMessageToKey]
+                               sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
+                          roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
 }
 
 - (NSData *)JSONData {
@@ -267,13 +283,21 @@ NSString *const kRoomTypeScreen = @"screen";
 @synthesize nick = _nick;
 
 - (instancetype)initWithValues:(NSDictionary *)values {
-    RTCSessionDescription *description = [RTCSessionDescription descriptionFromJSONDictionary:[values objectForKey:kNCSignalingMessagePayloadKey]];
-    NSString *nick = [[values objectForKey:kNCSignalingMessagePayloadKey] objectForKey:kNCSignalingMessageNickKey];
+    NSDictionary *dataDict = [[NSDictionary alloc] initWithDictionary:values];
+    NSString *from = [values objectForKey:kNCSignalingMessageFromKey];
+    // Get 'from' value from 'sender' using External Signaling
+    NSDictionary *sender = [values objectForKey:kNCExternalSignalingMessageSenderKey];
+    if (sender) {
+        from = [sender objectForKey:kNCExternalSignalingMessageSessionIdKey];
+        dataDict = [values objectForKey:kNCExternalSignalingMessageDataKey];
+    }
+    RTCSessionDescription *description = [RTCSessionDescription descriptionFromJSONDictionary:[dataDict objectForKey:kNCSignalingMessagePayloadKey]];
+    NSString *nick = [[dataDict objectForKey:kNCSignalingMessagePayloadKey] objectForKey:kNCSignalingMessageNickKey];
     return [self initWithSessionDescription:description
-                                       from:[values objectForKey:kNCSignalingMessageFromKey]
-                                         to:[values objectForKey:kNCSignalingMessageToKey]
-                                        sid:[values objectForKey:kNCSignalingMessageSidKey]
-                                   roomType:[values objectForKey:kNCSignalingMessageRoomTypeKey]
+                                       from:from
+                                         to:[dataDict objectForKey:kNCSignalingMessageToKey]
+                                        sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
+                                   roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
                                        nick:nick];
 }
 
