@@ -68,6 +68,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     BOOL _userDisabledVideo;
     BOOL _videoCallUpgrade;
     BOOL _hangingUp;
+    BOOL _pushToTalkActive;
     PulsingHaloLayer *_halo;
     PulsingHaloLayer *_haloPushToTalk;
     UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
@@ -137,7 +138,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_tapGestureForDetailedView setNumberOfTapsRequired:1];
     
     
-    UILongPressGestureRecognizer *pushToTalkRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+    UILongPressGestureRecognizer *pushToTalkRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handlePushToTalk:)];
     pushToTalkRecognizer.delegate = self;
     [self.audioMuteButton addGestureRecognizer:pushToTalkRecognizer];
     
@@ -227,6 +228,38 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
+{
+    // No push-to-talk while in chat
+    if (!_chatViewController) {
+        for (UIPress* press in presses) {
+            if (press.key.keyCode == UIKeyboardHIDUsageKeyboardSpacebar) {
+                [self pushToTalkStart];
+                
+                return;
+            }
+        }
+    }
+    
+    [super pressesBegan:presses withEvent:event];
+}
+
+- (void)pressesEnded:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
+{
+    // No push-to-talk while in chat
+    if (!_chatViewController) {
+        for (UIPress* press in presses) {
+            if (press.key.keyCode == UIKeyboardHIDUsageKeyboardSpacebar) {
+                [self pushToTalkEnd];
+                
+                return;
+            }
+        }
+    }
+    
+    [super pressesEnded:presses withEvent:event];
 }
 
 #pragma mark - Rooms manager notifications
@@ -598,19 +631,33 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 #pragma mark - Call actions
 
--(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
+-(void)handlePushToTalk:(UILongPressGestureRecognizer *)gestureRecognizer
 {
-    if (!_callController) {return;}
-    
-    if (gestureRecognizer.state == UIGestureRecognizerStateBegan && ![_callController isAudioEnabled]) {
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        [self pushToTalkStart];
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+        [self pushToTalkEnd];
+    }
+}
+
+- (void)pushToTalkStart
+{
+    if (_callController && ![_callController isAudioEnabled]) {
         [self unmuteAudio];
         
         [self setHaloToAudioMuteButton];
         [_buttonFeedbackGenerator impactOccurred];
-    } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+        _pushToTalkActive = YES;
+    }
+}
+
+- (void)pushToTalkEnd
+{
+    if (_pushToTalkActive) {
         [self muteAudio];
         
         [self removeHaloFromAudioMuteButton];
+        _pushToTalkActive = NO;
     }
 }
 
@@ -647,6 +694,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 -(void)muteAudioWithReason:(NSString*)reason
 {
     [_callController enableAudio:NO];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
         [self showAudioMuteButton];
@@ -676,10 +724,11 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)unmuteAudio
 {
     [_callController enableAudio:YES];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+        [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
         NSString *micEnabledString = NSLocalizedString(@"Microphone enabled", nil);
-        _audioMuteButton.accessibilityValue = micEnabledString;
+        self->_audioMuteButton.accessibilityValue = micEnabledString;
         [self.view makeToast:micEnabledString duration:1.5 position:CSToastPositionCenter];
     });
 }
