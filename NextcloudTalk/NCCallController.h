@@ -33,7 +33,7 @@ typedef void (^GetUserIdForSessionIdCompletionBlock)(NSString *userId, NSError *
 @protocol NCCallControllerDelegate<NSObject>
 
 - (void)callControllerDidJoinCall:(NCCallController *)callController;
-- (void)callControllerDidFailedJoiningCall:(NCCallController *)callController;
+- (void)callControllerDidFailedJoiningCall:(NCCallController *)callController statusCode:(NSNumber *)statusCode errorReason:(NSString *)errorReason;
 - (void)callControllerDidEndCall:(NCCallController *)callController;
 - (void)callController:(NCCallController *)callController peerJoined:(NCPeerConnection *)peer;
 - (void)callController:(NCCallController *)callController peerLeft:(NCPeerConnection *)peer;
