@@ -50,7 +50,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallStateInCall
 };
 
-@interface CallViewController () <NCCallControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, RTCEAGLVideoViewDelegate, CallParticipantViewCellDelegate>
+@interface CallViewController () <NCCallControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, RTCEAGLVideoViewDelegate, CallParticipantViewCellDelegate, UIGestureRecognizerDelegate>
 {
     CallState _callState;
     NSMutableArray *_peersInCall;
@@ -68,7 +68,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     BOOL _userDisabledVideo;
     BOOL _videoCallUpgrade;
     BOOL _hangingUp;
+    BOOL _pushToTalkActive;
     PulsingHaloLayer *_halo;
+    PulsingHaloLayer *_haloPushToTalk;
+    UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -103,6 +106,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     _peersInCall = [[NSMutableArray alloc] init];
     _videoRenderersDict = [[NSMutableDictionary alloc] init];
     _screenRenderersDict = [[NSMutableDictionary alloc] init];
+    _buttonFeedbackGenerator = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleLight)];
     
     // Use image downloader without cache so I can get 200 or 201 from the avatar requests.
     [AvatarBackgroundImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloaderNoCache]];
@@ -132,6 +136,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     _tapGestureForDetailedView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showDetailedViewWithTimer)];
     [_tapGestureForDetailedView setNumberOfTapsRequired:1];
+    
+    
+    UILongPressGestureRecognizer *pushToTalkRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handlePushToTalk:)];
+    pushToTalkRecognizer.delegate = self;
+    [self.audioMuteButton addGestureRecognizer:pushToTalkRecognizer];
     
     [_screensharingView setHidden:YES];
     
@@ -219,6 +228,38 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
+{
+    // No push-to-talk while in chat
+    if (!_chatViewController) {
+        for (UIPress* press in presses) {
+            if (press.key.keyCode == UIKeyboardHIDUsageKeyboardSpacebar) {
+                [self pushToTalkStart];
+                
+                return;
+            }
+        }
+    }
+    
+    [super pressesBegan:presses withEvent:event];
+}
+
+- (void)pressesEnded:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
+{
+    // No push-to-talk while in chat
+    if (!_chatViewController) {
+        for (UIPress* press in presses) {
+            if (press.key.keyCode == UIKeyboardHIDUsageKeyboardSpacebar) {
+                [self pushToTalkEnd];
+                
+                return;
+            }
+        }
+    }
+    
+    [super pressesEnded:presses withEvent:event];
 }
 
 #pragma mark - Rooms manager notifications
@@ -473,11 +514,35 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self invalidateDetailedViewTimer];
 }
 
+- (void)hideAudioMuteButton
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [UIView animateWithDuration:0.3f animations:^{
+            [self.audioMuteButton setAlpha:0.0f];
+            [self.view layoutIfNeeded];
+        }];
+    });
+}
+
+- (void)showAudioMuteButton
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [UIView animateWithDuration:0.3f animations:^{
+            [self.audioMuteButton setAlpha:1.0f];
+            [self.view layoutIfNeeded];
+        }];
+    });
+}
+
 - (void)showButtonsContainer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [UIView animateWithDuration:0.3f animations:^{
-            [self.buttonsContainerView setAlpha:1.0f];
+            [self.audioMuteButton setAlpha:1.0f];
+            [self.hangUpButton setAlpha:1.0f];
+            [self.speakerButton setAlpha:1.0f];
+            [self.videoDisableButton setAlpha:1.0f];
+            
             [self.switchCameraButton setAlpha:1.0f];
             [self.videoCallButton setAlpha:1.0f];
             [self.closeScreensharingButton setAlpha:1.0f];
@@ -491,11 +556,18 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [UIView animateWithDuration:0.3f animations:^{
-            [self.buttonsContainerView setAlpha:0.0f];
+            if (self->_callController && [self->_callController isAudioEnabled]) {
+                [self.audioMuteButton setAlpha:0.0f];
+            }
+            
+            [self.hangUpButton setAlpha:0.0f];
+            [self.speakerButton setAlpha:0.0f];
+            [self.videoDisableButton setAlpha:0.0f];
+            
             [self.switchCameraButton setAlpha:0.0f];
             [self.videoCallButton setAlpha:0.0f];
             [self.closeScreensharingButton setAlpha:0.0f];
-            [self.chatButton setAlpha:(_chatViewController) ? 1.0f : 0.0f];
+            [self.chatButton setAlpha:(self->_chatViewController) ? 1.0f : 0.0f];
             [self.view layoutIfNeeded];
         }];
     });
@@ -559,6 +631,36 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 #pragma mark - Call actions
 
+-(void)handlePushToTalk:(UILongPressGestureRecognizer *)gestureRecognizer
+{
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        [self pushToTalkStart];
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+        [self pushToTalkEnd];
+    }
+}
+
+- (void)pushToTalkStart
+{
+    if (_callController && ![_callController isAudioEnabled]) {
+        [self unmuteAudio];
+        
+        [self setHaloToAudioMuteButton];
+        [_buttonFeedbackGenerator impactOccurred];
+        _pushToTalkActive = YES;
+    }
+}
+
+- (void)pushToTalkEnd
+{
+    if (_pushToTalkActive) {
+        [self muteAudio];
+        
+        [self removeHaloFromAudioMuteButton];
+        _pushToTalkActive = NO;
+    }
+}
+
 - (IBAction)audioButtonPressed:(id)sender
 {
     if (!_callController) {return;}
@@ -575,40 +677,58 @@ typedef NS_ENUM(NSInteger, CallState) {
         } else {
             [self unmuteAudio];
         }
+        
+        if ((!_isAudioOnly && _callState == CallStateInCall) || _screenView) {
+            // Audio was disabled -> make sure the permanent visible audio button is hidden again
+            [self showDetailedViewWithTimer];
+        }
     }
 }
 
-- (void)showForceMutedWarning
+- (void)forceMuteAudio
 {
-    UIAlertController *confirmDialog =
-    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"You have been muted by a moderator", nil)
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleCancel handler:nil];
-    [confirmDialog addAction:confirmAction];
+    NSString *forceMutedString = NSLocalizedString(@"You have been muted by a moderator", nil);
+    [self muteAudioWithReason:forceMutedString];
+}
+
+-(void)muteAudioWithReason:(NSString*)reason
+{
+    [_callController enableAudio:NO];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self presentViewController:confirmDialog animated:YES completion:nil];
+        [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+        [self showAudioMuteButton];
+        
+        NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
+        NSTimeInterval duration = 1.5;
+        UIView *toast;
+        
+        if (reason) {
+            // Nextcloud uses a default timeout of 7s for toasts
+            duration = 7.0;
+
+            toast = [self.view toastViewForMessage:reason title:micDisabledString image:nil style:nil];
+        } else {
+            toast = [self.view toastViewForMessage:micDisabledString title:nil image:nil style:nil];
+        }
+        
+        [self.view showToast:toast duration:duration position:CSToastPositionCenter completion:nil];
     });
 }
 
 - (void)muteAudio
 {
-    [_callController enableAudio:NO];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
-        NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
-        _audioMuteButton.accessibilityValue = micDisabledString;
-        [self.view makeToast:micDisabledString duration:1.5 position:CSToastPositionCenter];
-    });
+    [self muteAudioWithReason:nil];
 }
 
 - (void)unmuteAudio
 {
     [_callController enableAudio:YES];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+        [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
         NSString *micEnabledString = NSLocalizedString(@"Microphone enabled", nil);
-        _audioMuteButton.accessibilityValue = micEnabledString;
+        self->_audioMuteButton.accessibilityValue = micEnabledString;
         [self.view makeToast:micEnabledString duration:1.5 position:CSToastPositionCenter];
     });
 }
@@ -821,6 +941,34 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
+- (void)setHaloToAudioMuteButton
+{
+    [_haloPushToTalk removeFromSuperlayer];
+    
+    if (_buttonsContainerView) {
+        _haloPushToTalk = [PulsingHaloLayer layer];
+        _haloPushToTalk.position = _audioMuteButton.center;
+        UIColor *color = [UIColor colorWithRed:118/255.f green:213/255.f blue:114/255.f alpha:1];
+        _haloPushToTalk.backgroundColor = color.CGColor;
+        _haloPushToTalk.radius = 40.0;
+        _haloPushToTalk.haloLayerNumber = 2;
+        _haloPushToTalk.keyTimeForHalfOpacity = 0.75;
+        _haloPushToTalk.fromValueForRadius = 0.75;
+        [_buttonsContainerView.layer addSublayer:_haloPushToTalk];
+        [_haloPushToTalk start];
+        
+        [_buttonsContainerView bringSubviewToFront:_audioMuteButton];
+    }
+    
+}
+
+- (void)removeHaloFromAudioMuteButton
+{
+    if (_haloPushToTalk) {
+        [_haloPushToTalk removeFromSuperlayer];
+    }
+}
+
 - (void)finishCall
 {
     _callController = nil;
@@ -1011,8 +1159,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callController:(NCCallController *)callController didReceiveForceMuteActionForPeerId:(NSString *)peerId
 {
     if ([peerId isEqualToString:callController.userSessionId]) {
-        [self muteAudio];
-        [self showForceMutedWarning];
+        [self forceMuteAudio];
     } else {
         NSLog(@"Peer was force muted: %@", peerId);
     }
