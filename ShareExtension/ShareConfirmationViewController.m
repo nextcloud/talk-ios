@@ -93,7 +93,9 @@
     NSString *userToken = [[NCSettingsController sharedInstance] tokenForAccountId:_account.accountId];
     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
     
-    [[NCCommunicationCommon shared] setupWithAccount:_account.accountId user:_account.user userId:_account.userId password:userToken url:_account.server userAgent:userAgent capabilitiesGroup:groupIdentifier webDavRoot:_serverCapabilities.webDAVRoot davRoot:nil nextcloudVersion:_serverCapabilities.versionMajor delegate:self];
+    [[NCCommunicationCommon shared] setupWithAccount:_account.accountId user:_account.user userId:_account.userId password:userToken
+                                             urlBase:_account.server userAgent:userAgent webDav:_serverCapabilities.webDAVRoot dav:nil
+                                    nextcloudVersion:_serverCapabilities.versionMajor delegate:self];
     
     // Set to section
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],
@@ -259,7 +261,7 @@
 {
     [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:fileLocalPath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
         self->_hud.progress = progress.fractionCompleted;
-    } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSInteger errorCode, NSString *errorDescription) {
+    } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSDictionary *allHeaderFields, NSInteger errorCode, NSString *errorDescription) {
         NSLog(@"Upload completed with error code: %ld", (long)errorCode);
         [self->_hud hideAnimated:YES];
         if (errorCode == 0) {
