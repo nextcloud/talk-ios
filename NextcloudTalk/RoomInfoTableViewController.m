@@ -681,9 +681,38 @@ typedef enum ModificationError {
 - (void)gotoRoomFile
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/f/%@", activeAccount.server, _room.objectId];
+    
+    [[NCAPIController sharedInstance] getFileByFileId:activeAccount fileId:_room.objectId withCompletionBlock:^(NCCommunicationFile *file, NSInteger error, NSString *errorDescription) {
+        if (file) {
+            NSString *remoteDavPrefix = [NSString stringWithFormat:@"/remote.php/dav/files/%@/", activeAccount.userId];
+            NSString *directoryPath = [file.path componentsSeparatedByString:remoteDavPrefix].lastObject;
+            
+            NSString *filePath = [NSString stringWithFormat:@"%@%@", directoryPath, file.fileName];
+            NSString *fileLink = [NSString stringWithFormat:@"%@/index.php/f/%@", activeAccount.server, self->_room.objectId];
+            
+            NSLog(@"File path: %@ fileLink: %@", filePath, fileLink);
 
-    [NCUtils openFileInNextcloudAppOrBrowser:_room.name withFileLink:urlString];
+            [NCUtils openFileInNextcloudAppOrBrowser:filePath withFileLink:fileLink];
+        } else {
+            NSLog(@"An error occurred while getting file with fileId %@: %@", self->_room.objectId, errorDescription);
+            
+            UIAlertController * alert = [UIAlertController
+                                         alertControllerWithTitle:NSLocalizedString(@"Unable to open file", nil)
+                                         message:[NSString stringWithFormat:NSLocalizedString(@"An error occurred while opening the file %@", nil), self->_room.name]
+                                         preferredStyle:UIAlertControllerStyleAlert];
+            
+            UIAlertAction* okButton = [UIAlertAction
+                                       actionWithTitle:NSLocalizedString(@"OK", nil)
+                                       style:UIAlertActionStyleDefault
+                                       handler:nil];
+            
+            [alert addAction:okButton];
+            
+            [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+        }
+    }];
+
+    
 }
 
 - (void)leaveRoom
