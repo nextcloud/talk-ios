@@ -39,7 +39,7 @@ NSString * const kNCSpreedAPIVersion    = @"/apps/spreed/api/v1";
 
 NSInteger const kReceivedChatMessagesLimit = 100;
 
-@interface NCAPIController () <NSURLSessionTaskDelegate, NSURLSessionDelegate>
+@interface NCAPIController () <NSURLSessionTaskDelegate, NSURLSessionDelegate, NCCommunicationCommonDelegate>
 
 @property (nonatomic, strong) NCAPISessionManager *defaultAPISessionManager;
 
@@ -1007,6 +1007,68 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 }
 
+- (void)getFileByFileId:(TalkAccount *)account fileId:(NSString *)fileId
+    withCompletionBlock:(GetFileByFileIdCompletionBlock)block
+{
+    // Configure communication lib
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
+    NSString *userToken = [[NCSettingsController sharedInstance] tokenForAccountId:account.accountId];
+    NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
+    [[NCCommunicationCommon shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken
+                                             urlBase:account.server userAgent:userAgent webDav:serverCapabilities.webDAVRoot dav:nil
+                                    nextcloudVersion:serverCapabilities.versionMajor delegate:self];
+    
+    NSString *body = @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+    <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://nextcloud.com/ns\">\
+        <d:basicsearch>\
+            <d:select>\
+                <d:prop>\
+                    <d:displayname />\
+                    <d:getcontenttype />\
+                    <d:resourcetype />\
+                    <d:getcontentlength />\
+                    <d:getlastmodified />\
+                    <d:creationdate />\
+                    <d:getetag />\
+                    <d:quota-used-bytes />\
+                    <d:quota-available-bytes />\
+                    <oc:permissions xmlns:oc=\"http://owncloud.org/ns\" />\
+                    <oc:id xmlns:oc=\"http://owncloud.org/ns\" />\
+                    <oc:size xmlns:oc=\"http://owncloud.org/ns\" />\
+                    <oc:favorite xmlns:oc=\"http://owncloud.org/ns\" />\
+                </d:prop>\
+            </d:select>\
+            <d:from>\
+                <d:scope>\
+                    <d:href>/files/%@</d:href>\
+                    <d:depth>infinity</d:depth>\
+                </d:scope>\
+            </d:from>\
+            <d:where>\
+                <d:eq>\
+                    <d:prop>\
+                        <oc:fileid xmlns:oc=\"http://owncloud.org/ns\" />\
+                    </d:prop>\
+                    <d:literal>%@</d:literal>\
+                </d:eq>\
+            </d:where>\
+            <d:orderby />\
+        </d:basicsearch>\
+    </d:searchrequest>";
+    
+    NSString *bodyRequest = [NSString stringWithFormat:body, account.userId, fileId];
+    [[NCCommunication shared] searchBodyRequestWithServerUrl:account.server requestBody:bodyRequest showHiddenFiles:YES customUserAgent:nil addCustomHeaders:nil timeout:0 completionHandler:^(NSString *account, NSArray<NCCommunicationFile *> *files, NSInteger error, NSString *errorDescription) {
+        
+        if (block) {
+            if ([files count] > 0) {
+                block([files objectAtIndex:0], error, errorDescription);
+            } else {
+                block(nil, error, errorDescription);
+            }
+        }
+    }];
+}
+
 #pragma mark - User avatars
 
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account
@@ -1292,6 +1354,18 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
     
     return task;
+}
+
+#pragma mark - NCCommunicationCommon Delegate
+
+- (void)authenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
+{
+    // The pinnning check
+    if ([[CCCertificate sharedManager] checkTrustedChallenge:challenge]) {
+        completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
+    } else {
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+    }
 }
 
 
