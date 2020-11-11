@@ -107,6 +107,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Rooms placeholder view
     _roomsBackgroundView = [[PlaceholderView alloc] init];
     [_roomsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
+    _roomsBackgroundView.placeholderImage.image = [_roomsBackgroundView.placeholderImage.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [_roomsBackgroundView.placeholderImage setTintColor:[NCAppBranding placeholderColor]];
     [_roomsBackgroundView.placeholderText setText:NSLocalizedString(@"You are not part of any conversation. Press + to start a new one.", nil)];
     [_roomsBackgroundView.placeholderView setHidden:YES];
     [_roomsBackgroundView.loadingView startAnimating];

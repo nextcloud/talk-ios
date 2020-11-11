@@ -23,6 +23,7 @@
 #import "RoomSearchTableViewController.h"
 
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCRoom.h"
 #import "NCSettingsController.h"
 #import "NSDate+DateTools.h"
@@ -48,6 +49,8 @@
     // Contacts placeholder view
     _roomSearchBackgroundView = [[PlaceholderView alloc] init];
     [_roomSearchBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
+    _roomSearchBackgroundView.placeholderImage.image = [_roomSearchBackgroundView.placeholderImage.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [_roomSearchBackgroundView.placeholderImage setTintColor:[NCAppBranding placeholderColor]];
     [_roomSearchBackgroundView.placeholderText setText:NSLocalizedString(@"No results found", nil)];
     [_roomSearchBackgroundView.placeholderView setHidden:YES];
     [_roomSearchBackgroundView.loadingView startAnimating];
