@@ -451,7 +451,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)setOfflineAppearance
 {
     self.addButton.enabled = NO;
-    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogoOffline"]];
+    if (!customNavigationLogo) {
+        self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogoOffline"]];
+    }
 }
 
 - (void)setOnlineAppearance
