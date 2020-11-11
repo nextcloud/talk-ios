@@ -46,6 +46,8 @@ extern BOOL const customNavigationLogo;
 + (UIColor *)themeTextColor;
 + (NSString *)navigationLogoImageName;
 + (UIColor *)placeholderColor;
++ (UIStatusBarStyle)statusBarStyleForBrandColor;
++ (UIStatusBarStyle)statusBarStyleForThemeColor;
 
 @end
 

@@ -23,7 +23,6 @@
 #import "NCNavigationController.h"
 
 #import "NCAppBranding.h"
-#import "NCUtils.h"
 
 @interface NCNavigationController ()
 
@@ -37,8 +36,7 @@
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
-    CGFloat luma = [NCUtils calculateLumaFromColor:[NCAppBranding themeColor]];
-    return (luma > 0.6) ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
+    return [NCAppBranding statusBarStyleForThemeColor];
 }
 
 @end
