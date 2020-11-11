@@ -90,8 +90,12 @@ BOOL const useServerThemimg = YES;
 + (NSString *)navigationLogoImageName
 {
     NSString *imageName = @"navigationLogo";
-    if (!customNavigationLogo && [NCUtils calculateLumaFromColor:[self themeColor]] > 0.6) {
-        imageName = @"navigationLogoDark";
+    if (!customNavigationLogo) {
+        if (useServerThemimg && [self textColorStyleForBackgroundColor:[self themeColor]] == NCTextColorStyleDark) {
+            imageName = @"navigationLogoDark";
+        } else if ([self brandTextColorStyle] == NCTextColorStyleDark) {
+            imageName = @"navigationLogoDark";
+        }
     }
     return imageName;
 }
