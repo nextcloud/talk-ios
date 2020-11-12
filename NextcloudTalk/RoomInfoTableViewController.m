@@ -51,7 +51,8 @@ typedef enum RoomInfoSection {
 typedef enum RoomAction {
     kRoomActionFavorite = 0,
     kRoomActionNotifications,
-    kRoomActionSendLink
+    kRoomActionSendLink,
+    kRoomActionGotoFile
 } RoomAction;
 
 typedef enum PublicAction {
@@ -263,6 +264,12 @@ typedef enum ModificationError {
     if (_room.isPublic) {
         [actions addObject:[NSNumber numberWithInt:kRoomActionSendLink]];
     }
+    
+    // Action for file-rooms
+    if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
+        [actions addObject:[NSNumber numberWithInt:kRoomActionGotoFile]];
+    }
+    
     return [NSArray arrayWithArray:actions];
 }
 
@@ -669,6 +676,50 @@ typedef enum ModificationError {
             NSLog(@"An Error occured sharing room: %@, %@", error.localizedDescription, error.localizedFailureReason);
         }
     };
+}
+
+- (void)gotoRoomFile
+{
+    [self setModifyingRoomUI];
+    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    
+    [[NCAPIController sharedInstance] getFileByFileId:activeAccount fileId:_room.objectId withCompletionBlock:^(NCCommunicationFile *file, NSInteger error, NSString *errorDescription) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self removeModifyingRoomUI];
+        });
+        
+        if (file) {
+            NSString *remoteDavPrefix = [NSString stringWithFormat:@"/remote.php/dav/files/%@/", activeAccount.userId];
+            NSString *directoryPath = [file.path componentsSeparatedByString:remoteDavPrefix].lastObject;
+            
+            NSString *filePath = [NSString stringWithFormat:@"%@%@", directoryPath, file.fileName];
+            NSString *fileLink = [NSString stringWithFormat:@"%@/index.php/f/%@", activeAccount.server, self->_room.objectId];
+            
+            NSLog(@"File path: %@ fileLink: %@", filePath, fileLink);
+
+            [NCUtils openFileInNextcloudAppOrBrowser:filePath withFileLink:fileLink];
+        } else {
+            NSLog(@"An error occurred while getting file with fileId %@: %@", self->_room.objectId, errorDescription);
+            
+            UIAlertController * alert = [UIAlertController
+                                         alertControllerWithTitle:NSLocalizedString(@"Unable to open file", nil)
+                                         message:[NSString stringWithFormat:NSLocalizedString(@"An error occurred while opening the file %@", nil), self->_room.name]
+                                         preferredStyle:UIAlertControllerStyleAlert];
+            
+            UIAlertAction* okButton = [UIAlertAction
+                                       actionWithTitle:NSLocalizedString(@"OK", nil)
+                                       style:UIAlertActionStyleDefault
+                                       handler:nil];
+            
+            [alert addAction:okButton];
+            
+            [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+        }
+    }];
+
+    
 }
 
 - (void)leaveRoom
@@ -1082,6 +1133,7 @@ typedef enum ModificationError {
     static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
     static NSString *passwordCellIdentifier = @"PasswordCellIdentifier";
     static NSString *sendLinkCellIdentifier = @"SendLinkCellIdentifier";
+    static NSString *gotoFileCellIdentifier = @"GotoFileCellIdentifier";
     static NSString *lobbyCellIdentifier = @"LobbyCellIdentifier";
     static NSString *lobbyTimerCellIdentifier = @"LobbyTimerCellIdentifier";
     static NSString *leaveRoomCellIdentifier = @"LeaveRoomCellIdentifier";
@@ -1194,6 +1246,31 @@ typedef enum ModificationError {
                     
                     cell.textLabel.text = NSLocalizedString(@"Send conversation link", nil);
                     [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
+                    
+                    return cell;
+                }
+                    break;
+                case kRoomActionGotoFile:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:gotoFileCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:gotoFileCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Go to file", nil);
+                    NSString *fileName = _room.name;
+                    NSString *fileExt = [fileName pathExtension];
+                    
+                    [cell.imageView setImage:[UIImage imageNamed:[NCUtils previewImageForFileExtension:fileExt]]];
+                    
+                    // Make sure the file icon has the same size as all other cell-images
+                    // https://stackoverflow.com/questions/2788028/
+                    CGSize itemSize = CGSizeMake(24, 24);
+                    UIGraphicsBeginImageContextWithOptions(itemSize, NO, UIScreen.mainScreen.scale);
+                    CGRect imageRect = CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);
+                    [cell.imageView.image drawInRect:imageRect];
+                    cell.imageView.image = UIGraphicsGetImageFromCurrentImageContext();
+                    UIGraphicsEndImageContext();
                     
                     return cell;
                 }
@@ -1390,6 +1467,9 @@ typedef enum ModificationError {
                     break;
                 case kRoomActionSendLink:
                     [self shareRoomLinkFromIndexPath:indexPath];
+                    break;
+                case kRoomActionGotoFile:
+                    [self gotoRoomFile];
                     break;
             }
         }

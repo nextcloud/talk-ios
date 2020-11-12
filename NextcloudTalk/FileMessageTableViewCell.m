@@ -23,9 +23,7 @@
 #import "FileMessageTableViewCell.h"
 #import "SLKUIConstants.h"
 #import "MaterialActivityIndicator.h"
-#import "NCSettingsController.h"
 #import "NCUtils.h"
-#import "OpenInFirefoxControllerObjC.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 
@@ -176,16 +174,7 @@
 
 - (void)previewTapped:(UITapGestureRecognizer *)recognizer
 {
-    if (_fileLink && _filePath) {
-        NSURL *url = [NSURL URLWithString:_fileLink];
-        if ([NCUtils isNextcloudAppInstalled]) {
-            [NCUtils openFileInNextcloudApp:_filePath withFileLink:_fileLink];
-        } else if ([[NCSettingsController sharedInstance].defaultBrowser isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
-            [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:url];
-        } else {
-            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
-        }
-    }
+    [NCUtils openFileInNextcloudAppOrBrowser:_filePath withFileLink:_fileLink];
 }
 
 - (void)setGuestAvatar:(NSString *)displayName

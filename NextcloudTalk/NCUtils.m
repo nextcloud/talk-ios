@@ -26,6 +26,8 @@
 #import <CommonCrypto/CommonDigest.h>
 
 #import "NCDatabaseManager.h"
+#import "NCSettingsController.h"
+#import "OpenInFirefoxControllerObjC.h"
 
 static NSString *const nextcloudScheme = @"nextcloud:";
 
@@ -85,6 +87,20 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     NSString *nextcloudURLString = [NSString stringWithFormat:@"%@//open-file?path=%@&user=%@&link=%@", nextcloudScheme, path, activeAccount.user, link];
     NSURL *nextcloudURL = [NSURL URLWithString:[nextcloudURLString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     [[UIApplication sharedApplication] openURL:nextcloudURL options:@{} completionHandler:nil];
+}
+
++ (void)openFileInNextcloudAppOrBrowser:(NSString *)path withFileLink:(NSString *)link
+{
+    if (path && link) {
+        NSURL *url = [NSURL URLWithString:link];
+        if ([NCUtils isNextcloudAppInstalled]) {
+            [NCUtils openFileInNextcloudApp:path withFileLink:link];
+        } else if ([[NCSettingsController sharedInstance].defaultBrowser isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
+            [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:url];
+        } else {
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        }
+    }
 }
 
 + (NSDate *)dateFromDateAtomFormat:(NSString *)dateAtomFormatString
