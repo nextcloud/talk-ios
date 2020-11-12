@@ -97,6 +97,11 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
     // Dispose of any resources that can be recreated.
 }
 
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return [NCAppBranding statusBarStyleForBrandColor];
+}
+
 - (BOOL)shouldAutorotate
 {
     return YES;

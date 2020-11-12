@@ -160,6 +160,8 @@
     // Rooms placeholder view
     _roomsBackgroundView = [[PlaceholderView alloc] init];
     [_roomsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
+    _roomsBackgroundView.placeholderImage.image = [_roomsBackgroundView.placeholderImage.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [_roomsBackgroundView.placeholderImage setTintColor:[NCAppBranding placeholderColor]];
     [_roomsBackgroundView.placeholderText setText:NSLocalizedString(@"You are not part of any conversation", nil)];
     [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
     [_roomsBackgroundView.loadingView setHidden:YES];
@@ -167,6 +169,8 @@
     
     _roomSearchBackgroundView = [[PlaceholderView alloc] init];
     [_roomSearchBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
+    _roomSearchBackgroundView.placeholderImage.image = [_roomSearchBackgroundView.placeholderImage.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [_roomSearchBackgroundView.placeholderImage setTintColor:[NCAppBranding placeholderColor]];
     [_roomSearchBackgroundView.placeholderText setText:NSLocalizedString(@"No results found", nil)];
     [_roomSearchBackgroundView.placeholderView setHidden:YES];
     [_roomSearchBackgroundView.loadingView setHidden:YES];

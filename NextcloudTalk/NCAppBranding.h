@@ -37,6 +37,7 @@ extern NSString * const pushNotificationServer;
 extern BOOL const multiAccountEnabled;
 extern BOOL const forceDomain;
 extern NSString * const domain;
+extern BOOL const customNavigationLogo;
 
 // Theming
 + (UIColor *)brandColor;
@@ -44,6 +45,9 @@ extern NSString * const domain;
 + (UIColor *)themeColor;
 + (UIColor *)themeTextColor;
 + (NSString *)navigationLogoImageName;
++ (UIColor *)placeholderColor;
++ (UIStatusBarStyle)statusBarStyleForBrandColor;
++ (UIStatusBarStyle)statusBarStyleForThemeColor;
 
 @end
 

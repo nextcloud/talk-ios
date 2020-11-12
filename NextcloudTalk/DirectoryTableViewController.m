@@ -219,7 +219,11 @@
         self.navigationItem.rightBarButtonItem = _sortingButton;
         
         UIImage *navigationLogo = [UIImage imageNamed:@"navigation-home"];
-        self.navigationItem.titleView = [[UIImageView alloc] initWithImage:navigationLogo];
+        UIImageView *navigationImageView = [[UIImageView alloc] initWithImage:navigationLogo];
+        navigationImageView.image = [navigationImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [navigationImageView setTintColor:[NCAppBranding themeTextColor]];
+        self.navigationItem.titleView = navigationImageView;
+        
         UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithImage:navigationLogo style:UIBarButtonItemStylePlain
                                                                       target:nil action:nil];
         self.navigationItem.backBarButtonItem = backButton;

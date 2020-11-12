@@ -729,13 +729,12 @@ typedef enum NCChatMessageAction {
     }];
     [filesAction setValue:[[UIImage imageNamed:@"files"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     
-    NSString *ncFilesActionTitle = [NSString stringWithFormat:@"%@ %@", filesAppName, NSLocalizedString(@"Files", nil)];
-    UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:ncFilesActionTitle
+    UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:filesAppName
                                                      style:UIAlertActionStyleDefault
                                                    handler:^void (UIAlertAction *action) {
         [self presentNextcloudFilesBrowser];
     }];
-    [ncFilesAction setValue:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [ncFilesAction setValue:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
     [optionsActionSheet addAction:photoLibraryAction];
     [optionsActionSheet addAction:filesAction];

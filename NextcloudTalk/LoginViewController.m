@@ -54,11 +54,24 @@
     self.serverUrl.attributedPlaceholder = [[NSAttributedString alloc] initWithString:serverUrlPlaceholderText
                                                                            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding brandTextColor] colorWithAlphaComponent:0.5]}];
     
-    self.login.backgroundColor = [NCAppBranding brandTextColor];
-    [self.login setTitleColor:[NCAppBranding brandColor] forState:UIControlStateNormal];
+    self.login.backgroundColor = [NCAppBranding brandColor];
+    self.login.layer.borderColor = [NCAppBranding brandTextColor].CGColor;
+    [self.login setTitleColor:[NCAppBranding brandTextColor] forState:UIControlStateNormal];
+    
+    self.login.layer.cornerRadius = 26;
+    self.login.clipsToBounds = YES;
+    self.login.titleLabel.minimumScaleFactor = 0.5f;
+    self.login.titleLabel.numberOfLines = 1;
+    self.login.titleLabel.adjustsFontSizeToFitWidth = YES;
+    self.login.layer.borderWidth = 1.0;
+    
+    [self.login setTitle:NSLocalizedString(@"Log in", nil) forState:UIControlStateNormal];
     
     self.activityIndicatorView.color = [NCAppBranding brandTextColor];
     self.activityIndicatorView.hidden = YES;
+    
+    self.imageBaseUrl.image = [self.imageBaseUrl.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [self.imageBaseUrl setTintColor:[NCAppBranding brandTextColor]];
     
     self.cancel.hidden = !(multiAccountEnabled && [[NCDatabaseManager sharedInstance] numberOfAccounts] > 0);
     [self.cancel setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
@@ -71,6 +84,11 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return [NCAppBranding statusBarStyleForBrandColor];
+}
+
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
     return UIInterfaceOrientationMaskPortrait;
@@ -78,7 +96,14 @@
 
 - (IBAction)login:(id)sender
 {
-    _serverURL = self.serverUrl.text;
+    NSString *serverInputText = [self.serverUrl.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    if ([serverInputText isEqualToString:@""]) {
+        [self->_serverUrl becomeFirstResponder];
+        return;
+    }
+    
+    _serverURL = serverInputText;
     
     // Check whether baseUrl contain protocol. If not add https:// by default.
     if(![_serverURL hasPrefix:@"https"] && ![_serverURL hasPrefix:@"http"]) {
@@ -178,7 +203,7 @@
                                actionWithTitle:NSLocalizedString(@"OK", nil)
                                style:UIAlertActionStyleDefault
                                handler:^(UIAlertAction * _Nonnull action) {
-                                   [_serverUrl becomeFirstResponder];
+                                    [self->_serverUrl becomeFirstResponder];
                                }];
     
     [alert addAction:okButton];

@@ -25,6 +25,11 @@
 #import "NCDatabaseManager.h"
 #import "NCUtils.h"
 
+typedef enum NCTextColorStyle {
+    NCTextColorStyleLight = 0,
+    NCTextColorStyleDark
+} NCTextColorStyle;
+
 @implementation NCAppBranding
 
 #pragma mark - App configuration
@@ -85,10 +90,68 @@ BOOL const useServerThemimg = YES;
 + (NSString *)navigationLogoImageName
 {
     NSString *imageName = @"navigationLogo";
-    if (!customNavigationLogo && [NCUtils calculateLumaFromColor:[self themeColor]] > 0.6) {
-        imageName = @"navigationLogoDark";
+    if (!customNavigationLogo) {
+        if (useServerThemimg && [self textColorStyleForBackgroundColor:[self themeColor]] == NCTextColorStyleDark) {
+            imageName = @"navigationLogoDark";
+        } else if ([self brandTextColorStyle] == NCTextColorStyleDark) {
+            imageName = @"navigationLogoDark";
+        }
     }
     return imageName;
+}
+
++ (UIColor *)placeholderColor
+{
+    return [UIColor colorWithRed: 0.84 green: 0.84 blue: 0.84 alpha: 1.00]; // #d5d5d5
+}
+
++ (UIStatusBarStyle)statusBarStyleForBrandColor
+{
+    return [self statusBarStyleForTextColorStyle:[self brandTextColorStyle]];
+}
+
++ (UIStatusBarStyle)statusBarStyleForThemeColor
+{
+    if (useServerThemimg) {
+        NCTextColorStyle style = [self textColorStyleForBackgroundColor:[self themeColor]];
+        return [self statusBarStyleForTextColorStyle:style];
+    }
+    return [self statusBarStyleForBrandColor];
+}
+
++ (UIStatusBarStyle)statusBarStyleForTextColorStyle:(NCTextColorStyle)style
+{
+    switch (style) {
+        case NCTextColorStyleDark:
+            return UIStatusBarStyleDefault;
+            break;
+        case NCTextColorStyleLight:
+        default:
+            return UIStatusBarStyleLightContent;
+            break;
+    }
+}
+
++ (NCTextColorStyle)brandTextColorStyle
+{
+    // Dark style when brand text color is black
+    if ([brandTextColorHex isEqualToString:@"#000000"]) {
+        return NCTextColorStyleDark;
+    }
+    
+    // Light style when brand text color is white
+    if ([brandTextColorHex isEqualToString:@"#FFFFFF"]) {
+        return NCTextColorStyleLight;
+    }
+    
+    // Check brand-color luma when brand-text-color is neither black nor white
+    return [self textColorStyleForBackgroundColor:[self brandColor]];
+}
+
++ (NCTextColorStyle)textColorStyleForBackgroundColor:(UIColor *)color
+{
+    CGFloat luma = [NCUtils calculateLumaFromColor:color];
+    return (luma > 0.6) ? NCTextColorStyleDark : NCTextColorStyleLight;
 }
 
 @end
