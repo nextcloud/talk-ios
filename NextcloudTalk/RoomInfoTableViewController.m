@@ -680,9 +680,16 @@ typedef enum ModificationError {
 
 - (void)gotoRoomFile
 {
+    [self setModifyingRoomUI];
+    
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     
     [[NCAPIController sharedInstance] getFileByFileId:activeAccount fileId:_room.objectId withCompletionBlock:^(NCCommunicationFile *file, NSInteger error, NSString *errorDescription) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self removeModifyingRoomUI];
+        });
+        
         if (file) {
             NSString *remoteDavPrefix = [NSString stringWithFormat:@"/remote.php/dav/files/%@/", activeAccount.userId];
             NSString *directoryPath = [file.path componentsSeparatedByString:remoteDavPrefix].lastObject;
