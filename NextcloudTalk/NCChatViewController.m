@@ -55,6 +55,7 @@
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 #import "UIView+Toast.h"
+#import "BarButtonItemWithActivity.h"
 
 typedef enum NCChatMessageAction {
     kNCChatMessageActionReply = 1,
@@ -89,11 +90,11 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
 @property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
 @property (nonatomic, strong) UIButton *unreadMessageButton;
-@property (nonatomic, strong) UIBarButtonItem *videoCallButton;
-@property (nonatomic, strong) UIBarButtonItem *voiceCallButton;
 @property (nonatomic, strong) NSTimer *lobbyCheckTimer;
 @property (nonatomic, strong) ReplyMessageView *replyMessageView;
 @property (nonatomic, strong) UIImagePickerController *imagePicker;
+@property (nonatomic, strong) BarButtonItemWithActivity *videoCallButton;
+@property (nonatomic, strong) BarButtonItemWithActivity *voiceCallButton;
 
 @end
 
@@ -308,6 +309,9 @@ typedef enum NCChatMessageAction {
     if (self.isMovingFromParentViewController) {
         [self leaveChat];
     }
+    
+    [_videoCallButton hideActivityIndicator];
+    [_voiceCallButton hideActivityIndicator];
 }
 
 - (void)stopChat
@@ -406,21 +410,32 @@ typedef enum NCChatMessageAction {
 
 - (void)configureActionItems
 {
-    _videoCallButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"videocall-action"]
-                                                        style:UIBarButtonItemStylePlain
-                                                       target:self
-                                                       action:@selector(videoCallButtonPressed:)];
+    UIImage *videoCallImage = [[UIImage imageNamed:@"videocall-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIImage *voiceCallImage = [[UIImage imageNamed:@"call-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    
+    CGFloat buttonWidth = 24.0;
+    CGFloat buttonPadding = 30.0;
+    
+    _videoCallButton = [[BarButtonItemWithActivity alloc] initWithWidth:buttonWidth withImage:videoCallImage];
+    [_videoCallButton.innerButton addTarget:self action:@selector(videoCallButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    
     _videoCallButton.accessibilityLabel = NSLocalizedString(@"Video call", nil);
     _videoCallButton.accessibilityHint = NSLocalizedString(@"Double tap to start a video call", nil);
     
-    _voiceCallButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"call-action"]
-                                                        style:UIBarButtonItemStylePlain
-                                                       target:self
-                                                       action:@selector(voiceCallButtonPressed:)];
+    
+    _voiceCallButton = [[BarButtonItemWithActivity alloc] initWithWidth:buttonWidth withImage:voiceCallImage];
+    [_voiceCallButton.innerButton addTarget:self action:@selector(voiceCallButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    
     _voiceCallButton.accessibilityLabel = NSLocalizedString(@"Voice call", nil);
     _voiceCallButton.accessibilityHint = NSLocalizedString(@"Double tap to start a voice call", nil);
     
-    self.navigationItem.rightBarButtonItems = @[_videoCallButton, _voiceCallButton];
+    UIBarButtonItem *fixedSpace =
+      [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace
+                                                    target:nil
+                                                    action:nil];
+    fixedSpace.width = buttonPadding;
+    
+    self.navigationItem.rightBarButtonItems = @[_videoCallButton, fixedSpace, _voiceCallButton];
 }
 
 #pragma mark - User Interface
@@ -428,8 +443,12 @@ typedef enum NCChatMessageAction {
 - (void)disableRoomControls
 {
     _titleView.userInteractionEnabled = NO;
+
+    [_videoCallButton hideActivityIndicator];
+    [_voiceCallButton hideActivityIndicator];
     [_videoCallButton setEnabled:NO];
     [_voiceCallButton setEnabled:NO];
+    
     self.textInputbar.userInteractionEnabled = NO;
 }
 
@@ -669,11 +688,13 @@ typedef enum NCChatMessageAction {
 
 - (void)videoCallButtonPressed:(id)sender
 {
+    [_videoCallButton showActivityIndicator];
     [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:YES andDisplayName:_room.displayName withAccountId:_room.accountId];
 }
 
 - (void)voiceCallButtonPressed:(id)sender
 {
+    [_voiceCallButton showActivityIndicator];
     [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:NO andDisplayName:_room.displayName withAccountId:_room.accountId];
 }
 
