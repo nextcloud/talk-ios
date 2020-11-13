@@ -1,0 +1,3 @@
+NSCameraUsageDescription = "Camera is used in video calls";
+NSMicrophoneUsageDescription = "Microphone is used in voice and video calls";
+NSPhotoLibraryUsageDescription = "Photo Library access is needed to share pictures and videos from your device";
