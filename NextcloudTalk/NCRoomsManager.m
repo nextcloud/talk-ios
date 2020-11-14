@@ -86,6 +86,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(acceptCallForRoom:) name:CallKitManagerDidAnswerCallNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startCallForRoom:) name:CallKitManagerDidStartCallNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkForCallUpgrades:) name:CallKitManagerDidEndCallNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChat:) name:NCChatViewControllerJoinChatAndReplyPrivately object:nil];
     }
     
     return self;
@@ -609,6 +610,39 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
     [self startChatWithRoomToken:pushNotification.roomToken];
+}
+
+- (void)joinOrCreateChat:(NSNotification *)notification
+{
+    NSString *actorId = [notification.userInfo objectForKey:@"actorId"];
+    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:activeAccount.accountId witRealm:nil];
+    
+    for (NCRoom *room in accountRooms) {
+        NSArray *participantsInRoom = [room.participants valueForKey:@"self"];
+        
+        if (room.type == kNCRoomTypeOneToOne && [participantsInRoom containsObject:actorId]) {
+            // Room already exists -> join the room
+            [self startChatWithRoomToken:room.token];
+            
+            return;
+        }
+    }
+    
+    // Did not find a one-to-one room for this user -> create a new one
+    [[NCAPIController sharedInstance] createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] with:actorId
+                                                    ofType:kNCRoomTypeOneToOne
+                                                   andName:nil
+                    withCompletionBlock:^(NSString *token, NSError *error) {
+                        if (!error) {
+                            [self startChatWithRoomToken:token];
+                             NSLog(@"Room %@ with %@ created", token, actorId);
+                         } else {
+                             NSLog(@"Failed creating a room with %@", actorId);
+                         }
+                    }];
+    
 }
 
 - (void)joinChatWithLocalNotification:(NSNotification *)notification

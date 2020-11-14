@@ -60,7 +60,8 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionReply = 1,
     kNCChatMessageActionCopy,
     kNCChatMessageActionResend,
-    kNCChatMessageActionDelete
+    kNCChatMessageActionDelete,
+    kNCChatMessageActionReplyPrivately
 } NCChatMessageAction;
 
 @interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate>
@@ -98,6 +99,8 @@ typedef enum NCChatMessageAction {
 @end
 
 @implementation NCChatViewController
+
+NSString * const NCChatViewControllerJoinChatAndReplyPrivately = @"NCChatViewControllerJoinChatAndReplyPrivately";
 
 - (instancetype)initForRoom:(NCRoom *)room
 {
@@ -904,6 +907,12 @@ typedef enum NCChatMessageAction {
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
             }
+            // Reply-privately option (only to users and only if group- or public-room)
+            if (message.isReplyable && [message.actorType isEqualToString:@"users"] && (_room.type == kNCRoomTypeGroup || _room.type == kNCRoomTypePublic)) {
+                NSDictionary *replyPrivatInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReplyPrivately) forKey:@"action"];
+                FTPopOverMenuModel *replyPrivatModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply Privately", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyPrivatInfo];
+                [menuArray addObject:replyPrivatModel];
+            }
             // Re-send option
             if (message.sendingFailed) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionResend) forKey:@"action"];
@@ -937,6 +946,15 @@ typedef enum NCChatMessageAction {
                         [weakSelf.replyMessageView dismiss];
                         [weakSelf.replyMessageView presentReplyViewWithMessage:message];
                         [weakSelf presentKeyboard:YES];
+                    }
+                        break;
+                    case kNCChatMessageActionReplyPrivately:
+                    {
+                        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+                        [userInfo setObject:message.actorId forKey:@"actorId"];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerJoinChatAndReplyPrivately
+                                                                            object:self
+                                                                          userInfo:userInfo];
                     }
                         break;
                     case kNCChatMessageActionCopy:
