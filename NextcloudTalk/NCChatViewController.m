@@ -906,13 +906,17 @@ NSString * const NCChatViewControllerJoinChatAndReplyPrivately = @"NCChatViewCon
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
+                
+                // Reply-privately option (only to other users and not in one-to-one)
+                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+                if (_room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId] )
+                {
+                    NSDictionary *replyPrivatInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReplyPrivately) forKey:@"action"];
+                    FTPopOverMenuModel *replyPrivatModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply Privately", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyPrivatInfo];
+                    [menuArray addObject:replyPrivatModel];
+                }
             }
-            // Reply-privately option (only to users and only if group- or public-room)
-            if (message.isReplyable && [message.actorType isEqualToString:@"users"] && (_room.type == kNCRoomTypeGroup || _room.type == kNCRoomTypePublic)) {
-                NSDictionary *replyPrivatInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReplyPrivately) forKey:@"action"];
-                FTPopOverMenuModel *replyPrivatModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply Privately", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyPrivatInfo];
-                [menuArray addObject:replyPrivatModel];
-            }
+
             // Re-send option
             if (message.sendingFailed) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionResend) forKey:@"action"];
