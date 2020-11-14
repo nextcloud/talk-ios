@@ -192,6 +192,8 @@
 
 - (void)setSharedItemToShareConfirmationViewController:(ShareConfirmationViewController *)shareConfirmationVC
 {
+    NSLog(@"Received %lu files to share", [self.extensionContext.inputItems count]);
+    
     [self.extensionContext.inputItems enumerateObjectsUsingBlock:^(NSExtensionItem * _Nonnull extItem, NSUInteger idx, BOOL * _Nonnull stop) {
         [extItem.attachments enumerateObjectsUsingBlock:^(NSItemProvider * _Nonnull itemProvider, NSUInteger idx, BOOL * _Nonnull stop) {
             // Check if shared video
@@ -211,20 +213,8 @@
                                       }];
                 return;
             }
-            // Check if shared image
-            if ([itemProvider hasItemConformingToTypeIdentifier:(NSString *)kUTTypeImage]) {
-                [itemProvider loadItemForTypeIdentifier:(NSString *)kUTTypeImage
-                                                options:nil
-                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
-                                          if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
-                                              NSLog(@"Shared Image = %@", item);
-                                              NSURL *imageURL = (NSURL *)item;
-                                              [shareConfirmationVC setSharedFileWithFileURL:imageURL];
-                                          }
-                                      }];
-                return;
-            }
             // Check if shared file
+            // Make sure this is checked before image! Otherwise sharing images from Mail won't work >= iOS 13
             if ([itemProvider hasItemConformingToTypeIdentifier:@"public.file-url"]) {
                 [itemProvider loadItemForTypeIdentifier:@"public.file-url"
                                                 options:nil
@@ -237,6 +227,19 @@
                                               [coordinator coordinateReadingItemAtURL:fileUrl options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
                                                   [shareConfirmationVC setSharedFileWithFileURL:newURL];
                                               }];
+                                          }
+                                      }];
+                return;
+            }
+            // Check if shared image
+            if ([itemProvider hasItemConformingToTypeIdentifier:(NSString *)kUTTypeImage]) {
+                [itemProvider loadItemForTypeIdentifier:(NSString *)kUTTypeImage
+                                                options:nil
+                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                                          if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
+                                              NSLog(@"Shared Image = %@", item);
+                                              NSURL *imageURL = (NSURL *)item;
+                                              [shareConfirmationVC setSharedFileWithFileURL:imageURL];
                                           }
                                       }];
                 return;
