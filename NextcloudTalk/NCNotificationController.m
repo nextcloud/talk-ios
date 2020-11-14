@@ -112,6 +112,14 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
         }
             break;
             
+        case kNCLocalNotificationTypeFailedSendChat:
+        {
+            NSString *failedSendChatString = NSLocalizedString(@"Failed to send message", nil);
+            content.body = [NSString stringWithFormat:@"%@", failedSendChatString];
+            content.userInfo = userInfo;
+        }
+            break;
+            
         default:
             break;
     }
@@ -257,10 +265,54 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     
     // Handle notification response
     if (pushNotification) {
-        [self handlePushNotificationResponse:pushNotification withCompletionHandler:completionHandler];
+        if ([response isKindOfClass:[UNTextInputNotificationResponse class]]) {
+            UNTextInputNotificationResponse *textInputResponse = (UNTextInputNotificationResponse *)response;
+            pushNotification.responseUserText = textInputResponse.userText;
+            
+            [self handlePushNotificationResponseWithUserText:pushNotification withCompletionHandler:completionHandler];
+        } else {
+            [self handlePushNotificationResponse:pushNotification withCompletionHandler:completionHandler];
+        }
     } else if (localNotificationType > 0) {
         [self handleLocalNotificationResponse:notificationRequest.content.userInfo withCompletionHandler:completionHandler];
     }
+}
+
+- (void)handlePushNotificationResponseWithUserText:(NCPushNotification *)pushNotification withCompletionHandler:(void (^)(void))completionHandler
+{
+    NSLog(@"Recevied push-notification with user input -> sending chat message");
+    
+    TalkAccount *pushAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:pushNotification.accountId];
+    
+    UIApplication *application = [UIApplication sharedApplication];
+    __block UIBackgroundTaskIdentifier sendTask = [application beginBackgroundTaskWithExpirationHandler:^{
+        [application endBackgroundTask:sendTask];
+        sendTask = UIBackgroundTaskInvalid;
+    }];
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[NCAPIController sharedInstance] sendChatMessage:pushNotification.responseUserText toRoom:pushNotification.roomToken displayName:nil replyTo:-1 referenceId:nil forAccount:pushAccount withCompletionBlock:^(NSError *error) {
+
+            if (error) {
+                NSLog(@"Could not send chat message. Error: %@", error.description);
+                
+                // Display local push-notification to inform user
+                NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:pushNotification.roomToken forKey:@"roomToken"];
+                [userInfo setValue:@(kNCLocalNotificationTypeFailedSendChat) forKey:@"localNotificationType"];
+                [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
+                [userInfo setObject:pushNotification.responseUserText forKey:@"responseUserText"];
+                
+                [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeFailedSendChat withUserInfo:userInfo];
+            }
+            
+            [application endBackgroundTask:sendTask];
+            sendTask = UIBackgroundTaskInvalid;
+        }];
+
+
+    });
+    
+    completionHandler();
 }
 
 - (void)handlePushNotificationResponse:(NCPushNotification *)pushNotification withCompletionHandler:(void (^)(void))completionHandler
@@ -293,6 +345,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
         switch (localNotificationType) {
             case kNCLocalNotificationTypeMissedCall:
             case kNCLocalNotificationTypeCancelledCall:
+            case kNCLocalNotificationTypeFailedSendChat:
             {
                 [[NCUserInterfaceController sharedInstance] presentChatForLocalNotification:notificationUserInfo];
             }

@@ -31,7 +31,6 @@
 #import "NCDatabaseManager.h"
 #import "NCChatMessage.h"
 #import "NCExternalSignalingController.h"
-#import "NCChatController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "CallKitManager.h"
@@ -616,6 +615,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
     if (roomToken) {
         [self startChatWithRoomToken:roomToken];
+        
+        // In case this notification occured because of a failed chat-sending event, make sure the text is not lost
+        // Note: This will override any stored pending message
+        NSString *responseUserText = [notification.userInfo objectForKey:@"responseUserText"];
+        if (_chatViewController && responseUserText) {
+            [_chatViewController setChatMessage:responseUserText];
+        }
     }
 }
 
