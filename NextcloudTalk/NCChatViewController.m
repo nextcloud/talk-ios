@@ -774,6 +774,39 @@ NSString * const NCChatViewControllerJoinChatAndReplyPrivately = @"NCChatViewCon
     [self presentViewController:documentPicker animated:YES completion:nil];
 }
 
+- (void)didPressReply:(NCChatMessage *)message {
+    // Use dispatch here to have a smooth animation with native contextmenu
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.replyMessageView = (ReplyMessageView *)self.typingIndicatorProxyView;
+        [self.replyMessageView dismiss];
+        [self.replyMessageView presentReplyViewWithMessage:message];
+        [self presentKeyboard:YES];
+    });
+}
+
+- (void)didPressReplyPrivately:(NCChatMessage *)message {
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:message.actorId forKey:@"actorId"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerJoinChatAndReplyPrivately
+                                                        object:self
+                                                      userInfo:userInfo];
+}
+
+- (void)didPressResend:(NCChatMessage *)message {
+    [self removePermanentlyTemporaryMessage:message];
+    [self sendChatMessage:message.message fromInputField:NO];
+}
+
+- (void)didPressCopy:(NCChatMessage *)message {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = message.parsedMessage.string;
+    [self.view makeToast:NSLocalizedString(@"Message copied", nil) duration:1.5 position:CSToastPositionCenter];
+}
+
+- (void)didPressDelete:(NCChatMessage *)message {
+    [self removePermanentlyTemporaryMessage:message];
+}
+
 #pragma mark - UIImagePickerController Delegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
@@ -876,6 +909,11 @@ NSString * const NCChatViewControllerJoinChatAndReplyPrivately = @"NCChatViewCon
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
 {
+    if (@available(iOS 13.0, *)) {
+        // Use native contextmenus on iOS >= 13
+        return;
+    }
+    
     CGPoint point = [gestureRecognizer locationInView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:point];
     if (indexPath != nil && gestureRecognizer.state == UIGestureRecognizerStateBegan) {
@@ -946,37 +984,27 @@ NSString * const NCChatViewControllerJoinChatAndReplyPrivately = @"NCChatViewCon
                 switch (action) {
                     case kNCChatMessageActionReply:
                     {
-                        weakSelf.replyMessageView = (ReplyMessageView *)weakSelf.typingIndicatorProxyView;
-                        [weakSelf.replyMessageView dismiss];
-                        [weakSelf.replyMessageView presentReplyViewWithMessage:message];
-                        [weakSelf presentKeyboard:YES];
+                        [weakSelf didPressReply:message];
                     }
                         break;
                     case kNCChatMessageActionReplyPrivately:
                     {
-                        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-                        [userInfo setObject:message.actorId forKey:@"actorId"];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerJoinChatAndReplyPrivately
-                                                                            object:self
-                                                                          userInfo:userInfo];
+                        [weakSelf didPressReplyPrivately:message];
                     }
                         break;
                     case kNCChatMessageActionCopy:
                     {
-                        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-                        pasteboard.string = message.parsedMessage.string;
-                        [weakSelf.view makeToast:@"Message copied" duration:1.5 position:CSToastPositionCenter];
+                        [weakSelf didPressCopy:message];
                     }
                         break;
                     case kNCChatMessageActionResend:
                     {
-                        [weakSelf removePermanentlyTemporaryMessage:message];
-                        [weakSelf sendChatMessage:message.message fromInputField:NO];
+                        [weakSelf didPressResend:message];
                     }
                         break;
                     case kNCChatMessageActionDelete:
                     {
-                        [weakSelf removePermanentlyTemporaryMessage:message];
+                        [weakSelf didPressDelete:message];
                     }
                         break;
                     default:
@@ -1991,5 +2019,87 @@ NSString * const NCChatViewControllerJoinChatAndReplyPrivately = @"NCChatViewCon
         [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
 }
+
+- (UIContextMenuConfiguration *)tableView:(UITableView *)tableView contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point API_AVAILABLE(ios(13.0)) {
+    
+    if (!indexPath) {
+        return nil;
+    }
+    
+    NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+    NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+    
+    if (message.isSystemMessage) {
+        return nil;
+    }
+        
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+    
+    // Reply option
+    if (message.isReplyable) {
+        UIImage *replyImage = [[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *replyAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply", nil) image:replyImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressReply:message];
+        }];
+        
+        [actions addObject:replyAction];
+        
+        // Reply-privately option (only to other users and not in one-to-one)
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        if (_room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId] )
+        {
+            UIImage *replyPrivateImage = [[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            UIAction *replyPrivateAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply Privately", nil) image:replyPrivateImage identifier:nil handler:^(UIAction *action){
+                
+                [self didPressReplyPrivately:message];
+            }];
+            
+            [actions addObject:replyPrivateAction];
+        }
+    }
+
+    // Re-send option
+    if (message.sendingFailed) {
+        UIImage *resendImage = [[UIImage imageNamed:@"refresh"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *resendAction = [UIAction actionWithTitle:NSLocalizedString(@"Resend", nil) image:resendImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressResend:message];
+        }];
+        
+        [actions addObject:resendAction];
+    }
+    
+    // Copy option
+    UIImage *copyImage = [[UIImage imageNamed:@"clippy"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIAction *copyAction = [UIAction actionWithTitle:NSLocalizedString(@"Copy", nil) image:copyImage identifier:nil handler:^(UIAction *action){
+        
+        [self didPressCopy:message];
+    }];
+    
+    [actions addObject:copyAction];
+    
+
+    // Delete option
+    if (message.sendingFailed) {
+        UIImage *deleteImage = [[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressDelete:message];
+        }];
+    
+        deleteAction.attributes = UIMenuElementAttributesDestructive;
+        [actions addObject:deleteAction];
+    }
+    
+    UIMenu *menu = [UIMenu menuWithTitle:@"" children:actions];
+    
+    UIContextMenuConfiguration *configuration = [UIContextMenuConfiguration configurationWithIdentifier:nil previewProvider:nil actionProvider:^UIMenu * _Nullable(NSArray<UIMenuElement *> * _Nonnull suggestedActions) {
+        return menu;
+    }];
+
+    return configuration;
+}
+
 
 @end
