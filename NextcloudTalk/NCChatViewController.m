@@ -1792,6 +1792,12 @@ NSString * const NCChatViewControllerJoinChatAndReplyPrivately = @"NCChatViewCon
     
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+    
+    return [self getCellForMessage:message];
+}
+
+- (UITableViewCell *)getCellForMessage:(NCChatMessage *) message
+{
     UITableViewCell *cell = [UITableViewCell new];
     if (message.messageId == kUnreadMessagesSeparatorIdentifier) {
         MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
@@ -1936,63 +1942,71 @@ NSString * const NCChatViewControllerJoinChatAndReplyPrivately = @"NCChatViewCon
         NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
         NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
         
-        NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
-        paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-        paragraphStyle.alignment = NSTextAlignmentLeft;
-        
-        if (message.messageId == kUnreadMessagesSeparatorIdentifier ||
-            message.messageId == kChatBlockSeparatorIdentifier) {
-            return kMessageSeparatorCellHeight;
-        }
-        
-        CGFloat pointSize = [ChatMessageTableViewCell defaultFontSize];
-        
-        NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:pointSize],
-                                     NSParagraphStyleAttributeName: paragraphStyle};
-        
         CGFloat width = CGRectGetWidth(tableView.frame) - kChatMessageCellAvatarHeight;
         if (@available(iOS 11.0, *)) {
             width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right;
         }
-        width -= (message.isSystemMessage)? 80.0 : 30.0; // 4*right(10) + dateLabel(40) : 3*right(10)
         
-        CGRect titleBounds = [message.actorDisplayName boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
-        CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
-        
-        if (message.message.length == 0) {
-            return 0.0;
-        }
-        
-        CGFloat height = CGRectGetHeight(titleBounds);
-        height += CGRectGetHeight(bodyBounds);
-        height += 40.0;
-        
-        if (height < kChatMessageCellMinimumHeight) {
-            height = kChatMessageCellMinimumHeight;
-        }
-        
-        if (message.parent) {
-            height += 60;
-            return height;
-        }
-        
-        if (message.isGroupMessage || message.isSystemMessage) {
-            height = CGRectGetHeight(bodyBounds) + 20;
-            
-            if (height < kGroupedChatMessageCellMinimumHeight) {
-                height = kGroupedChatMessageCellMinimumHeight;
-            }
-        }
-        
-        if (message.file) {
-            height += kFileMessageCellFilePreviewHeight + 15;
-        }
-        
-        return height;
+        return [self getCellHeightForMessage:message withWidth:width];
     }
     else {
         return kChatMessageCellMinimumHeight;
     }
+}
+
+- (CGFloat)getCellHeightForMessage:(NCChatMessage *)message withWidth:(CGFloat)width
+{
+
+    NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
+    paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
+    paragraphStyle.alignment = NSTextAlignmentLeft;
+    
+    if (message.messageId == kUnreadMessagesSeparatorIdentifier ||
+        message.messageId == kChatBlockSeparatorIdentifier) {
+        return kMessageSeparatorCellHeight;
+    }
+    
+    CGFloat pointSize = [ChatMessageTableViewCell defaultFontSize];
+    
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:pointSize],
+                                 NSParagraphStyleAttributeName: paragraphStyle};
+    
+    
+    width -= (message.isSystemMessage)? 80.0 : 30.0; // 4*right(10) + dateLabel(40) : 3*right(10)
+    
+    CGRect titleBounds = [message.actorDisplayName boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
+    CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
+    
+    if (message.message.length == 0) {
+        return 0.0;
+    }
+    
+    CGFloat height = CGRectGetHeight(titleBounds);
+    height += CGRectGetHeight(bodyBounds);
+    height += 40.0;
+    
+    if (height < kChatMessageCellMinimumHeight) {
+        height = kChatMessageCellMinimumHeight;
+    }
+    
+    if (message.parent) {
+        height += 60;
+        return height;
+    }
+    
+    if (message.isGroupMessage || message.isSystemMessage) {
+        height = CGRectGetHeight(bodyBounds) + 20;
+        
+        if (height < kGroupedChatMessageCellMinimumHeight) {
+            height = kGroupedChatMessageCellMinimumHeight;
+        }
+    }
+    
+    if (message.file) {
+        height += kFileMessageCellFilePreviewHeight + 15;
+    }
+    
+    return height;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2094,12 +2108,38 @@ NSString * const NCChatViewControllerJoinChatAndReplyPrivately = @"NCChatViewCon
     
     UIMenu *menu = [UIMenu menuWithTitle:@"" children:actions];
     
-    UIContextMenuConfiguration *configuration = [UIContextMenuConfiguration configurationWithIdentifier:nil previewProvider:nil actionProvider:^UIMenu * _Nullable(NSArray<UIMenuElement *> * _Nonnull suggestedActions) {
+    UIContextMenuConfiguration *configuration = [UIContextMenuConfiguration configurationWithIdentifier:nil previewProvider:^UIViewController * _Nullable{
+        return [self getPreviewViewControllerForTableView:tableView withIndexPath:indexPath];
+    } actionProvider:^UIMenu * _Nullable(NSArray<UIMenuElement *> * _Nonnull suggestedActions) {
         return menu;
     }];
 
     return configuration;
 }
 
+- (UIViewController *)getPreviewViewControllerForTableView:(UITableView *)tableView withIndexPath:(NSIndexPath *)indexPath {
+    NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+    NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+    
+    // Remember grouped-status -> Create a previewView which always is a non-grouped-message
+    BOOL isGroupMessage = message.isGroupMessage;
+    message.isGroupMessage = NO;
+    
+    UITableViewCell *previewView = [self getCellForMessage:message];
+    CGFloat previewViewWidth = previewView.bounds.size.width;
+    CGFloat cellHeight = [self getCellHeightForMessage:message withWidth:previewViewWidth];
+    
+    // Make sure the previewView has the correct size
+    previewView.contentView.frame = CGRectMake(0,0, previewViewWidth, cellHeight);
+    
+    // Restore grouped-status
+    message.isGroupMessage = isGroupMessage;
+    
+    UIViewController *previewController = [[UIViewController alloc] init];
+    [previewController.view addSubview:previewView.contentView];
+    previewController.preferredContentSize = previewView.contentView.bounds.size;
+    
+    return previewController;
+}
 
 @end
