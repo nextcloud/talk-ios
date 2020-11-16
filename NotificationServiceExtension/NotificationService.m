@@ -124,9 +124,6 @@
 - (void)serviceExtensionTimeWillExpire {
     // Called just before the extension will be terminated by the system.
     // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
-    self.bestAttemptContent.title = @"";
-    self.bestAttemptContent.body = NSLocalizedString(@"You received a new notification", nil);
-    
     self.contentHandler(self.bestAttemptContent);
 }
 
