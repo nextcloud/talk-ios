@@ -198,6 +198,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     [self stopSendingNick];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    _externalSignalingController.delegate = nil;
     
     for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
         [peerConnectionWrapper close];
