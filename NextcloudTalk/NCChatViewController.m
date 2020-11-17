@@ -20,6 +20,8 @@
  *
  */
 
+#import <AVFoundation/AVFoundation.h>
+
 #import "NCChatViewController.h"
 
 #import "AFImageDownloader.h"
@@ -723,6 +725,13 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                                                                                 message:nil
                                                                          preferredStyle:UIAlertControllerStyleActionSheet];
     
+    UIAlertAction *cameraAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Camera", nil)
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        [self checkAndPresentCamera];
+    }];
+    [cameraAction setValue:[[UIImage imageNamed:@"camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    
     UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
                                                                  style:UIAlertActionStyleDefault
                                                                handler:^void (UIAlertAction *action) {
@@ -744,6 +753,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }];
     [ncFilesAction setValue:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
+    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
+        [optionsActionSheet addAction:cameraAction];
+    }
+    
     [optionsActionSheet addAction:photoLibraryAction];
     [optionsActionSheet addAction:filesAction];
     [optionsActionSheet addAction:ncFilesAction];
@@ -761,6 +774,47 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:@"" inRoom:_room.token];
     NCNavigationController *fileSharingNC = [[NCNavigationController alloc] initWithRootViewController:directoryVC];
     [self presentViewController:fileSharingNC animated:YES completion:nil];
+}
+
+- (void)checkAndPresentCamera
+{
+    // https://stackoverflow.com/a/20464727/2512312
+    NSString *mediaType = AVMediaTypeVideo;
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
+    
+    if(authStatus == AVAuthorizationStatusAuthorized) {
+        [self presentCamera];
+        return;
+    } else if(authStatus == AVAuthorizationStatusNotDetermined){
+        [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+            if(granted){
+                [self presentCamera];
+            }
+        }];
+        return;
+    }
+    
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Could not access camera", nil)
+                                 message:NSLocalizedString(@"Camera access is not allowed. Check your settings.", nil)
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+}
+
+- (void)presentCamera
+{
+    _imagePicker = [[UIImagePickerController alloc] init];
+    _imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+    _imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:_imagePicker.sourceType];
+    _imagePicker.delegate = self;
+    [self presentViewController:_imagePicker animated:YES completion:nil];
 }
 
 - (void)presentPhotoLibrary
