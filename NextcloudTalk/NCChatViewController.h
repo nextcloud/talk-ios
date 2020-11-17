@@ -32,5 +32,6 @@
 - (void)stopChat;
 - (void)resumeChat;
 - (void)leaveChat;
+- (void)setChatMessage:(NSString *)message;
 
 @end

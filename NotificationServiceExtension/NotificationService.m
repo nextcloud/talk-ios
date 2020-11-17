@@ -84,6 +84,12 @@
                     self.bestAttemptContent.threadIdentifier = pushNotification.roomToken;
                     self.bestAttemptContent.sound = [UNNotificationSound defaultSound];
                     self.bestAttemptContent.badge = @(unreadNotifications);
+                    
+                    if (pushNotification.type == NCPushNotificationTypeChat) {
+                        // Set category for chat messages to allow interactive notifications
+                        self.bestAttemptContent.categoryIdentifier = @"CATEGORY_CHAT";
+                    }
+                    
                     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
                     [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
                     [userInfo setObject:pushNotification.accountId forKey:@"accountId"];

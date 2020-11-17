@@ -30,6 +30,8 @@
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
+#import <UserNotifications/UserNotifications.h>
+
 #import "NCAudioController.h"
 #import "NCAppBranding.h"
 #import "NCConnectionController.h"
@@ -172,6 +174,22 @@
     
     normalPushToken = [self stringWithDeviceToken:deviceToken];
     [self checkForPushNotificationSubscription];
+    [self registerInteractivePushNotification];
+}
+
+- (void)registerInteractivePushNotification
+{
+    UNTextInputNotificationAction *replyAction = [UNTextInputNotificationAction actionWithIdentifier:@"REPLY_CHAT"
+                                                                                          title:NSLocalizedString(@"Reply", nil)
+                                                                                        options:UNNotificationActionOptionAuthenticationRequired];
+    
+    UNNotificationCategory *chatCategory = [UNNotificationCategory categoryWithIdentifier:@"CATEGORY_CHAT"
+                                                                              actions:@[replyAction]
+                                                                    intentIdentifiers:@[]
+                                                                              options:UNNotificationCategoryOptionNone];
+    
+    NSSet *categories = [NSSet setWithObject:chatCategory];
+    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:categories];
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler

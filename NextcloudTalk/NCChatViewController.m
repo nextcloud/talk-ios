@@ -259,9 +259,7 @@ typedef enum NCChatMessageAction {
     
     // Check if there's a stored pending message
     if (_room.pendingMessage != nil) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.textView.text = self->_room.pendingMessage;
-        });
+        [self setChatMessage:self.room.pendingMessage];
     }
     
     NSDictionary *views = @{@"unreadMessagesButton": _unreadMessageButton,
@@ -346,6 +344,13 @@ typedef enum NCChatMessageAction {
     if ([NCRoomsManager sharedInstance].chatViewController == self) {
         [NCRoomsManager sharedInstance].chatViewController = nil;
     }
+}
+
+- (void)setChatMessage:(NSString *)message
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.textView.text = message;
+    });
 }
 
 #pragma mark - App lifecycle notifications
