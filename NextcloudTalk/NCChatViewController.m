@@ -100,7 +100,7 @@ typedef enum NCChatMessageAction {
 
 @implementation NCChatViewController
 
-NSString * const NCChatViewControllerJoinChatAndReplyPrivately = @"NCChatViewControllerJoinChatAndReplyPrivately";
+NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewControllerReplyPrivatelyNotification";
 
 - (instancetype)initForRoom:(NCRoom *)room
 {
@@ -787,7 +787,7 @@ NSString * const NCChatViewControllerJoinChatAndReplyPrivately = @"NCChatViewCon
 - (void)didPressReplyPrivately:(NCChatMessage *)message {
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
     [userInfo setObject:message.actorId forKey:@"actorId"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerJoinChatAndReplyPrivately
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerReplyPrivatelyNotification
                                                         object:self
                                                       userInfo:userInfo];
 }
