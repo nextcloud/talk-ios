@@ -60,7 +60,8 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionReply = 1,
     kNCChatMessageActionCopy,
     kNCChatMessageActionResend,
-    kNCChatMessageActionDelete
+    kNCChatMessageActionDelete,
+    kNCChatMessageActionReplyPrivately
 } NCChatMessageAction;
 
 @interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate>
@@ -98,6 +99,8 @@ typedef enum NCChatMessageAction {
 @end
 
 @implementation NCChatViewController
+
+NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewControllerReplyPrivatelyNotification";
 
 - (instancetype)initForRoom:(NCRoom *)room
 {
@@ -776,6 +779,39 @@ typedef enum NCChatMessageAction {
     [self presentViewController:documentPicker animated:YES completion:nil];
 }
 
+- (void)didPressReply:(NCChatMessage *)message {
+    // Use dispatch here to have a smooth animation with native contextmenu
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.replyMessageView = (ReplyMessageView *)self.typingIndicatorProxyView;
+        [self.replyMessageView dismiss];
+        [self.replyMessageView presentReplyViewWithMessage:message];
+        [self presentKeyboard:YES];
+    });
+}
+
+- (void)didPressReplyPrivately:(NCChatMessage *)message {
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:message.actorId forKey:@"actorId"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerReplyPrivatelyNotification
+                                                        object:self
+                                                      userInfo:userInfo];
+}
+
+- (void)didPressResend:(NCChatMessage *)message {
+    [self removePermanentlyTemporaryMessage:message];
+    [self sendChatMessage:message.message fromInputField:NO];
+}
+
+- (void)didPressCopy:(NCChatMessage *)message {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = message.parsedMessage.string;
+    [self.view makeToast:NSLocalizedString(@"Message copied", nil) duration:1.5 position:CSToastPositionCenter];
+}
+
+- (void)didPressDelete:(NCChatMessage *)message {
+    [self removePermanentlyTemporaryMessage:message];
+}
+
 #pragma mark - UIImagePickerController Delegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
@@ -878,6 +914,11 @@ typedef enum NCChatMessageAction {
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
 {
+    if (@available(iOS 13.0, *)) {
+        // Use native contextmenus on iOS >= 13
+        return;
+    }
+    
     CGPoint point = [gestureRecognizer locationInView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:point];
     if (indexPath != nil && gestureRecognizer.state == UIGestureRecognizerStateBegan) {
@@ -908,7 +949,17 @@ typedef enum NCChatMessageAction {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
+                
+                // Reply-privately option (only to other users and not in one-to-one)
+                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+                if (_room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId] )
+                {
+                    NSDictionary *replyPrivatInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReplyPrivately) forKey:@"action"];
+                    FTPopOverMenuModel *replyPrivatModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply Privately", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyPrivatInfo];
+                    [menuArray addObject:replyPrivatModel];
+                }
             }
+
             // Re-send option
             if (message.sendingFailed) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionResend) forKey:@"action"];
@@ -938,28 +989,27 @@ typedef enum NCChatMessageAction {
                 switch (action) {
                     case kNCChatMessageActionReply:
                     {
-                        weakSelf.replyMessageView = (ReplyMessageView *)weakSelf.typingIndicatorProxyView;
-                        [weakSelf.replyMessageView dismiss];
-                        [weakSelf.replyMessageView presentReplyViewWithMessage:message];
-                        [weakSelf presentKeyboard:YES];
+                        [weakSelf didPressReply:message];
+                    }
+                        break;
+                    case kNCChatMessageActionReplyPrivately:
+                    {
+                        [weakSelf didPressReplyPrivately:message];
                     }
                         break;
                     case kNCChatMessageActionCopy:
                     {
-                        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-                        pasteboard.string = message.parsedMessage.string;
-                        [weakSelf.view makeToast:@"Message copied" duration:1.5 position:CSToastPositionCenter];
+                        [weakSelf didPressCopy:message];
                     }
                         break;
                     case kNCChatMessageActionResend:
                     {
-                        [weakSelf removePermanentlyTemporaryMessage:message];
-                        [weakSelf sendChatMessage:message.message fromInputField:NO];
+                        [weakSelf didPressResend:message];
                     }
                         break;
                     case kNCChatMessageActionDelete:
                     {
-                        [weakSelf removePermanentlyTemporaryMessage:message];
+                        [weakSelf didPressDelete:message];
                     }
                         break;
                     default:
@@ -1747,6 +1797,12 @@ typedef enum NCChatMessageAction {
     
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+    
+    return [self getCellForMessage:message];
+}
+
+- (UITableViewCell *)getCellForMessage:(NCChatMessage *) message
+{
     UITableViewCell *cell = [UITableViewCell new];
     if (message.messageId == kUnreadMessagesSeparatorIdentifier) {
         MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
@@ -1891,63 +1947,71 @@ typedef enum NCChatMessageAction {
         NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
         NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
         
-        NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
-        paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-        paragraphStyle.alignment = NSTextAlignmentLeft;
-        
-        if (message.messageId == kUnreadMessagesSeparatorIdentifier ||
-            message.messageId == kChatBlockSeparatorIdentifier) {
-            return kMessageSeparatorCellHeight;
-        }
-        
-        CGFloat pointSize = [ChatMessageTableViewCell defaultFontSize];
-        
-        NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:pointSize],
-                                     NSParagraphStyleAttributeName: paragraphStyle};
-        
         CGFloat width = CGRectGetWidth(tableView.frame) - kChatMessageCellAvatarHeight;
         if (@available(iOS 11.0, *)) {
             width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right;
         }
-        width -= (message.isSystemMessage)? 80.0 : 30.0; // 4*right(10) + dateLabel(40) : 3*right(10)
         
-        CGRect titleBounds = [message.actorDisplayName boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
-        CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
-        
-        if (message.message.length == 0) {
-            return 0.0;
-        }
-        
-        CGFloat height = CGRectGetHeight(titleBounds);
-        height += CGRectGetHeight(bodyBounds);
-        height += 40.0;
-        
-        if (height < kChatMessageCellMinimumHeight) {
-            height = kChatMessageCellMinimumHeight;
-        }
-        
-        if (message.parent) {
-            height += 60;
-            return height;
-        }
-        
-        if (message.isGroupMessage || message.isSystemMessage) {
-            height = CGRectGetHeight(bodyBounds) + 20;
-            
-            if (height < kGroupedChatMessageCellMinimumHeight) {
-                height = kGroupedChatMessageCellMinimumHeight;
-            }
-        }
-        
-        if (message.file) {
-            height += kFileMessageCellFilePreviewHeight + 15;
-        }
-        
-        return height;
+        return [self getCellHeightForMessage:message withWidth:width];
     }
     else {
         return kChatMessageCellMinimumHeight;
     }
+}
+
+- (CGFloat)getCellHeightForMessage:(NCChatMessage *)message withWidth:(CGFloat)width
+{
+
+    NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
+    paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
+    paragraphStyle.alignment = NSTextAlignmentLeft;
+    
+    if (message.messageId == kUnreadMessagesSeparatorIdentifier ||
+        message.messageId == kChatBlockSeparatorIdentifier) {
+        return kMessageSeparatorCellHeight;
+    }
+    
+    CGFloat pointSize = [ChatMessageTableViewCell defaultFontSize];
+    
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:pointSize],
+                                 NSParagraphStyleAttributeName: paragraphStyle};
+    
+    
+    width -= (message.isSystemMessage)? 80.0 : 30.0; // 4*right(10) + dateLabel(40) : 3*right(10)
+    
+    CGRect titleBounds = [message.actorDisplayName boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
+    CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
+    
+    if (message.message.length == 0) {
+        return 0.0;
+    }
+    
+    CGFloat height = CGRectGetHeight(titleBounds);
+    height += CGRectGetHeight(bodyBounds);
+    height += 40.0;
+    
+    if (height < kChatMessageCellMinimumHeight) {
+        height = kChatMessageCellMinimumHeight;
+    }
+    
+    if (message.parent) {
+        height += 60;
+        return height;
+    }
+    
+    if (message.isGroupMessage || message.isSystemMessage) {
+        height = CGRectGetHeight(bodyBounds) + 20;
+        
+        if (height < kGroupedChatMessageCellMinimumHeight) {
+            height = kGroupedChatMessageCellMinimumHeight;
+        }
+    }
+    
+    if (message.file) {
+        height += kFileMessageCellFilePreviewHeight + 15;
+    }
+    
+    return height;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1973,6 +2037,114 @@ typedef enum NCChatMessageAction {
     } else {
         [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
+}
+
+- (UIContextMenuConfiguration *)tableView:(UITableView *)tableView contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point API_AVAILABLE(ios(13.0)) {
+    
+    if (!indexPath) {
+        return nil;
+    }
+    
+    NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+    NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+    
+    if (message.isSystemMessage) {
+        return nil;
+    }
+        
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+    
+    // Reply option
+    if (message.isReplyable) {
+        UIImage *replyImage = [[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *replyAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply", nil) image:replyImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressReply:message];
+        }];
+        
+        [actions addObject:replyAction];
+        
+        // Reply-privately option (only to other users and not in one-to-one)
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        if (_room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId] )
+        {
+            UIImage *replyPrivateImage = [[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            UIAction *replyPrivateAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply Privately", nil) image:replyPrivateImage identifier:nil handler:^(UIAction *action){
+                
+                [self didPressReplyPrivately:message];
+            }];
+            
+            [actions addObject:replyPrivateAction];
+        }
+    }
+
+    // Re-send option
+    if (message.sendingFailed) {
+        UIImage *resendImage = [[UIImage imageNamed:@"refresh"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *resendAction = [UIAction actionWithTitle:NSLocalizedString(@"Resend", nil) image:resendImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressResend:message];
+        }];
+        
+        [actions addObject:resendAction];
+    }
+    
+    // Copy option
+    UIImage *copyImage = [[UIImage imageNamed:@"clippy"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIAction *copyAction = [UIAction actionWithTitle:NSLocalizedString(@"Copy", nil) image:copyImage identifier:nil handler:^(UIAction *action){
+        
+        [self didPressCopy:message];
+    }];
+    
+    [actions addObject:copyAction];
+    
+
+    // Delete option
+    if (message.sendingFailed) {
+        UIImage *deleteImage = [[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressDelete:message];
+        }];
+    
+        deleteAction.attributes = UIMenuElementAttributesDestructive;
+        [actions addObject:deleteAction];
+    }
+    
+    UIMenu *menu = [UIMenu menuWithTitle:@"" children:actions];
+    
+    UIContextMenuConfiguration *configuration = [UIContextMenuConfiguration configurationWithIdentifier:nil previewProvider:^UIViewController * _Nullable{
+        return [self getPreviewViewControllerForTableView:tableView withIndexPath:indexPath];
+    } actionProvider:^UIMenu * _Nullable(NSArray<UIMenuElement *> * _Nonnull suggestedActions) {
+        return menu;
+    }];
+
+    return configuration;
+}
+
+- (UIViewController *)getPreviewViewControllerForTableView:(UITableView *)tableView withIndexPath:(NSIndexPath *)indexPath {
+    NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+    NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+    
+    // Remember grouped-status -> Create a previewView which always is a non-grouped-message
+    BOOL isGroupMessage = message.isGroupMessage;
+    message.isGroupMessage = NO;
+    
+    UITableViewCell *previewView = [self getCellForMessage:message];
+    CGFloat previewViewWidth = previewView.bounds.size.width;
+    CGFloat cellHeight = [self getCellHeightForMessage:message withWidth:previewViewWidth];
+    
+    // Make sure the previewView has the correct size
+    previewView.contentView.frame = CGRectMake(0,0, previewViewWidth, cellHeight);
+    
+    // Restore grouped-status
+    message.isGroupMessage = isGroupMessage;
+    
+    UIViewController *previewController = [[UIViewController alloc] init];
+    [previewController.view addSubview:previewView.contentView];
+    previewController.preferredContentSize = previewView.contentView.bounds.size;
+    
+    return previewController;
 }
 
 @end
