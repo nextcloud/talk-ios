@@ -42,6 +42,9 @@ static NSString *const nextcloudScheme = @"nextcloud:";
 
 + (NSString *)previewImageForFileMIMEType:(NSString *)fileMIMEType
 {
+    if (!fileMIMEType || [fileMIMEType isKindOfClass:[NSNull class]] || [fileMIMEType isEqualToString:@""]) {
+        return @"file";
+    }
     CFStringRef fileMIMETypeSR = (__bridge CFStringRef)fileMIMEType;
     CFStringRef fileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, fileMIMETypeSR, NULL);
     if (!UTTypeIsDeclared(fileUTI)) {
