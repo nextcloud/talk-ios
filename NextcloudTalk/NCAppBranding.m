@@ -87,6 +87,19 @@ BOOL const useServerThemimg = YES;
     return textColor;
 }
 
++ (UIColor *)elementColor
+{
+    UIColor *elementColor = [NCUtils colorFromHexString:brandColorHex];
+    // Do not check if using server theming or not for now
+    // We could check it once we calculate color element locally
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    if (serverCapabilities && ![serverCapabilities.colorElement isEqualToString:@""]) {
+        elementColor = [NCUtils colorFromHexString:serverCapabilities.colorElement];
+    }
+    return elementColor;
+}
+
 + (NSString *)navigationLogoImageName
 {
     NSString *imageName = @"navigationLogo";
