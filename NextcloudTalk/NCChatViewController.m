@@ -2041,7 +2041,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (UIContextMenuConfiguration *)tableView:(UITableView *)tableView contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point API_AVAILABLE(ios(13.0)) {
     
-    if (!indexPath) {
+    if ([tableView isEqual:self.autoCompletionView]) {
         return nil;
     }
     
