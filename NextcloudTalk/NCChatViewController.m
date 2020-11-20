@@ -2122,7 +2122,12 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     return configuration;
 }
 
-- (UIViewController *)getPreviewViewControllerForTableView:(UITableView *)tableView withIndexPath:(NSIndexPath *)indexPath {
+- (UIViewController *)getPreviewViewControllerForTableView:(UITableView *)tableView withIndexPath:(NSIndexPath *)indexPath
+{
+    if (SLK_IS_IPAD) {
+        return nil;
+    }
+    
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
     
