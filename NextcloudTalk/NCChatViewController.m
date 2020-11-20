@@ -2136,7 +2136,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     message.isGroupMessage = NO;
     
     CGFloat maxPreviewWidth = self.view.bounds.size.width;
-    CGFloat maxPreviewHeight = self.view.bounds.size.height * 0.7;
+    CGFloat maxPreviewHeight = self.view.bounds.size.height * 0.6;
     
     if (SLK_IS_IPHONE && SLK_IS_LANDSCAPE) {
         maxPreviewWidth = self.view.bounds.size.width / 3;
