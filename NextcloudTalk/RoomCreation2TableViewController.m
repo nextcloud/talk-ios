@@ -105,7 +105,8 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     _passwordTextField.secureTextEntry = YES;
     _passwordTextField.accessibilityLabel = NSLocalizedString(@"Password field for public conversation", nil);
     
-    _creatingRoomView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    _creatingRoomView = [[UIActivityIndicatorView alloc] init];
+    _creatingRoomView.color = [NCAppBranding themeTextColor];
     _createRoomButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Create", nil) style:UIBarButtonItemStyleDone
                                                         target:self action:@selector(createButtonPressed)];
     _createRoomButton.enabled = NO;

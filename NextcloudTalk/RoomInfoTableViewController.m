@@ -159,7 +159,8 @@ typedef enum ModificationError {
     [_lobbyDateTextField setInputView:_lobbyDatePicker];
     [self setupLobbyDatePicker];
     
-    _modifyingRoomView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    _modifyingRoomView = [[UIActivityIndicatorView alloc] init];
+    _modifyingRoomView.color = [NCAppBranding themeTextColor];
     
     _headerView = [[HeaderWithButton alloc] init];
     [_headerView.button setTitle:NSLocalizedString(@"Add", nil) forState:UIControlStateNormal];

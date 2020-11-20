@@ -64,7 +64,8 @@
     
     [self configureNavigationBar];
     
-    _sharingFileView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    _sharingFileView = [[UIActivityIndicatorView alloc] init];
+    _sharingFileView.color = [NCAppBranding themeTextColor];
     
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     

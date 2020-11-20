@@ -87,7 +87,8 @@
     _sendButton.accessibilityHint = NSLocalizedString(@"Double tap to share with selected conversations", nil);
     self.navigationItem.rightBarButtonItem = _sendButton;
     
-    _sharingIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    _sharingIndicatorView = [[UIActivityIndicatorView alloc] init];
+    _sharingIndicatorView.color = [NCAppBranding themeTextColor];
     
     // Configure communication lib
     NSString *userToken = [[NCSettingsController sharedInstance] tokenForAccountId:_account.accountId];
