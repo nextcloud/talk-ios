@@ -240,6 +240,12 @@
                                               NSLog(@"Shared Image = %@", item);
                                               NSURL *imageURL = (NSURL *)item;
                                               [shareConfirmationVC setSharedFileWithFileURL:imageURL];
+                                          } else if ([(NSObject *)item isKindOfClass:[UIImage class]]) {
+                                              // Occurs when sharing a screenshot
+                                              NSLog(@"Shared UIImage = %@", item);
+                                              UIImage *image = (UIImage *)item;
+                                              NSString *imageName = [NSString stringWithFormat:@"IMG_%.f.jpg", [[NSDate date] timeIntervalSince1970] * 1000];
+                                              [shareConfirmationVC setSharedImage:image withImageName:imageName];
                                           }
                                       }];
                 return;
