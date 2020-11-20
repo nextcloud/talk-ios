@@ -232,7 +232,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     NSError *error = [notification.userInfo objectForKey:@"error"];
     if (error) {
-        [self presentJoinRoomError:[notification.userInfo objectForKey:@"errorReason"]];
+        [self presentJoinError:[notification.userInfo objectForKey:@"errorReason"]];
         return;
     }
     
@@ -537,7 +537,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     _detailedViewTimer = nil;
 }
 
-- (void)presentJoinErrorMessage:(NSString *)alertMessage
+- (void)presentJoinError:(NSString *)alertMessage
 {
     NSString *alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join %@ call", nil), _room.displayName];
     if (_room.type == kNCRoomTypeOneToOne) {
@@ -557,20 +557,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self presentViewController:alert animated:YES completion:nil];
     });
-}
-
-- (void)presentJoinRoomError:(NSString *)errorReason
-{
-    NSString *alertMessage = [NSString stringWithFormat:NSLocalizedString(@"An error occurred while joining the conversation: %@", nil), errorReason];
-    
-    [self presentJoinErrorMessage:alertMessage];
-}
-
-- (void)presentJoinCallError:(NSString *)errorReason
-{
-    NSString *alertMessage = [NSString stringWithFormat:NSLocalizedString(@"An error occurred while joining the call: %@", nil), errorReason];
-    
-    [self presentJoinErrorMessage:alertMessage];
 }
 
 #pragma mark - Call actions
@@ -897,7 +883,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callControllerDidFailedJoiningCall:(NCCallController *)callController statusCode:(NSNumber *)statusCode errorReason:(NSString *) errorReason
 {
-    [self presentJoinCallError:errorReason];
+    [self presentJoinError:errorReason];
 }
 
 - (void)callControllerDidEndCall:(NCCallController *)callController

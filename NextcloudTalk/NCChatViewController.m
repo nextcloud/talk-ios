@@ -542,15 +542,13 @@ typedef enum NCChatMessageAction {
     return sendingMessage;
 }
 
-- (void)presentJoinRoomError:(NSString *)errorReason
+- (void)presentJoinError:(NSString *)alertMessage
 {
     NSString *alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join %@", nil), _room.displayName];
     if (_room.type == kNCRoomTypeOneToOne) {
         alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join conversation with %@", nil), _room.displayName];
     }
-    
-    NSString *alertMessage = [NSString stringWithFormat:NSLocalizedString(@"An error occurred while joining the conversation: %@", nil), errorReason];
-    
+
     UIAlertController * alert = [UIAlertController alertControllerWithTitle:alertTitle
                                                                     message:alertMessage
                                                              preferredStyle:UIAlertControllerStyleAlert];
@@ -1049,7 +1047,7 @@ typedef enum NCChatMessageAction {
         _offlineMode = YES;
         [self setOfflineFooterView];
         [_chatController stopReceivingNewChatMessages];
-        [self presentJoinRoomError:[notification.userInfo objectForKey:@"errorReason"]];
+        [self presentJoinError:[notification.userInfo objectForKey:@"errorReason"]];
         return;
     }
     
