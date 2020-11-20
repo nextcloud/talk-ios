@@ -2041,7 +2041,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (UIContextMenuConfiguration *)tableView:(UITableView *)tableView contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point API_AVAILABLE(ios(13.0)) {
     
-    if (!indexPath) {
+    if ([tableView isEqual:self.autoCompletionView]) {
         return nil;
     }
     
@@ -2122,7 +2122,12 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     return configuration;
 }
 
-- (UIViewController *)getPreviewViewControllerForTableView:(UITableView *)tableView withIndexPath:(NSIndexPath *)indexPath {
+- (UIViewController *)getPreviewViewControllerForTableView:(UITableView *)tableView withIndexPath:(NSIndexPath *)indexPath
+{
+    if (SLK_IS_IPAD) {
+        return nil;
+    }
+    
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
     
@@ -2130,19 +2135,31 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     BOOL isGroupMessage = message.isGroupMessage;
     message.isGroupMessage = NO;
     
+    CGFloat maxPreviewWidth = self.view.bounds.size.width;
+    CGFloat maxPreviewHeight = self.view.bounds.size.height * 0.6;
+    
+    if (SLK_IS_IPHONE && SLK_IS_LANDSCAPE) {
+        maxPreviewWidth = self.view.bounds.size.width / 3;
+    }
+    
     UITableViewCell *previewView = [self getCellForMessage:message];
-    CGFloat previewViewWidth = previewView.bounds.size.width;
-    CGFloat cellHeight = [self getCellHeightForMessage:message withWidth:previewViewWidth];
+    CGFloat maxTextWidth = maxPreviewWidth - kChatMessageCellAvatarHeight;
+    CGFloat cellHeight = [self getCellHeightForMessage:message withWidth:maxTextWidth];
+    
+    // Cut the height if bigger than max height
+    if (cellHeight > maxPreviewHeight) {
+        cellHeight = maxPreviewHeight;
+    }
     
     // Make sure the previewView has the correct size
-    previewView.contentView.frame = CGRectMake(0,0, previewViewWidth, cellHeight);
+    previewView.contentView.frame = CGRectMake(0,0, maxPreviewWidth, cellHeight);
     
     // Restore grouped-status
     message.isGroupMessage = isGroupMessage;
     
     UIViewController *previewController = [[UIViewController alloc] init];
     [previewController.view addSubview:previewView.contentView];
-    previewController.preferredContentSize = previewView.contentView.bounds.size;
+    previewController.preferredContentSize = previewView.contentView.frame.size;
     
     return previewController;
 }
