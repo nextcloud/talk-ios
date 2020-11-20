@@ -812,27 +812,33 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)presentCamera
 {
-    _imagePicker = [[UIImagePickerController alloc] init];
-    _imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-    _imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:_imagePicker.sourceType];
-    _imagePicker.delegate = self;
-    [self presentViewController:_imagePicker animated:YES completion:nil];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _imagePicker = [[UIImagePickerController alloc] init];
+        _imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+        _imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:_imagePicker.sourceType];
+        _imagePicker.delegate = self;
+        [self presentViewController:_imagePicker animated:YES completion:nil];
+    });
 }
 
 - (void)presentPhotoLibrary
 {
-    _imagePicker = [[UIImagePickerController alloc] init];
-    _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    _imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:_imagePicker.sourceType];
-    _imagePicker.delegate = self;
-    [self presentViewController:_imagePicker animated:YES completion:nil];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _imagePicker = [[UIImagePickerController alloc] init];
+        _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        _imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:_imagePicker.sourceType];
+        _imagePicker.delegate = self;
+        [self presentViewController:_imagePicker animated:YES completion:nil];
+    });
 }
 
 - (void)presentDocumentPicker
 {
-    UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"public.item"] inMode:UIDocumentPickerModeImport];
-    documentPicker.delegate = self;
-    [self presentViewController:documentPicker animated:YES completion:nil];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"public.item"] inMode:UIDocumentPickerModeImport];
+        documentPicker.delegate = self;
+        [self presentViewController:documentPicker animated:YES completion:nil];
+    });
 }
 
 - (void)didPressReply:(NCChatMessage *)message {
