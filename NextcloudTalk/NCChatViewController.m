@@ -552,15 +552,17 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     return sendingMessage;
 }
 
-- (void)presentJoinRoomError
+- (void)presentJoinError:(NSString *)alertMessage
 {
     NSString *alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join %@", nil), _room.displayName];
     if (_room.type == kNCRoomTypeOneToOne) {
         alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join conversation with %@", nil), _room.displayName];
     }
+
     UIAlertController * alert = [UIAlertController alertControllerWithTitle:alertTitle
-                                                                    message:NSLocalizedString(@"An error occurred while joining the conversation", nil)
+                                                                    message:alertMessage
                                                              preferredStyle:UIAlertControllerStyleAlert];
+    
     UIAlertAction* okButton = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                                        style:UIAlertActionStyleDefault
                                                      handler:nil];
@@ -1153,7 +1155,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         _offlineMode = YES;
         [self setOfflineFooterView];
         [_chatController stopReceivingNewChatMessages];
-        [self presentJoinRoomError];
+        [self presentJoinError:[notification.userInfo objectForKey:@"errorReason"]];
         return;
     }
     

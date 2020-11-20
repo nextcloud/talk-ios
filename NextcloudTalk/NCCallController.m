@@ -116,7 +116,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)joinCall
 {
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:_account withCompletionBlock:^(NSError *error) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
             [self getPeersForCall];
@@ -143,17 +143,42 @@ static NSString * const kNCVideoTrackKind = @"video";
                 _joinCallAttempts += 1;
                 [self joinCall];
                 return;
-            }
-            [self.delegate callControllerDidFailedJoiningCall:self];
+            } 
+            [self.delegate callControllerDidFailedJoiningCall:self statusCode:@(statusCode) errorReason:[self getJoinCallErrorReason:statusCode]];
             NSLog(@"Could not join call. Error: %@", error.description);
         }
     }];
 }
 
+- (NSString *)getJoinCallErrorReason:(NSInteger)statusCode
+{
+    NSString *errorReason = NSLocalizedString(@"Unknown error occurred", nil);
+    
+    switch (statusCode) {
+        case 0:
+            errorReason = NSLocalizedString(@"No response from server", nil);
+            break;
+            
+        case 403:
+            errorReason = NSLocalizedString(@"This conversation is read-only", nil);
+            break;
+            
+        case 404:
+            errorReason = NSLocalizedString(@"Conversation not found or not joined", nil);
+            break;
+            
+        case 412:
+            errorReason = NSLocalizedString(@"Lobby is still active and you're not a moderator", nil);
+            break;
+    }
+    
+    return errorReason;
+}
+
 - (void)shouldRejoinCall
 {
     _userSessionId = [_externalSignalingController sessionId];
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:_account withCompletionBlock:^(NSError *error) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
             NSLog(@"Rejoined call");

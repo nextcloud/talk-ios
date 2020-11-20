@@ -133,6 +133,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 }
                 [userInfo setObject:error forKey:@"error"];
                 [userInfo setObject:@(statusCode) forKey:@"statusCode"];
+                [userInfo setObject:[self getJoinRoomErrorReason:statusCode] forKey:@"errorReason"];
                 NSLog(@"Could not join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
             }
             _joiningRoom = nil;
@@ -153,6 +154,32 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                                                             object:self
                                                           userInfo:userInfo];
     }
+}
+
+- (NSString *)getJoinRoomErrorReason:(NSInteger)statusCode
+{
+    NSString *errorReason = NSLocalizedString(@"Unknown error occurred", nil);
+    
+    switch (statusCode) {
+        case 0:
+            errorReason = NSLocalizedString(@"No response from server", nil);
+            break;
+            
+        case 403:
+            errorReason = NSLocalizedString(@"The password is wrong", nil);
+            break;
+            
+        case 404:
+            errorReason = NSLocalizedString(@"Conversation not found", nil);
+            break;
+            
+        case 409:
+            // Currently not triggered, needs to be enabled in API with sending force=false
+            errorReason = NSLocalizedString(@"Duplicate session", nil);
+            break;
+    }
+    
+    return errorReason;
 }
 
 - (void)joinRoom:(NSString *)token
