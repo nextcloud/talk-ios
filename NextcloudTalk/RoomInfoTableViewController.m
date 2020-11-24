@@ -152,10 +152,11 @@ typedef enum ModificationError {
     
     _lobbyDatePicker = [[UIDatePicker alloc] init];
     _lobbyDatePicker.datePickerMode = UIDatePickerModeDateAndTime;
-    _lobbyDateTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 00, 200, 30)];
+    _lobbyDateTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 00, 150, 30)];
     _lobbyDateTextField.textAlignment = NSTextAlignmentRight;
     _lobbyDateTextField.placeholder = NSLocalizedString(@"Manual", nil);
     _lobbyDateTextField.adjustsFontSizeToFitWidth = YES;
+    _lobbyDateTextField.minimumFontSize = 9;
     [_lobbyDateTextField setInputView:_lobbyDatePicker];
     [self setupLobbyDatePicker];
     
@@ -1346,6 +1347,8 @@ typedef enum ModificationError {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Start time", nil);
+                    cell.textLabel.adjustsFontSizeToFitWidth = YES;
+                    cell.textLabel.minimumScaleFactor = 0.6;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _lobbyDateTextField;
                     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
