@@ -71,6 +71,9 @@ uint64_t const kTalkDatabaseSchemaVersion   = 6;
         NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
         configuration.fileURL = databaseURL;
         configuration.schemaVersion = kTalkDatabaseSchemaVersion;
+        configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
+            // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
+        };
         [RLMRealmConfiguration setDefaultConfiguration:configuration];
         
 #ifdef DEBUG
