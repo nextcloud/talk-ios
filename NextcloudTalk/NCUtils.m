@@ -176,7 +176,15 @@ static NSString *const nextcloudScheme = @"nextcloud:";
 
 + (UIColor *)colorFromHexString:(NSString *)hexString
 {
-    // Hex color "#00FF00" to UIColor.
+    // Check hex color string format (e.g."#00FF00")
+    NSError *error = nil;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^#(?:[0-9a-fA-F]{6})$" options:NSRegularExpressionCaseInsensitive error:&error];
+    NSTextCheckingResult *match = [regex firstMatchInString:hexString options:0 range:NSMakeRange(0, hexString.length)];
+    if ([match numberOfRanges] != 1) {
+        return nil;
+    }
+    
+    // Convert Hex color to UIColor
     unsigned rgbValue = 0;
     NSScanner *scanner = [NSScanner scannerWithString:hexString];
     [scanner setScanLocation:1]; // bypass '#' character

@@ -68,7 +68,10 @@ BOOL const useServerThemimg = YES;
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
         if (serverCapabilities && serverCapabilities.color && ![serverCapabilities.color isKindOfClass:[NSNull class]] && ![serverCapabilities.color isEqualToString:@""]) {
-            color = [NCUtils colorFromHexString:serverCapabilities.color];
+            UIColor *themeColor = [NCUtils colorFromHexString:serverCapabilities.color];
+            if (themeColor) {
+                color = themeColor;
+            }
         }
     }
     return color;
@@ -81,7 +84,10 @@ BOOL const useServerThemimg = YES;
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
         if (serverCapabilities && serverCapabilities.colorText && ![serverCapabilities.colorText isKindOfClass:[NSNull class]] && ![serverCapabilities.colorText isEqualToString:@""]) {
-            textColor = [NCUtils colorFromHexString:serverCapabilities.colorText];
+            UIColor *themeTextColor = [NCUtils colorFromHexString:serverCapabilities.colorText];
+            if (themeTextColor) {
+                textColor = themeTextColor;
+            }
         }
     }
     return textColor;
@@ -95,7 +101,10 @@ BOOL const useServerThemimg = YES;
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     if (serverCapabilities && serverCapabilities.colorElement && ![serverCapabilities.colorElement isKindOfClass:[NSNull class]] && ![serverCapabilities.colorElement isEqualToString:@""]) {
-        elementColor = [NCUtils colorFromHexString:serverCapabilities.colorElement];
+        UIColor *color = [NCUtils colorFromHexString:serverCapabilities.colorElement];
+        if (color) {
+            elementColor = color;
+        }
     }
     return elementColor;
 }
