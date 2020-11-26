@@ -67,7 +67,7 @@ BOOL const useServerThemimg = YES;
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-        if (serverCapabilities && ![serverCapabilities.color isEqualToString:@""]) {
+        if (serverCapabilities && serverCapabilities.color && ![serverCapabilities.color isKindOfClass:[NSNull class]] && ![serverCapabilities.color isEqualToString:@""]) {
             color = [NCUtils colorFromHexString:serverCapabilities.color];
         }
     }
@@ -80,7 +80,7 @@ BOOL const useServerThemimg = YES;
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-        if (serverCapabilities && ![serverCapabilities.colorText isEqualToString:@""]) {
+        if (serverCapabilities && serverCapabilities.colorText && ![serverCapabilities.colorText isKindOfClass:[NSNull class]] && ![serverCapabilities.colorText isEqualToString:@""]) {
             textColor = [NCUtils colorFromHexString:serverCapabilities.colorText];
         }
     }
@@ -94,7 +94,7 @@ BOOL const useServerThemimg = YES;
     // We could check it once we calculate color element locally
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    if (serverCapabilities && ![serverCapabilities.colorElement isEqualToString:@""]) {
+    if (serverCapabilities && serverCapabilities.colorElement && ![serverCapabilities.colorElement isKindOfClass:[NSNull class]] && ![serverCapabilities.colorElement isEqualToString:@""]) {
         elementColor = [NCUtils colorFromHexString:serverCapabilities.colorElement];
     }
     return elementColor;
