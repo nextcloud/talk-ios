@@ -67,8 +67,11 @@ BOOL const useServerThemimg = YES;
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-        if (serverCapabilities && ![serverCapabilities.color isEqualToString:@""]) {
-            color = [NCUtils colorFromHexString:serverCapabilities.color];
+        if (serverCapabilities && serverCapabilities.color && ![serverCapabilities.color isKindOfClass:[NSNull class]] && ![serverCapabilities.color isEqualToString:@""]) {
+            UIColor *themeColor = [NCUtils colorFromHexString:serverCapabilities.color];
+            if (themeColor) {
+                color = themeColor;
+            }
         }
     }
     return color;
@@ -80,8 +83,11 @@ BOOL const useServerThemimg = YES;
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-        if (serverCapabilities && ![serverCapabilities.colorText isEqualToString:@""]) {
-            textColor = [NCUtils colorFromHexString:serverCapabilities.colorText];
+        if (serverCapabilities && serverCapabilities.colorText && ![serverCapabilities.colorText isKindOfClass:[NSNull class]] && ![serverCapabilities.colorText isEqualToString:@""]) {
+            UIColor *themeTextColor = [NCUtils colorFromHexString:serverCapabilities.colorText];
+            if (themeTextColor) {
+                textColor = themeTextColor;
+            }
         }
     }
     return textColor;
@@ -94,8 +100,11 @@ BOOL const useServerThemimg = YES;
     // We could check it once we calculate color element locally
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    if (serverCapabilities && ![serverCapabilities.colorElement isEqualToString:@""]) {
-        elementColor = [NCUtils colorFromHexString:serverCapabilities.colorElement];
+    if (serverCapabilities && serverCapabilities.colorElement && ![serverCapabilities.colorElement isKindOfClass:[NSNull class]] && ![serverCapabilities.colorElement isEqualToString:@""]) {
+        UIColor *color = [NCUtils colorFromHexString:serverCapabilities.colorElement];
+        if (color) {
+            elementColor = color;
+        }
     }
     return elementColor;
 }
