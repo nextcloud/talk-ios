@@ -37,7 +37,7 @@
     self = [self init];
     
     if (self) {
-        UIColor *themeColor = [NCAppBranding themeTextColor];
+        UIColor *themeTextColor = [NCAppBranding themeTextColor];
         
         // Use UIButton as CustomView in UIBarButtonItem to have a fixed-size item
         self.innerButton = [[UIButton alloc] init];
@@ -45,11 +45,11 @@
         [self.innerButton setImage:buttonImage forState:UIControlStateNormal];
         self.innerButton.tintColor = UIColor.whiteColor;
         self.innerButton.frame = CGRectMake(0, 0, buttonWidth, 0);
-        self.innerButton.tintColor = themeColor;
+        self.innerButton.tintColor = themeTextColor;
         
         // Make sure the size of UIBarButtonItem stays the same when displaying the ActivityIndicator
         self.activityIndicator = [[UIActivityIndicatorView alloc] init];
-        self.activityIndicator.color = themeColor;
+        self.activityIndicator.color = themeTextColor;
         self.activityIndicator.frame = CGRectMake(0, 0, buttonWidth, 0);
         
         [self setCustomView:self.innerButton];
