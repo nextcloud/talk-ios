@@ -48,8 +48,8 @@
         self.innerButton.tintColor = themeColor;
         
         // Make sure the size of UIBarButtonItem stays the same when displaying the ActivityIndicator
-        self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-        self.activityIndicator.tintColor = themeColor;
+        self.activityIndicator = [[UIActivityIndicatorView alloc] init];
+        self.activityIndicator.color = themeColor;
         self.activityIndicator.frame = CGRectMake(0, 0, buttonWidth, 0);
         
         [self setCustomView:self.innerButton];
