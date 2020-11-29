@@ -139,8 +139,7 @@ NSString *const kRoomTypeScreen = @"screen";
     NSDictionary *sender = [jsonDict objectForKey:kNCExternalSignalingMessageSenderKey];
     NSString *messageType = [sender objectForKey:kNCSignalingMessageTypeKey];
     if ([messageType isEqualToString:kNCExternalSignalingMessageTypeSessionKey]) {
-        NSDictionary *payload = [data objectForKey:kNCSignalingMessagePayloadKey];
-        NSString *type = [payload objectForKey:kNCSignalingMessageTypeKey];
+        NSString *type = [data objectForKey:kNCSignalingMessageTypeKey];
         if ([type isEqualToString:kNCSignalingMessageTypeCandidateKey]) {
             return [[NCICECandidateMessage alloc] initWithValues:jsonDict];
         } else if ([type isEqualToString:kNCSignalingMessageTypeOfferKey] ||
