@@ -3,7 +3,8 @@
 ## Using genstrings tool
 
 ```
-$ genstrings -o en.lproj *.m
+$ cd NextcloudTalk
+$ genstrings -o en.lproj *.m ../ShareExtension/*.m ../NotificationServiceExtension/*.m ../ThirdParty/SlackTextViewController/Source/*.m
 ```
 
 ## Showing .strings file diff
