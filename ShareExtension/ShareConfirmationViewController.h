@@ -21,9 +21,13 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <UIKit/UIPageControl.h>
 
 #import "NCRoom.h"
 #import "NCDatabaseManager.h"
+#import "ShareConfirmationCollectionViewCell.h"
+#import "ShareItem.h"
+#import "ShareItemController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,27 +54,18 @@ typedef enum ShareConfirmationType {
 @property (strong, nonatomic) TalkAccount *account;
 @property (strong, nonatomic) ServerCapabilities *serverCapabilities;
 @property (assign, nonatomic) ShareConfirmationType type;
-@property (strong, nonatomic) NSString *sharedText;
-@property (strong, nonatomic) NSString *sharedImageName;
-@property (strong, nonatomic) UIImage *sharedImage;
-@property (strong, nonatomic) NSString *sharedFileName;
-@property (strong, nonatomic) UIImage *sharedFileImage;
-@property (strong, nonatomic) NSURL *sharedFileURL;
-@property (strong, nonatomic) NSData *sharedFile;
 @property (assign, nonatomic) BOOL isModal;
+@property (strong, nonatomic) ShareItemController *shareItemController;
 
-
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomSpacer;
 @property (weak, nonatomic) IBOutlet UIView *toBackgroundView;
 @property (weak, nonatomic) IBOutlet UITextView *toTextView;
 @property (weak, nonatomic) IBOutlet UITextView *shareTextView;
-@property (weak, nonatomic) IBOutlet UIImageView *shareImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *shareFileImageView;
-@property (weak, nonatomic) IBOutlet UITextView *shareFileTextView;
+@property (weak, nonatomic) IBOutlet UICollectionView *shareCollectionView;
+@property (weak, nonatomic) IBOutlet UIPageControl *pageControl;
 
 - (id)initWithRoom:(NCRoom *)room account:(TalkAccount *)account serverCapabilities:(ServerCapabilities *)serverCapabilities;
-- (void)setSharedFileWithFileURL:(NSURL *)fileURL;
-- (void)setSharedFileWithFileURL:(NSURL *)fileURL andFileName:(NSString *_Nullable)fileName;
-- (void)setSharedImage:(UIImage *)image withImageName:(NSString *)imageName;
+- (void)shareText:(NSString *)text;
 
 @end
 

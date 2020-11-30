@@ -58,6 +58,7 @@
 #import "UIImageView+Letters.h"
 #import "UIView+Toast.h"
 #import "BarButtonItemWithActivity.h"
+#import "ShareItem.h"
 
 typedef enum NCChatMessageAction {
     kNCChatMessageActionReply = 1,
@@ -908,21 +909,18 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
     if ([mediaType isEqualToString:@"public.image"]) {
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-        NSString *imageName = [NSString stringWithFormat:@"IMG_%.f.jpg", [[NSDate date] timeIntervalSince1970] * 1000];
+        
         [self dismissViewControllerAnimated:YES completion:^{
             [self presentViewController:navigationController animated:YES completion:^{
-                [shareConfirmationVC setSharedImage:image withImageName:imageName];
+                [shareConfirmationVC.shareItemController addItemWithImage:image];
             }];
         }];
     } else if ([mediaType isEqualToString:@"public.movie"]) {
         NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
-        NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
-        __block NSError *error;
-        [coordinator coordinateReadingItemAtURL:videoURL options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
-            NSString *fileName = [NSString stringWithFormat:@"IMG_%.f.%@", [[NSDate date] timeIntervalSince1970] * 1000, [videoURL pathExtension]];
-            [shareConfirmationVC setSharedFileWithFileURL:newURL andFileName:fileName];
-            [self dismissViewControllerAnimated:YES completion:^{
-                [self presentViewController:navigationController animated:YES completion:nil];
+        
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self presentViewController:navigationController animated:YES completion:^{
+                [shareConfirmationVC.shareItemController addItemWithURL:videoURL];
             }];
         }];
     }
@@ -937,25 +935,15 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
-    shareConfirmationVC.delegate = self;
-    shareConfirmationVC.isModal = YES;
-    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:shareConfirmationVC];
-    
-    if (controller.documentPickerMode == UIDocumentPickerModeImport) {
-        NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
-        __block NSError *error;
-        [coordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
-            [shareConfirmationVC setSharedFileWithFileURL:newURL];
-            [self presentViewController:navigationController animated:YES completion:nil];
-        }];
-    }
+    [self shareDocumentsWithURLs:@[url] fromController:controller];
 }
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
 {
+    [self shareDocumentsWithURLs:urls fromController:controller];
+}
+
+- (void)shareDocumentsWithURLs:(NSArray<NSURL *> *)urls fromController:(UIDocumentPickerViewController *)controller {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
@@ -963,15 +951,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     shareConfirmationVC.isModal = YES;
     NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:shareConfirmationVC];
     
-    // Just grab the first item for now
-    NSURL *url = urls.firstObject;
-    
     if (controller.documentPickerMode == UIDocumentPickerModeImport) {
-        NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
-        __block NSError *error;
-        [coordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
-            [shareConfirmationVC setSharedFileWithFileURL:newURL];
-            [self presentViewController:navigationController animated:YES completion:nil];
+        [self presentViewController:navigationController animated:YES completion:^{
+            for (NSURL* url in urls) {
+                [shareConfirmationVC.shareItemController addItemWithURL:url];
+            }
         }];
     }
 }

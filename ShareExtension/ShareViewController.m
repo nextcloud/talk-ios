@@ -207,11 +207,8 @@
                                           if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
                                               NSLog(@"Shared Video = %@", item);
                                               NSURL *videoURL = (NSURL *)item;
-                                              NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
-                                              __block NSError *error;
-                                              [coordinator coordinateReadingItemAtURL:videoURL options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
-                                                  [shareConfirmationVC setSharedFileWithFileURL:newURL];
-                                              }];
+                                            
+                                              [shareConfirmationVC.shareItemController addItemWithURL:videoURL];
                                           }
                                       }];
                 return;
@@ -224,12 +221,9 @@
                                       completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
                                           if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
                                               NSLog(@"Shared File URL = %@", item);
-                                              NSURL *fileUrl = (NSURL *)item;
-                                              NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
-                                              __block NSError *error;
-                                              [coordinator coordinateReadingItemAtURL:fileUrl options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
-                                                  [shareConfirmationVC setSharedFileWithFileURL:newURL];
-                                              }];
+                                              NSURL *fileURL = (NSURL *)item;
+                                              
+                                              [shareConfirmationVC.shareItemController addItemWithURL:fileURL];
                                           }
                                       }];
                 return;
@@ -242,13 +236,12 @@
                                           if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
                                               NSLog(@"Shared Image = %@", item);
                                               NSURL *imageURL = (NSURL *)item;
-                                              [shareConfirmationVC setSharedFileWithFileURL:imageURL];
+                                              [shareConfirmationVC.shareItemController addItemWithURL:imageURL];
                                           } else if ([(NSObject *)item isKindOfClass:[UIImage class]]) {
                                               // Occurs when sharing a screenshot
                                               NSLog(@"Shared UIImage = %@", item);
                                               UIImage *image = (UIImage *)item;
-                                              NSString *imageName = [NSString stringWithFormat:@"IMG_%.f.jpg", [[NSDate date] timeIntervalSince1970] * 1000];
-                                              [shareConfirmationVC setSharedImage:image withImageName:imageName];
+                                              [shareConfirmationVC.shareItemController addItemWithImage:image];
                                           }
                                       }];
                 return;
@@ -261,7 +254,7 @@
                                           if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
                                               NSLog(@"Shared URL = %@", item);
                                               NSURL *sharedURL = (NSURL *)item;
-                                              [shareConfirmationVC setSharedText:sharedURL.absoluteString];
+                                              [shareConfirmationVC shareText:sharedURL.absoluteString];
                                           }
                                       }];
             }
@@ -273,7 +266,7 @@
                                           if ([(NSObject *)item isKindOfClass:[NSString class]]) {
                                               NSLog(@"Shared Text = %@", item);
                                               NSString *sharedText = (NSString *)item;
-                                              [shareConfirmationVC setSharedText:sharedText];
+                                              [shareConfirmationVC shareText:sharedText];
                                           }
                                       }];
             }

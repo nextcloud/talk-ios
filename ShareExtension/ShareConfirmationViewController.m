@@ -21,6 +21,7 @@
  */
 
 #import "ShareConfirmationViewController.h"
+#import "ShareConfirmationCollectionViewCell.h"
 
 #import <NCCommunication/NCCommunication.h>
 
@@ -30,8 +31,10 @@
 #import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "MBProgressHUD.h"
+#import <QuickLook/QuickLook.h>
+#import <QuickLookThumbnailing/QuickLookThumbnailing.h>
 
-@interface ShareConfirmationViewController () <NCCommunicationCommonDelegate>
+@interface ShareConfirmationViewController () <NCCommunicationCommonDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, QLPreviewControllerDataSource, QLPreviewControllerDelegate, ShareItemControllerDelegate>
 {
     UIBarButtonItem *_sendButton;
     UIActivityIndicatorView *_sharingIndicatorView;
@@ -75,6 +78,11 @@
         self.navigationItem.scrollEdgeAppearance = appearance;
     }
     
+    self.pageControl.currentPageIndicatorTintColor = [NCAppBranding themeColor];
+    self.pageControl.pageIndicatorTintColor = [NCAppBranding placeholderColor];
+    self.pageControl.hidesForSinglePage = YES;
+    self.pageControl.numberOfPages = 1;
+    
     if (_isModal) {
         UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                       target:self action:@selector(cancelButtonPressed)];
@@ -106,8 +114,29 @@
     NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:NSLocalizedString(@"To: %@", nil), _room.displayName] attributes:attributes];
     [toString addAttributes:subAttribute range:NSMakeRange(0, 3)];
     self.toTextView.attributedText = toString;
+        
+    self.shareCollectionView.delegate = self;
     
-    [self setUIForShareType:_type];
+    self.shareItemController = [[ShareItemController alloc] init];
+    self.shareItemController.delegate = self;
+    
+    NSBundle *bundle = [NSBundle bundleForClass:[ShareConfirmationCollectionViewCell class]];
+    [self.shareCollectionView registerNib:[UINib nibWithNibName:kShareConfirmationTableCellNibName bundle:bundle] forCellWithReuseIdentifier:kShareConfirmationCellIdentifier];
+    
+    [[NSNotificationCenter defaultCenter]
+                         addObserver:self
+                            selector:@selector(keyboardWillShow:)
+                                name:UIKeyboardWillShowNotification
+                              object:nil];
+    
+    _type = ShareConfirmationTypeFile;
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    if (_type == ShareConfirmationTypeText) {
+        [self.shareTextView becomeFirstResponder];
+    }
 }
 
 - (void)cancelButtonPressed
@@ -119,61 +148,22 @@
 {
     if (_type == ShareConfirmationTypeText) {
         [self sendSharedText];
-    } else if (_type == ShareConfirmationTypeImage ||
-               _type == ShareConfirmationTypeFile  ||
-               _type == ShareConfirmationTypeImageFile) {
-        [self uploadAndShareFile];
+    } else {
+        [self uploadAndShareFiles];
     }
     
     [self startAnimatingSharingIndicator];
 }
 
-- (void)setSharedText:(NSString *)sharedText
+- (void)shareText:(NSString *)sharedText
 {
-    _sharedText = sharedText;
-    
     _type = ShareConfirmationTypeText;
-    [self setUIForShareType:_type];
-}
-
-- (void)setSharedFileWithFileURL:(NSURL *)fileURL
-{
-    [self setSharedFileWithFileURL:fileURL andFileName:nil];
-}
-
-- (void)setSharedFileWithFileURL:(NSURL *)fileURL andFileName:(NSString *_Nullable)fileName
-{
-    _sharedFileURL = fileURL;
-    _sharedFileName = fileName ? fileName : [fileURL lastPathComponent];
-    _sharedFile = [NSData dataWithContentsOfURL:fileURL];
     
-    _type = ShareConfirmationTypeFile;
-    
-    UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:fileURL]];
-    if (image) {
-        _type = ShareConfirmationTypeImageFile;
-        _sharedImage = image;
-    }
-    
-    CFStringRef fileExtension = (__bridge CFStringRef)[fileURL pathExtension];
-    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtension, NULL);
-    CFStringRef MIMEType = UTTypeCopyPreferredTagWithClass(UTI, kUTTagClassMIMEType);
-    CFRelease(UTI);
-    
-    NSString *mimeType = (__bridge NSString *)MIMEType;
-    NSString *imageName = [[NCUtils previewImageForFileMIMEType:mimeType] stringByAppendingString:@"-chat-preview"];
-    _sharedFileImage = [UIImage imageNamed:imageName];
-    
-    [self setUIForShareType:_type];
-}
-
-- (void)setSharedImage:(UIImage *)image withImageName:(NSString *)imageName
-{
-    _sharedImage = image;
-    _sharedImageName = imageName;
-    
-    _type = ShareConfirmationTypeImage;
-    [self setUIForShareType:_type];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.shareCollectionView.hidden = YES;
+        self.shareTextView.hidden = NO;
+        self.shareTextView.text = sharedText;
+    });
 }
 
 - (void)setIsModal:(BOOL)isModal
@@ -185,7 +175,7 @@
 
 - (void)sendSharedText
 {
-    [[NCAPIController sharedInstance] sendChatMessage:_sharedText toRoom:_room.token displayName:nil replyTo:-1 referenceId:nil forAccount:_account withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] sendChatMessage:self.shareTextView.text toRoom:_room.token displayName:nil replyTo:-1 referenceId:nil forAccount:_account withCompletionBlock:^(NSError *error) {
         if (error) {
             [self.delegate shareConfirmationViewControllerDidFailed:self];
             NSLog(@"Failed to send shared item");
@@ -196,41 +186,50 @@
     }];
 }
 
-- (void)uploadAndShareFile
+- (void)updateHudProgress
 {
-    NSString *fileName = (_type == ShareConfirmationTypeImage) ? _sharedImageName : _sharedFileName;
-    NSString *fileLocalPath = [self localFilePath];
-    if (_type == ShareConfirmationTypeImage) {
-        NSData *pngData = UIImageJPEGRepresentation(_sharedImage, 0.7);
-        [pngData writeToFile:fileLocalPath atomically:YES];
-    } else {
-        [_sharedFile writeToFile:fileLocalPath atomically:YES];
+    if (!_hud) {
+        return;
     }
     
-    _hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    _hud.mode = MBProgressHUDModeAnnularDeterminate;
-    _hud.label.text = NSLocalizedString(@"Uploading file", nil);
-    if (_type == ShareConfirmationTypeImage || _type == ShareConfirmationTypeImageFile) {
-        _hud.label.text = NSLocalizedString(@"Uploading image", nil);
-    }
-    
-    [self checkForUniqueNameAndUploadFileWithName:fileName withOriginalName:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        CGFloat progress = 0;
+        long items = 0;
+        
+        for (ShareItem *item in self->_shareItemController.shareItems) {
+            progress += item.uploadProgress;
+            items++;
+        }
+        
+        self->_hud.progress = (progress / items);
+    });
 }
 
-- (void)checkForUniqueNameAndUploadFileWithName:(NSString *)fileName withOriginalName:(BOOL)isOriginalName
+- (void)uploadAndShareFiles
 {
-    NSString *filePath = [self serverFilePathForFileName:fileName];
-    NSString *fileServerURL = [self serverFileURLForFilePath:filePath];
-    NSString *fileLocalPath = [self localFilePath];
+    _hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    _hud.mode = MBProgressHUDModeAnnularDeterminate;
+    _hud.label.text = [NSString stringWithFormat:NSLocalizedString(@"Uploading %ld elements", nil), [self.shareItemController.shareItems count]];
+    
+    for (ShareItem *item in self.shareItemController.shareItems) {
+        NSLog(@"Uploading %@", item.fileURL);
+        [self checkForUniqueNameAndUploadFileWithName:item.fileName withItem:item withOriginalName:YES];
+    }
+}
+
+- (void)checkForUniqueNameAndUploadFileWithName:(NSString *)fileName withItem:(ShareItem *)item withOriginalName:(BOOL)isOriginalName
+{
+    NSString *fileServerPath = [self serverFilePathForFileName:fileName];
+    NSString *fileServerURL = [self serverFileURLForFilePath:fileServerPath];
     
     [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:fileServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
-        // File already exist
+        // File already exists
         if (errorCode == 0 && files.count == 1) {
             NSString *alternativeName = [self alternativeNameForFileName:fileName original:isOriginalName];
-            [self checkForUniqueNameAndUploadFileWithName:alternativeName withOriginalName:NO];
-        // File do not exist
+            [self checkForUniqueNameAndUploadFileWithName:alternativeName withItem:item withOriginalName:NO];
+        // File does not exist
         } else if (errorCode == 404) {
-            [self uploadFileToServerURL:fileServerURL withFilePath:filePath locatedInLocalPath:fileLocalPath];
+            [self uploadFileToServerURL:fileServerURL withFilePath:fileServerPath withItem:item];
         } else {
             NSLog(@"Error checking file name");
             [self stopAnimatingSharingIndicator];
@@ -239,7 +238,7 @@
     }];
 }
 
-- (void)checkAttachmentFolderAndUploadFileToServerURL:(NSString *)fileServerURL withFilePath:(NSString *)filePath locatedInLocalPath:(NSString *)fileLocalPath
+- (void)checkAttachmentFolderAndUploadFileToServerURL:(NSString *)fileServerURL withFilePath:(NSString *)filePath withItem:(ShareItem *)item
 {
     NSString *attachmentFolderServerURL = [self attachmentFolderServerURL];
     [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
@@ -247,7 +246,7 @@
         if (errorCode == 404) {
             [[NCCommunication shared] createFolder:attachmentFolderServerURL customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *account, NSString *nose, NSDate *date, NSInteger errorCode, NSString *errorDescription) {
                 if (errorCode == 0) {
-                    [self uploadFileToServerURL:fileServerURL withFilePath:filePath locatedInLocalPath:fileLocalPath];
+                    [self uploadFileToServerURL:fileServerURL withFilePath:filePath withItem:item];
                 }
             }];
         } else {
@@ -258,10 +257,11 @@
     }];
 }
 
-- (void)uploadFileToServerURL:(NSString *)fileServerURL withFilePath:(NSString *)filePath locatedInLocalPath:(NSString *)fileLocalPath
+- (void)uploadFileToServerURL:(NSString *)fileServerURL withFilePath:(NSString *)filePath withItem:(ShareItem *)item
 {
-    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:fileLocalPath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
-        self->_hud.progress = progress.fractionCompleted;
+    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:item.filePath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
+        item.uploadProgress = progress.fractionCompleted;
+        [self updateHudProgress];
     } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSDictionary *allHeaderFields, NSInteger errorCode, NSString *errorDescription) {
         NSLog(@"Upload completed with error code: %ld", (long)errorCode);
         [self->_hud hideAnimated:YES];
@@ -272,11 +272,12 @@
                     NSLog(@"Failed to send shared file");
                 } else {
                     [self.delegate shareConfirmationViewControllerDidFinish:self];
+                    [self.shareItemController removeItem:item];
                 }
                 [self stopAnimatingSharingIndicator];
             }];
         } else if (errorCode == 404) {
-            [self checkAttachmentFolderAndUploadFileToServerURL:fileServerURL withFilePath:filePath locatedInLocalPath:fileLocalPath];
+            [self checkAttachmentFolderAndUploadFileToServerURL:fileServerURL withFilePath:filePath withItem:item];
         } else {
             [self.delegate shareConfirmationViewControllerDidFailed:self];
         }
@@ -301,14 +302,6 @@
 - (NSString *)serverFileURLForFilePath:(NSString *)filePath
 {
     return [NSString stringWithFormat:@"%@/%@%@", _account.server, _serverCapabilities.webDAVRoot, filePath];
-}
-
-- (NSString *)localFilePath
-{
-    NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
-    NSURL *fileLocalURL = [[tmpDirURL URLByAppendingPathComponent:@"file"] URLByAppendingPathExtension:@"data"];
-    
-    return [fileLocalURL path];
 }
 
 - (NSString *)alternativeNameForFileName:(NSString *)fileName original:(BOOL)isOriginal
@@ -355,47 +348,148 @@
     });
 }
 
-- (void)setUIForShareType:(ShareConfirmationType)shareConfirmationType
+-(void)keyboardWillShow:(NSNotification *)notification
+ {
+     // see https://stackoverflow.com/a/22719225/2512312
+     NSDictionary *info = notification.userInfo;
+     NSValue *value = info[UIKeyboardFrameEndUserInfoKey];
+
+     CGRect rawFrame = [value CGRectValue];
+     CGRect keyboardFrame = [self.view convertRect:rawFrame fromView:nil];
+     
+     [UIView animateWithDuration:0.3 animations:^{
+         self.bottomSpacer.constant = keyboardFrame.size.height;
+         [self.view layoutIfNeeded];
+     }];
+ }
+
+#pragma mark - ScrollView/CollectionView
+
+- (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    ShareConfirmationCollectionViewCell *cell = (ShareConfirmationCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kShareConfirmationCellIdentifier forIndexPath:indexPath];
+    ShareItem *item = [self.shareItemController.shareItems objectAtIndex:indexPath.row];
+    
+    // Setting placeholder here in case we can't generate any other preview
+    [cell setPlaceHolderImage:item.placeholderImage];
+    [cell setPlaceHolderText:item.fileName];
+
+    // Check if we got an image
+    NSData *fileData = [NSData dataWithContentsOfURL:item.fileURL];
+    UIImage *image = [UIImage imageWithData:fileData];
+    
+    if (image) {
+        // We're able to get an image directly from the fileURL -> use it
+        [cell setPreviewImage:image];
+    } else {
+        // We need to generate our own preview/thumbnail here
+        [self generatePreviewForCell:cell withCollectionView:collectionView withItem:item];
+    }
+    
+    return cell;
+}
+
+- (void)generatePreviewForCell:(ShareConfirmationCollectionViewCell *)cell withCollectionView:(UICollectionView *)collectionView withItem:(ShareItem *)item
 {
+    if (@available(iOS 13.0, *)) {
+        CGSize size = CGSizeMake(collectionView.bounds.size.width, collectionView.bounds.size.height);
+        CGFloat scale = [UIScreen mainScreen].scale;
+        
+        // updateHandler might be called multiple times, starting from low quality representation to high-quality
+        QLThumbnailGenerationRequest *request = [[QLThumbnailGenerationRequest alloc] initWithFileAtURL:item.fileURL size:size scale:scale representationTypes:(QLThumbnailGenerationRequestRepresentationTypeLowQualityThumbnail | QLThumbnailGenerationRequestRepresentationTypeThumbnail)];
+        [QLThumbnailGenerator.sharedGenerator generateRepresentationsForRequest:request updateHandler:^(QLThumbnailRepresentation * _Nullable thumbnail, QLThumbnailRepresentationType type, NSError * _Nullable error) {
+            if (error) {
+                return;
+            }
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [cell setPreviewImage:thumbnail.UIImage];
+            });
+        }];
+    }
+}
+
+- (NSInteger)collectionView:(nonnull UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return [self.shareItemController.shareItems count];
+}
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return CGSizeMake(collectionView.bounds.size.width, collectionView.bounds.size.height);
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    // see: https://stackoverflow.com/a/46181277/2512312
     dispatch_async(dispatch_get_main_queue(), ^{
-        switch (shareConfirmationType) {
-            case ShareConfirmationTypeText:
-            {
-                self.shareTextView.hidden = NO;
-                self.shareImageView.hidden = YES;
-                self.shareFileImageView.hidden = YES;
-                self.shareFileTextView.hidden = YES;
-                
-                self.shareTextView.text = self->_sharedText;
-                self.shareTextView.editable = NO;
-            }
-                break;
-            case ShareConfirmationTypeImage:
-            case ShareConfirmationTypeImageFile:
-            {
-                self.shareTextView.hidden = YES;
-                self.shareImageView.hidden = NO;
-                self.shareFileImageView.hidden = YES;
-                self.shareFileTextView.hidden = YES;
-                
-                [self.shareImageView setImage:self->_sharedImage];
-            }
-                break;
-            case ShareConfirmationTypeFile:
-            {
-                self.shareTextView.hidden = YES;
-                self.shareImageView.hidden = YES;
-                self.shareFileImageView.hidden = NO;
-                self.shareFileTextView.hidden = NO;
-                
-                [self.shareFileImageView setImage:self->_sharedFileImage];
-                self.shareFileTextView.text = self->_sharedFileName;
-                self.shareFileTextView.editable = NO;
-            }
-                break;
-            default:
-                break;
-        }
+        self.pageControl.currentPage = scrollView.contentOffset.x / scrollView.frame.size.width;
+    });
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    QLPreviewController * preview = [[QLPreviewController alloc] init];
+    preview.currentPreviewItemIndex = indexPath.row;
+    preview.dataSource = self;
+    preview.delegate = self;
+    
+    preview.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
+    preview.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+    preview.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
+
+    UIColor *themeColor = [NCAppBranding themeColor];
+    if (@available(iOS 13.0, *)) {
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        appearance.backgroundColor = themeColor;
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+        preview.navigationItem.standardAppearance = appearance;
+        preview.navigationItem.compactAppearance = appearance;
+        preview.navigationItem.scrollEdgeAppearance = appearance;
+    }
+
+    [self.navigationController pushViewController:preview animated:YES];
+}
+
+#pragma mark - PreviewController
+
+- (nonnull id<QLPreviewItem>)previewController:(nonnull QLPreviewController *)controller previewItemAtIndex:(NSInteger)index {
+    // Don't use index here, as this relates to numberOfPreviewItems
+    // When we have numberOfPreviewItema > 1 this will show an additional list of items
+    ShareItem *item = [self.shareItemController.shareItems objectAtIndex:self.shareCollectionView.indexPathsForSelectedItems.firstObject.row];
+    
+    if (item && item.fileURL) {
+        return item.fileURL;
+    }
+    
+    return nil;
+}
+
+- (NSInteger)numberOfPreviewItemsInPreviewController:(QLPreviewController *)controller
+{
+    return 1;
+}
+
+- (QLPreviewItemEditingMode)previewController:(QLPreviewController *)controller editingModeForPreviewItem:(id<QLPreviewItem>)previewItem  API_AVAILABLE(ios(13.0)) {
+    return QLPreviewItemEditingModeCreateCopy;
+}
+
+- (void)previewController:(QLPreviewController *)controller didSaveEditedCopyOfPreviewItem:(id<QLPreviewItem>)previewItem atURL:(NSURL *)modifiedContentsURL {
+    ShareItem *item = [self.shareItemController.shareItems objectAtIndex:self.shareCollectionView.indexPathsForSelectedItems.firstObject.row];
+    
+    if (item) {
+        [self.shareItemController updateItem:item withURL:modifiedContentsURL];
+    }
+}
+
+
+#pragma mark - ShareItemController Delegate
+ 
+- (void)shareItemControllerItemsChanged:(nonnull ShareItemController *)shareItemController {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.shareCollectionView reloadData];
+        self.pageControl.numberOfPages = [self.shareItemController.shareItems count];
     });
 }
 
@@ -410,6 +504,5 @@
         completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     }
 }
-
 
 @end

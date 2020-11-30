@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -11,10 +11,10 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ShareConfirmationViewController">
             <connections>
-                <outlet property="shareFileImageView" destination="5QM-q4-3rz" id="bRC-rU-qqg"/>
-                <outlet property="shareFileTextView" destination="Dak-dL-eGs" id="Xgp-xQ-TAz"/>
-                <outlet property="shareImageView" destination="MWY-NH-jyC" id="VP1-ek-up2"/>
-                <outlet property="shareTextView" destination="nd6-Tq-h5e" id="Dzc-cu-QJt"/>
+                <outlet property="bottomSpacer" destination="zBa-uc-p45" id="Hng-Vo-rq0"/>
+                <outlet property="pageControl" destination="82n-bL-hfY" id="qyS-on-PM3"/>
+                <outlet property="shareCollectionView" destination="uJR-VI-6WE" id="5ga-Ah-u1s"/>
+                <outlet property="shareTextView" destination="QKC-YS-SNr" id="EY7-7j-ubB"/>
                 <outlet property="toBackgroundView" destination="ZlP-A7-sH2" id="DFl-6K-ybn"/>
                 <outlet property="toTextView" destination="zFH-sS-bfQ" id="coA-l6-J3O"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
@@ -25,10 +25,12 @@
             <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZlP-A7-sH2">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZlP-A7-sH2">
                     <rect key="frame" x="0.0" y="0.0" width="414" height="36"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" white="0.94876391267123283" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="36" id="6e8-hc-OT7"/>
+                    </constraints>
                 </view>
                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" text="To:" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zFH-sS-bfQ">
                     <rect key="frame" x="20" y="0.0" width="374" height="36"/>
@@ -37,33 +39,56 @@
                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                 </textView>
-                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="nd6-Tq-h5e">
-                    <rect key="frame" x="20" y="56" width="374" height="718"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                <textView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="QKC-YS-SNr">
+                    <rect key="frame" x="20" y="56" width="374" height="698"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <color key="textColor" systemColor="labelColor"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                 </textView>
-                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Dak-dL-eGs">
-                    <rect key="frame" x="20" y="184" width="374" height="622"/>
+                <pageControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="2" translatesAutoresizingMaskIntoConstraints="NO" id="82n-bL-hfY">
+                    <rect key="frame" x="20" y="746" width="374" height="28"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <color key="pageIndicatorTintColor" systemColor="secondaryLabelColor"/>
+                    <color key="currentPageIndicatorTintColor" systemColor="labelColor"/>
+                </pageControl>
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" pagingEnabled="YES" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="uJR-VI-6WE">
+                    <rect key="frame" x="0.0" y="56" width="414" height="682"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                    <color key="textColor" systemColor="labelColor"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                </textView>
-                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="5QM-q4-3rz">
-                    <rect key="frame" x="20" y="56" width="120" height="120"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                </imageView>
-                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MWY-NH-jyC">
-                    <rect key="frame" x="20" y="44" width="374" height="730"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                </imageView>
+                    <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="l35-ib-MXz">
+                        <size key="itemSize" width="300" height="700"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="0DN-Yc-6ng"/>
+                        <outlet property="delegate" destination="-1" id="tfq-Xf-WwY"/>
+                    </connections>
+                </collectionView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7Tz-V8-nzC">
+                    <rect key="frame" x="80" y="774" width="254" height="0.0"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" id="zBa-uc-p45"/>
+                    </constraints>
+                </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="Q5M-cg-NOt"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="7Tz-V8-nzC" firstAttribute="bottom" secondItem="Q5M-cg-NOt" secondAttribute="bottom" id="1Sa-Qp-h6d"/>
+                <constraint firstItem="QKC-YS-SNr" firstAttribute="top" secondItem="ZlP-A7-sH2" secondAttribute="bottom" constant="20" id="7ld-4t-a7i"/>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="QKC-YS-SNr" secondAttribute="trailing" constant="20" id="8al-lO-vQR"/>
+                <constraint firstItem="ZlP-A7-sH2" firstAttribute="leading" secondItem="Q5M-cg-NOt" secondAttribute="leading" id="D5G-RT-0po"/>
+                <constraint firstItem="QKC-YS-SNr" firstAttribute="leading" secondItem="Q5M-cg-NOt" secondAttribute="leading" constant="20" id="Fca-UI-irX"/>
+                <constraint firstItem="7Tz-V8-nzC" firstAttribute="leading" secondItem="Q5M-cg-NOt" secondAttribute="leading" constant="80" id="PdK-CR-8Pj"/>
+                <constraint firstItem="7Tz-V8-nzC" firstAttribute="top" secondItem="QKC-YS-SNr" secondAttribute="bottom" constant="20" id="RMR-5S-FnI"/>
+                <constraint firstItem="ZlP-A7-sH2" firstAttribute="trailing" secondItem="Q5M-cg-NOt" secondAttribute="trailing" id="bHi-tw-Hdl"/>
+                <constraint firstItem="ZlP-A7-sH2" firstAttribute="top" secondItem="Q5M-cg-NOt" secondAttribute="top" id="fCt-jr-xcs"/>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="7Tz-V8-nzC" secondAttribute="trailing" constant="80" id="fYg-Iw-9i2"/>
+            </constraints>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
             <point key="canvasLocation" x="137.68115942028987" y="124.55357142857142"/>
         </view>
@@ -71,6 +96,9 @@
     <resources>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
