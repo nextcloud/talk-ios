@@ -33,9 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef enum ShareConfirmationType {
     ShareConfirmationTypeText = 0,
-    ShareConfirmationTypeImage,
-    ShareConfirmationTypeFile,
-    ShareConfirmationTypeImageFile
+    ShareConfirmationTypeItem
 } ShareConfirmationType;
 
 @class ShareConfirmationViewController;

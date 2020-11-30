@@ -129,7 +129,7 @@
                                 name:UIKeyboardWillShowNotification
                               object:nil];
     
-    _type = ShareConfirmationTypeFile;
+    _type = ShareConfirmationTypeItem;
 }
 
 - (void)viewDidAppear:(BOOL)animated
