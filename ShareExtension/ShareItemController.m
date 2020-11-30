@@ -150,13 +150,8 @@
 
 - (UIImage *)getPlaceholderImageForFileURL:(NSURL *)fileURL
 {
-    CFStringRef fileExtension = (__bridge CFStringRef)[fileURL pathExtension];
-    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtension, NULL);
-    CFStringRef MIMEType = UTTypeCopyPreferredTagWithClass(UTI, kUTTagClassMIMEType);
-    CFRelease(UTI);
-     
-    NSString *mimeType = (__bridge NSString *)MIMEType;
-    NSString *imageName = [[NCUtils previewImageForFileMIMEType:mimeType] stringByAppendingString:@"-chat-preview"];
+    NSString *previewImage = [NCUtils previewImageForFileExtension:[fileURL pathExtension]];
+    NSString *imageName = [previewImage stringByAppendingString:@"-chat-preview"];
     return [UIImage imageNamed:imageName];
 }
 
