@@ -39,6 +39,8 @@
     UIBarButtonItem *_sendButton;
     UIActivityIndicatorView *_sharingIndicatorView;
     MBProgressHUD *_hud;
+    dispatch_group_t _uploadGroup;
+    BOOL _uploadFailed;
 }
 
 @end
@@ -211,10 +213,29 @@
     _hud.mode = MBProgressHUDModeAnnularDeterminate;
     _hud.label.text = [NSString stringWithFormat:NSLocalizedString(@"Uploading %ld elements", nil), [self.shareItemController.shareItems count]];
     
+    _uploadGroup = dispatch_group_create();
+    _uploadFailed = NO;
+    
     for (ShareItem *item in self.shareItemController.shareItems) {
         NSLog(@"Uploading %@", item.fileURL);
+        
+        dispatch_group_enter(_uploadGroup);
         [self checkForUniqueNameAndUploadFileWithName:item.fileName withItem:item withOriginalName:YES];
     }
+    
+    dispatch_group_notify(_uploadGroup, dispatch_get_main_queue(),^{
+        [self stopAnimatingSharingIndicator];
+        [self->_hud hideAnimated:YES];
+        
+        [self->_shareItemController removeAllItems];
+        
+        // TODO: Do error reporting per item
+        if (self->_uploadFailed) {
+            [self.delegate shareConfirmationViewControllerDidFailed:self];
+        } else {
+            [self.delegate shareConfirmationViewControllerDidFinish:self];
+        }
+    });
 }
 
 - (void)checkForUniqueNameAndUploadFileWithName:(NSString *)fileName withItem:(ShareItem *)item withOriginalName:(BOOL)isOriginalName
@@ -232,8 +253,9 @@
             [self uploadFileToServerURL:fileServerURL withFilePath:fileServerPath withItem:item];
         } else {
             NSLog(@"Error checking file name");
-            [self stopAnimatingSharingIndicator];
-            [self.delegate shareConfirmationViewControllerDidFailed:self];
+            
+            self->_uploadFailed = YES;
+            dispatch_group_leave(self->_uploadGroup);
         }
     }];
 }
@@ -251,8 +273,9 @@
             }];
         } else {
             NSLog(@"Error checking attachment folder");
-            [self stopAnimatingSharingIndicator];
-            [self.delegate shareConfirmationViewControllerDidFailed:self];
+            
+            self->_uploadFailed = YES;
+            dispatch_group_leave(self->_uploadGroup);
         }
     }];
 }
@@ -264,24 +287,24 @@
         [self updateHudProgress];
     } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSDictionary *allHeaderFields, NSInteger errorCode, NSString *errorDescription) {
         NSLog(@"Upload completed with error code: %ld", (long)errorCode);
-        [self->_hud hideAnimated:YES];
+
         if (errorCode == 0) {
             [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token withCompletionBlock:^(NSError *error) {
                 if (error) {
-                    [self.delegate shareConfirmationViewControllerDidFailed:self];
                     NSLog(@"Failed to send shared file");
+                    
+                    self->_uploadFailed = YES;
+                    dispatch_group_leave(self->_uploadGroup);
                 } else {
-                    [self.delegate shareConfirmationViewControllerDidFinish:self];
-                    [self.shareItemController removeItem:item];
+                    dispatch_group_leave(self->_uploadGroup);
                 }
-                [self stopAnimatingSharingIndicator];
             }];
         } else if (errorCode == 404) {
             [self checkAttachmentFolderAndUploadFileToServerURL:fileServerURL withFilePath:filePath withItem:item];
         } else {
-            [self.delegate shareConfirmationViewControllerDidFailed:self];
+            self->_uploadFailed = YES;
+            dispatch_group_leave(self->_uploadGroup);
         }
-        [self stopAnimatingSharingIndicator];
     }];
 }
 
