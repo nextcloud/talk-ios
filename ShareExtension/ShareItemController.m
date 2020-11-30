@@ -148,6 +148,13 @@
     [self.delegate shareItemControllerItemsChanged:self];
 }
 
+- (void)removeAllItems
+{
+    for (ShareItem *item in self.shareItems) {
+        [self removeItem:item];
+    }
+}
+
 - (UIImage *)getPlaceholderImageForFileURL:(NSURL *)fileURL
 {
     NSString *previewImage = [NCUtils previewImageForFileExtension:[fileURL pathExtension]];
