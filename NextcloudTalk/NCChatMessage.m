@@ -24,6 +24,7 @@
 
 #import "NCAppBranding.h"
 #import "NCSettingsController.h"
+#import "NextcloudTalk-Swift.h"
 
 NSInteger const kChatMessageGroupTimeDifference = 30;
 
@@ -112,6 +113,15 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     return NO;
 }
 
+- (BOOL)isEmojiMessage
+{
+    if (self.message && self.message.containsOnlyEmoji && self.message.emojiCount <= 3) {
+        return YES;
+    }
+    
+    return NO;
+}
+
 - (NCMessageParameter *)file;
 {
     NCMessageParameter *fileParam = nil;
@@ -192,8 +202,13 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     }
     
     NSMutableAttributedString *attributedMessage = [[NSMutableAttributedString alloc] initWithString:parsedMessage];
-    [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0f] range:NSMakeRange(0,parsedMessage.length)];
     [attributedMessage addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:NSMakeRange(0,parsedMessage.length)];
+    
+    if (self.isEmojiMessage) {
+        [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:36.0f] range:NSMakeRange(0,parsedMessage.length)];
+    } else {
+        [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0f] range:NSMakeRange(0,parsedMessage.length)];
+    }
     
     for (NCMessageParameter *param in parameters) {
         //Set color for mentions

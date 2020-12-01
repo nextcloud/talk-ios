@@ -10,6 +10,9 @@
 		1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */; };
 		1F3D3B23255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */; };
 		1F3D3B24255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */; };
+		1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
+		1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
+		1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -449,6 +452,7 @@
 /* Begin PBXFileReference section */
 		1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarButtonItemWithActivity.m; sourceTree = "<group>"; };
 		1F3D3B21255F109E00230DAE /* BarButtonItemWithActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BarButtonItemWithActivity.h; sourceTree = "<group>"; };
+		1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiUtils.swift; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1177,6 +1181,7 @@
 		2C6DEAB2243CCC7F00AE8437 /* Chat cells */ = {
 			isa = PBXGroup;
 			children = (
+				1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */,
 				2CC7159220C54D080045C789 /* ChatTableViewCell.h */,
 				2CC7159320C54D080045C789 /* ChatTableViewCell.m */,
 				2CA15546208EA1EA00CE8EF0 /* ChatMessageTableViewCell.h */,
@@ -1612,7 +1617,8 @@
 				TargetAttributes = {
 					2C05747C1EDD9E8E00D9E7F2 = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = NKUJUXUJ3B;
+                        DevelopmentTeam = NKUJUXUJ3B;
+						LastSwiftMigration = 1220;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -1631,12 +1637,14 @@
 					};
 					2C62AFA224C08845007E460A = {
 						CreatedOnToolsVersion = 11.5;
-						DevelopmentTeam = NKUJUXUJ3B;
+                        DevelopmentTeam = NKUJUXUJ3B;
+						LastSwiftMigration = 1220;
 						ProvisioningStyle = Automatic;
 					};
 					2CC0014E24A1F0E900A20167 = {
 						CreatedOnToolsVersion = 11.5;
-						DevelopmentTeam = NKUJUXUJ3B;
+                        DevelopmentTeam = NKUJUXUJ3B;
+						LastSwiftMigration = 1220;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -1926,6 +1934,7 @@
 				2C961E1B2216BF4B00F5C23F /* OCWebDAVClient.m in Sources */,
 				2C961E162216BF4B00F5C23F /* OCShareUser.m in Sources */,
 				2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */,
+				1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
 				2C961E102216BF4B00F5C23F /* OCExternalSites.m in Sources */,
@@ -2025,6 +2034,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C62AFF824C1BDA5007E460A /* QuotedMessageView.m in Sources */,
 				2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */,
 				2C62AFD024C1BD78007E460A /* OCSharedDto.m in Sources */,
@@ -2235,6 +2245,7 @@
 				2CC001B524A37A9500A20167 /* NCChatViewController.m in Sources */,
 				2CC0017E24A37A5000A20167 /* SLKTextViewController.m in Sources */,
 				2CC0019724A37A7400A20167 /* NSString+Encode.m in Sources */,
+				1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2CC001E224A37AD400A20167 /* VideoSettingsViewController.m in Sources */,
 				2CC001AA24A37A8F00A20167 /* ChatMessageTableViewCell.m in Sources */,
 				2C78E9E42512136000E3D4CA /* NCUserStatus.m in Sources */,
@@ -2427,6 +2438,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = NextcloudTalk/NextcloudTalk.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -2464,6 +2476,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "NextcloudTalk-Swift.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -2473,6 +2489,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = NextcloudTalk/NextcloudTalk.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -2510,6 +2527,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "NextcloudTalk-Swift.h";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -2519,6 +2539,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_COMMA = YES;
@@ -2595,6 +2616,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
 				PRODUCT_NAME = ShareExtension;
 				SKIP_INSTALL = YES;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "NextcloudTalk-Swift.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2605,6 +2631,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_COMMA = YES;
@@ -2680,6 +2707,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
 				PRODUCT_NAME = ShareExtension;
 				SKIP_INSTALL = YES;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "NextcloudTalk-Swift.h";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -2690,6 +2721,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_COMMA = YES;
@@ -2749,6 +2781,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "NextcloudTalk-Swift.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2759,6 +2795,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_COMMA = YES;
@@ -2817,6 +2854,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "NextcloudTalk-Swift.h";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
