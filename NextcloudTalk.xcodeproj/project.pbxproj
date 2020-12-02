@@ -25,6 +25,17 @@
 		2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C06BF6320AC64370031EB46 /* DateHeaderView.xib */; };
 		2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
 		2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */; };
+		2C1ABD8625769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8025769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m */; };
+		2C1ABD8725769E7D00AEDFB6 /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
+		2C1ABD8825769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */; };
+		2C1ABD8925769E7D00AEDFB6 /* ShareItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8525769E7D00AEDFB6 /* ShareItem.m */; };
+		2C1ABD8D25769F4E00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8025769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m */; };
+		2C1ABD9125769F4F00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8025769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m */; };
+		2C1ABD9525769F6900AEDFB6 /* ShareConfirmationCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */; };
+		2C1ABD9925769F7500AEDFB6 /* ShareItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8525769E7D00AEDFB6 /* ShareItem.m */; };
+		2C1ABD9D25769F7500AEDFB6 /* ShareItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8525769E7D00AEDFB6 /* ShareItem.m */; };
+		2C1ABDA125769F8400AEDFB6 /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
+		2C1ABDA525769F8600AEDFB6 /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
 		2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */; };
 		2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
 		2C1EF36C25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
@@ -475,6 +486,13 @@
 		2C06BF6620AC647A0031EB46 /* DateHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateHeaderView.m; sourceTree = "<group>"; };
 		2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedNumberView.m; sourceTree = "<group>"; };
 		2C06BF6B20AEB0030031EB46 /* RoundedNumberView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedNumberView.h; sourceTree = "<group>"; };
+		2C1ABD7F25769E7C00AEDFB6 /* ShareItemController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareItemController.h; sourceTree = "<group>"; };
+		2C1ABD8025769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareConfirmationCollectionViewCell.m; sourceTree = "<group>"; };
+		2C1ABD8125769E7D00AEDFB6 /* ShareItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareItem.h; sourceTree = "<group>"; };
+		2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareItemController.m; sourceTree = "<group>"; };
+		2C1ABD8325769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareConfirmationCollectionViewCell.h; sourceTree = "<group>"; };
+		2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ShareConfirmationCollectionViewCell.xib; sourceTree = "<group>"; };
+		2C1ABD8525769E7D00AEDFB6 /* ShareItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareItem.m; sourceTree = "<group>"; };
 		2C1D13A2253760EE00EC0533 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		2C1EF36925505DCE007C9768 /* NCNavigationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCNavigationController.h; sourceTree = "<group>"; };
 		2C1EF36A25505DCE007C9768 /* NCNavigationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNavigationController.m; sourceTree = "<group>"; };
@@ -1163,6 +1181,13 @@
 		2C62AFA424C08845007E460A /* ShareExtension */ = {
 			isa = PBXGroup;
 			children = (
+				2C1ABD8325769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.h */,
+				2C1ABD8025769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m */,
+				2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */,
+				2C1ABD8125769E7D00AEDFB6 /* ShareItem.h */,
+				2C1ABD8525769E7D00AEDFB6 /* ShareItem.m */,
+				2C1ABD7F25769E7C00AEDFB6 /* ShareItemController.h */,
+				2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */,
 				2C3195BB24C1F58A0066F221 /* ShareExtension.entitlements */,
 				2C62AFAB24C08845007E460A /* Info.plist */,
 				2C62AFB524C1A449007E460A /* Share.storyboard */,
@@ -1698,6 +1723,7 @@
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
+				2C1ABD9525769F6900AEDFB6 /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
@@ -1710,6 +1736,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C3195BC24C599130066F221 /* PlaceholderView.xib in Resources */,
+				2C1ABD8825769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2C7A245E24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2C3195C324C5E2100066F221 /* ShareTableViewCell.xib in Resources */,
 				2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */,
@@ -1912,6 +1939,7 @@
 				2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */,
 				2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */,
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
+				2C1ABDA125769F8400AEDFB6 /* ShareItemController.m in Sources */,
 				2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */,
 				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
 				C1292B8C237313590004C3B7 /* CCBKPasscode.m in Sources */,
@@ -1943,6 +1971,7 @@
 				2CC007BD20D8F24B0096D91F /* RoomCreation2TableViewController.m in Sources */,
 				2C961E212216BF4B00F5C23F /* NSString+Encode.m in Sources */,
 				2CBF82BD1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
+				2C1ABD9925769F7500AEDFB6 /* ShareItem.m in Sources */,
 				2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */,
 				2CA1554B208F2E5700CE8EF0 /* NCMessageTextView.m in Sources */,
 				2C961E202216BF4B00F5C23F /* OCXMLSharedParser.m in Sources */,
@@ -1973,6 +2002,7 @@
 				2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
 				2C961E132216BF4B00F5C23F /* OCNotificationsAction.m in Sources */,
+				2C1ABD8D25769F4E00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */,
 				2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */,
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
 				2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */,
@@ -2045,6 +2075,7 @@
 				2C62AFC924C1BD78007E460A /* OCCapabilities.m in Sources */,
 				2C62AFBC24C1BD69007E460A /* FTPopOverMenu.m in Sources */,
 				2C62AFEA24C1BD99007E460A /* NCCallController.m in Sources */,
+				2C1ABD8625769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */,
 				2C62AFC724C1BD78007E460A /* NCRichDocumentTemplate.m in Sources */,
 				1F3D3B24255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
 				2C62AFF324C1BD9F007E460A /* MessageSeparatorTableViewCell.m in Sources */,
@@ -2070,6 +2101,7 @@
 				2C62AFDA24C1BD83007E460A /* OCXMLShareByLinkParser.m in Sources */,
 				2C62AFD124C1BD78007E460A /* OCShareUser.m in Sources */,
 				2C62AFBE24C1BD74007E460A /* SLKTextInput+Implementation.m in Sources */,
+				2C1ABD8925769E7D00AEDFB6 /* ShareItem.m in Sources */,
 				2C62AFCA24C1BD78007E460A /* OCCommunication.m in Sources */,
 				2C62B01324C1BDC5007E460A /* NCRoomsManager.m in Sources */,
 				2C62AFF424C1BDA5007E460A /* DateHeaderView.m in Sources */,
@@ -2113,6 +2145,7 @@
 				2C62AFBF24C1BD74007E460A /* SLKTextInputbar.m in Sources */,
 				2C62AFCF24C1BD78007E460A /* OCRichObjectStrings.m in Sources */,
 				2C62AFE424C1BD91007E460A /* ARDUtilities.m in Sources */,
+				2C1ABD8725769E7D00AEDFB6 /* ShareItemController.m in Sources */,
 				2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */,
 				2C62AFC124C1BD74007E460A /* SLKTextView.m in Sources */,
 				2C62AFEC24C1BD99007E460A /* CallKitManager.m in Sources */,
@@ -2212,6 +2245,7 @@
 				2CC001E324A37ADB00A20167 /* HeaderWithButton.m in Sources */,
 				2CC001AC24A37A8F00A20167 /* GroupedChatMessageTableViewCell.m in Sources */,
 				2CC001C124A37AC500A20167 /* NCNotification.m in Sources */,
+				2C1ABD9125769F4F00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */,
 				2CC001E124A37AD400A20167 /* VideoResolutionsViewController.m in Sources */,
 				2CC001AD24A37A8F00A20167 /* SystemMessageTableViewCell.m in Sources */,
 				2CC001E824A37ADF00A20167 /* NCSignalingMessage.m in Sources */,
@@ -2238,7 +2272,9 @@
 				2CC001A924A37A8F00A20167 /* ChatTableViewCell.m in Sources */,
 				2CC0017924A37A4200A20167 /* SLKTextInput+Implementation.m in Sources */,
 				2CC001A824A37A8B00A20167 /* NCAudioController.m in Sources */,
+				2C1ABD9D25769F7500AEDFB6 /* ShareItem.m in Sources */,
 				2CC001A524A37A8B00A20167 /* NCCallController.m in Sources */,
+				2C1ABDA525769F8600AEDFB6 /* ShareItemController.m in Sources */,
 				2CC0018324A37A5E00A20167 /* NCRichDocumentTemplate.m in Sources */,
 				2CC001BD24A37ABD00A20167 /* AuthenticationViewController.m in Sources */,
 				2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */,
