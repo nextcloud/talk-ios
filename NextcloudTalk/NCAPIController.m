@@ -179,6 +179,28 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Contacts Controller
 
+- (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSArray *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/cloud/users/search/by-phone", account.server];
+    NSString *location = [[NSLocale currentLocale] countryCode];
+    NSDictionary *parameters = @{@"location" : location,
+                                 @"search" : phoneNumbers};
+    
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSArray *responseContacts = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            block(responseContacts, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error);
+        }
+    }];
+    
+    return task;
+}
+
 - (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block
 {
     NSMutableArray *shareTypes = [[NSMutableArray alloc] initWithObjects:@(NCShareTypeUser), nil];
