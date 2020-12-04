@@ -36,6 +36,9 @@
 		2C1ABD9D25769F7500AEDFB6 /* ShareItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8525769E7D00AEDFB6 /* ShareItem.m */; };
 		2C1ABDA125769F8400AEDFB6 /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
 		2C1ABDA525769F8600AEDFB6 /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
+		2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */; };
+		2C1ABDC7257A7CF100AEDFB6 /* NCContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */; };
+		2C1ABDC8257A7CF100AEDFB6 /* NCContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */; };
 		2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */; };
 		2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
 		2C1EF36C25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
@@ -493,6 +496,8 @@
 		2C1ABD8325769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareConfirmationCollectionViewCell.h; sourceTree = "<group>"; };
 		2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ShareConfirmationCollectionViewCell.xib; sourceTree = "<group>"; };
 		2C1ABD8525769E7D00AEDFB6 /* ShareItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareItem.m; sourceTree = "<group>"; };
+		2C1ABDC4257A7CF000AEDFB6 /* NCContactsManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCContactsManager.h; sourceTree = "<group>"; };
+		2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCContactsManager.m; sourceTree = "<group>"; };
 		2C1D13A2253760EE00EC0533 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		2C1EF36925505DCE007C9768 /* NCNavigationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCNavigationController.h; sourceTree = "<group>"; };
 		2C1EF36A25505DCE007C9768 /* NCNavigationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNavigationController.m; sourceTree = "<group>"; };
@@ -1095,6 +1100,8 @@
 				2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */,
 				2CC007B220D7AE990096D91F /* ResultMultiSelectionTableViewController.h */,
 				2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */,
+				2C1ABDC4257A7CF000AEDFB6 /* NCContactsManager.h */,
+				2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */,
 			);
 			name = Contacts;
 			sourceTree = "<group>";
@@ -1642,7 +1649,7 @@
 				TargetAttributes = {
 					2C05747C1EDD9E8E00D9E7F2 = {
 						CreatedOnToolsVersion = 8.3.2;
-                        DevelopmentTeam = NKUJUXUJ3B;
+						DevelopmentTeam = NKUJUXUJ3B;
 						LastSwiftMigration = 1220;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -1662,13 +1669,13 @@
 					};
 					2C62AFA224C08845007E460A = {
 						CreatedOnToolsVersion = 11.5;
-                        DevelopmentTeam = NKUJUXUJ3B;
+						DevelopmentTeam = NKUJUXUJ3B;
 						LastSwiftMigration = 1220;
 						ProvisioningStyle = Automatic;
 					};
 					2CC0014E24A1F0E900A20167 = {
 						CreatedOnToolsVersion = 11.5;
-                        DevelopmentTeam = NKUJUXUJ3B;
+						DevelopmentTeam = NKUJUXUJ3B;
 						LastSwiftMigration = 1220;
 						ProvisioningStyle = Automatic;
 					};
@@ -1958,6 +1965,7 @@
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
 				2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */,
+				2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */,
 				2C961E222216BF4B00F5C23F /* UtilsFramework.m in Sources */,
 				2C961E1B2216BF4B00F5C23F /* OCWebDAVClient.m in Sources */,
 				2C961E162216BF4B00F5C23F /* OCShareUser.m in Sources */,
@@ -2153,6 +2161,7 @@
 				2C62B00724C1BDBD007E460A /* NCAPIController.m in Sources */,
 				2C62B02F24C1BDD7007E460A /* UIBarButtonItem+Badge.m in Sources */,
 				2C62AFF224C1BD9F007E460A /* SystemMessageTableViewCell.m in Sources */,
+				2C1ABDC8257A7CF100AEDFB6 /* NCContactsManager.m in Sources */,
 				2C62B00524C1BDB9007E460A /* AuthenticationViewController.m in Sources */,
 				2C62AFD624C1BD7E007E460A /* OCWebDAVClient.m in Sources */,
 				2C62B00124C1BDAA007E460A /* AddParticipantsTableViewController.m in Sources */,
@@ -2256,6 +2265,7 @@
 				2CC001B424A37A9500A20167 /* ReplyMessageView.m in Sources */,
 				2CC001D424A37ACA00A20167 /* RoomNameTableViewCell.m in Sources */,
 				2CC001D824A37ACA00A20167 /* RoomSearchTableViewController.m in Sources */,
+				2C1ABDC7257A7CF100AEDFB6 /* NCContactsManager.m in Sources */,
 				2CC001B624A37A9A00A20167 /* ContactsTableViewCell.m in Sources */,
 				2CC0019124A37A6B00A20167 /* OCWebDAVClient.m in Sources */,
 				2CC001A424A37A8B00A20167 /* NBMPeersFlowLayout.m in Sources */,

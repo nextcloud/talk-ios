@@ -26,6 +26,7 @@
 #import "RoomCreation2TableViewController.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCContactsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
@@ -161,6 +162,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         self.navigationItem.hidesSearchBarWhenScrolling = NO;
     }
     
+    [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts];
     [self getContacts];
 }
 
