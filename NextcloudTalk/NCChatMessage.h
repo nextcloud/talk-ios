@@ -24,6 +24,7 @@
 #import <UIKit/UIKit.h>
 #import <Realm/Realm.h>
 #import "NCMessageParameter.h"
+#import "NCMessageFileParameter.h"
 
 extern NSInteger const kChatMessageGroupTimeDifference;
 
@@ -53,7 +54,7 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 
 - (BOOL)isSystemMessage;
 - (BOOL)isEmojiMessage;
-- (NCMessageParameter *)file;
+- (NCMessageFileParameter *)file;
 - (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)systemMessageFormat;
