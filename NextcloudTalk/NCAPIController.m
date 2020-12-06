@@ -97,6 +97,16 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     [_apiSessionManagers setObject:apiSessionManager forKey:account.accountId];
 }
 
+- (void)setupNCCommunicationForAccount:(TalkAccount *)account
+{
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
+    NSString *userToken = [[NCSettingsController sharedInstance] tokenForAccountId:account.accountId];
+    NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
+    [[NCCommunicationCommon shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken
+                                             urlBase:account.server userAgent:userAgent webDav:serverCapabilities.webDAVRoot dav:nil
+                                    nextcloudVersion:serverCapabilities.versionMajor delegate:self];
+}
+
 - (void)initImageDownloaders
 {
     _imageDownloader = [[AFImageDownloader alloc]
@@ -1013,16 +1023,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 }
 
-- (void)getFileByFileId:(TalkAccount *)account fileId:(NSString *)fileId
-    withCompletionBlock:(GetFileByFileIdCompletionBlock)block
+- (void)getFileByFileId:(TalkAccount *)account fileId:(NSString *)fileId withCompletionBlock:(GetFileByFileIdCompletionBlock)block
 {
-    // Configure communication lib
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
-    NSString *userToken = [[NCSettingsController sharedInstance] tokenForAccountId:account.accountId];
-    NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
-    [[NCCommunicationCommon shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken
-                                             urlBase:account.server userAgent:userAgent webDav:serverCapabilities.webDAVRoot dav:nil
-                                    nextcloudVersion:serverCapabilities.versionMajor delegate:self];
+    [self setupNCCommunicationForAccount:account];
     
     NSString *body = @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
     <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://nextcloud.com/ns\">\
