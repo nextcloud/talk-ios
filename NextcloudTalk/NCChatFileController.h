@@ -19,23 +19,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#import <Foundation/Foundation.h>
 
+#import "NCDatabaseManager.h"
 #import "NCMessageFileParameter.h"
 
-@implementation NCMessageFileParameter
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithDictionary:(NSDictionary *)parameterDict
-{
-    self = [super initWithDictionary:parameterDict];
-    if (self) {      
-        self.path = [parameterDict objectForKey:@"path"];
-        self.mimetype = [parameterDict objectForKey:@"mimetype"];
-        self.previewAvailable = [[parameterDict objectForKey:@"preview-available"] boolValue];
-        self.isDownloading = NO;
-        self.downloadProgress = 0;
-    }
-    
-    return self;
-}
+extern NSString * const NCChatFileControllerDidChangeIsDownloadingNotification;
+extern NSString * const NCChatFileControllerDidChangeDownloadProgressNotification;
+
+@class NCChatFileController;
+
+@protocol NCChatFileControllerDelegate<NSObject>
+
+- (void)fileControllerDidLoadFile:(NCChatFileController *)fileController withFileParameter:(NCMessageFileParameter *)parameter withFilePath:(NSString *)path;
 
 @end
+
+@interface NCChatFileController : NSObject
+
+@property (nonatomic, weak) id<NCChatFileControllerDelegate> delegate;
+
+- (void)downloadFileFromMessage:(NCMessageFileParameter *)fileParameter;
+- (void)deleteDownloadDirectoryForAccount:(TalkAccount *)account;
+
+@end
+
+NS_ASSUME_NONNULL_END
