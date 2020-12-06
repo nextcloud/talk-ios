@@ -131,6 +131,13 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return [dateFormatter stringFromDate:date];
 }
 
++ (NSString *)getTimeFromDate:(NSDate *)date
+{
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"HH:mm"];
+    return [formatter stringFromDate:date];
+}
+
 + (NSString *)sha1FromString:(NSString *)string
 {
     NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
