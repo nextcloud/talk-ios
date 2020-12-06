@@ -175,7 +175,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
 
 - (void)didChangeIsDownloadingNotification:(BOOL)isDownloading
 {
-    _fileParameter.isDownloading = NO;
+    _fileParameter.isDownloading = isDownloading;
     
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:_account forKey:@"account"];
