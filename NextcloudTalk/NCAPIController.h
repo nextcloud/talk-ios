@@ -96,6 +96,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 + (instancetype)sharedInstance;
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account;
+- (void)setupNCCommunicationForAccount:(TalkAccount *)account;
 
 // Contacts Controller
 - (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;

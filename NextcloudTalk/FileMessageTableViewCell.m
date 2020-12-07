@@ -26,12 +26,25 @@
 #import "NCUtils.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
+#import "CCCertificate.h"
+
+#import "NCAPIController.h"
+#import "NCDatabaseManager.h"
+#import "NCSettingsController.h"
+#import "NCChatFileController.h"
 
 @implementation FilePreviewImageView : UIImageView
 
 @end
 
-@implementation FileMessageTableViewCell
+@interface FileMessageTableViewCell ()
+{
+    MDCActivityIndicator *_activityIndicator;
+}
+
+@end
+
+@implementation FileMessageTableViewCell 
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
@@ -108,6 +121,9 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeIsDownloading:) name:NCChatFileControllerDidChangeIsDownloadingNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeDownloadProgress:) name:NCChatFileControllerDidChangeDownloadProgressNotification object:nil];
 }
 
 - (void)prepareForReuse
@@ -129,8 +145,105 @@
     self.previewImageView.layer.borderWidth = 0.0f;
     self.previewImageView.image = nil;
     
-    [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
+    [self clearStatusView];
 }
+
+- (void)setupForMessage:(NCChatMessage *)message
+{
+    self.titleLabel.text = message.actorDisplayName;
+    self.bodyTextView.attributedText = message.parsedMessage;
+    self.messageId = message.messageId;
+    
+    NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
+    self.dateLabel.text = [NCUtils getTimeFromDate:date];
+    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [self.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:activeAccount]
+                               placeholderImage:nil success:nil failure:nil];
+    
+    NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
+    UIImage *filePreviewImage = [UIImage imageNamed:imageName];
+    __weak FilePreviewImageView *weakPreviewImageView = self.previewImageView;
+    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId width:120 height:120 usingAccount:activeAccount]
+                                     placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+                                         [weakPreviewImageView setImage:image];
+                                         weakPreviewImageView.layer.borderColor = [[UIColor colorWithWhite:0.9 alpha:1.0] CGColor];
+                                         weakPreviewImageView.layer.borderWidth = 1.0f;
+                                     } failure:nil];
+    
+    if (message.sendingFailed) {
+        UIImageView *errorView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        [errorView setImage:[UIImage imageNamed:@"error"]];
+        [self.statusView addSubview:errorView];
+    } else if (message.isTemporary) {
+        [self addActivityIndicator:0];
+    } else if (message.file.isDownloading && message.file.downloadProgress < 1) {
+        [self addActivityIndicator:message.file.downloadProgress];
+    }
+    
+    self.fileParameter = message.file;
+}
+
+- (void)didChangeIsDownloading:(NSNotification *)notification
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NCMessageFileParameter *receivedParameter = [notification.userInfo objectForKey:@"fileParameter"];
+        
+        if (receivedParameter.parameterId != self->_fileParameter.parameterId || ![receivedParameter.path isEqualToString:self->_fileParameter.path]) {
+            // Received a notification for a different cell
+            return;
+        }
+        
+        BOOL isDownloading = [[notification.userInfo objectForKey:@"isDownloading"] boolValue];
+        
+        if (isDownloading && !self->_activityIndicator) {
+            // Immediately show an indeterminate indicator as long as we don't have a progress value
+            [self addActivityIndicator:0];
+        } else if (!isDownloading && self->_activityIndicator) {
+            [self clearStatusView];
+        }
+    });
+}
+- (void)didChangeDownloadProgress:(NSNotification *)notification
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NCMessageFileParameter *receivedParameter = [notification.userInfo objectForKey:@"fileParameter"];
+        
+        if (receivedParameter.parameterId != self->_fileParameter.parameterId || ![receivedParameter.path isEqualToString:self->_fileParameter.path]) {
+            // Received a notification for a different cell
+            return;
+        }
+        
+        double progress = [[notification.userInfo objectForKey:@"progress"] doubleValue];
+
+        if (self->_activityIndicator) {
+            // Switch to determinate-mode and show progress
+            self->_activityIndicator.indicatorMode = MDCActivityIndicatorModeDeterminate;
+            [self->_activityIndicator setProgress:progress animated:YES];
+        } else {
+            // Make sure we have an activity indicator added to this cell
+            [self addActivityIndicator:progress];
+        }
+    });
+}
+
+- (void)addActivityIndicator:(CGFloat)progress
+{
+    [self clearStatusView];
+    
+    _activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+    _activityIndicator.radius = 7.0f;
+    _activityIndicator.cycleColors = @[UIColor.grayColor];
+    
+    if (progress > 0) {
+        _activityIndicator.indicatorMode = MDCActivityIndicatorModeDeterminate;
+        [_activityIndicator setProgress:progress animated:NO];
+    }
+    
+    [_activityIndicator startAnimating];
+    [self.statusView addSubview:_activityIndicator];
+}
+
 
 #pragma mark - Getters
 
@@ -174,7 +287,13 @@
 
 - (void)previewTapped:(UITapGestureRecognizer *)recognizer
 {
-    [NCUtils openFileInNextcloudAppOrBrowser:_filePath withFileLink:_fileLink];
+    if (!self.fileParameter || !self.fileParameter.path || !self.fileParameter.link) {
+        return;
+    }
+    
+    if (self.delegate) {
+        [self.delegate cellWantsToDownloadFile:self.fileParameter];
+    }
 }
 
 - (void)setGuestAvatar:(NSString *)displayName
@@ -184,21 +303,13 @@
     [_avatarView setImageWithString:name color:guestAvatarColor circular:true];
 }
 
-- (void)setDeliveryState:(ChatMessageDeliveryState)state
-{
-    [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
-    
-    if (state == ChatMessageDeliveryStateSending) {
-        MDCActivityIndicator *activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
-        activityIndicator.radius = 7.0f;
-        activityIndicator.cycleColors = @[UIColor.grayColor];
-        [activityIndicator startAnimating];
-        [self.statusView addSubview:activityIndicator];
-    } else if (state == ChatMessageDeliveryStateFailed) {
-        UIImageView *errorView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
-        [errorView setImage:[UIImage imageNamed:@"error"]];
-        [self.statusView addSubview:errorView];
+- (void)clearStatusView {
+    if (_activityIndicator) {
+        [_activityIndicator stopAnimating];
+        _activityIndicator = nil;
     }
+    
+    [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 
 + (CGFloat)defaultFontSize

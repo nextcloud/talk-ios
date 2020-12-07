@@ -23,6 +23,8 @@
 #import <UIKit/UIKit.h>
 #import "ChatTableViewCell.h"
 #import "MessageBodyTextView.h"
+#import "NCMessageFileParameter.h"
+#import "NCChatMessage.h"
 
 static CGFloat kFileMessageCellMinimumHeight        = 50.0;
 static CGFloat kFileMessageCellAvatarHeight         = 30.0;
@@ -34,19 +36,28 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @interface FilePreviewImageView : UIImageView
 @end
 
+@class FileMessageTableViewCell;
+
+@protocol FileMessageTableViewCellDelegate <NSObject>
+
+- (void)cellWantsToDownloadFile:(NCMessageFileParameter *)fileParameter;
+
+@end
+
 @interface FileMessageTableViewCell : ChatTableViewCell
+
+@property (nonatomic, weak) id<FileMessageTableViewCellDelegate> delegate;
 
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *dateLabel;
 @property (nonatomic, strong) FilePreviewImageView *previewImageView;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 @property (nonatomic, strong) UIImageView *avatarView;
-@property (nonatomic, strong) NSString *fileLink;
-@property (nonatomic, strong) NSString *filePath;
 @property (nonatomic, strong) UIView *statusView;
+@property (nonatomic, strong) NCMessageFileParameter *fileParameter;
 
 + (CGFloat)defaultFontSize;
 - (void)setGuestAvatar:(NSString *)displayName;
-- (void)setDeliveryState:(ChatMessageDeliveryState)state;
+- (void)setupForMessage:(NCChatMessage *)message;
 
 @end

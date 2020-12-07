@@ -59,16 +59,20 @@
 #import "UIView+Toast.h"
 #import "BarButtonItemWithActivity.h"
 #import "ShareItem.h"
+#import "NCChatFileController.h"
+#import <NCCommunication/NCCommunication.h>
+#import <QuickLook/QuickLook.h>
 
 typedef enum NCChatMessageAction {
     kNCChatMessageActionReply = 1,
     kNCChatMessageActionCopy,
     kNCChatMessageActionResend,
     kNCChatMessageActionDelete,
-    kNCChatMessageActionReplyPrivately
+    kNCChatMessageActionReplyPrivately,
+    kNCChatMessageActionOpenFileInNextcloud
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -99,6 +103,8 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) UIImagePickerController *imagePicker;
 @property (nonatomic, strong) BarButtonItemWithActivity *videoCallButton;
 @property (nonatomic, strong) BarButtonItemWithActivity *voiceCallButton;
+@property (nonatomic, assign) BOOL isPreviewControllerShown;
+@property (nonatomic, strong) NSString *previewControllerFilePath;
 
 @end
 
@@ -547,13 +553,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     return 0;
 }
 
-- (NSString *)getTimeFromDate:(NSDate *)date
-{
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    [formatter setDateFormat:@"HH:mm"];
-    return [formatter stringFromDate:date];
-}
-
 - (NSString *)getHeaderStringFromDate:(NSDate *)date
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
@@ -896,6 +895,12 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self removePermanentlyTemporaryMessage:message];
 }
 
+- (void)didPressOpenInNextcloud:(NCChatMessage *)message {
+    if (message.file) {
+        [NCUtils openFileInNextcloudAppOrBrowser:message.file.path withFileLink:message.file.link];
+    }
+}
+
 #pragma mark - UIImagePickerController Delegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
@@ -1033,10 +1038,19 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Resend", nil) image:[UIImage imageNamed:@"refresh"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
             }
+            
             // Copy option
             NSDictionary *copyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionCopy) forKey:@"action"];
             FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Copy", nil) image:[UIImage imageNamed:@"clippy"] userInfo:copyInfo];
             [menuArray addObject:copyModel];
+            
+            // Open in nextcloud option
+            if (message.file) {
+                NSDictionary *openInNextcloudInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionOpenFileInNextcloud) forKey:@"action"];
+                FTPopOverMenuModel *openInNextcloudModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Open in Nextcloud", nil) image:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:openInNextcloudInfo];
+                [menuArray addObject:openInNextcloudModel];
+            }
+            
             // Delete option
             if (message.sendingFailed) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionDelete) forKey:@"action"];
@@ -1072,6 +1086,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                     case kNCChatMessageActionResend:
                     {
                         [weakSelf didPressResend:message];
+                    }
+                        break;
+                    case kNCChatMessageActionOpenFileInNextcloud:
+                    {
+                        [weakSelf didPressOpenInNextcloud:message];
                     }
                         break;
                     case kNCChatMessageActionDelete:
@@ -1889,40 +1908,17 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         systemCell.messageId = message.messageId;
         if (!message.isGroupMessage) {
             NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
-            systemCell.dateLabel.text = [self getTimeFromDate:date];
+            systemCell.dateLabel.text = [NCUtils getTimeFromDate:date];
         }
         return systemCell;
     }
     if (message.file) {
         NSString *fileCellIdentifier = (message.isGroupMessage) ? GroupedFileMessageCellIdentifier : FileMessageCellIdentifier;
         FileMessageTableViewCell *fileCell = (FileMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:fileCellIdentifier];
-        fileCell.titleLabel.text = message.actorDisplayName;
-        fileCell.bodyTextView.attributedText = message.parsedMessage;
-        fileCell.messageId = message.messageId;
-        fileCell.fileLink = message.file.link;
-        fileCell.filePath = message.file.path;
-        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
-        fileCell.dateLabel.text = [self getTimeFromDate:date];
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        [fileCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:activeAccount]
-                                   placeholderImage:nil success:nil failure:nil];
-        NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
-        UIImage *filePreviewImage = [UIImage imageNamed:imageName];
-        __weak FilePreviewImageView *weakPreviewImageView = fileCell.previewImageView;
-        [fileCell.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId width:120 height:120 usingAccount:activeAccount]
-                                         placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
-                                             [weakPreviewImageView setImage:image];
-                                             weakPreviewImageView.layer.borderColor = [[UIColor colorWithWhite:0.9 alpha:1.0] CGColor];
-                                             weakPreviewImageView.layer.borderWidth = 1.0f;
-                                         } failure:nil];
-        if (message.isTemporary){
-            [fileCell setDeliveryState:ChatMessageDeliveryStateSending];
-        }
+        fileCell.delegate = self;
         
-        if (message.sendingFailed) {
-            [fileCell setDeliveryState:ChatMessageDeliveryStateFailed];
-        }
-        
+        [fileCell setupForMessage:message]; 
+
         return fileCell;
     }
     if (message.parent) {
@@ -1931,7 +1927,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         normalCell.bodyTextView.attributedText = message.parsedMessage;
         normalCell.messageId = message.messageId;
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
-        normalCell.dateLabel.text = [self getTimeFromDate:date];
+        normalCell.dateLabel.text = [NCUtils getTimeFromDate:date];
         
         if ([message.actorType isEqualToString:@"guests"]) {
             normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
@@ -1978,7 +1974,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         normalCell.bodyTextView.attributedText = message.parsedMessage;
         normalCell.messageId = message.messageId;
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
-        normalCell.dateLabel.text = [self getTimeFromDate:date];
+        normalCell.dateLabel.text = [NCUtils getTimeFromDate:date];
         
         if ([message.actorType isEqualToString:@"guests"]) {
             normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
@@ -2106,8 +2102,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }
 }
 
-- (UIContextMenuConfiguration *)tableView:(UITableView *)tableView contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point API_AVAILABLE(ios(13.0)) {
-    
+- (UIContextMenuConfiguration *)tableView:(UITableView *)tableView contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point API_AVAILABLE(ios(13.0))
+{
     if ([tableView isEqual:self.autoCompletionView]) {
         return nil;
     }
@@ -2164,6 +2160,17 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }];
     
     [actions addObject:copyAction];
+    
+    // Open in nextcloud option
+    if (message.file) {
+        UIImage *nextcloudActionImage = [[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *openInNextcloudAction = [UIAction actionWithTitle:NSLocalizedString(@"Open in Nextcloud", nil) image:nextcloudActionImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressOpenInNextcloud:message];
+        }];
+
+        [actions addObject:openInNextcloudAction];
+    }
     
 
     // Delete option
@@ -2229,6 +2236,89 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     previewController.preferredContentSize = previewView.contentView.frame.size;
     
     return previewController;
+}
+
+#pragma mark - FileMessageTableViewCellDelegate
+
+- (void)cellWantsToDownloadFile:(NCMessageFileParameter *)fileParameter
+{
+    if (fileParameter.isDownloading) {
+        NSLog(@"File already downloading -> skipping new download");
+        return;
+    }
+    
+    NCChatFileController *downloader = [[NCChatFileController alloc] init];
+    downloader.delegate = self;
+    [downloader downloadFileFromMessage:fileParameter];
+}
+
+#pragma mark - NCChatFileControllerDelegate
+
+- (void)fileControllerDidLoadFile:(NCChatFileController *)fileController withFileParameter:(NCMessageFileParameter *)parameter withFilePath:(NSString *)path
+{
+    if (_isPreviewControllerShown) {
+        // We are showing a file already, no need to open another one
+        return;
+    }
+    
+    BOOL isFileCellStillVisible = NO;
+    
+    for (NSIndexPath *indexPath in self.tableView.indexPathsForVisibleRows) {
+        NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+        NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+        
+        if (message.file && message.file.parameterId == parameter.parameterId && [message.file.path isEqualToString:parameter.path]) {
+            isFileCellStillVisible = YES;
+            break;
+        }
+    }
+    
+    if (!isFileCellStillVisible) {
+        // Only open file when the corresponding cell is still visible on the screen
+        return;
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_isPreviewControllerShown = YES;
+        self->_previewControllerFilePath = path;
+
+        QLPreviewController * preview = [[QLPreviewController alloc] init];
+        UIColor *themeColor = [NCAppBranding themeColor];
+        
+        preview.dataSource = self;
+        preview.delegate = self;
+
+        preview.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
+        preview.navigationController.navigationBar.barTintColor = themeColor;
+        preview.tabBarController.tabBar.tintColor = themeColor;
+
+        if (@available(iOS 13.0, *)) {
+            UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+            [appearance configureWithOpaqueBackground];
+            appearance.backgroundColor = themeColor;
+            appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+            preview.navigationItem.standardAppearance = appearance;
+            preview.navigationItem.compactAppearance = appearance;
+            preview.navigationItem.scrollEdgeAppearance = appearance;
+        }
+
+        [self presentViewController:preview animated:YES completion:nil];
+    });
+}
+
+#pragma mark - QLPreviewControllerDelegate/DataSource
+
+- (NSInteger)numberOfPreviewItemsInPreviewController:(nonnull QLPreviewController *)controller {
+    return 1;
+}
+
+- (nonnull id<QLPreviewItem>)previewController:(nonnull QLPreviewController *)controller previewItemAtIndex:(NSInteger)index {
+    return [NSURL fileURLWithPath:_previewControllerFilePath];
+}
+
+- (void)previewControllerDidDismiss:(QLPreviewController *)controller
+{
+    _isPreviewControllerShown = NO;
 }
 
 @end

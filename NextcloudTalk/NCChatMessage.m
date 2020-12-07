@@ -28,6 +28,13 @@
 
 NSInteger const kChatMessageGroupTimeDifference = 30;
 
+@interface NCChatMessage ()
+{
+    NCMessageFileParameter *_fileParameter;
+}
+
+@end
+
 @implementation NCChatMessage
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict
@@ -124,20 +131,25 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
 
 - (NCMessageParameter *)file;
 {
-    NCMessageParameter *fileParam = nil;
-    for (NSDictionary *parameterDict in [[self messageParameters] allValues]) {
-        NCMessageParameter *parameter = [NCMessageParameter parameterWithDictionary:parameterDict] ;
-        if ([parameter.type isEqualToString:@"file"]) {
-            if (!fileParam) {
-                fileParam = parameter;
+    if (!_fileParameter) {
+        for (NSDictionary *parameterDict in [[self messageParameters] allValues]) {
+            NCMessageFileParameter *parameter = [[NCMessageFileParameter alloc] initWithDictionary:parameterDict] ;
+            if (![parameter.type isEqualToString:@"file"]) {
+                continue;
+            }
+            
+            if (!_fileParameter) {
+                _fileParameter = parameter;
             } else {
                 // If there is more than one file in the message,
                 // we don't display any preview.
+                _fileParameter = nil;
                 return nil;
             }
         }
     }
-    return fileParam;
+
+    return _fileParameter;
 }
 
 - (NSDictionary *)messageParameters
@@ -181,7 +193,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
                                  stringByReplacingOccurrencesOfString:@"}" withString:@""];
         NSDictionary *parameterDict = [[self messageParameters] objectForKey:parameterKey];
         if (parameterDict) {
-            NCMessageParameter *messageParameter = [NCMessageParameter parameterWithDictionary:parameterDict] ;
+            NCMessageParameter *messageParameter = [[NCMessageParameter alloc] initWithDictionary:parameterDict] ;
             // Default replacement string is the parameter name
             NSString *replaceString = messageParameter.name;
             // Format user and call mentions

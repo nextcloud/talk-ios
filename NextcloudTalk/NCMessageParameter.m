@@ -26,29 +26,28 @@
 
 @implementation NCMessageParameter
 
-+ (instancetype)parameterWithDictionary:(NSDictionary *)parameterDict
+- (instancetype)initWithDictionary:(NSDictionary *)parameterDict
 {
-    if (!parameterDict || ![parameterDict isKindOfClass:[NSDictionary class]]) {
-        return nil;
+    self = [super init];
+    if (self) {
+        if (!parameterDict || ![parameterDict isKindOfClass:[NSDictionary class]]) {
+            return nil;
+        }
+        
+        self.parameterId = [parameterDict objectForKey:@"id"];
+        self.name = [parameterDict objectForKey:@"name"];
+        self.link = [parameterDict objectForKey:@"link"];
+        self.type = [parameterDict objectForKey:@"type"];
+        
+        id parameterId = [parameterDict objectForKey:@"id"];
+        if ([parameterId isKindOfClass:[NSString class]]) {
+            self.parameterId = parameterId;
+        } else {
+            self.parameterId = [parameterId stringValue];
+        }
     }
     
-    NCMessageParameter *messageParameter = [[NCMessageParameter alloc] init];
-    messageParameter.parameterId = [parameterDict objectForKey:@"id"];
-    messageParameter.name = [parameterDict objectForKey:@"name"];
-    messageParameter.type = [parameterDict objectForKey:@"type"];
-    messageParameter.path = [parameterDict objectForKey:@"path"];
-    messageParameter.link = [parameterDict objectForKey:@"link"];
-    messageParameter.mimetype = [parameterDict objectForKey:@"mimetype"];
-    messageParameter.previewAvailable = [[parameterDict objectForKey:@"preview-available"] boolValue];
-    
-    id parameterId = [parameterDict objectForKey:@"id"];
-    if ([parameterId isKindOfClass:[NSString class]]) {
-        messageParameter.parameterId = parameterId;
-    } else {
-        messageParameter.parameterId = [parameterId stringValue];
-    }
-    
-    return messageParameter;
+    return self;
 }
 
 - (BOOL)shouldBeHighlighted

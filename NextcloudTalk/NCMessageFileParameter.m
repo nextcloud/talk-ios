@@ -1,7 +1,7 @@
 /**
- * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
+ * @copyright Copyright (c) 2020 Marcel Müller <marcel-mueller@gmx.de>
  *
- * @author Ivan Sein <ivan@nextcloud.com>
+ * @author Marcel Müller <marcel-mueller@gmx.de>
  *
  * @license GNU GPL version 3 or any later version
  *
@@ -20,17 +20,22 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import "NCMessageFileParameter.h"
 
-@interface NCMessageParameter : NSObject
+@implementation NCMessageFileParameter
 
-@property (nonatomic, strong) NSString *parameterId;
-@property (nonatomic, strong) NSString *name;
-@property (nonatomic, strong) NSString *link;
-@property (nonatomic, strong) NSString *type;
-@property (nonatomic, assign) NSRange range;
-
-- (instancetype)initWithDictionary:(NSDictionary *)parameterDict;
-- (BOOL)shouldBeHighlighted;
+- (instancetype)initWithDictionary:(NSDictionary *)parameterDict
+{
+    self = [super initWithDictionary:parameterDict];
+    if (self) {      
+        self.path = [parameterDict objectForKey:@"path"];
+        self.mimetype = [parameterDict objectForKey:@"mimetype"];
+        self.previewAvailable = [[parameterDict objectForKey:@"preview-available"] boolValue];
+        self.isDownloading = NO;
+        self.downloadProgress = 0;
+    }
+    
+    return self;
+}
 
 @end
