@@ -76,7 +76,7 @@
 - (void)searchInServerForAddressBookContacts
 {
     if ([self isContactAccessAuthorized]) {
-        NSMutableArray *phoneNumbers = [NSMutableArray new];
+        NSMutableDictionary *phoneNumbersDict = [NSMutableDictionary new];
         NSError *error = nil;
         NSArray *keysToFetch = @[CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey];
         CNContactFetchRequest *request = [[CNContactFetchRequest alloc] initWithKeysToFetch:keysToFetch];
@@ -88,20 +88,18 @@
             }
             if (contactPhoneNumbers.count > 0) {
                 NSString *contactIdentifier = [contact valueForKey:@"identifier"];
-                NSMutableDictionary *contactDict = [NSMutableDictionary new];
-                [contactDict setValue:contactPhoneNumbers forKey:contactIdentifier];
-                [phoneNumbers addObject:contactDict];
+                [phoneNumbersDict setValue:contactPhoneNumbers forKey:contactIdentifier];
             }
         }];
-        if (phoneNumbers.count > 0) {
-            [self searchForPhoneNumbers:phoneNumbers];
+        if (phoneNumbersDict.count > 0) {
+            [self searchForPhoneNumbers:phoneNumbersDict];
         }
     } else if (![self isContactAccessDetermined]) {
         [self requestContactsAccess];
     }
 }
 
-- (void)searchForPhoneNumbers:(NSArray *)phoneNumbers
+- (void)searchForPhoneNumbers:(NSDictionary *)phoneNumbers
 {
     [[NCAPIController sharedInstance] searchContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withPhoneNumbers:phoneNumbers andCompletionBlock:^(NSArray *contactList, NSError *error) {
         NSLog(@"Search for contacts returned:%@ and error:%@", contactList, error);

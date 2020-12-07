@@ -179,7 +179,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Contacts Controller
 
-- (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSArray *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block
+- (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSDictionary *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/cloud/users/search/by-phone", account.server];
     NSString *location = [[NSLocale currentLocale] countryCode];
