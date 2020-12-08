@@ -92,7 +92,9 @@
     if (audioCallIntent || videoCallIntent) {
         INPerson *person = [[(INStartAudioCallIntent*)userActivity.interaction.intent contacts] firstObject];
         NSString *roomToken = person.personHandle.value;
-        [[NCUserInterfaceController sharedInstance] presentCallKitCallInRoom:roomToken withVideoEnabled:videoCallIntent];
+        if (roomToken) {
+            [[NCUserInterfaceController sharedInstance] presentCallKitCallInRoom:roomToken withVideoEnabled:videoCallIntent];
+        }
     }
     return YES;
 }
