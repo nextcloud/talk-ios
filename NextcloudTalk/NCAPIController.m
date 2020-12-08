@@ -283,7 +283,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSURLSessionDataTask *)getRoomForAccount:(TalkAccount *)account withToken:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block
 {
-    NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@", token]];
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"room/%@", encodedToken]];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
