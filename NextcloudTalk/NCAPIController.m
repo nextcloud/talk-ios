@@ -188,7 +188,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSArray *responseContacts = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSDictionary *responseContacts = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(responseContacts, nil);
         }

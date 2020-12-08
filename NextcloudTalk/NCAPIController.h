@@ -33,7 +33,7 @@
 #import "NCUser.h"
 
 typedef void (^GetContactsCompletionBlock)(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error);
-typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSArray *contactList, NSError *error);
+typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contacts, NSError *error);
 
 typedef void (^GetRoomsCompletionBlock)(NSArray *rooms, NSError *error, NSInteger statusCode);
 typedef void (^GetRoomCompletionBlock)(NSDictionary *roomDict, NSError *error);

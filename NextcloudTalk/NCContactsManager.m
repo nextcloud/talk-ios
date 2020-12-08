@@ -26,6 +26,8 @@
 
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
+#import "ABContact.h"
+#import "NCContact.h"
 
 @interface NCContactsManager ()
 
@@ -77,32 +79,86 @@
 {
     if ([self isContactAccessAuthorized]) {
         NSMutableDictionary *phoneNumbersDict = [NSMutableDictionary new];
+        NSMutableArray *contacts = [NSMutableArray new];
+        NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];
         NSError *error = nil;
         NSArray *keysToFetch = @[CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey];
         CNContactFetchRequest *request = [[CNContactFetchRequest alloc] initWithKeysToFetch:keysToFetch];
         [_contactStore enumerateContactsWithFetchRequest:request error:&error usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop) {
-            // Get all phone numbers from contact
-            NSMutableArray *contactPhoneNumbers = [NSMutableArray new];
+            NSMutableArray *phoneNumbers = [NSMutableArray new];
             for (CNLabeledValue *phoneNumberValue in contact.phoneNumbers) {
-                [contactPhoneNumbers addObject:[[phoneNumberValue valueForKey:@"value"] valueForKey:@"digits"]];
+                [phoneNumbers addObject:[[phoneNumberValue valueForKey:@"value"] valueForKey:@"digits"]];
             }
-            if (contactPhoneNumbers.count > 0) {
-                NSString *contactIdentifier = [contact valueForKey:@"identifier"];
-                [phoneNumbersDict setValue:contactPhoneNumbers forKey:contactIdentifier];
+            if (phoneNumbers.count > 0) {
+                NSString *identifier = [contact valueForKey:@"identifier"];
+                NSString *givenName = [contact valueForKey:@"givenName"];
+                NSString *familyName = [contact valueForKey:@"familyName"];
+                NSString *name = [[NSString stringWithFormat:@"%@ %@", givenName, familyName] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                ABContact *abContact = [ABContact contactWithIdentifier:identifier name:name phoneNumbers:phoneNumbers lastUpdate:updateTimestamp];
+                if (abContact) {
+                    [contacts addObject:abContact];
+                }
+                [phoneNumbersDict setValue:phoneNumbers forKey:identifier];
             }
         }];
-        if (phoneNumbersDict.count > 0) {
-            [self searchForPhoneNumbers:phoneNumbersDict];
-        }
+        [self updateAddressBookCopyWithContacts:contacts andTimestamp:updateTimestamp];
+        [self searchForPhoneNumbers:phoneNumbersDict forAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
     } else if (![self isContactAccessDetermined]) {
         [self requestContactsAccess];
     }
 }
 
-- (void)searchForPhoneNumbers:(NSDictionary *)phoneNumbers
+- (void)updateAddressBookCopyWithContacts:(NSArray *)contacts andTimestamp:(NSInteger)timestamp
 {
-    [[NCAPIController sharedInstance] searchContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withPhoneNumbers:phoneNumbers andCompletionBlock:^(NSArray *contactList, NSError *error) {
-        NSLog(@"Search for contacts returned:%@ and error:%@", contactList, error);
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        // Add or update contacts
+        for (ABContact *contact in contacts) {
+            ABContact *managedABContact = [ABContact objectsWhere:@"identifier = %@", contact.identifier].firstObject;
+            if (managedABContact) {
+                [ABContact updateContact:managedABContact withContact:contact];
+            } else {
+                [realm addObject:contact];
+            }
+        }
+        // Delete old contacts
+        NSPredicate *query = [NSPredicate predicateWithFormat:@"lastUpdate != %ld", (long)timestamp];
+        RLMResults *managedABContactsToBeDeleted = [ABContact objectsWithPredicate:query];
+        // Delete matching nc contacts
+        for (ABContact *managedABContact in managedABContactsToBeDeleted) {
+            NSPredicate *query2 = [NSPredicate predicateWithFormat:@"identifier = %@", managedABContact.identifier];
+            [realm deleteObjects:[NCContact objectsWithPredicate:query2]];
+        }
+        [realm deleteObjects:managedABContactsToBeDeleted];
+        NSLog(@"Address Book Contacts updated");
+    }];
+}
+
+- (void)searchForPhoneNumbers:(NSDictionary *)phoneNumbers forAccount:(TalkAccount *)account
+{
+    [[NCAPIController sharedInstance] searchContactsForAccount:account withPhoneNumbers:phoneNumbers andCompletionBlock:^(NSDictionary *contacts, NSError *error) {
+        if (!error && contacts.count > 0) {
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm transactionWithBlock:^{
+                // Add or update matched contacts
+                NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];
+                for (NSString *identifier in contacts.allKeys) {
+                    NSString *cloudId = [contacts objectForKey:identifier];
+                    NCContact *contact = [NCContact contactWithIdentifier:identifier cloudId:cloudId lastUpdate:updateTimestamp andAccountId:account.accountId];
+                    NCContact *managedNCContact = [NCContact objectsWhere:@"identifier = %@ AND accountId = %@", identifier, account.accountId].firstObject;
+                    if (managedNCContact) {
+                        [NCContact updateContact:managedNCContact withContact:contact];
+                    } else {
+                        [realm addObject:contact];
+                    }
+                }
+                // Delete old contacts
+                NSPredicate *query = [NSPredicate predicateWithFormat:@"lastUpdate != %ld", (long)updateTimestamp];
+                RLMResults *managedNCContactsToBeDeleted = [NCContact objectsWithPredicate:query];
+                [realm deleteObjects:managedNCContactsToBeDeleted];
+                NSLog(@"Matched NC Contacts updated");
+            }];
+        }
     }];
 }
 
