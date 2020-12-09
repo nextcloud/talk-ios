@@ -213,6 +213,10 @@
     _hud.mode = MBProgressHUDModeAnnularDeterminate;
     _hud.label.text = [NSString stringWithFormat:NSLocalizedString(@"Uploading %ld elements", nil), [self.shareItemController.shareItems count]];
     
+    if ([self.shareItemController.shareItems count] == 1) {
+        _hud.label.text = NSLocalizedString(@"Uploading 1 element", nil);
+    }
+    
     _uploadGroup = dispatch_group_create();
     _uploadFailed = NO;
     
