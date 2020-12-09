@@ -680,16 +680,21 @@ typedef enum ModificationError {
     };
 }
 
-- (void)gotoRoomFile
+- (void)gotoRoomFileFromIndexPath:(NSIndexPath *)indexPath
 {
-    [self setModifyingRoomUI];
+    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];
+    
+    [activityIndicator startAnimating];
+    [cell setAccessoryView:activityIndicator];
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     
     [[NCAPIController sharedInstance] getFileByFileId:activeAccount fileId:_room.objectId withCompletionBlock:^(NCCommunicationFile *file, NSInteger error, NSString *errorDescription) {
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self removeModifyingRoomUI];
+            [activityIndicator stopAnimating];
+            [cell setAccessoryView:nil];
         });
         
         if (file) {
@@ -1473,7 +1478,7 @@ typedef enum ModificationError {
                     [self shareRoomLinkFromIndexPath:indexPath];
                     break;
                 case kRoomActionGotoFile:
-                    [self gotoRoomFile];
+                    [self gotoRoomFileFromIndexPath:indexPath];
                     break;
             }
         }
