@@ -466,6 +466,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [_videoCallButton setEnabled:NO];
     [_voiceCallButton setEnabled:NO];
     
+    [self.leftButton setEnabled:NO];
+    [self.rightButton setEnabled:NO];
     self.textInputbar.userInteractionEnabled = NO;
 }
 
@@ -476,6 +478,9 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         _titleView.userInteractionEnabled = YES;
         [_videoCallButton setEnabled:YES];
         [_voiceCallButton setEnabled:YES];
+        
+        [self.leftButton setEnabled:YES];
+        [self.rightButton setEnabled:YES];
         self.textInputbar.userInteractionEnabled = YES;
     }
     
