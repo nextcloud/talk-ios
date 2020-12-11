@@ -24,6 +24,7 @@
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCContact.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
@@ -261,13 +262,15 @@
 {
     [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:_room.token groupRoom:YES withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            NSMutableArray *filteredParticipants = [self filterContacts:contactList];
+            NSMutableArray *storedContacts = [NCContact contactsThatContain:nil];
+            NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];
+            NSMutableArray *filteredParticipants = [self filterContacts:combinedContactList];
             NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:filteredParticipants];
-            _participants = participants;
-            _indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-            [_participantsBackgroundView.loadingView stopAnimating];
-            [_participantsBackgroundView.loadingView setHidden:YES];
-            [_participantsBackgroundView.placeholderView setHidden:(participants.count > 0)];
+            self->_participants = participants;
+            self->_indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+            [self->_participantsBackgroundView.loadingView stopAnimating];
+            [self->_participantsBackgroundView.loadingView setHidden:YES];
+            [self->_participantsBackgroundView.placeholderView setHidden:(participants.count > 0)];
             [self.tableView reloadData];
         } else {
             NSLog(@"Error while trying to get participants: %@", error);
@@ -280,10 +283,12 @@
     [_searchParticipantsTask cancel];
     _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:_room.token groupRoom:YES withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            NSMutableArray *filteredParticipants = [self filterContacts:contactList];
+            NSMutableArray *storedContacts = [NCContact contactsThatContain:searchString];
+            NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];
+            NSMutableArray *filteredParticipants = [self filterContacts:combinedContactList];
             NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:filteredParticipants];
             NSArray *sortedIndexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-            [_resultTableViewController setSearchResultContacts:participants withIndexes:sortedIndexes];
+            [self->_resultTableViewController setSearchResultContacts:participants withIndexes:sortedIndexes];
         } else {
             if (error.code != -999) {
                 NSLog(@"Error while searching for participants: %@", error);
@@ -326,7 +331,7 @@
     _searchTimer = nil;
     [_resultTableViewController showSearchingUI];
     dispatch_async(dispatch_get_main_queue(), ^{
-        _searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForParticipants) userInfo:nil repeats:NO];
+        self->_searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForParticipants) userInfo:nil repeats:NO];
     });
 }
 

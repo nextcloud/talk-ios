@@ -70,6 +70,7 @@ NSString * const kParticipantTypeCircle = @"circles";
     NCUser *user = [[NCUser alloc] init];
     user.name = contact.name;
     user.userId = contact.userId;
+    user.source = kParticipantTypeUser;
     
     return user;
 }
