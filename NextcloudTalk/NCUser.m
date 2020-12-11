@@ -61,4 +61,60 @@ NSString * const kParticipantTypeCircle = @"circles";
     return user;
 }
 
++ (instancetype)userFromNCContact:(NCContact *)contact
+{
+    if (!contact) {
+        return nil;
+    }
+    
+    NCUser *user = [[NCUser alloc] init];
+    user.name = contact.name;
+    user.userId = contact.userId;
+    
+    return user;
+}
+
++ (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users
+{
+    NSMutableDictionary *indexedUsers = [[NSMutableDictionary alloc] init];
+    for (NCUser *user in users) {
+        NSString *index = [[user.name substringToIndex:1] uppercaseString];
+        NSRange first = [user.name rangeOfComposedCharacterSequenceAtIndex:0];
+        NSRange match = [user.name rangeOfCharacterFromSet:[NSCharacterSet letterCharacterSet] options:0 range:first];
+        if (match.location == NSNotFound) {
+            index = @"#";
+        }
+        NSMutableArray *usersForIndex = [indexedUsers valueForKey:index];
+        if (usersForIndex == nil) {
+            usersForIndex = [[NSMutableArray alloc] init];
+        }
+        [usersForIndex addObject:user];
+        [indexedUsers setObject:usersForIndex forKey:index];
+    }
+    return indexedUsers;
+}
+
++ (NSMutableArray *)combineUsersArray:(NSArray *)firstArray withUsersArray:(NSArray *)secondArray
+{
+    // Add first array of users
+    NSMutableArray *combinedUserArray = [[NSMutableArray alloc] initWithArray:firstArray];
+    // Remove first array users from second array
+    NSMutableArray *filteredSecondUserArray = [[NSMutableArray alloc] init];
+    for (NCUser *secondArrayUser in secondArray) {
+        BOOL duplicate = NO;
+        for (NCUser *user in combinedUserArray) {
+            if ([secondArrayUser.userId isEqualToString:user.userId] && [secondArrayUser.source isEqualToString:kParticipantTypeUser]) {
+                duplicate = YES;
+                break;
+            }
+        }
+        if (!duplicate) {
+            [filteredSecondUserArray addObject:secondArrayUser];
+        }
+    }
+    // Combine both arrays
+    [combinedUserArray addObjectsFromArray:filteredSecondUserArray];
+    return combinedUserArray;
+}
+
 @end

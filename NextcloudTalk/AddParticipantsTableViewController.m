@@ -262,7 +262,7 @@
     [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:_room.token groupRoom:YES withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             NSMutableArray *filteredParticipants = [self filterContacts:contactList];
-            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
+            NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:filteredParticipants];
             _participants = participants;
             _indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
             [_participantsBackgroundView.loadingView stopAnimating];
@@ -281,7 +281,7 @@
     _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:_room.token groupRoom:YES withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
             NSMutableArray *filteredParticipants = [self filterContacts:contactList];
-            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
+            NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:filteredParticipants];
             NSArray *sortedIndexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
             [_resultTableViewController setSearchResultContacts:participants withIndexes:sortedIndexes];
         } else {

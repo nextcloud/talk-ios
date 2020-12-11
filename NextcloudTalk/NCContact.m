@@ -24,6 +24,7 @@
 
 #import "ABContact.h"
 #import "NCDatabaseManager.h"
+#import "NCUser.h"
 
 @implementation NCContact
 
@@ -76,6 +77,30 @@
     }
     
     return nil;
+}
+
++ (NSMutableArray *)contactsThatContain:(NSString *)searchString
+{
+    RLMResults *managedContacts = [NCContact allObjects];
+    NSMutableArray *filteredContacts = nil;
+    // Create an unmanaged copy of the stored contacts
+    NSMutableArray *contacts = [NSMutableArray new];
+    for (NCContact *managedContact in managedContacts) {
+        NCContact *contact = [[NCContact alloc] initWithValue:managedContact];
+        NCUser *user = [NCUser userFromNCContact:contact];
+        [contacts addObject:user];
+    }
+    
+    filteredContacts = contacts;
+    
+    if (searchString && ![searchString isEqualToString:@""]) {
+        NSString *filter = @"%K CONTAINS[cd] %@ || %K CONTAINS[cd] %@";
+        NSArray* args = @[@"name", searchString, @"userId", searchString];
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:filter argumentArray:args];
+        filteredContacts = [[NSMutableArray alloc] initWithArray:[contacts filteredArrayUsingPredicate:predicate]];
+    }
+    
+    return filteredContacts;
 }
 
 @end
