@@ -1594,24 +1594,21 @@ typedef enum FileAction {
 
 - (void)fileControllerDidLoadFile:(NCChatFileController *)fileController withFileStatus:(NCChatFileStatus *)fileStatus
 {
-    if (_fileDownloadIndicator) {
-        [_fileDownloadIndicator stopAnimating];
-        [_fileDownloadIndicator removeFromSuperview];
-        _fileDownloadIndicator = nil;
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self->_fileDownloadIndicator) {
+            [self->_fileDownloadIndicator stopAnimating];
+            [self->_fileDownloadIndicator removeFromSuperview];
+            self->_fileDownloadIndicator = nil;
+        }
+            
+        NSInteger fileSection = [[self getRoomInfoSections] indexOfObject:@(kRoomInfoSectionFile)];
+        NSInteger previewRow = [[self getFileActions] indexOfObject:@(kFileActionPreview)];
+        NSIndexPath *previewActionIndexPath = [NSIndexPath indexPathForRow:previewRow inSection:fileSection];
         
-    NSInteger fileSection = [[self getRoomInfoSections] indexOfObject:@(kRoomInfoSectionFile)];
-    NSInteger previewRow = [[self getFileActions] indexOfObject:@(kFileActionPreview)];
-    NSIndexPath *previewActionIndexPath = [NSIndexPath indexPathForRow:previewRow inSection:fileSection];
-    
-    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:previewActionIndexPath];
-    
-    if (cell) {
-        // Make sure disclosure indicator is visible again (otherwise accessoryView is empty)
-        cell.accessoryView = nil;
+        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:previewActionIndexPath];
         
-        // Only show preview controller if cell is still visible
-        dispatch_async(dispatch_get_main_queue(), ^{
+        if (cell) {
+            // Only show preview controller if cell is still visible
             self->_previewControllerFilePath = fileStatus.fileLocalPath;
 
             QLPreviewController * preview = [[QLPreviewController alloc] init];
@@ -1635,8 +1632,28 @@ typedef enum FileAction {
             }
 
             [self.navigationController pushViewController:preview animated:YES];
-        });
-    }
+            
+            // Make sure disclosure indicator is visible again (otherwise accessoryView is empty)
+            cell.accessoryView = nil;
+        }
+    });
+}
+
+- (void)fileControllerDidFailLoadingFile:(NCChatFileController *)fileController withErrorDescription:(NSString *)errorDescription
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Unable to load file", nil)
+                                 message:errorDescription
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    
+    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
 }
 
 #pragma mark - QLPreviewControllerDelegate/DataSource

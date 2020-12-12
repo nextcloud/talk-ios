@@ -155,6 +155,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
             [self startDownload];
         } else {
             NSLog(@"An error occurred while getting file with fileId %@: %@", fileId, errorDescription);
+            [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:errorDescription];
         }
     }];
 }
@@ -191,18 +192,26 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
             [[NCCommunication shared] downloadWithServerUrlFileName:serverUrlFileName fileNameLocalPath:self->_fileStatus.fileLocalPath customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress *progress) {
                 [self didChangeDownloadProgressNotification:progress.fractionCompleted];
             } completionHandler:^(NSString *account, NSString *etag, NSDate *date, double length, NSDictionary *allHeaderFields, NSInteger errorCode, NSString * errorDescription) {
-                // Set modification date to invalidate our cache
-                [self setModificationDateOnFile:self->_fileStatus.fileLocalPath withModificationDate:file.date];
-                
-                // Set creation date to delete older files from cache
-                [self setCreationDateOnFile:self->_fileStatus.fileLocalPath withCreationDate:[NSDate date]];
-                
-                [self.delegate fileControllerDidLoadFile:self withFileStatus:self->_fileStatus];
+                if (errorCode == 0) {
+                    // Set modification date to invalidate our cache
+                    [self setModificationDateOnFile:self->_fileStatus.fileLocalPath withModificationDate:file.date];
+                    
+                    // Set creation date to delete older files from cache
+                    [self setCreationDateOnFile:self->_fileStatus.fileLocalPath withCreationDate:[NSDate date]];
+                    
+                    [self.delegate fileControllerDidLoadFile:self withFileStatus:self->_fileStatus];
+                } else {
+                    NSLog(@"Error downloading file: %ld - %@", errorCode, errorDescription);
+                    [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:errorDescription];
+                }
+
                 [self didChangeIsDownloadingNotification:NO];
             }];
         } else {
             [self didChangeIsDownloadingNotification:NO];
-            NSLog(@"Error reading file: %ld", errorCode);
+            
+            NSLog(@"Error downloading file: %ld - %@", errorCode, errorDescription);
+            [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:errorDescription];
         }
     }];
 }

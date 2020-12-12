@@ -2308,6 +2308,23 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     });
 }
 
+- (void)fileControllerDidFailLoadingFile:(NCChatFileController *)fileController withErrorDescription:(NSString *)errorDescription
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Unable to load file", nil)
+                                 message:errorDescription
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    
+    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+}
+
 #pragma mark - QLPreviewControllerDelegate/DataSource
 
 - (NSInteger)numberOfPreviewItemsInPreviewController:(nonnull QLPreviewController *)controller {
