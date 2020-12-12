@@ -160,7 +160,7 @@
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [self.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:activeAccount]
                                placeholderImage:nil success:nil failure:nil];
-    
+   
     NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
     UIImage *filePreviewImage = [UIImage imageNamed:imageName];
     __weak FilePreviewImageView *weakPreviewImageView = self.previewImageView;
@@ -177,8 +177,10 @@
         [self.statusView addSubview:errorView];
     } else if (message.isTemporary) {
         [self addActivityIndicator:0];
-    } else if (message.file.isDownloading && message.file.downloadProgress < 1) {
-        [self addActivityIndicator:message.file.downloadProgress];
+    } else if (message.file.fileStatus) {
+        if (message.file.fileStatus.isDownloading && message.file.fileStatus.downloadProgress < 1) {
+            [self addActivityIndicator:message.file.fileStatus.downloadProgress];
+        }
     }
     
     self.fileParameter = message.file;
@@ -187,9 +189,9 @@
 - (void)didChangeIsDownloading:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NCMessageFileParameter *receivedParameter = [notification.userInfo objectForKey:@"fileParameter"];
+        NCChatFileStatus *receivedStatus = [notification.userInfo objectForKey:@"fileStatus"];
         
-        if (receivedParameter.parameterId != self->_fileParameter.parameterId || ![receivedParameter.path isEqualToString:self->_fileParameter.path]) {
+        if (![receivedStatus.fileId isEqualToString:self->_fileParameter.parameterId] || ![receivedStatus.filePath isEqualToString:self->_fileParameter.path]) {
             // Received a notification for a different cell
             return;
         }
@@ -207,9 +209,9 @@
 - (void)didChangeDownloadProgress:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NCMessageFileParameter *receivedParameter = [notification.userInfo objectForKey:@"fileParameter"];
+        NCChatFileStatus *receivedStatus = [notification.userInfo objectForKey:@"fileStatus"];
         
-        if (receivedParameter.parameterId != self->_fileParameter.parameterId || ![receivedParameter.path isEqualToString:self->_fileParameter.path]) {
+        if (![receivedStatus.fileId isEqualToString:self->_fileParameter.parameterId] || ![receivedStatus.filePath isEqualToString:self->_fileParameter.path]) {
             // Received a notification for a different cell
             return;
         }

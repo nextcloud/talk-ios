@@ -31,8 +31,6 @@
         self.path = [parameterDict objectForKey:@"path"];
         self.mimetype = [parameterDict objectForKey:@"mimetype"];
         self.previewAvailable = [[parameterDict objectForKey:@"preview-available"] boolValue];
-        self.isDownloading = NO;
-        self.downloadProgress = 0;
     }
     
     return self;
