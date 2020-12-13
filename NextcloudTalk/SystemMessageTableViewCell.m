@@ -21,6 +21,7 @@
  */
 
 #import "SystemMessageTableViewCell.h"
+#import "NCAppBranding.h"
 
 @implementation SystemMessageTableViewCell
 
@@ -29,7 +30,7 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [NCAppBranding backgroundColor];
         
         [self configureSubviews];
     }

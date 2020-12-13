@@ -168,7 +168,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
         searchTextField.tintColor = [NCAppBranding themeColor];
         UIView *backgroundview = [searchTextField.subviews firstObject];
-        backgroundview.backgroundColor = [UIColor whiteColor];
+        backgroundview.backgroundColor = [NCAppBranding backgroundColor];
         backgroundview.layer.cornerRadius = 8;
         backgroundview.clipsToBounds = YES;
     } else {
@@ -342,7 +342,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     menuConfiguration.autoMenuWidth = YES;
     menuConfiguration.textColor = [UIColor darkTextColor];
     menuConfiguration.textFont = [UIFont systemFontOfSize:15];
-    menuConfiguration.backgroundColor = [UIColor whiteColor];
+    menuConfiguration.backgroundColor = [NCAppBranding backgroundColor];
     menuConfiguration.borderWidth = 0;
     menuConfiguration.separatorColor = [UIColor colorWithWhite:0.85 alpha:1];
     menuConfiguration.shadowOpacity = 0.8;

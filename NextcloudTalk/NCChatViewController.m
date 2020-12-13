@@ -203,6 +203,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.textInputbar.editorRightButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
     
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+    self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
     
     if (@available(iOS 13.0, *)) {
         UIColor *themeColor = [NCAppBranding themeColor];
@@ -213,6 +215,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         self.navigationItem.standardAppearance = appearance;
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;
+        
+        [self.textInputbar setBackgroundColor:[UIColor tertiarySystemBackgroundColor]];
     }
     
     // Add long press gesture recognizer
@@ -1924,7 +1928,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         if ([suggestionId isEqualToString:@"all"]) {
             [suggestionCell.avatarView setImage:[UIImage imageNamed:@"group-bg"]];
         } else if ([suggestionSource isEqualToString:@"guests"]) {
-            UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
+            UIColor *guestAvatarColor = [NCAppBranding placeholderColor];
             NSString *name = ([suggestionName isEqualToString:@"Guest"]) ? @"?" : suggestionName;
             [suggestionCell.avatarView setImageWithString:name color:guestAvatarColor circular:true];
         } else {

@@ -30,6 +30,7 @@
 #import "MaterialActivityIndicator.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
+#import "NCAppBranding.h"
 
 @interface ChatMessageTableViewCell ()
 @property (nonatomic, strong) UIView *quoteContainerView;
@@ -42,7 +43,7 @@
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [NCAppBranding backgroundColor];
         [self configureSubviews];
     }
     return self;
@@ -53,7 +54,7 @@
     _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kChatMessageCellAvatarHeight, kChatMessageCellAvatarHeight)];
     _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
     _avatarView.userInteractionEnabled = NO;
-    _avatarView.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
+    _avatarView.backgroundColor = [NCAppBranding placeholderColor];
     _avatarView.layer.cornerRadius = kChatMessageCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
     [self.contentView addSubview:_avatarView];
@@ -120,6 +121,12 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-32-[userStatusImageView(12)]-(>=0)-|" options:0 metrics:metrics views:views]];
         self.backgroundColor = [UIColor groupTableViewBackgroundColor];
         self.titleLabel.textColor = [UIColor darkTextColor];
+        
+        if (@available(iOS 13.0, *)) {
+            self.backgroundColor = [UIColor systemGroupedBackgroundColor];
+            self.titleLabel.textColor = [UIColor labelColor];
+        }
+        
     }
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];

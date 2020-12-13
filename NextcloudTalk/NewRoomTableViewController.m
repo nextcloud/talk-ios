@@ -129,7 +129,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
         searchTextField.tintColor = [NCAppBranding themeColor];
         UIView *backgroundview = [searchTextField.subviews firstObject];
-        backgroundview.backgroundColor = [UIColor whiteColor];
+        backgroundview.backgroundColor = [NCAppBranding backgroundColor];
         backgroundview.layer.cornerRadius = 8;
         backgroundview.clipsToBounds = YES;
     } else {
@@ -399,6 +399,8 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
                 cell.labelTitle.text = NSLocalizedString(@"Group conversation", nil);
                 cell.labelTitle.accessibilityLabel = NSLocalizedString(@"Create a new group conversation", nil);
                 cell.labelTitle.accessibilityHint = NSLocalizedString(@"Double tap to start creating a new group conversation", nil);
+                
+                //TODO: Darkmode
                 cell.labelTitle.textColor = [UIColor colorWithRed:0.00 green:0.48 blue:1.00 alpha:1.0]; //#007AFF
                 [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
                 break;
@@ -407,6 +409,8 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
                 cell.labelTitle.text = NSLocalizedString(@"Public conversation", nil);
                 cell.labelTitle.accessibilityLabel = NSLocalizedString(@"Create a new public conversation", nil);
                 cell.labelTitle.accessibilityHint = NSLocalizedString(@"Double tap to start creating a new public conversation", nil);
+                
+                // TODO: Darkmode
                 cell.labelTitle.textColor = [UIColor colorWithRed:0.00 green:0.48 blue:1.00 alpha:1.0]; //#007AFF
                 [cell.contactImage setImage:[UIImage imageNamed:@"public-bg"]];
                 break;

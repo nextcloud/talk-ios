@@ -23,6 +23,7 @@
 #import "ContactsTableViewCell.h"
 
 #import "UIImageView+AFNetworking.h"
+#import "NCAppBranding.h"
 
 NSString *const kContactCellIdentifier = @"ContactCellIdentifier";
 NSString *const kContactsTableCellNibName = @"ContactsTableViewCell";
@@ -58,6 +59,11 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
     
     self.labelTitle.text = @"";
     self.labelTitle.textColor = [UIColor darkTextColor];
+    
+    if (@available(iOS 13.0, *)) {
+        self.labelTitle.textColor = [UIColor labelColor];
+    }
+    
     self.labelTitle.font = [UIFont systemFontOfSize:kContactsTableCellTitleFontSize weight:UIFontWeightRegular];
 }
 
@@ -77,8 +83,7 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 10;
         _userStatusImageView.clipsToBounds = YES;
-        // TODO: Change it when dark mode is implemented
-        _userStatusImageView.backgroundColor = [UIColor whiteColor];
+        _userStatusImageView.backgroundColor = [NCAppBranding backgroundColor];
     }
 }
 

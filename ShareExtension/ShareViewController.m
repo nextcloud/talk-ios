@@ -182,7 +182,7 @@
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
         searchTextField.tintColor = [NCAppBranding themeColor];
         UIView *backgroundview = [searchTextField.subviews firstObject];
-        backgroundview.backgroundColor = [UIColor whiteColor];
+        backgroundview.backgroundColor = [NCAppBranding backgroundColor];
         backgroundview.layer.cornerRadius = 8;
         backgroundview.clipsToBounds = YES;
     } else {

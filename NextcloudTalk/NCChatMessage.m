@@ -247,7 +247,14 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
 - (NSMutableAttributedString *)systemMessageFormat
 {
     NSMutableAttributedString *message = [self parsedMessage];
-    [message addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.3] range:NSMakeRange(0,message.length)];
+    
+    if (@available(iOS 13.0, *)) {
+        //TODO: Further adjust for dark-mode ?
+        [message addAttribute:NSForegroundColorAttributeName value:[UIColor tertiaryLabelColor] range:NSMakeRange(0,message.length)];
+    } else {
+        [message addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.3] range:NSMakeRange(0,message.length)];
+    }
+    
     
     return message;
 }
