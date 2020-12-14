@@ -480,8 +480,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [_voiceCallButton setEnabled:YES];
         
         [self.leftButton setEnabled:YES];
-        [self.rightButton setEnabled:YES];
         self.textInputbar.userInteractionEnabled = YES;
+        
+        if ([self.textView.text length] > 0) {
+            [self.rightButton setEnabled:YES];
+        }
     }
     
     if (![_room userCanStartCall] && !_room.hasCall) {
