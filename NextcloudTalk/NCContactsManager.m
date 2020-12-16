@@ -61,7 +61,7 @@
 {
     [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
         if (granted) {
-            [self searchInServerForAddressBookContacts];
+            [self searchInServerForAddressBookContacts:YES];
         }
     }];
 }
@@ -83,13 +83,13 @@
     return ![[NSCalendar currentCalendar] isDate:lastUpdate inSameDayAsDate:[NSDate date]];
 }
 
-- (void)searchInServerForAddressBookContacts
+- (void)searchInServerForAddressBookContacts:(BOOL)forceSync
 {
     if (![[NCSettingsController sharedInstance] isContactSyncEnabled]) {
         return;
     }
     
-    if ([self isContactAccessAuthorized] && [self isTimeToSyncContacts]) {
+    if ([self isContactAccessAuthorized] && ([self isTimeToSyncContacts] || forceSync)) {
         NSMutableDictionary *phoneNumbersDict = [NSMutableDictionary new];
         NSMutableArray *contacts = [NSMutableArray new];
         NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];

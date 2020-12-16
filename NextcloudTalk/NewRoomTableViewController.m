@@ -160,6 +160,15 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     self.navigationController.navigationBar.topItem.leftBarButtonItem.accessibilityHint = NSLocalizedString(@"Cancel conversation creation", nil);
     
+    if ([[NCSettingsController sharedInstance] isContactSyncEnabled]) {
+        UIBarButtonItem *moreOptionButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"more-action"]
+                                                                             style:UIBarButtonItemStylePlain
+                                                                            target:self
+                                                                            action:@selector(moreOptionsButtonPressed)];
+        self.navigationController.navigationBar.topItem.rightBarButtonItem = moreOptionButton;
+        self.navigationController.navigationBar.topItem.rightBarButtonItem.accessibilityHint = NSLocalizedString(@"More options", nil);
+    }
+    
     UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", nil) style:UIBarButtonItemStylePlain
                                                                   target:nil action:nil];
     self.navigationItem.backBarButtonItem = backButton;
@@ -180,7 +189,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         self.navigationItem.hidesSearchBarWhenScrolling = NO;
     }
     
-    [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts];
+    [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:NO];
     [self getAddressBookContacts];
     [self getServerContacts];
 }
@@ -211,6 +220,28 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 - (void)cancelButtonPressed
 {
     [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)moreOptionsButtonPressed
+{
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:nil
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *syncContactsAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sync contacts", nil)
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:YES];
+    }];
+    [syncContactsAction setValue:[[UIImage imageNamed:@"contact"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [optionsActionSheet addAction:syncContactsAction];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.barButtonItem = self.navigationController.navigationBar.topItem.rightBarButtonItem;
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
 - (void)createRoomWithContact:(NCUser *)contact
