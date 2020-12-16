@@ -75,9 +75,16 @@
     return [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts] == CNAuthorizationStatusAuthorized;
 }
 
+- (BOOL)isTimeToSyncContacts
+{
+    // Update address book contacts and search for matches in the server only once per day.
+    NSDate *lastUpdate = [NSDate dateWithTimeIntervalSince1970:[[NCDatabaseManager sharedInstance] activeAccount].lastContactSync];
+    return ![[NSCalendar currentCalendar] isDate:lastUpdate inSameDayAsDate:[NSDate date]];
+}
+
 - (void)searchInServerForAddressBookContacts
 {
-    if ([self isContactAccessAuthorized]) {
+    if ([self isContactAccessAuthorized] && [self isTimeToSyncContacts]) {
         NSMutableDictionary *phoneNumbersDict = [NSMutableDictionary new];
         NSMutableArray *contacts = [NSMutableArray new];
         NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];
@@ -137,25 +144,31 @@
 - (void)searchForPhoneNumbers:(NSDictionary *)phoneNumbers forAccount:(TalkAccount *)account
 {
     [[NCAPIController sharedInstance] searchContactsForAccount:account withPhoneNumbers:phoneNumbers andCompletionBlock:^(NSDictionary *contacts, NSError *error) {
-        if (!error && contacts.count > 0) {
+        if (!error) {
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
-                // Add or update matched contacts
                 NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];
-                for (NSString *identifier in contacts.allKeys) {
-                    NSString *cloudId = [contacts objectForKey:identifier];
-                    NCContact *contact = [NCContact contactWithIdentifier:identifier cloudId:cloudId lastUpdate:updateTimestamp andAccountId:account.accountId];
-                    NCContact *managedNCContact = [NCContact objectsWhere:@"identifier = %@ AND accountId = %@", identifier, account.accountId].firstObject;
-                    if (managedNCContact) {
-                        [NCContact updateContact:managedNCContact withContact:contact];
-                    } else {
-                        [realm addObject:contact];
+                // Add or update matched contacts
+                if (contacts.count > 0) {
+                    for (NSString *identifier in contacts.allKeys) {
+                        NSString *cloudId = [contacts objectForKey:identifier];
+                        NCContact *contact = [NCContact contactWithIdentifier:identifier cloudId:cloudId lastUpdate:updateTimestamp andAccountId:account.accountId];
+                        NCContact *managedNCContact = [NCContact objectsWhere:@"identifier = %@ AND accountId = %@", identifier, account.accountId].firstObject;
+                        if (managedNCContact) {
+                            [NCContact updateContact:managedNCContact withContact:contact];
+                        } else {
+                            [realm addObject:contact];
+                        }
                     }
                 }
                 // Delete old contacts
                 NSPredicate *query = [NSPredicate predicateWithFormat:@"lastUpdate != %ld", (long)updateTimestamp];
                 RLMResults *managedNCContactsToBeDeleted = [NCContact objectsWithPredicate:query];
                 [realm deleteObjects:managedNCContactsToBeDeleted];
+                // Update last sync for account
+                NSPredicate *accountQuery = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+                TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:accountQuery].firstObject;
+                managedAccount.lastContactSync = updateTimestamp;
                 NSLog(@"Matched NC Contacts updated");
             }];
         }
