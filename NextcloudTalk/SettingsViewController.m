@@ -25,6 +25,7 @@
 #import "NCSettingsController.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCContactsManager.h"
 #import "NCDatabaseManager.h"
 #import "AccountTableViewCell.h"
 #import "UserSettingsTableViewCell.h"
@@ -55,11 +56,11 @@ typedef enum LockSection {
     kLockSectionNumber
 } LockSection;
 
-typedef enum ConfigurationSection {
-    kConfigurationSectionVideo = 0,
-    kConfigurationSectionBrowser,// Keep it always as last option
-    kConfigurationSectionNumber
-} ConfigurationSection;
+typedef enum ConfigurationSectionOption {
+    kConfigurationSectionOptionVideo = 0,
+    kConfigurationSectionOptionBrowser,
+    kConfigurationSectionOptionContactsSync
+} ConfigurationSectionOption;
 
 typedef enum AboutSection {
     kAboutSectionPrivacy = 0,
@@ -70,6 +71,7 @@ typedef enum AboutSection {
 @interface SettingsViewController ()
 {
     NCUserStatus *_activeUserStatus;
+    UISwitch *_contactSyncSwitch;
 }
 
 @end
@@ -87,6 +89,9 @@ typedef enum AboutSection {
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
     self.cancelButton.tintColor = [NCAppBranding themeTextColor];
+    
+    _contactSyncSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_contactSyncSwitch addTarget: self action: @selector(contactSyncValueChanged:) forControlEvents:UIControlEventValueChanged];
     
     if (@available(iOS 13.0, *)) {
         UIColor *themeColor = [NCAppBranding themeColor];
@@ -161,6 +166,31 @@ typedef enum AboutSection {
         return sectionNumber;
     }
     return 0;
+}
+
+- (NSArray *)getConfigurationSectionOptions
+{
+    NSMutableArray *options = [[NSMutableArray alloc] init];
+    // Video quality
+    [options addObject:[NSNumber numberWithInt:kConfigurationSectionOptionVideo]];
+    // Open links in
+    if ([NCSettingsController sharedInstance].supportedBrowsers.count > 1) {
+        [options addObject:[NSNumber numberWithInt:kConfigurationSectionOptionBrowser]];
+    }
+    // Contacts sync
+    [options addObject:[NSNumber numberWithInt:kConfigurationSectionOptionContactsSync]];
+    
+    return [NSArray arrayWithArray:options];
+}
+
+- (NSIndexPath *)getIndexPathForConfigurationOption:(ConfigurationSectionOption)option
+{
+    NSIndexPath *optionIndexPath = [NSIndexPath indexPathForRow:0 inSection:kSettingsSectionConfiguration];
+    NSInteger optionRow = [[self getConfigurationSectionOptions] indexOfObject:[NSNumber numberWithInt:option]];
+    if (NSNotFound != optionRow) {
+        optionIndexPath = [NSIndexPath indexPathForRow:optionRow inSection:kSettingsSectionConfiguration];
+    }
+    return optionIndexPath;
 }
 
 #pragma mark - User Profile
@@ -345,7 +375,7 @@ typedef enum AboutSection {
 
 - (void)presentVideoResolutionsSelector
 {
-    NSIndexPath *videoConfIndexPath = [NSIndexPath indexPathForRow:kConfigurationSectionVideo inSection:[self getSectionForSettingsSection:kSettingsSectionConfiguration]];
+    NSIndexPath *videoConfIndexPath = [self getIndexPathForConfigurationOption:kConfigurationSectionOptionVideo];
     NSArray *videoResolutions = [[[NCSettingsController sharedInstance] videoSettingsModel] availableVideoResolutions];
     NSString *storedResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
     UIAlertController *optionsActionSheet =
@@ -382,7 +412,7 @@ typedef enum AboutSection {
 
 - (void)presentBrowserSelector
 {
-    NSIndexPath *browserConfIndexPath = [NSIndexPath indexPathForRow:kConfigurationSectionBrowser inSection:[self getSectionForSettingsSection:kSettingsSectionConfiguration]];
+    NSIndexPath *browserConfIndexPath = [self getIndexPathForConfigurationOption:kConfigurationSectionOptionBrowser];
     NSArray *supportedBrowsers = [[NCSettingsController sharedInstance] supportedBrowsers];
     NSString *defaultBrowser = [[NCSettingsController sharedInstance] defaultBrowser];
     UIAlertController *optionsActionSheet =
@@ -416,6 +446,15 @@ typedef enum AboutSection {
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
+- (void)contactSyncValueChanged:(id)sender
+{
+    if (_contactSyncSwitch.on && ![[NCContactsManager sharedInstance] isContactAccessDetermined]) {
+        [[NCContactsManager sharedInstance] requestContactsAccess];
+    }
+    
+    [[NCSettingsController sharedInstance] setContactSync:_contactSyncSwitch.on];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -433,10 +472,7 @@ typedef enum AboutSection {
             break;
             
         case kSettingsSectionConfiguration:
-        {
-            NSUInteger numberOfSupportedBrowsers = [NCSettingsController sharedInstance].supportedBrowsers.count;
-            return (numberOfSupportedBrowsers > 1) ? kConfigurationSectionNumber : kConfigurationSectionNumber - 1;
-        }
+            return [self getConfigurationSectionOptions].count;
             break;
 
         case kSettingsSectionLock:
@@ -523,6 +559,7 @@ typedef enum AboutSection {
     UITableViewCell *cell = nil;
     static NSString *videoConfigurationCellIdentifier = @"VideoConfigurationCellIdentifier";
     static NSString *browserConfigurationCellIdentifier = @"BrowserConfigurationCellIdentifier";
+    static NSString *contactsSyncCellIdentifier = @"ContactsSyncCellIdentifier";
     static NSString *privacyCellIdentifier = @"PrivacyCellIdentifier";
     static NSString *sourceCodeCellIdentifier = @"SourceCodeCellIdentifier";
     static NSString *lockOnCellIdentifier = @"LockOnCellIdentifier";
@@ -585,8 +622,10 @@ typedef enum AboutSection {
             break;
         case kSettingsSectionConfiguration:
         {
-            switch (indexPath.row) {
-                case kConfigurationSectionVideo:
+            NSArray *options = [self getConfigurationSectionOptions];
+            ConfigurationSectionOption option = [[options objectAtIndex:indexPath.row] intValue];
+            switch (option) {
+                case kConfigurationSectionOptionVideo:
                 {
                     cell = [tableView dequeueReusableCellWithIdentifier:videoConfigurationCellIdentifier];
                     if (!cell) {
@@ -598,7 +637,7 @@ typedef enum AboutSection {
                     cell.detailTextLabel.text = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:resolution];
                 }
                     break;
-                case kConfigurationSectionBrowser:
+                case kConfigurationSectionOptionBrowser:
                 {
                     cell = [tableView dequeueReusableCellWithIdentifier:browserConfigurationCellIdentifier];
                     if (!cell) {
@@ -608,6 +647,21 @@ typedef enum AboutSection {
                         [cell.imageView setImage:[UIImage imageNamed:@"browser-settings"]];
                     }
                     cell.detailTextLabel.text = [[NCSettingsController sharedInstance] defaultBrowser];
+                }
+                    break;
+                case kConfigurationSectionOptionContactsSync:
+                {
+                    cell = [tableView dequeueReusableCellWithIdentifier:contactsSyncCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:browserConfigurationCellIdentifier];
+                        cell.textLabel.text = NSLocalizedString(@"Contact sync", nil);
+                        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                        cell.imageView.contentMode = UIViewContentModeScaleAspectFit;
+                        [cell.imageView setImage:[[UIImage imageNamed:@"contact"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                        cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    }
+                    cell.accessoryView = _contactSyncSwitch;
+                    _contactSyncSwitch.on = [[NCSettingsController sharedInstance] isContactSyncEnabled];
                 }
                     break;
             }
@@ -723,16 +777,20 @@ typedef enum AboutSection {
             break;
         case kSettingsSectionConfiguration:
         {
-            switch (indexPath.row) {
-                case kConfigurationSectionVideo:
+            NSArray *options = [self getConfigurationSectionOptions];
+            ConfigurationSectionOption option = [[options objectAtIndex:indexPath.row] intValue];
+            switch (option) {
+                case kConfigurationSectionOptionVideo:
                 {
                     [self presentVideoResolutionsSelector];
                 }
                     break;
-                case kConfigurationSectionBrowser:
+                case kConfigurationSectionOptionBrowser:
                 {
                     [self presentBrowserSelector];
                 }
+                    break;
+                case kConfigurationSectionOptionContactsSync:
                     break;
             }
         }

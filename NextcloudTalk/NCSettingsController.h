@@ -124,5 +124,7 @@ typedef enum NCPasscodeType {
 - (BOOL)canCreateGroupAndPublicRooms;
 - (NCPreferredFileSorting)getPreferredFileSorting;
 - (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting;
+- (BOOL)isContactSyncEnabled;
+- (void)setContactSync:(BOOL)enabled;
 
 @end

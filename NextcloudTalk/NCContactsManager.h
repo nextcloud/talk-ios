@@ -25,6 +25,9 @@
 @interface NCContactsManager : NSObject
 
 + (instancetype)sharedInstance;
+- (void)requestContactsAccess;
+- (BOOL)isContactAccessDetermined;
+- (BOOL)isContactAccessAuthorized;
 - (void)searchInServerForAddressBookContacts;
 
 @end

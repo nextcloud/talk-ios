@@ -82,6 +82,7 @@ NSInteger const kDefaultChatMaxLength           = 1000;
 NSString * const kMinimumRequiredTalkCapability = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
 NSString * const kPreferredFileSorting  = @"preferredFileSorting";
+NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
 
 NSString * const NCTalkNotInstalledNotification = @"NCTalkNotInstalledNotification";
 NSString * const NCOutdatedTalkVersionNotification = @"NCOutdatedTalkVersionNotification";
@@ -224,6 +225,16 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 - (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting
 {
     [[NSUserDefaults standardUserDefaults] setObject:@(sorting) forKey:kPreferredFileSorting];
+}
+
+- (BOOL)isContactSyncEnabled
+{
+    return [[[NSUserDefaults standardUserDefaults] objectForKey:kContactSyncEnabled] boolValue];
+}
+
+- (void)setContactSync:(BOOL)enabled
+{
+    [[NSUserDefaults standardUserDefaults] setObject:@(enabled) forKey:kContactSyncEnabled];
 }
 
 #pragma mark - KeyChain

@@ -26,6 +26,7 @@
 
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
+#import "NCSettingsController.h"
 #import "ABContact.h"
 #import "NCContact.h"
 
@@ -84,6 +85,10 @@
 
 - (void)searchInServerForAddressBookContacts
 {
+    if (![[NCSettingsController sharedInstance] isContactSyncEnabled]) {
+        return;
+    }
+    
     if ([self isContactAccessAuthorized] && [self isTimeToSyncContacts]) {
         NSMutableDictionary *phoneNumbersDict = [NSMutableDictionary new];
         NSMutableArray *contacts = [NSMutableArray new];
