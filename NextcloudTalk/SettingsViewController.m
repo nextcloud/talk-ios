@@ -453,6 +453,9 @@ typedef enum AboutSection {
     }
     
     [[NCSettingsController sharedInstance] setContactSync:_contactSyncSwitch.on];
+    
+    // Reload to update configuration section footer
+    [self.tableView reloadData];
 }
 
 #pragma mark - Table view data source
@@ -543,13 +546,29 @@ typedef enum AboutSection {
 {
     NSArray *sections = [self getSettingsSections];
     SettingsSection settingsSection = [[sections objectAtIndex:section] intValue];
+    
     if (settingsSection == kSettingsSectionAbout) {
         NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
         NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
         return [NSString stringWithFormat:@"%@ %@ %@", appName, appVersion, copyright];
     }
+    
     if (settingsSection == kSettingsSectionUserStatus && [_activeUserStatus.status isEqualToString:kUserStatusDND]) {
         return NSLocalizedString(@"All notifications are muted", nil);
+    }
+    
+    if (settingsSection == kSettingsSectionConfiguration && _contactSyncSwitch.on) {
+        if ([[NCContactsManager sharedInstance] isContactAccessDetermined] && ![[NCContactsManager sharedInstance] isContactAccessAuthorized]) {
+            return NSLocalizedString(@"Contact access has been denied", nil);
+        }
+        
+        if ([[NCDatabaseManager sharedInstance] activeAccount].lastContactSync > 0) {
+            NSDate *lastUpdate = [NSDate dateWithTimeIntervalSince1970:[[NCDatabaseManager sharedInstance] activeAccount].lastContactSync];
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            dateFormatter.dateStyle = NSDateFormatterMediumStyle;
+            dateFormatter.timeStyle = NSDateFormatterShortStyle;
+            return [NSString stringWithFormat:NSLocalizedString(@"Last sync: %@", nil), [dateFormatter stringFromDate:lastUpdate]];
+        }
     }
     
     return nil;
