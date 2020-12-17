@@ -22,9 +22,11 @@
 
 #import "NCDatabaseManager.h"
 
+#import "ABContact.h"
 #import "NCAppBranding.h"
 #import "NCChatController.h"
 #import "NCChatMessage.h"
+#import "NCContact.h"
 #import "NCRoom.h"
 
 NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
@@ -162,6 +164,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 8;
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     TalkAccount *removeAccount = [TalkAccount objectsWithPredicate:query].firstObject;
     ServerCapabilities *serverCapabilities = [ServerCapabilities objectsWithPredicate:query].firstObject;
+    BOOL isLastAccount = [self numberOfAccounts] == 1;
     [realm beginWriteTransaction];
     [realm deleteObject:removeAccount];
     if (serverCapabilities) {
@@ -170,6 +173,10 @@ uint64_t const kTalkDatabaseSchemaVersion   = 8;
     [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
+    [realm deleteObjects:[NCContact objectsWithPredicate:query]];
+    if (isLastAccount) {
+        [realm deleteObjects:[ABContact allObjects]];
+    }
     [realm commitWriteTransaction];
 }
 
