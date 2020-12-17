@@ -448,11 +448,17 @@ typedef enum AboutSection {
 
 - (void)contactSyncValueChanged:(id)sender
 {
-    if (_contactSyncSwitch.on && ![[NCContactsManager sharedInstance] isContactAccessDetermined]) {
-        [[NCContactsManager sharedInstance] requestContactsAccess];
-    }
-    
     [[NCSettingsController sharedInstance] setContactSync:_contactSyncSwitch.on];
+    
+    if (_contactSyncSwitch.on) {
+        if (![[NCContactsManager sharedInstance] isContactAccessDetermined]) {
+            [[NCContactsManager sharedInstance] requestContactsAccess];
+        } else if ([[NCContactsManager sharedInstance] isContactAccessAuthorized]) {
+            [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:YES];
+        }
+    } else {
+        [[NCContactsManager sharedInstance] removeAllStoredContacts];
+    }
     
     // Reload to update configuration section footer
     [self.tableView reloadData];

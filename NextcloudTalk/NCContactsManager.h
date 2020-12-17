@@ -29,6 +29,7 @@
 - (BOOL)isContactAccessDetermined;
 - (BOOL)isContactAccessAuthorized;
 - (void)searchInServerForAddressBookContacts:(BOOL)forceSync;
+- (void)removeAllStoredContacts;
 
 @end
 

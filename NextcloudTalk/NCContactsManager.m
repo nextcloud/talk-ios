@@ -180,4 +180,16 @@
     }];
 }
 
+- (void)removeAllStoredContacts
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    [realm deleteObjects:[NCContact allObjects]];
+    [realm deleteObjects:[ABContact allObjects]];
+    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
+        talkAccount.lastContactSync = 0;
+    }
+    [realm commitWriteTransaction];
+}
+
 @end
