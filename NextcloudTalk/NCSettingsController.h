@@ -53,6 +53,7 @@ extern NSString * const kCapabilityChatReadMarker;
 extern NSString * const kCapabilityStartCallFlag;
 extern NSString * const kCapabilityCirclesSupport;
 extern NSString * const kCapabilityChatReferenceId;
+extern NSString * const kCapabilityPhonebookSearch;
 
 extern NSInteger const kDefaultChatMaxLength;
 extern NSString * const kMinimumRequiredTalkCapability;
@@ -124,5 +125,7 @@ typedef enum NCPasscodeType {
 - (BOOL)canCreateGroupAndPublicRooms;
 - (NCPreferredFileSorting)getPreferredFileSorting;
 - (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting;
+- (BOOL)isContactSyncEnabled;
+- (void)setContactSync:(BOOL)enabled;
 
 @end

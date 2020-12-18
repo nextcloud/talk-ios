@@ -42,6 +42,7 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 @property NSString *userPublicKey;
 @property NSInteger unreadBadgeNumber;
 @property BOOL unreadNotification;
+@property NSInteger lastContactSync;
 @property BOOL active;
 @end
 

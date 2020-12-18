@@ -21,32 +21,22 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <Realm/Realm.h>
 
-#import "NCContact.h"
 
-typedef enum NCShareType {
-    NCShareTypeUser = 0,
-    NCShareTypeGroup = 1,
-    NCShareTypeEmail = 4,
-    NCShareTypeCircle = 7
-} NCShareType;
+@interface NCContact : RLMObject
 
-extern NSString * const kParticipantTypeUser;
-extern NSString * const kParticipantTypeGroup;
-extern NSString * const kParticipantTypeEmail;
-extern NSString * const kParticipantTypeCircle;
+@property (nonatomic, copy) NSString *internalId; // accountId@identifier
+@property (nonatomic, copy) NSString *accountId;
+@property (nonatomic, copy) NSString *identifier;
+@property (nonatomic, copy) NSString *cloudId;
+@property (nonatomic, assign) NSInteger lastUpdate;
 
-@interface NCUser : NSObject
-
-@property (nonatomic, copy) NSString *userId;
-@property (nonatomic, copy) NSString *name;
-@property (nonatomic, assign) NSString *source;
-
-+ (instancetype)userWithDictionary:(NSDictionary *)userDict;
-+ (instancetype)userFromNCContact:(NCContact *)contact;
-
-+ (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users;
-// Duplicate users found in second array will be deleted
-+ (NSMutableArray *)combineUsersArray:(NSArray *)firstArray withUsersArray:(NSArray *)secondArray;
++ (instancetype)contactWithIdentifier:(NSString *)identifier cloudId:(NSString *)cloudId lastUpdate:(NSInteger)lastUpdate andAccountId:(NSString *)accountId;
++ (void)updateContact:(NCContact *)managedContact withContact:(NCContact *)contact;
++ (NSMutableArray *)contactsForAccountId:(NSString *)accountId contains:(NSString *)searchString;
+- (NSString *)userId;
+- (NSString *)name;
 
 @end
+

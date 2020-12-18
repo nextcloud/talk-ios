@@ -33,6 +33,7 @@
 #import "NCUser.h"
 
 typedef void (^GetContactsCompletionBlock)(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error);
+typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contacts, NSError *error);
 
 typedef void (^GetRoomsCompletionBlock)(NSArray *rooms, NSError *error, NSInteger statusCode);
 typedef void (^GetRoomCompletionBlock)(NSDictionary *roomDict, NSError *error);
@@ -99,8 +100,8 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account;
 
 // Contacts Controller
+- (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSDictionary *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block;
 - (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
-- (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users;
 
 // Rooms Controller
 - (NSURLSessionDataTask *)getRoomsForAccount:(TalkAccount *)account updateStatus:(BOOL)updateStatus withCompletionBlock:(GetRoomsCompletionBlock)block;

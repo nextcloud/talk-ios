@@ -26,6 +26,9 @@
 #import "RoomCreation2TableViewController.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCContact.h"
+#import "NCContactsManager.h"
+#import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
@@ -45,11 +48,14 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 {
     NSMutableDictionary *_contacts;
     NSMutableArray *_indexes;
+    NSMutableArray *_serverContactList;
+    NSMutableArray *_addressBookContactList;
     UISearchController *_searchController;
     PlaceholderView *_newRoomBackgroundView;
     SearchTableViewController *_resultTableViewController;
     NSTimer *_searchTimer;
     NSURLSessionTask *_searchContactsTask;
+    RLMNotificationToken *_rlmNotificationToken;
 }
 @end
 
@@ -59,9 +65,22 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 {
     [super viewDidLoad];
     
+    __weak typeof(self) weakSelf = self;
+    _rlmNotificationToken = [[NCContact allObjects] addNotificationBlock:^(RLMResults<NCContact *> *results, RLMCollectionChange *changes, NSError *error) {
+        if (error) {
+            NSLog(@"Failed to open Realm on background worker: %@", error);
+            return;
+        }
+        if (changes) {
+            [weakSelf getAddressBookContacts];
+        }
+    }];
+    
     _contacts = [[NSMutableDictionary alloc] init];
     _indexes = [[NSMutableArray alloc] init];
     [_indexes insertObject:@"" atIndex:0];
+    _addressBookContactList = [[NSMutableArray alloc] init];
+    _serverContactList = [[NSMutableArray alloc] init];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     // Align header's title to ContactsTableViewCell's label
@@ -141,6 +160,15 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     self.navigationController.navigationBar.topItem.leftBarButtonItem.accessibilityHint = NSLocalizedString(@"Cancel conversation creation", nil);
     
+    if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
+        UIBarButtonItem *moreOptionButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"more-action"]
+                                                                             style:UIBarButtonItemStylePlain
+                                                                            target:self
+                                                                            action:@selector(moreOptionsButtonPressed)];
+        self.navigationController.navigationBar.topItem.rightBarButtonItem = moreOptionButton;
+        self.navigationController.navigationBar.topItem.rightBarButtonItem.accessibilityHint = NSLocalizedString(@"More options", nil);
+    }
+    
     UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", nil) style:UIBarButtonItemStylePlain
                                                                   target:nil action:nil];
     self.navigationItem.backBarButtonItem = backButton;
@@ -161,7 +189,12 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         self.navigationItem.hidesSearchBarWhenScrolling = NO;
     }
     
-    [self getContacts];
+    if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
+        [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:NO];
+        [self getAddressBookContacts];
+    }
+    
+    [self getServerContacts];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -175,6 +208,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 
 - (void)dealloc
 {
+    [_rlmNotificationToken invalidate];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -189,6 +223,28 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 - (void)cancelButtonPressed
 {
     [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)moreOptionsButtonPressed
+{
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:nil
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *syncContactsAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sync contacts", nil)
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:YES];
+    }];
+    [syncContactsAction setValue:[[UIImage imageNamed:@"contact"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [optionsActionSheet addAction:syncContactsAction];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.barButtonItem = self.navigationController.navigationBar.topItem.rightBarButtonItem;
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
 - (void)createRoomWithContact:(NCUser *)contact
@@ -224,16 +280,12 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 
 #pragma mark - Contacts
 
-- (void)getContacts
+- (void)getServerContacts
 {
     [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:nil groupRoom:NO withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            _contacts = contacts;
-            _indexes = [NSMutableArray arrayWithArray:indexes];
-            [_indexes insertObject:@"" atIndex:0];
-            [_newRoomBackgroundView.loadingView stopAnimating];
-            [_newRoomBackgroundView.loadingView setHidden:YES];
-            [self.tableView reloadData];
+            self->_serverContactList = contactList;
+            [self loadCombinedContacts];
         } else {
             NSLog(@"Error while trying to get contacts: %@", error);
         }
@@ -243,15 +295,43 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 - (void)searchForContactsWithString:(NSString *)searchString
 {
     [_searchContactsTask cancel];
-    _searchContactsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:nil groupRoom:NO withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    _searchContactsTask = [[NCAPIController sharedInstance] getContactsForAccount:activeAccount forRoom:nil groupRoom:NO withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            [_resultTableViewController setSearchResultContacts:contacts withIndexes:indexes];
-        } else {
-            if (error.code != -999) {
-                NSLog(@"Error while searching for contacts: %@", error);
-            }
+            NSMutableArray *storedContacts = [NCContact contactsForAccountId:activeAccount.accountId contains:searchString];
+            NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];
+            NSMutableDictionary *combinedContacts = [NCUser indexedUsersFromUsersArray:combinedContactList];
+            NSMutableArray *combinedIndexes = [NSMutableArray arrayWithArray:[[combinedContacts allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
+            [self->_resultTableViewController setSearchResultContacts:combinedContacts withIndexes:combinedIndexes];
+        } else if (error.code != -999) {
+            NSLog(@"Error while searching for contacts: %@", error);
         }
     }];
+}
+
+- (void)getAddressBookContacts
+{
+    // Get all stored address book contacts that matched users in nextcloud
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    _addressBookContactList = [NCContact contactsForAccountId:activeAccount.accountId contains:nil];
+    
+    // Show directly address book contacts if there are already some stored
+    if (_addressBookContactList.count > 0) {
+        [self loadCombinedContacts];
+    }
+}
+
+- (void)loadCombinedContacts
+{
+    NSMutableArray *combinedContactList = [NCUser combineUsersArray:_addressBookContactList withUsersArray:_serverContactList];
+    _contacts = [NCUser indexedUsersFromUsersArray:combinedContactList];
+    _indexes = [NSMutableArray arrayWithArray:[[_contacts allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
+    [_indexes insertObject:@"" atIndex:0];
+    
+    // Load contact list in table view
+    [_newRoomBackgroundView.loadingView stopAnimating];
+    [_newRoomBackgroundView.loadingView setHidden:YES];
+    [self.tableView reloadData];
 }
 
 #pragma mark - Search controller
@@ -262,7 +342,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     _searchTimer = nil;
     [_resultTableViewController showSearchingUI];
     dispatch_async(dispatch_get_main_queue(), ^{
-        _searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForContacts) userInfo:nil repeats:NO];
+        self->_searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForContacts) userInfo:nil repeats:NO];
     });
 }
 

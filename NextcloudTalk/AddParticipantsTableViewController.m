@@ -24,6 +24,7 @@
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCContact.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
@@ -259,15 +260,18 @@
 
 - (void)getPossibleParticipants
 {
-    [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:_room.token groupRoom:YES withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getContactsForAccount:activeAccount forRoom:_room.token groupRoom:YES withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            NSMutableArray *filteredParticipants = [self filterContacts:contactList];
-            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
-            _participants = participants;
-            _indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-            [_participantsBackgroundView.loadingView stopAnimating];
-            [_participantsBackgroundView.loadingView setHidden:YES];
-            [_participantsBackgroundView.placeholderView setHidden:(participants.count > 0)];
+            NSMutableArray *storedContacts = [NCContact contactsForAccountId:activeAccount.accountId contains:nil];
+            NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];
+            NSMutableArray *filteredParticipants = [self filterContacts:combinedContactList];
+            NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:filteredParticipants];
+            self->_participants = participants;
+            self->_indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+            [self->_participantsBackgroundView.loadingView stopAnimating];
+            [self->_participantsBackgroundView.loadingView setHidden:YES];
+            [self->_participantsBackgroundView.placeholderView setHidden:(participants.count > 0)];
             [self.tableView reloadData];
         } else {
             NSLog(@"Error while trying to get participants: %@", error);
@@ -278,12 +282,15 @@
 - (void)searchForParticipantsWithString:(NSString *)searchString
 {
     [_searchParticipantsTask cancel];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:_room.token groupRoom:YES withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            NSMutableArray *filteredParticipants = [self filterContacts:contactList];
-            NSMutableDictionary *participants = [[NCAPIController sharedInstance] indexedUsersFromUsersArray:filteredParticipants];
+            NSMutableArray *storedContacts = [NCContact contactsForAccountId:activeAccount.accountId contains:searchString];
+            NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];
+            NSMutableArray *filteredParticipants = [self filterContacts:combinedContactList];
+            NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:filteredParticipants];
             NSArray *sortedIndexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-            [_resultTableViewController setSearchResultContacts:participants withIndexes:sortedIndexes];
+            [self->_resultTableViewController setSearchResultContacts:participants withIndexes:sortedIndexes];
         } else {
             if (error.code != -999) {
                 NSLog(@"Error while searching for participants: %@", error);
@@ -326,7 +333,7 @@
     _searchTimer = nil;
     [_resultTableViewController showSearchingUI];
     dispatch_async(dispatch_get_main_queue(), ^{
-        _searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForParticipants) userInfo:nil repeats:NO];
+        self->_searchTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(searchForParticipants) userInfo:nil repeats:NO];
     });
 }
 
