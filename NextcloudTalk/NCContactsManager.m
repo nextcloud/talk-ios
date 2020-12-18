@@ -164,6 +164,10 @@ NSString * const NCContactsManagerContactsAccessUpdatedNotification = @"NCContac
                     for (NSString *identifier in contacts.allKeys) {
                         NSString *cloudId = [contacts objectForKey:identifier];
                         NCContact *contact = [NCContact contactWithIdentifier:identifier cloudId:cloudId lastUpdate:updateTimestamp andAccountId:account.accountId];
+                        // Filter out app user (it could have its own phone number in address book)
+                        if ([contact.userId isEqualToString:account.userId]) {
+                            continue;
+                        }
                         NCContact *managedNCContact = [NCContact objectsWhere:@"identifier = %@ AND accountId = %@", identifier, account.accountId].firstObject;
                         if (managedNCContact) {
                             [NCContact updateContact:managedNCContact withContact:contact];
