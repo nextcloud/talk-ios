@@ -160,7 +160,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     self.navigationController.navigationBar.topItem.leftBarButtonItem.accessibilityHint = NSLocalizedString(@"Cancel conversation creation", nil);
     
-    if ([[NCSettingsController sharedInstance] isContactSyncEnabled]) {
+    if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
         UIBarButtonItem *moreOptionButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"more-action"]
                                                                              style:UIBarButtonItemStylePlain
                                                                             target:self
@@ -189,8 +189,11 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         self.navigationItem.hidesSearchBarWhenScrolling = NO;
     }
     
-    [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:NO];
-    [self getAddressBookContacts];
+    if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
+        [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:NO];
+        [self getAddressBookContacts];
+    }
+    
     [self getServerContacts];
 }
 

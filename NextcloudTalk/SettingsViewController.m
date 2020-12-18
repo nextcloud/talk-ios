@@ -180,7 +180,9 @@ typedef enum AboutSection {
         [options addObject:[NSNumber numberWithInt:kConfigurationSectionOptionBrowser]];
     }
     // Contacts sync
-    [options addObject:[NSNumber numberWithInt:kConfigurationSectionOptionContactsSync]];
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
+        [options addObject:[NSNumber numberWithInt:kConfigurationSectionOptionContactsSync]];
+    }
     
     return [NSArray arrayWithArray:options];
 }
