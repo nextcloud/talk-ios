@@ -108,6 +108,8 @@ typedef enum AboutSection {
     [self.tableView registerNib:[UINib nibWithNibName:kAccountTableViewCellNibName bundle:nil] forCellReuseIdentifier:kAccountCellIdentifier];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contactsHaveBeenUpdated:) name:NCContactsManagerContactsUpdatedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contactsAccessHasBeenUpdated:) name:NCContactsManagerContactsAccessUpdatedNotification object:nil];
 }
 
 - (void)dealloc
@@ -221,6 +223,20 @@ typedef enum AboutSection {
 {
     AppState appState = [[notification.userInfo objectForKey:@"appState"] intValue];
     [self adaptInterfaceForAppState:appState];
+}
+
+- (void)contactsHaveBeenUpdated:(NSNotification *)notification
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData];
+    });
+}
+
+- (void)contactsAccessHasBeenUpdated:(NSNotification *)notification
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData];
+    });
 }
 
 #pragma mark - User Interface

@@ -38,6 +38,9 @@
 
 @implementation NCContactsManager
 
+NSString * const NCContactsManagerContactsUpdatedNotification       = @"NCContactsManagerContactsUpdatedNotification";
+NSString * const NCContactsManagerContactsAccessUpdatedNotification = @"NCContactsManagerContactsAccessUpdatedNotification";
+
 + (NCContactsManager *)sharedInstance
 {
     static dispatch_once_t once;
@@ -63,6 +66,9 @@
         if (granted) {
             [self searchInServerForAddressBookContacts:YES];
         }
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCContactsManagerContactsAccessUpdatedNotification
+                                                            object:self
+                                                          userInfo:nil];
     }];
 }
 
@@ -175,6 +181,9 @@
                 TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:accountQuery].firstObject;
                 managedAccount.lastContactSync = updateTimestamp;
                 NSLog(@"Matched NC Contacts updated");
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCContactsManagerContactsUpdatedNotification
+                                                                    object:self
+                                                                  userInfo:nil];
             }];
         }
     }];

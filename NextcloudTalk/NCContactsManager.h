@@ -22,6 +22,9 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString * const NCContactsManagerContactsUpdatedNotification;
+extern NSString * const NCContactsManagerContactsAccessUpdatedNotification;
+
 @interface NCContactsManager : NSObject
 
 + (instancetype)sharedInstance;
