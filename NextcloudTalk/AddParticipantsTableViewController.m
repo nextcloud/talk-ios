@@ -260,9 +260,10 @@
 
 - (void)getPossibleParticipants
 {
-    [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:_room.token groupRoom:YES withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getContactsForAccount:activeAccount forRoom:_room.token groupRoom:YES withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            NSMutableArray *storedContacts = [NCContact contactsThatContain:nil];
+            NSMutableArray *storedContacts = [NCContact contactsForAccountId:activeAccount.accountId contains:nil];
             NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];
             NSMutableArray *filteredParticipants = [self filterContacts:combinedContactList];
             NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:filteredParticipants];
@@ -281,9 +282,10 @@
 - (void)searchForParticipantsWithString:(NSString *)searchString
 {
     [_searchParticipantsTask cancel];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:_room.token groupRoom:YES withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            NSMutableArray *storedContacts = [NCContact contactsThatContain:searchString];
+            NSMutableArray *storedContacts = [NCContact contactsForAccountId:activeAccount.accountId contains:searchString];
             NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];
             NSMutableArray *filteredParticipants = [self filterContacts:combinedContactList];
             NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:filteredParticipants];

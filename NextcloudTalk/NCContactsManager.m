@@ -173,7 +173,7 @@ NSString * const NCContactsManagerContactsAccessUpdatedNotification = @"NCContac
                     }
                 }
                 // Delete old contacts
-                NSPredicate *query = [NSPredicate predicateWithFormat:@"lastUpdate != %ld", (long)updateTimestamp];
+                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND lastUpdate != %ld", account.accountId, (long)updateTimestamp];
                 RLMResults *managedNCContactsToBeDeleted = [NCContact objectsWithPredicate:query];
                 [realm deleteObjects:managedNCContactsToBeDeleted];
                 // Update last sync for account

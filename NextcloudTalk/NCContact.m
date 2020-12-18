@@ -79,9 +79,9 @@
     return nil;
 }
 
-+ (NSMutableArray *)contactsThatContain:(NSString *)searchString
++ (NSMutableArray *)contactsForAccountId:(NSString *)accountId contains:(NSString *)searchString
 {
-    RLMResults *managedContacts = [NCContact allObjects];
+    RLMResults *managedContacts = [NCContact objectsWhere:@"accountId = %@", accountId];
     NSMutableArray *filteredContacts = nil;
     // Create an unmanaged copy of the stored contacts
     NSMutableArray *contacts = [NSMutableArray new];

@@ -295,9 +295,10 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 - (void)searchForContactsWithString:(NSString *)searchString
 {
     [_searchContactsTask cancel];
-    _searchContactsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:nil groupRoom:NO withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    _searchContactsTask = [[NCAPIController sharedInstance] getContactsForAccount:activeAccount forRoom:nil groupRoom:NO withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            NSMutableArray *storedContacts = [NCContact contactsThatContain:searchString];
+            NSMutableArray *storedContacts = [NCContact contactsForAccountId:activeAccount.accountId contains:searchString];
             NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];
             NSMutableDictionary *combinedContacts = [NCUser indexedUsersFromUsersArray:combinedContactList];
             NSMutableArray *combinedIndexes = [NSMutableArray arrayWithArray:[[combinedContacts allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
@@ -311,7 +312,8 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 - (void)getAddressBookContacts
 {
     // Get all stored address book contacts that matched users in nextcloud
-    _addressBookContactList = [NCContact contactsThatContain:nil];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    _addressBookContactList = [NCContact contactsForAccountId:activeAccount.accountId contains:nil];
     
     // Show directly address book contacts if there are already some stored
     if (_addressBookContactList.count > 0) {
