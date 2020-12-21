@@ -2304,7 +2304,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             preview.navigationItem.scrollEdgeAppearance = appearance;
         }
 
-        [self.navigationController pushViewController:preview animated:YES];
+        [self presentViewController:preview animated:YES completion:nil];
     });
 }
 
