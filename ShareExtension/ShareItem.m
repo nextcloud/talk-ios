@@ -25,7 +25,7 @@
 @implementation ShareItem
 
 
-+ (instancetype)initWithURL:(NSURL *)fileURL withName:(NSString *)fileName withPlaceholderImage:(UIImage *)placeholderImage
++ (instancetype)initWithURL:(NSURL *)fileURL withName:(NSString *)fileName withPlaceholderImage:(UIImage *)placeholderImage isImage:(BOOL)isImage
 {
     ShareItem* item = [[ShareItem alloc] init];
     item.fileURL = fileURL;
@@ -33,6 +33,7 @@
     item.fileName = fileName;
     item.placeholderImage = placeholderImage;
     item.uploadProgress = 0;
+    item.isImage = isImage;
     
     return item;
 }

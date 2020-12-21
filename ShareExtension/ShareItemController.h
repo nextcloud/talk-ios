@@ -43,9 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addItemWithURLAndName:(NSURL *)fileURL withName:(NSString *)fileName;
 - (void)addItemWithImage:(UIImage *)image;
 - (void)addItemWithImageAndName:(UIImage *)image withName:(NSString *)imageName;
+- (void)updateItem:(ShareItem *)item withImage:(UIImage *)image;
 - (void)updateItem:(ShareItem *)item withURL:(NSURL *)fileURL;
 - (void)removeItem:(ShareItem *)item;
 - (void)removeAllItems;
+- (UIImage *)getImageFromItem:(ShareItem *)item;
 
 @end
 

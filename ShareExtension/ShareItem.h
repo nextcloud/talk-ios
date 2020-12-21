@@ -30,8 +30,9 @@
 @property (nonatomic, strong) NSString *fileName;
 @property (nonatomic, strong) UIImage *placeholderImage;
 @property (nonatomic, assign) CGFloat uploadProgress;
+@property (nonatomic, assign) BOOL isImage;
 
-+ (instancetype)initWithURL:(NSURL *)fileURL withName:(NSString *)fileName withPlaceholderImage:(UIImage *)placeholderImage;
++ (instancetype)initWithURL:(NSURL *)fileURL withName:(NSString *)fileName withPlaceholderImage:(UIImage *)placeholderImage isImage:(BOOL)isImage;
 
 @end
 

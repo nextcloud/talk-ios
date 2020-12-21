@@ -25,6 +25,9 @@
 #import "ShareItemController.h"
 #import "NCUtils.h"
 
+//TODO: Should the quality be user-selectable?
+CGFloat const kShareItemControllerImageQuality = 0.7f;
+
 @interface ShareItemController ()
 
 @property (nonatomic, strong) NSString *tempDirectoryPath;
@@ -64,6 +67,20 @@
     self.tempDirectoryURL = [NSURL fileURLWithPath:self.tempDirectoryPath isDirectory:YES];
 }
 
+- (NSURL *)getFileLocalURL:(NSString *)fileName
+{
+    NSURL *fileLocalURL = [self.tempDirectoryURL URLByAppendingPathComponent:fileName];
+    
+    if ([NSFileManager.defaultManager fileExistsAtPath:fileLocalURL.path]) {
+        NSString *extension = [fileName pathExtension];
+        NSString *nameWithoutExtension = [fileName stringByDeletingPathExtension];
+        
+        NSString *newFileName = [NSString stringWithFormat:@"%@%.f.%@", nameWithoutExtension, [[NSDate date] timeIntervalSince1970] * 1000, extension];
+        fileLocalURL = [self.tempDirectoryURL URLByAppendingPathComponent:newFileName];
+    }
+    
+    return fileLocalURL;
+}
 
 - (void)addItemWithURL:(NSURL *)fileURL
 {
@@ -72,7 +89,7 @@
 
 - (void)addItemWithURLAndName:(NSURL *)fileURL withName:(NSString *)fileName
 {
-    NSURL *fileLocalURL = [self.tempDirectoryURL URLByAppendingPathComponent:fileName];
+    NSURL *fileLocalURL = [self getFileLocalURL:fileName];
     
     NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
     __block NSError *error;
@@ -89,7 +106,12 @@
     
     NSLog(@"Adding shareItem: %@ %@", fileName, fileLocalURL);
     
-    ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:fileName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL]];
+    // Try to determine if the item is an image file
+    // This can happen when sharing an image from the native ios files app
+    UIImage *image = [self getImageFromFileURL:fileLocalURL];
+    BOOL fileIsImage = (image != nil);
+    
+    ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:fileName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:fileIsImage];
     [self.shareItems addObject:item];
     [self.delegate shareItemControllerItemsChanged:self];
 }
@@ -102,19 +124,34 @@
 
 - (void)addItemWithImageAndName:(UIImage *)image withName:(NSString *)imageName
 {
-    NSURL *fileLocalURL = [self.tempDirectoryURL URLByAppendingPathComponent:imageName];
-    
-    //TODO: Should the quality be user-selectable?
-    NSData *jpegData = UIImageJPEGRepresentation(image, 0.7);
+    NSURL *fileLocalURL = [self getFileLocalURL:imageName];
+    NSData *jpegData = UIImageJPEGRepresentation(image, kShareItemControllerImageQuality);
     
     [jpegData writeToFile:fileLocalURL.path atomically:YES];
         
     NSLog(@"Adding shareItem with image: %@ %@", imageName, fileLocalURL);
     
-    ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:imageName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL]];
+    ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:imageName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:YES];
 
     [self.shareItems addObject:item];
     [self.delegate shareItemControllerItemsChanged:self];
+}
+
+- (UIImage *)getImageFromItem:(ShareItem *)item
+{
+    if (!item || !item.fileURL) {
+        return nil;
+    }
+        
+    return [self getImageFromFileURL:item.fileURL];
+}
+
+- (UIImage *)getImageFromFileURL:(NSURL *)fileURL
+{
+    NSData *fileData = [NSData dataWithContentsOfURL:fileURL];
+    UIImage *image = [UIImage imageWithData:fileData];
+    
+    return image;
 }
 
 - (void)updateItem:(ShareItem *)item withURL:(NSURL *)fileURL
@@ -136,11 +173,19 @@
     [self.delegate shareItemControllerItemsChanged:self];
 }
 
+- (void)updateItem:(ShareItem *)item withImage:(UIImage *)image
+{
+    NSData *jpegData = UIImageJPEGRepresentation(image, kShareItemControllerImageQuality);
+    [jpegData writeToFile:item.filePath atomically:YES];
+    
+    NSLog(@"Updating shareItem with Image: %@ %@", item.fileName, item.fileURL);
+    
+    [self.delegate shareItemControllerItemsChanged:self];
+}
+
 - (void)removeItem:(ShareItem *)item
 {
-    if ([NSFileManager.defaultManager fileExistsAtPath:item.filePath]) {
-        [NSFileManager.defaultManager removeItemAtPath:item.filePath error:nil];
-    }
+    [self cleanupItem:item];
     
     NSLog(@"Removing shareItem: %@ %@", item.fileName, item.fileURL);
     
@@ -148,11 +193,20 @@
     [self.delegate shareItemControllerItemsChanged:self];
 }
 
+- (void)cleanupItem:(ShareItem *)item
+{
+    if ([NSFileManager.defaultManager fileExistsAtPath:item.filePath]) {
+        [NSFileManager.defaultManager removeItemAtPath:item.filePath error:nil];
+    }
+}
+
 - (void)removeAllItems
 {
     for (ShareItem *item in self.shareItems) {
-        [self removeItem:item];
+        [self cleanupItem:item];
     }
+    
+    [self.shareItems removeAllObjects];
 }
 
 - (UIImage *)getPlaceholderImageForFileURL:(NSURL *)fileURL
