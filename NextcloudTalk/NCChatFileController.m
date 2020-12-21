@@ -32,10 +32,8 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
 
 @interface NCChatFileController ()
 
-@property (nonatomic, strong) TalkAccount *account;
-@property (nonatomic, strong) NCMessageFileParameter *fileParameter;
+@property (nonatomic, strong) NCChatFileStatus *fileStatus;
 @property (nonatomic, strong) NSString *tempDirectoryPath;
-@property (nonatomic, strong) NSString *fileLocalPath;
 
 @end
 
@@ -44,8 +42,6 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
 
 - (void)initDownloadDirectoryForAccount:(TalkAccount *)account
 {
-    _account = account;
-    
     NSString *encodedAccountId = [account.accountId stringByAddingPercentEncodingWithAllowedCharacters:NSCharacterSet.URLHostAllowedCharacterSet];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     _tempDirectoryPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"/download/"];
@@ -113,11 +109,19 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
         return YES;
     }
     
-    // At this point there's a file in our cache but there's a newer one available
+    // At this point there's a file in our cache but there's a different one on the server
     NSLog(@"Deleting file from cache: %@", filePath);
     [fileManager removeItemAtPath:filePath error:nil];
     
     return NO;
+}
+
+- (void)setCreationDateOnFile:(NSString *)filePath withCreationDate:(NSDate *)date
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    NSDictionary *creationDateAttr = [NSDictionary dictionaryWithObjectsAndKeys:date, NSFileCreationDate, nil];
+    [fileManager setAttributes:creationDateAttr ofItemAtPath:filePath error:nil];
 }
 
 - (void)setModificationDateOnFile:(NSString *)filePath withModificationDate:(NSDate *)date
@@ -130,16 +134,42 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
 
 - (void)downloadFileFromMessage:(NCMessageFileParameter *)fileParameter
 {
+    _fileStatus = [NCChatFileStatus initWithFileName:fileParameter.name withFilePath:fileParameter.path withFileId:fileParameter.parameterId];
+    fileParameter.fileStatus = _fileStatus;
+    
+    [self startDownload];
+}
+
+- (void)downloadFileWithFileId:(NSString *)fileId
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    
+    [[NCAPIController sharedInstance] getFileByFileId:activeAccount fileId:fileId withCompletionBlock:^(NCCommunicationFile *file, NSInteger error, NSString *errorDescription) {
+        if (file) {
+            NSString *remoteDavPrefix = [NSString stringWithFormat:@"/remote.php/dav/files/%@/", activeAccount.userId];
+            NSString *directoryPath = [file.path componentsSeparatedByString:remoteDavPrefix].lastObject;
+            
+            NSString *filePath = [NSString stringWithFormat:@"%@%@", directoryPath, file.fileName];
+            
+            self->_fileStatus = [NCChatFileStatus initWithFileName:file.fileName withFilePath:filePath withFileId:file.fileId];
+            [self startDownload];
+        } else {
+            NSLog(@"An error occurred while getting file with fileId %@: %@", fileId, errorDescription);
+            [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:errorDescription];
+        }
+    }];
+}
+
+- (void)startDownload
+{
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     
     [[NCAPIController sharedInstance] setupNCCommunicationForAccount:activeAccount];
     [self initDownloadDirectoryForAccount:activeAccount];
     
-    NSString *serverUrlFileName = [NSString stringWithFormat:@"%@/%@/%@", activeAccount.server, serverCapabilities.webDAVRoot, fileParameter.path];
-    _account = activeAccount;
-    _fileParameter = fileParameter;
-    _fileLocalPath = [_tempDirectoryPath stringByAppendingPathComponent:fileParameter.name];
+    NSString *serverUrlFileName = [NSString stringWithFormat:@"%@/%@/%@", activeAccount.server, serverCapabilities.webDAVRoot, _fileStatus.filePath];
+    _fileStatus.fileLocalPath = [_tempDirectoryPath stringByAppendingPathComponent:_fileStatus.fileName];
     
     // Setting just isDownloading without a concrete progress will show an indeterminate activity indicator
     [self didChangeIsDownloadingNotification:YES];
@@ -149,39 +179,50 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
         if (errorCode == 0 && files.count == 1) {
             // File exists on server -> check our cache
             NCCommunicationFile *file = files.firstObject;
-            
-            if ([self isFileInCache:self->_fileLocalPath withModificationDate:file.date withSize:file.size]) {
-                NSLog(@"Found file in cache: %@", self->_fileLocalPath);
+        
+            if ([self isFileInCache:self->_fileStatus.fileLocalPath withModificationDate:file.date withSize:file.size]) {
+                NSLog(@"Found file in cache: %@", self->_fileStatus.fileLocalPath);
                 
+                [self.delegate fileControllerDidLoadFile:self withFileStatus:self->_fileStatus];
                 [self didChangeIsDownloadingNotification:NO];
-                [self.delegate fileControllerDidLoadFile:self withFileParameter:self->_fileParameter withFilePath:self->_fileLocalPath];
                 
                 return;
             }
 
-            [[NCCommunication shared] downloadWithServerUrlFileName:serverUrlFileName fileNameLocalPath:self->_fileLocalPath customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress *progress) {
+            [[NCCommunication shared] downloadWithServerUrlFileName:serverUrlFileName fileNameLocalPath:self->_fileStatus.fileLocalPath customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress *progress) {
                 [self didChangeDownloadProgressNotification:progress.fractionCompleted];
             } completionHandler:^(NSString *account, NSString *etag, NSDate *date, double length, NSDictionary *allHeaderFields, NSInteger errorCode, NSString * errorDescription) {
-                [self setModificationDateOnFile:self->_fileLocalPath withModificationDate:file.date];
+                if (errorCode == 0) {
+                    // Set modification date to invalidate our cache
+                    [self setModificationDateOnFile:self->_fileStatus.fileLocalPath withModificationDate:file.date];
+                    
+                    // Set creation date to delete older files from cache
+                    [self setCreationDateOnFile:self->_fileStatus.fileLocalPath withCreationDate:[NSDate date]];
+                    
+                    [self.delegate fileControllerDidLoadFile:self withFileStatus:self->_fileStatus];
+                } else {
+                    NSLog(@"Error downloading file: %ld - %@", errorCode, errorDescription);
+                    [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:errorDescription];
+                }
+
                 [self didChangeIsDownloadingNotification:NO];
-                [self.delegate fileControllerDidLoadFile:self withFileParameter:self->_fileParameter withFilePath:self->_fileLocalPath];
             }];
         } else {
             [self didChangeIsDownloadingNotification:NO];
-            NSLog(@"Error reading file: %ld", errorCode);
+            
+            NSLog(@"Error downloading file: %ld - %@", errorCode, errorDescription);
+            [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:errorDescription];
         }
     }];
 }
 
 - (void)didChangeIsDownloadingNotification:(BOOL)isDownloading
 {
-    _fileParameter.isDownloading = isDownloading;
+    _fileStatus.isDownloading = isDownloading;
     
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    [userInfo setObject:_account forKey:@"account"];
-    [userInfo setObject:_fileParameter forKey:@"fileParameter"];
+    [userInfo setObject:_fileStatus forKey:@"fileStatus"];
     [userInfo setObject:@(isDownloading) forKey:@"isDownloading"];
-    
     [[NSNotificationCenter defaultCenter] postNotificationName:NCChatFileControllerDidChangeIsDownloadingNotification
                                                         object:self
                                                       userInfo:userInfo];
@@ -189,11 +230,10 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
 
 - (void)didChangeDownloadProgressNotification:(double)progress
 {
-    _fileParameter.downloadProgress = progress;
+    _fileStatus.downloadProgress = progress;
     
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    [userInfo setObject:_account forKey:@"account"];
-    [userInfo setObject:_fileParameter forKey:@"fileParameter"];
+    [userInfo setObject:_fileStatus forKey:@"fileStatus"];
     [userInfo setObject:@(progress) forKey:@"progress"];
     [[NSNotificationCenter defaultCenter] postNotificationName:NCChatFileControllerDidChangeDownloadProgressNotification
                                                         object:self

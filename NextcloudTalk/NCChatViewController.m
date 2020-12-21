@@ -2252,7 +2252,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)cellWantsToDownloadFile:(NCMessageFileParameter *)fileParameter
 {
-    if (fileParameter.isDownloading) {
+    if (fileParameter.fileStatus && fileParameter.fileStatus.isDownloading) {
         NSLog(@"File already downloading -> skipping new download");
         return;
     }
@@ -2264,7 +2264,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 #pragma mark - NCChatFileControllerDelegate
 
-- (void)fileControllerDidLoadFile:(NCChatFileController *)fileController withFileParameter:(NCMessageFileParameter *)parameter withFilePath:(NSString *)path
+- (void)fileControllerDidLoadFile:(NCChatFileController *)fileController withFileStatus:(NCChatFileStatus *)fileStatus
 {
     if (_isPreviewControllerShown) {
         // We are showing a file already, no need to open another one
@@ -2277,7 +2277,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
         NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
         
-        if (message.file && message.file.parameterId == parameter.parameterId && [message.file.path isEqualToString:parameter.path]) {
+        if (message.file && [message.file.parameterId isEqualToString:fileStatus.fileId] && [message.file.path isEqualToString:fileStatus.filePath]) {
             isFileCellStillVisible = YES;
             break;
         }
@@ -2290,7 +2290,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
     dispatch_async(dispatch_get_main_queue(), ^{
         self->_isPreviewControllerShown = YES;
-        self->_previewControllerFilePath = path;
+        self->_previewControllerFilePath = fileStatus.fileLocalPath;
 
         QLPreviewController * preview = [[QLPreviewController alloc] init];
         UIColor *themeColor = [NCAppBranding themeColor];
@@ -2314,6 +2314,23 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
         [self presentViewController:preview animated:YES completion:nil];
     });
+}
+
+- (void)fileControllerDidFailLoadingFile:(NCChatFileController *)fileController withErrorDescription:(NSString *)errorDescription
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Unable to load file", nil)
+                                 message:errorDescription
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    
+    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
 }
 
 #pragma mark - QLPreviewControllerDelegate/DataSource

@@ -22,6 +22,7 @@
 
 #import "RoomInfoTableViewController.h"
 
+#import <QuickLook/QuickLook.h>
 
 #import "AddParticipantsTableViewController.h"
 #import "ContactsTableViewCell.h"
@@ -38,6 +39,7 @@
 #import "NCUtils.h"
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
+#import "NCChatFileController.h"
 
 typedef enum RoomInfoSection {
     kRoomInfoSectionName = 0,
@@ -45,14 +47,14 @@ typedef enum RoomInfoSection {
     kRoomInfoSectionPublic,
     kRoomInfoSectionWebinar,
     kRoomInfoSectionParticipants,
-    kRoomInfoSectionDestructive
+    kRoomInfoSectionDestructive,
+    kRoomInfoSectionFile
 } RoomInfoSection;
 
 typedef enum RoomAction {
     kRoomActionFavorite = 0,
     kRoomActionNotifications,
-    kRoomActionSendLink,
-    kRoomActionGotoFile
+    kRoomActionSendLink
 } RoomAction;
 
 typedef enum PublicAction {
@@ -84,9 +86,14 @@ typedef enum ModificationError {
     kModificationErrorDelete
 } ModificationError;
 
+typedef enum FileAction {
+    kFileActionPreview = 0,
+    kFileActionOpenInFilesApp
+} FileAction;
+
 #define k_set_password_textfield_tag    98
 
-@interface RoomInfoTableViewController () <UITextFieldDelegate, UIGestureRecognizerDelegate, AddParticipantsTableViewControllerDelegate>
+@interface RoomInfoTableViewController () <UITextFieldDelegate, UIGestureRecognizerDelegate, AddParticipantsTableViewControllerDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource>
 
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) NCChatViewController *chatViewController;
@@ -100,6 +107,8 @@ typedef enum ModificationError {
 @property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
 @property (nonatomic, strong) HeaderWithButton *headerView;
 @property (nonatomic, strong) UIAlertAction *setPasswordAction;
+@property (nonatomic, strong) UIActivityIndicatorView *fileDownloadIndicator;
+@property (nonatomic, strong) NSString *previewControllerFilePath;
 
 @end
 
@@ -228,6 +237,10 @@ typedef enum ModificationError {
     [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionName]];
     // Room actions section
     [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionActions]];
+    // File actions section
+    if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
+        [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionFile]];
+    }
     // Moderator sections
     if (_room.canModerate) {
         // Public room section
@@ -267,11 +280,6 @@ typedef enum ModificationError {
         [actions addObject:[NSNumber numberWithInt:kRoomActionSendLink]];
     }
     
-    // Action for file-rooms
-    if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [actions addObject:[NSNumber numberWithInt:kRoomActionGotoFile]];
-    }
-    
     return [NSArray arrayWithArray:actions];
 }
 
@@ -283,6 +291,17 @@ typedef enum ModificationError {
         actionIndexPath = [NSIndexPath indexPathForRow:actionRow inSection:kRoomInfoSectionActions];
     }
     return actionIndexPath;
+}
+
+- (NSArray *)getFileActions
+{
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+    // File preview
+    [actions addObject:[NSNumber numberWithInt:kFileActionPreview]];
+    // Open file in nextcloud app
+    [actions addObject:[NSNumber numberWithInt:kFileActionOpenInFilesApp]];
+    
+    return [NSArray arrayWithArray:actions];
 }
 
 - (NSArray *)getPublicActions
@@ -680,16 +699,39 @@ typedef enum ModificationError {
     };
 }
 
-- (void)gotoRoomFile
+- (void)previewRoomFile:(NSIndexPath *)indexPath
 {
-    [self setModifyingRoomUI];
+    if (_fileDownloadIndicator) {
+        // Already downloading a file
+        return;
+    }
+    
+    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    _fileDownloadIndicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];
+    
+    [_fileDownloadIndicator startAnimating];
+    [cell setAccessoryView:_fileDownloadIndicator];
+    
+    NCChatFileController *downloader = [[NCChatFileController alloc] init];
+    downloader.delegate = self;
+    [downloader downloadFileWithFileId:_room.objectId];
+}
+
+- (void)openRoomFileInFilesApp:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];
+    
+    [activityIndicator startAnimating];
+    [cell setAccessoryView:activityIndicator];
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     
     [[NCAPIController sharedInstance] getFileByFileId:activeAccount fileId:_room.objectId withCompletionBlock:^(NCCommunicationFile *file, NSInteger error, NSString *errorDescription) {
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self removeModifyingRoomUI];
+            [activityIndicator stopAnimating];
+            [cell setAccessoryView:nil];
         });
         
         if (file) {
@@ -720,8 +762,6 @@ typedef enum ModificationError {
             [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
         }
     }];
-
-    
 }
 
 - (void)leaveRoom
@@ -1030,6 +1070,10 @@ typedef enum ModificationError {
             return [self getRoomActions].count;
             break;
             
+        case kRoomInfoSectionFile:
+            return [self getFileActions].count;
+            break;
+            
         case kRoomInfoSectionPublic:
             return [self getPublicActions].count;
             break;
@@ -1074,6 +1118,9 @@ typedef enum ModificationError {
     NSArray *sections = [self getRoomInfoSections];
     RoomInfoSection infoSection = [[sections objectAtIndex:section] intValue];
     switch (infoSection) {
+        case kRoomInfoSectionFile:
+            return NSLocalizedString(@"Linked file", nil);
+            break;
         case kRoomInfoSectionPublic:
             return NSLocalizedString(@"Guests", nil);
             break;
@@ -1116,6 +1163,7 @@ typedef enum ModificationError {
         case kRoomInfoSectionActions:
             return 10;
             break;
+        case kRoomInfoSectionFile:
         case kRoomInfoSectionPublic:
         case kRoomInfoSectionWebinar:
             return 36;
@@ -1135,7 +1183,8 @@ typedef enum ModificationError {
     static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
     static NSString *passwordCellIdentifier = @"PasswordCellIdentifier";
     static NSString *sendLinkCellIdentifier = @"SendLinkCellIdentifier";
-    static NSString *gotoFileCellIdentifier = @"GotoFileCellIdentifier";
+    static NSString *previewFileCellIdentifier = @"PreviewFileCellIdentifier";
+    static NSString *openFileCellIdentifier = @"OpenFileCellIdentifier";
     static NSString *lobbyCellIdentifier = @"LobbyCellIdentifier";
     static NSString *lobbyTimerCellIdentifier = @"LobbyTimerCellIdentifier";
     static NSString *leaveRoomCellIdentifier = @"LeaveRoomCellIdentifier";
@@ -1252,28 +1301,46 @@ typedef enum ModificationError {
                     return cell;
                 }
                     break;
-                case kRoomActionGotoFile:
+            }
+        }
+            break;
+        case kRoomInfoSectionFile:
+        {
+            NSArray *actions = [self getFileActions];
+            FileAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kFileActionPreview:
                 {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:gotoFileCellIdentifier];
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:previewFileCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:gotoFileCellIdentifier];
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:previewFileCellIdentifier];
                     }
                     
-                    cell.textLabel.text = NSLocalizedString(@"Go to file", nil);
-                    NSString *fileName = _room.name;
-                    NSString *fileExt = [fileName pathExtension];
+                    cell.textLabel.text = NSLocalizedString(@"Preview", nil);
+                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                    [cell.imageView setImage:[UIImage imageNamed:@"preview-file-settings"]];
                     
-                    [cell.imageView setImage:[UIImage imageNamed:[NCUtils previewImageForFileExtension:fileExt]]];
+                    if (_fileDownloadIndicator) {
+                        // Set download indicator in case we're already downloading a file
+                        [cell setAccessoryView:_fileDownloadIndicator];
+                    }
                     
-                    // Make sure the file icon has the same size as all other cell-images
-                    // https://stackoverflow.com/questions/2788028/
-                    CGSize itemSize = CGSizeMake(24, 24);
-                    UIGraphicsBeginImageContextWithOptions(itemSize, NO, UIScreen.mainScreen.scale);
-                    CGRect imageRect = CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);
-                    [cell.imageView.image drawInRect:imageRect];
-                    cell.imageView.image = UIGraphicsGetImageFromCurrentImageContext();
-                    UIGraphicsEndImageContext();
+                    return cell;
+                }
+                    break;
+                case kFileActionOpenInFilesApp:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:openFileCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:openFileCellIdentifier];
+                    }
                     
+                    cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Open in %@", nil), filesAppName];
+                    
+                    UIImage *nextcloudActionImage = [[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+                    [cell.imageView setImage:nextcloudActionImage];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                                        
                     return cell;
                 }
                     break;
@@ -1472,8 +1539,19 @@ typedef enum ModificationError {
                 case kRoomActionSendLink:
                     [self shareRoomLinkFromIndexPath:indexPath];
                     break;
-                case kRoomActionGotoFile:
-                    [self gotoRoomFile];
+            }
+        }
+            break;
+        case kRoomInfoSectionFile:
+        {
+            NSArray *actions = [self getFileActions];
+            FileAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kFileActionPreview:
+                    [self previewRoomFile:indexPath];
+                    break;
+                case kFileActionOpenInFilesApp:
+                    [self openRoomFileInFilesApp:indexPath];
                     break;
             }
         }
@@ -1511,5 +1589,82 @@ typedef enum ModificationError {
     }
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
+
+#pragma mark - NCChatFileControllerDelegate
+
+- (void)fileControllerDidLoadFile:(NCChatFileController *)fileController withFileStatus:(NCChatFileStatus *)fileStatus
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self->_fileDownloadIndicator) {
+            [self->_fileDownloadIndicator stopAnimating];
+            [self->_fileDownloadIndicator removeFromSuperview];
+            self->_fileDownloadIndicator = nil;
+        }
+            
+        NSInteger fileSection = [[self getRoomInfoSections] indexOfObject:@(kRoomInfoSectionFile)];
+        NSInteger previewRow = [[self getFileActions] indexOfObject:@(kFileActionPreview)];
+        NSIndexPath *previewActionIndexPath = [NSIndexPath indexPathForRow:previewRow inSection:fileSection];
+        
+        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:previewActionIndexPath];
+        
+        if (cell) {
+            // Only show preview controller if cell is still visible
+            self->_previewControllerFilePath = fileStatus.fileLocalPath;
+
+            QLPreviewController * preview = [[QLPreviewController alloc] init];
+            UIColor *themeColor = [NCAppBranding themeColor];
+            
+            preview.dataSource = self;
+            preview.delegate = self;
+
+            preview.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
+            preview.navigationController.navigationBar.barTintColor = themeColor;
+            preview.tabBarController.tabBar.tintColor = themeColor;
+
+            if (@available(iOS 13.0, *)) {
+                UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+                [appearance configureWithOpaqueBackground];
+                appearance.backgroundColor = themeColor;
+                appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+                preview.navigationItem.standardAppearance = appearance;
+                preview.navigationItem.compactAppearance = appearance;
+                preview.navigationItem.scrollEdgeAppearance = appearance;
+            }
+
+            [self.navigationController pushViewController:preview animated:YES];
+            
+            // Make sure disclosure indicator is visible again (otherwise accessoryView is empty)
+            cell.accessoryView = nil;
+        }
+    });
+}
+
+- (void)fileControllerDidFailLoadingFile:(NCChatFileController *)fileController withErrorDescription:(NSString *)errorDescription
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Unable to load file", nil)
+                                 message:errorDescription
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    
+    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+}
+
+#pragma mark - QLPreviewControllerDelegate/DataSource
+
+- (NSInteger)numberOfPreviewItemsInPreviewController:(nonnull QLPreviewController *)controller {
+    return 1;
+}
+
+- (nonnull id<QLPreviewItem>)previewController:(nonnull QLPreviewController *)controller previewItemAtIndex:(NSInteger)index {
+    return [NSURL fileURLWithPath:_previewControllerFilePath];
+}
+
 
 @end

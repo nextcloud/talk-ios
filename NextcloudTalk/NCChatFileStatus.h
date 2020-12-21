@@ -23,17 +23,18 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "NCMessageParameter.h"
-#import "NCChatFileStatus.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NCMessageFileParameter : NCMessageParameter
+@interface NCChatFileStatus : NSObject
 
-@property (nonatomic, strong) NSString *path;
-@property (nonatomic, strong) NSString *mimetype;
-@property (nonatomic, assign) BOOL previewAvailable;
-@property (nonatomic, strong) NCChatFileStatus *fileStatus;
+@property (nonatomic, strong) NSString *fileId;
+@property (nonatomic, strong) NSString *fileName;
+@property (nonatomic, strong) NSString *filePath;
+@property (nonatomic, strong) NSString *fileLocalPath;
+@property (nonatomic, assign) BOOL isDownloading;
+@property (nonatomic, assign) CGFloat downloadProgress;
+
++ (instancetype)initWithFileName:(NSString *)fileName withFilePath:(NSString *)filePath withFileId:(NSString *)fileId;
 
 @end
 

@@ -23,6 +23,7 @@
 
 #import "NCDatabaseManager.h"
 #import "NCMessageFileParameter.h"
+#import "NCChatFileStatus.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +34,8 @@ extern NSString * const NCChatFileControllerDidChangeDownloadProgressNotificatio
 
 @protocol NCChatFileControllerDelegate<NSObject>
 
-- (void)fileControllerDidLoadFile:(NCChatFileController *)fileController withFileParameter:(NCMessageFileParameter *)parameter withFilePath:(NSString *)path;
+- (void)fileControllerDidLoadFile:(NCChatFileController *)fileController withFileStatus:(NCChatFileStatus *)fileStatus;
+- (void)fileControllerDidFailLoadingFile:(NCChatFileController *)fileController withErrorDescription:(NSString *)errorDescription;
 
 @end
 
@@ -42,6 +44,7 @@ extern NSString * const NCChatFileControllerDidChangeDownloadProgressNotificatio
 @property (nonatomic, weak) id<NCChatFileControllerDelegate> delegate;
 
 - (void)downloadFileFromMessage:(NCMessageFileParameter *)fileParameter;
+- (void)downloadFileWithFileId:(NSString *)fileId;
 - (void)deleteDownloadDirectoryForAccount:(TalkAccount *)account;
 
 @end

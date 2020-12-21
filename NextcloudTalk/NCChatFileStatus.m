@@ -19,22 +19,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-
-#import "NCMessageParameter.h"
 #import "NCChatFileStatus.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation NCChatFileStatus
 
-@interface NCMessageFileParameter : NCMessageParameter
++ (instancetype)initWithFileName:(NSString *)fileName withFilePath:(NSString *)filePath withFileId:(NSString *)fileId
+{
+    NCChatFileStatus *fileStatus = [[NCChatFileStatus alloc] init];
 
-@property (nonatomic, strong) NSString *path;
-@property (nonatomic, strong) NSString *mimetype;
-@property (nonatomic, assign) BOOL previewAvailable;
-@property (nonatomic, strong) NCChatFileStatus *fileStatus;
+    fileStatus.fileName = fileName;
+    fileStatus.filePath = filePath;
+    fileStatus.fileId = fileId;
+    
+    return fileStatus;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
