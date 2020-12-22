@@ -844,22 +844,22 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 - (void)presentCamera
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        _imagePicker = [[UIImagePickerController alloc] init];
-        _imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-        _imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:_imagePicker.sourceType];
-        _imagePicker.delegate = self;
-        [self presentViewController:_imagePicker animated:YES completion:nil];
+        self->_imagePicker = [[UIImagePickerController alloc] init];
+        self->_imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+        self->_imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:self->_imagePicker.sourceType];
+        self->_imagePicker.delegate = self;
+        [self presentViewController:self->_imagePicker animated:YES completion:nil];
     });
 }
 
 - (void)presentPhotoLibrary
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        _imagePicker = [[UIImagePickerController alloc] init];
-        _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-        _imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:_imagePicker.sourceType];
-        _imagePicker.delegate = self;
-        [self presentViewController:_imagePicker animated:YES completion:nil];
+        self->_imagePicker = [[UIImagePickerController alloc] init];
+        self->_imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        self->_imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:self->_imagePicker.sourceType];
+        self->_imagePicker.delegate = self;
+        [self presentViewController:self->_imagePicker animated:YES completion:nil];
     });
 }
 
