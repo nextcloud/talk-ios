@@ -22,6 +22,7 @@
 
 #import "GroupedChatMessageTableViewCell.h"
 #import "MaterialActivityIndicator.h"
+#import "NCDatabaseManager.h"
 #import "SLKUIConstants.h"
 
 @implementation GroupedChatMessageTableViewCell
@@ -74,6 +75,20 @@
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 
+- (void)setupForMessage:(NCChatMessage *)message
+{
+    self.bodyTextView.attributedText = message.parsedMessage;
+    self.messageId = message.messageId;
+    
+    if (message.sendingFailed) {
+        [self setDeliveryState:ChatMessageDeliveryStateFailed];
+    } else if (message.isTemporary){
+        [self setDeliveryState:ChatMessageDeliveryStateSending];
+    } else if ([message.actorId isEqualToString:[[NCDatabaseManager sharedInstance] activeAccount].userId] && [message.actorType isEqualToString:@"users"]) {
+        [self setDeliveryState:ChatMessageDeliveryStateSent];
+    }
+}
+
 - (void)setDeliveryState:(ChatMessageDeliveryState)state
 {
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
@@ -88,6 +103,18 @@
         UIImageView *errorView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
         [errorView setImage:[UIImage imageNamed:@"error"]];
         [self.statusView addSubview:errorView];
+    } else if (state == ChatMessageDeliveryStateSent) {
+        UIImageView *checkView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        [checkView setImage:[UIImage imageNamed:@"check"]];
+        checkView.image = [checkView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [checkView setTintColor:[UIColor lightGrayColor]];
+        [self.statusView addSubview:checkView];
+    } else if (state == ChatMessageDeliveryStateRead) {
+        UIImageView *checkAllView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        [checkAllView setImage:[UIImage imageNamed:@"check-all"]];
+        checkAllView.image = [checkAllView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [checkAllView setTintColor:[UIColor lightGrayColor]];
+        [self.statusView addSubview:checkAllView];
     }
 }
 

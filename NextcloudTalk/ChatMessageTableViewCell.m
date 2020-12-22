@@ -23,6 +23,9 @@
 #import "ChatMessageTableViewCell.h"
 #import "SLKUIConstants.h"
 #import "QuotedMessageView.h"
+#import "NCAPIController.h"
+#import "NCDatabaseManager.h"
+#import "NCUtils.h"
 #import "MaterialActivityIndicator.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
@@ -201,6 +204,46 @@
     return _bodyTextView;
 }
 
+- (void)setupForMessage:(NCChatMessage *)message
+{
+    self.titleLabel.text = message.actorDisplayName;
+    self.bodyTextView.attributedText = message.parsedMessage;
+    self.messageId = message.messageId;
+    NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
+    self.dateLabel.text = [NCUtils getTimeFromDate:date];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    
+    if ([message.actorType isEqualToString:@"guests"]) {
+        self.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
+        [self setGuestAvatar:message.actorDisplayName];
+    } else if ([message.actorType isEqualToString:@"bots"]) {
+        if ([message.actorId isEqualToString:@"changelog"]) {
+            [self setChangelogAvatar];
+        } else {
+            [self setBotAvatar];
+        }
+    } else {
+        [self.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId
+                                                                                                     andSize:96
+                                                                                                usingAccount:activeAccount]
+                               placeholderImage:nil success:nil failure:nil];
+    }
+    
+    // This check is just a workaround to fix the issue with the deleted parents returned by the API.
+    if (message.parent.message) {
+        self.quotedMessageView.actorLabel.text = ([message.parent.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.parent.actorDisplayName;
+        self.quotedMessageView.messageLabel.text = message.parent.parsedMessage.string;
+    }
+    
+    if (message.sendingFailed) {
+        [self setDeliveryState:ChatMessageDeliveryStateFailed];
+    } else if (message.isTemporary){
+        [self setDeliveryState:ChatMessageDeliveryStateSending];
+    } else if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"]) {
+        [self setDeliveryState:ChatMessageDeliveryStateSent];
+    }
+}
+
 - (void)setGuestAvatar:(NSString *)displayName
 {
     UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
@@ -233,6 +276,18 @@
         UIImageView *errorView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
         [errorView setImage:[UIImage imageNamed:@"error"]];
         [self.statusView addSubview:errorView];
+    } else if (state == ChatMessageDeliveryStateSent) {
+        UIImageView *checkView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        [checkView setImage:[UIImage imageNamed:@"check"]];
+        checkView.image = [checkView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [checkView setTintColor:[UIColor lightGrayColor]];
+        [self.statusView addSubview:checkView];
+    } else if (state == ChatMessageDeliveryStateRead) {
+        UIImageView *checkAllView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        [checkAllView setImage:[UIImage imageNamed:@"check-all"]];
+        checkAllView.image = [checkAllView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [checkAllView setTintColor:[UIColor lightGrayColor]];
+        [self.statusView addSubview:checkAllView];
     }
 }
 

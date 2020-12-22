@@ -1931,81 +1931,19 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         return fileCell;
     }
     if (message.parent) {
-        ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
-        normalCell.titleLabel.text = message.actorDisplayName;
-        normalCell.bodyTextView.attributedText = message.parsedMessage;
-        normalCell.messageId = message.messageId;
-        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
-        normalCell.dateLabel.text = [NCUtils getTimeFromDate:date];
+        ChatMessageTableViewCell *replyCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
+        [replyCell setupForMessage:message];
         
-        if ([message.actorType isEqualToString:@"guests"]) {
-            normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
-            [normalCell setGuestAvatar:message.actorDisplayName];
-        } else if ([message.actorType isEqualToString:@"bots"]) {
-            if ([message.actorId isEqualToString:@"changelog"]) {
-                [normalCell setChangelogAvatar];
-            } else {
-                [normalCell setBotAvatar];
-            }
-        } else {
-            [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                         placeholderImage:nil success:nil failure:nil];
-        }
-        
-        // This check is just a workaround to fix the issue with the deleted parents returned by the API.
-        if (message.parent.message) {
-            normalCell.quotedMessageView.actorLabel.text = ([message.parent.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.parent.actorDisplayName;
-            normalCell.quotedMessageView.messageLabel.text = message.parent.parsedMessage.string;
-        }
-        if (message.isTemporary){
-            [normalCell setDeliveryState:ChatMessageDeliveryStateSending];
-        }
-        if (message.sendingFailed) {
-            [normalCell setDeliveryState:ChatMessageDeliveryStateFailed];
-        }
-        
-        return normalCell;
+        return replyCell;
     }
     if (message.isGroupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
-        groupedCell.bodyTextView.attributedText = message.parsedMessage;
-        groupedCell.messageId = message.messageId;
-        if (message.isTemporary){
-            [groupedCell setDeliveryState:ChatMessageDeliveryStateSending];
-        }
-        if (message.sendingFailed) {
-            [groupedCell setDeliveryState:ChatMessageDeliveryStateFailed];
-        }
+        [groupedCell setupForMessage:message];
+        
         return groupedCell;
     } else {
         ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
-        normalCell.titleLabel.text = message.actorDisplayName;
-        normalCell.bodyTextView.attributedText = message.parsedMessage;
-        normalCell.messageId = message.messageId;
-        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
-        normalCell.dateLabel.text = [NCUtils getTimeFromDate:date];
-        
-        if ([message.actorType isEqualToString:@"guests"]) {
-            normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
-            [normalCell setGuestAvatar:message.actorDisplayName];
-        } else if ([message.actorType isEqualToString:@"bots"]) {
-            if ([message.actorId isEqualToString:@"changelog"]) {
-                [normalCell setChangelogAvatar];
-            } else {
-                [normalCell setBotAvatar];
-            }
-        } else {
-            [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                         placeholderImage:nil success:nil failure:nil];
-        }
-        
-        if (message.isTemporary){
-            [normalCell setDeliveryState:ChatMessageDeliveryStateSending];
-        }
-        
-        if (message.sendingFailed) {
-            [normalCell setDeliveryState:ChatMessageDeliveryStateFailed];
-        }
+        [normalCell setupForMessage:message];
         
         return normalCell;
     }

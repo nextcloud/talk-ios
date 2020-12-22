@@ -22,6 +22,7 @@
 
 #import <UIKit/UIKit.h>
 #import "ChatTableViewCell.h"
+#import "NCChatMessage.h"
 #import "MessageBodyTextView.h"
 
 static CGFloat kChatMessageCellMinimumHeight    = 50.0;
@@ -44,10 +45,10 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 @property (nonatomic, strong) UIImageView *userStatusImageView;
 
 + (CGFloat)defaultFontSize;
+- (void)setupForMessage:(NCChatMessage *)message;
 - (void)setGuestAvatar:(NSString *)displayName;
 - (void)setBotAvatar;
 - (void)setChangelogAvatar;
-- (void)setDeliveryState:(ChatMessageDeliveryState)state;
 - (void)setUserStatus:(NSString *)userStatus;
 
 @end
