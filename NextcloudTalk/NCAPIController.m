@@ -853,7 +853,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseMessages = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-        // Get X-Chat-Last-Given header
+        // Get X-Chat-Last-Given and X-Chat-Last-Common-Read headers
         NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
         NSDictionary *headers = [response allHeaderFields];
         NSString *lastKnowMessageHeader = [headers objectForKey:@"X-Chat-Last-Given"];
@@ -861,9 +861,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         if (lastKnowMessageHeader) {
             lastKnownMessage = [lastKnowMessageHeader integerValue];
         }
+        NSString *lastCommonReadMessageHeader = [headers objectForKey:@"X-Chat-Last-Common-Read"];
+        NSInteger lastCommonReadMessage = -1;
+        if (lastCommonReadMessageHeader) {
+            lastCommonReadMessage = [lastCommonReadMessageHeader integerValue];
+        }
         
         if (block) {
-            block(responseMessages, lastKnownMessage, nil, 0);
+            block(responseMessages, lastKnownMessage, lastCommonReadMessage, nil, 0);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = 0;
@@ -873,7 +878,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         }
         
         if (block) {
-            block(nil, -1, error, statusCode);
+            block(nil, -1, -1, error, statusCode);
         }
     }];
     

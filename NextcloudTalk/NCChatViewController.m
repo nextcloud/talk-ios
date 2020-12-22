@@ -92,6 +92,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, assign) BOOL hasStoredHistory;
 @property (nonatomic, assign) BOOL hasStopped;
 @property (nonatomic, assign) NSInteger lastReadMessage;
+@property (nonatomic, assign) NSInteger lastCommonReadMessage;
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
 @property (nonatomic, strong) NSIndexPath *unreadMessagesSeparatorIP;
 @property (nonatomic, assign) NSInteger chatViewPresentedTimestamp;
@@ -269,6 +270,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.view addSubview:_unreadMessageButton];
     _chatViewPresentedTimestamp = [[NSDate date] timeIntervalSince1970];
     _lastReadMessage = _room.lastReadMessage;
+    _lastCommonReadMessage = _room.lastCommonReadMessage;
     
     // Check if there's a stored pending message
     if (_room.pendingMessage != nil) {
@@ -1317,6 +1319,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             return;
         }
         
+        NSInteger lastCommonRead = [[notification.userInfo objectForKey:@"lastCommonReadMessage"] integerValue];
+        if (lastCommonRead > 0) {
+            self->_lastCommonReadMessage = lastCommonRead;
+        }
+        
         BOOL firstNewMessagesAfterHistory = !self->_hasReceiveNewMessages;
         self->_hasReceiveNewMessages = YES;
         
@@ -1926,24 +1933,24 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         FileMessageTableViewCell *fileCell = (FileMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:fileCellIdentifier];
         fileCell.delegate = self;
         
-        [fileCell setupForMessage:message]; 
+        [fileCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
 
         return fileCell;
     }
     if (message.parent) {
         ChatMessageTableViewCell *replyCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
-        [replyCell setupForMessage:message];
+        [replyCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
         
         return replyCell;
     }
     if (message.isGroupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
-        [groupedCell setupForMessage:message];
+        [groupedCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
         
         return groupedCell;
     } else {
         ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
-        [normalCell setupForMessage:message];
+        [normalCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
         
         return normalCell;
     }

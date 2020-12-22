@@ -34,6 +34,6 @@ static NSString *GroupedChatMessageCellIdentifier = @"GroupedChatMessageCellIden
 @property (nonatomic, strong) UIView *statusView;
 
 + (CGFloat)defaultFontSize;
-- (void)setupForMessage:(NCChatMessage *)message;
+- (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
 
 @end

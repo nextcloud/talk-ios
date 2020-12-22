@@ -75,7 +75,7 @@
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 
-- (void)setupForMessage:(NCChatMessage *)message
+- (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead
 {
     self.bodyTextView.attributedText = message.parsedMessage;
     self.messageId = message.messageId;
@@ -85,7 +85,11 @@
     } else if (message.isTemporary){
         [self setDeliveryState:ChatMessageDeliveryStateSending];
     } else if ([message.actorId isEqualToString:[[NCDatabaseManager sharedInstance] activeAccount].userId] && [message.actorType isEqualToString:@"users"]) {
-        [self setDeliveryState:ChatMessageDeliveryStateSent];
+        if (lastCommonRead >= message.messageId) {
+            [self setDeliveryState:ChatMessageDeliveryStateRead];
+        } else {
+            [self setDeliveryState:ChatMessageDeliveryStateSent];
+        }
     }
 }
 

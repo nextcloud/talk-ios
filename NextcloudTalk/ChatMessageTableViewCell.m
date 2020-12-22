@@ -204,7 +204,7 @@
     return _bodyTextView;
 }
 
-- (void)setupForMessage:(NCChatMessage *)message
+- (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead
 {
     self.titleLabel.text = message.actorDisplayName;
     self.bodyTextView.attributedText = message.parsedMessage;
@@ -240,7 +240,11 @@
     } else if (message.isTemporary){
         [self setDeliveryState:ChatMessageDeliveryStateSending];
     } else if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"]) {
-        [self setDeliveryState:ChatMessageDeliveryStateSent];
+        if (lastCommonRead >= message.messageId) {
+            [self setDeliveryState:ChatMessageDeliveryStateRead];
+        } else {
+            [self setDeliveryState:ChatMessageDeliveryStateSent];
+        }
     }
 }
 

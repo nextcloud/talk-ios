@@ -45,7 +45,7 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 @property (nonatomic, strong) UIImageView *userStatusImageView;
 
 + (CGFloat)defaultFontSize;
-- (void)setupForMessage:(NCChatMessage *)message;
+- (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
 - (void)setGuestAvatar:(NSString *)displayName;
 - (void)setBotAvatar;
 - (void)setChangelogAvatar;
