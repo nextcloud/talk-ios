@@ -58,6 +58,6 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 
 + (CGFloat)defaultFontSize;
 - (void)setGuestAvatar:(NSString *)displayName;
-- (void)setupForMessage:(NCChatMessage *)message;
+- (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
 
 @end

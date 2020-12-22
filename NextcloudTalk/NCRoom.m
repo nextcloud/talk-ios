@@ -57,6 +57,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.lobbyState = (NCRoomLobbyState)[[roomDict objectForKey:@"lobbyState"] integerValue];
     room.lobbyTimer = [[roomDict objectForKey:@"lobbyTimer"] integerValue];
     room.lastReadMessage = [[roomDict objectForKey:@"lastReadMessage"] integerValue];
+    room.lastCommonReadMessage = [[roomDict objectForKey:@"lastCommonReadMessage"] integerValue];
     room.canStartCall = [[roomDict objectForKey:@"canStartCall"] boolValue];
     room.hasCall = [[roomDict objectForKey:@"hasCall"] boolValue];
     
@@ -122,6 +123,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     managedRoom.lobbyState = room.lobbyState;
     managedRoom.lobbyTimer = room.lobbyTimer;
     managedRoom.lastReadMessage = room.lastReadMessage;
+    managedRoom.lastCommonReadMessage = room.lastCommonReadMessage;
     managedRoom.canStartCall = room.canStartCall;
     managedRoom.hasCall = room.hasCall;
     managedRoom.lastUpdate = room.lastUpdate;

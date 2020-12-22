@@ -149,7 +149,7 @@
     [self clearStatusView];
 }
 
-- (void)setupForMessage:(NCChatMessage *)message
+- (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead
 {
     self.titleLabel.text = message.actorDisplayName;
     self.bodyTextView.attributedText = message.parsedMessage;
@@ -185,6 +185,33 @@
     }
     
     self.fileParameter = message.file;
+    
+    if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"]) {
+        if (lastCommonRead >= message.messageId) {
+            [self setDeliveryState:ChatMessageDeliveryStateRead];
+        } else {
+            [self setDeliveryState:ChatMessageDeliveryStateSent];
+        }
+    }
+}
+
+- (void)setDeliveryState:(ChatMessageDeliveryState)state
+{
+    [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
+    
+    if (state == ChatMessageDeliveryStateSent) {
+        UIImageView *checkView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        [checkView setImage:[UIImage imageNamed:@"check"]];
+        checkView.image = [checkView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [checkView setTintColor:[UIColor lightGrayColor]];
+        [self.statusView addSubview:checkView];
+    } else if (state == ChatMessageDeliveryStateRead) {
+        UIImageView *checkAllView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        [checkAllView setImage:[UIImage imageNamed:@"check-all"]];
+        checkAllView.image = [checkAllView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [checkAllView setTintColor:[UIColor lightGrayColor]];
+        [self.statusView addSubview:checkAllView];
+    }
 }
 
 - (void)didChangeIsDownloading:(NSNotification *)notification

@@ -92,6 +92,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, assign) BOOL hasStoredHistory;
 @property (nonatomic, assign) BOOL hasStopped;
 @property (nonatomic, assign) NSInteger lastReadMessage;
+@property (nonatomic, assign) NSInteger lastCommonReadMessage;
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
 @property (nonatomic, strong) NSIndexPath *unreadMessagesSeparatorIP;
 @property (nonatomic, assign) NSInteger chatViewPresentedTimestamp;
@@ -269,6 +270,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.view addSubview:_unreadMessageButton];
     _chatViewPresentedTimestamp = [[NSDate date] timeIntervalSince1970];
     _lastReadMessage = _room.lastReadMessage;
+    _lastCommonReadMessage = _room.lastCommonReadMessage;
     
     // Check if there's a stored pending message
     if (_room.pendingMessage != nil) {
@@ -842,22 +844,22 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 - (void)presentCamera
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        _imagePicker = [[UIImagePickerController alloc] init];
-        _imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-        _imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:_imagePicker.sourceType];
-        _imagePicker.delegate = self;
-        [self presentViewController:_imagePicker animated:YES completion:nil];
+        self->_imagePicker = [[UIImagePickerController alloc] init];
+        self->_imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+        self->_imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:self->_imagePicker.sourceType];
+        self->_imagePicker.delegate = self;
+        [self presentViewController:self->_imagePicker animated:YES completion:nil];
     });
 }
 
 - (void)presentPhotoLibrary
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        _imagePicker = [[UIImagePickerController alloc] init];
-        _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-        _imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:_imagePicker.sourceType];
-        _imagePicker.delegate = self;
-        [self presentViewController:_imagePicker animated:YES completion:nil];
+        self->_imagePicker = [[UIImagePickerController alloc] init];
+        self->_imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        self->_imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:self->_imagePicker.sourceType];
+        self->_imagePicker.delegate = self;
+        [self presentViewController:self->_imagePicker animated:YES completion:nil];
     });
 }
 
@@ -1315,6 +1317,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         NSError *error = [notification.userInfo objectForKey:@"error"];
         if (notification.object != self->_chatController || error) {
             return;
+        }
+        
+        NSInteger lastCommonRead = [[notification.userInfo objectForKey:@"lastCommonReadMessage"] integerValue];
+        if (lastCommonRead > 0) {
+            self->_lastCommonReadMessage = lastCommonRead;
         }
         
         BOOL firstNewMessagesAfterHistory = !self->_hasReceiveNewMessages;
@@ -1926,86 +1933,24 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         FileMessageTableViewCell *fileCell = (FileMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:fileCellIdentifier];
         fileCell.delegate = self;
         
-        [fileCell setupForMessage:message]; 
+        [fileCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
 
         return fileCell;
     }
     if (message.parent) {
-        ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
-        normalCell.titleLabel.text = message.actorDisplayName;
-        normalCell.bodyTextView.attributedText = message.parsedMessage;
-        normalCell.messageId = message.messageId;
-        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
-        normalCell.dateLabel.text = [NCUtils getTimeFromDate:date];
+        ChatMessageTableViewCell *replyCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
+        [replyCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
         
-        if ([message.actorType isEqualToString:@"guests"]) {
-            normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
-            [normalCell setGuestAvatar:message.actorDisplayName];
-        } else if ([message.actorType isEqualToString:@"bots"]) {
-            if ([message.actorId isEqualToString:@"changelog"]) {
-                [normalCell setChangelogAvatar];
-            } else {
-                [normalCell setBotAvatar];
-            }
-        } else {
-            [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                         placeholderImage:nil success:nil failure:nil];
-        }
-        
-        // This check is just a workaround to fix the issue with the deleted parents returned by the API.
-        if (message.parent.message) {
-            normalCell.quotedMessageView.actorLabel.text = ([message.parent.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.parent.actorDisplayName;
-            normalCell.quotedMessageView.messageLabel.text = message.parent.parsedMessage.string;
-        }
-        if (message.isTemporary){
-            [normalCell setDeliveryState:ChatMessageDeliveryStateSending];
-        }
-        if (message.sendingFailed) {
-            [normalCell setDeliveryState:ChatMessageDeliveryStateFailed];
-        }
-        
-        return normalCell;
+        return replyCell;
     }
     if (message.isGroupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
-        groupedCell.bodyTextView.attributedText = message.parsedMessage;
-        groupedCell.messageId = message.messageId;
-        if (message.isTemporary){
-            [groupedCell setDeliveryState:ChatMessageDeliveryStateSending];
-        }
-        if (message.sendingFailed) {
-            [groupedCell setDeliveryState:ChatMessageDeliveryStateFailed];
-        }
+        [groupedCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
+        
         return groupedCell;
     } else {
         ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
-        normalCell.titleLabel.text = message.actorDisplayName;
-        normalCell.bodyTextView.attributedText = message.parsedMessage;
-        normalCell.messageId = message.messageId;
-        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
-        normalCell.dateLabel.text = [NCUtils getTimeFromDate:date];
-        
-        if ([message.actorType isEqualToString:@"guests"]) {
-            normalCell.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
-            [normalCell setGuestAvatar:message.actorDisplayName];
-        } else if ([message.actorType isEqualToString:@"bots"]) {
-            if ([message.actorId isEqualToString:@"changelog"]) {
-                [normalCell setChangelogAvatar];
-            } else {
-                [normalCell setBotAvatar];
-            }
-        } else {
-            [normalCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                         placeholderImage:nil success:nil failure:nil];
-        }
-        
-        if (message.isTemporary){
-            [normalCell setDeliveryState:ChatMessageDeliveryStateSending];
-        }
-        
-        if (message.sendingFailed) {
-            [normalCell setDeliveryState:ChatMessageDeliveryStateFailed];
-        }
+        [normalCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
         
         return normalCell;
     }

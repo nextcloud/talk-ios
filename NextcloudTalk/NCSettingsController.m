@@ -79,6 +79,7 @@ NSString * const kCapabilityStartCallFlag           = @"start-call-flag";
 NSString * const kCapabilityCirclesSupport          = @"circles-support";
 NSString * const kCapabilityChatReferenceId         = @"chat-reference-id";
 NSString * const kCapabilityPhonebookSearch         = @"phonebook-search";
+NSString * const kCapabilityChatReadStatus          = @"chat-read-status";
 
 NSInteger const kDefaultChatMaxLength           = 1000;
 NSString * const kMinimumRequiredTalkCapability = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
@@ -505,7 +506,12 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 - (BOOL)serverHasTalkCapability:(NSString *)capability
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    return [self serverHasTalkCapability:capability forAccountId:activeAccount.accountId];
+}
+
+- (BOOL)serverHasTalkCapability:(NSString *)capability forAccountId:(NSString *)accountId
+{
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:accountId];
     if (serverCapabilities) {
         NSArray *talkFeatures = [serverCapabilities.talkCapabilities valueForKey:@"self"];
         if ([talkFeatures containsObject:capability]) {
