@@ -340,14 +340,20 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     menuConfiguration.separatorInset = UIEdgeInsetsMake(0, 48, 0, 0);
     menuConfiguration.menuRowHeight = 44;
     menuConfiguration.autoMenuWidth = YES;
-    menuConfiguration.textColor = [UIColor darkTextColor];
     menuConfiguration.textFont = [UIFont systemFontOfSize:15];
-    menuConfiguration.backgroundColor = [NCAppBranding backgroundColor];
-    menuConfiguration.borderWidth = 0;
-    menuConfiguration.separatorColor = [UIColor colorWithWhite:0.85 alpha:1];
     menuConfiguration.shadowOpacity = 0.8;
     menuConfiguration.roundedImage = YES;
     menuConfiguration.defaultSelection = YES;
+    menuConfiguration.borderWidth = 1;
+    menuConfiguration.borderColor = [NCAppBranding placeholderColor];
+    menuConfiguration.backgroundColor = [NCAppBranding backgroundColor];
+    menuConfiguration.separatorColor = [NCAppBranding placeholderColor];
+    menuConfiguration.textColor = [UIColor darkTextColor];
+    
+    if (@available(iOS 13.0, *)) {
+        menuConfiguration.textColor = [UIColor labelColor];
+        menuConfiguration.shadowColor = [UIColor secondaryLabelColor];
+    }
 
     [FTPopOverMenu showForSender:sender
                    withMenuArray:menuArray
