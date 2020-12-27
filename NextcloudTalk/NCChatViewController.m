@@ -199,8 +199,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     self.textInputbar.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //Default toolbar color
     
     [self.textInputbar.editorTitle setTextColor:[UIColor darkGrayColor]];
-    [self.textInputbar.editorLeftButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
-    [self.textInputbar.editorRightButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
+    [self.textInputbar.editorLeftButton setTintColor:[UIColor systemBlueColor]];
+    [self.textInputbar.editorRightButton setTintColor:[UIColor systemBlueColor]];
     
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
@@ -216,7 +216,9 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;
         
-        [self.textInputbar setBackgroundColor:[UIColor tertiarySystemBackgroundColor]];
+        [self.textInputbar setBackgroundColor:[UIColor secondarySystemBackgroundColor]];
+        [self.textInputbar.editorTitle setTextColor:[UIColor labelColor]];
+        [self.textView.layer setBorderColor:[UIColor systemGray4Color].CGColor];
     }
     
     // Add long press gesture recognizer
@@ -390,6 +392,16 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     _leftChatWithVisibleChatVC = YES;
     [_chatController stopChatController];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
+}
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    if (@available(iOS 13.0, *)) {
+        if ([self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection]) {
+            // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
+            [self.textView.layer setBorderColor:[UIColor systemGray4Color].CGColor];
+        }
+    }
 }
 
 #pragma mark - Configuration
@@ -795,14 +807,14 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                                                                handler:^void (UIAlertAction *action) {
         [self presentPhotoLibrary];
     }];
-    [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
     UIAlertAction *filesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Files", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^void (UIAlertAction *action) {
         [self presentDocumentPicker];
     }];
-    [filesAction setValue:[[UIImage imageNamed:@"files"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [filesAction setValue:[[UIImage imageNamed:@"files"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
     UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:filesAppName
                                                      style:UIAlertActionStyleDefault
