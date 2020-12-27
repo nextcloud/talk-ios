@@ -126,7 +126,6 @@
             self.backgroundColor = [UIColor systemGroupedBackgroundColor];
             self.titleLabel.textColor = [UIColor labelColor];
         }
-        
     }
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
@@ -171,6 +170,10 @@
         _titleLabel.numberOfLines = 0;
         _titleLabel.textColor = [UIColor lightGrayColor];
         _titleLabel.font = [UIFont systemFontOfSize:[ChatMessageTableViewCell defaultFontSize]];
+        
+        if (@available(iOS 13.0, *)) {
+            _titleLabel.textColor = [UIColor secondaryLabelColor];
+        }
     }
     return _titleLabel;
 }
@@ -186,6 +189,10 @@
         _dateLabel.numberOfLines = 0;
         _dateLabel.textColor = [UIColor lightGrayColor];
         _dateLabel.font = [UIFont systemFontOfSize:12.0];
+        
+        if (@available(iOS 13.0, *)) {
+            _dateLabel.textColor = [UIColor secondaryLabelColor];
+        }
     }
     return _dateLabel;
 }
@@ -267,7 +274,7 @@
 
 - (void)setGuestAvatar:(NSString *)displayName
 {
-    UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
+    UIColor *guestAvatarColor = [NCAppBranding placeholderColor];
     NSString *name = ([displayName isEqualToString:@""]) ? @"?" : displayName;
     [_avatarView setImageWithString:name color:guestAvatarColor circular:true];
 }

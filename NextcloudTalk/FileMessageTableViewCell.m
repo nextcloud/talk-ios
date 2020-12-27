@@ -300,6 +300,10 @@
         _titleLabel.numberOfLines = 0;
         _titleLabel.textColor = [UIColor lightGrayColor];
         _titleLabel.font = [UIFont systemFontOfSize:[FileMessageTableViewCell defaultFontSize]];
+        
+        if (@available(iOS 13.0, *)) {
+            _titleLabel.textColor = [UIColor secondaryLabelColor];
+        }
     }
     return _titleLabel;
 }
@@ -315,6 +319,10 @@
         _dateLabel.numberOfLines = 0;
         _dateLabel.textColor = [UIColor lightGrayColor];
         _dateLabel.font = [UIFont systemFontOfSize:12.0];
+        
+        if (@available(iOS 13.0, *)) {
+            _dateLabel.textColor = [UIColor secondaryLabelColor];
+        }
     }
     return _dateLabel;
 }

@@ -43,8 +43,6 @@
     
     self.placeholder = NSLocalizedString(@"Write message, @ to mention someone …", nil);
     self.placeholderColor = [NCAppBranding placeholderColor];
-    
-    self.layer.borderColor = [NCAppBranding placeholderColor].CGColor;
 }
 
 @end

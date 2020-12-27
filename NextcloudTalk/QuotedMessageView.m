@@ -42,6 +42,10 @@
 - (void)configureSubviews
 {
     self.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //Default toolbar color
+    
+    if (@available(iOS 13.0, *)) {
+        self.backgroundColor = [UIColor secondarySystemBackgroundColor];
+    }
         
     [self addSubview:self.quoteView];
     [self addSubview:self.actorLabel];
@@ -83,6 +87,10 @@
         
         _actorLabel.font = [UIFont systemFontOfSize:14.0];
         _actorLabel.textColor = [UIColor lightGrayColor];
+        
+        if (@available(iOS 13.0, *)) {
+            _actorLabel.textColor = [UIColor secondaryLabelColor];
+        }
     }
     return _actorLabel;
 }
@@ -99,6 +107,10 @@
         
         _messageLabel.font = [UIFont systemFontOfSize:14.0];
         _messageLabel.textColor = [UIColor darkGrayColor];
+        
+        if (@available(iOS 13.0, *)) {
+            _messageLabel.textColor = [NCAppBranding chatForegroundColor];
+        }
     }
     return _messageLabel;
 }

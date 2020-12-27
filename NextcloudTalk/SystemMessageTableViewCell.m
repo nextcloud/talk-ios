@@ -89,6 +89,10 @@
         _dateLabel.numberOfLines = 1;
         _dateLabel.textColor = [UIColor lightGrayColor];
         _dateLabel.font = [UIFont systemFontOfSize:12.0];
+        
+        if (@available(iOS 13.0, *)) {
+            _dateLabel.textColor = [UIColor secondaryLabelColor];
+        }
     }
     return _dateLabel;
 }
