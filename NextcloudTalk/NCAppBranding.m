@@ -165,6 +165,15 @@ BOOL const useServerThemimg = YES;
     return [UIColor whiteColor];
 }
 
++ (UIColor *)chatForegroundColor
+{
+    if (@available(iOS 13.0, *)) {
+        return [self getDynamicColor:[UIColor darkGrayColor] withDarkMode:[UIColor colorWithWhite:1 alpha:0.8]];
+    }
+    
+    return [UIColor darkGrayColor];
+}
+
 + (UIStatusBarStyle)statusBarStyleForBrandColor
 {
     return [self statusBarStyleForTextColorStyle:[self brandTextColorStyle]];
