@@ -45,7 +45,5 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.share-services</string>
 	</dict>
-	<key>UIUserInterfaceStyle</key>
-	<string>Light</string>
 </dict>
 </plist>

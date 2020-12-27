@@ -120,8 +120,17 @@
                                  NSForegroundColorAttributeName:[UIColor darkTextColor]};
     NSDictionary *subAttribute = @{NSFontAttributeName:[UIFont boldSystemFontOfSize:15],
                                    NSForegroundColorAttributeName:[UIColor lightGrayColor]};
-    NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:NSLocalizedString(@"To: %@", nil), _room.displayName] attributes:attributes];
-    [toString addAttributes:subAttribute range:NSMakeRange(0, 3)];
+    
+    if (@available(iOS 13.0, *)) {
+        attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],
+                       NSForegroundColorAttributeName:[UIColor labelColor]};
+        subAttribute = @{NSFontAttributeName:[UIFont boldSystemFontOfSize:15],
+                         NSForegroundColorAttributeName:[UIColor tertiaryLabelColor]};
+    }
+    
+    NSString *localizedToString = NSLocalizedString(@"To:", nil);
+    NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ %@", localizedToString, _room.displayName] attributes:attributes];
+    [toString addAttributes:subAttribute range:NSMakeRange(0, [localizedToString length])];
     self.toTextView.attributedText = toString;
     
     // Toolbar section
