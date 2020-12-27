@@ -2065,7 +2065,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
     
-    if (message.isSystemMessage) {
+    if (message.isSystemMessage || message.messageId == kUnreadMessagesSeparatorIdentifier) {
         return nil;
     }
         
