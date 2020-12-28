@@ -1299,7 +1299,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         if (messages.count > 0) {
             NSIndexPath *lastHistoryMessageIP = [self prependMessages:messages addingBlockSeparator:shouldAddBlockSeparator];
             [self.tableView reloadData];
-            [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionTop animated:NO];
+            
+            if ([NCUtils isValidIndexPath:lastHistoryMessageIP forTableView:self.tableView]) {
+                [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionTop animated:NO];
+            }
         }
         
         BOOL noMoreStoredHistory = [[notification.userInfo objectForKey:@"noMoreStoredHistory"] boolValue];
