@@ -31,6 +31,10 @@
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         self.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
         
+        if (@available(iOS 13.0, *)) {
+            self.backgroundColor = [UIColor secondarySystemBackgroundColor];
+        }
+        
         [self configureSubviews];
     }
     return self;
@@ -71,6 +75,10 @@
         _separatorLabel.textColor = [UIColor lightGrayColor];
         _separatorLabel.font = [UIFont systemFontOfSize:12.0];
         _separatorLabel.text = NSLocalizedString(@"Unread messages", nil);
+        
+        if (@available(iOS 13.0, *)) {
+            _separatorLabel.textColor = [UIColor secondaryLabelColor];
+        }
     }
     return _separatorLabel;
 }
