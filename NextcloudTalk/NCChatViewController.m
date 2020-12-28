@@ -654,7 +654,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
-        NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@", temporaryMessage.referenceId].firstObject;
+        NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@ AND isTemporary = true", temporaryMessage.referenceId].firstObject;
         if (managedTemporaryMessage) {
             [realm deleteObject:managedTemporaryMessage];
         }
