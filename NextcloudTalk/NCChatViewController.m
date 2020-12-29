@@ -620,7 +620,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 #pragma mark - Temporary messages
 
-- (NCChatMessage *)createTemporaryMessage:(NSString *)text
+- (NCChatMessage *)createTemporaryMessage:(NSString *)text replyToMessage:(NCChatMessage *)parentMessage
 {
     NCChatMessage *temporaryMessage = [[NCChatMessage alloc] init];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -635,7 +635,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     temporaryMessage.referenceId = [NCUtils sha1FromString:referenceId];
     temporaryMessage.internalId = referenceId;
     temporaryMessage.isTemporary = YES;
-    
+    temporaryMessage.parentId = parentMessage.internalId;
+
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         [realm addObject:temporaryMessage];
@@ -743,15 +744,17 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     // Create temporary message
     NSString *referenceId = nil;
+    NCChatMessage *replyToMessage = (_replyMessageView.isVisible && fromInputField) ? _replyMessageView.message : nil;
+    
     if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
-        NCChatMessage *temporaryMessage = [self createTemporaryMessage:message];
+        NCChatMessage *temporaryMessage = [self createTemporaryMessage:message replyToMessage:replyToMessage];
         referenceId = temporaryMessage.referenceId;
         [self appendTemporaryMessage:temporaryMessage];
     }
     
     // Send message
     NSString *sendingText = [self createSendingMessage:message];
-    NSInteger replyTo = (_replyMessageView.isVisible && fromInputField) ? _replyMessageView.message.messageId : -1;
+    NSInteger replyTo = replyToMessage ? replyToMessage.messageId : -1;
     [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId];
 }
 
