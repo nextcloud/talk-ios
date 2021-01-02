@@ -33,6 +33,7 @@
 
 @interface ChatMessageTableViewCell ()
 @property (nonatomic, strong) UIView *quoteContainerView;
+@property (nonatomic, strong) NCChatMessage *message;
 @end
 
 @implementation ChatMessageTableViewCell
@@ -73,6 +74,9 @@
     if ([self.reuseIdentifier isEqualToString:ReplyMessageCellIdentifier]) {
         [self.contentView addSubview:self.quoteContainerView];
         [_quoteContainerView addSubview:self.quotedMessageView];
+        
+        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(quoteTapped:)];
+        [self.quoteContainerView addGestureRecognizer:tapRecognizer];
     }
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
@@ -142,6 +146,8 @@
     
     self.userStatusImageView.image = nil;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];
+    
+    self.message = nil;
     
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
@@ -248,6 +254,8 @@
             [self setDeliveryState:ChatMessageDeliveryStateSent];
         }
     }
+    
+    self.message = message;
 }
 
 - (void)setGuestAvatar:(NSString *)displayName
@@ -315,6 +323,12 @@
         _userStatusImageView.clipsToBounds = YES;
         // TODO: Change it when dark mode is implemented
         _userStatusImageView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    }
+}
+
+- (void)quoteTapped:(UIGestureRecognizer *)gestureRecognizer {
+    if (self.delegate && self.message && self.message.parent) {
+        [self.delegate cellWantsToScrollToMessage:self.message.parent];
     }
 }
 

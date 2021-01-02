@@ -34,7 +34,17 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 
 @class QuotedMessageView;
 
+@class ChatMessageTableViewCell;
+
+@protocol ChatMessageTableViewCellDelegate <NSObject>
+
+- (void)cellWantsToScrollToMessage:(NCChatMessage *)message;
+
+@end
+
 @interface ChatMessageTableViewCell : ChatTableViewCell
+
+@property (nonatomic, weak) id<ChatMessageTableViewCellDelegate> delegate;
 
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *dateLabel;
