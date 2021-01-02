@@ -183,6 +183,12 @@ static NSString *const nextcloudScheme = @"nextcloud:";
 
 + (UIColor *)colorFromHexString:(NSString *)hexString
 {
+    BOOL isValidColorString = hexString && ![hexString isKindOfClass:[NSNull class]] && ![hexString isEqualToString:@""];
+    
+    if (!isValidColorString) {
+        return nil;
+    }
+    
     // Check hex color string format (e.g."#00FF00")
     NSError *error = nil;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^#(?:[0-9a-fA-F]{6})$" options:NSRegularExpressionCaseInsensitive error:&error];
