@@ -500,8 +500,8 @@ NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification   
                 [userInfo setObject:storedMessages forKey:@"messages"];
                 
                 // Update the current room with the new message
-                // The stored information about this room will be updates when leaving when saving
-                // pending messages -> a transaction wouldn't make sense here, as it would be overriden again
+                // The stored information about this room will be updated by calling savePendingMessage
+                // in NCChatViewController -> a transaction wouldn't make sense here, as it would be overriden again
                 for (NCChatMessage *message in storedMessages) {
                     if (message.messageId == lastKnownMessage && message.timestamp > self->_room.lastActivity) {
                         self->_room.lastMessageId = message.internalId;
