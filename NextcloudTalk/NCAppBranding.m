@@ -67,7 +67,7 @@ BOOL const useServerThemimg = YES;
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-        if (serverCapabilities && serverCapabilities.color && ![serverCapabilities.color isKindOfClass:[NSNull class]] && ![serverCapabilities.color isEqualToString:@""]) {
+        if (serverCapabilities && serverCapabilities.color) {
             UIColor *themeColor = [NCUtils colorFromHexString:serverCapabilities.color];
             if (themeColor) {
                 color = themeColor;
@@ -83,7 +83,7 @@ BOOL const useServerThemimg = YES;
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-        if (serverCapabilities && serverCapabilities.colorText && ![serverCapabilities.colorText isKindOfClass:[NSNull class]] && ![serverCapabilities.colorText isEqualToString:@""]) {
+        if (serverCapabilities && serverCapabilities.colorText) {
             UIColor *themeTextColor = [NCUtils colorFromHexString:serverCapabilities.colorText];
             if (themeTextColor) {
                 textColor = themeTextColor;
