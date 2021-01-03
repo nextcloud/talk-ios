@@ -77,23 +77,23 @@
                     <rect key="frame" x="0.0" y="36" width="414" height="44"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <items>
-                        <barButtonItem image="delete-action" id="SCI-zL-VnT">
+                        <barButtonItem title="DeleteAction" image="delete-action" width="44" id="SCI-zL-VnT">
                             <connections>
                                 <action selector="removeItemButtonPressed:" destination="-1" id="gz6-Gn-u1I"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="tOh-9L-sus"/>
-                        <barButtonItem title="Item" image="crop-rotate-action" id="Laz-Ng-xrP">
+                        <barButtonItem title="CropAction" image="crop-rotate-action" width="44" id="Laz-Ng-xrP">
                             <connections>
                                 <action selector="cropItemButtonPressed:" destination="-1" id="czl-bv-adS"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem title="Item" image="preview-file-action" id="TKT-px-E6S">
+                        <barButtonItem title="PreviewAction" image="preview-file-action" width="44" id="TKT-px-E6S">
                             <connections>
                                 <action selector="previewItemButtonPressed:" destination="-1" id="wLi-1i-qxY"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem image="add-action" id="7Ow-Kb-Vy0">
+                        <barButtonItem title="AddAction" image="add-action" width="44" id="7Ow-Kb-Vy0">
                             <connections>
                                 <action selector="addItemButtonPressed:" destination="-1" id="E0L-C6-JS9"/>
                             </connections>
