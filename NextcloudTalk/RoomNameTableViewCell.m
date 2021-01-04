@@ -32,6 +32,7 @@ NSString *const kRoomNameTableCellNibName   = @"RoomNameTableViewCell";
     self.roomImage.layer.cornerRadius = 24.0;
     self.roomImage.layer.masksToBounds = YES;
     self.favoriteImage.contentMode = UIViewContentModeCenter;
+    self.roomNameTextField.placeholder = NSLocalizedString(@"Conversation name", nil);
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
