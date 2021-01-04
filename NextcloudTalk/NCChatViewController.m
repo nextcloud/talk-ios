@@ -1320,7 +1320,9 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         }
         
         NSInteger lastCommonRead = [[notification.userInfo objectForKey:@"lastCommonReadMessage"] integerValue];
+        BOOL shouldUpdateReadStatus = NO;
         if (lastCommonRead > 0) {
+            shouldUpdateReadStatus = lastCommonRead > self->_lastCommonReadMessage;
             self->_lastCommonReadMessage = lastCommonRead;
         }
         
@@ -1406,6 +1408,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         if (firstNewMessagesAfterHistory) {
             [self->_chatBackgroundView.loadingView stopAnimating];
             [self->_chatBackgroundView.loadingView setHidden:YES];
+        }
+        
+        if (shouldUpdateReadStatus) {
+            [self.tableView reloadRowsAtIndexPaths:self.tableView.indexPathsForVisibleRows withRowAnimation:UITableViewRowAnimationNone];
         }
     });
 }
