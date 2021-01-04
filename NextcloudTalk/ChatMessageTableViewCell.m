@@ -25,6 +25,7 @@
 #import "QuotedMessageView.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
+#import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "MaterialActivityIndicator.h"
 #import "UIImageView+AFNetworking.h"
@@ -212,6 +213,7 @@
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    BOOL shouldShowReadStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     
     if ([message.actorType isEqualToString:@"guests"]) {
         self.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
@@ -239,7 +241,7 @@
         [self setDeliveryState:ChatMessageDeliveryStateFailed];
     } else if (message.isTemporary){
         [self setDeliveryState:ChatMessageDeliveryStateSending];
-    } else if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"]) {
+    } else if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"] && shouldShowReadStatus) {
         if (lastCommonRead >= message.messageId) {
             [self setDeliveryState:ChatMessageDeliveryStateRead];
         } else {
