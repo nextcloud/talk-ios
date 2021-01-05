@@ -32,6 +32,7 @@ extern NSString * const NCChatControllerDidReceiveChatMessagesNotification;
 extern NSString * const NCChatControllerDidSendChatMessageNotification;
 extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
 extern NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification;
+extern NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification;
 
 @interface NCChatBlock : RLMObject
 
@@ -47,6 +48,7 @@ extern NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification;
 @interface NCChatController : NSObject
 
 @property (nonatomic, strong) NCRoom *room;
+@property (nonatomic, assign) NSInteger lastCommonReadMessage;
 
 - (instancetype)initForRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId;

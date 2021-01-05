@@ -34,11 +34,11 @@ NSString * const NCChatControllerDidReceiveChatMessagesNotification             
 NSString * const NCChatControllerDidSendChatMessageNotification                     = @"NCChatControllerDidSendChatMessageNotification";
 NSString * const NCChatControllerDidReceiveChatBlockedNotification                  = @"NCChatControllerDidReceiveChatBlockedNotification";
 NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification             = @"NCChatControllerDidRemoveTemporaryMessagesNotification";
+NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification       = @"NCChatControllerDidReceiveNewerCommonReadMessageNotification";
 
 @interface NCChatController ()
 
 @property (nonatomic, assign) BOOL stopChatMessagesPoll;
-@property (nonatomic, assign) NSInteger lastCommonReadMessage;
 @property (nonatomic, strong) TalkAccount *account;
 @property (nonatomic, strong) NSURLSessionTask *getHistoryTask;
 @property (nonatomic, strong) NSURLSessionTask *pullMessagesTask;
@@ -360,13 +360,18 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
                     [userInfo setObject:storedMessages forKey:@"messages"];
                 }
             }
-            if (lastCommonReadMessage > 0) {
-                self->_lastCommonReadMessage = lastCommonReadMessage;
-                [userInfo setObject:@(lastCommonReadMessage) forKey:@"lastCommonReadMessage"];
-            }
             [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                                 object:self
                                                               userInfo:userInfo];
+            if (lastCommonReadMessage > 0) {
+                BOOL newerCommonReadReceived = lastCommonReadMessage > self->_lastCommonReadMessage;
+                self->_lastCommonReadMessage = lastCommonReadMessage;
+                if (newerCommonReadReceived) {
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveNewerCommonReadMessageNotification
+                                                                        object:self
+                                                                      userInfo:userInfo];
+                }
+            }
         }];
     }
 }
@@ -505,13 +510,18 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
             }
         }
         [userInfo setObject:self->_room.token forKey:@"room"];
-        if (lastCommonReadMessage > 0) {
-            self->_lastCommonReadMessage = lastCommonReadMessage;
-            [userInfo setObject:@(lastCommonReadMessage) forKey:@"lastCommonReadMessage"];
-        }
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
                                                             object:self
                                                           userInfo:userInfo];
+        if (lastCommonReadMessage > 0) {
+            BOOL newerCommonReadReceived = lastCommonReadMessage > self->_lastCommonReadMessage;
+            self->_lastCommonReadMessage = lastCommonReadMessage;
+            if (newerCommonReadReceived) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveNewerCommonReadMessageNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
+            }
+        }
         if (error.code != -999) {
             NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
             [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:YES];

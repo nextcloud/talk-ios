@@ -92,7 +92,6 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, assign) BOOL hasStoredHistory;
 @property (nonatomic, assign) BOOL hasStopped;
 @property (nonatomic, assign) NSInteger lastReadMessage;
-@property (nonatomic, assign) NSInteger lastCommonReadMessage;
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
 @property (nonatomic, strong) NSIndexPath *unreadMessagesSeparatorIP;
 @property (nonatomic, assign) NSInteger chatViewPresentedTimestamp;
@@ -139,6 +138,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCChatControllerDidSendChatMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatBlocked:) name:NCChatControllerDidReceiveChatBlockedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didRemoveTemporaryMessages:) name:NCChatControllerDidRemoveTemporaryMessagesNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveNewerCommonReadMessage:) name:NCChatControllerDidReceiveNewerCommonReadMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     }
@@ -270,7 +270,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.view addSubview:_unreadMessageButton];
     _chatViewPresentedTimestamp = [[NSDate date] timeIntervalSince1970];
     _lastReadMessage = _room.lastReadMessage;
-    _lastCommonReadMessage = _room.lastCommonReadMessage;
     
     // Check if there's a stored pending message
     if (_room.pendingMessage != nil) {
@@ -1319,13 +1318,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             return;
         }
         
-        NSInteger lastCommonRead = [[notification.userInfo objectForKey:@"lastCommonReadMessage"] integerValue];
-        BOOL shouldUpdateReadStatus = NO;
-        if (lastCommonRead > 0) {
-            shouldUpdateReadStatus = lastCommonRead > self->_lastCommonReadMessage;
-            self->_lastCommonReadMessage = lastCommonRead;
-        }
-        
         BOOL firstNewMessagesAfterHistory = !self->_hasReceiveNewMessages;
         self->_hasReceiveNewMessages = YES;
         
@@ -1409,10 +1401,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             [self->_chatBackgroundView.loadingView stopAnimating];
             [self->_chatBackgroundView.loadingView setHidden:YES];
         }
-        
-        if (shouldUpdateReadStatus) {
-            [self.tableView reloadRowsAtIndexPaths:self.tableView.indexPathsForVisibleRows withRowAnimation:UITableViewRowAnimationNone];
-        }
     });
 }
 
@@ -1465,6 +1453,26 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
     NSArray *removedTemporaryMessages = [notification.userInfo objectForKey:@"messages"];
     [self removeTemporaryMessages:removedTemporaryMessages];
+}
+
+- (void)didReceiveNewerCommonReadMessage:(NSNotification *)notification
+{
+    if (notification.object != _chatController) {
+        return;
+    }
+    
+    NSMutableArray *reloadCells = [NSMutableArray new];
+    for (NSIndexPath *visibleIndexPath in self.tableView.indexPathsForVisibleRows) {
+        NSDate *sectionDate = [_dateSections objectAtIndex:visibleIndexPath.section];
+        NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:visibleIndexPath.row];
+        if (message.messageId > 0 && message.messageId <= _chatController.lastCommonReadMessage) {
+            [reloadCells addObject:visibleIndexPath];
+        }
+    }
+    
+    [self.tableView beginUpdates];
+    [self.tableView reloadRowsAtIndexPaths:reloadCells withRowAnimation:UITableViewRowAnimationNone];
+    [self.tableView endUpdates];
 }
 
 #pragma mark - Lobby functions
@@ -1939,24 +1947,24 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         FileMessageTableViewCell *fileCell = (FileMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:fileCellIdentifier];
         fileCell.delegate = self;
         
-        [fileCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
+        [fileCell setupForMessage:message withLastCommonReadMessage:_chatController.lastCommonReadMessage];
 
         return fileCell;
     }
     if (message.parent) {
         ChatMessageTableViewCell *replyCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
-        [replyCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
+        [replyCell setupForMessage:message withLastCommonReadMessage:_chatController.lastCommonReadMessage];
         
         return replyCell;
     }
     if (message.isGroupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
-        [groupedCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
+        [groupedCell setupForMessage:message withLastCommonReadMessage:_chatController.lastCommonReadMessage];
         
         return groupedCell;
     } else {
         ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
-        [normalCell setupForMessage:message withLastCommonReadMessage:_lastCommonReadMessage];
+        [normalCell setupForMessage:message withLastCommonReadMessage:_chatController.lastCommonReadMessage];
         
         return normalCell;
     }
