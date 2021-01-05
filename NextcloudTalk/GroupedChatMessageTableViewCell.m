@@ -23,6 +23,7 @@
 #import "GroupedChatMessageTableViewCell.h"
 #import "MaterialActivityIndicator.h"
 #import "NCDatabaseManager.h"
+#import "NCSettingsController.h"
 #import "SLKUIConstants.h"
 
 @implementation GroupedChatMessageTableViewCell
@@ -80,11 +81,14 @@
     self.bodyTextView.attributedText = message.parsedMessage;
     self.messageId = message.messageId;
     
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    BOOL shouldShowReadStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
+    
     if (message.sendingFailed) {
         [self setDeliveryState:ChatMessageDeliveryStateFailed];
     } else if (message.isTemporary){
         [self setDeliveryState:ChatMessageDeliveryStateSending];
-    } else if ([message.actorId isEqualToString:[[NCDatabaseManager sharedInstance] activeAccount].userId] && [message.actorType isEqualToString:@"users"]) {
+    } else if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"] && shouldShowReadStatus) {
         if (lastCommonRead >= message.messageId) {
             [self setDeliveryState:ChatMessageDeliveryStateRead];
         } else {
@@ -100,7 +104,7 @@
     if (state == ChatMessageDeliveryStateSending) {
         MDCActivityIndicator *activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
         activityIndicator.radius = 7.0f;
-        activityIndicator.cycleColors = @[UIColor.grayColor];
+        activityIndicator.cycleColors = @[UIColor.lightGrayColor];
         [activityIndicator startAnimating];
         [self.statusView addSubview:activityIndicator];
     } else if (state == ChatMessageDeliveryStateFailed) {

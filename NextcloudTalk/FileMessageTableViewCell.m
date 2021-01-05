@@ -88,8 +88,13 @@
     _statusView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.contentView addSubview:_statusView];
     
+    _fileStatusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
+    _fileStatusView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.contentView addSubview:_fileStatusView];
+    
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"statusView": self.statusView,
+                            @"fileStatusView": self.fileStatusView,
                             @"titleLabel": self.titleLabel,
                             @"dateLabel": self.dateLabel,
                             @"previewImageView": self.previewImageView,
@@ -110,16 +115,18 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[fileStatusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[fileStatusView(previewSize)]-right-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:GroupedFileMessageCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[fileStatusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[fileStatusView(previewSize)]-right-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeIsDownloading:) name:NCChatFileControllerDidChangeIsDownloadingNotification object:nil];
@@ -146,7 +153,8 @@
     self.previewImageView.layer.borderWidth = 0.0f;
     self.previewImageView.image = nil;
     
-    [self clearStatusView];
+    [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
+    [self clearFileStatusView];
 }
 
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead
@@ -186,7 +194,8 @@
     
     self.fileParameter = message.file;
     
-    if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"]) {
+    BOOL shouldShowReadStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
+    if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"] && shouldShowReadStatus) {
         if (lastCommonRead >= message.messageId) {
             [self setDeliveryState:ChatMessageDeliveryStateRead];
         } else {
@@ -230,7 +239,7 @@
             // Immediately show an indeterminate indicator as long as we don't have a progress value
             [self addActivityIndicator:0];
         } else if (!isDownloading && self->_activityIndicator) {
-            [self clearStatusView];
+            [self clearFileStatusView];
         }
     });
 }
@@ -259,11 +268,11 @@
 
 - (void)addActivityIndicator:(CGFloat)progress
 {
-    [self clearStatusView];
+    [self clearFileStatusView];
     
     _activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
     _activityIndicator.radius = 7.0f;
-    _activityIndicator.cycleColors = @[UIColor.grayColor];
+    _activityIndicator.cycleColors = @[UIColor.lightGrayColor];
     
     if (progress > 0) {
         _activityIndicator.indicatorMode = MDCActivityIndicatorModeDeterminate;
@@ -271,7 +280,7 @@
     }
     
     [_activityIndicator startAnimating];
-    [self.statusView addSubview:_activityIndicator];
+    [self.fileStatusView addSubview:_activityIndicator];
 }
 
 
@@ -333,13 +342,13 @@
     [_avatarView setImageWithString:name color:guestAvatarColor circular:true];
 }
 
-- (void)clearStatusView {
+- (void)clearFileStatusView {
     if (_activityIndicator) {
         [_activityIndicator stopAnimating];
         _activityIndicator = nil;
     }
     
-    [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
+    [self.fileStatusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 
 + (CGFloat)defaultFontSize

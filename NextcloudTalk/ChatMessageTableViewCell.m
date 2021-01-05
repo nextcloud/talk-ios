@@ -25,6 +25,7 @@
 #import "QuotedMessageView.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
+#import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "MaterialActivityIndicator.h"
 #import "UIImageView+AFNetworking.h"
@@ -107,7 +108,7 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[quoteContainerView]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[quoteContainerView]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[quoteContainerView]-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:AutoCompletionCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[titleLabel]|" options:0 metrics:metrics views:views]];
@@ -212,6 +213,7 @@
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    BOOL shouldShowReadStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     
     if ([message.actorType isEqualToString:@"guests"]) {
         self.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
@@ -239,7 +241,7 @@
         [self setDeliveryState:ChatMessageDeliveryStateFailed];
     } else if (message.isTemporary){
         [self setDeliveryState:ChatMessageDeliveryStateSending];
-    } else if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"]) {
+    } else if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"] && shouldShowReadStatus) {
         if (lastCommonRead >= message.messageId) {
             [self setDeliveryState:ChatMessageDeliveryStateRead];
         } else {
@@ -273,7 +275,7 @@
     if (state == ChatMessageDeliveryStateSending) {
         MDCActivityIndicator *activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
         activityIndicator.radius = 7.0f;
-        activityIndicator.cycleColors = @[UIColor.grayColor];
+        activityIndicator.cycleColors = @[UIColor.lightGrayColor];
         [activityIndicator startAnimating];
         [self.statusView addSubview:activityIndicator];
     } else if (state == ChatMessageDeliveryStateFailed) {
