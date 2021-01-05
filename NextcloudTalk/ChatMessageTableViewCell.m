@@ -275,7 +275,7 @@
     if (state == ChatMessageDeliveryStateSending) {
         MDCActivityIndicator *activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
         activityIndicator.radius = 7.0f;
-        activityIndicator.cycleColors = @[UIColor.grayColor];
+        activityIndicator.cycleColors = @[UIColor.lightGrayColor];
         [activityIndicator startAnimating];
         [self.statusView addSubview:activityIndicator];
     } else if (state == ChatMessageDeliveryStateFailed) {

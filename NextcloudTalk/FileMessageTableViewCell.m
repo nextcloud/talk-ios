@@ -264,7 +264,7 @@
     
     _activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
     _activityIndicator.radius = 7.0f;
-    _activityIndicator.cycleColors = @[UIColor.grayColor];
+    _activityIndicator.cycleColors = @[UIColor.lightGrayColor];
     
     if (progress > 0) {
         _activityIndicator.indicatorMode = MDCActivityIndicatorModeDeterminate;
