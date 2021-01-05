@@ -38,6 +38,7 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
 @interface NCChatController ()
 
 @property (nonatomic, assign) BOOL stopChatMessagesPoll;
+@property (nonatomic, assign) NSInteger lastCommonReadMessage;
 @property (nonatomic, strong) TalkAccount *account;
 @property (nonatomic, strong) NSURLSessionTask *getHistoryTask;
 @property (nonatomic, strong) NSURLSessionTask *pullMessagesTask;
@@ -54,6 +55,7 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
     self = [super init];
     if (self) {
         _room = room;
+        _lastCommonReadMessage = room.lastCommonReadMessage;
         _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
     }
     
@@ -336,7 +338,7 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
                                                             object:self
                                                           userInfo:userInfo];
     } else {
-        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessageId history:YES includeLastMessage:YES timeout:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessageId history:YES includeLastMessage:YES timeout:NO lastCommonReadMessage:_lastCommonReadMessage forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
             if (self->_stopChatMessagesPoll) {
                 return;
             }
@@ -358,7 +360,10 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
                     [userInfo setObject:storedMessages forKey:@"messages"];
                 }
             }
-            [userInfo setObject:@(lastCommonReadMessage) forKey:@"lastCommonReadMessage"];
+            if (lastCommonReadMessage > 0) {
+                self->_lastCommonReadMessage = lastCommonReadMessage;
+                [userInfo setObject:@(lastCommonReadMessage) forKey:@"lastCommonReadMessage"];
+            }
             [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                                 object:self
                                                               userInfo:userInfo];
@@ -392,7 +397,7 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
                                                             object:self
                                                           userInfo:userInfo];
     } else {
-        _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO lastCommonReadMessage:_lastCommonReadMessage forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
             if (statusCode == 304) {
                 [self updateHistoryFlagInFirstBlock];
             }
@@ -474,7 +479,7 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout lastCommonReadMessage:_lastCommonReadMessage forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (self->_stopChatMessagesPoll) {
             return;
         }
@@ -500,7 +505,10 @@ NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification         
             }
         }
         [userInfo setObject:self->_room.token forKey:@"room"];
-        [userInfo setObject:@(lastCommonReadMessage) forKey:@"lastCommonReadMessage"];
+        if (lastCommonReadMessage > 0) {
+            self->_lastCommonReadMessage = lastCommonReadMessage;
+            [userInfo setObject:@(lastCommonReadMessage) forKey:@"lastCommonReadMessage"];
+        }
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
                                                             object:self
                                                           userInfo:userInfo];
