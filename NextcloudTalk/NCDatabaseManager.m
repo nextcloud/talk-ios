@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName       = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion   = 9;
+uint64_t const kTalkDatabaseSchemaVersion   = 10;
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
@@ -68,15 +68,32 @@ uint64_t const kTalkDatabaseSchemaVersion   = 9;
         }
         [[NSFileManager defaultManager] setAttributes:@{NSFileProtectionKey:NSFileProtectionNone} ofItemAtPath:path error:nil];
         
+        NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:databaseURL.path]) {
+            NSError *error = nil;
+            uint64_t currentDbVersion = [RLMRealm schemaVersionAtURL:databaseURL encryptionKey:nil error:&error];
+            
+            if (error) {
+                NSLog(@"Error reading schemaVersion: %@", error.description);
+            } else {
+                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentDbVersion, kTalkDatabaseSchemaVersion);
+            }
+        }
+        
         // Set Realm configuration
         RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
-        NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
         configuration.fileURL = databaseURL;
         configuration.schemaVersion = kTalkDatabaseSchemaVersion;
         configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
             // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
         };
+        
+        // Tell Realm to use this new configuration object for the default Realm
         [RLMRealmConfiguration setDefaultConfiguration:configuration];
+
+        // Now that we've told Realm how to handle the schema change, opening the file
+        // will automatically perform the migration
+        [RLMRealm defaultRealm];
         
 #ifdef DEBUG
         // Copy Talk DB to Documents directory
