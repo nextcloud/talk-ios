@@ -71,6 +71,10 @@
             self.contentHandler(self.bestAttemptContent);
             return;
         }
+    } else {
+        NSLog(@"Database does not exist -> main app needs to run before extension.");
+        self.contentHandler(self.bestAttemptContent);
+        return;
     }
     
     RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];

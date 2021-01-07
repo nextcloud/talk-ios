@@ -87,6 +87,11 @@
             [self.extensionContext cancelRequestWithError:error];
             return;
         }
+    } else {
+        NSLog(@"Database does not exist -> main app needs to run before extension.");
+        NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+        [self.extensionContext cancelRequestWithError:error];
+        return;
     }
     
     RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
