@@ -50,12 +50,24 @@
     NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:databaseURL.path]) {
-        NSError *error = nil;
-        uint64_t currentDbVersion = [RLMRealm schemaVersionAtURL:databaseURL encryptionKey:nil error:&error];
-        
-        if (error || currentDbVersion != kTalkDatabaseSchemaVersion) {
-            NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentDbVersion, kTalkDatabaseSchemaVersion);
-            NSLog(@"Database needs migration -> don't open database from extension");
+        @try {
+            NSError *error = nil;
+            
+            // schemaVersionAtURL throws an exception when file is not readable
+            uint64_t currentSchemaVersion = [RLMRealm schemaVersionAtURL:databaseURL encryptionKey:nil error:&error];
+            
+            if (error || currentSchemaVersion != kTalkDatabaseSchemaVersion) {
+                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, kTalkDatabaseSchemaVersion);
+                NSLog(@"Database needs migration -> don't open database from extension");
+                
+                self.contentHandler(self.bestAttemptContent);
+                return;
+            } else {
+                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, kTalkDatabaseSchemaVersion);
+            }
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Reading schemaVersion failed: %@", exception.reason);
             self.contentHandler(self.bestAttemptContent);
             return;
         }

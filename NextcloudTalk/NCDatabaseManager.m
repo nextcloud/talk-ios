@@ -70,13 +70,20 @@ uint64_t const kTalkDatabaseSchemaVersion   = 10;
         
         NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
         if ([[NSFileManager defaultManager] fileExistsAtPath:databaseURL.path]) {
-            NSError *error = nil;
-            uint64_t currentDbVersion = [RLMRealm schemaVersionAtURL:databaseURL encryptionKey:nil error:&error];
-            
-            if (error) {
-                NSLog(@"Error reading schemaVersion: %@", error.description);
-            } else {
-                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentDbVersion, kTalkDatabaseSchemaVersion);
+            @try {
+                NSError *error = nil;
+                
+                // schemaVersionAtURL throws an exception when file is not readable
+                uint64_t currentSchemaVersion = [RLMRealm schemaVersionAtURL:databaseURL encryptionKey:nil error:&error];
+                
+                if (error) {
+                    NSLog(@"Reading schemaVersion failed: %@", error.description);
+                } else {
+                    NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, kTalkDatabaseSchemaVersion);
+                }
+            }
+            @catch (NSException *exception) {
+               NSLog(@"Reading schemaVersion failed: %@", exception.reason);
             }
         }
         
