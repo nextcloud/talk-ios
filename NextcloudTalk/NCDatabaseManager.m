@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName       = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion   = 9;
+uint64_t const kTalkDatabaseSchemaVersion   = 10;
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
@@ -76,7 +76,13 @@ uint64_t const kTalkDatabaseSchemaVersion   = 9;
         configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
             // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
         };
+        
+        // Tell Realm to use this new configuration object for the default Realm
         [RLMRealmConfiguration setDefaultConfiguration:configuration];
+
+        // Now that we've told Realm how to handle the schema change, opening the file
+        // will automatically perform the migration
+        [RLMRealm defaultRealm];
         
 #ifdef DEBUG
         // Copy Talk DB to Documents directory

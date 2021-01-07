@@ -61,8 +61,40 @@
     
     // Configure database
     NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
-    RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
     NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:databaseURL.path]) {
+        @try {
+            NSError *error = nil;
+            
+            // schemaVersionAtURL throws an exception when file is not readable
+            uint64_t currentSchemaVersion = [RLMRealm schemaVersionAtURL:databaseURL encryptionKey:nil error:&error];
+            
+            if (error || currentSchemaVersion != kTalkDatabaseSchemaVersion) {
+                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, kTalkDatabaseSchemaVersion);
+                NSLog(@"Database needs migration -> don't open database from extension");
+                
+                NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+                [self.extensionContext cancelRequestWithError:error];
+                return;
+            } else {
+                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, kTalkDatabaseSchemaVersion);
+            }
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Reading schemaVersion failed: %@", exception.reason);
+            NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+            [self.extensionContext cancelRequestWithError:error];
+            return;
+        }
+    } else {
+        NSLog(@"Database does not exist -> main app needs to run before extension.");
+        NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+        [self.extensionContext cancelRequestWithError:error];
+        return;
+    }
+    
+    RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
     configuration.fileURL = databaseURL;
     configuration.schemaVersion= kTalkDatabaseSchemaVersion;
     configuration.objectClasses = @[TalkAccount.class, ServerCapabilities.class, NCRoom.class];
