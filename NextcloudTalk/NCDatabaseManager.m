@@ -68,27 +68,9 @@ uint64_t const kTalkDatabaseSchemaVersion   = 10;
         }
         [[NSFileManager defaultManager] setAttributes:@{NSFileProtectionKey:NSFileProtectionNone} ofItemAtPath:path error:nil];
         
-        NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
-        if ([[NSFileManager defaultManager] fileExistsAtPath:databaseURL.path]) {
-            @try {
-                NSError *error = nil;
-                
-                // schemaVersionAtURL throws an exception when file is not readable
-                uint64_t currentSchemaVersion = [RLMRealm schemaVersionAtURL:databaseURL encryptionKey:nil error:&error];
-                
-                if (error) {
-                    NSLog(@"Reading schemaVersion failed: %@", error.description);
-                } else {
-                    NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, kTalkDatabaseSchemaVersion);
-                }
-            }
-            @catch (NSException *exception) {
-               NSLog(@"Reading schemaVersion failed: %@", exception.reason);
-            }
-        }
-        
         // Set Realm configuration
         RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
+        NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
         configuration.fileURL = databaseURL;
         configuration.schemaVersion = kTalkDatabaseSchemaVersion;
         configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
