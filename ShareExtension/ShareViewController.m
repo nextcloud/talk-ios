@@ -104,12 +104,16 @@
     NSError *error = nil;
     RLMRealm *realm = [RLMRealm realmWithConfiguration:configuration error:&error];
     TalkAccount *managedActiveAccount = [TalkAccount objectsInRealm:realm where:(@"active = true")].firstObject;
-    _activeAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
-    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:_activeAccount.accountId witRealm:realm];
-    _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", _activeAccount.accountId];
-    ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsInRealm:realm withPredicate:query].firstObject;
-    _serverCapabilities = [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
+    if (managedActiveAccount) {
+        _activeAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
+        NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:_activeAccount.accountId witRealm:realm];
+        _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
+        NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", _activeAccount.accountId];
+        ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsInRealm:realm withPredicate:query].firstObject;
+        if (managedServerCapabilities) {
+            _serverCapabilities = [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
+        }
+    }
     
     // Configure table views
     NSBundle *bundle = [NSBundle bundleForClass:[ShareTableViewCell class]];
