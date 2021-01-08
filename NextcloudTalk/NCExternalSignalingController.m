@@ -169,7 +169,7 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     NSInteger interval = _reconnectInterval - (_reconnectInterval / 2) + arc4random_uniform((int)_reconnectInterval);
     NSLog(@"Reconnecting in %ld", (long)interval);
     dispatch_async(dispatch_get_main_queue(), ^{
-        _reconnectTimer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(connect) userInfo:nil repeats:NO];
+        self->_reconnectTimer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(connect) userInfo:nil repeats:NO];
     });
     _reconnectInterval = _reconnectInterval * 2;
     if (_reconnectInterval > kMaxReconnectInterval) {

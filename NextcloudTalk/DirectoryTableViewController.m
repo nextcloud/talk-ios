@@ -156,17 +156,17 @@
         if (!error) {
             NSMutableArray *itemsInDirectory = [NSMutableArray new];
             for (OCFileDto *item in items) {
-                NSString *currentDirectory = [_path isEqualToString:@""] ? @"webdav" : [_path lastPathComponent];
+                NSString *currentDirectory = [self->_path isEqualToString:@""] ? @"webdav" : [self->_path lastPathComponent];
                 if ([[item.filePath lastPathComponent] isEqualToString:currentDirectory] && !item.isEncrypted) {
                     [itemsInDirectory addObject:item];
                 }
             }
-            _itemsInDirectory = itemsInDirectory;
+            self->_itemsInDirectory = itemsInDirectory;
             [self sortItemsInDirectory];
             
-            [_directoryBackgroundView.loadingView stopAnimating];
-            [_directoryBackgroundView.loadingView setHidden:YES];
-            [_directoryBackgroundView.placeholderView setHidden:(itemsInDirectory.count > 0)];
+            [self->_directoryBackgroundView.loadingView stopAnimating];
+            [self->_directoryBackgroundView.loadingView setHidden:YES];
+            [self->_directoryBackgroundView.placeholderView setHidden:(itemsInDirectory.count > 0)];
         }
     }];
 }

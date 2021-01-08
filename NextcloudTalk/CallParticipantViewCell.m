@@ -127,7 +127,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
         _displayName = NSLocalizedString(@"Guest", nil);
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.peerNameLabel.text = _displayName;
+        self.peerNameLabel.text = self->_displayName;
     });
 }
 
@@ -176,7 +176,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 {
     if (_connectionState == RTCIceConnectionStateDisconnected) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.peerNameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Connecting to %@ …", nil), _displayName];
+            self.peerNameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Connecting to %@ …", nil), self->_displayName];
             self.peerAvatarImageView.alpha = 0.3;
         });
     }
@@ -185,7 +185,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 - (void)setFailedConnectionUI
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.peerNameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Failed to connect to %@", nil), _displayName];
+        self.peerNameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Failed to connect to %@", nil), self->_displayName];
         self.peerAvatarImageView.alpha = 0.3;
     });
 }
@@ -193,7 +193,7 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 - (void)setConnectedUI
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.peerNameLabel.text = _displayName;
+        self.peerNameLabel.text = self->_displayName;
         self.peerAvatarImageView.alpha = 1;
     });
 }
@@ -243,12 +243,12 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 - (void)setVideoView:(RTCEAGLVideoView *)videoView
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_videoView removeFromSuperview];
-        _videoView = nil;
-        _videoView = videoView;
-        _remoteVideoSize = videoView.frame.size;
-        [_peerVideoView addSubview:_videoView];
-        [_videoView setHidden:_videoDisabled];
+        [self->_videoView removeFromSuperview];
+        self->_videoView = nil;
+        self->_videoView = videoView;
+        self->_remoteVideoSize = videoView.frame.size;
+        [self->_peerVideoView addSubview:self->_videoView];
+        [self->_videoView setHidden:self->_videoDisabled];
         [self resizeRemoteVideoView];
     });
 }

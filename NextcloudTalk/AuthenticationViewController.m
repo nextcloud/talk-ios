@@ -73,21 +73,21 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
         [request setValue:@"true" forHTTPHeaderField:@"OCS-APIRequest"];
         
-        _webView = [[WKWebView alloc] initWithFrame:self.view.frame configuration:configuration];
+        self->_webView = [[WKWebView alloc] initWithFrame:self.view.frame configuration:configuration];
         NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
         NSString *deviceName = [[UIDevice currentDevice] name];
         NSString *userAgent = [NSString stringWithFormat:@"%@ (%@)", deviceName, appDisplayName];
-        _webView.customUserAgent = [[NSString alloc] initWithCString:[userAgent UTF8String] encoding:NSASCIIStringEncoding];
-        _webView.navigationDelegate = self;
+        self->_webView.customUserAgent = [[NSString alloc] initWithCString:[userAgent UTF8String] encoding:NSASCIIStringEncoding];
+        self->_webView.navigationDelegate = self;
         
-        [_webView loadRequest:request];
-        [self.view addSubview:_webView];
+        [self->_webView loadRequest:request];
+        [self.view addSubview:self->_webView];
         
-        _activityIndicatorView = [[UIActivityIndicatorView alloc] init];
-        _activityIndicatorView.center = self.view.center;
-        _activityIndicatorView.color = [NCAppBranding brandColor];
-        [_activityIndicatorView startAnimating];
-        [self.view addSubview:_activityIndicatorView];
+        self->_activityIndicatorView = [[UIActivityIndicatorView alloc] init];
+        self->_activityIndicatorView.center = self.view.center;
+        self->_activityIndicatorView.color = [NCAppBranding brandColor];
+        [self->_activityIndicatorView startAnimating];
+        [self.view addSubview:self->_activityIndicatorView];
     }];
 }
 

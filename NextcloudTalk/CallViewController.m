@@ -349,9 +349,9 @@ typedef NS_ENUM(NSInteger, CallState) {
     CGRect localVideoRect = CGRectMake(16, 80, localVideoSize.width, localVideoSize.height);
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        _localVideoView.frame = localVideoRect;
-        _localVideoView.layer.cornerRadius = 4.0f;
-        _localVideoView.layer.masksToBounds = YES;
+        self->_localVideoView.frame = localVideoRect;
+        self->_localVideoView.layer.cornerRadius = 4.0f;
+        self->_localVideoView.layer.masksToBounds = YES;
     });
 }
 
@@ -484,14 +484,14 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)addTapGestureForDetailedView
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.view addGestureRecognizer:_tapGestureForDetailedView];
+        [self.view addGestureRecognizer:self->_tapGestureForDetailedView];
     });
 }
 
 - (void)removeTapGestureForDetailedView
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.view removeGestureRecognizer:_tapGestureForDetailedView];
+        [self.view removeGestureRecognizer:self->_tapGestureForDetailedView];
     });
 }
 
@@ -1177,16 +1177,16 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)showScreenOfPeerId:(NSString *)peerId
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        RTCEAGLVideoView *renderView = [_screenRenderersDict objectForKey:peerId];
-        [_screenView removeFromSuperview];
-        _screenView = nil;
-        _screenView = renderView;
-        _screensharingSize = renderView.frame.size;
-        [_screensharingView addSubview:_screenView];
-        [_screensharingView bringSubviewToFront:_closeScreensharingButton];
-        [UIView transitionWithView:_screensharingView duration:0.4
+        RTCEAGLVideoView *renderView = [self->_screenRenderersDict objectForKey:peerId];
+        [self->_screenView removeFromSuperview];
+        self->_screenView = nil;
+        self->_screenView = renderView;
+        self->_screensharingSize = renderView.frame.size;
+        [self->_screensharingView addSubview:self->_screenView];
+        [self->_screensharingView bringSubviewToFront:self->_closeScreensharingButton];
+        [UIView transitionWithView:self->_screensharingView duration:0.4
                            options:UIViewAnimationOptionTransitionCrossDissolve
-                        animations:^{_screensharingView.hidden = NO;}
+                        animations:^{self->_screensharingView.hidden = NO;}
                         completion:nil];
         [self resizeScreensharingView];
     });
@@ -1218,11 +1218,11 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (IBAction)closeScreensharingButtonPressed:(id)sender
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_screenView removeFromSuperview];
-        _screenView = nil;
-        [UIView transitionWithView:_screensharingView duration:0.4
+        [self->_screenView removeFromSuperview];
+        self->_screenView = nil;
+        [UIView transitionWithView:self->_screensharingView duration:0.4
                            options:UIViewAnimationOptionTransitionCrossDissolve
-                        animations:^{_screensharingView.hidden = YES;}
+                        animations:^{self->_screensharingView.hidden = YES;}
                         completion:nil];
     });
     // Back to normal voice only UI
@@ -1277,7 +1277,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)showPeersInfo
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSArray *visibleCells = [_collectionView visibleCells];
+        NSArray *visibleCells = [self->_collectionView visibleCells];
         for (CallParticipantViewCell *cell in visibleCells) {
             [UIView animateWithDuration:0.3f animations:^{
                 [cell.peerNameLabel setAlpha:1.0f];
@@ -1291,7 +1291,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)hidePeersInfo
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSArray *visibleCells = [_collectionView visibleCells];
+        NSArray *visibleCells = [self->_collectionView visibleCells];
         for (CallParticipantViewCell *cell in visibleCells) {
             [UIView animateWithDuration:0.3f animations:^{
                 [cell.peerNameLabel setAlpha:0.0f];

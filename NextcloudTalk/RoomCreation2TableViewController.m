@@ -162,7 +162,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                                              andName:roomName
                                  withCompletionBlock:^(NSString *token, NSError *error) {
                                      if (!error) {
-                                         _createdRoomToken = token;
+                                         self->_createdRoomToken = token;
                                          [self checkRoomCreationCompletion];
                                      } else {
                                          NSLog(@"Error creating new room: %@", error.description);
@@ -202,7 +202,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 {
     [[NCAPIController sharedInstance] setPassword:_passwordToBeSet toRoom:_createdRoomToken forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            _passwordToBeSet = nil;
+            self->_passwordToBeSet = nil;
             [self checkRoomCreationCompletion];
         } else {
             NSLog(@"Error setting room password: %@", error.description);
@@ -226,7 +226,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     [self.navigationController dismissViewControllerAnimated:YES completion:^{
         [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomCreatedNotification
                                                             object:self
-                                                          userInfo:@{@"token":_createdRoomToken}];
+                                                          userInfo:@{@"token":self->_createdRoomToken}];
     }];
 }
 

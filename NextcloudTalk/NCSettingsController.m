@@ -428,7 +428,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         if (!error) {
             NSDictionary *signalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
-            [_signalingConfigutations setObject:signalingConfiguration forKey:activeAccount.accountId];
+            [self->_signalingConfigutations setObject:signalingConfiguration forKey:activeAccount.accountId];
             if (block) block(nil);
         } else {
             NSLog(@"Error while getting signaling configuration");
@@ -449,11 +449,11 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     NSString *externalSignalingTicket = [signalingConfiguration objectForKey:@"ticket"];
     if (externalSignalingServer && externalSignalingTicket) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            NCExternalSignalingController *extSignalingController = [_externalSignalingControllers objectForKey:accountId];
+            NCExternalSignalingController *extSignalingController = [self->_externalSignalingControllers objectForKey:accountId];
             if (!extSignalingController) {
                 TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
                 extSignalingController = [[NCExternalSignalingController alloc] initWithAccount:account server:externalSignalingServer andTicket:externalSignalingTicket];
-                [_externalSignalingControllers setObject:extSignalingController forKey:accountId];
+                [self->_externalSignalingControllers setObject:extSignalingController forKey:accountId];
             }
         });
     }

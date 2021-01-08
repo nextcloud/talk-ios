@@ -106,7 +106,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (!roomController) {
         _joiningRoom = token;
         _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
-            if (!_joiningRoom) {
+            if (!self->_joiningRoom) {
                 NSLog(@"Not joining the room any more. Ignore response.");
                 return;
             }
@@ -115,19 +115,19 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 controller.userSessionId = sessionId;
                 controller.inChat = !call;
                 controller.inCall = call;
-                [_activeRooms setObject:controller forKey:token];
-                [_joinRoomAttempts removeObjectForKey:token];
+                [self->_activeRooms setObject:controller forKey:token];
+                [self->_joinRoomAttempts removeObjectForKey:token];
                 [userInfo setObject:controller forKey:@"roomController"];
                 NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
                     [extSignalingController joinRoom:token withSessionId:sessionId];
                 }
             } else {
-                NSInteger joinAttempts = [[_joinRoomAttempts objectForKey:token] integerValue];
+                NSInteger joinAttempts = [[self->_joinRoomAttempts objectForKey:token] integerValue];
                 if (joinAttempts < 3) {
                     NSLog(@"Error joining room, retrying. %ld", (long)joinAttempts);
                     joinAttempts += 1;
-                    [_joinRoomAttempts setObject:@(joinAttempts) forKey:token];
+                    [self->_joinRoomAttempts setObject:@(joinAttempts) forKey:token];
                     [self joinRoom:token forCall:call];
                     return;
                 }
@@ -136,7 +136,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 [userInfo setObject:[self getJoinRoomErrorReason:statusCode] forKey:@"errorReason"];
                 NSLog(@"Could not join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
             }
-            _joiningRoom = nil;
+            self->_joiningRoom = nil;
             [userInfo setObject:token forKey:@"token"];
             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
                                                                 object:self
@@ -204,7 +204,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             } else {
                 NSLog(@"Could not re-join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
             }
-            _joiningRoom = nil;
+            self->_joiningRoom = nil;
         }];
     }
 }
@@ -233,7 +233,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 [userInfo setObject:error forKey:@"error"];
                 NSLog(@"Could not exit room. Error: %@", error.description);
             }
-            _leaveRoomTask = nil;
+            self->_leaveRoomTask = nil;
             [self checkForPendingToStartCalls];
             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidLeaveRoomNotification
                                                                 object:self

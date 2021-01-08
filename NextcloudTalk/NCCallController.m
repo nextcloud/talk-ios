@@ -121,26 +121,26 @@ static NSString * const kNCVideoTrackKind = @"video";
             [self.delegate callControllerDidJoinCall:self];
             [self getPeersForCall];
             [self startMonitoringMicrophoneAudioLevel];
-            if ([_externalSignalingController isEnabled]) {
-                _userSessionId = [_externalSignalingController sessionId];
-                if ([_externalSignalingController hasMCU]) {
+            if ([self->_externalSignalingController isEnabled]) {
+                _userSessionId = [self->_externalSignalingController sessionId];
+                if ([self->_externalSignalingController hasMCU]) {
                     [self createOwnPublishPeerConnection];
                 }
-                if (_pendingUsersInRoom) {
+                if (self->_pendingUsersInRoom) {
                     NSLog(@"Procees pending users on start call");;
-                    NSArray *usersInRoom = [_pendingUsersInRoom copy];
-                    _pendingUsersInRoom = nil;
+                    NSArray *usersInRoom = [self->_pendingUsersInRoom copy];
+                    self->_pendingUsersInRoom = nil;
                     [self processUsersInRoom:usersInRoom];
                 }
             } else {
-                [_signalingController startPullingSignalingMessages];
+                [self->_signalingController startPullingSignalingMessages];
             }
-            _joinedCallOnce = YES;
+            self->_joinedCallOnce = YES;
             [self setInCall:YES];
         } else {
-            if (_joinCallAttempts < 3) {
-                NSLog(@"Could not join call, retrying. %ld", (long)_joinCallAttempts);
-                _joinCallAttempts += 1;
+            if (self->_joinCallAttempts < 3) {
+                NSLog(@"Could not join call, retrying. %ld", (long)self->_joinCallAttempts);
+                self->_joinCallAttempts += 1;
                 [self joinCall];
                 return;
             } 
@@ -182,13 +182,13 @@ static NSString * const kNCVideoTrackKind = @"video";
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
             NSLog(@"Rejoined call");
-            if ([_externalSignalingController hasMCU]) {
+            if ([self->_externalSignalingController hasMCU]) {
                 [self createOwnPublishPeerConnection];
             }
-            if (_pendingUsersInRoom) {
+            if (self->_pendingUsersInRoom) {
                 NSLog(@"Procees pending users on rejoin");
-                NSArray *usersInRoom = [_pendingUsersInRoom copy];
-                _pendingUsersInRoom = nil;
+                NSArray *usersInRoom = [self->_pendingUsersInRoom copy];
+                self->_pendingUsersInRoom = nil;
                 [self processUsersInRoom:usersInRoom];
             }
             [self setInCall:YES];
@@ -391,7 +391,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:_account withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
         if (!error) {
-            _peersInCall = peers;
+            self->_peersInCall = peers;
         }
     }];
 }
@@ -520,9 +520,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)startSendingNick
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_sendNickTimer invalidate];
-        _sendNickTimer = nil;
-        _sendNickTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(sendNick) userInfo:nil repeats:YES];
+        [self->_sendNickTimer invalidate];
+        self->_sendNickTimer = nil;
+        self->_sendNickTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(sendNick) userInfo:nil repeats:YES];
     });
 }
 

@@ -63,7 +63,7 @@
         }
         
         if (settings) {
-            _signalingSettings = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
+            self->_signalingSettings = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
         }
     }];
 }
@@ -112,7 +112,7 @@
 - (void)pullSignalingMessages
 {
     _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *messages, NSError *error) {
-        if (_shouldStopPullingMessages) {
+        if (self->_shouldStopPullingMessages) {
             return;
         }
         
