@@ -26,7 +26,6 @@
 #import "NCUtils.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
-#import "CCCertificate.h"
 
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"

@@ -24,7 +24,6 @@
 
 #import <NCCommunication/NCCommunication.h>
 
-#import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
