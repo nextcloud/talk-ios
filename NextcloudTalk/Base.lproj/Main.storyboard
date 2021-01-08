@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="lDR-Z7-uv9">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="lDR-Z7-uv9">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Conversations-->
+        <!--Rooms Table View Controller-->
         <scene sceneID="Vbx-je-b0o">
             <objects>
                 <tableViewController extendedLayoutIncludesOpaqueBars="YES" id="d5a-it-gRL" customClass="RoomsTableViewController" sceneMemberID="viewController">
@@ -30,7 +30,7 @@
                             <outlet property="delegate" destination="d5a-it-gRL" id="bDT-EF-LeB"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Conversations" id="Xw3-a9-moF">
+                    <navigationItem key="navigationItem" id="Xw3-a9-moF">
                         <barButtonItem key="rightBarButtonItem" style="plain" systemItem="add" id="0h6-8z-cdO">
                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
@@ -46,7 +46,7 @@
             </objects>
             <point key="canvasLocation" x="1356" y="-76"/>
         </scene>
-        <!--Profile-->
+        <!--Settings View Controller-->
         <scene sceneID="ZbW-mC-4pI">
             <objects>
                 <tableViewController id="IZS-G3-LBe" customClass="SettingsViewController" sceneMemberID="viewController">
@@ -69,7 +69,7 @@
                             <outlet property="delegate" destination="IZS-G3-LBe" id="vZ7-0q-aW2"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Profile" id="Pp3-yk-a14">
+                    <navigationItem key="navigationItem" id="Pp3-yk-a14">
                         <barButtonItem key="leftBarButtonItem" style="plain" systemItem="cancel" id="Gz2-po-4Ua">
                             <connections>
                                 <action selector="cancelButtonPressed:" destination="IZS-G3-LBe" id="qyV-k2-fve"/>
