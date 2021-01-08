@@ -189,10 +189,11 @@ typedef enum AboutSection {
 
 - (NSIndexPath *)getIndexPathForConfigurationOption:(ConfigurationSectionOption)option
 {
-    NSIndexPath *optionIndexPath = [NSIndexPath indexPathForRow:0 inSection:kSettingsSectionConfiguration];
+    NSInteger section = [self getSectionForSettingsSection:kSettingsSectionConfiguration];
+    NSIndexPath *optionIndexPath = [NSIndexPath indexPathForRow:0 inSection:section];
     NSInteger optionRow = [[self getConfigurationSectionOptions] indexOfObject:[NSNumber numberWithInt:option]];
     if (NSNotFound != optionRow) {
-        optionIndexPath = [NSIndexPath indexPathForRow:optionRow inSection:kSettingsSectionConfiguration];
+        optionIndexPath = [NSIndexPath indexPathForRow:optionRow inSection:section];
     }
     return optionIndexPath;
 }

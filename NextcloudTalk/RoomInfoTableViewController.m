@@ -285,10 +285,11 @@ typedef enum FileAction {
 
 - (NSIndexPath *)getIndexPathForRoomAction:(RoomAction)action
 {
-    NSIndexPath *actionIndexPath = [NSIndexPath indexPathForRow:0 inSection:kRoomInfoSectionActions];
+    NSInteger section = [self getSectionForRoomInfoSection:kRoomInfoSectionActions];
+    NSIndexPath *actionIndexPath = [NSIndexPath indexPathForRow:0 inSection:section];
     NSInteger actionRow = [[self getRoomActions] indexOfObject:[NSNumber numberWithInt:action]];
     if(NSNotFound != actionRow) {
-        actionIndexPath = [NSIndexPath indexPathForRow:actionRow inSection:kRoomInfoSectionActions];
+        actionIndexPath = [NSIndexPath indexPathForRow:actionRow inSection:section];
     }
     return actionIndexPath;
 }
