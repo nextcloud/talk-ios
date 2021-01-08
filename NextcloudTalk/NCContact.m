@@ -73,7 +73,14 @@
         if (managedABContact) {
             unmanagedABContact = [[ABContact alloc] initWithValue:managedABContact];
         }
-        return unmanagedABContact.name;
+        
+        NSString *contactDisplayName = unmanagedABContact.name;
+        if (!contactDisplayName || [contactDisplayName isEqualToString:@""]) {
+            // If the address book contact was stored without name return
+            // the first phone number (it should have at least one phone number) as display name.
+            contactDisplayName = unmanagedABContact.phoneNumbers.firstObject;
+        }
+        return contactDisplayName;
     }
     
     return nil;
