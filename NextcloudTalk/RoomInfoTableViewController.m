@@ -224,7 +224,7 @@ typedef enum FileAction {
 - (void)getRoomParticipants
 {
     [[NCAPIController sharedInstance] getParticipantsFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *participants, NSError *error) {
-        _roomParticipants = participants;
+        self->_roomParticipants = participants;
         [self.tableView reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange([self getSectionForRoomInfoSection:kRoomInfoSectionParticipants], 1)] withRowAnimation:UITableViewRowAnimationNone];
         [self removeModifyingRoomUI];
     }];
@@ -527,7 +527,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] renameRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withName:newRoomName andCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
         } else {
             NSLog(@"Error renaming the room: %@", error.description);
             [self.tableView reloadData];
@@ -541,7 +541,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] addRoomToFavorites:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
         } else {
             NSLog(@"Error adding the room to favorites: %@", error.description);
             [self.tableView reloadData];
@@ -555,7 +555,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] removeRoomFromFavorites:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
         } else {
             NSLog(@"Error removing the room from favorites: %@", error.description);
             [self.tableView reloadData];
@@ -572,7 +572,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
         } else {
             NSLog(@"Error setting room notification level: %@", error.description);
             [self.tableView reloadData];
@@ -602,9 +602,9 @@ typedef enum FileAction {
         NSString *password = [[passwordDialog textFields][0] text];
         NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         [self setModifyingRoomUI];
-        [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             if (!error) {
-                [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+                [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
             } else {
                 NSLog(@"Error setting room password: %@", error.description);
                 [self.tableView reloadData];
@@ -618,9 +618,9 @@ typedef enum FileAction {
     if (_room.hasPassword) {
         UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove password", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
             [self setModifyingRoomUI];
-            [[NCAPIController sharedInstance] setPassword:@"" toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+            [[NCAPIController sharedInstance] setPassword:@"" toRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
                 if (!error) {
-                    [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+                    [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
                 } else {
                     NSLog(@"Error changing room password: %@", error.description);
                     [self.tableView reloadData];
@@ -644,13 +644,13 @@ typedef enum FileAction {
         if (!error) {
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:kPublicActionPublicToggle inSection:[self getSectionForRoomInfoSection:kRoomInfoSectionPublic]];
             [self shareRoomLinkFromIndexPath:indexPath];
-            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorShare];
         }
-        _publicSwtich.enabled = YES;
+        self->_publicSwtich.enabled = YES;
     }];
 }
 
@@ -659,13 +659,13 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] makeRoomPrivate:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
         } else {
             NSLog(@"Error making private the room: %@", error.description);
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorShare];
         }
-        _publicSwtich.enabled = YES;
+        self->_publicSwtich.enabled = YES;
     }];
 }
 
@@ -769,8 +769,8 @@ typedef enum FileAction {
 {
     [[NCAPIController sharedInstance] removeSelfFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSInteger errorCode, NSError *error) {
         if (!error) {
-            if (_chatViewController) {
-                [_chatViewController leaveChat];
+            if (self->_chatViewController) {
+                [self->_chatViewController leaveChat];
             }
             [[NCUserInterfaceController sharedInstance] presentConversationsList];
         } else if (errorCode == 400) {
@@ -786,8 +786,8 @@ typedef enum FileAction {
 {
     [[NCAPIController sharedInstance] deleteRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            if (_chatViewController) {
-                [_chatViewController leaveChat];
+            if (self->_chatViewController) {
+                [self->_chatViewController leaveChat];
             }
             [[NCUserInterfaceController sharedInstance] presentConversationsList];
         } else {
@@ -814,13 +814,13 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] setLobbyState:lobbyState withTimer:timer forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
         } else {
             NSLog(@"Error changing lobby state in room: %@", error.description);
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorLobby];
         }
-        _lobbySwtich.enabled = YES;
+        self->_lobbySwtich.enabled = YES;
     }];
 }
 
