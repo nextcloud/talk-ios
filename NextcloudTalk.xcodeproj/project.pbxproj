@@ -106,29 +106,6 @@
 		2C62AFC424C1BD74007E460A /* UIResponder+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AD2264775E0053078A /* UIResponder+SLKAdditions.m */; };
 		2C62AFC524C1BD74007E460A /* UIScrollView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AF2264775E0053078A /* UIScrollView+SLKAdditions.m */; };
 		2C62AFC624C1BD74007E460A /* UIView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303B12264775E0053078A /* UIView+SLKAdditions.m */; };
-		2C62AFC724C1BD78007E460A /* NCRichDocumentTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DD92216BF4A00F5C23F /* NCRichDocumentTemplate.m */; };
-		2C62AFC824C1BD78007E460A /* OCActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDB2216BF4A00F5C23F /* OCActivity.m */; };
-		2C62AFC924C1BD78007E460A /* OCCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDD2216BF4A00F5C23F /* OCCapabilities.m */; };
-		2C62AFCA24C1BD78007E460A /* OCCommunication.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDF2216BF4A00F5C23F /* OCCommunication.m */; };
-		2C62AFCB24C1BD78007E460A /* OCExternalSites.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE22216BF4A00F5C23F /* OCExternalSites.m */; };
-		2C62AFCC24C1BD78007E460A /* OCFileDto.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE42216BF4A00F5C23F /* OCFileDto.m */; };
-		2C62AFCD24C1BD78007E460A /* OCNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE72216BF4A00F5C23F /* OCNotifications.m */; };
-		2C62AFCE24C1BD78007E460A /* OCNotificationsAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE92216BF4A00F5C23F /* OCNotificationsAction.m */; };
-		2C62AFCF24C1BD78007E460A /* OCRichObjectStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DEB2216BF4A00F5C23F /* OCRichObjectStrings.m */; };
-		2C62AFD024C1BD78007E460A /* OCSharedDto.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DED2216BF4A00F5C23F /* OCSharedDto.m */; };
-		2C62AFD124C1BD78007E460A /* OCShareUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DEF2216BF4A00F5C23F /* OCShareUser.m */; };
-		2C62AFD224C1BD78007E460A /* OCUserProfile.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF12216BF4A00F5C23F /* OCUserProfile.m */; };
-		2C62AFD324C1BD7E007E460A /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF42216BF4A00F5C23F /* NSDate+ISO8601.m */; };
-		2C62AFD424C1BD7E007E460A /* NSDate+RFC1123.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF62216BF4A00F5C23F /* NSDate+RFC1123.m */; };
-		2C62AFD524C1BD7E007E460A /* OCHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF82216BF4A00F5C23F /* OCHTTPRequestOperation.m */; };
-		2C62AFD624C1BD7E007E460A /* OCWebDAVClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFA2216BF4A00F5C23F /* OCWebDAVClient.m */; };
-		2C62AFD724C1BD83007E460A /* OCXMLListParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFD2216BF4A00F5C23F /* OCXMLListParser.m */; };
-		2C62AFD824C1BD83007E460A /* OCXMLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFF2216BF4A00F5C23F /* OCXMLParser.m */; };
-		2C62AFD924C1BD83007E460A /* OCXMLServerErrorsParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E012216BF4A00F5C23F /* OCXMLServerErrorsParser.m */; };
-		2C62AFDA24C1BD83007E460A /* OCXMLShareByLinkParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E032216BF4A00F5C23F /* OCXMLShareByLinkParser.m */; };
-		2C62AFDB24C1BD83007E460A /* OCXMLSharedParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E052216BF4A00F5C23F /* OCXMLSharedParser.m */; };
-		2C62AFDC24C1BD87007E460A /* NSString+Encode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E082216BF4A00F5C23F /* NSString+Encode.m */; };
-		2C62AFDD24C1BD87007E460A /* UtilsFramework.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E0B2216BF4A00F5C23F /* UtilsFramework.m */; };
 		2C62AFDE24C1BD8A007E460A /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
 		2C62AFDF24C1BD8D007E460A /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
 		2C62AFE024C1BD91007E460A /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
@@ -245,29 +222,6 @@
 		2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */; };
 		2C9200C32474262C0050084F /* UIBarButtonItem+Badge.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */; };
 		2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
-		2C961E0C2216BF4B00F5C23F /* NCRichDocumentTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DD92216BF4A00F5C23F /* NCRichDocumentTemplate.m */; };
-		2C961E0D2216BF4B00F5C23F /* OCActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDB2216BF4A00F5C23F /* OCActivity.m */; };
-		2C961E0E2216BF4B00F5C23F /* OCCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDD2216BF4A00F5C23F /* OCCapabilities.m */; };
-		2C961E0F2216BF4B00F5C23F /* OCCommunication.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDF2216BF4A00F5C23F /* OCCommunication.m */; };
-		2C961E102216BF4B00F5C23F /* OCExternalSites.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE22216BF4A00F5C23F /* OCExternalSites.m */; };
-		2C961E112216BF4B00F5C23F /* OCFileDto.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE42216BF4A00F5C23F /* OCFileDto.m */; };
-		2C961E122216BF4B00F5C23F /* OCNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE72216BF4A00F5C23F /* OCNotifications.m */; };
-		2C961E132216BF4B00F5C23F /* OCNotificationsAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE92216BF4A00F5C23F /* OCNotificationsAction.m */; };
-		2C961E142216BF4B00F5C23F /* OCRichObjectStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DEB2216BF4A00F5C23F /* OCRichObjectStrings.m */; };
-		2C961E152216BF4B00F5C23F /* OCSharedDto.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DED2216BF4A00F5C23F /* OCSharedDto.m */; };
-		2C961E162216BF4B00F5C23F /* OCShareUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DEF2216BF4A00F5C23F /* OCShareUser.m */; };
-		2C961E172216BF4B00F5C23F /* OCUserProfile.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF12216BF4A00F5C23F /* OCUserProfile.m */; };
-		2C961E182216BF4B00F5C23F /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF42216BF4A00F5C23F /* NSDate+ISO8601.m */; };
-		2C961E192216BF4B00F5C23F /* NSDate+RFC1123.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF62216BF4A00F5C23F /* NSDate+RFC1123.m */; };
-		2C961E1A2216BF4B00F5C23F /* OCHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF82216BF4A00F5C23F /* OCHTTPRequestOperation.m */; };
-		2C961E1B2216BF4B00F5C23F /* OCWebDAVClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFA2216BF4A00F5C23F /* OCWebDAVClient.m */; };
-		2C961E1C2216BF4B00F5C23F /* OCXMLListParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFD2216BF4A00F5C23F /* OCXMLListParser.m */; };
-		2C961E1D2216BF4B00F5C23F /* OCXMLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFF2216BF4A00F5C23F /* OCXMLParser.m */; };
-		2C961E1E2216BF4B00F5C23F /* OCXMLServerErrorsParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E012216BF4A00F5C23F /* OCXMLServerErrorsParser.m */; };
-		2C961E1F2216BF4B00F5C23F /* OCXMLShareByLinkParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E032216BF4A00F5C23F /* OCXMLShareByLinkParser.m */; };
-		2C961E202216BF4B00F5C23F /* OCXMLSharedParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E052216BF4A00F5C23F /* OCXMLSharedParser.m */; };
-		2C961E212216BF4B00F5C23F /* NSString+Encode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E082216BF4A00F5C23F /* NSString+Encode.m */; };
-		2C961E222216BF4B00F5C23F /* UtilsFramework.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E0B2216BF4A00F5C23F /* UtilsFramework.m */; };
 		2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */; };
 		2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */; };
 		2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */; };
@@ -322,7 +276,6 @@
 		2CC0016724A25BE100A20167 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
 		2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
 		2CC0017024A3792800A20167 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
-		2CC0017124A3793700A20167 /* OCCommunication.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDF2216BF4A00F5C23F /* OCCommunication.m */; };
 		2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
 		2CC0017424A3796400A20167 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
 		2CC0017524A3797600A20167 /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
@@ -337,28 +290,6 @@
 		2CC0018024A37A5500A20167 /* UIResponder+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AD2264775E0053078A /* UIResponder+SLKAdditions.m */; };
 		2CC0018124A37A5800A20167 /* UIScrollView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AF2264775E0053078A /* UIScrollView+SLKAdditions.m */; };
 		2CC0018224A37A5B00A20167 /* UIView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303B12264775E0053078A /* UIView+SLKAdditions.m */; };
-		2CC0018324A37A5E00A20167 /* NCRichDocumentTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DD92216BF4A00F5C23F /* NCRichDocumentTemplate.m */; };
-		2CC0018424A37A6600A20167 /* OCActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDB2216BF4A00F5C23F /* OCActivity.m */; };
-		2CC0018524A37A6600A20167 /* OCCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DDD2216BF4A00F5C23F /* OCCapabilities.m */; };
-		2CC0018624A37A6600A20167 /* OCExternalSites.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE22216BF4A00F5C23F /* OCExternalSites.m */; };
-		2CC0018724A37A6600A20167 /* OCFileDto.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE42216BF4A00F5C23F /* OCFileDto.m */; };
-		2CC0018824A37A6600A20167 /* OCNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE72216BF4A00F5C23F /* OCNotifications.m */; };
-		2CC0018924A37A6600A20167 /* OCNotificationsAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DE92216BF4A00F5C23F /* OCNotificationsAction.m */; };
-		2CC0018A24A37A6600A20167 /* OCRichObjectStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DEB2216BF4A00F5C23F /* OCRichObjectStrings.m */; };
-		2CC0018B24A37A6600A20167 /* OCSharedDto.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DED2216BF4A00F5C23F /* OCSharedDto.m */; };
-		2CC0018C24A37A6600A20167 /* OCShareUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DEF2216BF4A00F5C23F /* OCShareUser.m */; };
-		2CC0018D24A37A6600A20167 /* OCUserProfile.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF12216BF4A00F5C23F /* OCUserProfile.m */; };
-		2CC0018E24A37A6B00A20167 /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF42216BF4A00F5C23F /* NSDate+ISO8601.m */; };
-		2CC0018F24A37A6B00A20167 /* NSDate+RFC1123.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF62216BF4A00F5C23F /* NSDate+RFC1123.m */; };
-		2CC0019024A37A6B00A20167 /* OCHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DF82216BF4A00F5C23F /* OCHTTPRequestOperation.m */; };
-		2CC0019124A37A6B00A20167 /* OCWebDAVClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFA2216BF4A00F5C23F /* OCWebDAVClient.m */; };
-		2CC0019224A37A7000A20167 /* OCXMLListParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFD2216BF4A00F5C23F /* OCXMLListParser.m */; };
-		2CC0019324A37A7000A20167 /* OCXMLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961DFF2216BF4A00F5C23F /* OCXMLParser.m */; };
-		2CC0019424A37A7000A20167 /* OCXMLServerErrorsParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E012216BF4A00F5C23F /* OCXMLServerErrorsParser.m */; };
-		2CC0019524A37A7000A20167 /* OCXMLShareByLinkParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E032216BF4A00F5C23F /* OCXMLShareByLinkParser.m */; };
-		2CC0019624A37A7000A20167 /* OCXMLSharedParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E052216BF4A00F5C23F /* OCXMLSharedParser.m */; };
-		2CC0019724A37A7400A20167 /* NSString+Encode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E082216BF4A00F5C23F /* NSString+Encode.m */; };
-		2CC0019824A37A7400A20167 /* UtilsFramework.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C961E0B2216BF4A00F5C23F /* UtilsFramework.m */; };
 		2CC0019924A37A7700A20167 /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
 		2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
 		2CC0019B24A37A8100A20167 /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
@@ -714,55 +645,6 @@
 		2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIBarButtonItem+Badge.m"; sourceTree = "<group>"; };
 		2C92195A1F58530B008AC1A3 /* UIImageView+Letters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+Letters.h"; sourceTree = "<group>"; };
 		2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+Letters.m"; sourceTree = "<group>"; };
-		2C961DD82216BF4A00F5C23F /* NCRichDocumentTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCRichDocumentTemplate.h; sourceTree = "<group>"; };
-		2C961DD92216BF4A00F5C23F /* NCRichDocumentTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCRichDocumentTemplate.m; sourceTree = "<group>"; };
-		2C961DDA2216BF4A00F5C23F /* OCActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCActivity.h; sourceTree = "<group>"; };
-		2C961DDB2216BF4A00F5C23F /* OCActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCActivity.m; sourceTree = "<group>"; };
-		2C961DDC2216BF4A00F5C23F /* OCCapabilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCCapabilities.h; sourceTree = "<group>"; };
-		2C961DDD2216BF4A00F5C23F /* OCCapabilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCCapabilities.m; sourceTree = "<group>"; };
-		2C961DDE2216BF4A00F5C23F /* OCCommunication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCCommunication.h; sourceTree = "<group>"; };
-		2C961DDF2216BF4A00F5C23F /* OCCommunication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCCommunication.m; sourceTree = "<group>"; };
-		2C961DE02216BF4A00F5C23F /* OCErrorMsg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCErrorMsg.h; sourceTree = "<group>"; };
-		2C961DE12216BF4A00F5C23F /* OCExternalSites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCExternalSites.h; sourceTree = "<group>"; };
-		2C961DE22216BF4A00F5C23F /* OCExternalSites.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCExternalSites.m; sourceTree = "<group>"; };
-		2C961DE32216BF4A00F5C23F /* OCFileDto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCFileDto.h; sourceTree = "<group>"; };
-		2C961DE42216BF4A00F5C23F /* OCFileDto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCFileDto.m; sourceTree = "<group>"; };
-		2C961DE52216BF4A00F5C23F /* OCFrameworkConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCFrameworkConstants.h; sourceTree = "<group>"; };
-		2C961DE62216BF4A00F5C23F /* OCNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCNotifications.h; sourceTree = "<group>"; };
-		2C961DE72216BF4A00F5C23F /* OCNotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCNotifications.m; sourceTree = "<group>"; };
-		2C961DE82216BF4A00F5C23F /* OCNotificationsAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCNotificationsAction.h; sourceTree = "<group>"; };
-		2C961DE92216BF4A00F5C23F /* OCNotificationsAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCNotificationsAction.m; sourceTree = "<group>"; };
-		2C961DEA2216BF4A00F5C23F /* OCRichObjectStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCRichObjectStrings.h; sourceTree = "<group>"; };
-		2C961DEB2216BF4A00F5C23F /* OCRichObjectStrings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCRichObjectStrings.m; sourceTree = "<group>"; };
-		2C961DEC2216BF4A00F5C23F /* OCSharedDto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCSharedDto.h; sourceTree = "<group>"; };
-		2C961DED2216BF4A00F5C23F /* OCSharedDto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCSharedDto.m; sourceTree = "<group>"; };
-		2C961DEE2216BF4A00F5C23F /* OCShareUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCShareUser.h; sourceTree = "<group>"; };
-		2C961DEF2216BF4A00F5C23F /* OCShareUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCShareUser.m; sourceTree = "<group>"; };
-		2C961DF02216BF4A00F5C23F /* OCUserProfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCUserProfile.h; sourceTree = "<group>"; };
-		2C961DF12216BF4A00F5C23F /* OCUserProfile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCUserProfile.m; sourceTree = "<group>"; };
-		2C961DF32216BF4A00F5C23F /* NSDate+ISO8601.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+ISO8601.h"; sourceTree = "<group>"; };
-		2C961DF42216BF4A00F5C23F /* NSDate+ISO8601.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+ISO8601.m"; sourceTree = "<group>"; };
-		2C961DF52216BF4A00F5C23F /* NSDate+RFC1123.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+RFC1123.h"; sourceTree = "<group>"; };
-		2C961DF62216BF4A00F5C23F /* NSDate+RFC1123.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+RFC1123.m"; sourceTree = "<group>"; };
-		2C961DF72216BF4A00F5C23F /* OCHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCHTTPRequestOperation.h; sourceTree = "<group>"; };
-		2C961DF82216BF4A00F5C23F /* OCHTTPRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCHTTPRequestOperation.m; sourceTree = "<group>"; };
-		2C961DF92216BF4A00F5C23F /* OCWebDAVClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCWebDAVClient.h; sourceTree = "<group>"; };
-		2C961DFA2216BF4A00F5C23F /* OCWebDAVClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCWebDAVClient.m; sourceTree = "<group>"; };
-		2C961DFC2216BF4A00F5C23F /* OCXMLListParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCXMLListParser.h; sourceTree = "<group>"; };
-		2C961DFD2216BF4A00F5C23F /* OCXMLListParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCXMLListParser.m; sourceTree = "<group>"; };
-		2C961DFE2216BF4A00F5C23F /* OCXMLParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCXMLParser.h; sourceTree = "<group>"; };
-		2C961DFF2216BF4A00F5C23F /* OCXMLParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCXMLParser.m; sourceTree = "<group>"; };
-		2C961E002216BF4A00F5C23F /* OCXMLServerErrorsParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCXMLServerErrorsParser.h; sourceTree = "<group>"; };
-		2C961E012216BF4A00F5C23F /* OCXMLServerErrorsParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCXMLServerErrorsParser.m; sourceTree = "<group>"; };
-		2C961E022216BF4A00F5C23F /* OCXMLShareByLinkParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCXMLShareByLinkParser.h; sourceTree = "<group>"; };
-		2C961E032216BF4A00F5C23F /* OCXMLShareByLinkParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCXMLShareByLinkParser.m; sourceTree = "<group>"; };
-		2C961E042216BF4A00F5C23F /* OCXMLSharedParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCXMLSharedParser.h; sourceTree = "<group>"; };
-		2C961E052216BF4A00F5C23F /* OCXMLSharedParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCXMLSharedParser.m; sourceTree = "<group>"; };
-		2C961E072216BF4A00F5C23F /* NSString+Encode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Encode.h"; sourceTree = "<group>"; };
-		2C961E082216BF4A00F5C23F /* NSString+Encode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Encode.m"; sourceTree = "<group>"; };
-		2C961E092216BF4A00F5C23F /* OCConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCConstants.h; sourceTree = "<group>"; };
-		2C961E0A2216BF4A00F5C23F /* UtilsFramework.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UtilsFramework.h; sourceTree = "<group>"; };
-		2C961E0B2216BF4A00F5C23F /* UtilsFramework.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UtilsFramework.m; sourceTree = "<group>"; };
 		2C98F77721622445001A6A73 /* RoomSearchTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomSearchTableViewController.h; sourceTree = "<group>"; };
 		2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomSearchTableViewController.m; sourceTree = "<group>"; };
 		2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomTableViewCell.xib; sourceTree = "<group>"; };
@@ -991,7 +873,6 @@
 			children = (
 				2C20269D236832D300DFC89B /* FTPopOverMenu */,
 				2CB302F92264775E0053078A /* SlackTextViewController */,
-				2C961DD72216BF4A00F5C23F /* OCCommunicationLib */,
 				2C4E758C214B942D003910D5 /* Firefox */,
 				2C8B5FF01FB4A9DA006E87EF /* openssl */,
 				2C9219591F58530B008AC1A3 /* UIImageView+Letters */,
@@ -1415,87 +1296,6 @@
 			);
 			name = "UIImageView+Letters";
 			path = "ThirdParty/UIImageView+Letters";
-			sourceTree = "<group>";
-		};
-		2C961DD72216BF4A00F5C23F /* OCCommunicationLib */ = {
-			isa = PBXGroup;
-			children = (
-				2C961DD82216BF4A00F5C23F /* NCRichDocumentTemplate.h */,
-				2C961DD92216BF4A00F5C23F /* NCRichDocumentTemplate.m */,
-				2C961DDA2216BF4A00F5C23F /* OCActivity.h */,
-				2C961DDB2216BF4A00F5C23F /* OCActivity.m */,
-				2C961DDC2216BF4A00F5C23F /* OCCapabilities.h */,
-				2C961DDD2216BF4A00F5C23F /* OCCapabilities.m */,
-				2C961DDE2216BF4A00F5C23F /* OCCommunication.h */,
-				2C961DDF2216BF4A00F5C23F /* OCCommunication.m */,
-				2C961DE02216BF4A00F5C23F /* OCErrorMsg.h */,
-				2C961DE12216BF4A00F5C23F /* OCExternalSites.h */,
-				2C961DE22216BF4A00F5C23F /* OCExternalSites.m */,
-				2C961DE32216BF4A00F5C23F /* OCFileDto.h */,
-				2C961DE42216BF4A00F5C23F /* OCFileDto.m */,
-				2C961DE52216BF4A00F5C23F /* OCFrameworkConstants.h */,
-				2C961DE62216BF4A00F5C23F /* OCNotifications.h */,
-				2C961DE72216BF4A00F5C23F /* OCNotifications.m */,
-				2C961DE82216BF4A00F5C23F /* OCNotificationsAction.h */,
-				2C961DE92216BF4A00F5C23F /* OCNotificationsAction.m */,
-				2C961DEA2216BF4A00F5C23F /* OCRichObjectStrings.h */,
-				2C961DEB2216BF4A00F5C23F /* OCRichObjectStrings.m */,
-				2C961DEC2216BF4A00F5C23F /* OCSharedDto.h */,
-				2C961DED2216BF4A00F5C23F /* OCSharedDto.m */,
-				2C961DEE2216BF4A00F5C23F /* OCShareUser.h */,
-				2C961DEF2216BF4A00F5C23F /* OCShareUser.m */,
-				2C961DF02216BF4A00F5C23F /* OCUserProfile.h */,
-				2C961DF12216BF4A00F5C23F /* OCUserProfile.m */,
-				2C961DF22216BF4A00F5C23F /* OCWebDavClient */,
-				2C961E062216BF4A00F5C23F /* Utils */,
-			);
-			name = OCCommunicationLib;
-			path = ThirdParty/OCCommunicationLib;
-			sourceTree = "<group>";
-		};
-		2C961DF22216BF4A00F5C23F /* OCWebDavClient */ = {
-			isa = PBXGroup;
-			children = (
-				2C961DF32216BF4A00F5C23F /* NSDate+ISO8601.h */,
-				2C961DF42216BF4A00F5C23F /* NSDate+ISO8601.m */,
-				2C961DF52216BF4A00F5C23F /* NSDate+RFC1123.h */,
-				2C961DF62216BF4A00F5C23F /* NSDate+RFC1123.m */,
-				2C961DF72216BF4A00F5C23F /* OCHTTPRequestOperation.h */,
-				2C961DF82216BF4A00F5C23F /* OCHTTPRequestOperation.m */,
-				2C961DF92216BF4A00F5C23F /* OCWebDAVClient.h */,
-				2C961DFA2216BF4A00F5C23F /* OCWebDAVClient.m */,
-				2C961DFB2216BF4A00F5C23F /* Parsers */,
-			);
-			path = OCWebDavClient;
-			sourceTree = "<group>";
-		};
-		2C961DFB2216BF4A00F5C23F /* Parsers */ = {
-			isa = PBXGroup;
-			children = (
-				2C961DFC2216BF4A00F5C23F /* OCXMLListParser.h */,
-				2C961DFD2216BF4A00F5C23F /* OCXMLListParser.m */,
-				2C961DFE2216BF4A00F5C23F /* OCXMLParser.h */,
-				2C961DFF2216BF4A00F5C23F /* OCXMLParser.m */,
-				2C961E002216BF4A00F5C23F /* OCXMLServerErrorsParser.h */,
-				2C961E012216BF4A00F5C23F /* OCXMLServerErrorsParser.m */,
-				2C961E022216BF4A00F5C23F /* OCXMLShareByLinkParser.h */,
-				2C961E032216BF4A00F5C23F /* OCXMLShareByLinkParser.m */,
-				2C961E042216BF4A00F5C23F /* OCXMLSharedParser.h */,
-				2C961E052216BF4A00F5C23F /* OCXMLSharedParser.m */,
-			);
-			path = Parsers;
-			sourceTree = "<group>";
-		};
-		2C961E062216BF4A00F5C23F /* Utils */ = {
-			isa = PBXGroup;
-			children = (
-				2C961E072216BF4A00F5C23F /* NSString+Encode.h */,
-				2C961E082216BF4A00F5C23F /* NSString+Encode.m */,
-				2C961E092216BF4A00F5C23F /* OCConstants.h */,
-				2C961E0A2216BF4A00F5C23F /* UtilsFramework.h */,
-				2C961E0B2216BF4A00F5C23F /* UtilsFramework.m */,
-			);
-			path = Utils;
 			sourceTree = "<group>";
 		};
 		2C9B0B99217F6E3400A4752C /* Notifications */ = {
@@ -1978,7 +1778,6 @@
 				2C7C106221AF199300461817 /* SettingsViewController.m in Sources */,
 				1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */,
 				1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
-				2C961E0C2216BF4B00F5C23F /* NCRichDocumentTemplate.m in Sources */,
 				2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */,
 				2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */,
 				2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */,
@@ -1991,44 +1790,32 @@
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */,
-				2C961E1E2216BF4B00F5C23F /* OCXMLServerErrorsParser.m in Sources */,
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
 				2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */,
 				2C415F9B2136BDD6005F7F37 /* FileMessageTableViewCell.m in Sources */,
 				2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */,
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
-				2C961E112216BF4B00F5C23F /* OCFileDto.m in Sources */,
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
 				2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */,
 				2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */,
-				2C961E222216BF4B00F5C23F /* UtilsFramework.m in Sources */,
-				2C961E1B2216BF4B00F5C23F /* OCWebDAVClient.m in Sources */,
-				2C961E162216BF4B00F5C23F /* OCShareUser.m in Sources */,
 				2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */,
 				1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
-				2C961E102216BF4B00F5C23F /* OCExternalSites.m in Sources */,
 				2C8CDD0621C2EDE8004E2997 /* AvatarBackgroundImageView.m in Sources */,
 				2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */,
 				2CC007BD20D8F24B0096D91F /* RoomCreation2TableViewController.m in Sources */,
-				2C961E212216BF4B00F5C23F /* NSString+Encode.m in Sources */,
 				2CBF82BD1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
 				2C1ABD9925769F7500AEDFB6 /* ShareItem.m in Sources */,
 				2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */,
 				2CA1554B208F2E5700CE8EF0 /* NCMessageTextView.m in Sources */,
-				2C961E202216BF4B00F5C23F /* OCXMLSharedParser.m in Sources */,
 				2C4D7D721F309DA500FF4A0D /* RTCIceCandidate+JSON.m in Sources */,
 				2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */,
 				2C06330F2046CC8B0043481A /* NCUserInterfaceController.m in Sources */,
 				2CB304222264775E0053078A /* UIView+SLKAdditions.m in Sources */,
-				2C961E0F2216BF4B00F5C23F /* OCCommunication.m in Sources */,
-				2C961E0D2216BF4B00F5C23F /* OCActivity.m in Sources */,
-				2C961E1D2216BF4B00F5C23F /* OCXMLParser.m in Sources */,
-				2C961E1A2216BF4B00F5C23F /* OCHTTPRequestOperation.m in Sources */,
 				1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
@@ -2036,28 +1823,22 @@
 				2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
 				2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */,
-				2C961E192216BF4B00F5C23F /* NSDate+RFC1123.m in Sources */,
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
 				2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
-				2C961E122216BF4B00F5C23F /* OCNotifications.m in Sources */,
 				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
 				2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */,
 				2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
-				2C961E132216BF4B00F5C23F /* OCNotificationsAction.m in Sources */,
 				2C1ABD8D25769F4E00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */,
 				2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */,
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
 				2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */,
 				2C8E2A1B232174C20022BFC9 /* MessageSeparatorTableViewCell.m in Sources */,
 				2CB3041E2264775E0053078A /* SLKTextViewController.m in Sources */,
-				2C961E1F2216BF4B00F5C23F /* OCXMLShareByLinkParser.m in Sources */,
 				2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */,
-				2C961E0E2216BF4B00F5C23F /* OCCapabilities.m in Sources */,
-				2C961E172216BF4B00F5C23F /* OCUserProfile.m in Sources */,
 				2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */,
 				2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */,
 				2C063313205A85850043481A /* VideoSettingsViewController.m in Sources */,
@@ -2068,7 +1849,6 @@
 				2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */,
 				1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */,
 				2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */,
-				2C961E152216BF4B00F5C23F /* OCSharedDto.m in Sources */,
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
 				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,
 				2C7A1236200E0A5700864818 /* UserSettingsTableViewCell.m in Sources */,
@@ -2079,7 +1859,6 @@
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
 				2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
-				2C961E1C2216BF4B00F5C23F /* OCXMLListParser.m in Sources */,
 				2C7A245B24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
 				2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */,
@@ -2096,9 +1875,7 @@
 				2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */,
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
 				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
-				2C961E142216BF4B00F5C23F /* OCRichObjectStrings.m in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
-				2C961E182216BF4B00F5C23F /* NSDate+ISO8601.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
@@ -2115,16 +1892,12 @@
 				1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C62AFF824C1BDA5007E460A /* QuotedMessageView.m in Sources */,
 				2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */,
-				2C62AFD024C1BD78007E460A /* OCSharedDto.m in Sources */,
 				2C62B00624C1BDB9007E460A /* LoginViewController.m in Sources */,
 				2C62AFEF24C1BD9F007E460A /* ChatMessageTableViewCell.m in Sources */,
-				2C62AFD924C1BD83007E460A /* OCXMLServerErrorsParser.m in Sources */,
 				2C62B02A24C1BDCF007E460A /* VideoResolutionsViewController.m in Sources */,
-				2C62AFC924C1BD78007E460A /* OCCapabilities.m in Sources */,
 				2C62AFBC24C1BD69007E460A /* FTPopOverMenu.m in Sources */,
 				2C62AFEA24C1BD99007E460A /* NCCallController.m in Sources */,
 				2C1ABD8625769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */,
-				2C62AFC724C1BD78007E460A /* NCRichDocumentTemplate.m in Sources */,
 				1F3D3B24255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
 				2C62AFF324C1BD9F007E460A /* MessageSeparatorTableViewCell.m in Sources */,
 				2C62AFE724C1BD99007E460A /* CallParticipantViewCell.m in Sources */,
@@ -2146,11 +1919,8 @@
 				2C62AFDF24C1BD8D007E460A /* UIImageView+Letters.m in Sources */,
 				2C62AFFE24C1BDAA007E460A /* ContactsTableViewCell.m in Sources */,
 				2C62AFE024C1BD91007E460A /* ARDCaptureController.m in Sources */,
-				2C62AFDA24C1BD83007E460A /* OCXMLShareByLinkParser.m in Sources */,
-				2C62AFD124C1BD78007E460A /* OCShareUser.m in Sources */,
 				2C62AFBE24C1BD74007E460A /* SLKTextInput+Implementation.m in Sources */,
 				2C1ABD8925769E7D00AEDFB6 /* ShareItem.m in Sources */,
-				2C62AFCA24C1BD78007E460A /* OCCommunication.m in Sources */,
 				2C1ABDE7257F883400AEDFB6 /* ABContact.m in Sources */,
 				2C62B01324C1BDC5007E460A /* NCRoomsManager.m in Sources */,
 				2C62AFF424C1BDA5007E460A /* DateHeaderView.m in Sources */,
@@ -2159,60 +1929,46 @@
 				2C62AFDE24C1BD8A007E460A /* OpenInFirefoxControllerObjC.m in Sources */,
 				2C62AFF924C1BDA5007E460A /* ReplyMessageView.m in Sources */,
 				2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */,
-				2C62AFCE24C1BD78007E460A /* OCNotificationsAction.m in Sources */,
-				2C62AFC824C1BD78007E460A /* OCActivity.m in Sources */,
 				2C62AFED24C1BD99007E460A /* NCAudioController.m in Sources */,
 				2C62AFF624C1BDA5007E460A /* NCChatTitleView.m in Sources */,
 				2C62B01624C1BDC5007E460A /* RoomNameTableViewCell.m in Sources */,
 				2C62B01824C1BDC5007E460A /* RoomInfoTableViewController.m in Sources */,
-				2C62AFD224C1BD78007E460A /* OCUserProfile.m in Sources */,
 				2C62B02C24C1BDD7007E460A /* NCUserInterfaceController.m in Sources */,
-				2C62AFD724C1BD83007E460A /* OCXMLListParser.m in Sources */,
 				2C62AFC024C1BD74007E460A /* SLKTextView+SLKAdditions.m in Sources */,
 				2C62B01524C1BDC5007E460A /* RoomCreation2TableViewController.m in Sources */,
 				2C62B03324C1BDDC007E460A /* NCExternalSignalingController.m in Sources */,
 				2C62B01024C1BDC5007E460A /* NCRoom.m in Sources */,
 				2C62AFE224C1BD91007E460A /* ARDSettingsModel.m in Sources */,
-				2C62AFDB24C1BD83007E460A /* OCXMLSharedParser.m in Sources */,
 				2C62B01224C1BDC5007E460A /* RoomTableViewCell.m in Sources */,
 				2C62B00324C1BDB5007E460A /* DirectoryTableViewCell.m in Sources */,
 				2C62AFFC24C1BDA5007E460A /* NCChatViewController.m in Sources */,
 				2C62B00E24C1BDC1007E460A /* NCNotificationController.m in Sources */,
 				2C78E9E52512136100E3D4CA /* NCUserStatus.m in Sources */,
 				2C62B00D24C1BDC1007E460A /* NCPushNotification.m in Sources */,
-				2C62AFCD24C1BD78007E460A /* OCNotifications.m in Sources */,
 				1F5CDF662584E78900B0026E /* NCChatFileStatus.m in Sources */,
 				2C62B01C24C1BDC9007E460A /* CCCertificate.m in Sources */,
 				2C62B01424C1BDC5007E460A /* RoomCreationTableViewController.m in Sources */,
-				2C62AFCB24C1BD78007E460A /* OCExternalSites.m in Sources */,
 				2C62AFE124C1BD91007E460A /* ARDSDPUtils.m in Sources */,
 				2C62B02D24C1BDD7007E460A /* HeaderWithButton.m in Sources */,
 				2C62B01724C1BDC5007E460A /* NewRoomTableViewController.m in Sources */,
-				2C62AFD524C1BD7E007E460A /* OCHTTPRequestOperation.m in Sources */,
 				2C62B03224C1BDDC007E460A /* NCSignalingMessage.m in Sources */,
 				2C62B02724C1BDCF007E460A /* SettingsViewController.m in Sources */,
 				2C62B00F24C1BDC5007E460A /* RoundedNumberView.m in Sources */,
 				2C62AFBF24C1BD74007E460A /* SLKTextInputbar.m in Sources */,
-				2C62AFCF24C1BD78007E460A /* OCRichObjectStrings.m in Sources */,
 				2C62AFE424C1BD91007E460A /* ARDUtilities.m in Sources */,
 				2C1ABD8725769E7D00AEDFB6 /* ShareItemController.m in Sources */,
 				2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */,
 				2C62AFC124C1BD74007E460A /* SLKTextView.m in Sources */,
 				2C62AFEC24C1BD99007E460A /* CallKitManager.m in Sources */,
-				2C62AFD324C1BD7E007E460A /* NSDate+ISO8601.m in Sources */,
 				2C62B00724C1BDBD007E460A /* NCAPIController.m in Sources */,
 				2C62B02F24C1BDD7007E460A /* UIBarButtonItem+Badge.m in Sources */,
 				2C62AFF224C1BD9F007E460A /* SystemMessageTableViewCell.m in Sources */,
 				2C1ABDD0257E939600AEDFB6 /* NCContact.m in Sources */,
 				2C1ABDC8257A7CF100AEDFB6 /* NCContactsManager.m in Sources */,
 				2C62B00524C1BDB9007E460A /* AuthenticationViewController.m in Sources */,
-				2C62AFD624C1BD7E007E460A /* OCWebDAVClient.m in Sources */,
 				2C62B00124C1BDAA007E460A /* AddParticipantsTableViewController.m in Sources */,
 				2C62B00A24C1BDBD007E460A /* NCImageSessionManager.m in Sources */,
-				2C62AFD824C1BD83007E460A /* OCXMLParser.m in Sources */,
-				2C62AFDD24C1BD87007E460A /* UtilsFramework.m in Sources */,
 				2C62AFC624C1BD74007E460A /* UIView+SLKAdditions.m in Sources */,
-				2C62AFDC24C1BD87007E460A /* NSString+Encode.m in Sources */,
 				2C62AFE924C1BD99007E460A /* NBMPeersFlowLayout.m in Sources */,
 				2C62B00B24C1BDBD007E460A /* NCPushProxySessionManager.m in Sources */,
 				2C7A245C24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
@@ -2222,14 +1978,12 @@
 				2C62B00424C1BDB5007E460A /* DirectoryTableViewController.m in Sources */,
 				2C62B02924C1BDCF007E460A /* UserSettingsTableViewCell.m in Sources */,
 				2C62B02824C1BDCF007E460A /* AccountTableViewCell.m in Sources */,
-				2C62AFCC24C1BD78007E460A /* OCFileDto.m in Sources */,
 				2C62AFE824C1BD99007E460A /* CallViewController.m in Sources */,
 				2C62AFFA24C1BDA5007E460A /* NCChatMessage.m in Sources */,
 				2C62B00824C1BDBD007E460A /* NCConnectionController.m in Sources */,
 				2C62B02B24C1BDCF007E460A /* VideoSettingsViewController.m in Sources */,
 				2C1EF36D25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				2C62B01924C1BDC6007E460A /* NCRoomParticipants.m in Sources */,
-				2C62AFD424C1BD7E007E460A /* NSDate+RFC1123.m in Sources */,
 				1FEDE3C8257D439500853F79 /* NCChatFileController.m in Sources */,
 				2C62B01A24C1BDC6007E460A /* RoomSearchTableViewController.m in Sources */,
 				2C62AFEB24C1BD99007E460A /* AvatarBackgroundImageView.m in Sources */,
@@ -2248,7 +2002,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CC0018724A37A6600A20167 /* OCFileDto.m in Sources */,
 				2CC001E724A37ADF00A20167 /* NCSignalingController.m in Sources */,
 				2CC001DA24A37AD000A20167 /* CCBKPasscode.m in Sources */,
 				2C1ABDCF257E939600AEDFB6 /* NCContact.m in Sources */,
@@ -2268,7 +2021,6 @@
 				2CC001D124A37ACA00A20167 /* NCRoomsManager.m in Sources */,
 				2CC001C324A37AC500A20167 /* NCNotificationController.m in Sources */,
 				2CC0017524A3797600A20167 /* NCExternalSignalingController.m in Sources */,
-				2CC0018424A37A6600A20167 /* OCActivity.m in Sources */,
 				2CC0018124A37A5800A20167 /* UIScrollView+SLKAdditions.m in Sources */,
 				2CC0018224A37A5B00A20167 /* UIView+SLKAdditions.m in Sources */,
 				2CC001B324A37A9500A20167 /* QuotedMessageView.m in Sources */,
@@ -2280,23 +2032,17 @@
 				2CC001A324A37A8B00A20167 /* CallViewController.m in Sources */,
 				2CC001AB24A37A8F00A20167 /* FileMessageTableViewCell.m in Sources */,
 				2CC001DE24A37AD400A20167 /* SettingsViewController.m in Sources */,
-				2CC0018D24A37A6600A20167 /* OCUserProfile.m in Sources */,
 				2CC0019D24A37A8100A20167 /* ARDSettingsModel.m in Sources */,
 				2CC0017824A37A3600A20167 /* FTPopOverMenu.m in Sources */,
 				2CC001D724A37ACA00A20167 /* NCRoomParticipants.m in Sources */,
 				2CC001A224A37A8B00A20167 /* CallParticipantViewCell.m in Sources */,
 				2CC0019C24A37A8100A20167 /* ARDSDPUtils.m in Sources */,
-				2CC0019324A37A7000A20167 /* OCXMLParser.m in Sources */,
 				2CC001D524A37ACA00A20167 /* NewRoomTableViewController.m in Sources */,
 				2CC001BB24A37AA700A20167 /* DirectoryTableViewCell.m in Sources */,
 				2CC001B124A37A9500A20167 /* NCChatTitleView.m in Sources */,
 				2C1EF36C25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */,
-				2CC0018F24A37A6B00A20167 /* NSDate+RFC1123.m in Sources */,
-				2CC0017124A3793700A20167 /* OCCommunication.m in Sources */,
-				2CC0019224A37A7000A20167 /* OCXMLListParser.m in Sources */,
 				2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */,
-				2CC0018A24A37A6600A20167 /* OCRichObjectStrings.m in Sources */,
 				2CC0019F24A37A8100A20167 /* ARDUtilities.m in Sources */,
 				2CC0019E24A37A8100A20167 /* ARDSettingsStore.m in Sources */,
 				2CC001E324A37ADB00A20167 /* HeaderWithButton.m in Sources */,
@@ -2306,39 +2052,30 @@
 				2CC001E124A37AD400A20167 /* VideoResolutionsViewController.m in Sources */,
 				2CC001AD24A37A8F00A20167 /* SystemMessageTableViewCell.m in Sources */,
 				2CC001E824A37ADF00A20167 /* NCSignalingMessage.m in Sources */,
-				2CC0019024A37A6B00A20167 /* OCHTTPRequestOperation.m in Sources */,
 				2CC0019924A37A7700A20167 /* OpenInFirefoxControllerObjC.m in Sources */,
 				2CC001A624A37A8B00A20167 /* AvatarBackgroundImageView.m in Sources */,
-				2CC0018824A37A6600A20167 /* OCNotifications.m in Sources */,
 				2CC001B424A37A9500A20167 /* ReplyMessageView.m in Sources */,
 				2CC001D424A37ACA00A20167 /* RoomNameTableViewCell.m in Sources */,
 				2CC001D824A37ACA00A20167 /* RoomSearchTableViewController.m in Sources */,
 				2C1ABDC7257A7CF100AEDFB6 /* NCContactsManager.m in Sources */,
 				2CC001B624A37A9A00A20167 /* ContactsTableViewCell.m in Sources */,
-				2CC0019124A37A6B00A20167 /* OCWebDAVClient.m in Sources */,
 				2CC001A424A37A8B00A20167 /* NBMPeersFlowLayout.m in Sources */,
-				2CC0019524A37A7000A20167 /* OCXMLShareByLinkParser.m in Sources */,
 				2CC0017C24A37A4B00A20167 /* SLKTextView+SLKAdditions.m in Sources */,
-				2CC0019624A37A7000A20167 /* OCXMLSharedParser.m in Sources */,
 				2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */,
 				2CC0016524A25B8900A20167 /* NCUserInterfaceController.m in Sources */,
-				2CC0018B24A37A6600A20167 /* OCSharedDto.m in Sources */,
 				2CC001A024A37A8100A20167 /* RTCIceCandidate+JSON.m in Sources */,
 				2CC001E624A37ADF00A20167 /* NCPeerConnection.m in Sources */,
 				2CC0017A24A37A4400A20167 /* SLKInputAccessoryView.m in Sources */,
-				2CC0018624A37A6600A20167 /* OCExternalSites.m in Sources */,
 				2CC001A924A37A8F00A20167 /* ChatTableViewCell.m in Sources */,
 				2CC0017924A37A4200A20167 /* SLKTextInput+Implementation.m in Sources */,
 				2CC001A824A37A8B00A20167 /* NCAudioController.m in Sources */,
 				2C1ABD9D25769F7500AEDFB6 /* ShareItem.m in Sources */,
 				2CC001A524A37A8B00A20167 /* NCCallController.m in Sources */,
 				2C1ABDA525769F8600AEDFB6 /* ShareItemController.m in Sources */,
-				2CC0018324A37A5E00A20167 /* NCRichDocumentTemplate.m in Sources */,
 				2CC001BD24A37ABD00A20167 /* AuthenticationViewController.m in Sources */,
 				2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */,
 				2CC001B524A37A9500A20167 /* NCChatViewController.m in Sources */,
 				2CC0017E24A37A5000A20167 /* SLKTextViewController.m in Sources */,
-				2CC0019724A37A7400A20167 /* NSString+Encode.m in Sources */,
 				1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2CC001E224A37AD400A20167 /* VideoSettingsViewController.m in Sources */,
 				2CC001AA24A37A8F00A20167 /* ChatMessageTableViewCell.m in Sources */,
@@ -2348,8 +2085,6 @@
 				2CC001B824A37A9A00A20167 /* SearchTableViewController.m in Sources */,
 				2CC001D324A37ACA00A20167 /* RoomCreation2TableViewController.m in Sources */,
 				2CC0016724A25BE100A20167 /* NCChatMessage.m in Sources */,
-				2CC0018524A37A6600A20167 /* OCCapabilities.m in Sources */,
-				2CC0019824A37A7400A20167 /* UtilsFramework.m in Sources */,
 				1F3D3B23255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
 				2CC001D024A37ACA00A20167 /* RoomTableViewCell.m in Sources */,
 				2CC0015D24A257B800A20167 /* NCSettingsController.m in Sources */,
@@ -2358,18 +2093,14 @@
 				2CC001D224A37ACA00A20167 /* RoomCreationTableViewController.m in Sources */,
 				2CC001A724A37A8B00A20167 /* CallKitManager.m in Sources */,
 				2CC0016224A25B6B00A20167 /* NCConnectionController.m in Sources */,
-				2CC0019424A37A7000A20167 /* OCXMLServerErrorsParser.m in Sources */,
 				2C1ABDE6257F883400AEDFB6 /* ABContact.m in Sources */,
 				2CC001B924A37A9A00A20167 /* AddParticipantsTableViewController.m in Sources */,
 				2CC001AF24A37A9500A20167 /* DateHeaderView.m in Sources */,
 				2CC0017F24A37A5200A20167 /* SLKTypingIndicatorView.m in Sources */,
 				2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */,
 				2CC001DF24A37AD400A20167 /* AccountTableViewCell.m in Sources */,
-				2CC0018E24A37A6B00A20167 /* NSDate+ISO8601.m in Sources */,
 				2CC001A124A37A8100A20167 /* RTCSessionDescription+JSON.m in Sources */,
-				2CC0018C24A37A6600A20167 /* OCShareUser.m in Sources */,
 				2CC001E424A37ADB00A20167 /* PlaceholderView.m in Sources */,
-				2CC0018924A37A6600A20167 /* OCNotificationsAction.m in Sources */,
 				2CC001B724A37A9A00A20167 /* NCUser.m in Sources */,
 				2CC001BC24A37AA700A20167 /* DirectoryTableViewController.m in Sources */,
 				2CC0016624A25BD600A20167 /* NCChatController.m in Sources */,
