@@ -990,7 +990,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         if (errorCode == 0 && block) {
             block(files, nil);
         } else if (block) {
-            block(nil, nil);
+            NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:errorCode userInfo:nil];
+            block(nil, error);
         }
     }];
 }
