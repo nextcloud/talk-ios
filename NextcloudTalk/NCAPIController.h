@@ -25,8 +25,6 @@
 
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
-#import "OCCommunication.h"
-#import "OCFrameworkConstants.h"
 #import "NCChatMessage.h"
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"

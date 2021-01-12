@@ -22,8 +22,9 @@
 
 #import "DirectoryTableViewController.h"
 
+#import <NCCommunication/NCCommunication.h>
+
 #import "DirectoryTableViewCell.h"
-#import "OCFileDto.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCSettingsController.h"
@@ -155,9 +156,9 @@
     [[NCAPIController sharedInstance] readFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:_path depth:@"1" withCompletionBlock:^(NSArray *items, NSError *error) {
         if (!error) {
             NSMutableArray *itemsInDirectory = [NSMutableArray new];
-            for (OCFileDto *item in items) {
+            for (NCCommunicationFile *item in items) {
                 NSString *currentDirectory = [self->_path isEqualToString:@""] ? @"webdav" : [self->_path lastPathComponent];
-                if ([[item.filePath lastPathComponent] isEqualToString:currentDirectory] && !item.isEncrypted) {
+                if ([[item.path lastPathComponent] isEqualToString:currentDirectory] && !item.e2eEncrypted) {
                     [itemsInDirectory addObject:item];
                 }
             }
@@ -331,7 +332,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    OCFileDto *item = [_itemsInDirectory objectAtIndex:indexPath.row];
+    NCCommunicationFile *item = [_itemsInDirectory objectAtIndex:indexPath.row];
     DirectoryTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kDirectoryCellIdentifier];
     if (!cell) {
         cell = [[DirectoryTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDirectoryCellIdentifier];
@@ -339,15 +340,15 @@
     
     // Name and modification date
     cell.fileNameLabel.text = [item.fileName stringByStandardizingPath];
-    cell.fileInfoLabel.text = [self dateDiff:[NSDate dateWithTimeIntervalSince1970:item.date]];
+    cell.fileInfoLabel.text = [self dateDiff:item.date];
     
     // Icon or preview
     NSString *imageName = [NCUtils previewImageForFileMIMEType:item.contentType];
     UIImage *filePreviewImage = [UIImage imageNamed:imageName];
-    if (item.isDirectory) {
+    if (item.directory) {
         cell.fileImageView.image = [UIImage imageNamed:@"folder"];
     } else if (item.hasPreview) {
-        NSString *fileId = [NSString stringWithFormat:@"%f", item.id];
+        NSString *fileId = [NSString stringWithFormat:@"%@", item.fileId];
         [cell.fileImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:fileId width:40 height:40 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                   placeholderImage:filePreviewImage success:nil failure:nil];
     } else {
@@ -355,7 +356,7 @@
     }
     
     // Disclosure indicator
-    if (item.isDirectory) {
+    if (item.directory) {
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     } else {
         cell.accessoryType = UITableViewCellAccessoryNone;
@@ -366,10 +367,10 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    OCFileDto *item = [_itemsInDirectory objectAtIndex:indexPath.row];
+    NCCommunicationFile *item = [_itemsInDirectory objectAtIndex:indexPath.row];
     NSString *selectedItemPath = [NSString stringWithFormat:@"%@%@", _path, item.fileName];
     
-    if (item.isDirectory) {
+    if (item.directory) {
         DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:selectedItemPath inRoom:_token];
         [self.navigationController pushViewController:directoryVC animated:YES];
     } else {

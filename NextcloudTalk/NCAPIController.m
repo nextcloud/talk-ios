@@ -30,10 +30,6 @@
 #import "NCPushProxySessionManager.h"
 #import "NCSettingsController.h"
 
-#define k_maxHTTPConnectionsPerHost                     5
-#define k_maxConcurrentOperation                        10
-#define k_webDAV                                        @"/remote.php/webdav/"
-
 NSString * const kNCOCSAPIVersion           = @"/ocs/v2.php";
 NSString * const kNCSpreedAPIVersion        = @"/apps/spreed/api/v1";
 
@@ -144,57 +140,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSString *)getRequestURLForAccount:(TalkAccount *)account withEndpoint:(NSString *)endpoint
 {
     return [NSString stringWithFormat:@"%@%@%@/%@", account.server, kNCOCSAPIVersion, kNCSpreedAPIVersion, endpoint];
-}
-
-- (OCCommunication *)sharedOCCommunication
-{
-    static OCCommunication* sharedOCCommunication = nil;
-    
-    if (sharedOCCommunication == nil)
-    {
-        // Network
-        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-        configuration.allowsCellularAccess = YES;
-        configuration.discretionary = NO;
-        configuration.HTTPMaximumConnectionsPerHost = k_maxConcurrentOperation;
-        configuration.requestCachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
-        
-        OCURLSessionManager *networkSessionManager = [[OCURLSessionManager alloc] initWithSessionConfiguration:configuration];
-        [networkSessionManager.operationQueue setMaxConcurrentOperationCount: k_maxConcurrentOperation];
-        networkSessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
-        
-        // Download
-        NSURLSessionConfiguration *configurationDownload = [NSURLSessionConfiguration defaultSessionConfiguration];
-        configurationDownload.allowsCellularAccess = YES;
-        configurationDownload.discretionary = NO;
-        configurationDownload.HTTPMaximumConnectionsPerHost = k_maxHTTPConnectionsPerHost;
-        configurationDownload.requestCachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
-        configurationDownload.timeoutIntervalForRequest = k_timeout_upload;
-        
-        OCURLSessionManager *downloadSessionManager = [[OCURLSessionManager alloc] initWithSessionConfiguration:configurationDownload];
-        [downloadSessionManager.operationQueue setMaxConcurrentOperationCount:k_maxHTTPConnectionsPerHost];
-        [downloadSessionManager setSessionDidReceiveAuthenticationChallengeBlock:^NSURLSessionAuthChallengeDisposition (NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential) {
-            return NSURLSessionAuthChallengePerformDefaultHandling;
-        }];
-        
-        // Upload
-        NSURLSessionConfiguration *configurationUpload = [NSURLSessionConfiguration defaultSessionConfiguration];
-        configurationUpload.allowsCellularAccess = YES;
-        configurationUpload.discretionary = NO;
-        configurationUpload.HTTPMaximumConnectionsPerHost = k_maxHTTPConnectionsPerHost;
-        configurationUpload.requestCachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
-        configurationUpload.timeoutIntervalForRequest = k_timeout_upload;
-        
-        OCURLSessionManager *uploadSessionManager = [[OCURLSessionManager alloc] initWithSessionConfiguration:configurationUpload];
-        [uploadSessionManager.operationQueue setMaxConcurrentOperationCount:k_maxHTTPConnectionsPerHost];
-        [uploadSessionManager setSessionDidReceiveAuthenticationChallengeBlock:^NSURLSessionAuthChallengeDisposition (NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential) {
-            return NSURLSessionAuthChallengePerformDefaultHandling;
-        }];
-        
-        sharedOCCommunication = [[OCCommunication alloc] initWithUploadSessionManager:uploadSessionManager andDownloadSessionManager:downloadSessionManager andNetworkSessionManager:networkSessionManager];
-    }
-    
-    return sharedOCCommunication;
 }
 
 #pragma mark - Contacts Controller
@@ -1038,18 +983,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block
 {
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    OCCommunication *communication = [self sharedOCCommunication];
-    [communication setCredentialsWithUser:account.user andUserID:account.userId andPassword:[[NCSettingsController sharedInstance] tokenForAccountId:account.accountId]];
-    [communication setUserAgent:apiSessionManager.userAgent];
-    
-    NSString *urlString = [NSString stringWithFormat:@"%@%@%@", account.server, k_webDAV, path ? path : @""];
-    [communication readFolder:urlString depth:depth withUserSessionToken:nil onCommunication:communication successRequest:^(NSHTTPURLResponse *response, NSArray *items, NSString *redirectedServer, NSString *token) {
-        if (block) {
-            block(items, nil);
-        }
-    } failureRequest:^(NSHTTPURLResponse *response, NSError *error, NSString *token, NSString *redirectedServer) {
-        if (block) {
+    [self setupNCCommunicationForAccount:account];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
+    NSString *serverUrlString = [NSString stringWithFormat:@"%@/%@/%@", account.server, serverCapabilities.webDAVRoot, path ? path : @""];
+    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:serverUrlString depth:depth showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+        if (errorCode == 0 && block) {
+            block(files, nil);
+        } else if (block) {
+            NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:errorCode userInfo:nil];
             block(nil, error);
         }
     }];
