@@ -199,4 +199,9 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
 }
 
++ (BOOL)isValidIndexPath:(NSIndexPath *)indexPath forTableView:(UITableView *)tableView
+{
+    return indexPath.section < tableView.numberOfSections && indexPath.row < [tableView numberOfRowsInSection:indexPath.section];
+}
+
 @end

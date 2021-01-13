@@ -126,7 +126,7 @@ NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification   
             message.parentId = parent.internalId;
             
             if (message.referenceId && ![message.referenceId isEqualToString:@""]) {
-                NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@", message.referenceId].firstObject;
+                NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@ AND isTemporary = true", message.referenceId].firstObject;
                 if (managedTemporaryMessage) {
                     [realm deleteObject:managedTemporaryMessage];
                     // Create a unmanaged copy of message, since 'message' will point to a managed object when added to the DB.
@@ -273,7 +273,7 @@ NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification   
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
-        NCChatMessage *managedChatMessage = [NCChatMessage objectsWhere:@"referenceId = %@", referenceId].firstObject;
+        NCChatMessage *managedChatMessage = [NCChatMessage objectsWhere:@"referenceId = %@ AND isTemporary = true", referenceId].firstObject;
         managedChatMessage.sendingFailed = YES;
     }];
 }

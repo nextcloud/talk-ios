@@ -563,6 +563,25 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     return 0;
 }
 
+- (NCChatMessage *)getFirstRealMessage
+{
+    for (int section = 0; section < [_dateSections count]; section++) {
+        NSDate *dateSection = [_dateSections objectAtIndex:section];
+        NSMutableArray *messagesInSection = [_messages objectForKey:dateSection];
+        
+        for (int message = 0; message < [messagesInSection count]; message++) {
+            NCChatMessage *chatMessage = [messagesInSection objectAtIndex:message];
+            
+            // Ignore temporary messages
+            if (chatMessage && chatMessage.messageId > 0) {
+                return chatMessage;
+            }
+        }
+    }
+    
+    return nil;
+}
+
 - (NSString *)getHeaderStringFromDate:(NSDate *)date
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
@@ -654,7 +673,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
-        NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@", temporaryMessage.referenceId].firstObject;
+        NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@ AND isTemporary = true", temporaryMessage.referenceId].firstObject;
         if (managedTemporaryMessage) {
             [realm deleteObject:managedTemporaryMessage];
         }
@@ -1127,9 +1146,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
     if ([scrollView isEqual:self.tableView] && scrollView.contentOffset.y < 0) {
         if ([self couldRetireveHistory]) {
-            NSDate *dateSection = [_dateSections objectAtIndex:0];
-            NCChatMessage *firstMessage = [[_messages objectForKey:dateSection] objectAtIndex:0];
-            if ([_chatController hasHistoryFromMessageId:firstMessage.messageId]) {
+            NCChatMessage *firstMessage = [self getFirstRealMessage];
+            if (firstMessage && [_chatController hasHistoryFromMessageId:firstMessage.messageId]) {
                 _retrievingHistory = YES;
                 [self showLoadingHistoryView];
                 if (_offlineMode) {
@@ -1299,7 +1317,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         if (messages.count > 0) {
             NSIndexPath *lastHistoryMessageIP = [self prependMessages:messages addingBlockSeparator:shouldAddBlockSeparator];
             [self.tableView reloadData];
-            [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionTop animated:NO];
+            
+            if ([NCUtils isValidIndexPath:lastHistoryMessageIP forTableView:self.tableView]) {
+                [self.tableView scrollToRowAtIndexPath:lastHistoryMessageIP atScrollPosition:UITableViewScrollPositionTop animated:NO];
+            }
         }
         
         BOOL noMoreStoredHistory = [[notification.userInfo objectForKey:@"noMoreStoredHistory"] boolValue];

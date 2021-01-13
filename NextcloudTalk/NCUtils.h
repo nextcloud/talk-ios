@@ -49,6 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (CGFloat)calculateLumaFromColor:(UIColor *)color;
 + (UIColor *)colorFromHexString:(NSString *)hexString;
 
++ (BOOL)isValidIndexPath:(NSIndexPath *)indexPath forTableView:(UITableView *)tableView;
+
 @end
 
 NS_ASSUME_NONNULL_END
