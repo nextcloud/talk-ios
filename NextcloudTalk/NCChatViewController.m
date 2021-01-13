@@ -1378,7 +1378,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             if (unreadMessagesReceived) {
                 // Dispatch it in the next cycle so reloadData is always completed.
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.tableView scrollToRowAtIndexPath:firstMessageIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+                    [self.tableView scrollToRowAtIndexPath:self->_unreadMessagesSeparatorIP atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
                 });
             } else if (shouldScrollOnNewMessages || newMessagesContainUserMessage) {
                 [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
