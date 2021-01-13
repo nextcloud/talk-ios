@@ -2233,7 +2233,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 - (void)cellWantsToScrollToMessage:(NCChatMessage *)message {
     NSIndexPath *indexPath = [self indexPathForMessage:message];
     if (indexPath) {
-        [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+        [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionTop];
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
