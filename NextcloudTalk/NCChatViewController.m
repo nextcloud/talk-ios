@@ -1330,7 +1330,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             NSInteger lastSectionBeforeUpdate = self->_dateSections.count - 1;
             BOOL unreadMessagesReceived = NO;
             // Check if unread messages separator should be added
-            if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && messages.count > 0) {
+            if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0) {
                 unreadMessagesReceived = YES;
                 NSMutableArray *messagesForLastDateBeforeUpdate = [self->_messages objectForKey:[self->_dateSections lastObject]];
                 [messagesForLastDateBeforeUpdate addObject:self->_unreadMessagesSeparator];
