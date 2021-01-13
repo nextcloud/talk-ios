@@ -72,7 +72,8 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionOpenFileInNextcloud
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource,
+    ChatMessageTableViewCellDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -1957,6 +1958,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }
     if (message.parent) {
         ChatMessageTableViewCell *replyCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
+        replyCell.delegate = self;
+        
         [replyCell setupForMessage:message withLastCommonReadMessage:_chatController.lastCommonReadMessage];
         
         return replyCell;
@@ -2223,6 +2226,19 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     NCChatFileController *downloader = [[NCChatFileController alloc] init];
     downloader.delegate = self;
     [downloader downloadFileFromMessage:fileParameter];
+}
+
+#pragma mark - ChatMessageTableViewCellDelegate
+
+- (void)cellWantsToScrollToMessage:(NCChatMessage *)message {
+    NSIndexPath *indexPath = [self indexPathForMessage:message];
+    if (indexPath) {
+        [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionTop];
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+        });
+    }
 }
 
 #pragma mark - NCChatFileControllerDelegate
