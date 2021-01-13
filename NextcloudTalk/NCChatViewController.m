@@ -1323,6 +1323,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         
         NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
         if (messages.count > 0) {
+            // Detect if we should scroll to new messages before we issue a reloadData
+            // Otherwise longer messages will prevent scrolling
+            BOOL shouldScrollOnNewMessages = [self shouldScrollOnNewMessages] ;
+            
             NSInteger lastSectionBeforeUpdate = self->_dateSections.count - 1;
             BOOL unreadMessagesReceived = NO;
             // Check if unread messages separator should be added
@@ -1376,7 +1380,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.tableView scrollToRowAtIndexPath:firstMessageIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
                 });
-            } else if ([self shouldScrollOnNewMessages] || newMessagesContainUserMessage) {
+            } else if (shouldScrollOnNewMessages || newMessagesContainUserMessage) {
                 [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
             } else if (!self->_firstUnreadMessageIP && areReallyNewMessages) {
                 [self showNewMessagesViewUntilIndexPath:firstMessageIndexPath];
