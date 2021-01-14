@@ -125,7 +125,6 @@
     self.toTextView.attributedText = toString;
     
     // Toolbar section
-    [self.itemToolbar setHidden:(_type == ShareConfirmationTypeText) ? YES : NO];
     [self.itemToolbar setBarTintColor:[UIColor whiteColor]];
     [self.removeItemButton setEnabled:([self.shareItemController.shareItems count] > 1)];
     [self.removeItemButton setTintColor:([self.shareItemController.shareItems count] > 1) ? nil : [UIColor clearColor]];
@@ -150,6 +149,7 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     if (_type == ShareConfirmationTypeText) {
+        [self.itemToolbar setHidden:YES];
         [self.shareTextView becomeFirstResponder];
     }
 }
@@ -208,6 +208,7 @@
     
     dispatch_async(dispatch_get_main_queue(), ^{
         self.shareCollectionView.hidden = YES;
+        self.itemToolbar.hidden = YES;
         self.shareTextView.hidden = NO;
         self.shareTextView.text = sharedText;
     });
