@@ -1470,7 +1470,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     for (NSIndexPath *visibleIndexPath in self.tableView.indexPathsForVisibleRows) {
         NSDate *sectionDate = [_dateSections objectAtIndex:visibleIndexPath.section];
         NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:visibleIndexPath.row];
-        if (message.messageId > 0 && message.messageId <= _chatController.lastCommonReadMessage) {
+        if (message.messageId > 0 && message.messageId <= _room.lastCommonReadMessage) {
             [reloadCells addObject:visibleIndexPath];
         }
     }
@@ -1970,7 +1970,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         FileMessageTableViewCell *fileCell = (FileMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:fileCellIdentifier];
         fileCell.delegate = self;
         
-        [fileCell setupForMessage:message withLastCommonReadMessage:_chatController.lastCommonReadMessage];
+        [fileCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
 
         return fileCell;
     }
@@ -1978,18 +1978,18 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         ChatMessageTableViewCell *replyCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
         replyCell.delegate = self;
         
-        [replyCell setupForMessage:message withLastCommonReadMessage:_chatController.lastCommonReadMessage];
+        [replyCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
         
         return replyCell;
     }
     if (message.isGroupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
-        [groupedCell setupForMessage:message withLastCommonReadMessage:_chatController.lastCommonReadMessage];
+        [groupedCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
         
         return groupedCell;
     } else {
         ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
-        [normalCell setupForMessage:message withLastCommonReadMessage:_chatController.lastCommonReadMessage];
+        [normalCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
         
         return normalCell;
     }
