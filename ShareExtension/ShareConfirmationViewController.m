@@ -124,6 +124,8 @@
     [toString addAttributes:subAttribute range:NSMakeRange(0, 3)];
     self.toTextView.attributedText = toString;
     
+    // Toolbar section
+    [self.itemToolbar setBarTintColor:[UIColor whiteColor]];
     [self.removeItemButton setEnabled:([self.shareItemController.shareItems count] > 1)];
     [self.removeItemButton setTintColor:([self.shareItemController.shareItems count] > 1) ? nil : [UIColor clearColor]];
         
