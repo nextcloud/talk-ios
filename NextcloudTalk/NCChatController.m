@@ -33,7 +33,6 @@ NSString * const NCChatControllerDidReceiveChatHistoryNotification              
 NSString * const NCChatControllerDidReceiveChatMessagesNotification                 = @"NCChatControllerDidReceiveChatMessagesNotification";
 NSString * const NCChatControllerDidSendChatMessageNotification                     = @"NCChatControllerDidSendChatMessageNotification";
 NSString * const NCChatControllerDidReceiveChatBlockedNotification                  = @"NCChatControllerDidReceiveChatBlockedNotification";
-NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification             = @"NCChatControllerDidRemoveTemporaryMessagesNotification";
 NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification       = @"NCChatControllerDidReceiveNewerCommonReadMessageNotification";
 
 @interface NCChatController ()
@@ -114,50 +113,41 @@ NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification   
     return sortedMessages;
 }
 
+- (void)storeMessages:(NSArray *)messages withRealm:(RLMRealm *)realm {
+    // Add or update messages
+    for (NSDictionary *messageDict in messages) {
+        NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:_account.accountId];
+        NCChatMessage *parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:_account.accountId];
+        message.parentId = parent.internalId;
+        
+        if (message.referenceId && ![message.referenceId isEqualToString:@""]) {
+            NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@ AND isTemporary = true", message.referenceId].firstObject;
+            if (managedTemporaryMessage) {
+                [realm deleteObject:managedTemporaryMessage];
+            }
+        }
+        
+        NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", message.internalId].firstObject;
+        if (managedMessage) {
+            [NCChatMessage updateChatMessage:managedMessage withChatMessage:message];
+        } else if (message) {
+            [realm addObject:message];
+        }
+        
+        NCChatMessage *managedParentMessage = [NCChatMessage objectsWhere:@"internalId = %@", parent.internalId].firstObject;
+        if (managedParentMessage) {
+            [NCChatMessage updateChatMessage:managedParentMessage withChatMessage:parent];
+        } else if (parent) {
+            [realm addObject:parent];
+        }
+    }
+}
+
 - (void)storeMessages:(NSArray *)messages
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
-        NSMutableArray *removedTemporaryMessages = [NSMutableArray new];
-        // Add or update messages
-        for (NSDictionary *messageDict in messages) {
-            NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:_account.accountId];
-            NCChatMessage *parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:_account.accountId];
-            message.parentId = parent.internalId;
-            
-            if (message.referenceId && ![message.referenceId isEqualToString:@""]) {
-                NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@ AND isTemporary = true", message.referenceId].firstObject;
-                if (managedTemporaryMessage) {
-                    [realm deleteObject:managedTemporaryMessage];
-                    // Create a unmanaged copy of message, since 'message' will point to a managed object when added to the DB.
-                    NCChatMessage *unmanagedMessage = [[NCChatMessage alloc] initWithValue:message];
-                    [removedTemporaryMessages addObject:unmanagedMessage];
-                }
-            }
-            
-            NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", message.internalId].firstObject;
-            if (managedMessage) {
-                [NCChatMessage updateChatMessage:managedMessage withChatMessage:message];
-            } else if (message) {
-                [realm addObject:message];
-            }
-            
-            NCChatMessage *managedParentMessage = [NCChatMessage objectsWhere:@"internalId = %@", parent.internalId].firstObject;
-            if (managedParentMessage) {
-                [NCChatMessage updateChatMessage:managedParentMessage withChatMessage:parent];
-            } else if (parent) {
-                [realm addObject:parent];
-            }
-        }
-        // Send notification with removed temprary messages
-        if (removedTemporaryMessages.count > 0) {
-            NSMutableDictionary *userInfo = [NSMutableDictionary new];
-            [userInfo setObject:_room.token forKey:@"room"];
-            [userInfo setObject:removedTemporaryMessages forKey:@"messages"];
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidRemoveTemporaryMessagesNotification
-                                                                object:self
-                                                              userInfo:userInfo];
-        }
+        [self storeMessages:messages withRealm:realm];
     }];
 }
 
@@ -501,12 +491,26 @@ NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification   
         } else {
             // Update last chat block
             [self updateLastChatBlockWithNewestKnown:lastKnownMessage];
+            
             // Store new messages
             if (messages.count > 0) {
                 [self storeMessages:messages];
                 NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
                 NSArray *storedMessages = [self getNewStoredMessagesInBlock:lastChatBlock sinceMessageId:messageId];
                 [userInfo setObject:storedMessages forKey:@"messages"];
+                
+                // Update the current room with the new message
+                // The stored information about this room will be updated by calling savePendingMessage
+                // in NCChatViewController -> a transaction wouldn't make sense here, as it would be overriden again
+                for (NCChatMessage *message in storedMessages) {
+                    if (message.messageId == lastKnownMessage && message.timestamp > self->_room.lastActivity) {
+                        self->_room.lastMessageId = message.internalId;
+                        self->_room.lastActivity = message.timestamp;
+                        self->_room.unreadMention = NO;
+                        self->_room.unreadMessages = 0;
+                        break;
+                    }
+                }
             }
         }
         [userInfo setObject:self->_room.token forKey:@"room"];

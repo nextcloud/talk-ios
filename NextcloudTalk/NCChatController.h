@@ -31,7 +31,6 @@ extern NSString * const NCChatControllerDidReceiveChatHistoryNotification;
 extern NSString * const NCChatControllerDidReceiveChatMessagesNotification;
 extern NSString * const NCChatControllerDidSendChatMessageNotification;
 extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
-extern NSString * const NCChatControllerDidRemoveTemporaryMessagesNotification;
 extern NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification;
 
 @interface NCChatBlock : RLMObject
@@ -61,5 +60,6 @@ extern NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotifica
 - (void)stopReceivingNewChatMessages;
 - (void)stopChatController;
 - (BOOL)hasHistoryFromMessageId:(NSInteger)messageId;
+- (void)storeMessages:(NSArray *)messages withRealm:(RLMRealm *)realm;
 
 @end

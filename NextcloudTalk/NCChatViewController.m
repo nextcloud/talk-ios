@@ -138,7 +138,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessages:) name:NCChatControllerDidReceiveChatMessagesNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCChatControllerDidSendChatMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatBlocked:) name:NCChatControllerDidReceiveChatBlockedNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didRemoveTemporaryMessages:) name:NCChatControllerDidRemoveTemporaryMessagesNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveNewerCommonReadMessage:) name:NCChatControllerDidReceiveNewerCommonReadMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
@@ -620,7 +619,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 #pragma mark - Temporary messages
 
-- (NCChatMessage *)createTemporaryMessage:(NSString *)text
+- (NCChatMessage *)createTemporaryMessage:(NSString *)text replyToMessage:(NCChatMessage *)parentMessage
 {
     NCChatMessage *temporaryMessage = [[NCChatMessage alloc] init];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -635,7 +634,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     temporaryMessage.referenceId = [NCUtils sha1FromString:referenceId];
     temporaryMessage.internalId = referenceId;
     temporaryMessage.isTemporary = YES;
-    
+    temporaryMessage.parentId = parentMessage.internalId;
+
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         [realm addObject:temporaryMessage];
@@ -743,15 +743,17 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     // Create temporary message
     NSString *referenceId = nil;
+    NCChatMessage *replyToMessage = (_replyMessageView.isVisible && fromInputField) ? _replyMessageView.message : nil;
+    
     if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
-        NCChatMessage *temporaryMessage = [self createTemporaryMessage:message];
+        NCChatMessage *temporaryMessage = [self createTemporaryMessage:message replyToMessage:replyToMessage];
         referenceId = temporaryMessage.referenceId;
         [self appendTemporaryMessage:temporaryMessage];
     }
     
     // Send message
     NSString *sendingText = [self createSendingMessage:message];
-    NSInteger replyTo = (_replyMessageView.isVisible && fromInputField) ? _replyMessageView.message.messageId : -1;
+    NSInteger replyTo = replyToMessage ? replyToMessage.messageId : -1;
     [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId];
 }
 
@@ -1349,9 +1351,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             // Otherwise longer messages will prevent scrolling
             BOOL shouldScrollOnNewMessages = [self shouldScrollOnNewMessages] ;
             
-            NSInteger lastSectionBeforeUpdate = self->_dateSections.count - 1;
-            BOOL unreadMessagesReceived = NO;
             // Check if unread messages separator should be added
+            BOOL unreadMessagesReceived = NO;
             if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0) {
                 unreadMessagesReceived = YES;
                 NSMutableArray *messagesForLastDateBeforeUpdate = [self->_messages objectForKey:[self->_dateSections lastObject]];
@@ -1367,19 +1368,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
             
             // Load messages in chat view
-            if (messages.count > 1 || unreadMessagesReceived) {
-                [self.tableView reloadData];
-            } else if (messages.count == 1) {
-                [self.tableView beginUpdates];
-                NSInteger newLastSection = self->_dateSections.count - 1;
-                BOOL newSection = lastSectionBeforeUpdate != newLastSection;
-                if (newSection) {
-                    [self.tableView insertSections:[NSIndexSet indexSetWithIndex:newLastSection] withRowAnimation:UITableViewRowAnimationNone];
-                } else {
-                    [self.tableView insertRowsAtIndexPaths:@[lastMessageIndexPath] withRowAnimation:UITableViewRowAnimationNone];
-                }
-                [self.tableView endUpdates];
-            }
+            [self.tableView reloadData];
             
             BOOL newMessagesContainUserMessage = [self newMessagesContainUserMessage:messages];
             // Remove unread messages separator when user writes a message
@@ -1469,16 +1458,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }
     
     [self startObservingRoomLobbyFlag];
-}
-
-- (void)didRemoveTemporaryMessages:(NSNotification *)notification
-{
-    if (notification.object != _chatController) {
-        return;
-    }
-    
-    NSArray *removedTemporaryMessages = [notification.userInfo objectForKey:@"messages"];
-    [self removeTemporaryMessages:removedTemporaryMessages];
 }
 
 - (void)didReceiveNewerCommonReadMessage:(NSNotification *)notification
@@ -1587,10 +1566,28 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         NSDate *newMessageDate = [NSDate dateWithTimeIntervalSince1970: newMessage.timestamp];
         NSDate *keyDate = [self getKeyForDate:newMessageDate inDictionary:dictionary];
         NSMutableArray *messagesForDate = [dictionary objectForKey:keyDate];
+
         if (messagesForDate) {
-            NCChatMessage *lastMessage = [messagesForDate lastObject];
-            newMessage.isGroupMessage = [self shouldGroupMessage:newMessage withMessage:lastMessage];
-            [messagesForDate addObject:newMessage];
+            BOOL messageUpdated = NO;
+            
+            // Check if we can update the message instead of adding a new one
+            for (int i = 0; i < messagesForDate.count; i++) {
+                NCChatMessage *currentMessage = messagesForDate[i];
+                if ((!currentMessage.isTemporary && currentMessage.messageId == newMessage.messageId) ||
+                    (currentMessage.isTemporary && [currentMessage.referenceId isEqualToString:newMessage.referenceId])) {
+                    // The newly received message either already exists or its temporary counterpart exists -> update
+                    newMessage.isGroupMessage = currentMessage.isGroupMessage;
+                    messagesForDate[i] = newMessage;
+                    messageUpdated = YES;
+                    break;
+                }
+            }
+            
+            if (!messageUpdated) {
+                NCChatMessage *lastMessage = [messagesForDate lastObject];
+                newMessage.isGroupMessage = [self shouldGroupMessage:newMessage withMessage:lastMessage];
+                [messagesForDate addObject:newMessage];
+            }
         } else {
             NSMutableArray *newMessagesInDate = [NSMutableArray new];
             [dictionary setObject:newMessagesInDate forKey:newMessageDate];
