@@ -61,6 +61,12 @@ typedef enum ShareConfirmationType {
 @property (weak, nonatomic) IBOutlet UITextView *shareTextView;
 @property (weak, nonatomic) IBOutlet UICollectionView *shareCollectionView;
 @property (weak, nonatomic) IBOutlet UIPageControl *pageControl;
+@property (weak, nonatomic) IBOutlet UIToolbar *itemToolbar;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *removeItemButton;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *cropItemButton;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *previewItemButton;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *addItemButton;
+
 
 - (id)initWithRoom:(NCRoom *)room account:(TalkAccount *)account serverCapabilities:(ServerCapabilities *)serverCapabilities;
 - (void)shareText:(NSString *)text;

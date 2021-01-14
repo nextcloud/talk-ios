@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -11,8 +11,13 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ShareConfirmationViewController">
             <connections>
+                <outlet property="addItemButton" destination="7Ow-Kb-Vy0" id="njG-vC-Iqw"/>
                 <outlet property="bottomSpacer" destination="zBa-uc-p45" id="Hng-Vo-rq0"/>
+                <outlet property="cropItemButton" destination="Laz-Ng-xrP" id="iUM-hQ-glI"/>
+                <outlet property="itemToolbar" destination="xVm-ra-tv0" id="PvT-Pm-ZMX"/>
                 <outlet property="pageControl" destination="82n-bL-hfY" id="qyS-on-PM3"/>
+                <outlet property="previewItemButton" destination="TKT-px-E6S" id="Ema-l0-mOb"/>
+                <outlet property="removeItemButton" destination="SCI-zL-VnT" id="RCt-is-Hel"/>
                 <outlet property="shareCollectionView" destination="uJR-VI-6WE" id="5ga-Ah-u1s"/>
                 <outlet property="shareTextView" destination="QKC-YS-SNr" id="EY7-7j-ubB"/>
                 <outlet property="toBackgroundView" destination="ZlP-A7-sH2" id="DFl-6K-ybn"/>
@@ -46,14 +51,8 @@
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                 </textView>
-                <pageControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="2" translatesAutoresizingMaskIntoConstraints="NO" id="82n-bL-hfY">
-                    <rect key="frame" x="20" y="746" width="374" height="28"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <color key="pageIndicatorTintColor" systemColor="secondaryLabelColor"/>
-                    <color key="currentPageIndicatorTintColor" systemColor="labelColor"/>
-                </pageControl>
                 <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" pagingEnabled="YES" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="uJR-VI-6WE">
-                    <rect key="frame" x="0.0" y="56" width="414" height="682"/>
+                    <rect key="frame" x="0.0" y="106" width="414" height="632"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="l35-ib-MXz">
@@ -74,6 +73,42 @@
                         <constraint firstAttribute="height" id="zBa-uc-p45"/>
                     </constraints>
                 </view>
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xVm-ra-tv0">
+                    <rect key="frame" x="0.0" y="36" width="414" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <items>
+                        <barButtonItem title="DeleteAction" image="delete-action" width="56" id="SCI-zL-VnT">
+                            <connections>
+                                <action selector="removeItemButtonPressed:" destination="-1" id="gz6-Gn-u1I"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="tOh-9L-sus"/>
+                        <barButtonItem title="CropAction" image="crop-rotate-action" width="56" id="Laz-Ng-xrP">
+                            <connections>
+                                <action selector="cropItemButtonPressed:" destination="-1" id="czl-bv-adS"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem title="PreviewAction" image="preview-file-action" width="56" id="TKT-px-E6S">
+                            <connections>
+                                <action selector="previewItemButtonPressed:" destination="-1" id="wLi-1i-qxY"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem title="AddAction" image="add-action" width="56" id="7Ow-Kb-Vy0">
+                            <connections>
+                                <action selector="addItemButtonPressed:" destination="-1" id="E0L-C6-JS9"/>
+                            </connections>
+                        </barButtonItem>
+                    </items>
+                </toolbar>
+                <pageControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="2" translatesAutoresizingMaskIntoConstraints="NO" id="82n-bL-hfY">
+                    <rect key="frame" x="20" y="746" width="374" height="28"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <color key="pageIndicatorTintColor" systemColor="secondaryLabelColor"/>
+                    <color key="currentPageIndicatorTintColor" systemColor="labelColor"/>
+                    <connections>
+                        <action selector="pageControlValueChanged:" destination="-1" eventType="valueChanged" id="dlc-mW-xaD"/>
+                    </connections>
+                </pageControl>
             </subviews>
             <viewLayoutGuide key="safeArea" id="Q5M-cg-NOt"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -90,10 +125,14 @@
                 <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="7Tz-V8-nzC" secondAttribute="trailing" constant="80" id="fYg-Iw-9i2"/>
             </constraints>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
-            <point key="canvasLocation" x="137.68115942028987" y="124.55357142857142"/>
+            <point key="canvasLocation" x="137.68115942028987" y="123.88392857142857"/>
         </view>
     </objects>
     <resources>
+        <image name="add-action" width="24" height="24"/>
+        <image name="crop-rotate-action" width="24" height="24"/>
+        <image name="delete-action" width="24" height="24"/>
+        <image name="preview-file-action" width="24" height="24"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

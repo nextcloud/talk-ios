@@ -16,6 +16,7 @@ pod 'MaterialComponents/ActivityIndicator'
 pod 'Toast', '~> 4.0.0'
 pod "PulsingHalo"
 pod 'MBProgressHUD', '~> 1.2.0'
+pod 'TOCropViewController', '~> 2.6.0'
 end
 
 target "NotificationServiceExtension" do
@@ -33,6 +34,7 @@ pod 'MaterialComponents/ActivityIndicator'
 pod 'Toast', '~> 4.0.0'
 pod "PulsingHalo"
 pod 'MBProgressHUD', '~> 1.2.0'
+pod 'TOCropViewController', '~> 2.6.0'
 end
 
 target "ShareExtension" do
@@ -50,6 +52,7 @@ pod 'MaterialComponents/ActivityIndicator'
 pod 'Toast', '~> 4.0.0'
 pod "PulsingHalo"
 pod 'MBProgressHUD', '~> 1.2.0'
+pod 'TOCropViewController', '~> 2.6.0'
 end
 
 post_install do |installer|

@@ -23,7 +23,11 @@
 #import "ShareConfirmationViewController.h"
 #import "ShareConfirmationCollectionViewCell.h"
 
+#import <AVFoundation/AVFoundation.h>
 #import <NCCommunication/NCCommunication.h>
+#import <QuickLook/QuickLook.h>
+#import <QuickLookThumbnailing/QuickLookThumbnailing.h>
+#import <TOCropViewController/TOCropViewController.h>
 
 #import "CCCertificate.h"
 #import "NCAPIController.h"
@@ -31,10 +35,11 @@
 #import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "MBProgressHUD.h"
-#import <QuickLook/QuickLook.h>
-#import <QuickLookThumbnailing/QuickLookThumbnailing.h>
+#import "NCNavigationController.h"
+#import "NCUserInterfaceController.h"
 
-@interface ShareConfirmationViewController () <NCCommunicationCommonDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, QLPreviewControllerDataSource, QLPreviewControllerDelegate, ShareItemControllerDelegate>
+
+@interface ShareConfirmationViewController () <NCCommunicationCommonDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, QLPreviewControllerDataSource, QLPreviewControllerDelegate, ShareItemControllerDelegate, TOCropViewControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, UINavigationControllerDelegate>
 {
     UIBarButtonItem *_sendButton;
     UIActivityIndicatorView *_sharingIndicatorView;
@@ -42,6 +47,8 @@
     dispatch_group_t _uploadGroup;
     BOOL _uploadFailed;
 }
+
+@property (nonatomic, strong) UIImagePickerController *imagePicker;
 
 @end
 
@@ -116,6 +123,12 @@
     NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:NSLocalizedString(@"To: %@", nil), _room.displayName] attributes:attributes];
     [toString addAttributes:subAttribute range:NSMakeRange(0, 3)];
     self.toTextView.attributedText = toString;
+    
+    // Toolbar section
+    [self.itemToolbar setHidden:(_type == ShareConfirmationTypeText) ? YES : NO];
+    [self.itemToolbar setBarTintColor:[UIColor whiteColor]];
+    [self.removeItemButton setEnabled:([self.shareItemController.shareItems count] > 1)];
+    [self.removeItemButton setTintColor:([self.shareItemController.shareItems count] > 1) ? nil : [UIColor clearColor]];
         
     self.shareCollectionView.delegate = self;
     
@@ -141,6 +154,8 @@
     }
 }
 
+#pragma mark - Button Actions
+
 - (void)cancelButtonPressed
 {
     [self.delegate shareConfirmationViewControllerDidFinish:self];
@@ -157,6 +172,36 @@
     [self startAnimatingSharingIndicator];
 }
 
+- (IBAction)removeItemButtonPressed:(id)sender {
+    ShareItem *item = [self getCurrentShareItem];
+    
+    if (item) {
+        [self.shareItemController removeItem:item];
+    }
+}
+
+- (IBAction)cropItemButtonPressed:(id)sender {
+    ShareItem *item = [self getCurrentShareItem];
+    UIImage *image = [self.shareItemController getImageFromItem:item];
+    
+    if (!image) {
+        return;
+    }
+    
+    TOCropViewController *cropViewController = [[TOCropViewController alloc] initWithImage:image];
+    cropViewController.delegate = self;
+    [self presentViewController:cropViewController animated:YES completion:nil];
+}
+
+- (IBAction)previewItemButtonPressed:(id)sender {
+    [self previewCurrentItem];
+}
+
+- (IBAction)addItemButtonPressed:(id)sender {
+    [self presentAdditionalItemOptions];
+}
+
+
 - (void)shareText:(NSString *)sharedText
 {
     _type = ShareConfirmationTypeText;
@@ -171,6 +216,115 @@
 - (void)setIsModal:(BOOL)isModal
 {
     _isModal = isModal;
+}
+
+#pragma mark - Add additional items
+- (void)presentAdditionalItemOptions
+{
+    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:nil
+                                                                                message:nil
+                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *cameraAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Camera", nil)
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        [self checkAndPresentCamera];
+    }];
+    [cameraAction setValue:[[UIImage imageNamed:@"camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    
+    UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        [self presentPhotoLibrary];
+    }];
+    [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    
+    UIAlertAction *filesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Files", nil)
+                                                          style:UIAlertActionStyleDefault
+                                                        handler:^void (UIAlertAction *action) {
+        [self presentDocumentPicker];
+    }];
+    [filesAction setValue:[[UIImage imageNamed:@"files"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+
+#ifndef APP_EXTENSION
+    // Camera access is not available in app extensions
+    // https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionOverview.html
+    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
+        [optionsActionSheet addAction:cameraAction];
+    }
+#endif
+    
+    [optionsActionSheet addAction:photoLibraryAction];
+    [optionsActionSheet addAction:filesAction];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.barButtonItem = self.addItemButton;
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (void)checkAndPresentCamera
+{
+    // https://stackoverflow.com/a/20464727/2512312
+    NSString *mediaType = AVMediaTypeVideo;
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
+    
+    if(authStatus == AVAuthorizationStatusAuthorized) {
+        [self presentCamera];
+        return;
+    } else if(authStatus == AVAuthorizationStatusNotDetermined){
+        [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+            if(granted){
+                [self presentCamera];
+            }
+        }];
+        return;
+    }
+    
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Could not access camera", nil)
+                                 message:NSLocalizedString(@"Camera access is not allowed. Check your settings.", nil)
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+}
+
+- (void)presentCamera
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_imagePicker = [[UIImagePickerController alloc] init];
+        self->_imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+        self->_imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:self->_imagePicker.sourceType];
+        self->_imagePicker.delegate = self;
+        [self presentViewController:self->_imagePicker animated:YES completion:nil];
+    });
+}
+
+- (void)presentPhotoLibrary
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_imagePicker = [[UIImagePickerController alloc] init];
+        self->_imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        self->_imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:self->_imagePicker.sourceType];
+        self->_imagePicker.delegate = self;
+        [self presentViewController:self->_imagePicker animated:YES completion:nil];
+    });
+}
+
+- (void)presentDocumentPicker
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"public.item"] inMode:UIDocumentPickerModeImport];
+        documentPicker.delegate = self;
+        [self presentViewController:documentPicker animated:YES completion:nil];
+    });
 }
 
 #pragma mark - Actions
@@ -390,6 +544,78 @@
      }];
  }
 
+- (void)updateToolbarForCurrentItem
+{
+    ShareItem *item = [self getCurrentShareItem];
+    
+    if (item) {
+        [UIView transitionWithView:self.itemToolbar duration:0.3 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+            [self.cropItemButton setEnabled:item.isImage];
+            [self.previewItemButton setEnabled:[QLPreviewController canPreviewItem:item.fileURL]];
+            [self.addItemButton setEnabled:([self.shareItemController.shareItems count] < 5)];
+        } completion:nil];
+    }
+    
+    [self.removeItemButton setEnabled:([self.shareItemController.shareItems count] > 1)];
+    [self.removeItemButton setTintColor:([self.shareItemController.shareItems count] > 1) ? nil : [UIColor clearColor]];
+}
+
+#pragma mark - UIImagePickerController Delegate
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+    
+    if ([mediaType isEqualToString:@"public.image"]) {
+        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self.shareItemController addItemWithImage:image];
+            [self collectionViewScrollToEnd];
+        }];
+    } else if ([mediaType isEqualToString:@"public.movie"]) {
+        NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
+        
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self.shareItemController addItemWithURL:videoURL];
+            [self collectionViewScrollToEnd];
+        }];
+    }
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - UIDocumentPickerViewController Delegate
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url
+{
+    [self shareDocumentsWithURLs:@[url] fromController:controller];
+}
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
+{
+    [self shareDocumentsWithURLs:urls fromController:controller];
+}
+
+- (void)shareDocumentsWithURLs:(NSArray<NSURL *> *)urls fromController:(UIDocumentPickerViewController *)controller
+{
+    if (controller.documentPickerMode == UIDocumentPickerModeImport) {
+        for (NSURL* url in urls) {
+            [self.shareItemController addItemWithURL:url];
+        }
+        
+        [self collectionViewScrollToEnd];
+    }
+}
+
+- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller
+{
+    
+}
+
 #pragma mark - ScrollView/CollectionView
 
 - (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -401,8 +627,7 @@
     [cell setPlaceHolderText:item.fileName];
 
     // Check if we got an image
-    NSData *fileData = [NSData dataWithContentsOfURL:item.fileURL];
-    UIImage *image = [UIImage imageWithData:fileData];
+    UIImage *image = [self.shareItemController getImageFromItem:item];
     
     if (image) {
         // We're able to get an image directly from the fileURL -> use it
@@ -447,17 +672,87 @@
     return CGSizeMake(collectionView.bounds.size.width, collectionView.bounds.size.height);
 }
 
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [self previewCurrentItem];
+}
+
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    // see: https://stackoverflow.com/a/46181277/2512312
+    [self updatePageControlPage];
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+{
+    [self updatePageControlPage];
+}
+
+- (void)collectionViewScrollToEnd
+{
+    [self scrollToItem:self.shareItemController.shareItems.lastObject];
+}
+
+- (void)scrollToItem:(ShareItem *)item
+{
+    if (!item) {
+        return;
+    }
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.pageControl.currentPage = scrollView.contentOffset.x / scrollView.frame.size.width;
+        NSInteger indexForItem = [self.shareItemController.shareItems indexOfObject:item];
+        
+        if (indexForItem != NSNotFound) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForItem:indexForItem inSection:0];
+            [self.shareCollectionView scrollToItemAtIndexPath:indexPath
+                                             atScrollPosition:UICollectionViewScrollPositionNone
+                                                     animated:YES];
+        }
     });
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+- (ShareItem *)getCurrentShareItem
+{
+    NSInteger currentIndex = self.shareCollectionView.contentOffset.x / self.shareCollectionView.frame.size.width;
+    
+    if (currentIndex >= [self.shareItemController.shareItems count]) {
+        return nil;
+    }
+    
+    return [self.shareItemController.shareItems objectAtIndex:currentIndex];
+}
+
+#pragma mark - PageControl
+
+- (IBAction)pageControlValueChanged:(id)sender
+{
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.pageControl.currentPage inSection:0];
+    [self.shareCollectionView scrollToItemAtIndexPath:indexPath
+                                     atScrollPosition:UICollectionViewScrollPositionNone
+                                             animated:YES];
+}
+
+- (void)updatePageControlPage
+{
+    // see: https://stackoverflow.com/a/46181277/2512312
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.pageControl.currentPage = self.shareCollectionView.contentOffset.x / self.shareCollectionView.frame.size.width;
+        
+        [self updateToolbarForCurrentItem];
+    });
+}
+
+#pragma mark - PreviewController
+
+- (void)previewCurrentItem
+{
+    ShareItem *item = [self getCurrentShareItem];
+    
+    // Only open preview if there's an actual item and it can be previewed
+    if (!item || !item.fileURL || ![QLPreviewController canPreviewItem:item.fileURL]) {
+        return;
+    }
+    
     QLPreviewController * preview = [[QLPreviewController alloc] init];
-    preview.currentPreviewItemIndex = indexPath.row;
     preview.dataSource = self;
     preview.delegate = self;
     
@@ -479,12 +774,10 @@
     [self.navigationController pushViewController:preview animated:YES];
 }
 
-#pragma mark - PreviewController
-
 - (nonnull id<QLPreviewItem>)previewController:(nonnull QLPreviewController *)controller previewItemAtIndex:(NSInteger)index {
     // Don't use index here, as this relates to numberOfPreviewItems
-    // When we have numberOfPreviewItema > 1 this will show an additional list of items
-    ShareItem *item = [self.shareItemController.shareItems objectAtIndex:self.shareCollectionView.indexPathsForSelectedItems.firstObject.row];
+    // When we have numberOfPreviewItems > 1 this will show an additional list of items
+    ShareItem *item = [self getCurrentShareItem];
     
     if (item && item.fileURL) {
         return item.fileURL;
@@ -503,7 +796,7 @@
 }
 
 - (void)previewController:(QLPreviewController *)controller didSaveEditedCopyOfPreviewItem:(id<QLPreviewItem>)previewItem atURL:(NSURL *)modifiedContentsURL {
-    ShareItem *item = [self.shareItemController.shareItems objectAtIndex:self.shareCollectionView.indexPathsForSelectedItems.firstObject.row];
+    ShareItem *item = [self getCurrentShareItem];
     
     if (item) {
         [self.shareItemController updateItem:item withURL:modifiedContentsURL];
@@ -515,9 +808,56 @@
  
 - (void)shareItemControllerItemsChanged:(nonnull ShareItemController *)shareItemController {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.shareCollectionView reloadData];
-        self.pageControl.numberOfPages = [self.shareItemController.shareItems count];
+        NSUInteger shareItemCount = [shareItemController.shareItems count];
+        
+        if (shareItemCount == 0) {
+            if (self.extensionContext) {
+                NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+                [self.extensionContext cancelRequestWithError:error];
+            } else {
+                [self dismissViewControllerAnimated:YES completion:nil];
+            }
+        } else {
+            [self.shareCollectionView reloadData];
+            
+            // Make sure all changes are full populated before we update our ui elements
+            [self.shareCollectionView layoutIfNeeded];
+            [self updateToolbarForCurrentItem];
+            self.pageControl.numberOfPages = [shareItemController.shareItems count];
+        }
     });
+}
+
+#pragma mark - TOCropViewController Delegate
+
+- (void)cropViewController:(TOCropViewController *)cropViewController didCropToImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle
+{
+    ShareItem *item = [self getCurrentShareItem];
+    
+    if (item) {
+        [self.shareItemController updateItem:item withImage:image];
+        
+        // Fixes bug on iPad where collectionView is scrolled between two pages
+        [self scrollToItem:item];
+    }
+
+    // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
+    cropViewController.transitioningDelegate = nil;
+    [cropViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)cropViewController:(TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled
+{
+    ShareItem *item = [self getCurrentShareItem];
+    
+    if (item) {
+        // Fixes bug on iPad where collectionView is scrolled between two pages
+        [self scrollToItem:item];
+    }
+    
+    // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
+    cropViewController.transitioningDelegate = nil;
+    [cropViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - NCCommunicationCommon Delegate
