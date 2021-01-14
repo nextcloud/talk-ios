@@ -123,6 +123,9 @@
     NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:NSLocalizedString(@"To: %@", nil), _room.displayName] attributes:attributes];
     [toString addAttributes:subAttribute range:NSMakeRange(0, 3)];
     self.toTextView.attributedText = toString;
+    
+    [self.removeItemButton setEnabled:([self.shareItemController.shareItems count] > 1)];
+    [self.removeItemButton setTintColor:([self.shareItemController.shareItems count] > 1) ? nil : [UIColor clearColor]];
         
     self.shareCollectionView.delegate = self;
     
@@ -549,6 +552,9 @@
             [self.addItemButton setEnabled:([self.shareItemController.shareItems count] < 5)];
         } completion:nil];
     }
+    
+    [self.removeItemButton setEnabled:([self.shareItemController.shareItems count] > 1)];
+    [self.removeItemButton setTintColor:([self.shareItemController.shareItems count] > 1) ? nil : [UIColor clearColor]];
 }
 
 #pragma mark - UIImagePickerController Delegate
