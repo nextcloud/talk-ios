@@ -239,10 +239,14 @@
         [self presentDocumentPicker];
     }];
     [filesAction setValue:[[UIImage imageNamed:@"files"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    
+
+#ifndef APP_EXTENSION
+    // Camera access is not available in app extensions
+    // https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionOverview.html
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         [optionsActionSheet addAction:cameraAction];
     }
+#endif
     
     [optionsActionSheet addAction:photoLibraryAction];
     [optionsActionSheet addAction:filesAction];
