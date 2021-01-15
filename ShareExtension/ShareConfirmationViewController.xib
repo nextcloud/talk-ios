@@ -73,7 +73,7 @@
                         <constraint firstAttribute="height" id="zBa-uc-p45"/>
                     </constraints>
                 </view>
-                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xVm-ra-tv0">
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xVm-ra-tv0">
                     <rect key="frame" x="0.0" y="36" width="414" height="44"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <items>
@@ -99,6 +99,7 @@
                             </connections>
                         </barButtonItem>
                     </items>
+                    <color key="barTintColor" systemColor="systemBackgroundColor"/>
                 </toolbar>
                 <pageControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="2" translatesAutoresizingMaskIntoConstraints="NO" id="82n-bL-hfY">
                     <rect key="frame" x="20" y="746" width="374" height="28"/>
