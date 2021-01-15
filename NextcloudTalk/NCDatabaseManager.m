@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName       = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion   = 10;
+uint64_t const kTalkDatabaseSchemaVersion   = 11;
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
