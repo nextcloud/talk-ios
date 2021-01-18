@@ -54,6 +54,8 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 @property NSString *logo;
 @property NSString *color;
 @property NSString *colorElement;
+@property NSString *colorElementBright;
+@property NSString *colorElementDark;
 @property NSString *colorText;
 @property NSString *background;
 @property BOOL backgroundDefault;

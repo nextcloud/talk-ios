@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName       = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion   = 10;
+uint64_t const kTalkDatabaseSchemaVersion   = 11;
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
@@ -271,6 +271,8 @@ uint64_t const kTalkDatabaseSchemaVersion   = 10;
     capabilities.logo = [themingCaps objectForKey:@"logo"];
     capabilities.color = [themingCaps objectForKey:@"color"];
     capabilities.colorElement = [themingCaps objectForKey:@"color-element"];
+    capabilities.colorElementBright = [themingCaps objectForKey:@"color-element-bright"];
+    capabilities.colorElementDark = [themingCaps objectForKey:@"color-element-dark"];
     capabilities.colorText = [themingCaps objectForKey:@"color-text"];
     capabilities.background = [themingCaps objectForKey:@"background"];
     capabilities.backgroundDefault = [[themingCaps objectForKey:@"background-default"] boolValue];

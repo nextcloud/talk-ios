@@ -21,6 +21,7 @@
  */
 
 #import "NCMessageTextView.h"
+#import "NCAppBranding.h"
 
 @implementation NCMessageTextView
 
@@ -38,12 +39,10 @@
     
     self.keyboardType = UIKeyboardTypeDefault;
     
-    self.backgroundColor = [UIColor whiteColor];
+    self.backgroundColor = [NCAppBranding backgroundColor];
     
     self.placeholder = NSLocalizedString(@"Write message, @ to mention someone …", nil);
-    self.placeholderColor = [UIColor lightGrayColor];
-    
-    self.layer.borderColor = [UIColor lightGrayColor].CGColor;
+    self.placeholderColor = [NCAppBranding placeholderColor];
 }
 
 @end

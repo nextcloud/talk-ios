@@ -31,6 +31,7 @@
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCChatFileController.h"
+#import "NCAppBranding.h"
 
 @implementation FilePreviewImageView : UIImageView
 
@@ -49,7 +50,7 @@
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [NCAppBranding backgroundColor];
         [self configureSubviews];
     }
     return self;
@@ -60,7 +61,7 @@
     _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellAvatarHeight, kFileMessageCellAvatarHeight)];
     _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
     _avatarView.userInteractionEnabled = NO;
-    _avatarView.backgroundColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
+    _avatarView.backgroundColor = [NCAppBranding placeholderColor];
     _avatarView.layer.cornerRadius = kFileMessageCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
     
@@ -175,7 +176,11 @@
     [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId width:120 height:120 usingAccount:activeAccount]
                                      placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
                                          [weakPreviewImageView setImage:image];
+                                         //TODO: How to adjust for dark mode?
                                          weakPreviewImageView.layer.borderColor = [[UIColor colorWithWhite:0.9 alpha:1.0] CGColor];
+                                         if (@available(iOS 13.0, *)) {
+                                             weakPreviewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
+                                         }
                                          weakPreviewImageView.layer.borderWidth = 1.0f;
                                      } failure:nil];
     
@@ -295,6 +300,10 @@
         _titleLabel.numberOfLines = 0;
         _titleLabel.textColor = [UIColor lightGrayColor];
         _titleLabel.font = [UIFont systemFontOfSize:[FileMessageTableViewCell defaultFontSize]];
+        
+        if (@available(iOS 13.0, *)) {
+            _titleLabel.textColor = [UIColor secondaryLabelColor];
+        }
     }
     return _titleLabel;
 }
@@ -310,6 +319,10 @@
         _dateLabel.numberOfLines = 0;
         _dateLabel.textColor = [UIColor lightGrayColor];
         _dateLabel.font = [UIFont systemFontOfSize:12.0];
+        
+        if (@available(iOS 13.0, *)) {
+            _dateLabel.textColor = [UIColor secondaryLabelColor];
+        }
     }
     return _dateLabel;
 }
@@ -336,7 +349,7 @@
 
 - (void)setGuestAvatar:(NSString *)displayName
 {
-    UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
+    UIColor *guestAvatarColor = [NCAppBranding placeholderColor];
     NSString *name = ([displayName isEqualToString:@""]) ? @"?" : displayName;
     [_avatarView setImageWithString:name color:guestAvatarColor circular:true];
 }

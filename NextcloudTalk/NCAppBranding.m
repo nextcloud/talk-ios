@@ -67,7 +67,7 @@ BOOL const useServerThemimg = YES;
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-        if (serverCapabilities && serverCapabilities.color && ![serverCapabilities.color isKindOfClass:[NSNull class]] && ![serverCapabilities.color isEqualToString:@""]) {
+        if (serverCapabilities && serverCapabilities.color) {
             UIColor *themeColor = [NCUtils colorFromHexString:serverCapabilities.color];
             if (themeColor) {
                 color = themeColor;
@@ -83,7 +83,7 @@ BOOL const useServerThemimg = YES;
     if (useServerThemimg) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-        if (serverCapabilities && serverCapabilities.colorText && ![serverCapabilities.colorText isKindOfClass:[NSNull class]] && ![serverCapabilities.colorText isEqualToString:@""]) {
+        if (serverCapabilities && serverCapabilities.colorText) {
             UIColor *themeTextColor = [NCUtils colorFromHexString:serverCapabilities.colorText];
             if (themeTextColor) {
                 textColor = themeTextColor;
@@ -95,18 +95,39 @@ BOOL const useServerThemimg = YES;
 
 + (UIColor *)elementColor
 {
-    UIColor *elementColor = [NCUtils colorFromHexString:brandColorHex];
     // Do not check if using server theming or not for now
     // We could check it once we calculate color element locally
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    if (serverCapabilities && serverCapabilities.colorElement && ![serverCapabilities.colorElement isKindOfClass:[NSNull class]] && ![serverCapabilities.colorElement isEqualToString:@""]) {
+    if (serverCapabilities) {
+        if (@available(iOS 13.0, *)) {
+            UIColor *elementColorBright = [NCUtils colorFromHexString:serverCapabilities.colorElementBright];
+            UIColor *elementColorDark = [NCUtils colorFromHexString:serverCapabilities.colorElementDark];
+            
+            if (elementColorBright && elementColorDark) {
+                return [self getDynamicColor:elementColorBright withDarkMode:elementColorDark];
+            }
+        }
+
         UIColor *color = [NCUtils colorFromHexString:serverCapabilities.colorElement];
         if (color) {
-            elementColor = color;
+            return color;
         }
     }
+    
+    UIColor *elementColor = [NCUtils colorFromHexString:brandColorHex];
     return elementColor;
+}
+
++ (UIColor *)getDynamicColor:(UIColor *)lightModeColor withDarkMode:(UIColor *)darkModeColor API_AVAILABLE(ios(13.0))
+{
+    return [UIColor colorWithDynamicProvider:^UIColor * _Nonnull(UITraitCollection * _Nonnull traits) {
+        if (traits.userInterfaceStyle == UIUserInterfaceStyleDark) {
+            return darkModeColor;
+        }
+        
+        return lightModeColor;
+    }];
 }
 
 + (NSString *)navigationLogoImageName
@@ -124,7 +145,29 @@ BOOL const useServerThemimg = YES;
 
 + (UIColor *)placeholderColor
 {
+    if (@available(iOS 13.0, *)) {
+        return [UIColor placeholderTextColor];
+    }
+    
     return [UIColor colorWithRed: 0.84 green: 0.84 blue: 0.84 alpha: 1.00]; // #d5d5d5
+}
+
++ (UIColor *)backgroundColor
+{
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemBackgroundColor];
+    }
+    
+    return [UIColor whiteColor];
+}
+
++ (UIColor *)chatForegroundColor
+{
+    if (@available(iOS 13.0, *)) {
+        return [self getDynamicColor:[UIColor darkGrayColor] withDarkMode:[UIColor labelColor]];
+    }
+    
+    return [UIColor darkGrayColor];
 }
 
 + (UIStatusBarStyle)statusBarStyleForBrandColor

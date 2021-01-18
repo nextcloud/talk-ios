@@ -21,6 +21,7 @@
  */
 
 #import "UserSettingsTableViewCell.h"
+#import "NCAppBranding.h"
 
 NSString *const kUserSettingsCellIdentifier = @"UserSettingsCellIdentifier";
 NSString *const kUserSettingsTableCellNibName = @"UserSettingsTableViewCell";
@@ -63,8 +64,7 @@ NSString *const kUserSettingsTableCellNibName = @"UserSettingsTableViewCell";
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 16;
         _userStatusImageView.clipsToBounds = YES;
-        // TODO: Change it when dark mode is implemented
-        _userStatusImageView.backgroundColor = [UIColor whiteColor];
+        _userStatusImageView.backgroundColor = [NCAppBranding backgroundColor];
     }
 }
 

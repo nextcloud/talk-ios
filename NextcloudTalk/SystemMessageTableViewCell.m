@@ -21,6 +21,7 @@
  */
 
 #import "SystemMessageTableViewCell.h"
+#import "NCAppBranding.h"
 
 @implementation SystemMessageTableViewCell
 
@@ -29,7 +30,7 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [NCAppBranding backgroundColor];
         
         [self configureSubviews];
     }
@@ -88,6 +89,10 @@
         _dateLabel.numberOfLines = 1;
         _dateLabel.textColor = [UIColor lightGrayColor];
         _dateLabel.font = [UIFont systemFontOfSize:12.0];
+        
+        if (@available(iOS 13.0, *)) {
+            _dateLabel.textColor = [UIColor secondaryLabelColor];
+        }
     }
     return _dateLabel;
 }

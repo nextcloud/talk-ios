@@ -47,6 +47,10 @@
 {
     self.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //Default toolbar color
     
+    if (@available(iOS 13.0, *)) {
+        self.backgroundColor = [UIColor secondarySystemBackgroundColor];
+    }
+    
     [self addSubview:self.quoteContainerView];
     [self addSubview:self.cancelButton];
     [self.layer addSublayer:self.topBorder];
@@ -77,6 +81,16 @@
 {
     // This will indicate the size of the view when calling systemLayoutSizeFittingSize in SLKTextViewController
     return CGSizeMake(UIViewNoIntrinsicMetric, 50);
+}
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    if (@available(iOS 13.0, *)) {
+        if (_topBorder && [self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection]) {
+            // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
+            _topBorder.backgroundColor = [UIColor systemGray4Color].CGColor;
+        }
+    }
 }
 
 
@@ -129,6 +143,10 @@
         _topBorder = [CAGradientLayer layer];
         _topBorder.frame = CGRectMake(0.0, 0.0, CGRectGetWidth(SLKKeyWindowBounds()), 0.5);
         _topBorder.backgroundColor = [UIColor lightGrayColor].CGColor;
+        
+        if (@available(iOS 13.0, *)) {
+            _topBorder.backgroundColor = [UIColor systemGray4Color].CGColor;
+        }
     }
     return _topBorder;
 }

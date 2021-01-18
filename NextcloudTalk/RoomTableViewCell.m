@@ -23,6 +23,7 @@
 #import "RoomTableViewCell.h"
 #import "RoundedNumberView.h"
 #import "UIImageView+AFNetworking.h"
+#import "NCAppBranding.h"
 
 #define kTitleOriginY       12
 #define kTitleOnlyOriginY   28
@@ -135,8 +136,7 @@ CGFloat const kRoomTableCellHeight = 74.0f;
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 10;
         _userStatusImageView.clipsToBounds = YES;
-        // TODO: Change it when dark mode is implemented
-        _userStatusImageView.backgroundColor = [UIColor whiteColor];
+        _userStatusImageView.backgroundColor = [NCAppBranding backgroundColor];
     }
 }
 

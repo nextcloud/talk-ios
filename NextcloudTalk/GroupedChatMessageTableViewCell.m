@@ -25,6 +25,7 @@
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "SLKUIConstants.h"
+#import "NCAppBranding.h"
 
 @implementation GroupedChatMessageTableViewCell
 
@@ -32,7 +33,7 @@
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [NCAppBranding backgroundColor];
         [self configureSubviews];
     }
     return self;
