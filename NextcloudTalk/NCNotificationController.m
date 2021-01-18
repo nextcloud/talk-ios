@@ -303,6 +303,10 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
                 [userInfo setObject:pushNotification.responseUserText forKey:@"responseUserText"];
                 
                 [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeFailedSendChat withUserInfo:userInfo];
+            } else {
+                // We replied to the message, so we can assume, we read it as well
+                [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:pushNotification.accountId];
+                [self updateAppIconBadgeNumber];
             }
             
             [application endBackgroundTask:sendTask];
