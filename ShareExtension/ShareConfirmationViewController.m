@@ -393,7 +393,7 @@
         // TODO: Do error reporting per item
         if (self->_uploadFailed) {
             UIAlertController * alert = [UIAlertController
-                                         alertControllerWithTitle:NSLocalizedString(@"Error uploading elements", nil)
+                                         alertControllerWithTitle:NSLocalizedString(@"Upload failed", nil)
                                          message:[self->_uploadErrors componentsJoinedByString:@"\n"]
                                          preferredStyle:UIAlertControllerStyleAlert];
             
