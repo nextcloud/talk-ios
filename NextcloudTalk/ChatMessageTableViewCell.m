@@ -123,7 +123,7 @@
         self.titleLabel.textColor = [UIColor darkTextColor];
         
         if (@available(iOS 13.0, *)) {
-            self.backgroundColor = [UIColor systemGroupedBackgroundColor];
+            self.backgroundColor = [UIColor secondarySystemBackgroundColor];
             self.titleLabel.textColor = [UIColor labelColor];
         }
     }
@@ -335,8 +335,11 @@
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 6;
         _userStatusImageView.clipsToBounds = YES;
-        // TODO: Change it when dark mode is implemented
         _userStatusImageView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        
+        if (@available(iOS 13.0, *)) {
+            _userStatusImageView.backgroundColor = [UIColor secondarySystemBackgroundColor];
+        }
     }
 }
 
