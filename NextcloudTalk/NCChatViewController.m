@@ -241,6 +241,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     if (@available(iOS 13.0, *)) {
         self.autoCompletionView.backgroundColor = [UIColor secondarySystemBackgroundColor];
     }
+    // Align separators to ChatMessageTableViewCell's title label
+    self.autoCompletionView.separatorInset = UIEdgeInsetsMake(0, 50, 0, 0);
     
     // Chat placeholder view
     _chatBackgroundView = [[PlaceholderView alloc] init];
