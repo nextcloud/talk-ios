@@ -161,6 +161,19 @@ BOOL const useServerThemimg = YES;
     return [UIColor whiteColor];
 }
 
++ (UIColor *)avatarPlaceholderColor
+{
+    // We will only use avatarPlaceholderColor for avatars that are on top theme/custom color.
+    // For avatars that are on top of default background color (light or dark), we will use placeholderColor.
+    if (@available(iOS 13.0, *)) {
+        UIColor *light = [UIColor colorWithRed: 0.7 green: 0.7 blue: 0.7 alpha: 1.00];
+        UIColor *dark = [UIColor colorWithRed: 0.35 green: 0.35 blue: 0.35 alpha: 1.00];
+        return [self getDynamicColor:light withDarkMode:dark];
+    }
+
+    return [UIColor colorWithRed: 0.84 green: 0.84 blue: 0.84 alpha: 1.00]; // #d5d5d5
+}
+
 + (UIColor *)chatForegroundColor
 {
     if (@available(iOS 13.0, *)) {
