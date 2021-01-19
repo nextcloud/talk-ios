@@ -127,7 +127,7 @@
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     // Contacts placeholder view
     _participantsBackgroundView = [[PlaceholderView alloc] init];
-    [_participantsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"contacts-placeholder"]];
+    [_participantsBackgroundView setImage:[UIImage imageNamed:@"contacts-placeholder"]];
     [_participantsBackgroundView.placeholderText setText:NSLocalizedString(@"No participants found", nil)];
     [_participantsBackgroundView.placeholderView setHidden:YES];
     [_participantsBackgroundView.loadingView startAnimating];

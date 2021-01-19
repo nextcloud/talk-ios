@@ -22,6 +22,8 @@
 
 #import "PlaceholderView.h"
 
+#import "NCAppBranding.h"
+
 @interface PlaceholderView ()
 
 @property (strong, nonatomic) IBOutlet UIView *contentView;
@@ -43,6 +45,13 @@
     }
     
     return self;
+}
+
+- (void)setImage:(UIImage *)image
+{
+    UIImage *placeholderImage = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [self.placeholderImage setImage:placeholderImage];
+    [self.placeholderImage setTintColor:[NCAppBranding placeholderColor]];
 }
 
 @end

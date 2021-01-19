@@ -48,9 +48,7 @@
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     // Contacts placeholder view
     _roomSearchBackgroundView = [[PlaceholderView alloc] init];
-    [_roomSearchBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
-    _roomSearchBackgroundView.placeholderImage.image = [_roomSearchBackgroundView.placeholderImage.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    [_roomSearchBackgroundView.placeholderImage setTintColor:[NCAppBranding placeholderColor]];
+    [_roomSearchBackgroundView setImage:[UIImage imageNamed:@"conversations-placeholder"]];
     [_roomSearchBackgroundView.placeholderText setText:NSLocalizedString(@"No results found", nil)];
     [_roomSearchBackgroundView.placeholderView setHidden:YES];
     [_roomSearchBackgroundView.loadingView startAnimating];

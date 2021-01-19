@@ -132,7 +132,7 @@
     
     // Room creation placeholder view
     _roomCreationBackgroundView = [[PlaceholderView alloc] init];
-    [_roomCreationBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"contacts-placeholder"]];
+    [_roomCreationBackgroundView setImage:[UIImage imageNamed:@"contacts-placeholder"]];
     [_roomCreationBackgroundView.placeholderText setText:NSLocalizedString(@"No participants found", nil)];
     [_roomCreationBackgroundView.placeholderView setHidden:YES];
     [_roomCreationBackgroundView.loadingView startAnimating];
