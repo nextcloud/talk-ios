@@ -57,6 +57,7 @@
     _avatarView.backgroundColor = [NCAppBranding placeholderColor];
     _avatarView.layer.cornerRadius = kChatMessageCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
+    _avatarView.contentMode = UIViewContentModeScaleToFill;
     [self.contentView addSubview:_avatarView];
     
     _statusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
@@ -149,6 +150,7 @@
     
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
+    self.avatarView.contentMode = UIViewContentModeScaleToFill;
     
     self.userStatusImageView.image = nil;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];

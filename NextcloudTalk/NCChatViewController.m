@@ -426,10 +426,12 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         }
             break;
         case kNCRoomTypeGroup:
-            [_titleView.image setImage:[UIImage imageNamed:@"group-bg"]];
+            [_titleView.image setImage:[UIImage imageNamed:@"group-15"]];
+            [_titleView.image setContentMode:UIViewContentModeCenter];
             break;
         case kNCRoomTypePublic:
-            [_titleView.image setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
+            [_titleView.image setImage:[UIImage imageNamed:@"public-15"]];
+            [_titleView.image setContentMode:UIViewContentModeCenter];
             break;
         case kNCRoomTypeChangelog:
             [_titleView.image setImage:[UIImage imageNamed:@"changelog"]];
@@ -440,9 +442,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
     // Set objectType image
     if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [_titleView.image setImage:[UIImage imageNamed:@"file-bg"]];
+        [_titleView.image setImage:[UIImage imageNamed:@"file-conv-15"]];
+        [_titleView.image setContentMode:UIViewContentModeCenter];
     } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [_titleView.image setImage:[UIImage imageNamed:@"password-bg"]];
+        [_titleView.image setImage:[UIImage imageNamed:@"pass-conv-15"]];
+        [_titleView.image setContentMode:UIViewContentModeCenter];
     }
     
     _titleView.title.accessibilityHint = NSLocalizedString(@"Double tap to go to conversation information", nil);
@@ -1944,7 +1948,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         suggestionCell.titleLabel.text = suggestionName;
         [suggestionCell setUserStatus:suggestionUserStatus];
         if ([suggestionId isEqualToString:@"all"]) {
-            [suggestionCell.avatarView setImage:[UIImage imageNamed:@"group-bg"]];
+            [suggestionCell.avatarView setImage:[UIImage imageNamed:@"group-15"]];
+            [suggestionCell.avatarView setContentMode:UIViewContentModeCenter];
         } else if ([suggestionSource isEqualToString:@"guests"]) {
             UIColor *guestAvatarColor = [NCAppBranding placeholderColor];
             NSString *name = ([suggestionName isEqualToString:@"Guest"]) ? @"?" : suggestionName;

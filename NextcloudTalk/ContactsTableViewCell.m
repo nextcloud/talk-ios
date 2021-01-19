@@ -38,6 +38,8 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
     
     self.contactImage.layer.cornerRadius = 24.0;
     self.contactImage.layer.masksToBounds = YES;
+    self.contactImage.backgroundColor = [NCAppBranding placeholderColor];
+    self.contactImage.contentMode = UIViewContentModeCenter;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -53,6 +55,7 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
     // Fix problem of rendering downloaded image in a reused cell
     [self.contactImage cancelImageDownloadTask];
     self.contactImage.image = nil;
+    self.contactImage.contentMode = UIViewContentModeCenter;
     
     self.userStatusImageView.image = nil;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];

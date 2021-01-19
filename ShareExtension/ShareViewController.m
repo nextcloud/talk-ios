@@ -383,19 +383,21 @@
         {
             NSURLRequest *request = [[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:_activeAccount];
             [cell.avatarImageView setImageWithURLRequest:request placeholderImage:nil success:nil failure:nil];
+            [cell.avatarImageView setContentMode:UIViewContentModeScaleToFill];
         }
             break;
             
         case kNCRoomTypeGroup:
-            [cell.avatarImageView setImage:[UIImage imageNamed:@"group-bg"]];
+            [cell.avatarImageView setImage:[UIImage imageNamed:@"group-18"]];
             break;
             
         case kNCRoomTypePublic:
-            [cell.avatarImageView setImage:(room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
+            [cell.avatarImageView setImage:[UIImage imageNamed:@"public-18"]];
             break;
             
         case kNCRoomTypeChangelog:
             [cell.avatarImageView setImage:[UIImage imageNamed:@"changelog"]];
+            [cell.avatarImageView setContentMode:UIViewContentModeScaleToFill];
             break;
             
         default:
@@ -404,9 +406,9 @@
     
     // Set objectType image
     if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [cell.avatarImageView setImage:[UIImage imageNamed:@"file-bg"]];
+        [cell.avatarImageView setImage:[UIImage imageNamed:@"file-conv-18"]];
     } else if ([room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [cell.avatarImageView setImage:[UIImage imageNamed:@"password-bg"]];
+        [cell.avatarImageView setImage:[UIImage imageNamed:@"pass-conv-18"]];
     }
     
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;

@@ -400,7 +400,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
                 cell.labelTitle.accessibilityLabel = NSLocalizedString(@"Create a new group conversation", nil);
                 cell.labelTitle.accessibilityHint = NSLocalizedString(@"Double tap to start creating a new group conversation", nil);
                 cell.labelTitle.textColor = [UIColor systemBlueColor];
-                [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
+                [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
                 break;
                 
             case kHeaderSectionNewPublic:
@@ -408,7 +408,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
                 cell.labelTitle.accessibilityLabel = NSLocalizedString(@"Create a new public conversation", nil);
                 cell.labelTitle.accessibilityHint = NSLocalizedString(@"Double tap to start creating a new public conversation", nil);
                 cell.labelTitle.textColor = [UIColor systemBlueColor];
-                [cell.contactImage setImage:[UIImage imageNamed:@"public-bg"]];
+                [cell.contactImage setImage:[UIImage imageNamed:@"public"]];
                 break;
                 
             default:
@@ -430,6 +430,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     
     [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                              placeholderImage:nil success:nil failure:nil];
+    [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
     
     return cell;
 }

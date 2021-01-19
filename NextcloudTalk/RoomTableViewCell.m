@@ -48,6 +48,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     
     self.roomImage.layer.cornerRadius = 24.0;
     self.roomImage.layer.masksToBounds = YES;
+    self.roomImage.backgroundColor = [NCAppBranding placeholderColor];
+    self.roomImage.contentMode = UIViewContentModeCenter;
     self.favoriteImage.contentMode = UIViewContentModeCenter;
 }
 
@@ -81,6 +83,7 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     [self.roomImage cancelImageDownloadTask];
     
     self.roomImage.image = nil;
+    self.roomImage.contentMode = UIViewContentModeCenter;
     self.favoriteImage.image = nil;
     self.subtitleLabel.text = @"";
     self.dateLabel.text = @"";

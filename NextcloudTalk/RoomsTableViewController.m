@@ -961,18 +961,20 @@ API_AVAILABLE(ios(11.0)){
         case kNCRoomTypeOneToOne:
             [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                   placeholderImage:nil success:nil failure:nil];
+            [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
             break;
             
         case kNCRoomTypeGroup:
-            [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
+            [cell.roomImage setImage:[UIImage imageNamed:@"group"]];
             break;
             
         case kNCRoomTypePublic:
-            [cell.roomImage setImage:(room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
+            [cell.roomImage setImage:[UIImage imageNamed:@"public"]];
             break;
             
         case kNCRoomTypeChangelog:
             [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
+            [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
             break;
             
         default:
@@ -981,9 +983,9 @@ API_AVAILABLE(ios(11.0)){
     
     // Set objectType image
     if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [cell.roomImage setImage:[UIImage imageNamed:@"file-bg"]];
+        [cell.roomImage setImage:[UIImage imageNamed:@"file-conv"]];
     } else if ([room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [cell.roomImage setImage:[UIImage imageNamed:@"password-bg"]];
+        [cell.roomImage setImage:[UIImage imageNamed:@"pass-conv"]];
     }
     
     // Set favorite image
