@@ -101,7 +101,6 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     _passwordTextField.textAlignment = NSTextAlignmentRight;
     _passwordTextField.placeholder = NSLocalizedString(@"No password", nil);
     _passwordTextField.adjustsFontSizeToFitWidth = YES;
-    _passwordTextField.textColor = [UIColor blackColor];
     _passwordTextField.secureTextEntry = YES;
     _passwordTextField.accessibilityLabel = NSLocalizedString(@"Password field for public conversation", nil);
     
