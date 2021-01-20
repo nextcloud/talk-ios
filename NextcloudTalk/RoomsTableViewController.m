@@ -106,9 +106,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     // Rooms placeholder view
     _roomsBackgroundView = [[PlaceholderView alloc] init];
-    [_roomsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
-    _roomsBackgroundView.placeholderImage.image = [_roomsBackgroundView.placeholderImage.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    [_roomsBackgroundView.placeholderImage setTintColor:[NCAppBranding placeholderColor]];
+    [_roomsBackgroundView setImage:[UIImage imageNamed:@"conversations-placeholder"]];
     [_roomsBackgroundView.placeholderText setText:NSLocalizedString(@"You are not part of any conversation. Press + to start a new one.", nil)];
     [_roomsBackgroundView.placeholderView setHidden:YES];
     [_roomsBackgroundView.loadingView startAnimating];
@@ -961,18 +959,20 @@ API_AVAILABLE(ios(11.0)){
         case kNCRoomTypeOneToOne:
             [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                   placeholderImage:nil success:nil failure:nil];
+            [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
             break;
             
         case kNCRoomTypeGroup:
-            [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
+            [cell.roomImage setImage:[UIImage imageNamed:@"group"]];
             break;
             
         case kNCRoomTypePublic:
-            [cell.roomImage setImage:(room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
+            [cell.roomImage setImage:[UIImage imageNamed:@"public"]];
             break;
             
         case kNCRoomTypeChangelog:
             [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
+            [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
             break;
             
         default:
@@ -981,9 +981,9 @@ API_AVAILABLE(ios(11.0)){
     
     // Set objectType image
     if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [cell.roomImage setImage:[UIImage imageNamed:@"file-bg"]];
+        [cell.roomImage setImage:[UIImage imageNamed:@"file-conv"]];
     } else if ([room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [cell.roomImage setImage:[UIImage imageNamed:@"password-bg"]];
+        [cell.roomImage setImage:[UIImage imageNamed:@"pass-conv"]];
     }
     
     // Set favorite image

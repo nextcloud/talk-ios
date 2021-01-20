@@ -24,6 +24,7 @@
 
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
+#import "NCAppBranding.h"
 #import "NCImageSessionManager.h"
 #import "UIImageView+AFNetworking.h"
 
@@ -42,6 +43,8 @@ CGFloat const kShareTableCellHeight = 56.0f;
     
     self.avatarImageView.layer.cornerRadius = 18.0;
     self.avatarImageView.layer.masksToBounds = YES;
+    self.avatarImageView.backgroundColor = [NCAppBranding placeholderColor];
+    self.avatarImageView.contentMode = UIViewContentModeCenter;
     
     AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
                                           initWithSessionManager:[NCImageSessionManager sharedInstance]
@@ -57,6 +60,8 @@ CGFloat const kShareTableCellHeight = 56.0f;
     
     // Fix problem of rendering downloaded image in a reused cell
     [self.avatarImageView cancelImageDownloadTask];
+    self.avatarImageView.image = nil;
+    self.avatarImageView.contentMode = UIViewContentModeCenter;
     
     self.avatarImageView.image = nil;
     self.titleLabel.text = @"";

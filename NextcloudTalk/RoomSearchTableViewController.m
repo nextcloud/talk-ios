@@ -48,9 +48,7 @@
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     // Contacts placeholder view
     _roomSearchBackgroundView = [[PlaceholderView alloc] init];
-    [_roomSearchBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"conversations-placeholder"]];
-    _roomSearchBackgroundView.placeholderImage.image = [_roomSearchBackgroundView.placeholderImage.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    [_roomSearchBackgroundView.placeholderImage setTintColor:[NCAppBranding placeholderColor]];
+    [_roomSearchBackgroundView setImage:[UIImage imageNamed:@"conversations-placeholder"]];
     [_roomSearchBackgroundView.placeholderText setText:NSLocalizedString(@"No results found", nil)];
     [_roomSearchBackgroundView.placeholderView setHidden:YES];
     [_roomSearchBackgroundView.loadingView startAnimating];
@@ -135,18 +133,20 @@
         case kNCRoomTypeOneToOne:
             [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                   placeholderImage:nil success:nil failure:nil];
+            [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
             break;
             
         case kNCRoomTypeGroup:
-            [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
+            [cell.roomImage setImage:[UIImage imageNamed:@"group"]];
             break;
             
         case kNCRoomTypePublic:
-            [cell.roomImage setImage:(room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
+            [cell.roomImage setImage:[UIImage imageNamed:@"public"]];
             break;
             
         case kNCRoomTypeChangelog:
             [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
+            [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
             break;
             
         default:
@@ -155,9 +155,9 @@
     
     // Set objectType image
     if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [cell.roomImage setImage:[UIImage imageNamed:@"file-bg"]];
+        [cell.roomImage setImage:[UIImage imageNamed:@"file"]];
     } else if ([room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [cell.roomImage setImage:[UIImage imageNamed:@"password-bg"]];
+        [cell.roomImage setImage:[UIImage imageNamed:@"password"]];
     }
     
     // Set favorite image

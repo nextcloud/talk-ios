@@ -426,10 +426,12 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         }
             break;
         case kNCRoomTypeGroup:
-            [_titleView.image setImage:[UIImage imageNamed:@"group-bg"]];
+            [_titleView.image setImage:[UIImage imageNamed:@"group-15"]];
+            [_titleView.image setContentMode:UIViewContentModeCenter];
             break;
         case kNCRoomTypePublic:
-            [_titleView.image setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
+            [_titleView.image setImage:[UIImage imageNamed:@"public-15"]];
+            [_titleView.image setContentMode:UIViewContentModeCenter];
             break;
         case kNCRoomTypeChangelog:
             [_titleView.image setImage:[UIImage imageNamed:@"changelog"]];
@@ -440,9 +442,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
     // Set objectType image
     if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [_titleView.image setImage:[UIImage imageNamed:@"file-bg"]];
+        [_titleView.image setImage:[UIImage imageNamed:@"file-conv-15"]];
+        [_titleView.image setContentMode:UIViewContentModeCenter];
     } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [_titleView.image setImage:[UIImage imageNamed:@"password-bg"]];
+        [_titleView.image setImage:[UIImage imageNamed:@"pass-conv-15"]];
+        [_titleView.image setContentMode:UIViewContentModeCenter];
     }
     
     _titleView.title.accessibilityHint = NSLocalizedString(@"Double tap to go to conversation information", nil);
@@ -532,13 +536,13 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     if ([self shouldPresentLobbyView]) {
         [_chatBackgroundView.placeholderText setText:NSLocalizedString(@"You are currently waiting in the lobby", nil)];
-        [_chatBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"lobby-placeholder"]];
+        [_chatBackgroundView setImage:[UIImage imageNamed:@"lobby-placeholder"]];
         if (_room.lobbyTimer > 0) {
             NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
             NSString *meetingStart = [NCUtils readableDateFromDate:date];
             NSString *placeHolderText = [NSString stringWithFormat:NSLocalizedString(@"You are currently waiting in the lobby.\nThis meeting is scheduled for\n%@", nil), meetingStart];
             [_chatBackgroundView.placeholderText setText:placeHolderText];
-            [_chatBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"lobby-placeholder"]];
+            [_chatBackgroundView setImage:[UIImage imageNamed:@"lobby-placeholder"]];
         }
         [_chatBackgroundView.placeholderView setHidden:NO];
         [_chatBackgroundView.loadingView stopAnimating];
@@ -547,7 +551,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [self cleanChat];
     } else {
         [_chatBackgroundView.placeholderText setText:NSLocalizedString(@"No messages yet, start the conversation!", nil)];
-        [_chatBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"chat-placeholder"]];
+        [_chatBackgroundView setImage:[UIImage imageNamed:@"chat-placeholder"]];
         [_chatBackgroundView.placeholderView setHidden:YES];
         [_chatBackgroundView.loadingView startAnimating];
         [_chatBackgroundView.loadingView setHidden:NO];
@@ -572,6 +576,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     footerLabel.text = NSLocalizedString(@"Offline, only showing downloaded messages", nil);
     self.tableView.tableFooterView = footerLabel;
     self.tableView.tableFooterView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
+    if (@available(iOS 13.0, *)) {
+        footerLabel.textColor = [UIColor secondaryLabelColor];
+        self.tableView.tableFooterView.backgroundColor = [UIColor secondarySystemBackgroundColor];
+    }
 }
 
 #pragma mark - Utils
@@ -1946,7 +1954,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         suggestionCell.titleLabel.text = suggestionName;
         [suggestionCell setUserStatus:suggestionUserStatus];
         if ([suggestionId isEqualToString:@"all"]) {
-            [suggestionCell.avatarView setImage:[UIImage imageNamed:@"group-bg"]];
+            [suggestionCell.avatarView setImage:[UIImage imageNamed:@"group-15"]];
+            [suggestionCell.avatarView setContentMode:UIViewContentModeCenter];
         } else if ([suggestionSource isEqualToString:@"guests"]) {
             UIColor *guestAvatarColor = [NCAppBranding placeholderColor];
             NSString *name = ([suggestionName isEqualToString:@"Guest"]) ? @"?" : suggestionName;

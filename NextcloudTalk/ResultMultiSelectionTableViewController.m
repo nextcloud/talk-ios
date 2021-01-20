@@ -44,7 +44,7 @@
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     // Contacts placeholder view
     _contactsBackgroundView = [[PlaceholderView alloc] init];
-    [_contactsBackgroundView.placeholderImage setImage:[UIImage imageNamed:@"contacts-placeholder"]];
+    [_contactsBackgroundView setImage:[UIImage imageNamed:@"contacts-placeholder"]];
     [_contactsBackgroundView.placeholderText setText:NSLocalizedString(@"No results found", nil)];
     [self showSearchingUI];
     self.tableView.backgroundView = _contactsBackgroundView;
@@ -120,10 +120,11 @@
     if ([contact.source isEqualToString:kParticipantTypeUser]) {
         [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                  placeholderImage:nil success:nil failure:nil];
+        [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
     } else if ([contact.source isEqualToString:kParticipantTypeEmail]) {
-        [cell.contactImage setImage:[UIImage imageNamed:@"mail-bg"]];
+        [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
     } else {
-        [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
+        [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
     }
     
     cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-unchecked"]];

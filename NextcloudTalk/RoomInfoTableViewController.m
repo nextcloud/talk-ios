@@ -1209,21 +1209,23 @@ typedef enum FileAction {
                     cell.roomNameTextField.text = _room.displayName;
                     [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                           placeholderImage:nil success:nil failure:nil];
+                    [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
                 }
                     break;
                     
                 case kNCRoomTypeGroup:
-                    [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
+                    [cell.roomImage setImage:[UIImage imageNamed:@"group"]];
                     break;
                     
                 case kNCRoomTypePublic:
-                    [cell.roomImage setImage:(_room.hasPassword) ? [UIImage imageNamed:@"public-password-bg"] : [UIImage imageNamed:@"public-bg"]];
+                    [cell.roomImage setImage:[UIImage imageNamed:@"public"]];
                     break;
                     
                 case kNCRoomTypeChangelog:
                 {
                     cell.roomNameTextField.text = _room.displayName;
                     [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
+                    [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
                 }
                     break;
                     
@@ -1233,9 +1235,9 @@ typedef enum FileAction {
             
             // Set objectType image
             if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-                [cell.roomImage setImage:[UIImage imageNamed:@"file-bg"]];
+                [cell.roomImage setImage:[UIImage imageNamed:@"file-conv"]];
             } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-                [cell.roomImage setImage:[UIImage imageNamed:@"password-bg"]];
+                [cell.roomImage setImage:[UIImage imageNamed:@"pass-conv"]];
             }
             
             if (_room.isNameEditable) {
@@ -1450,6 +1452,7 @@ typedef enum FileAction {
             } else {
                 [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                          placeholderImage:nil success:nil failure:nil];
+                [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
             }
             
             // Online status
@@ -1488,8 +1491,9 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Leave conversation", nil);
-                    cell.textLabel.textColor = [UIColor colorWithRed:1.00 green:0.23 blue:0.19 alpha:1.0]; //#FF3B30
-                    [cell.imageView setImage:[UIImage imageNamed:@"exit-action"]];
+                    cell.textLabel.textColor = [UIColor systemRedColor];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"exit-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setTintColor:[UIColor systemRedColor]];
                     
                     return cell;
                 }
@@ -1502,8 +1506,9 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Delete conversation", nil);
-                    cell.textLabel.textColor = [UIColor colorWithRed:1.00 green:0.23 blue:0.19 alpha:1.0]; //#FF3B30
-                    [cell.imageView setImage:[UIImage imageNamed:@"delete-action"]];
+                    cell.textLabel.textColor = [UIColor systemRedColor];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"delete-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setTintColor:[UIColor systemRedColor]];
                     
                     return cell;
                 }

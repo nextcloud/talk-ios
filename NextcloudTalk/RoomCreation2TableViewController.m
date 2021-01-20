@@ -101,7 +101,6 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     _passwordTextField.textAlignment = NSTextAlignmentRight;
     _passwordTextField.placeholder = NSLocalizedString(@"No password", nil);
     _passwordTextField.adjustsFontSizeToFitWidth = YES;
-    _passwordTextField.textColor = [UIColor blackColor];
     _passwordTextField.secureTextEntry = YES;
     _passwordTextField.accessibilityLabel = NSLocalizedString(@"Password field for public conversation", nil);
     
@@ -358,9 +357,9 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
             }
             
             if (_publicRoom) {
-                [cell.roomImage setImage:[UIImage imageNamed:@"public-bg"]];
+                [cell.roomImage setImage:[UIImage imageNamed:@"public"]];
             } else {
-                [cell.roomImage setImage:[UIImage imageNamed:@"group-bg"]];
+                [cell.roomImage setImage:[UIImage imageNamed:@"group"]];
             }
             cell.roomNameTextField.text = _roomName;
             _roomNameTextField = cell.roomNameTextField;
@@ -398,10 +397,11 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                 if ([participant.source isEqualToString:kParticipantTypeUser]) {
                     [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                              placeholderImage:nil success:nil failure:nil];
+                    [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
                 } else if ([participant.source isEqualToString:kParticipantTypeEmail]) {
-                    [cell.contactImage setImage:[UIImage imageNamed:@"mail-bg"]];
+                    [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
                 } else {
-                    [cell.contactImage setImage:[UIImage imageNamed:@"group-bg"]];
+                    [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
                 }
                 
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;

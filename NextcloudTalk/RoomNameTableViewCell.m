@@ -22,6 +22,8 @@
 
 #import "RoomNameTableViewCell.h"
 
+#import "NCAppBranding.h"
+
 NSString *const kRoomNameCellIdentifier     = @"RoomNameCellIdentifier";
 NSString *const kRoomNameTableCellNibName   = @"RoomNameTableViewCell";
 
@@ -31,6 +33,8 @@ NSString *const kRoomNameTableCellNibName   = @"RoomNameTableViewCell";
     [super awakeFromNib];
     self.roomImage.layer.cornerRadius = 24.0;
     self.roomImage.layer.masksToBounds = YES;
+    self.roomImage.backgroundColor = [NCAppBranding placeholderColor];
+    self.roomImage.contentMode = UIViewContentModeCenter;
     self.favoriteImage.contentMode = UIViewContentModeCenter;
     self.roomNameTextField.placeholder = NSLocalizedString(@"Conversation name", nil);
 }
@@ -46,6 +50,7 @@ NSString *const kRoomNameTableCellNibName   = @"RoomNameTableViewCell";
     [super prepareForReuse];
     
     self.roomImage.image = nil;
+    self.roomImage.contentMode = UIViewContentModeCenter;
     self.favoriteImage.image = nil;
 }
 

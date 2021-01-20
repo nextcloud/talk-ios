@@ -38,6 +38,8 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
     
     self.contactImage.layer.cornerRadius = 24.0;
     self.contactImage.layer.masksToBounds = YES;
+    self.contactImage.backgroundColor = [NCAppBranding placeholderColor];
+    self.contactImage.contentMode = UIViewContentModeCenter;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -53,6 +55,7 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
     // Fix problem of rendering downloaded image in a reused cell
     [self.contactImage cancelImageDownloadTask];
     self.contactImage.image = nil;
+    self.contactImage.contentMode = UIViewContentModeCenter;
     
     self.userStatusImageView.image = nil;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];
@@ -83,7 +86,11 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 10;
         _userStatusImageView.clipsToBounds = YES;
-        _userStatusImageView.backgroundColor = [NCAppBranding backgroundColor];
+        _userStatusImageView.backgroundColor = self.backgroundColor;
+        if (@available(iOS 14.0, *)) {
+            // When a background color is set directly to the cell it seems that there is no background configuration.
+            _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
+        }
     }
 }
 

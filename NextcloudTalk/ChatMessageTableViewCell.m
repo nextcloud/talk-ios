@@ -57,6 +57,7 @@
     _avatarView.backgroundColor = [NCAppBranding placeholderColor];
     _avatarView.layer.cornerRadius = kChatMessageCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
+    _avatarView.contentMode = UIViewContentModeScaleToFill;
     [self.contentView addSubview:_avatarView];
     
     _statusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
@@ -149,6 +150,7 @@
     
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
+    self.avatarView.contentMode = UIViewContentModeScaleToFill;
     
     self.userStatusImageView.image = nil;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];
@@ -335,10 +337,11 @@
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 6;
         _userStatusImageView.clipsToBounds = YES;
-        _userStatusImageView.backgroundColor = [UIColor groupTableViewBackgroundColor];
-        
-        if (@available(iOS 13.0, *)) {
-            _userStatusImageView.backgroundColor = [UIColor secondarySystemBackgroundColor];
+        _userStatusImageView.backgroundColor = self.backgroundColor;
+        if (@available(iOS 14.0, *)) {
+            // When a background color is set directly to the cell it seems that there is no background configuration.
+            // In this class, even when no background color is set, the background configuration is nil.
+            _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
         }
     }
 }

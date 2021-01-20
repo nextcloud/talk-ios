@@ -48,6 +48,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     
     self.roomImage.layer.cornerRadius = 24.0;
     self.roomImage.layer.masksToBounds = YES;
+    self.roomImage.backgroundColor = [NCAppBranding placeholderColor];
+    self.roomImage.contentMode = UIViewContentModeCenter;
     self.favoriteImage.contentMode = UIViewContentModeCenter;
 }
 
@@ -81,6 +83,7 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     [self.roomImage cancelImageDownloadTask];
     
     self.roomImage.image = nil;
+    self.roomImage.contentMode = UIViewContentModeCenter;
     self.favoriteImage.image = nil;
     self.subtitleLabel.text = @"";
     self.dateLabel.text = @"";
@@ -136,7 +139,11 @@ CGFloat const kRoomTableCellHeight = 74.0f;
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 10;
         _userStatusImageView.clipsToBounds = YES;
-        _userStatusImageView.backgroundColor = [NCAppBranding backgroundColor];
+        _userStatusImageView.backgroundColor = self.backgroundColor;
+        if (@available(iOS 14.0, *)) {
+            // When a background color is set directly to the cell it seems that there is no background configuration.
+            _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
+        }
     }
 }
 

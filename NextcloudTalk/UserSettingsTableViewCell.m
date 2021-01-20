@@ -64,7 +64,11 @@ NSString *const kUserSettingsTableCellNibName = @"UserSettingsTableViewCell";
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 16;
         _userStatusImageView.clipsToBounds = YES;
-        _userStatusImageView.backgroundColor = [NCAppBranding backgroundColor];
+        _userStatusImageView.backgroundColor = self.backgroundColor;
+        if (@available(iOS 14.0, *)) {
+            // When a background color is set directly to the cell it seems that there is no background configuration.
+            _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
+        }
     }
 }
 
