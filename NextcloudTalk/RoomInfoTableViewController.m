@@ -1269,7 +1269,7 @@ typedef enum FileAction {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:favoriteRoomCellIdentifier];
                     }
                     
-                    cell.textLabel.text = (_room.isFavorite) ? @"Remove from favorites" : @"Add to favorites";
+                    cell.textLabel.text = (_room.isFavorite) ? NSLocalizedString(@"Remove from favorites", nil) : NSLocalizedString(@"Add to favorites", nil);
                     [cell.imageView setImage:(_room.isFavorite) ? [UIImage imageNamed:@"fav-off-setting"] : [UIImage imageNamed:@"fav-setting"]];
                     
                     return cell;
