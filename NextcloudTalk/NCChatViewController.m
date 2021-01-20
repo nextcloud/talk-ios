@@ -1598,7 +1598,9 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                 if ((!currentMessage.isTemporary && currentMessage.messageId == newMessage.messageId) ||
                     (currentMessage.isTemporary && [currentMessage.referenceId isEqualToString:newMessage.referenceId])) {
                     // The newly received message either already exists or its temporary counterpart exists -> update
-                    newMessage.isGroupMessage = currentMessage.isGroupMessage;
+                    // If the user type a command the newMessage.actorType will be "bots", then we should not group those messages
+                    // even if the original message was grouped.
+                    newMessage.isGroupMessage = currentMessage.isGroupMessage && ![newMessage.actorType isEqualToString:@"bots"];
                     messagesForDate[i] = newMessage;
                     messageUpdated = YES;
                     break;
