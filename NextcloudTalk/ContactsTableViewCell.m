@@ -86,7 +86,7 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 10;
         _userStatusImageView.clipsToBounds = YES;
-        _userStatusImageView.backgroundColor = [NCAppBranding backgroundColor];
+        _userStatusImageView.backgroundColor = self.backgroundColor;
     }
 }
 

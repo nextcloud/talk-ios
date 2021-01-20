@@ -64,7 +64,7 @@ NSString *const kUserSettingsTableCellNibName = @"UserSettingsTableViewCell";
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 16;
         _userStatusImageView.clipsToBounds = YES;
-        _userStatusImageView.backgroundColor = [NCAppBranding backgroundColor];
+        _userStatusImageView.backgroundColor = self.backgroundColor;
     }
 }
 

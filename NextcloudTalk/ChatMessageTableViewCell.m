@@ -337,11 +337,7 @@
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 6;
         _userStatusImageView.clipsToBounds = YES;
-        _userStatusImageView.backgroundColor = [UIColor groupTableViewBackgroundColor];
-        
-        if (@available(iOS 13.0, *)) {
-            _userStatusImageView.backgroundColor = [UIColor secondarySystemBackgroundColor];
-        }
+        _userStatusImageView.backgroundColor = self.backgroundColor;
     }
 }
 
