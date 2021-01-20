@@ -576,6 +576,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     footerLabel.text = NSLocalizedString(@"Offline, only showing downloaded messages", nil);
     self.tableView.tableFooterView = footerLabel;
     self.tableView.tableFooterView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
+    if (@available(iOS 13.0, *)) {
+        footerLabel.textColor = [UIColor secondaryLabelColor];
+        self.tableView.tableFooterView.backgroundColor = [UIColor secondarySystemBackgroundColor];
+    }
 }
 
 #pragma mark - Utils
