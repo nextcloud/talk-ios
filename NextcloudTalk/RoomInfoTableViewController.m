@@ -1491,8 +1491,9 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Leave conversation", nil);
-                    cell.textLabel.textColor = [UIColor colorWithRed:1.00 green:0.23 blue:0.19 alpha:1.0]; //#FF3B30
-                    [cell.imageView setImage:[UIImage imageNamed:@"exit-action"]];
+                    cell.textLabel.textColor = [UIColor systemRedColor];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"exit-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setTintColor:[UIColor systemRedColor]];
                     
                     return cell;
                 }
@@ -1505,8 +1506,9 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Delete conversation", nil);
-                    cell.textLabel.textColor = [UIColor colorWithRed:1.00 green:0.23 blue:0.19 alpha:1.0]; //#FF3B30
-                    [cell.imageView setImage:[UIImage imageNamed:@"delete-action"]];
+                    cell.textLabel.textColor = [UIColor systemRedColor];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"delete-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setTintColor:[UIColor systemRedColor]];
                     
                     return cell;
                 }
