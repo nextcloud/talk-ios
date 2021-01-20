@@ -236,7 +236,7 @@
     BOOL shouldShowReadStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     
     if ([message.actorType isEqualToString:@"guests"]) {
-        self.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.actorDisplayName;
+        self.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
         [self setGuestAvatar:message.actorDisplayName];
     } else if ([message.actorType isEqualToString:@"bots"]) {
         if ([message.actorId isEqualToString:@"changelog"]) {
@@ -253,7 +253,7 @@
     
     // This check is just a workaround to fix the issue with the deleted parents returned by the API.
     if (message.parent.message) {
-        self.quotedMessageView.actorLabel.text = ([message.parent.actorDisplayName isEqualToString:@""]) ? @"Guest" : message.parent.actorDisplayName;
+        self.quotedMessageView.actorLabel.text = ([message.parent.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.parent.actorDisplayName;
         self.quotedMessageView.messageLabel.text = message.parent.parsedMessage.string;
     }
     
