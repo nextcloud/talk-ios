@@ -925,12 +925,23 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 }
 
 - (void)didPressReply:(NCChatMessage *)message {
-    // Use dispatch here to have a smooth animation with native contextmenu
-    dispatch_async(dispatch_get_main_queue(), ^{
+    // Don't scroll the keyboard automatically, we'll do it after showing the replyView
+    self.shouldScrollToBottomAfterKeyboardShows = NO;
+    [self presentKeyboard:YES];
+    self.shouldScrollToBottomAfterKeyboardShows = YES;
+    
+    // Make sure all rows are fully rendered after dismissing the context menu
+    // Otherwise a row can be "empty" (no content rendered) after scrolling the tableView
+    [self.tableView reloadRowsAtIndexPaths:[self.tableView indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
+    
+    // Wait for contextmenu-, keyboard- and tableview-animation to finish
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self.replyMessageView = (ReplyMessageView *)self.typingIndicatorProxyView;
         [self.replyMessageView dismiss];
         [self.replyMessageView presentReplyViewWithMessage:message];
-        [self presentKeyboard:YES];
+        
+        // Make sure we're really at the bottom after showing the replyMessageView
+        [self.tableView slk_scrollToBottomAnimated:YES];
     });
 }
 
