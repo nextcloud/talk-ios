@@ -197,7 +197,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }
     self.textInputbar.translucent = NO;
     self.textInputbar.contentInset = UIEdgeInsetsMake(5, 4, 5, 4);
-    self.textInputbar.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //Default toolbar color
+    
+    UIColor *defaultToolbarColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0];
+    self.textInputbar.backgroundColor = defaultToolbarColor;
+    [self.view setBackgroundColor:defaultToolbarColor];
     
     [self.textInputbar.editorTitle setTextColor:[UIColor darkGrayColor]];
     [self.textInputbar.editorLeftButton setTintColor:[UIColor systemBlueColor]];
@@ -218,6 +221,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         self.navigationItem.scrollEdgeAppearance = appearance;
         
         [self.textInputbar setBackgroundColor:[UIColor secondarySystemBackgroundColor]];
+        [self.view setBackgroundColor:[UIColor secondarySystemBackgroundColor]];
         [self.textInputbar.editorTitle setTextColor:[UIColor labelColor]];
         [self.textView.layer setBorderColor:[UIColor systemGray4Color].CGColor];
     }
