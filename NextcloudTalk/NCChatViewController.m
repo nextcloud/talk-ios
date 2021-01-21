@@ -929,24 +929,26 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 }
 
 - (void)didPressReply:(NCChatMessage *)message {
-    // Don't scroll the keyboard automatically, we'll do it after showing the replyView
-    self.shouldScrollToBottomAfterKeyboardShows = NO;
-    [self presentKeyboard:YES];
-    self.shouldScrollToBottomAfterKeyboardShows = YES;
-    
     // Make sure all rows are fully rendered after dismissing the context menu
     // Otherwise a row can be "empty" (no content rendered) after scrolling the tableView
     [self.tableView reloadRowsAtIndexPaths:[self.tableView indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
     
-    // Wait for contextmenu-, keyboard- and tableview-animation to finish
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    // Be aware that presentKeyboard does scroll to the bottom, as we set shouldScrollToBottomAfterKeyboardShows = YES
+    [self presentKeyboard:YES];
+
+    // Use same options as slk_animateLayoutIfNeededWithDuration but use 0.25 to be inline with keyboard
+    [UIView animateWithDuration:0.25
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseInOut
+                     animations:^{
         self.replyMessageView = (ReplyMessageView *)self.typingIndicatorProxyView;
-        [self.replyMessageView dismiss];
         [self.replyMessageView presentReplyViewWithMessage:message];
         
         // Make sure we're really at the bottom after showing the replyMessageView
-        [self.tableView slk_scrollToBottomAnimated:YES];
-    });
+        [self.tableView slk_scrollToBottomAnimated:NO];
+    }
+                     completion:nil];
+
 }
 
 - (void)didPressReplyPrivately:(NCChatMessage *)message {
