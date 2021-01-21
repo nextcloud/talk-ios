@@ -13,6 +13,8 @@
 		1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
+		1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
+		1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
 		1F5CDF652584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
 		1F5CDF662584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
@@ -1582,6 +1584,7 @@
 				2C7A245E24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2C3195C324C5E2100066F221 /* ShareTableViewCell.xib in Resources */,
 				2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */,
+				1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */,
 				2C3195BD24C5A3D90066F221 /* ContactsTableViewCell.xib in Resources */,
 				2C62AFB624C1A449007E460A /* Share.storyboard in Resources */,
 			);
@@ -1591,6 +1594,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
