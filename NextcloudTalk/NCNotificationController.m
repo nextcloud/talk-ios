@@ -270,6 +270,8 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             pushNotification.responseUserText = textInputResponse.userText;
             
             [self handlePushNotificationResponseWithUserText:pushNotification withCompletionHandler:completionHandler];
+        } else if ([response.actionIdentifier isEqualToString:UNNotificationDismissActionIdentifier]) {
+            [self handlePushNotificationDismissResponse:pushNotification withCompletionHandler:completionHandler];
         } else {
             [self handlePushNotificationResponse:pushNotification withCompletionHandler:completionHandler];
         }
@@ -315,6 +317,17 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 
 
     });
+    
+    completionHandler();
+}
+
+- (void)handlePushNotificationDismissResponse:(NCPushNotification *)pushNotification withCompletionHandler:(void (^)(void))completionHandler
+{
+    NSLog(@"Recevied push-notification with dismiss action");
+    
+    // The user actively dismissed the notification -> update the bade accordingly
+    [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:pushNotification.accountId];
+    [self updateAppIconBadgeNumber];
     
     completionHandler();
 }

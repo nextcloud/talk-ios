@@ -188,7 +188,7 @@
     UNNotificationCategory *chatCategory = [UNNotificationCategory categoryWithIdentifier:@"CATEGORY_CHAT"
                                                                               actions:@[replyAction]
                                                                     intentIdentifiers:@[]
-                                                                              options:UNNotificationCategoryOptionNone];
+                                                                              options:UNNotificationCategoryOptionCustomDismissAction];
     
     NSSet *categories = [NSSet setWithObject:chatCategory];
     [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:categories];
