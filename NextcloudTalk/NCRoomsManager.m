@@ -293,17 +293,57 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 - (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus
 {
+    [self updateRoomsUpdatingUserStatus:updateStatus withCompletionBlock:nil];
+}
+
+- (void)updateRoomsAndChatsUpdatingUserStatus:(BOOL)updateStatus withCompletionBlock:(UpdateRoomsAndChatsCompletionBlock)block
+{
+    [self updateRoomsUpdatingUserStatus:updateStatus withCompletionBlock:^(NSArray *roomsWithNewMessages, NSError *error) {
+        if (error) {
+            if (block) {
+                block(error);
+            }
+            
+            return;
+        }
+        
+        NSLog(@"Finished rooms update with %ld rooms with new messages", [roomsWithNewMessages count]);
+        dispatch_group_t chatUpdateGroup = dispatch_group_create();
+        
+        for (NCRoom *room in roomsWithNewMessages) {
+            //TODO: Update chat in rooms
+        }
+                
+        dispatch_group_notify(chatUpdateGroup, dispatch_get_main_queue(), ^{
+            // Notify backgroundFetch that we're finished
+            if (block) {
+                block(nil);
+            }
+        });
+    }];
+}
+
+- (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus withCompletionBlock:(UpdateRoomsCompletionBlock)block
+{
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount updateStatus:updateStatus withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
+        NSMutableArray *roomsWithNewMessages = [NSMutableArray new];
+        
         if (!error) {
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
                 // Add or update rooms
                 NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];
                 for (NSDictionary *roomDict in rooms) {
-                    [self updateRoomWithDict:roomDict withAccount:activeAccount withTimestamp:updateTimestamp withRealm:realm];
+                    BOOL roomContainsNewMessages = [self updateRoomWithDict:roomDict withAccount:activeAccount withTimestamp:updateTimestamp withRealm:realm];
+                    
+                    if (roomContainsNewMessages) {
+                        NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
+                        [roomsWithNewMessages addObject:room];
+                    }
                 }
+                
                 // Delete old rooms
                 NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND lastUpdate != %ld", activeAccount.accountId, (long)updateTimestamp];
                 RLMResults *managedRoomsToBeDeleted = [NCRoom objectsWithPredicate:query];
@@ -320,9 +360,14 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             [userInfo setObject:error forKey:@"error"];
             NSLog(@"Could not update rooms. Error: %@", error.description);
         }
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidUpdateRoomsNotification
                                                             object:self
                                                           userInfo:userInfo];
+        
+        if (block) {
+            block(roomsWithNewMessages, error);
+        }
     }];
 }
 
@@ -349,8 +394,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }];
 }
 
-- (void)updateRoomWithDict:(NSDictionary *)roomDict withAccount:(TalkAccount *)activeAccount withTimestamp:(NSInteger)timestamp withRealm:(RLMRealm *)realm
+- (BOOL)updateRoomWithDict:(NSDictionary *)roomDict withAccount:(TalkAccount *)activeAccount withTimestamp:(NSInteger)timestamp withRealm:(RLMRealm *)realm
 {
+    BOOL roomContainsNewMessages = NO;
+    
     NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
     NSDictionary *messageDict = [roomDict objectForKey:@"lastMessage"];
     NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:messageDict andAccountId:activeAccount.accountId];
@@ -359,6 +406,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     
     NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
     if (managedRoom) {
+        if (room.lastActivity > managedRoom.lastActivity) {
+            roomContainsNewMessages = YES;
+        }
+        
         [NCRoom updateRoom:managedRoom withRoom:room];
     } else if (room) {
         [realm addObject:room];
@@ -371,6 +422,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
         [chatController storeMessages:@[messageDict] withRealm:realm];
     }
+    
+    return roomContainsNewMessages;
 }
 
 - (void)updateRoomLocal:(NCRoom *)room
