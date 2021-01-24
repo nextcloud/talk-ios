@@ -127,11 +127,6 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     managedRoom.canStartCall = room.canStartCall;
     managedRoom.hasCall = room.hasCall;
     managedRoom.lastUpdate = room.lastUpdate;
-    
-    // Local-only field -> update only if there's actually a value
-    if (room.pendingMessage != nil) {
-        managedRoom.pendingMessage = room.pendingMessage;
-    }
 }
 
 + (NSString *)primaryKey {

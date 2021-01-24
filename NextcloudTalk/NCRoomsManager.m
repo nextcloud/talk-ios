@@ -426,13 +426,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     return roomContainsNewMessages;
 }
 
-- (void)updateRoomLocal:(NCRoom *)room
+- (void)updatePendingMessage:(NSString *)message forRoom:(NCRoom *)room
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
         if (managedRoom) {
-            [NCRoom updateRoom:managedRoom withRoom:room];
+            managedRoom.pendingMessage = message;
         }
     }];
 }
