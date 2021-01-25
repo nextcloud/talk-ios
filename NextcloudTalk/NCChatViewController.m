@@ -196,6 +196,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         self.textInputbar.counterStyle = SLKCounterStyleCountdownReversed;
     }
     self.textInputbar.translucent = NO;
+    self.textInputbar.contentInset = UIEdgeInsetsMake(5, 4, 5, 4);
     self.textInputbar.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //Default toolbar color
     
     [self.textInputbar.editorTitle setTextColor:[UIColor darkGrayColor]];
