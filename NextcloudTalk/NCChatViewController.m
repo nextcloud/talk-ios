@@ -197,7 +197,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }
     self.textInputbar.translucent = NO;
     self.textInputbar.contentInset = UIEdgeInsetsMake(5, 4, 5, 4);
-    self.textInputbar.backgroundColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0]; //Default toolbar color
+    
+    UIColor *defaultToolbarColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0];
+    self.textInputbar.backgroundColor = defaultToolbarColor;
+    [self.view setBackgroundColor:defaultToolbarColor];
     
     [self.textInputbar.editorTitle setTextColor:[UIColor darkGrayColor]];
     [self.textInputbar.editorLeftButton setTintColor:[UIColor systemBlueColor]];
@@ -218,6 +221,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         self.navigationItem.scrollEdgeAppearance = appearance;
         
         [self.textInputbar setBackgroundColor:[UIColor secondarySystemBackgroundColor]];
+        [self.view setBackgroundColor:[UIColor secondarySystemBackgroundColor]];
         [self.textInputbar.editorTitle setTextColor:[UIColor labelColor]];
         [self.textView.layer setBorderColor:[UIColor systemGray4Color].CGColor];
     }
@@ -925,13 +929,26 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 }
 
 - (void)didPressReply:(NCChatMessage *)message {
-    // Use dispatch here to have a smooth animation with native contextmenu
-    dispatch_async(dispatch_get_main_queue(), ^{
+    // Make sure all rows are fully rendered after dismissing the context menu
+    // Otherwise a row can be "empty" (no content rendered) after scrolling the tableView
+    [self.tableView reloadRowsAtIndexPaths:[self.tableView indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
+    
+    // Be aware that presentKeyboard does scroll to the bottom, as we set shouldScrollToBottomAfterKeyboardShows = YES
+    [self presentKeyboard:YES];
+
+    // Use same options as slk_animateLayoutIfNeededWithDuration but use 0.25 to be inline with keyboard
+    [UIView animateWithDuration:0.25
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseInOut
+                     animations:^{
         self.replyMessageView = (ReplyMessageView *)self.typingIndicatorProxyView;
-        [self.replyMessageView dismiss];
         [self.replyMessageView presentReplyViewWithMessage:message];
-        [self presentKeyboard:YES];
-    });
+        
+        // Make sure we're really at the bottom after showing the replyMessageView
+        [self.tableView slk_scrollToBottomAnimated:NO];
+    }
+                     completion:nil];
+
 }
 
 - (void)didPressReplyPrivately:(NCChatMessage *)message {

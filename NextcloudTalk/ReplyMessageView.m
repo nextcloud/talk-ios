@@ -156,7 +156,7 @@
 
 - (void)presentReplyViewWithMessage:(NCChatMessage *)message
 {
-    if (self.isVisible || !message) {
+    if (!message) {
         return;
     }
     
