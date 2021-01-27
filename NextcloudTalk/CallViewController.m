@@ -839,16 +839,18 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_captureController stopCapture];
         _captureController = nil;
         
-        for (NCPeerConnection *peerConnection in _peersInCall) {
-            // Video renderers
-            RTCEAGLVideoView *videoRenderer = [_videoRenderersDict objectForKey:peerConnection.peerId];
-            [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
-            [_videoRenderersDict removeObjectForKey:peerConnection.peerId];
-            // Screen renderers
-            RTCEAGLVideoView *screenRenderer = [_screenRenderersDict objectForKey:peerConnection.peerId];
-            [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
-            [_screenRenderersDict removeObjectForKey:peerConnection.peerId];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            for (NCPeerConnection *peerConnection in self->_peersInCall) {
+                // Video renderers
+                RTCEAGLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peerConnection.peerId];
+                [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
+                [self->_videoRenderersDict removeObjectForKey:peerConnection.peerId];
+                // Screen renderers
+                RTCEAGLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peerConnection.peerId];
+                [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
+                [self->_screenRenderersDict removeObjectForKey:peerConnection.peerId];
+            }
+        });
         
         if (_callController) {
             [_callController leaveCall];
@@ -1046,17 +1048,18 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callController:(NCCallController *)callController peerLeft:(NCPeerConnection *)peer
 {
-    // Video renderers
-    RTCEAGLVideoView *videoRenderer = [_videoRenderersDict objectForKey:peer.peerId];
-    [[peer.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
-    [_videoRenderersDict removeObjectForKey:peer.peerId];
-    // Screen renderers
-    RTCEAGLVideoView *screenRenderer = [_screenRenderersDict objectForKey:peer.peerId];
-    [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
-    [_screenRenderersDict removeObjectForKey:peer.peerId];
-    
-    [_peersInCall removeObject:peer];
     dispatch_async(dispatch_get_main_queue(), ^{
+        // Video renderers
+        RTCEAGLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peer.peerId];
+        [[peer.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
+        [self->_videoRenderersDict removeObjectForKey:peer.peerId];
+        // Screen renderers
+        RTCEAGLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerId];
+        [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
+        [self->_screenRenderersDict removeObjectForKey:peer.peerId];
+        
+        [self->_peersInCall removeObject:peer];
+    
         [self.collectionView reloadData];
     });
 }
@@ -1078,20 +1081,20 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callController:(NCCallController *)callController didAddStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
-    RTCEAGLVideoView *renderView = [[RTCEAGLVideoView alloc] initWithFrame:CGRectZero];
-    renderView.delegate = self;
-    RTCVideoTrack *remoteVideoTrack = [remotePeer.remoteStream.videoTracks firstObject];
-    [remoteVideoTrack addRenderer:renderView];
-    
-    if ([remotePeer.roomType isEqualToString:kRoomTypeVideo]) {
-        [_videoRenderersDict setObject:renderView forKey:remotePeer.peerId];
-        [_peersInCall addObject:remotePeer];
-    } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
-        [_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
-        [self showScreenOfPeerId:remotePeer.peerId];
-    }
-    
     dispatch_async(dispatch_get_main_queue(), ^{
+        RTCEAGLVideoView *renderView = [[RTCEAGLVideoView alloc] initWithFrame:CGRectZero];
+        renderView.delegate = self;
+        RTCVideoTrack *remoteVideoTrack = [remotePeer.remoteStream.videoTracks firstObject];
+        [remoteVideoTrack addRenderer:renderView];
+        
+        if ([remotePeer.roomType isEqualToString:kRoomTypeVideo]) {
+            [self->_videoRenderersDict setObject:renderView forKey:remotePeer.peerId];
+            [self->_peersInCall addObject:remotePeer];
+        } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
+            [self->_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
+            [self showScreenOfPeerId:remotePeer.peerId];
+        }
+        
         [self.collectionView reloadData];
     });
 }
@@ -1104,8 +1107,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callController:(NCCallController *)callController iceStatusChanged:(RTCIceConnectionState)state ofPeer:(NCPeerConnection *)peer
 {
     if (state == RTCIceConnectionStateClosed) {
-        [_peersInCall removeObject:peer];
         dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_peersInCall removeObject:peer];
             [self.collectionView reloadData];
         });
     } else {
@@ -1149,11 +1152,12 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callController:(NCCallController *)callController didReceiveUnshareScreenFromPeer:(NCPeerConnection *)peer
 {
-    RTCEAGLVideoView *screenRenderer = [_screenRenderersDict objectForKey:peer.peerId];
-    [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
-    [_screenRenderersDict removeObjectForKey:peer.peerId];
-    [self closeScreensharingButtonPressed:self];
     dispatch_async(dispatch_get_main_queue(), ^{
+        RTCEAGLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerId];
+        [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
+        [self->_screenRenderersDict removeObjectForKey:peer.peerId];
+        [self closeScreensharingButtonPressed:self];
+    
         [self.collectionView reloadData];
     });
 }
@@ -1237,22 +1241,21 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)videoView:(RTCEAGLVideoView*)videoView didChangeVideoSize:(CGSize)size
 {
-    for (RTCEAGLVideoView *rendererView in [_videoRenderersDict allValues]) {
-        if ([videoView isEqual:rendererView]) {
-            rendererView.frame = CGRectMake(0, 0, size.width, size.height);
-        }
-    }
-    for (RTCEAGLVideoView *rendererView in [_screenRenderersDict allValues]) {
-        if ([videoView isEqual:rendererView]) {
-            rendererView.frame = CGRectMake(0, 0, size.width, size.height);
-            if ([_screenView isEqual:rendererView]) {
-                _screensharingSize = rendererView.frame.size;
-                [self resizeScreensharingView];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (RTCEAGLVideoView *rendererView in [self->_videoRenderersDict allValues]) {
+            if ([videoView isEqual:rendererView]) {
+                rendererView.frame = CGRectMake(0, 0, size.width, size.height);
             }
         }
-    }
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
+        for (RTCEAGLVideoView *rendererView in [self->_screenRenderersDict allValues]) {
+            if ([videoView isEqual:rendererView]) {
+                rendererView.frame = CGRectMake(0, 0, size.width, size.height);
+                if ([self->_screenView isEqual:rendererView]) {
+                    self->_screensharingSize = rendererView.frame.size;
+                    [self resizeScreensharingView];
+                }
+            }
+        }
         [self.collectionView reloadData];
     });
 }
@@ -1267,8 +1270,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 }
 
 - (void)updatePeer:(NCPeerConnection *)peer block:(void(^)(CallParticipantViewCell* cell))block {
-    NSIndexPath *indexPath = [self indexPathOfPeer:peer];
     dispatch_async(dispatch_get_main_queue(), ^{
+        NSIndexPath *indexPath = [self indexPathOfPeer:peer];
         CallParticipantViewCell *cell = (id)[self.collectionView cellForItemAtIndexPath:indexPath];
         block(cell);
     });
