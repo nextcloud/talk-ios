@@ -175,7 +175,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     self.bounces = NO;
     self.shakeToClearEnabled = YES;
     self.keyboardPanningEnabled = YES;
-    self.shouldScrollToBottomAfterKeyboardShows = YES;
+    self.shouldScrollToBottomAfterKeyboardShows = NO;
     self.inverted = NO;
     
     [self.rightButton setTitle:@"" forState:UIControlStateNormal];
@@ -929,26 +929,19 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 }
 
 - (void)didPressReply:(NCChatMessage *)message {
-    // Make sure all rows are fully rendered after dismissing the context menu
-    // Otherwise a row can be "empty" (no content rendered) after scrolling the tableView
-    [self.tableView reloadRowsAtIndexPaths:[self.tableView indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
-    
-    // Be aware that presentKeyboard does scroll to the bottom, as we set shouldScrollToBottomAfterKeyboardShows = YES
-    [self presentKeyboard:YES];
-
-    // Use same options as slk_animateLayoutIfNeededWithDuration but use 0.25 to be inline with keyboard
-    [UIView animateWithDuration:0.25
-                          delay:0.0
-                        options:UIViewAnimationOptionCurveEaseInOut
-                     animations:^{
+    // Make sure we get a smooth animation after dismissing the context menu
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        BOOL isAtBottom = [self shouldScrollOnNewMessages];
+        
         self.replyMessageView = (ReplyMessageView *)self.typingIndicatorProxyView;
         [self.replyMessageView presentReplyViewWithMessage:message];
-        
-        // Make sure we're really at the bottom after showing the replyMessageView
-        [self.tableView slk_scrollToBottomAnimated:NO];
-    }
-                     completion:nil];
+        [self presentKeyboard:YES];
 
+        // Make sure we're really at the bottom after showing the replyMessageView
+        if (isAtBottom) {
+            [self.tableView slk_scrollToBottomAnimated:NO];
+        }
+    });
 }
 
 - (void)didPressReplyPrivately:(NCChatMessage *)message {
