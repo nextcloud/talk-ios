@@ -161,7 +161,7 @@
     }
     
     self.message = message;
-    self.quotedMessageView.actorLabel.text = message.actorDisplayName;
+    self.quotedMessageView.actorLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
     self.quotedMessageView.messageLabel.text = message.parsedMessage.string;
     
     self.visible = YES;
