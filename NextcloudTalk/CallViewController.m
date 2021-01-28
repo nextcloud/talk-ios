@@ -189,18 +189,20 @@ typedef NS_ENUM(NSInteger, CallState) {
                                                  name:@"UIDeviceProximityStateDidChangeNotification" object:nil];
 }
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-    [self setLocalVideoRect];
-    for (UICollectionViewCell *cell in _collectionView.visibleCells) {
-        CallParticipantViewCell * participantCell = (CallParticipantViewCell *) cell;
-        [participantCell resizeRemoteVideoView];
-    }
-    [self resizeScreensharingView];
+    [self.collectionView.collectionViewLayout invalidateLayout];
     [_halo setHidden:YES];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(duration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        [self setLocalVideoRect];
+        for (UICollectionViewCell *cell in self->_collectionView.visibleCells) {
+            CallParticipantViewCell * participantCell = (CallParticipantViewCell *) cell;
+            [participantCell resizeRemoteVideoView];
+        }
+        [self resizeScreensharingView];
+    } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         [self setHaloToChatButton];
-    });
+    }];
 }
 
 - (void)viewWillAppear:(BOOL)animated
