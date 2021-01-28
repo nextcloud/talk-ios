@@ -794,7 +794,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     } else if ([date isYesterday]) {
         return NSLocalizedString(@"Yesterday", nil);
     } else {
-        [formatter setDateFormat:@"dd/MM/yy"];
+        [formatter setTimeStyle:NSDateFormatterNoStyle];
+        [formatter setDateStyle:NSDateFormatterShortStyle];
     }
     return [formatter stringFromDate:date];
 }
