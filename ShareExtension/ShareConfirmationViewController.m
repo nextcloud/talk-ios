@@ -46,6 +46,7 @@
     MBProgressHUD *_hud;
     dispatch_group_t _uploadGroup;
     BOOL _uploadFailed;
+    NSMutableArray *_uploadErrors;
 }
 
 @property (nonatomic, strong) UIImagePickerController *imagePicker;
@@ -382,6 +383,7 @@
     
     _uploadGroup = dispatch_group_create();
     _uploadFailed = NO;
+    _uploadErrors = [[NSMutableArray alloc] init];
     
     for (ShareItem *item in self.shareItemController.shareItems) {
         NSLog(@"Uploading %@", item.fileURL);
@@ -398,7 +400,20 @@
         
         // TODO: Do error reporting per item
         if (self->_uploadFailed) {
-            [self.delegate shareConfirmationViewControllerDidFailed:self];
+            UIAlertController * alert = [UIAlertController
+                                         alertControllerWithTitle:NSLocalizedString(@"Upload failed", nil)
+                                         message:[self->_uploadErrors componentsJoinedByString:@"\n"]
+                                         preferredStyle:UIAlertControllerStyleAlert];
+            
+            UIAlertAction* okButton = [UIAlertAction
+                                       actionWithTitle:NSLocalizedString(@"OK", nil)
+                                       style:UIAlertActionStyleDefault
+                                       handler:^(UIAlertAction * _Nonnull action) {
+                                            [self.delegate shareConfirmationViewControllerDidFailed:self];
+                                        }];
+            
+            [alert addAction:okButton];
+            [self presentViewController:alert animated:YES completion:nil];
         } else {
             [self.delegate shareConfirmationViewControllerDidFinish:self];
         }
@@ -419,9 +434,10 @@
         } else if (errorCode == 404) {
             [self uploadFileToServerURL:fileServerURL withFilePath:fileServerPath withItem:item];
         } else {
-            NSLog(@"Error checking file name");
+            NSLog(@"Error checking file name: %@", errorDescription);
             
             self->_uploadFailed = YES;
+            [self->_uploadErrors addObject:errorDescription];
             dispatch_group_leave(self->_uploadGroup);
         }
     }];
@@ -439,9 +455,10 @@
                 }
             }];
         } else {
-            NSLog(@"Error checking attachment folder");
+            NSLog(@"Error checking attachment folder: %@", errorDescription);
             
             self->_uploadFailed = YES;
+            [self->_uploadErrors addObject:errorDescription];
             dispatch_group_leave(self->_uploadGroup);
         }
     }];
@@ -461,15 +478,16 @@
                     NSLog(@"Failed to send shared file");
                     
                     self->_uploadFailed = YES;
-                    dispatch_group_leave(self->_uploadGroup);
-                } else {
-                    dispatch_group_leave(self->_uploadGroup);
+                    [self->_uploadErrors addObject:error.description];
                 }
+                
+                dispatch_group_leave(self->_uploadGroup);
             }];
         } else if (errorCode == 404) {
             [self checkAttachmentFolderAndUploadFileToServerURL:fileServerURL withFilePath:filePath withItem:item];
         } else {
             self->_uploadFailed = YES;
+            [self->_uploadErrors addObject:errorDescription];
             dispatch_group_leave(self->_uploadGroup);
         }
     }];
