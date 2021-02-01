@@ -28,6 +28,11 @@
 
 NSInteger const kChatMessageGroupTimeDifference = 30;
 
+NSString * const kMessageTypeComment        = @"comment";
+NSString * const kMessageTypeCommentDeleted = @"comment-deleted";
+NSString * const kMessageTypeSystem         = @"system";
+NSString * const kMessageTypeCommand        = @"command";
+
 @interface NCChatMessage ()
 {
     NCMessageFileParameter *_fileParameter;
@@ -53,6 +58,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     message.systemMessage = [messageDict objectForKey:@"systemMessage"];
     message.isReplyable = [[messageDict objectForKey:@"isReplyable"] boolValue];
     message.referenceId = [messageDict objectForKey:@"referenceId"];
+    message.messageType = [messageDict objectForKey:@"messageType"];
     
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
