@@ -25,6 +25,7 @@
 #import <Realm/Realm.h>
 #import "NCMessageParameter.h"
 #import "NCMessageFileParameter.h"
+#import "NCRoomParticipant.h"
 
 extern NSInteger const kChatMessageGroupTimeDifference;
 
@@ -60,6 +61,7 @@ extern NSString * const kMessageTypeCommand;
 
 - (BOOL)isSystemMessage;
 - (BOOL)isEmojiMessage;
+- (BOOL)isDeletableForUserId:(NSString *)userId andParticipantType:(NCParticipantType)participantType;
 - (NCMessageFileParameter *)file;
 - (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;

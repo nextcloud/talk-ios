@@ -135,6 +135,23 @@ NSString * const kMessageTypeCommand        = @"command";
     return NO;
 }
 
+- (BOOL)isMessageFromUser:(NSString *)userId
+{
+    return [self.actorId isEqualToString:userId] && [self.actorType isEqualToString:@"users"];
+}
+
+- (BOOL)isDeletableForUserId:(NSString *)userId andParticipantType:(NCParticipantType)participantType
+{
+    NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
+    if ([self.messageType isEqualToString:kMessageTypeComment] &&
+        self.timestamp >= sixHoursAgoTimestamp &&
+        (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:userId])) {
+        return YES;
+    }
+    
+    return NO;
+}
+
 - (NCMessageParameter *)file;
 {
     if (!_fileParameter) {

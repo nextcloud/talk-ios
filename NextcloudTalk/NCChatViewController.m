@@ -968,7 +968,13 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 }
 
 - (void)didPressDelete:(NCChatMessage *)message {
-    [self removePermanentlyTemporaryMessage:message];
+    if (message.sendingFailed) {
+        [self removePermanentlyTemporaryMessage:message];
+    } else {
+        [[NCAPIController sharedInstance] deleteChatMessageInRoom:self->_room.token withMessageId:message.messageId forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NCChatMessage *message, NSError *error) {
+            NSLog(@"Deleted message: %@", message);
+        }];
+    }
 }
 
 - (void)didPressOpenInNextcloud:(NCChatMessage *)message {
@@ -1129,7 +1135,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             }
             
             // Delete option
-            if (message.sendingFailed) {
+            if (message.sendingFailed || [message isDeletableForUserId:[[NCDatabaseManager sharedInstance] activeAccount].accountId andParticipantType:_room.participantType]) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionDelete) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Delete", nil) image:[UIImage imageNamed:@"delete"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
@@ -2213,7 +2219,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
 
     // Delete option
-    if (message.sendingFailed) {
+    if (message.sendingFailed || [message isDeletableForUserId:[[NCDatabaseManager sharedInstance] activeAccount].accountId andParticipantType:_room.participantType]) {
         UIImage *deleteImage = [[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
             
