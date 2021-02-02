@@ -25,8 +25,14 @@
 #import <Realm/Realm.h>
 #import "NCMessageParameter.h"
 #import "NCMessageFileParameter.h"
+#import "NCRoomParticipant.h"
 
 extern NSInteger const kChatMessageGroupTimeDifference;
+
+extern NSString * const kMessageTypeComment;
+extern NSString * const kMessageTypeCommentDeleted;
+extern NSString * const kMessageTypeSystem;
+extern NSString * const kMessageTypeCommand;
 
 @interface NCChatMessage : RLMObject
 
@@ -44,6 +50,7 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 @property (nonatomic, assign) BOOL isReplyable;
 @property (nonatomic, strong) NSString *parentId;
 @property (nonatomic, strong) NSString *referenceId;
+@property (nonatomic, strong) NSString *messageType;
 @property (nonatomic, assign) BOOL isTemporary;
 @property (nonatomic, assign) BOOL sendingFailed;
 @property (nonatomic, assign) BOOL isGroupMessage;
@@ -54,6 +61,7 @@ extern NSInteger const kChatMessageGroupTimeDifference;
 
 - (BOOL)isSystemMessage;
 - (BOOL)isEmojiMessage;
+- (BOOL)isDeletableForUserId:(NSString *)userId andParticipantType:(NCParticipantType)participantType;
 - (NCMessageFileParameter *)file;
 - (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;

@@ -28,6 +28,11 @@
 
 NSInteger const kChatMessageGroupTimeDifference = 30;
 
+NSString * const kMessageTypeComment        = @"comment";
+NSString * const kMessageTypeCommentDeleted = @"comment-deleted";
+NSString * const kMessageTypeSystem         = @"system";
+NSString * const kMessageTypeCommand        = @"command";
+
 @interface NCChatMessage ()
 {
     NCMessageFileParameter *_fileParameter;
@@ -53,6 +58,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     message.systemMessage = [messageDict objectForKey:@"systemMessage"];
     message.isReplyable = [[messageDict objectForKey:@"isReplyable"] boolValue];
     message.referenceId = [messageDict objectForKey:@"referenceId"];
+    message.messageType = [messageDict objectForKey:@"messageType"];
     
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
@@ -102,6 +108,7 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
     managedChatMessage.timestamp = chatMessage.timestamp;
     managedChatMessage.systemMessage = chatMessage.systemMessage;
     managedChatMessage.isReplyable = chatMessage.isReplyable;
+    managedChatMessage.messageType = chatMessage.messageType;
     
     if (!managedChatMessage.parentId && chatMessage.parentId) {
         managedChatMessage.parentId = chatMessage.parentId;
@@ -123,6 +130,22 @@ NSInteger const kChatMessageGroupTimeDifference = 30;
 - (BOOL)isEmojiMessage
 {
     if (self.message && self.message.containsOnlyEmoji && self.message.emojiCount <= 3) {
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (BOOL)isMessageFromUser:(NSString *)userId
+{
+    return [self.actorId isEqualToString:userId] && [self.actorType isEqualToString:@"users"];
+}
+
+- (BOOL)isDeletableForUserId:(NSString *)userId andParticipantType:(NCParticipantType)participantType
+{
+    NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
+    if ([self.messageType isEqualToString:kMessageTypeComment] && !self.file && self.timestamp >= sixHoursAgoTimestamp &&
+        (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:userId])) {
         return YES;
     }
     

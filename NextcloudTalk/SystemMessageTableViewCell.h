@@ -24,10 +24,12 @@
 
 #import "ChatTableViewCell.h"
 #import "MessageBodyTextView.h"
+#import "NCChatMessage.h"
 
 static CGFloat kSystemMessageCellMinimumHeight  = 30.0;
 
-static NSString *SystemMessageCellIdentifier    = @"SystemMessageCellIdentifier";
+static NSString *SystemMessageCellIdentifier            = @"SystemMessageCellIdentifier";
+static NSString *InvisibleSystemMessageCellIdentifier   = @"InvisibleSystemMessageCellIdentifier";
 
 @interface SystemMessageTableViewCell : ChatTableViewCell
 
@@ -35,5 +37,6 @@ static NSString *SystemMessageCellIdentifier    = @"SystemMessageCellIdentifier"
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 
 + (CGFloat)defaultFontSize;
+- (void)setupForMessage:(NCChatMessage *)message;
 
 @end

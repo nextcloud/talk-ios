@@ -139,6 +139,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCChatControllerDidSendChatMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatBlocked:) name:NCChatControllerDidReceiveChatBlockedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveNewerCommonReadMessage:) name:NCChatControllerDidReceiveNewerCommonReadMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDeletedMessage:) name:NCChatControllerDidReceiveDeletedMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     }
@@ -239,6 +240,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:FileMessageCellIdentifier];
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:GroupedFileMessageCellIdentifier];
     [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:SystemMessageCellIdentifier];
+    [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:InvisibleSystemMessageCellIdentifier];
     [self.tableView registerClass:[MessageSeparatorTableViewCell class] forCellReuseIdentifier:MessageSeparatorCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
@@ -747,6 +749,28 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.tableView endUpdates];
 }
 
+#pragma mark - Message updates
+
+- (void)updateMessageWithReferenceId:(NSString *)referenceId withMessage:(NCChatMessage *)updatedMessage
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSMutableArray *reloadIndexPaths = [NSMutableArray new];
+        NSIndexPath *indexPath = [self indexPathForMessageWithReferenceId:referenceId];
+        if (indexPath) {
+            [reloadIndexPaths addObject:indexPath];
+            NSDate *keyDate = [self->_dateSections objectAtIndex:indexPath.section];
+            NSMutableArray *messages = [self->_messages objectForKey:keyDate];
+            NCChatMessage *currentMessage = messages[indexPath.row];
+            updatedMessage.isGroupMessage = currentMessage.isGroupMessage && ![currentMessage.actorType isEqualToString:@"bots"];
+            messages[indexPath.row] = updatedMessage;
+        }
+        
+        [self.tableView beginUpdates];
+        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView endUpdates];
+    });
+}
+
 #pragma mark - Action Methods
 
 - (void)titleButtonPressed:(id)sender
@@ -967,7 +991,19 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 }
 
 - (void)didPressDelete:(NCChatMessage *)message {
-    [self removePermanentlyTemporaryMessage:message];
+    if (message.sendingFailed) {
+        [self removePermanentlyTemporaryMessage:message];
+    } else {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        [[NCAPIController sharedInstance] deleteChatMessageInRoom:self->_room.token withMessageId:message.messageId forAccount:activeAccount withCompletionBlock:^(NSDictionary *messageDict, NSError *error) {
+            if (!error && messageDict) {
+                NCChatMessage *deleteMessage = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:activeAccount.accountId];
+                if (deleteMessage) {
+                    [self updateMessageWithReferenceId:deleteMessage.referenceId withMessage:deleteMessage];
+                }
+            }
+        }];
+    }
 }
 
 - (void)didPressOpenInNextcloud:(NCChatMessage *)message {
@@ -1128,7 +1164,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             }
             
             // Delete option
-            if (message.sendingFailed) {
+            if (message.sendingFailed || [message isDeletableForUserId:[[NCDatabaseManager sharedInstance] activeAccount].accountId andParticipantType:_room.participantType]) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionDelete) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Delete", nil) image:[UIImage imageNamed:@"delete"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
@@ -1522,6 +1558,19 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.tableView beginUpdates];
     [self.tableView reloadRowsAtIndexPaths:reloadCells withRowAnimation:UITableViewRowAnimationNone];
     [self.tableView endUpdates];
+}
+
+- (void)didReceiveDeletedMessage:(NSNotification *)notification
+{
+    if (notification.object != _chatController) {
+        return;
+    }
+    
+    NCChatMessage *message = [notification.userInfo objectForKey:@"deleteMessage"];
+    NCChatMessage *deleteMessage = message.parent;
+    if (deleteMessage) {
+        [self updateMessageWithReferenceId:deleteMessage.referenceId withMessage:deleteMessage];
+    }
 }
 
 #pragma mark - Lobby functions
@@ -2003,13 +2052,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         return separatorCell;
     }
     if (message.isSystemMessage) {
-        SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
-        systemCell.bodyTextView.attributedText = message.systemMessageFormat;
-        systemCell.messageId = message.messageId;
-        if (!message.isGroupMessage) {
-            NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
-            systemCell.dateLabel.text = [NCUtils getTimeFromDate:date];
+        if ([message.systemMessage isEqualToString:@"message_deleted"]) {
+            return (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:InvisibleSystemMessageCellIdentifier];
         }
+        SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
+        [systemCell setupForMessage:message];
         return systemCell;
     }
     if (message.file) {
@@ -2064,7 +2111,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (CGFloat)getCellHeightForMessage:(NCChatMessage *)message withWidth:(CGFloat)width
 {
-
     NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
     paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
     paragraphStyle.alignment = NSTextAlignmentLeft;
@@ -2085,7 +2131,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     CGRect titleBounds = [message.actorDisplayName boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
     CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
     
-    if (message.message.length == 0) {
+    if (message.message.length == 0 || [message.systemMessage isEqualToString:@"message_deleted"]) {
         return 0.0;
     }
     
@@ -2215,7 +2261,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
 
     // Delete option
-    if (message.sendingFailed) {
+    if (message.sendingFailed || [message isDeletableForUserId:[[NCDatabaseManager sharedInstance] activeAccount].accountId andParticipantType:_room.participantType]) {
         UIImage *deleteImage = [[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
             

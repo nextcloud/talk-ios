@@ -22,6 +22,7 @@
 
 #import "SystemMessageTableViewCell.h"
 #import "NCAppBranding.h"
+#import "NCUtils.h"
 
 @implementation SystemMessageTableViewCell
 
@@ -39,6 +40,10 @@
 
 - (void)configureSubviews
 {
+    if ([self.reuseIdentifier isEqualToString:InvisibleSystemMessageCellIdentifier]) {
+        return;
+    }
+    
     [self.contentView addSubview:self.dateLabel];
     [self.contentView addSubview:self.bodyTextView];
     
@@ -105,6 +110,16 @@
     //    pointSize += SLKPointSizeDifferenceForCategory(contentSizeCategory);
     
     return pointSize;
+}
+
+- (void)setupForMessage:(NCChatMessage *)message
+{
+    self.bodyTextView.attributedText = message.systemMessageFormat;
+    self.messageId = message.messageId;
+    if (!message.isGroupMessage) {
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
+        self.dateLabel.text = [NCUtils getTimeFromDate:date];
+    }
 }
 
 @end
