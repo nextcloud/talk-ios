@@ -108,6 +108,7 @@ NSString * const kMessageTypeCommand        = @"command";
     managedChatMessage.timestamp = chatMessage.timestamp;
     managedChatMessage.systemMessage = chatMessage.systemMessage;
     managedChatMessage.isReplyable = chatMessage.isReplyable;
+    managedChatMessage.messageType = chatMessage.messageType;
     
     if (!managedChatMessage.parentId && chatMessage.parentId) {
         managedChatMessage.parentId = chatMessage.parentId;
