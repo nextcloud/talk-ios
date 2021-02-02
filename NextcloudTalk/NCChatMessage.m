@@ -144,8 +144,7 @@ NSString * const kMessageTypeCommand        = @"command";
 - (BOOL)isDeletableForUserId:(NSString *)userId andParticipantType:(NCParticipantType)participantType
 {
     NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
-    if ([self.messageType isEqualToString:kMessageTypeComment] &&
-        self.timestamp >= sixHoursAgoTimestamp &&
+    if ([self.messageType isEqualToString:kMessageTypeComment] && !self.file && self.timestamp >= sixHoursAgoTimestamp &&
         (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:userId])) {
         return YES;
     }
