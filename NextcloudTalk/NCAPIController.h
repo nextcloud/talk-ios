@@ -25,7 +25,6 @@
 
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
-#import "NCChatMessage.h"
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "NCUser.h"
@@ -59,7 +58,7 @@ typedef void (^LeaveCallCompletionBlock)(NSError *error);
 typedef void (^GetChatMessagesCompletionBlock)(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode);
 typedef void (^SendChatMessagesCompletionBlock)(NSError *error);
 typedef void (^GetMentionSuggestionsCompletionBlock)(NSMutableArray *mentions, NSError *error);
-typedef void (^DeleteChatMessageCompletionBlock)(NCChatMessage *message, NSError *error);
+typedef void (^DeleteChatMessageCompletionBlock)(NSDictionary *messageDict, NSError *error);
 
 typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);

@@ -139,6 +139,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCChatControllerDidSendChatMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatBlocked:) name:NCChatControllerDidReceiveChatBlockedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveNewerCommonReadMessage:) name:NCChatControllerDidReceiveNewerCommonReadMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDeletedMessage:) name:NCChatControllerDidReceiveDeletedMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     }
@@ -748,6 +749,28 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.tableView endUpdates];
 }
 
+#pragma mark - Message updates
+
+- (void)updateMessageWithReferenceId:(NSString *)referenceId withMessage:(NCChatMessage *)updatedMessage
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSMutableArray *reloadIndexPaths = [NSMutableArray new];
+        NSIndexPath *indexPath = [self indexPathForMessageWithReferenceId:referenceId];
+        if (indexPath) {
+            [reloadIndexPaths addObject:indexPath];
+            NSDate *keyDate = [self->_dateSections objectAtIndex:indexPath.section];
+            NSMutableArray *messages = [self->_messages objectForKey:keyDate];
+            NCChatMessage *currentMessage = messages[indexPath.row];
+            updatedMessage.isGroupMessage = currentMessage.isGroupMessage && ![currentMessage.actorType isEqualToString:@"bots"];
+            messages[indexPath.row] = updatedMessage;
+        }
+        
+        [self.tableView beginUpdates];
+        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView endUpdates];
+    });
+}
+
 #pragma mark - Action Methods
 
 - (void)titleButtonPressed:(id)sender
@@ -971,8 +994,14 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     if (message.sendingFailed) {
         [self removePermanentlyTemporaryMessage:message];
     } else {
-        [[NCAPIController sharedInstance] deleteChatMessageInRoom:self->_room.token withMessageId:message.messageId forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NCChatMessage *message, NSError *error) {
-            NSLog(@"Deleted message: %@", message);
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        [[NCAPIController sharedInstance] deleteChatMessageInRoom:self->_room.token withMessageId:message.messageId forAccount:activeAccount withCompletionBlock:^(NSDictionary *messageDict, NSError *error) {
+            if (!error && messageDict) {
+                NCChatMessage *deleteMessage = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:activeAccount.accountId];
+                if (deleteMessage) {
+                    [self updateMessageWithReferenceId:deleteMessage.referenceId withMessage:deleteMessage];
+                }
+            }
         }];
     }
 }
@@ -1529,6 +1558,19 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.tableView beginUpdates];
     [self.tableView reloadRowsAtIndexPaths:reloadCells withRowAnimation:UITableViewRowAnimationNone];
     [self.tableView endUpdates];
+}
+
+- (void)didReceiveDeletedMessage:(NSNotification *)notification
+{
+    if (notification.object != _chatController) {
+        return;
+    }
+    
+    NCChatMessage *message = [notification.userInfo objectForKey:@"deleteMessage"];
+    NCChatMessage *deleteMessage = message.parent;
+    if (deleteMessage) {
+        [self updateMessageWithReferenceId:deleteMessage.referenceId withMessage:deleteMessage];
+    }
 }
 
 #pragma mark - Lobby functions

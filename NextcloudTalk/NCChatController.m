@@ -34,6 +34,7 @@ NSString * const NCChatControllerDidReceiveChatMessagesNotification             
 NSString * const NCChatControllerDidSendChatMessageNotification                     = @"NCChatControllerDidSendChatMessageNotification";
 NSString * const NCChatControllerDidReceiveChatBlockedNotification                  = @"NCChatControllerDidReceiveChatBlockedNotification";
 NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification       = @"NCChatControllerDidReceiveNewerCommonReadMessageNotification";
+NSString * const NCChatControllerDidReceiveDeletedMessageNotification               = @"NCChatControllerDidReceiveDeletedMessageNotification";
 
 @interface NCChatController ()
 
@@ -478,6 +479,7 @@ NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification   
             return;
         }
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
+        [userInfo setObject:self->_room.token forKey:@"room"];
         if (error) {
             if ([self isChatBeingBlocked:statusCode]) {
                 [self notifyChatIsBlocked];
@@ -498,21 +500,26 @@ NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification   
                 NSArray *storedMessages = [self getNewStoredMessagesInBlock:lastChatBlock sinceMessageId:messageId];
                 [userInfo setObject:storedMessages forKey:@"messages"];
                 
-                // Update the current room with the new message
-                // The stored information about this room will be updated by calling savePendingMessage
-                // in NCChatViewController -> a transaction wouldn't make sense here, as it would be overriden again
                 for (NCChatMessage *message in storedMessages) {
+                    // Update the current room with the new message
+                    // The stored information about this room will be updated by calling savePendingMessage
+                    // in NCChatViewController -> a transaction wouldn't make sense here, as it would be overriden again
                     if (message.messageId == lastKnownMessage && message.timestamp > self->_room.lastActivity) {
                         self->_room.lastMessageId = message.internalId;
                         self->_room.lastActivity = message.timestamp;
                         self->_room.unreadMention = NO;
                         self->_room.unreadMessages = 0;
-                        break;
+                    }
+                    // Notify if "deleted messages" have been received
+                    if ([message.systemMessage isEqualToString:@"message_deleted"]) {
+                        [userInfo setObject:message forKey:@"deleteMessage"];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveDeletedMessageNotification
+                                                                            object:self
+                                                                          userInfo:userInfo];
                     }
                 }
             }
         }
-        [userInfo setObject:self->_room.token forKey:@"room"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
                                                             object:self
                                                           userInfo:userInfo];

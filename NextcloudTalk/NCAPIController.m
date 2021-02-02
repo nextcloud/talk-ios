@@ -916,9 +916,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"chat/%@/%ld", token, messageId]];
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NCChatMessage *message = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSDictionary *messageDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
-            block(message, nil);
+            block(messageDict, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
