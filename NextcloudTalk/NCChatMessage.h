@@ -34,7 +34,7 @@ extern NSString * const kMessageTypeCommentDeleted;
 extern NSString * const kMessageTypeSystem;
 extern NSString * const kMessageTypeCommand;
 
-@interface NCChatMessage : RLMObject
+@interface NCChatMessage : RLMObject <NSCopying>
 
 @property (nonatomic, strong) NSString *internalId; // accountId@token@messageId
 @property (nonatomic, strong) NSString *accountId;
@@ -54,6 +54,7 @@ extern NSString * const kMessageTypeCommand;
 @property (nonatomic, assign) BOOL isTemporary;
 @property (nonatomic, assign) BOOL sendingFailed;
 @property (nonatomic, assign) BOOL isGroupMessage;
+@property (nonatomic, assign) BOOL isDeleting;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;

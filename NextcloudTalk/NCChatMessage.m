@@ -119,6 +119,33 @@ NSString * const kMessageTypeCommand        = @"command";
     return @"internalId";
 }
 
+- (id)copyWithZone:(NSZone *)zone
+{
+    NCChatMessage *messageCopy = [[NCChatMessage alloc] init];
+    
+    messageCopy.internalId = [_internalId copyWithZone:zone];
+    messageCopy.accountId = [_accountId copyWithZone:zone];
+    messageCopy.actorDisplayName = [_actorDisplayName copyWithZone:zone];
+    messageCopy.actorId = [_actorId copyWithZone:zone];
+    messageCopy.actorType = [_actorType copyWithZone:zone];
+    messageCopy.messageId = _messageId;
+    messageCopy.message = [_message copyWithZone:zone];
+    messageCopy.messageParametersJSONString = [_messageParametersJSONString copyWithZone:zone];
+    messageCopy.timestamp = _timestamp;
+    messageCopy.token = [_token copyWithZone:zone];
+    messageCopy.systemMessage = [_systemMessage copyWithZone:zone];
+    messageCopy.isReplyable = _isReplyable;
+    messageCopy.parentId = [_parentId copyWithZone:zone];
+    messageCopy.referenceId = [_referenceId copyWithZone:zone];
+    messageCopy.messageType = [_messageType copyWithZone:zone];
+    messageCopy.isTemporary = _isTemporary;
+    messageCopy.sendingFailed = _sendingFailed;
+    messageCopy.isGroupMessage = _isGroupMessage;
+    messageCopy.isDeleting = _isDeleting;
+    
+    return messageCopy;
+}
+
 - (BOOL)isSystemMessage
 {
     if (self.systemMessage && ![self.systemMessage isEqualToString:@""]) {

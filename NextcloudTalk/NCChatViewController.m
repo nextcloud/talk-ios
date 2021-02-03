@@ -994,13 +994,34 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     if (message.sendingFailed) {
         [self removePermanentlyTemporaryMessage:message];
     } else {
+        // Set deleting state
+        NCChatMessage *deletingMessage = [message copy];
+        deletingMessage.message = NSLocalizedString(@"Deleting message", nil);
+        deletingMessage.isDeleting = YES;
+        [self updateMessageWithReferenceId:deletingMessage.referenceId withMessage:deletingMessage];
+        // Delete message
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        [[NCAPIController sharedInstance] deleteChatMessageInRoom:self->_room.token withMessageId:message.messageId forAccount:activeAccount withCompletionBlock:^(NSDictionary *messageDict, NSError *error) {
+        [[NCAPIController sharedInstance] deleteChatMessageInRoom:self->_room.token withMessageId:message.messageId forAccount:activeAccount withCompletionBlock:^(NSDictionary *messageDict, NSError *error, NSInteger statusCode) {
             if (!error && messageDict) {
+                if (statusCode == 202) {
+                    [self.view makeToast:NSLocalizedString(@"Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services", nil) duration:5 position:CSToastPositionCenter];
+                } else if (statusCode == 200) {
+                    [self.view makeToast:NSLocalizedString(@"Message deleted successfully", nil) duration:3 position:CSToastPositionCenter];
+                }
                 NCChatMessage *deleteMessage = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:activeAccount.accountId];
                 if (deleteMessage) {
                     [self updateMessageWithReferenceId:deleteMessage.referenceId withMessage:deleteMessage];
                 }
+            } else if (error) {
+                if (statusCode == 400) {
+                    [self.view makeToast:NSLocalizedString(@"Message could not be deleted because it is too old", nil) duration:5 position:CSToastPositionCenter];
+                } else if (statusCode == 405) {
+                    [self.view makeToast:NSLocalizedString(@"Only normal chat messages can be deleted", nil) duration:5 position:CSToastPositionCenter];
+                } else {
+                    [self.view makeToast:NSLocalizedString(@"An error occurred while deleting the message", nil) duration:5 position:CSToastPositionCenter];
+                }
+                // Set back original message on failure
+                [self updateMessageWithReferenceId:message.referenceId withMessage:message];
             }
         }];
     }

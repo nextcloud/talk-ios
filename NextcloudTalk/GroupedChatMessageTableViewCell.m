@@ -85,7 +85,9 @@
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     BOOL shouldShowReadStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     
-    if (message.sendingFailed) {
+    if (message.isDeleting) {
+        [self setDeliveryState:ChatMessageDeliveryStateDeleting];
+    } else if (message.sendingFailed) {
         [self setDeliveryState:ChatMessageDeliveryStateFailed];
     } else if (message.isTemporary){
         [self setDeliveryState:ChatMessageDeliveryStateSending];
@@ -102,7 +104,7 @@
 {
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
     
-    if (state == ChatMessageDeliveryStateSending) {
+    if (state == ChatMessageDeliveryStateSending || state == ChatMessageDeliveryStateDeleting) {
         MDCActivityIndicator *activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
         activityIndicator.radius = 7.0f;
         activityIndicator.cycleColors = @[UIColor.lightGrayColor];
