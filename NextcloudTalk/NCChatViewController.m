@@ -1185,7 +1185,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             }
             
             // Delete option
-            if (message.sendingFailed || [message isDeletableForUserId:[[NCDatabaseManager sharedInstance] activeAccount].accountId andParticipantType:_room.participantType]) {
+            if (message.sendingFailed || [message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType]) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionDelete) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Delete", nil) image:[UIImage imageNamed:@"delete"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
@@ -2284,7 +2284,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
 
     // Delete option
-    if (message.sendingFailed || [message isDeletableForUserId:[[NCDatabaseManager sharedInstance] activeAccount].accountId andParticipantType:_room.participantType]) {
+    if (message.sendingFailed || [message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType]) {
         UIImage *deleteImage = [[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
             

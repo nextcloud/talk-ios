@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <Realm/Realm.h>
+#import "NCDatabaseManager.h"
 #import "NCMessageParameter.h"
 #import "NCMessageFileParameter.h"
 #import "NCRoomParticipant.h"
@@ -62,7 +63,7 @@ extern NSString * const kMessageTypeCommand;
 
 - (BOOL)isSystemMessage;
 - (BOOL)isEmojiMessage;
-- (BOOL)isDeletableForUserId:(NSString *)userId andParticipantType:(NCParticipantType)participantType;
+- (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType;
 - (NCMessageFileParameter *)file;
 - (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;

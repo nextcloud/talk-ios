@@ -80,6 +80,7 @@ NSString * const kCapabilityCirclesSupport          = @"circles-support";
 NSString * const kCapabilityChatReferenceId         = @"chat-reference-id";
 NSString * const kCapabilityPhonebookSearch         = @"phonebook-search";
 NSString * const kCapabilityChatReadStatus          = @"chat-read-status";
+NSString * const kCapabilityDeleteMessages          = @"delete-messages";
 
 NSInteger const kDefaultChatMaxLength           = 1000;
 NSString * const kMinimumRequiredTalkCapability = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version

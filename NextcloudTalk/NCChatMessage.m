@@ -168,11 +168,12 @@ NSString * const kMessageTypeCommand        = @"command";
     return [self.actorId isEqualToString:userId] && [self.actorType isEqualToString:@"users"];
 }
 
-- (BOOL)isDeletableForUserId:(NSString *)userId andParticipantType:(NCParticipantType)participantType
+- (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType
 {
     NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
-    if ([self.messageType isEqualToString:kMessageTypeComment] && !self.file && self.timestamp >= sixHoursAgoTimestamp &&
-        (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:userId])) {
+    BOOL canServerDeleteMessages = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:account.accountId];
+    if ([self.messageType isEqualToString:kMessageTypeComment] && !self.file && self.timestamp >= sixHoursAgoTimestamp && canServerDeleteMessages &&
+        (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:account.userId])) {
         return YES;
     }
     
