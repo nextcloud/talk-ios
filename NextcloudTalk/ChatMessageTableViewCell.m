@@ -157,6 +157,7 @@
     
     self.message = nil;
     
+    self.statusView.hidden = NO;
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 
@@ -259,7 +260,9 @@
         self.quotedMessageView.messageLabel.text = message.parent.parsedMessage.string;
     }
     
-    if (message.sendingFailed) {
+    if (message.isDeleting) {
+        [self setDeliveryState:ChatMessageDeliveryStateDeleting];
+    } else if (message.sendingFailed) {
         [self setDeliveryState:ChatMessageDeliveryStateFailed];
     } else if (message.isTemporary){
         [self setDeliveryState:ChatMessageDeliveryStateSending];
@@ -268,6 +271,14 @@
             [self setDeliveryState:ChatMessageDeliveryStateRead];
         } else {
             [self setDeliveryState:ChatMessageDeliveryStateSent];
+        }
+    }
+    
+    if ([message.messageType isEqualToString:kMessageTypeCommentDeleted]) {
+        self.statusView.hidden = YES;
+        self.bodyTextView.textColor = [UIColor colorWithWhite:0 alpha:0.3];
+        if (@available(iOS 13.0, *)) {
+            self.bodyTextView.textColor = [UIColor tertiaryLabelColor];
         }
     }
     
@@ -296,7 +307,7 @@
 {
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
     
-    if (state == ChatMessageDeliveryStateSending) {
+    if (state == ChatMessageDeliveryStateSending || state == ChatMessageDeliveryStateDeleting) {
         MDCActivityIndicator *activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
         activityIndicator.radius = 7.0f;
         activityIndicator.cycleColors = @[UIColor.lightGrayColor];

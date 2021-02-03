@@ -28,6 +28,7 @@ typedef enum ChatMessageDeliveryState {
     ChatMessageDeliveryStateSent = 0,
     ChatMessageDeliveryStateRead,
     ChatMessageDeliveryStateSending,
+    ChatMessageDeliveryStateDeleting,
     ChatMessageDeliveryStateFailed
 } ChatMessageDeliveryState;
 

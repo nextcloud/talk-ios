@@ -994,13 +994,34 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     if (message.sendingFailed) {
         [self removePermanentlyTemporaryMessage:message];
     } else {
+        // Set deleting state
+        NCChatMessage *deletingMessage = [message copy];
+        deletingMessage.message = NSLocalizedString(@"Deleting message", nil);
+        deletingMessage.isDeleting = YES;
+        [self updateMessageWithReferenceId:deletingMessage.referenceId withMessage:deletingMessage];
+        // Delete message
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        [[NCAPIController sharedInstance] deleteChatMessageInRoom:self->_room.token withMessageId:message.messageId forAccount:activeAccount withCompletionBlock:^(NSDictionary *messageDict, NSError *error) {
+        [[NCAPIController sharedInstance] deleteChatMessageInRoom:self->_room.token withMessageId:message.messageId forAccount:activeAccount withCompletionBlock:^(NSDictionary *messageDict, NSError *error, NSInteger statusCode) {
             if (!error && messageDict) {
+                if (statusCode == 202) {
+                    [self.view makeToast:NSLocalizedString(@"Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services", nil) duration:5 position:CSToastPositionCenter];
+                } else if (statusCode == 200) {
+                    [self.view makeToast:NSLocalizedString(@"Message deleted successfully", nil) duration:3 position:CSToastPositionCenter];
+                }
                 NCChatMessage *deleteMessage = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:activeAccount.accountId];
                 if (deleteMessage) {
                     [self updateMessageWithReferenceId:deleteMessage.referenceId withMessage:deleteMessage];
                 }
+            } else if (error) {
+                if (statusCode == 400) {
+                    [self.view makeToast:NSLocalizedString(@"Message could not be deleted because it is too old", nil) duration:5 position:CSToastPositionCenter];
+                } else if (statusCode == 405) {
+                    [self.view makeToast:NSLocalizedString(@"Only normal chat messages can be deleted", nil) duration:5 position:CSToastPositionCenter];
+                } else {
+                    [self.view makeToast:NSLocalizedString(@"An error occurred while deleting the message", nil) duration:5 position:CSToastPositionCenter];
+                }
+                // Set back original message on failure
+                [self updateMessageWithReferenceId:message.referenceId withMessage:message];
             }
         }];
     }
@@ -1128,7 +1149,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             
             NSMutableArray *menuArray = [NSMutableArray new];
             // Reply option
-            if (message.isReplyable && !_offlineMode) {
+            if (message.isReplyable && !message.isDeleting && !_offlineMode) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
@@ -1164,7 +1185,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             }
             
             // Delete option
-            if (message.sendingFailed || [message isDeletableForUserId:[[NCDatabaseManager sharedInstance] activeAccount].accountId andParticipantType:_room.participantType]) {
+            if (message.sendingFailed || [message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType]) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionDelete) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Delete", nil) image:[UIImage imageNamed:@"delete"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
@@ -2206,7 +2227,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     
     // Reply option
-    if (message.isReplyable && !_offlineMode) {
+    if (message.isReplyable && !message.isDeleting && !_offlineMode) {
         UIImage *replyImage = [[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *replyAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply", nil) image:replyImage identifier:nil handler:^(UIAction *action){
             
@@ -2263,7 +2284,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
 
     // Delete option
-    if (message.sendingFailed || [message isDeletableForUserId:[[NCDatabaseManager sharedInstance] activeAccount].accountId andParticipantType:_room.participantType]) {
+    if (message.sendingFailed || [message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType]) {
         UIImage *deleteImage = [[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
             

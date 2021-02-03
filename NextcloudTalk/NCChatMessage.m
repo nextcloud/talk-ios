@@ -29,7 +29,7 @@
 NSInteger const kChatMessageGroupTimeDifference = 30;
 
 NSString * const kMessageTypeComment        = @"comment";
-NSString * const kMessageTypeCommentDeleted = @"comment-deleted";
+NSString * const kMessageTypeCommentDeleted = @"comment_deleted";
 NSString * const kMessageTypeSystem         = @"system";
 NSString * const kMessageTypeCommand        = @"command";
 
@@ -119,6 +119,33 @@ NSString * const kMessageTypeCommand        = @"command";
     return @"internalId";
 }
 
+- (id)copyWithZone:(NSZone *)zone
+{
+    NCChatMessage *messageCopy = [[NCChatMessage alloc] init];
+    
+    messageCopy.internalId = [_internalId copyWithZone:zone];
+    messageCopy.accountId = [_accountId copyWithZone:zone];
+    messageCopy.actorDisplayName = [_actorDisplayName copyWithZone:zone];
+    messageCopy.actorId = [_actorId copyWithZone:zone];
+    messageCopy.actorType = [_actorType copyWithZone:zone];
+    messageCopy.messageId = _messageId;
+    messageCopy.message = [_message copyWithZone:zone];
+    messageCopy.messageParametersJSONString = [_messageParametersJSONString copyWithZone:zone];
+    messageCopy.timestamp = _timestamp;
+    messageCopy.token = [_token copyWithZone:zone];
+    messageCopy.systemMessage = [_systemMessage copyWithZone:zone];
+    messageCopy.isReplyable = _isReplyable;
+    messageCopy.parentId = [_parentId copyWithZone:zone];
+    messageCopy.referenceId = [_referenceId copyWithZone:zone];
+    messageCopy.messageType = [_messageType copyWithZone:zone];
+    messageCopy.isTemporary = _isTemporary;
+    messageCopy.sendingFailed = _sendingFailed;
+    messageCopy.isGroupMessage = _isGroupMessage;
+    messageCopy.isDeleting = _isDeleting;
+    
+    return messageCopy;
+}
+
 - (BOOL)isSystemMessage
 {
     if (self.systemMessage && ![self.systemMessage isEqualToString:@""]) {
@@ -141,11 +168,12 @@ NSString * const kMessageTypeCommand        = @"command";
     return [self.actorId isEqualToString:userId] && [self.actorType isEqualToString:@"users"];
 }
 
-- (BOOL)isDeletableForUserId:(NSString *)userId andParticipantType:(NCParticipantType)participantType
+- (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType
 {
     NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
-    if ([self.messageType isEqualToString:kMessageTypeComment] && !self.file && self.timestamp >= sixHoursAgoTimestamp &&
-        (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:userId])) {
+    BOOL canServerDeleteMessages = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:account.accountId];
+    if ([self.messageType isEqualToString:kMessageTypeComment] && !self.isDeleting && !self.file && self.timestamp >= sixHoursAgoTimestamp && canServerDeleteMessages &&
+        (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:account.userId])) {
         return YES;
     }
     

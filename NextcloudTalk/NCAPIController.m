@@ -913,16 +913,18 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSURLSessionDataTask *)deleteChatMessageInRoom:(NSString *)token withMessageId:(NSInteger)messageId forAccount:(TalkAccount *)account withCompletionBlock:(DeleteChatMessageCompletionBlock)block
 {
-    NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"chat/%@/%ld", token, messageId]];
+    NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"chat/%@/%ld", token, (long)messageId]];
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *messageDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
-            block(messageDict, nil);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            block(messageDict, nil, httpResponse.statusCode);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
-            block(nil, error);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            block(nil, error, httpResponse.statusCode);
         }
     }];
     
