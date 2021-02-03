@@ -1149,7 +1149,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             
             NSMutableArray *menuArray = [NSMutableArray new];
             // Reply option
-            if (message.isReplyable && !_offlineMode) {
+            if (message.isReplyable && !message.isDeleting && !_offlineMode) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
@@ -2227,7 +2227,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     
     // Reply option
-    if (message.isReplyable && !_offlineMode) {
+    if (message.isReplyable && !message.isDeleting && !_offlineMode) {
         UIImage *replyImage = [[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *replyAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply", nil) image:replyImage identifier:nil handler:^(UIAction *action){
             

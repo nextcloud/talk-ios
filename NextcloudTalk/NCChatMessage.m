@@ -172,7 +172,7 @@ NSString * const kMessageTypeCommand        = @"command";
 {
     NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
     BOOL canServerDeleteMessages = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:account.accountId];
-    if ([self.messageType isEqualToString:kMessageTypeComment] && !self.file && self.timestamp >= sixHoursAgoTimestamp && canServerDeleteMessages &&
+    if ([self.messageType isEqualToString:kMessageTypeComment] && !self.isDeleting && !self.file && self.timestamp >= sixHoursAgoTimestamp && canServerDeleteMessages &&
         (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:account.userId])) {
         return YES;
     }
