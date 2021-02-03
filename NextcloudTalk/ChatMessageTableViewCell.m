@@ -157,6 +157,7 @@
     
     self.message = nil;
     
+    self.statusView.hidden = NO;
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 
@@ -270,6 +271,14 @@
             [self setDeliveryState:ChatMessageDeliveryStateRead];
         } else {
             [self setDeliveryState:ChatMessageDeliveryStateSent];
+        }
+    }
+    
+    if ([message.messageType isEqualToString:kMessageTypeCommentDeleted]) {
+        self.statusView.hidden = YES;
+        self.bodyTextView.textColor = [UIColor colorWithWhite:0 alpha:0.3];
+        if (@available(iOS 13.0, *)) {
+            self.bodyTextView.textColor = [UIColor tertiaryLabelColor];
         }
     }
     

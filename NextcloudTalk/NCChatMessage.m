@@ -29,7 +29,7 @@
 NSInteger const kChatMessageGroupTimeDifference = 30;
 
 NSString * const kMessageTypeComment        = @"comment";
-NSString * const kMessageTypeCommentDeleted = @"comment-deleted";
+NSString * const kMessageTypeCommentDeleted = @"comment_deleted";
 NSString * const kMessageTypeSystem         = @"system";
 NSString * const kMessageTypeCommand        = @"command";
 
