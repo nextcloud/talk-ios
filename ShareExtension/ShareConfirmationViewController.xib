@@ -21,7 +21,7 @@
                 <outlet property="shareCollectionView" destination="uJR-VI-6WE" id="5ga-Ah-u1s"/>
                 <outlet property="shareTextView" destination="QKC-YS-SNr" id="EY7-7j-ubB"/>
                 <outlet property="toBackgroundView" destination="ZlP-A7-sH2" id="DFl-6K-ybn"/>
-                <outlet property="toTextView" destination="zFH-sS-bfQ" id="coA-l6-J3O"/>
+                <outlet property="toLabel" destination="mm0-cN-5LW" id="7Fe-4v-QNH"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -37,13 +37,13 @@
                         <constraint firstAttribute="height" constant="36" id="6e8-hc-OT7"/>
                     </constraints>
                 </view>
-                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" text="To:" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zFH-sS-bfQ">
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mm0-cN-5LW">
                     <rect key="frame" x="20" y="0.0" width="374" height="36"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                    <color key="textColor" systemColor="labelColor"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                </textView>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
                 <textView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="QKC-YS-SNr">
                     <rect key="frame" x="20" y="56" width="374" height="698"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>

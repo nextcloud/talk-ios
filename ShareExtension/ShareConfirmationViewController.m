@@ -132,7 +132,7 @@
     NSString *localizedToString = NSLocalizedString(@"To:", @"TRANSLATORS this is for sending something 'to' a user. Eg. 'To: John Doe'");
     NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ %@", localizedToString, _room.displayName] attributes:attributes];
     [toString addAttributes:subAttribute range:NSMakeRange(0, [localizedToString length])];
-    self.toTextView.attributedText = toString;
+    self.toLabel.attributedText = toString;
     
     // Toolbar section
     [self.removeItemButton setEnabled:([self.shareItemController.shareItems count] > 1)];

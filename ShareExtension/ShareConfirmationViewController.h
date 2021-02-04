@@ -57,7 +57,7 @@ typedef enum ShareConfirmationType {
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomSpacer;
 @property (weak, nonatomic) IBOutlet UIView *toBackgroundView;
-@property (weak, nonatomic) IBOutlet UITextView *toTextView;
+@property (weak, nonatomic) IBOutlet UILabel *toLabel;
 @property (weak, nonatomic) IBOutlet UITextView *shareTextView;
 @property (weak, nonatomic) IBOutlet UICollectionView *shareCollectionView;
 @property (weak, nonatomic) IBOutlet UIPageControl *pageControl;
