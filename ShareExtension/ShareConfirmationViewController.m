@@ -146,11 +146,8 @@
     NSBundle *bundle = [NSBundle bundleForClass:[ShareConfirmationCollectionViewCell class]];
     [self.shareCollectionView registerNib:[UINib nibWithNibName:kShareConfirmationTableCellNibName bundle:bundle] forCellWithReuseIdentifier:kShareConfirmationCellIdentifier];
     
-    [[NSNotificationCenter defaultCenter]
-                         addObserver:self
-                            selector:@selector(keyboardWillShow:)
-                                name:UIKeyboardWillShowNotification
-                              object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
     
     _type = ShareConfirmationTypeItem;
 }
@@ -183,6 +180,11 @@
         [self scrollToItem:currentItem animated:NO];
         [self.shareCollectionView setHidden:NO];
     }];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Button Actions
@@ -579,19 +581,27 @@
 }
 
 -(void)keyboardWillShow:(NSNotification *)notification
- {
-     // see https://stackoverflow.com/a/22719225/2512312
-     NSDictionary *info = notification.userInfo;
-     NSValue *value = info[UIKeyboardFrameEndUserInfoKey];
+{
+    // see https://stackoverflow.com/a/22719225/2512312
+    NSDictionary *info = notification.userInfo;
+    NSValue *value = info[UIKeyboardFrameEndUserInfoKey];
+    
+    CGRect rawFrame = [value CGRectValue];
+    CGRect keyboardFrame = [self.view convertRect:rawFrame fromView:nil];
+    
+    [UIView animateWithDuration:0.3 animations:^{
+        self.bottomSpacer.constant = keyboardFrame.size.height;
+        [self.view layoutIfNeeded];
+    }];
+}
 
-     CGRect rawFrame = [value CGRectValue];
-     CGRect keyboardFrame = [self.view convertRect:rawFrame fromView:nil];
-     
-     [UIView animateWithDuration:0.3 animations:^{
-         self.bottomSpacer.constant = keyboardFrame.size.height;
-         [self.view layoutIfNeeded];
-     }];
- }
+-(void)keyboardDidHide:(NSNotification *)notification
+{
+    [UIView animateWithDuration:0.3 animations:^{
+        self.bottomSpacer.constant = 0;
+        [self.view layoutIfNeeded];
+    }];
+}
 
 - (void)updateToolbarForCurrentItem
 {
