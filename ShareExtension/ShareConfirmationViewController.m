@@ -163,6 +163,28 @@
     }
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    if (_type == ShareConfirmationTypeText) {
+        return;
+    }
+    
+    // Hide the collection view
+    [self.shareCollectionView setHidden:YES];
+    // Invalidate layout to remove warning about item size must be less than UICollectionView
+    [self.shareCollectionView.collectionViewLayout invalidateLayout];
+    ShareItem *currentItem =  [self getCurrentShareItem];
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        // Invalidate the view now so cell size is correctly calculated
+        // The size of the collection view is correct at this moment
+        [self.shareCollectionView.collectionViewLayout invalidateLayout];
+    } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        // Scroll to the element and make collection view appear
+        [self scrollToItem:currentItem animated:NO];
+        [self.shareCollectionView setHidden:NO];
+    }];
+}
+
 #pragma mark - Button Actions
 
 - (void)cancelButtonPressed
@@ -703,7 +725,6 @@
     [self previewCurrentItem];
 }
 
-
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     [self updatePageControlPage];
@@ -716,10 +737,10 @@
 
 - (void)collectionViewScrollToEnd
 {
-    [self scrollToItem:self.shareItemController.shareItems.lastObject];
+    [self scrollToItem:self.shareItemController.shareItems.lastObject animated:YES];
 }
 
-- (void)scrollToItem:(ShareItem *)item
+- (void)scrollToItem:(ShareItem *)item animated:(BOOL)animated
 {
     if (!item) {
         return;
@@ -732,7 +753,7 @@
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:indexForItem inSection:0];
             [self.shareCollectionView scrollToItemAtIndexPath:indexPath
                                              atScrollPosition:UICollectionViewScrollPositionNone
-                                                     animated:YES];
+                                                     animated:animated];
         }
     });
 }
@@ -865,7 +886,7 @@
         [self.shareItemController updateItem:item withImage:image];
         
         // Fixes bug on iPad where collectionView is scrolled between two pages
-        [self scrollToItem:item];
+        [self scrollToItem:item animated:YES];
     }
 
     // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
@@ -879,7 +900,7 @@
     
     if (item) {
         // Fixes bug on iPad where collectionView is scrolled between two pages
-        [self scrollToItem:item];
+        [self scrollToItem:item animated:YES];
     }
     
     // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
