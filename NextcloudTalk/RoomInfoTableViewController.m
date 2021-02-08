@@ -1466,7 +1466,8 @@ typedef enum FileAction {
             
             // InCall status
             if (participant.inCall) {
-                cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"videocall-indicator"]];
+                cell.accessoryView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"video"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                [cell.accessoryView setTintColor:[NCAppBranding placeholderColor]];
             } else {
                 cell.accessoryView = nil;
             }

@@ -235,8 +235,8 @@
                                    style:UIAlertActionStyleCancel
                                    handler:nil];
     
-    [joinAudioButton setValue:[[UIImage imageNamed:@"call-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [joinVideoButton setValue:[[UIImage imageNamed:@"videocall-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [joinAudioButton setValue:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [joinVideoButton setValue:[[UIImage imageNamed:@"video"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
     [alert addAction:joinAudioButton];
     [alert addAction:joinVideoButton];

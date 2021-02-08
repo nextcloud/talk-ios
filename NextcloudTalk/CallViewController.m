@@ -905,7 +905,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_chatViewController didMoveToParentViewController:self];
         
         _chatButton.backgroundColor = [UIColor lightGrayColor];
-        [_chatButton setImage:[UIImage imageNamed:@"call-white"] forState:UIControlStateNormal];
+        [_chatButton setImage:[UIImage imageNamed:@"phone"] forState:UIControlStateNormal];
         
         [self setHaloToChatButton];
         

@@ -461,8 +461,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)configureActionItems
 {
-    UIImage *videoCallImage = [[UIImage imageNamed:@"videocall-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    UIImage *voiceCallImage = [[UIImage imageNamed:@"call-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIImage *videoCallImage = [[UIImage imageNamed:@"video"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIImage *voiceCallImage = [[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     
     CGFloat buttonWidth = 24.0;
     CGFloat buttonPadding = 30.0;
