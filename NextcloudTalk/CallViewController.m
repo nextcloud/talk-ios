@@ -50,7 +50,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallStateInCall
 };
 
-@interface CallViewController () <NCCallControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, RTCEAGLVideoViewDelegate, CallParticipantViewCellDelegate, UIGestureRecognizerDelegate>
+@interface CallViewController () <NCCallControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, RTCVideoViewDelegate, CallParticipantViewCellDelegate, UIGestureRecognizerDelegate>
 {
     CallState _callState;
     NSMutableArray *_peersInCall;
@@ -1239,7 +1239,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
-#pragma mark - RTCEAGLVideoViewDelegate
+#pragma mark - RTCVideoViewDelegate
 
 - (void)videoView:(RTCEAGLVideoView*)videoView didChangeVideoSize:(CGSize)size
 {
