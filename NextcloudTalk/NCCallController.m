@@ -399,13 +399,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 #pragma mark - Audio & Video senders
 
 - (void)createLocalAudioTrack
-{
-    NSDictionary *mandatoryConstraints = @{ kRTCMediaConstraintsLevelControl : kRTCMediaConstraintsValueTrue };
-    RTCMediaConstraints *constraints =
-    [[RTCMediaConstraints alloc] initWithMandatoryConstraints:mandatoryConstraints
-                                          optionalConstraints:nil];
-    
-    RTCAudioSource *source = [_peerConnectionFactory audioSourceWithConstraints:constraints];
+{    
+    RTCAudioSource *source = [_peerConnectionFactory audioSourceWithConstraints:nil];
     _localAudioTrack = [_peerConnectionFactory audioTrackWithSource:source trackId:kNCAudioTrackId];
     [_localStream addAudioTrack:_localAudioTrack];
 }
