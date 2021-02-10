@@ -155,11 +155,12 @@
     _localDataChannel = [_peerConnection dataChannelForLabel:@"status" configuration:config];
     _localDataChannel.delegate = self;
     [_peerConnection offerForConstraints:[self defaultOfferConstraints] completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
+        RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sdp preferredVideoCodec:@"H264"];
         __weak NCPeerConnection *weakSelf = self;
-        [self->_peerConnection setLocalDescription:sdp completionHandler:^(NSError *error) {
+        [self->_peerConnection setLocalDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
             NCPeerConnection *strongSelf = weakSelf;
             if (strongSelf) {
-                [strongSelf.delegate peerConnection:strongSelf needsToSendSessionDescription:sdp];
+                [strongSelf.delegate peerConnection:strongSelf needsToSendSessionDescription:sdpPreferringCodec];
             }
         }];
     }];
@@ -173,11 +174,12 @@
     _localDataChannel = [_peerConnection dataChannelForLabel:@"status" configuration:config];
     _localDataChannel.delegate = self;
     [_peerConnection offerForConstraints:[self mcuOfferConstraints] completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
+        RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sdp preferredVideoCodec:@"H264"];
         __weak NCPeerConnection *weakSelf = self;
-        [self->_peerConnection setLocalDescription:sdp completionHandler:^(NSError *error) {
+        [self->_peerConnection setLocalDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
             NCPeerConnection *strongSelf = weakSelf;
             if (strongSelf) {
-                [strongSelf.delegate peerConnection:strongSelf needsToSendSessionDescription:sdp];
+                [strongSelf.delegate peerConnection:strongSelf needsToSendSessionDescription:sdpPreferringCodec];
             }
         }];
     }];
