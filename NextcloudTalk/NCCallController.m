@@ -31,6 +31,8 @@
 #import <WebRTC/RTCVideoTrack.h>
 #import <WebRTC/RTCVideoCapturer.h>
 #import <WebRTC/RTCCameraVideoCapturer.h>
+#import <WebRTC/RTCDefaultVideoEncoderFactory.h>
+#import <WebRTC/RTCDefaultVideoDecoderFactory.h>
 #import "NCAPIController.h"
 #import "NCAudioController.h"
 #import "NCSettingsController.h"
@@ -83,7 +85,9 @@ static NSString * const kNCVideoTrackKind = @"video";
         _room = room;
         _isAudioOnly = audioOnly;
         _userSessionId = sessionId;
-        _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] init];
+        RTCDefaultVideoEncoderFactory *encoderFactory = [[RTCDefaultVideoEncoderFactory alloc] init];
+        RTCDefaultVideoDecoderFactory *decoderFactory = [[RTCDefaultVideoDecoderFactory alloc] init];
+        _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] initWithEncoderFactory:encoderFactory decoderFactory:decoderFactory];
         _connectionsDict = [[NSMutableDictionary alloc] init];
         _pendingOffersDict = [[NSMutableDictionary alloc] init];
         _usersInRoom = [[NSArray alloc] init];

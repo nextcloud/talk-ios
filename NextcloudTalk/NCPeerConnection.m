@@ -30,6 +30,8 @@
 #import <WebRTC/RTCPeerConnectionFactory.h>
 #import <WebRTC/RTCMediaConstraints.h>
 #import <WebRTC/RTCMediaStream.h>
+#import <WebRTC/RTCDefaultVideoEncoderFactory.h>
+#import <WebRTC/RTCDefaultVideoDecoderFactory.h>
 
 
 @interface NCPeerConnection () <RTCPeerConnectionDelegate, RTCDataChannelDelegate>
@@ -46,7 +48,9 @@
     self = [super init];
     
     if (self) {
-        _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] init];
+        RTCDefaultVideoEncoderFactory *encoderFactory = [[RTCDefaultVideoEncoderFactory alloc] init];
+        RTCDefaultVideoDecoderFactory *decoderFactory = [[RTCDefaultVideoDecoderFactory alloc] init];
+        _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] initWithEncoderFactory:encoderFactory decoderFactory:decoderFactory];
         
         RTCMediaConstraints* constraints = [[RTCMediaConstraints alloc]
                                             initWithMandatoryConstraints:nil
