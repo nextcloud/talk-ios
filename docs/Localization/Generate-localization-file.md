@@ -4,7 +4,7 @@
 
 ```
 $ cd NextcloudTalk
-$ genstrings -o en.lproj *.m ../ShareExtension/*.m ../NotificationServiceExtension/*.m ../ThirdParty/SlackTextViewController/Source/*.m
+$ genstrings -o en.lproj *.m ../ShareExtension/*.m ../NotificationServiceExtension/*.m ../ThirdParty/SlackTextViewController/Source/*.m ../ThirdParty/AppRTC/*.m
 ```
 
 ## Showing .strings file diff

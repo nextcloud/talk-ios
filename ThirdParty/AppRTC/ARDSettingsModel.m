@@ -45,13 +45,13 @@ static NSArray<NSString *> *videoCodecsStaticValues() {
 - (NSString *)readableResolution:(NSString *)resolution {
     NSString *readableResolution = NSLocalizedString(@"Unknown", nil);
     if ([resolution isEqualToString:videoResolutionsStaticValues()[0]]) {
-        readableResolution = NSLocalizedString(@"Low", nil);
+        readableResolution = NSLocalizedString(@"Low", @"TRANSLATORS this is a video quality option (Video quality : Low)");
     } else if ([resolution isEqualToString:videoResolutionsStaticValues()[1]]) {
-        readableResolution = NSLocalizedString(@"Normal", nil);
+        readableResolution = NSLocalizedString(@"Normal", @"TRANSLATORS this is a video quality option (Video quality : Normal)");
     } else if ([resolution isEqualToString:videoResolutionsStaticValues()[2]]) {
-        readableResolution = NSLocalizedString(@"High", nil);
+        readableResolution = NSLocalizedString(@"High", @"TRANSLATORS this is a video quality option (Video quality : High)");
     } else if ([resolution isEqualToString:videoResolutionsStaticValues()[3]]) {
-        readableResolution = NSLocalizedString(@"HD", nil);
+        readableResolution = NSLocalizedString(@"HD", @"TRANSLATORS this is a video quality option (Video quality : HD)");
     }
     return readableResolution;
 }
