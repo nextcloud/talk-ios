@@ -146,11 +146,8 @@
     NSBundle *bundle = [NSBundle bundleForClass:[ShareConfirmationCollectionViewCell class]];
     [self.shareCollectionView registerNib:[UINib nibWithNibName:kShareConfirmationTableCellNibName bundle:bundle] forCellWithReuseIdentifier:kShareConfirmationCellIdentifier];
     
-    [[NSNotificationCenter defaultCenter]
-                         addObserver:self
-                            selector:@selector(keyboardWillShow:)
-                                name:UIKeyboardWillShowNotification
-                              object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
     
     _type = ShareConfirmationTypeItem;
 }
@@ -161,6 +158,33 @@
         [self.itemToolbar setHidden:YES];
         [self.shareTextView becomeFirstResponder];
     }
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    if (_type == ShareConfirmationTypeText) {
+        return;
+    }
+    
+    // Hide the collection view
+    [self.shareCollectionView setHidden:YES];
+    // Invalidate layout to remove warning about item size must be less than UICollectionView
+    [self.shareCollectionView.collectionViewLayout invalidateLayout];
+    ShareItem *currentItem =  [self getCurrentShareItem];
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        // Invalidate the view now so cell size is correctly calculated
+        // The size of the collection view is correct at this moment
+        [self.shareCollectionView.collectionViewLayout invalidateLayout];
+    } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        // Scroll to the element and make collection view appear
+        [self scrollToItem:currentItem animated:NO];
+        [self.shareCollectionView setHidden:NO];
+    }];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Button Actions
@@ -557,19 +581,27 @@
 }
 
 -(void)keyboardWillShow:(NSNotification *)notification
- {
-     // see https://stackoverflow.com/a/22719225/2512312
-     NSDictionary *info = notification.userInfo;
-     NSValue *value = info[UIKeyboardFrameEndUserInfoKey];
+{
+    // see https://stackoverflow.com/a/22719225/2512312
+    NSDictionary *info = notification.userInfo;
+    NSValue *value = info[UIKeyboardFrameEndUserInfoKey];
+    
+    CGRect rawFrame = [value CGRectValue];
+    CGRect keyboardFrame = [self.view convertRect:rawFrame fromView:nil];
+    
+    [UIView animateWithDuration:0.3 animations:^{
+        self.bottomSpacer.constant = keyboardFrame.size.height;
+        [self.view layoutIfNeeded];
+    }];
+}
 
-     CGRect rawFrame = [value CGRectValue];
-     CGRect keyboardFrame = [self.view convertRect:rawFrame fromView:nil];
-     
-     [UIView animateWithDuration:0.3 animations:^{
-         self.bottomSpacer.constant = keyboardFrame.size.height;
-         [self.view layoutIfNeeded];
-     }];
- }
+-(void)keyboardDidHide:(NSNotification *)notification
+{
+    [UIView animateWithDuration:0.3 animations:^{
+        self.bottomSpacer.constant = 0;
+        [self.view layoutIfNeeded];
+    }];
+}
 
 - (void)updateToolbarForCurrentItem
 {
@@ -703,7 +735,6 @@
     [self previewCurrentItem];
 }
 
-
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     [self updatePageControlPage];
@@ -716,10 +747,10 @@
 
 - (void)collectionViewScrollToEnd
 {
-    [self scrollToItem:self.shareItemController.shareItems.lastObject];
+    [self scrollToItem:self.shareItemController.shareItems.lastObject animated:YES];
 }
 
-- (void)scrollToItem:(ShareItem *)item
+- (void)scrollToItem:(ShareItem *)item animated:(BOOL)animated
 {
     if (!item) {
         return;
@@ -732,7 +763,7 @@
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:indexForItem inSection:0];
             [self.shareCollectionView scrollToItemAtIndexPath:indexPath
                                              atScrollPosition:UICollectionViewScrollPositionNone
-                                                     animated:YES];
+                                                     animated:animated];
         }
     });
 }
@@ -865,7 +896,7 @@
         [self.shareItemController updateItem:item withImage:image];
         
         // Fixes bug on iPad where collectionView is scrolled between two pages
-        [self scrollToItem:item];
+        [self scrollToItem:item animated:YES];
     }
 
     // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
@@ -879,7 +910,7 @@
     
     if (item) {
         // Fixes bug on iPad where collectionView is scrolled between two pages
-        [self scrollToItem:item];
+        [self scrollToItem:item animated:YES];
     }
     
     // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
