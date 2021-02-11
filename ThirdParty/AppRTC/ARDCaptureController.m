@@ -12,6 +12,8 @@
 
 #import "ARDSettingsModel.h"
 
+const Float64 kFramerateLimit = 30.0;
+
 @implementation ARDCaptureController {
   RTCCameraVideoCapturer *_capturer;
   ARDSettingsModel *_settings;
@@ -86,7 +88,7 @@
   for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges) {
     maxFramerate = fmax(maxFramerate, fpsRange.maxFrameRate);
   }
-  return maxFramerate;
+  return fmin(maxFramerate, kFramerateLimit);
 }
 
 @end
