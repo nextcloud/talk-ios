@@ -102,7 +102,7 @@
         _messageLabel.translatesAutoresizingMaskIntoConstraints = NO;
         _messageLabel.backgroundColor = [UIColor clearColor];
         _messageLabel.userInteractionEnabled = NO;
-        _messageLabel.numberOfLines = 1;
+        _messageLabel.numberOfLines = 0;
         _messageLabel.contentMode = UIViewContentModeLeft;
         
         _messageLabel.font = [UIFont systemFontOfSize:14.0];
