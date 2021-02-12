@@ -56,8 +56,8 @@
                             @"messageLabel": self.messageLabel
                             };
     
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quoteView(4)]-[actorLabel]|" options:0 metrics:nil views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quoteView(4)]-[messageLabel]|" options:0 metrics:nil views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quoteView(4)]-[actorLabel]-|" options:0 metrics:nil views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quoteView(4)]-[messageLabel]-|" options:0 metrics:nil views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quoteView(50)]|" options:0 metrics:nil views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-5-[actorLabel(18)]-4-[messageLabel(18)]-5-|" options:0 metrics:nil views:views]];
 }
@@ -70,7 +70,10 @@
     if (!_quoteView) {
         _quoteView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 4, 50)];
         _quoteView.translatesAutoresizingMaskIntoConstraints = NO;
-        _quoteView.backgroundColor = [NCAppBranding themeColor];
+        _quoteView.backgroundColor = [UIColor lightGrayColor];
+        if (@available(iOS 13.0, *)) {
+            _quoteView.backgroundColor = [UIColor systemFillColor];
+        }
     }
     return _quoteView;
 }
@@ -102,7 +105,7 @@
         _messageLabel.translatesAutoresizingMaskIntoConstraints = NO;
         _messageLabel.backgroundColor = [UIColor clearColor];
         _messageLabel.userInteractionEnabled = NO;
-        _messageLabel.numberOfLines = 1;
+        _messageLabel.numberOfLines = 0;
         _messageLabel.contentMode = UIViewContentModeLeft;
         
         _messageLabel.font = [UIFont systemFontOfSize:14.0];
@@ -113,6 +116,22 @@
         }
     }
     return _messageLabel;
+}
+
+#pragma mark - Setters
+
+- (void)setHighlighted:(BOOL)highlighted
+{
+    _highlighted = highlighted;
+    
+    if (_highlighted) {
+        _quoteView.backgroundColor = [NCAppBranding themeColor];
+    } else {
+        _quoteView.backgroundColor = [UIColor lightGrayColor];
+        if (@available(iOS 13.0, *)) {
+            _quoteView.backgroundColor = [UIColor systemFillColor];
+        }
+    }
 }
 
 

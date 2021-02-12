@@ -63,6 +63,7 @@ extern NSString * const kMessageTypeCommand;
 
 - (BOOL)isSystemMessage;
 - (BOOL)isEmojiMessage;
+- (BOOL)isMessageFromUser:(NSString *)userId;
 - (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType;
 - (NCMessageFileParameter *)file;
 - (NSDictionary *)messageParameters;

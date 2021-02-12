@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) UILabel *actorLabel;
 @property (nonatomic, strong) UILabel *messageLabel;
+@property (nonatomic, assign) BOOL highlighted;
 
 @end
 

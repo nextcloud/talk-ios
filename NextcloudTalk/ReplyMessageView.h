@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NCChatMessage *message;
 @property (nonatomic, strong) QuotedMessageView *quotedMessageView;
 
-- (void)presentReplyViewWithMessage:(NCChatMessage *)message;
+- (void)presentReplyViewWithMessage:(NCChatMessage *)message withUserId:(NSString *)userId;
 - (void)dismiss;
 
 @end
