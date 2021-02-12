@@ -70,7 +70,10 @@
     if (!_quoteView) {
         _quoteView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 4, 50)];
         _quoteView.translatesAutoresizingMaskIntoConstraints = NO;
-        _quoteView.backgroundColor = [NCAppBranding themeColor];
+        _quoteView.backgroundColor = [UIColor lightGrayColor];
+        if (@available(iOS 13.0, *)) {
+            _quoteView.backgroundColor = [UIColor systemFillColor];
+        }
     }
     return _quoteView;
 }
@@ -113,6 +116,22 @@
         }
     }
     return _messageLabel;
+}
+
+#pragma mark - Setters
+
+- (void)setHighlighted:(BOOL)highlighted
+{
+    _highlighted = highlighted;
+    
+    if (_highlighted) {
+        _quoteView.backgroundColor = [NCAppBranding themeColor];
+    } else {
+        _quoteView.backgroundColor = [UIColor lightGrayColor];
+        if (@available(iOS 13.0, *)) {
+            _quoteView.backgroundColor = [UIColor systemFillColor];
+        }
+    }
 }
 
 

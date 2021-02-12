@@ -154,7 +154,7 @@
 
 #pragma mark - ReplyMessageView
 
-- (void)presentReplyViewWithMessage:(NCChatMessage *)message
+- (void)presentReplyViewWithMessage:(NCChatMessage *)message withUserId:(NSString *)userId
 {
     if (!message) {
         return;
@@ -163,6 +163,7 @@
     self.message = message;
     self.quotedMessageView.actorLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
     self.quotedMessageView.messageLabel.text = message.parsedMessage.string;
+    self.quotedMessageView.highlighted = [message isMessageFromUser:userId];
     
     self.visible = YES;
 }
