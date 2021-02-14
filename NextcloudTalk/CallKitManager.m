@@ -38,11 +38,15 @@ NSString * const CallKitManagerDidStartCallNotification         = @"CallKitManag
 NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManagerDidChangeAudioMuteNotification";
 NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManagerWantsToUpgradeToVideoCall";
 
+NSTimeInterval const kCallKitManagerMaxRingingTimeSeconds       = 45.0;
+NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 3.0;
+
 @interface CallKitManager () <CXProviderDelegate>
 
 @property (nonatomic, strong) CXProvider *provider;
 @property (nonatomic, strong) CXCallController *callController;
 @property (nonatomic, strong) NSMutableDictionary *hangUpTimers; // uuid -> hangUpTimer
+@property (nonatomic, strong) NSMutableDictionary *callStateTimers; // uuid -> callStateTimer
 
 @end
 
@@ -68,6 +72,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     if (self) {
         self.calls = [[NSMutableDictionary alloc] init];
         self.hangUpTimers = [[NSMutableDictionary alloc] init];
+        self.callStateTimers = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -168,15 +173,22 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     call.accountId = accountId;
     call.update = update;
     call.reportedWhileInCall = ongoingCalls;
+    call.isRinging = YES;
     
     __weak CallKitManager *weakSelf = self;
     [self.provider reportNewIncomingCallWithUUID:callUUID update:update completion:^(NSError * _Nullable error) {
         if (!error) {
             // Add call to calls array
             [weakSelf.calls setObject:call forKey:callUUID];
+            
             // Add hangUpTimer to timers array
-            NSTimer *hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:45.0  target:self selector:@selector(endCallWithMissedCallNotification:) userInfo:call repeats:NO];
+            NSTimer *hangUpTimer = [NSTimer scheduledTimerWithTimeInterval:kCallKitManagerMaxRingingTimeSeconds target:self selector:@selector(endCallWithMissedCallNotification:) userInfo:call repeats:NO];
             [weakSelf.hangUpTimers setObject:hangUpTimer forKey:callUUID];
+            
+            // Add callStateTimer to timers array
+            NSTimer *callStateTimer = [NSTimer scheduledTimerWithTimeInterval:kCallKitManagerCheckCallStateEverySeconds target:self selector:@selector(checkCallStateForCall:) userInfo:call repeats:NO];
+            [weakSelf.callStateTimers setObject:callStateTimer forKey:callUUID];
+   
             // Get call info from server
             [weakSelf getCallInfoForCall:call];
         } else {
@@ -263,6 +275,15 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     }
 }
 
+- (void)stopCallStateTimerForCallUUID:(NSUUID *)uuid
+{
+    NSTimer *callStateTimer = [_callStateTimers objectForKey:uuid];
+    if (callStateTimer) {
+        [callStateTimer invalidate];
+        [_callStateTimers removeObjectForKey:uuid];
+    }
+}
+
 - (void)endCallWithMissedCallNotification:(NSTimer*)timer
 {
     CallKitCall *call = [timer userInfo];
@@ -275,6 +296,36 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     }
     
     [self endCallWithUUID:call.uuid];
+}
+
+- (void)checkCallStateForCall:(NSTimer *)timer
+{
+    CallKitCall *call = [timer userInfo];
+    if (!call) {
+        return;
+    }
+
+    __weak CallKitManager *weakSelf = self;
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:call.accountId];
+    [[NCAPIController sharedInstance] getParticipantsFromRoom:call.token forAccount:account withCompletionBlock:^(NSMutableArray *participants, NSError *error) {
+        // Make sure call is still ringing at this point to avoid a race-condition between answering the call on this device and the API callback
+        if (!call.isRinging) {
+            return;
+        }
+        
+        for (NCRoomParticipant *participant in participants) {
+            if ([account.userId isEqualToString:participant.userId] && participant.inCall) {
+                // Account is already in a call (answered the call on a different device) -> no need to keep ringing
+                [self endCallWithUUID:call.uuid];
+                return;
+            }
+        }
+        
+        // Reschedule next check
+        NSTimer *callStateTimer = [NSTimer scheduledTimerWithTimeInterval:kCallKitManagerCheckCallStateEverySeconds target:self selector:@selector(checkCallStateForCall:) userInfo:call repeats:NO];
+        [weakSelf.callStateTimers setObject:callStateTimer forKey:call.uuid];
+        
+    }];
 }
 
 - (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName withAccountId:(NSString *)accountId
@@ -397,6 +448,9 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 {
     CallKitCall *call = [_calls objectForKey:action.callUUID];
     if (call) {
+        call.isRinging = NO;
+        [self stopCallStateTimerForCallUUID:call.uuid];
+        
         [self stopHangUpTimerForCallUUID:call.uuid];
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
         [userInfo setValue:@(call.reportedWhileInCall) forKey:@"waitForCallEnd"];
@@ -414,6 +468,9 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     
     CallKitCall *call = [_calls objectForKey:action.callUUID];
     if (call) {
+        call.isRinging = NO;
+        [self stopCallStateTimerForCallUUID:call.uuid];
+        
         [self stopHangUpTimerForCallUUID:call.uuid];
         NSString *leaveCallToken = [call.token copy];
         [_calls removeObjectForKey:action.callUUID];
