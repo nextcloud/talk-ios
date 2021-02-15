@@ -57,7 +57,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSMutableDictionary *_videoRenderersDict;
     NSMutableDictionary *_screenRenderersDict;
     NCCallController *_callController;
-    NCChatViewController *_chatViewController;
+    UINavigationController *_chatNavigationController;
     ARDCaptureController *_captureController;
     UIView <RTCVideoRenderer> *_screenView;
     CGSize _screensharingSize;
@@ -150,7 +150,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.hangUpButton.layer setCornerRadius:30.0f];
     [self.videoCallButton.layer setCornerRadius:30.0f];
     [self.chatButton.layer setCornerRadius:30.0f];
+    [self.backToCallButton.layer setCornerRadius:30.0f];
     [self.closeScreensharingButton.layer setCornerRadius:16.0f];
+    
+    [self.backToCallButton setHidden:YES];
     
     self.audioMuteButton.accessibilityLabel = NSLocalizedString(@"Microphone", nil);
     self.audioMuteButton.accessibilityValue = NSLocalizedString(@"Microphone enabled", nil);
@@ -167,6 +170,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     self.videoCallButton.accessibilityHint = NSLocalizedString(@"Double tap to upgrade this voice call to a video call", nil);
     self.chatButton.accessibilityLabel = NSLocalizedString(@"Chat", nil);
     self.chatButton.accessibilityHint = NSLocalizedString(@"Double tap to show call's chat", nil);
+    self.backToCallButton.accessibilityLabel = NSLocalizedString(@"Back to call", nil);
+    self.backToCallButton.accessibilityHint = NSLocalizedString(@"Double tap to go back to the call", nil);
     
     [self adjustButtonsConainer];
     
@@ -201,7 +206,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
         [self resizeScreensharingView];
     } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-        [self setHaloToChatButton];
+        [self setHaloToBackToCallButton];
     }];
 }
 
@@ -235,7 +240,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
 {
     // No push-to-talk while in chat
-    if (!_chatViewController) {
+    if (!_chatNavigationController) {
         for (UIPress* press in presses) {
             if (press.key.keyCode == UIKeyboardHIDUsageKeyboardSpacebar) {
                 [self pushToTalkStart];
@@ -251,7 +256,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)pressesEnded:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
 {
     // No push-to-talk while in chat
-    if (!_chatViewController) {
+    if (!_chatNavigationController) {
         for (UIPress* press in presses) {
             if (press.key.keyCode == UIKeyboardHIDUsageKeyboardSpacebar) {
                 [self pushToTalkEnd];
@@ -538,41 +543,38 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)showButtonsContainer
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [UIView animateWithDuration:0.3f animations:^{
-            [self.audioMuteButton setAlpha:1.0f];
-            [self.hangUpButton setAlpha:1.0f];
-            [self.speakerButton setAlpha:1.0f];
-            [self.videoDisableButton setAlpha:1.0f];
-            
-            [self.switchCameraButton setAlpha:1.0f];
-            [self.videoCallButton setAlpha:1.0f];
-            [self.closeScreensharingButton setAlpha:1.0f];
-            [self.chatButton setAlpha:1.0f];
-            [self.view layoutIfNeeded];
-        }];
-    });
+    if (!CGRectContainsRect(self.view.bounds, self.buttonsContainerView.frame)) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [UIView animateWithDuration:0.3 animations:^{
+                CGRect buttonsFrame = self.buttonsContainerView.frame;
+                buttonsFrame.origin.y -= buttonsFrame.size.height + 20;
+                self.buttonsContainerView.frame = buttonsFrame;
+            }];
+            [UIView animateWithDuration:0.3f animations:^{
+                [self.switchCameraButton setAlpha:1.0f];
+                [self.closeScreensharingButton setAlpha:1.0f];
+                [self.view layoutIfNeeded];
+            }];
+        });
+    }
 }
 
 - (void)hideButtonsContainer
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [UIView animateWithDuration:0.3f animations:^{
-            if (self->_callController && [self->_callController isAudioEnabled]) {
-                [self.audioMuteButton setAlpha:0.0f];
-            }
-            
-            [self.hangUpButton setAlpha:0.0f];
-            [self.speakerButton setAlpha:0.0f];
-            [self.videoDisableButton setAlpha:0.0f];
-            
-            [self.switchCameraButton setAlpha:0.0f];
-            [self.videoCallButton setAlpha:0.0f];
-            [self.closeScreensharingButton setAlpha:0.0f];
-            [self.chatButton setAlpha:(self->_chatViewController) ? 1.0f : 0.0f];
-            [self.view layoutIfNeeded];
-        }];
-    });
+    if (CGRectContainsRect(self.view.bounds, self.buttonsContainerView.frame)) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [UIView animateWithDuration:0.3 animations:^{
+                CGRect buttonsFrame = self.buttonsContainerView.frame;
+                buttonsFrame.origin.y += buttonsFrame.size.height + 20;
+                self.buttonsContainerView.frame = buttonsFrame;
+            }];
+            [UIView animateWithDuration:0.3f animations:^{
+                [self.switchCameraButton setAlpha:0.0f];
+                [self.closeScreensharingButton setAlpha:0.0f];
+                [self.view layoutIfNeeded];
+            }];
+        });
+    }
 }
 
 - (void)adjustButtonsConainer
@@ -581,16 +583,19 @@ typedef NS_ENUM(NSInteger, CallState) {
         _videoDisableButton.hidden = YES;
         _switchCameraButton.hidden = YES;
         _videoCallButton.hidden = NO;
-        // Align audio - video - speaker buttons
-        CGRect audioButtonFrame = _audioMuteButton.frame;
-        audioButtonFrame.origin.y = 10;
-        _audioMuteButton.frame = audioButtonFrame;
-        CGRect speakerButtonFrame = _speakerButton.frame;
-        speakerButtonFrame.origin.y = 10;
-        _speakerButton.frame = speakerButtonFrame;
     } else {
         _speakerButton.hidden = YES;
         _videoCallButton.hidden = YES;
+        // Center audio - video - chat buttons
+        CGRect audioButtonFrame = _audioMuteButton.frame;
+        audioButtonFrame.origin.x = 40;
+        _audioMuteButton.frame = audioButtonFrame;
+        CGRect videoButtonFrame = _videoDisableButton.frame;
+        videoButtonFrame.origin.x = 130;
+        _videoDisableButton.frame = videoButtonFrame;
+        CGRect chatButtonFrame = _chatButton.frame;
+        chatButtonFrame.origin.x = 220;
+        _chatButton.frame = chatButtonFrame;
     }
     
     // Enable speaker button for iPhones only
@@ -893,35 +898,40 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self toggleChatView];
 }
 
+- (IBAction)backToChatButtonPressed:(id)sender
+{
+    [self toggleChatView];
+}
+
 - (void)toggleChatView
 {
-    if (!_chatViewController) {
-        _chatViewController = [[NCChatViewController alloc] initForRoom:_room];
-        [self addChildViewController:_chatViewController];
+    if (!_chatNavigationController) {
+        NCChatViewController *chatViewController = [[NCChatViewController alloc] initForRoom:_room];
+        chatViewController.presentedInCall = YES;
+        _chatNavigationController = [[UINavigationController alloc] initWithRootViewController:chatViewController];
+        [self addChildViewController:_chatNavigationController];
         
-        [self.view addSubview:_chatViewController.view];
-        _chatViewController.view.frame = self.view.bounds;
-        _chatViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        [_chatViewController didMoveToParentViewController:self];
+        [self.view addSubview:_chatNavigationController.view];
+        _chatNavigationController.view.frame = self.view.bounds;
+        _chatNavigationController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [_chatNavigationController didMoveToParentViewController:self];
         
-        _chatButton.backgroundColor = [UIColor lightGrayColor];
-        [_chatButton setImage:[UIImage imageNamed:@"phone"] forState:UIControlStateNormal];
+        [self setHaloToBackToCallButton];
         
-        [self setHaloToChatButton];
-        
-        [self.view bringSubviewToFront:_chatButton];
+        [_backToCallButton setHidden:NO];
+        [self.view bringSubviewToFront:_backToCallButton];
         if (!_isAudioOnly) {
             [self.view bringSubviewToFront:_localVideoView];
         }
     } else {
-        _chatButton.backgroundColor = [UIColor colorWithRed:155/255.f green:155/255.f blue:155/255.f alpha:0.75];
-        [_chatButton setImage:[UIImage imageNamed:@"chat"] forState:UIControlStateNormal];
+        [_backToCallButton setHidden:YES];
+        [_halo removeFromSuperlayer];
         
-        [_chatViewController willMoveToParentViewController:nil];
-        [_chatViewController.view removeFromSuperview];
-        [_chatViewController removeFromParentViewController];
+        [_chatNavigationController willMoveToParentViewController:nil];
+        [_chatNavigationController.view removeFromSuperview];
+        [_chatNavigationController removeFromParentViewController];
         
-        _chatViewController = nil;
+        _chatNavigationController = nil;
         
         if ((!_isAudioOnly && _callState == CallStateInCall) || _screenView) {
             [self showDetailedViewWithTimer];
@@ -929,20 +939,20 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
-- (void)setHaloToChatButton
+- (void)setHaloToBackToCallButton
 {
     [_halo removeFromSuperlayer];
     
-    if (_chatViewController) {
+    if (_chatNavigationController) {
         _halo = [PulsingHaloLayer layer];
-        _halo.position = _chatButton.center;
+        _halo.position = _backToCallButton.center;
         UIColor *color = [UIColor colorWithRed:118/255.f green:213/255.f blue:114/255.f alpha:1];
         _halo.backgroundColor = color.CGColor;
         _halo.radius = 40.0;
         _halo.haloLayerNumber = 2;
         _halo.keyTimeForHalfOpacity = 0.75;
         _halo.fromValueForRadius = 0.75;
-        [_chatViewController.view.layer addSublayer:_halo];
+        [_chatNavigationController.view.layer addSublayer:_halo];
         [_halo start];
     }
 }

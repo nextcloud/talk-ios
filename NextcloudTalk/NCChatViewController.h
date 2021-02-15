@@ -29,6 +29,7 @@ extern NSString * const NCChatViewControllerReplyPrivatelyNotification;
 @interface NCChatViewController : SLKTextViewController
 
 @property (nonatomic, strong) NCRoom *room;
+@property (nonatomic, assign) BOOL presentedInCall;
 
 - (instancetype)initForRoom:(NCRoom *)room;
 - (void)stopChat;

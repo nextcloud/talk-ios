@@ -537,6 +537,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         // Show text input if it was hidden in a previous state
         [self setTextInputbarHidden:NO animated:YES];
     }
+    
+    if (_presentedInCall) {
+        // Remove call buttons
+        self.navigationItem.rightBarButtonItems = nil;
+    }
 }
 
 - (void)checkLobbyState
