@@ -120,6 +120,8 @@
     CGFloat h = (contentSize.height - ((rows + 1) * border)) / rows;
     CGFloat w = (contentSize.width - ((columns + 1) * border)) / columns ;
     
+    h = (h < 230) ? 230 : h; // Call participant cell height in xib
+    
     NSUInteger line = row == 0 ? 0 : row / columns;
     NSUInteger _r = row % columns;
     
