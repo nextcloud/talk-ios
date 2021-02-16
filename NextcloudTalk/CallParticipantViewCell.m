@@ -49,6 +49,12 @@ NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
     [super awakeFromNib];
     self.audioOffIndicator.hidden = YES;
     self.screensharingIndicator.hidden = YES;
+    
+    self.audioOffIndicator.layer.cornerRadius = 4;
+    self.audioOffIndicator.clipsToBounds = YES;
+    self.screensharingIndicator.layer.cornerRadius = 4;
+    self.screensharingIndicator.clipsToBounds = YES;
+    
     self.peerAvatarImageView.hidden = YES;
     self.peerAvatarImageView.layer.cornerRadius = 50;
     self.peerAvatarImageView.layer.masksToBounds = YES;
