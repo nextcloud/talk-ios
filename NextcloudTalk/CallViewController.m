@@ -602,9 +602,19 @@ typedef NS_ENUM(NSInteger, CallState) {
         _chatButton.frame = chatButtonFrame;
     }
     
-    // Enable speaker button for iPhones only
-    if(![[UIDevice currentDevice].model isEqualToString:@"iPhone"]) {
-        _speakerButton.enabled = NO;
+    // Only show speaker button in iPhones
+    if(![[UIDevice currentDevice].model isEqualToString:@"iPhone"] && _isAudioOnly) {
+        _speakerButton.hidden = YES;
+        // Center audio - video - chat buttons
+        CGRect audioButtonFrame = _audioMuteButton.frame;
+        audioButtonFrame.origin.x = 40;
+        _audioMuteButton.frame = audioButtonFrame;
+        CGRect videoButtonFrame = _videoCallButton.frame;
+        videoButtonFrame.origin.x = 130;
+        _videoCallButton.frame = videoButtonFrame;
+        CGRect chatButtonFrame = _chatButton.frame;
+        chatButtonFrame.origin.x = 220;
+        _chatButton.frame = chatButtonFrame;
     }
 }
 
