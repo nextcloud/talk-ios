@@ -72,6 +72,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     PulsingHaloLayer *_halo;
     PulsingHaloLayer *_haloPushToTalk;
     UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
+    CGPoint _localVideoDragStartingPosition;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -190,6 +191,9 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
     }
     
+    UIPanGestureRecognizer *localVideoDragGesturure = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(localVideoDragged:)];
+    [self.localVideoView addGestureRecognizer:localVideoDragGesturure];
+        
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
                                                  name:@"UIDeviceProximityStateDidChangeNotification" object:nil];
 }
@@ -638,6 +642,57 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
+- (void)adjustLocalVideoPosition
+{
+    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(8, 8, 8, 8);
+    if (@available(iOS 11.0, *)) {
+        UIEdgeInsets safeAreaInsets = _localVideoView.superview.safeAreaInsets;
+        edgeInsets = UIEdgeInsetsMake(8 + safeAreaInsets.top, 8 + safeAreaInsets.left,8 + safeAreaInsets.bottom,8 + safeAreaInsets.right);
+    }
+
+    CGSize parentSize = _localVideoView.superview.bounds.size;
+    CGSize viewSize = _localVideoView.bounds.size;
+
+    CGPoint targetOrigin = _localVideoView.frame.origin;
+    // Adjust left
+    if (_localVideoView.frame.origin.x < edgeInsets.left) {
+        targetOrigin = CGPointMake(edgeInsets.left, targetOrigin.y);
+    }
+    // Adjust top
+    if (_localVideoView.frame.origin.y < edgeInsets.top) {
+        targetOrigin = CGPointMake(targetOrigin.x, edgeInsets.top);
+    }
+    // Adjust right
+    if (_localVideoView.frame.origin.x > parentSize.width - viewSize.width - edgeInsets.right) {
+        targetOrigin = CGPointMake(parentSize.width - viewSize.width - edgeInsets.right, targetOrigin.y);
+    }
+    // Adjust bottom
+    if (_localVideoView.frame.origin.y > parentSize.height - viewSize.height - edgeInsets.bottom) {
+        targetOrigin = CGPointMake(targetOrigin.x, parentSize.height - viewSize.height - edgeInsets.bottom);
+    }
+    CGRect frame = _localVideoView.frame;
+    frame.origin.x = targetOrigin.x;
+    frame.origin.y = targetOrigin.y;
+
+    [UIView animateWithDuration:0.4 animations:^{
+        self->_localVideoView.frame = frame;
+    }];
+}
+
+- (void)localVideoDragged:(UIPanGestureRecognizer *)gesture
+{
+    if (gesture.view == _localVideoView) {
+        if (gesture.state == UIGestureRecognizerStateBegan) {
+            _localVideoDragStartingPosition = gesture.view.center;
+        } else if (gesture.state == UIGestureRecognizerStateChanged) {
+            CGPoint translation = [gesture translationInView:gesture.view];
+            _localVideoView.center = CGPointMake(_localVideoDragStartingPosition.x + translation.x, _localVideoDragStartingPosition.y + translation.y);
+        } else if (gesture.state == UIGestureRecognizerStateEnded) {
+            [self adjustLocalVideoPosition];
+        }
+    }
+}
+
 #pragma mark - Call actions
 
 -(void)handlePushToTalk:(UILongPressGestureRecognizer *)gestureRecognizer
@@ -919,13 +974,15 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self setHaloToBackToCallButton];
         
         [_backToCallButton setHidden:NO];
-        [self.view bringSubviewToFront:_backToCallButton];
         if (!_isAudioOnly) {
             [self.view bringSubviewToFront:_localVideoView];
         }
+        [self.view bringSubviewToFront:_backToCallButton];
     } else {
         [_backToCallButton setHidden:YES];
         [_halo removeFromSuperlayer];
+        
+        [self.view bringSubviewToFront:_buttonsContainerView];
         
         [_chatNavigationController willMoveToParentViewController:nil];
         [_chatNavigationController.view removeFromSuperview];
