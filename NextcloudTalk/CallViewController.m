@@ -580,6 +580,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     if (!CGRectContainsRect(self.view.bounds, self.buttonsContainerView.frame)) {
         dispatch_async(dispatch_get_main_queue(), ^{
+            [self.buttonsContainerView setAlpha:1.0f];
             [UIView animateWithDuration:0.3 animations:^{
                 CGRect buttonsFrame = self.buttonsContainerView.frame;
                 buttonsFrame.origin.y -= buttonsFrame.size.height + 20;
@@ -602,6 +603,8 @@ typedef NS_ENUM(NSInteger, CallState) {
                 CGRect buttonsFrame = self.buttonsContainerView.frame;
                 buttonsFrame.origin.y += buttonsFrame.size.height + 20;
                 self.buttonsContainerView.frame = buttonsFrame;
+            } completion:^(BOOL finished) {
+                [self.buttonsContainerView setAlpha:0.0f];
             }];
             [UIView animateWithDuration:0.3f animations:^{
                 [self.switchCameraButton setAlpha:0.0f];
