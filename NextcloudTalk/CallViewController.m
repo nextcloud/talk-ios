@@ -65,6 +65,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSTimer *_detailedViewTimer;
     NSString *_displayName;
     BOOL _isAudioOnly;
+    BOOL _isDetailedViewVisible;
     BOOL _userDisabledVideo;
     BOOL _videoCallUpgrade;
     BOOL _hangingUp;
@@ -520,6 +521,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)showDetailedView
 {
+    _isDetailedViewVisible = YES;
     [self showButtonsContainer];
     [self showPeersInfo];
 }
@@ -532,6 +534,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)hideDetailedView
 {
+    _isDetailedViewVisible = NO;
     [self hideButtonsContainer];
     [self hidePeersInfo];
     [self invalidateDetailedViewTimer];
@@ -1103,6 +1106,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
     [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
     [cell setVideoDisabled: (_isAudioOnly) ? YES : peerConnection.isRemoteVideoDisabled];
+    [cell.peerNameLabel setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
+    [cell.buttonsContainerView setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
     
     return cell;
 }
@@ -1113,6 +1118,21 @@ typedef NS_ENUM(NSInteger, CallState) {
                                                              row:indexPath.row
                                                      contentSize:self.collectionView.frame.size];
     return frame.size;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    CallParticipantViewCell *participantCell = (CallParticipantViewCell *)cell;
+    NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
+    
+    [participantCell setVideoView:[_videoRenderersDict objectForKey:peerConnection.peerId]];
+    [participantCell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
+    [participantCell setDisplayName:peerConnection.peerName];
+    [participantCell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
+    [participantCell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
+    [participantCell setVideoDisabled: (_isAudioOnly) ? YES : peerConnection.isRemoteVideoDisabled];
+    [participantCell.peerNameLabel setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
+    [participantCell.buttonsContainerView setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
 }
 
 #pragma mark - Call Controller delegate
