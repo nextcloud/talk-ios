@@ -538,6 +538,12 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)hideDetailedView
 {
+    // Keep detailed view visible while push to talk is active
+    if (_pushToTalkActive) {
+        [self setDetailedViewTimer];
+        return;
+    }
+    
     _isDetailedViewVisible = NO;
     [self hideButtonsContainer];
     [self hidePeersInfo];
