@@ -532,8 +532,12 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)showDetailedViewWithTimer
 {
-    [self showDetailedView];
-    [self setDetailedViewTimer];
+    if (_isDetailedViewVisible) {
+        [self hideDetailedView];
+    } else {
+        [self showDetailedView];
+        [self setDetailedViewTimer];
+    }
 }
 
 - (void)hideDetailedView
@@ -646,7 +650,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)setDetailedViewTimer
 {
     [self invalidateDetailedViewTimer];
-    _detailedViewTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(hideDetailedView) userInfo:nil repeats:NO];
+    _detailedViewTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(hideDetailedView) userInfo:nil repeats:NO];
 }
 
 - (void)invalidateDetailedViewTimer
