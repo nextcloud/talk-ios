@@ -223,7 +223,11 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    [self setLocalVideoRect];
+    // Fix missing hallo after the view controller disappears
+    // e.g. when presenting file preview
+    if (_chatNavigationController) {
+        [self setHaloToBackToCallButton];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
