@@ -214,6 +214,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     }];
 }
 
+- (void)viewSafeAreaInsetsDidChange
+{
+    [super viewSafeAreaInsetsDidChange];
+    [self setLocalVideoRect];
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [self setLocalVideoRect];
@@ -337,8 +343,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     CGSize localVideoSize = CGSizeMake(0, 0);
     
-    CGFloat width = [UIScreen mainScreen].bounds.size.width / 5;
-    CGFloat height = [UIScreen mainScreen].bounds.size.height / 5;
+    CGFloat width = [UIScreen mainScreen].bounds.size.width / 6;
+    CGFloat height = [UIScreen mainScreen].bounds.size.height / 6;
     
     NSString *videoResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
     NSString *localVideoRes = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:videoResolution];
@@ -357,7 +363,13 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
     }
     
-    CGRect localVideoRect = CGRectMake(16, 80, localVideoSize.width, localVideoSize.height);
+    CGPoint localVideoPosition = CGPointMake(16, 60);
+    if (@available(iOS 11.0, *)) {
+        UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
+        localVideoPosition = CGPointMake(16 + safeAreaInsets.left, 60 + safeAreaInsets.top);
+    }
+    
+    CGRect localVideoRect = CGRectMake(localVideoPosition.x, localVideoPosition.y, localVideoSize.width, localVideoSize.height);
     
     dispatch_async(dispatch_get_main_queue(), ^{
         self->_localVideoView.frame = localVideoRect;
