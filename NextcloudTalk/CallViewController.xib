@@ -53,10 +53,13 @@
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N0N-Ny-Aeg">
-                            <rect key="frame" x="335" y="28" width="32" height="32"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N0N-Ny-Aeg">
+                            <rect key="frame" x="327" y="16" width="32" height="32"/>
                             <color key="backgroundColor" white="0.5" alpha="0.95060911873318499" colorSpace="calibratedWhite"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="32" id="uMi-V0-B3H"/>
+                                <constraint firstAttribute="width" constant="32" id="xCZ-QS-yDb"/>
+                            </constraints>
                             <state key="normal" image="close"/>
                             <connections>
                                 <action selector="closeScreensharingButtonPressed:" destination="-1" eventType="touchUpInside" id="Pio-Dr-GaB"/>
@@ -65,6 +68,10 @@
                     </subviews>
                     <viewLayoutGuide key="safeArea" id="j53-tu-e0T"/>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstItem="j53-tu-e0T" firstAttribute="trailing" secondItem="N0N-Ny-Aeg" secondAttribute="trailing" constant="16" id="Pxi-mX-3dC"/>
+                        <constraint firstItem="N0N-Ny-Aeg" firstAttribute="top" secondItem="j53-tu-e0T" secondAttribute="top" constant="16" id="pDR-Pt-2K8"/>
+                    </constraints>
                 </view>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TXj-7E-NAa" userLabel="localVideo" customClass="RTCCameraPreviewView">
                     <rect key="frame" x="16" y="80" width="90" height="120"/>
@@ -80,10 +87,13 @@
                         </button>
                     </subviews>
                 </view>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vBI-Mz-P4p">
-                    <rect key="frame" x="305" y="80" width="60" height="60"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vBI-Mz-P4p">
+                    <rect key="frame" x="299" y="60" width="60" height="60"/>
                     <color key="backgroundColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="60" id="AvR-va-eJk"/>
+                        <constraint firstAttribute="height" constant="60" id="TbC-xx-EKV"/>
+                    </constraints>
                     <state key="normal" image="phone"/>
                     <connections>
                         <action selector="backToChatButtonPressed:" destination="-1" eventType="touchUpInside" id="SMR-Lb-o3n"/>
@@ -153,6 +163,10 @@
             </subviews>
             <viewLayoutGuide key="safeArea" id="bbs-K4-b33"/>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="vBI-Mz-P4p" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" constant="60" id="ZCv-C1-MQ7"/>
+                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="vBI-Mz-P4p" secondAttribute="trailing" constant="16" id="afS-jR-wmf"/>
+            </constraints>
             <point key="canvasLocation" x="34.399999999999999" y="52.623688155922046"/>
         </view>
         <view contentMode="scaleToFill" id="BF4-kz-lxP">
