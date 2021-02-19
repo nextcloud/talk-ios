@@ -57,7 +57,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSMutableDictionary *_videoRenderersDict;
     NSMutableDictionary *_screenRenderersDict;
     NCCallController *_callController;
-    NCChatViewController *_chatViewController;
+    UINavigationController *_chatNavigationController;
     ARDCaptureController *_captureController;
     UIView <RTCVideoRenderer> *_screenView;
     CGSize _screensharingSize;
@@ -65,6 +65,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSTimer *_detailedViewTimer;
     NSString *_displayName;
     BOOL _isAudioOnly;
+    BOOL _isDetailedViewVisible;
     BOOL _userDisabledVideo;
     BOOL _videoCallUpgrade;
     BOOL _hangingUp;
@@ -72,6 +73,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     PulsingHaloLayer *_halo;
     PulsingHaloLayer *_haloPushToTalk;
     UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
+    CGPoint _localVideoDragStartingPosition;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -150,7 +152,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.hangUpButton.layer setCornerRadius:30.0f];
     [self.videoCallButton.layer setCornerRadius:30.0f];
     [self.chatButton.layer setCornerRadius:30.0f];
+    [self.backToCallButton.layer setCornerRadius:30.0f];
     [self.closeScreensharingButton.layer setCornerRadius:16.0f];
+    
+    [self.backToCallButton setHidden:YES];
     
     self.audioMuteButton.accessibilityLabel = NSLocalizedString(@"Microphone", nil);
     self.audioMuteButton.accessibilityValue = NSLocalizedString(@"Microphone enabled", nil);
@@ -167,6 +172,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     self.videoCallButton.accessibilityHint = NSLocalizedString(@"Double tap to upgrade this voice call to a video call", nil);
     self.chatButton.accessibilityLabel = NSLocalizedString(@"Chat", nil);
     self.chatButton.accessibilityHint = NSLocalizedString(@"Double tap to show call's chat", nil);
+    self.backToCallButton.accessibilityLabel = NSLocalizedString(@"Back to call", nil);
+    self.backToCallButton.accessibilityHint = NSLocalizedString(@"Double tap to go back to the call", nil);
     
     [self adjustButtonsConainer];
     
@@ -185,6 +192,9 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
     }
     
+    UIPanGestureRecognizer *localVideoDragGesturure = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(localVideoDragged:)];
+    [self.localVideoView addGestureRecognizer:localVideoDragGesturure];
+        
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
                                                  name:@"UIDeviceProximityStateDidChangeNotification" object:nil];
 }
@@ -201,13 +211,25 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
         [self resizeScreensharingView];
     } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-        [self setHaloToChatButton];
+        [self setHaloToBackToCallButton];
     }];
+}
+
+- (void)viewSafeAreaInsetsDidChange
+{
+    [super viewSafeAreaInsetsDidChange];
+    [self setLocalVideoRect];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [self setLocalVideoRect];
+    
+    // Fix missing hallo after the view controller disappears
+    // e.g. when presenting file preview
+    if (_chatNavigationController) {
+        [self setHaloToBackToCallButton];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -235,7 +257,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
 {
     // No push-to-talk while in chat
-    if (!_chatViewController) {
+    if (!_chatNavigationController) {
         for (UIPress* press in presses) {
             if (press.key.keyCode == UIKeyboardHIDUsageKeyboardSpacebar) {
                 [self pushToTalkStart];
@@ -251,7 +273,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)pressesEnded:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
 {
     // No push-to-talk while in chat
-    if (!_chatViewController) {
+    if (!_chatNavigationController) {
         for (UIPress* press in presses) {
             if (press.key.keyCode == UIKeyboardHIDUsageKeyboardSpacebar) {
                 [self pushToTalkEnd];
@@ -328,8 +350,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     CGSize localVideoSize = CGSizeMake(0, 0);
     
-    CGFloat width = [UIScreen mainScreen].bounds.size.width / 5;
-    CGFloat height = [UIScreen mainScreen].bounds.size.height / 5;
+    CGFloat width = [UIScreen mainScreen].bounds.size.width / 6;
+    CGFloat height = [UIScreen mainScreen].bounds.size.height / 6;
     
     NSString *videoResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
     NSString *localVideoRes = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:videoResolution];
@@ -348,7 +370,13 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
     }
     
-    CGRect localVideoRect = CGRectMake(16, 80, localVideoSize.width, localVideoSize.height);
+    CGPoint localVideoPosition = CGPointMake(16, 60);
+    if (@available(iOS 11.0, *)) {
+        UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
+        localVideoPosition = CGPointMake(16 + safeAreaInsets.left, 60 + safeAreaInsets.top);
+    }
+    
+    CGRect localVideoRect = CGRectMake(localVideoPosition.x, localVideoPosition.y, localVideoSize.width, localVideoSize.height);
     
     dispatch_async(dispatch_get_main_queue(), ^{
         self->_localVideoView.frame = localVideoRect;
@@ -499,18 +527,30 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)showDetailedView
 {
+    _isDetailedViewVisible = YES;
     [self showButtonsContainer];
     [self showPeersInfo];
 }
 
 - (void)showDetailedViewWithTimer
 {
-    [self showDetailedView];
-    [self setDetailedViewTimer];
+    if (_isDetailedViewVisible) {
+        [self hideDetailedView];
+    } else {
+        [self showDetailedView];
+        [self setDetailedViewTimer];
+    }
 }
 
 - (void)hideDetailedView
 {
+    // Keep detailed view visible while push to talk is active
+    if (_pushToTalkActive) {
+        [self setDetailedViewTimer];
+        return;
+    }
+    
+    _isDetailedViewVisible = NO;
     [self hideButtonsContainer];
     [self hidePeersInfo];
     [self invalidateDetailedViewTimer];
@@ -538,41 +578,41 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)showButtonsContainer
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [UIView animateWithDuration:0.3f animations:^{
-            [self.audioMuteButton setAlpha:1.0f];
-            [self.hangUpButton setAlpha:1.0f];
-            [self.speakerButton setAlpha:1.0f];
-            [self.videoDisableButton setAlpha:1.0f];
-            
-            [self.switchCameraButton setAlpha:1.0f];
-            [self.videoCallButton setAlpha:1.0f];
-            [self.closeScreensharingButton setAlpha:1.0f];
-            [self.chatButton setAlpha:1.0f];
-            [self.view layoutIfNeeded];
-        }];
-    });
+    if (!CGRectContainsRect(self.view.bounds, self.buttonsContainerView.frame)) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.buttonsContainerView setAlpha:1.0f];
+            [UIView animateWithDuration:0.3 animations:^{
+                CGRect buttonsFrame = self.buttonsContainerView.frame;
+                buttonsFrame.origin.y -= buttonsFrame.size.height + 20;
+                self.buttonsContainerView.frame = buttonsFrame;
+            }];
+            [UIView animateWithDuration:0.3f animations:^{
+                [self.switchCameraButton setAlpha:1.0f];
+                [self.closeScreensharingButton setAlpha:1.0f];
+                [self.view layoutIfNeeded];
+            }];
+        });
+    }
 }
 
 - (void)hideButtonsContainer
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [UIView animateWithDuration:0.3f animations:^{
-            if (self->_callController && [self->_callController isAudioEnabled]) {
-                [self.audioMuteButton setAlpha:0.0f];
-            }
-            
-            [self.hangUpButton setAlpha:0.0f];
-            [self.speakerButton setAlpha:0.0f];
-            [self.videoDisableButton setAlpha:0.0f];
-            
-            [self.switchCameraButton setAlpha:0.0f];
-            [self.videoCallButton setAlpha:0.0f];
-            [self.closeScreensharingButton setAlpha:0.0f];
-            [self.chatButton setAlpha:(self->_chatViewController) ? 1.0f : 0.0f];
-            [self.view layoutIfNeeded];
-        }];
-    });
+    if (CGRectContainsRect(self.view.bounds, self.buttonsContainerView.frame)) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [UIView animateWithDuration:0.3 animations:^{
+                CGRect buttonsFrame = self.buttonsContainerView.frame;
+                buttonsFrame.origin.y += buttonsFrame.size.height + 20;
+                self.buttonsContainerView.frame = buttonsFrame;
+            } completion:^(BOOL finished) {
+                [self.buttonsContainerView setAlpha:0.0f];
+            }];
+            [UIView animateWithDuration:0.3f animations:^{
+                [self.switchCameraButton setAlpha:0.0f];
+                [self.closeScreensharingButton setAlpha:0.0f];
+                [self.view layoutIfNeeded];
+            }];
+        });
+    }
 }
 
 - (void)adjustButtonsConainer
@@ -581,28 +621,41 @@ typedef NS_ENUM(NSInteger, CallState) {
         _videoDisableButton.hidden = YES;
         _switchCameraButton.hidden = YES;
         _videoCallButton.hidden = NO;
-        // Align audio - video - speaker buttons
-        CGRect audioButtonFrame = _audioMuteButton.frame;
-        audioButtonFrame.origin.y = 10;
-        _audioMuteButton.frame = audioButtonFrame;
-        CGRect speakerButtonFrame = _speakerButton.frame;
-        speakerButtonFrame.origin.y = 10;
-        _speakerButton.frame = speakerButtonFrame;
     } else {
         _speakerButton.hidden = YES;
         _videoCallButton.hidden = YES;
+        // Center audio - video - chat buttons
+        CGRect audioButtonFrame = _audioMuteButton.frame;
+        audioButtonFrame.origin.x = 40;
+        _audioMuteButton.frame = audioButtonFrame;
+        CGRect videoButtonFrame = _videoDisableButton.frame;
+        videoButtonFrame.origin.x = 130;
+        _videoDisableButton.frame = videoButtonFrame;
+        CGRect chatButtonFrame = _chatButton.frame;
+        chatButtonFrame.origin.x = 220;
+        _chatButton.frame = chatButtonFrame;
     }
     
-    // Enable speaker button for iPhones only
-    if(![[UIDevice currentDevice].model isEqualToString:@"iPhone"]) {
-        _speakerButton.enabled = NO;
+    // Only show speaker button in iPhones
+    if(![[UIDevice currentDevice].model isEqualToString:@"iPhone"] && _isAudioOnly) {
+        _speakerButton.hidden = YES;
+        // Center audio - video - chat buttons
+        CGRect audioButtonFrame = _audioMuteButton.frame;
+        audioButtonFrame.origin.x = 40;
+        _audioMuteButton.frame = audioButtonFrame;
+        CGRect videoButtonFrame = _videoCallButton.frame;
+        videoButtonFrame.origin.x = 130;
+        _videoCallButton.frame = videoButtonFrame;
+        CGRect chatButtonFrame = _chatButton.frame;
+        chatButtonFrame.origin.x = 220;
+        _chatButton.frame = chatButtonFrame;
     }
 }
 
 - (void)setDetailedViewTimer
 {
     [self invalidateDetailedViewTimer];
-    _detailedViewTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(hideDetailedView) userInfo:nil repeats:NO];
+    _detailedViewTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(hideDetailedView) userInfo:nil repeats:NO];
 }
 
 - (void)invalidateDetailedViewTimer
@@ -631,6 +684,57 @@ typedef NS_ENUM(NSInteger, CallState) {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self presentViewController:alert animated:YES completion:nil];
     });
+}
+
+- (void)adjustLocalVideoPosition
+{
+    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(8, 8, 8, 8);
+    if (@available(iOS 11.0, *)) {
+        UIEdgeInsets safeAreaInsets = _localVideoView.superview.safeAreaInsets;
+        edgeInsets = UIEdgeInsetsMake(8 + safeAreaInsets.top, 8 + safeAreaInsets.left,8 + safeAreaInsets.bottom,8 + safeAreaInsets.right);
+    }
+
+    CGSize parentSize = _localVideoView.superview.bounds.size;
+    CGSize viewSize = _localVideoView.bounds.size;
+
+    CGPoint targetOrigin = _localVideoView.frame.origin;
+    // Adjust left
+    if (_localVideoView.frame.origin.x < edgeInsets.left) {
+        targetOrigin = CGPointMake(edgeInsets.left, targetOrigin.y);
+    }
+    // Adjust top
+    if (_localVideoView.frame.origin.y < edgeInsets.top) {
+        targetOrigin = CGPointMake(targetOrigin.x, edgeInsets.top);
+    }
+    // Adjust right
+    if (_localVideoView.frame.origin.x > parentSize.width - viewSize.width - edgeInsets.right) {
+        targetOrigin = CGPointMake(parentSize.width - viewSize.width - edgeInsets.right, targetOrigin.y);
+    }
+    // Adjust bottom
+    if (_localVideoView.frame.origin.y > parentSize.height - viewSize.height - edgeInsets.bottom) {
+        targetOrigin = CGPointMake(targetOrigin.x, parentSize.height - viewSize.height - edgeInsets.bottom);
+    }
+    CGRect frame = _localVideoView.frame;
+    frame.origin.x = targetOrigin.x;
+    frame.origin.y = targetOrigin.y;
+
+    [UIView animateWithDuration:0.4 animations:^{
+        self->_localVideoView.frame = frame;
+    }];
+}
+
+- (void)localVideoDragged:(UIPanGestureRecognizer *)gesture
+{
+    if (gesture.view == _localVideoView) {
+        if (gesture.state == UIGestureRecognizerStateBegan) {
+            _localVideoDragStartingPosition = gesture.view.center;
+        } else if (gesture.state == UIGestureRecognizerStateChanged) {
+            CGPoint translation = [gesture translationInView:gesture.view];
+            _localVideoView.center = CGPointMake(_localVideoDragStartingPosition.x + translation.x, _localVideoDragStartingPosition.y + translation.y);
+        } else if (gesture.state == UIGestureRecognizerStateEnded) {
+            [self adjustLocalVideoPosition];
+        }
+    }
 }
 
 #pragma mark - Call actions
@@ -893,35 +997,42 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self toggleChatView];
 }
 
+- (IBAction)backToChatButtonPressed:(id)sender
+{
+    [self toggleChatView];
+}
+
 - (void)toggleChatView
 {
-    if (!_chatViewController) {
-        _chatViewController = [[NCChatViewController alloc] initForRoom:_room];
-        [self addChildViewController:_chatViewController];
+    if (!_chatNavigationController) {
+        NCChatViewController *chatViewController = [[NCChatViewController alloc] initForRoom:_room];
+        chatViewController.presentedInCall = YES;
+        _chatNavigationController = [[UINavigationController alloc] initWithRootViewController:chatViewController];
+        [self addChildViewController:_chatNavigationController];
         
-        [self.view addSubview:_chatViewController.view];
-        _chatViewController.view.frame = self.view.bounds;
-        _chatViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        [_chatViewController didMoveToParentViewController:self];
+        [self.view addSubview:_chatNavigationController.view];
+        _chatNavigationController.view.frame = self.view.bounds;
+        _chatNavigationController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [_chatNavigationController didMoveToParentViewController:self];
         
-        _chatButton.backgroundColor = [UIColor lightGrayColor];
-        [_chatButton setImage:[UIImage imageNamed:@"call-white"] forState:UIControlStateNormal];
+        [self setHaloToBackToCallButton];
         
-        [self setHaloToChatButton];
-        
-        [self.view bringSubviewToFront:_chatButton];
+        [_backToCallButton setHidden:NO];
         if (!_isAudioOnly) {
             [self.view bringSubviewToFront:_localVideoView];
         }
+        [self.view bringSubviewToFront:_backToCallButton];
     } else {
-        _chatButton.backgroundColor = [UIColor colorWithRed:155/255.f green:155/255.f blue:155/255.f alpha:0.75];
-        [_chatButton setImage:[UIImage imageNamed:@"chat"] forState:UIControlStateNormal];
+        [_backToCallButton setHidden:YES];
+        [_halo removeFromSuperlayer];
         
-        [_chatViewController willMoveToParentViewController:nil];
-        [_chatViewController.view removeFromSuperview];
-        [_chatViewController removeFromParentViewController];
+        [self.view bringSubviewToFront:_buttonsContainerView];
         
-        _chatViewController = nil;
+        [_chatNavigationController willMoveToParentViewController:nil];
+        [_chatNavigationController.view removeFromSuperview];
+        [_chatNavigationController removeFromParentViewController];
+        
+        _chatNavigationController = nil;
         
         if ((!_isAudioOnly && _callState == CallStateInCall) || _screenView) {
             [self showDetailedViewWithTimer];
@@ -929,20 +1040,20 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
-- (void)setHaloToChatButton
+- (void)setHaloToBackToCallButton
 {
     [_halo removeFromSuperlayer];
     
-    if (_chatViewController) {
+    if (_chatNavigationController) {
         _halo = [PulsingHaloLayer layer];
-        _halo.position = _chatButton.center;
+        _halo.position = _backToCallButton.center;
         UIColor *color = [UIColor colorWithRed:118/255.f green:213/255.f blue:114/255.f alpha:1];
         _halo.backgroundColor = color.CGColor;
         _halo.radius = 40.0;
         _halo.haloLayerNumber = 2;
         _halo.keyTimeForHalfOpacity = 0.75;
         _halo.fromValueForRadius = 0.75;
-        [_chatViewController.view.layer addSublayer:_halo];
+        [_chatNavigationController.view.layer addSublayer:_halo];
         [_halo start];
     }
 }
@@ -1014,6 +1125,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
     [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
     [cell setVideoDisabled: (_isAudioOnly) ? YES : peerConnection.isRemoteVideoDisabled];
+    [cell.peerNameLabel setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
+    [cell.buttonsContainerView setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
     
     return cell;
 }
@@ -1024,6 +1137,21 @@ typedef NS_ENUM(NSInteger, CallState) {
                                                              row:indexPath.row
                                                      contentSize:self.collectionView.frame.size];
     return frame.size;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    CallParticipantViewCell *participantCell = (CallParticipantViewCell *)cell;
+    NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
+    
+    [participantCell setVideoView:[_videoRenderersDict objectForKey:peerConnection.peerId]];
+    [participantCell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
+    [participantCell setDisplayName:peerConnection.peerName];
+    [participantCell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
+    [participantCell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
+    [participantCell setVideoDisabled: (_isAudioOnly) ? YES : peerConnection.isRemoteVideoDisabled];
+    [participantCell.peerNameLabel setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
+    [participantCell.buttonsContainerView setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
 }
 
 #pragma mark - Call Controller delegate

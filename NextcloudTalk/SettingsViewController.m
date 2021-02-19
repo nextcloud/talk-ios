@@ -675,7 +675,8 @@ typedef enum AboutSection {
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:videoConfigurationCellIdentifier];
                         cell.textLabel.text = NSLocalizedString(@"Video quality", nil);
-                        [cell.imageView setImage:[UIImage imageNamed:@"videocall-settings"]];
+                        [cell.imageView setImage:[[UIImage imageNamed:@"video"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                        cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     }
                     NSString *resolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
                     cell.detailTextLabel.text = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:resolution];
