@@ -33,7 +33,7 @@ typedef enum NCParticipantType {
 @interface NCRoomParticipant : NSObject
 
 @property (nonatomic, copy) NSString *displayName;
-@property (nonatomic, assign) BOOL inCall;
+@property (nonatomic, assign) NSInteger inCall;
 @property (nonatomic, assign) NSInteger lastPing;
 @property (nonatomic, assign) NCParticipantType participantType;
 @property (nonatomic, copy) NSString *sessionId;
