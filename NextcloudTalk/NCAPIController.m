@@ -765,12 +765,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)joinCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinCallCompletionBlock)block
+- (NSURLSessionDataTask *)joinCall:(NSString *)token withCallFlags:(NSInteger)flags forAccount:(TalkAccount *)account withCompletionBlock:(JoinCallCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"call/%@", token]];
+    NSDictionary *parameters = @{@"flags" : @(flags)};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil, 0);
         }
