@@ -719,10 +719,10 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)adjustLocalVideoPositionFromOriginPosition:(CGPoint)position
 {
-    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(8, 8, 8, 8);
+    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(16, 16, 16, 16);
     if (@available(iOS 11.0, *)) {
         UIEdgeInsets safeAreaInsets = _localVideoView.superview.safeAreaInsets;
-        edgeInsets = UIEdgeInsetsMake(8 + safeAreaInsets.top, 8 + safeAreaInsets.left,8 + safeAreaInsets.bottom,8 + safeAreaInsets.right);
+        edgeInsets = UIEdgeInsetsMake(16 + safeAreaInsets.top, 16 + safeAreaInsets.left,16 + safeAreaInsets.bottom,16 + safeAreaInsets.right);
     }
 
     CGSize parentSize = _localVideoView.superview.bounds.size;
