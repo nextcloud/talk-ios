@@ -737,7 +737,10 @@ typedef NS_ENUM(NSInteger, CallState) {
         position = CGPointMake(position.x, edgeInsets.top);
     }
     // Adjust right
-    if (position.x > parentSize.width - viewSize.width - edgeInsets.right) {
+    BOOL isChatButtonVisible = _toggleChatButton.frame.origin.x < parentSize.width;
+    if (isChatButtonVisible && position.x > _toggleChatButton.frame.origin.x - viewSize.height - edgeInsets.right) {
+        position = CGPointMake(_toggleChatButton.frame.origin.x - viewSize.width - edgeInsets.right, position.y);
+    } else if (position.x > parentSize.width - viewSize.width - edgeInsets.right) {
         position = CGPointMake(parentSize.width - viewSize.width - edgeInsets.right, position.y);
     }
     // Adjust bottom
