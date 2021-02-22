@@ -66,6 +66,7 @@ typedef enum CallFlag {
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, copy) NSString *userSessionId;
 @property (nonatomic, copy) NSString *userDisplayName;
+@property (nonatomic, assign) BOOL disableVideoAtStart;
 
 
 - (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId;

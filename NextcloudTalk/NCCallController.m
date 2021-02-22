@@ -421,6 +421,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     [self.delegate callController:self didCreateLocalVideoCapturer:capturer];
     
     _localVideoTrack = [_peerConnectionFactory videoTrackWithSource:source trackId:kNCVideoTrackId];
+    [_localVideoTrack setIsEnabled:!_disableVideoAtStart];
     [_localStream addVideoTrack:_localVideoTrack];
 #endif
 }

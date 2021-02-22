@@ -125,11 +125,13 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     _callController = [[NCCallController alloc] initWithDelegate:self inRoom:_room forAudioOnlyCall:_isAudioOnly withSessionId:sessionId];
     _callController.userDisplayName = _displayName;
+    _callController.disableVideoAtStart = _videoDisabledAtStart;
     
     [_callController startCall];
 }
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     [self setCallState:CallStateJoining];
     
@@ -181,7 +183,9 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     [self createWaitingScreen];
     
-    if ([[[NCSettingsController sharedInstance] videoSettingsModel] videoDisabledSettingFromStore] || _isAudioOnly) {
+    // We disableLocalVideo here even if the call controller has not been created just to show the video button as disabled
+    // also we set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
+    if (_videoDisabledAtStart) {
         _userDisabledVideo = YES;
         [self disableLocalVideo];
     }
