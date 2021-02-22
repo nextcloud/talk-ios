@@ -1024,6 +1024,7 @@ typedef NS_ENUM(NSInteger, CallState) {
             [self.view bringSubviewToFront:_localVideoView];
         }
         [self.view bringSubviewToFront:_backToCallButton];
+        [self removeTapGestureForDetailedView];
     } else {
         [_backToCallButton setHidden:YES];
         [_halo removeFromSuperlayer];
@@ -1037,6 +1038,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         _chatNavigationController = nil;
         
         if ((!_isAudioOnly && _callState == CallStateInCall) || _screenView) {
+            [self addTapGestureForDetailedView];
             [self showDetailedViewWithTimer];
         }
     }
