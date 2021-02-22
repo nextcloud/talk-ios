@@ -74,6 +74,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     PulsingHaloLayer *_haloPushToTalk;
     UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
     CGPoint _localVideoDragStartingPosition;
+    CGPoint _localVideoOriginPosition;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -370,13 +371,13 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
     }
     
-    CGPoint localVideoPosition = CGPointMake(16, 60);
+    _localVideoOriginPosition = CGPointMake(16, 60);
     if (@available(iOS 11.0, *)) {
         UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
-        localVideoPosition = CGPointMake(16 + safeAreaInsets.left, 60 + safeAreaInsets.top);
+        _localVideoOriginPosition = CGPointMake(16 + safeAreaInsets.left, 60 + safeAreaInsets.top);
     }
     
-    CGRect localVideoRect = CGRectMake(localVideoPosition.x, localVideoPosition.y, localVideoSize.width, localVideoSize.height);
+    CGRect localVideoRect = CGRectMake(_localVideoOriginPosition.x, _localVideoOriginPosition.y, localVideoSize.width, localVideoSize.height);
     
     dispatch_async(dispatch_get_main_queue(), ^{
         self->_localVideoView.frame = localVideoRect;
@@ -587,6 +588,8 @@ typedef NS_ENUM(NSInteger, CallState) {
                 CGRect buttonsFrame = self.buttonsContainerView.frame;
                 buttonsFrame.origin.y -= buttonsFrame.size.height + 20;
                 self.buttonsContainerView.frame = buttonsFrame;
+            } completion:^(BOOL finished) {
+                [self adjustLocalVideoPositionFromOriginPosition:self->_localVideoOriginPosition];
             }];
             [UIView animateWithDuration:0.3f animations:^{
                 [self.switchCameraButton setAlpha:1.0f];
@@ -606,6 +609,7 @@ typedef NS_ENUM(NSInteger, CallState) {
                 buttonsFrame.origin.y += buttonsFrame.size.height + 20;
                 self.buttonsContainerView.frame = buttonsFrame;
             } completion:^(BOOL finished) {
+                [self adjustLocalVideoPositionFromOriginPosition:self->_localVideoOriginPosition];
                 [self.buttonsContainerView setAlpha:0.0f];
             }];
             [UIView animateWithDuration:0.3f animations:^{
@@ -688,7 +692,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
-- (void)adjustLocalVideoPosition
+- (void)adjustLocalVideoPositionFromOriginPosition:(CGPoint)position
 {
     UIEdgeInsets edgeInsets = UIEdgeInsetsMake(8, 8, 8, 8);
     if (@available(iOS 11.0, *)) {
@@ -699,28 +703,29 @@ typedef NS_ENUM(NSInteger, CallState) {
     CGSize parentSize = _localVideoView.superview.bounds.size;
     CGSize viewSize = _localVideoView.bounds.size;
 
-    CGPoint targetOrigin = _localVideoView.frame.origin;
     // Adjust left
-    if (_localVideoView.frame.origin.x < edgeInsets.left) {
-        targetOrigin = CGPointMake(edgeInsets.left, targetOrigin.y);
+    if (position.x < edgeInsets.left) {
+        position = CGPointMake(edgeInsets.left, position.y);
     }
     // Adjust top
-    if (_localVideoView.frame.origin.y < edgeInsets.top) {
-        targetOrigin = CGPointMake(targetOrigin.x, edgeInsets.top);
+    if (position.y < edgeInsets.top) {
+        position = CGPointMake(position.x, edgeInsets.top);
     }
     // Adjust right
-    if (_localVideoView.frame.origin.x > parentSize.width - viewSize.width - edgeInsets.right) {
-        targetOrigin = CGPointMake(parentSize.width - viewSize.width - edgeInsets.right, targetOrigin.y);
+    if (position.x > parentSize.width - viewSize.width - edgeInsets.right) {
+        position = CGPointMake(parentSize.width - viewSize.width - edgeInsets.right, position.y);
     }
     // Adjust bottom
-    if (_localVideoView.frame.origin.y > parentSize.height - viewSize.height - edgeInsets.bottom) {
-        targetOrigin = CGPointMake(targetOrigin.x, parentSize.height - viewSize.height - edgeInsets.bottom);
+    if (_isDetailedViewVisible && position.y > _buttonsContainerView.frame.origin.y - viewSize.height - edgeInsets.bottom) {
+        position = CGPointMake(position.x, _buttonsContainerView.frame.origin.y - viewSize.height - edgeInsets.bottom);
+    } else if (position.y > parentSize.height - viewSize.height - edgeInsets.bottom) {
+        position = CGPointMake(position.x, parentSize.height - viewSize.height - edgeInsets.bottom);
     }
     CGRect frame = _localVideoView.frame;
-    frame.origin.x = targetOrigin.x;
-    frame.origin.y = targetOrigin.y;
+    frame.origin.x = position.x;
+    frame.origin.y = position.y;
 
-    [UIView animateWithDuration:0.4 animations:^{
+    [UIView animateWithDuration:0.3 animations:^{
         self->_localVideoView.frame = frame;
     }];
 }
@@ -734,7 +739,8 @@ typedef NS_ENUM(NSInteger, CallState) {
             CGPoint translation = [gesture translationInView:gesture.view];
             _localVideoView.center = CGPointMake(_localVideoDragStartingPosition.x + translation.x, _localVideoDragStartingPosition.y + translation.y);
         } else if (gesture.state == UIGestureRecognizerStateEnded) {
-            [self adjustLocalVideoPosition];
+            _localVideoOriginPosition = gesture.view.frame.origin;
+            [self adjustLocalVideoPositionFromOriginPosition:_localVideoOriginPosition];
         }
     }
 }
