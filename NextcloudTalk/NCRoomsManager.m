@@ -52,6 +52,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 @property (nonatomic, strong) NSMutableDictionary *joinRoomAttempts; //roomToken -> attempts
 @property (nonatomic, strong) NSString *upgradeCallToken;
 @property (nonatomic, strong) NSString *pendingToStartCallToken;
+@property (nonatomic, assign) BOOL pendingToStartCallHasVideo;
 
 @end
 
@@ -512,7 +513,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)checkForPendingToStartCalls
 {
     if (_pendingToStartCallToken) {
-        [self startCallWithCallToken:_pendingToStartCallToken withVideo:NO];
+        [self startCallWithCallToken:_pendingToStartCallToken withVideo:_pendingToStartCallHasVideo];
         _pendingToStartCallToken = nil;
     }
 }
@@ -602,6 +603,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [self startCallWithCallToken:roomToken withVideo:hasVideo];
     } else {
         _pendingToStartCallToken = roomToken;
+        _pendingToStartCallHasVideo = hasVideo;
     }
 }
 
