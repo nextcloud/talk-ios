@@ -401,6 +401,8 @@ typedef NS_ENUM(NSInteger, CallState) {
             [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
         }
     }
+    
+    [self pushToTalkEnd];
 }
 
 #pragma mark - User Interface
