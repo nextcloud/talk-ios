@@ -410,6 +410,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     if (call) {
         [self stopHangUpTimerForCallUUID:call.uuid];
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
+        [userInfo setValue:@(call.update.hasVideo) forKey:@"hasVideo"];
         [userInfo setValue:@(call.reportedWhileInCall) forKey:@"waitForCallEnd"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidAnswerCallNotification
                                                             object:self

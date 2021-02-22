@@ -596,9 +596,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
     BOOL waitForCallEnd = [[notification.userInfo objectForKey:@"waitForCallEnd"] boolValue];
+    BOOL hasVideo = [[notification.userInfo objectForKey:@"hasVideo"] boolValue];
     BOOL activeCalls = [self areThereActiveCalls];
     if (!waitForCallEnd || (!activeCalls && !_leaveRoomTask)) {
-        [self startCallWithCallToken:roomToken withVideo:NO];
+        [self startCallWithCallToken:roomToken withVideo:hasVideo];
     } else {
         _pendingToStartCallToken = roomToken;
     }
