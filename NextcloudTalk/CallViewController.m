@@ -171,6 +171,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     self.toggleChatButton.accessibilityHint = NSLocalizedString(@"Double tap to show or hide chat view", nil);
     
     [self adjustButtonsConainer];
+    [self showButtonsContainerAnimated:NO];
+    [self showChatToggleButtonAnimated:NO];
     
     self.collectionView.delegate = self;
     
@@ -207,6 +209,14 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self resizeScreensharingView];
     } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         [self setHaloToToggleChatButton];
+        // Workaround to move buttons to correct position (visible/not visible) so there is always an animation
+        if (self->_isDetailedViewVisible) {
+            [self showButtonsContainerAnimated:NO];
+            [self showChatToggleButtonAnimated:NO];
+        } else {
+            [self hideButtonsContainerAnimated:NO];
+            [self hideChatToggleButtonAnimated:NO];
+        }
     }];
 }
 
@@ -214,6 +224,15 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [super viewSafeAreaInsetsDidChange];
     [self setLocalVideoRect];
+    // Workaround to move buttons to correct position (visible/not visible) so there is always an animation
+    if (_isDetailedViewVisible) {
+        [self showButtonsContainerAnimated:NO];
+        [self showChatToggleButtonAnimated:NO];
+    } else {
+        [self hideButtonsContainerAnimated:NO];
+        [self hideChatToggleButtonAnimated:NO];
+    }
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -525,8 +544,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)showDetailedView
 {
     _isDetailedViewVisible = YES;
-    [self showButtonsContainer];
-    [self showChatToggleButton];
+    [self showButtonsContainerAnimated:YES];
+    [self showChatToggleButtonAnimated:YES];
     [self showPeersInfo];
 }
 
@@ -549,8 +568,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     _isDetailedViewVisible = NO;
-    [self hideButtonsContainer];
-    [self hideChatToggleButton];
+    [self hideButtonsContainerAnimated:YES];
+    [self hideChatToggleButtonAnimated:YES];
     [self hidePeersInfo];
     [self invalidateDetailedViewTimer];
 }
@@ -575,11 +594,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
-- (void)showButtonsContainer
+- (void)showButtonsContainerAnimated:(BOOL)animated
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.buttonsContainerView setAlpha:1.0f];
-        [UIView animateWithDuration:0.3 animations:^{
+        CGFloat duration = animated ? 0.3 : 0.0;
+        [UIView animateWithDuration:duration animations:^{
             CGRect buttonsFrame = self.buttonsContainerView.frame;
             buttonsFrame.origin.y = self.view.frame.size.height - buttonsFrame.size.height - 16;
             if (@available(iOS 11.0, *)) {
@@ -597,10 +617,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
-- (void)hideButtonsContainer
+- (void)hideButtonsContainerAnimated:(BOOL)animated
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [UIView animateWithDuration:0.3 animations:^{
+        CGFloat duration = animated ? 0.3 : 0.0;
+        [UIView animateWithDuration:duration animations:^{
             CGRect buttonsFrame = self.buttonsContainerView.frame;
             buttonsFrame.origin.y = self.view.frame.size.height;
             self.buttonsContainerView.frame = buttonsFrame;
@@ -616,28 +637,36 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
-- (void)showChatToggleButton
+- (void)showChatToggleButtonAnimated:(BOOL)animated
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.toggleChatButton setAlpha:1.0f];
-        [UIView animateWithDuration:0.3 animations:^{
+        CGFloat duration = animated ? 0.3 : 0.0;
+        [UIView animateWithDuration:duration animations:^{
             CGRect buttonFrame = self.toggleChatButton.frame;
             buttonFrame.origin.x = self.view.frame.size.width - buttonFrame.size.width - 16;
+            buttonFrame.origin.y = 60;
             if (@available(iOS 11.0, *)) {
                 buttonFrame.origin.x -= self.view.safeAreaInsets.right;
+                buttonFrame.origin.y = self.view.safeAreaInsets.top + 60;
             }
             self.toggleChatButton.frame = buttonFrame;
         }];
     });
 }
 
-- (void)hideChatToggleButton
+- (void)hideChatToggleButtonAnimated:(BOOL)animated
 {
     if (!_chatNavigationController) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [UIView animateWithDuration:0.3 animations:^{
+            CGFloat duration = animated ? 0.3 : 0.0;
+            [UIView animateWithDuration:duration animations:^{
                 CGRect buttonFrame = self.toggleChatButton.frame;
                 buttonFrame.origin.x = self.view.frame.size.width;
+                buttonFrame.origin.y = 60;
+                if (@available(iOS 11.0, *)) {
+                    buttonFrame.origin.y = self.view.safeAreaInsets.top + 60;
+                }
                 self.toggleChatButton.frame = buttonFrame;
             } completion:^(BOOL finished) {
                 [self.toggleChatButton setAlpha:0.0f];
@@ -1048,7 +1077,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         
         [self setHaloToToggleChatButton];
         
-        [self showChatToggleButton];
+        [self showChatToggleButtonAnimated:NO];
         [_toggleChatButton setImage:[UIImage imageNamed:@"phone"] forState:UIControlStateNormal];
         if (!_isAudioOnly) {
             [self.view bringSubviewToFront:_localVideoView];
