@@ -30,6 +30,14 @@
 
 typedef void (^GetUserIdForSessionIdCompletionBlock)(NSString *userId, NSError *error);
 
+typedef enum CallFlag {
+    CallFlagDisconnected = 0,
+    CallFlagInCall = 1,
+    CallFlagWithAudio = 2,
+    CallFlagWithVideo = 4,
+    CallFlagWithPhone = 8
+} CallFlag;
+
 @protocol NCCallControllerDelegate<NSObject>
 
 - (void)callControllerDidJoinCall:(NCCallController *)callController;
@@ -58,6 +66,7 @@ typedef void (^GetUserIdForSessionIdCompletionBlock)(NSString *userId, NSError *
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, copy) NSString *userSessionId;
 @property (nonatomic, copy) NSString *userDisplayName;
+@property (nonatomic, assign) BOOL disableVideoAtStart;
 
 
 - (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId;

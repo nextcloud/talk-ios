@@ -40,6 +40,7 @@
 #import "UIImageView+Letters.h"
 #import "UIImageView+AFNetworking.h"
 #import "NCChatFileController.h"
+#import "NCCallController.h"
 
 typedef enum RoomInfoSection {
     kRoomInfoSectionName = 0,
@@ -1467,13 +1468,17 @@ typedef enum FileAction {
                 cell.labelTitle.alpha = 1;
             }
             
-            // InCall status
-            if (participant.inCall) {
+            // inCall flags
+            if (participant.inCall == CallFlagWithAudio) {
+                cell.accessoryView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"audio"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+            } else if (participant.inCall == CallFlagWithVideo) {
                 cell.accessoryView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"video"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-                [cell.accessoryView setTintColor:[NCAppBranding placeholderColor]];
+            } else if (participant.inCall == CallFlagWithPhone) {
+                cell.accessoryView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
             } else {
                 cell.accessoryView = nil;
             }
+            [cell.accessoryView setTintColor:[NCAppBranding placeholderColor]];
             
             cell.layoutMargins = UIEdgeInsetsMake(0, 72, 0, 0);
             

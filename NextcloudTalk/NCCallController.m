@@ -120,13 +120,14 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)joinCall
 {
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+    NSInteger flags = (_isAudioOnly) ? CallFlagWithAudio : CallFlagWithVideo;
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:flags forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
             [self getPeersForCall];
             [self startMonitoringMicrophoneAudioLevel];
             if ([self->_externalSignalingController isEnabled]) {
-                _userSessionId = [self->_externalSignalingController sessionId];
+                self->_userSessionId = [self->_externalSignalingController sessionId];
                 if ([self->_externalSignalingController hasMCU]) {
                     [self createOwnPublishPeerConnection];
                 }
@@ -182,7 +183,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)shouldRejoinCall
 {
     _userSessionId = [_externalSignalingController sessionId];
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+    
+    NSInteger flags = (_isAudioOnly) ? CallFlagWithAudio : CallFlagWithVideo;
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:flags forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
             NSLog(@"Rejoined call");
@@ -418,6 +421,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     [self.delegate callController:self didCreateLocalVideoCapturer:capturer];
     
     _localVideoTrack = [_peerConnectionFactory videoTrackWithSource:source trackId:kNCVideoTrackId];
+    [_localVideoTrack setIsEnabled:!_disableVideoAtStart];
     [_localStream addVideoTrack:_localVideoTrack];
 #endif
 }

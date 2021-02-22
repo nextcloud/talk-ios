@@ -235,21 +235,32 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:call.token forAccountId:call.accountId];
     if (room) {
         [self updateCall:call withDisplayName:room.displayName];
-    } else {
-        TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:call.accountId];
-        [[NCAPIController sharedInstance] getRoomForAccount:account withToken:call.token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
-            if (!error) {
-                NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:call.accountId];
-                [self updateCall:call withDisplayName:room.displayName];
-            }
-        }];
     }
+    
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:call.accountId];
+    [[NCAPIController sharedInstance] getRoomForAccount:account withToken:call.token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+        if (!error) {
+            NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:call.accountId];
+            [self updateCall:call withDisplayName:room.displayName];
+            
+            NSInteger callFlag = [[roomDict objectForKey:@"callFlag"] integerValue];
+            BOOL hasVideo = (callFlag >= CallFlagWithVideo);
+            [self updateCall:call hasVideo:hasVideo];
+        }
+    }];
 }
 
 - (void)updateCall:(CallKitCall *)call withDisplayName:(NSString *)displayName
 {
     call.displayName = displayName;
     call.update.localizedCallerName = displayName;
+    
+    [self.provider reportCallWithUUID:call.uuid updated:call.update];
+}
+
+- (void)updateCall:(CallKitCall *)call hasVideo:(BOOL)hasVideo
+{
+    call.update.hasVideo = hasVideo;
     
     [self.provider reportCallWithUUID:call.uuid updated:call.update];
 }
@@ -399,6 +410,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
     if (call) {
         [self stopHangUpTimerForCallUUID:call.uuid];
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
+        [userInfo setValue:@(call.update.hasVideo) forKey:@"hasVideo"];
         [userInfo setValue:@(call.reportedWhileInCall) forKey:@"waitForCallEnd"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidAnswerCallNotification
                                                             object:self
