@@ -332,6 +332,7 @@
     if (!_bodyTextView) {
         _bodyTextView = [MessageBodyTextView new];
         _bodyTextView.font = [UIFont systemFontOfSize:[FileMessageTableViewCell defaultFontSize]];
+        _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
     }
     return _bodyTextView;
 }
