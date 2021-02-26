@@ -243,9 +243,14 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:call.accountId];
             [self updateCall:call withDisplayName:room.displayName];
             
-            NSInteger callFlag = [[roomDict objectForKey:@"callFlag"] integerValue];
-            BOOL hasVideo = (callFlag >= CallFlagWithVideo);
-            [self updateCall:call hasVideo:hasVideo];
+            if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityCallFlags forAccountId:call.accountId]) {
+                NSInteger callFlag = [[roomDict objectForKey:@"callFlag"] integerValue];
+                if (callFlag == CallFlagDisconnected) {
+                    [self endCallWithUUID:call.uuid];
+                } else if (callFlag >= CallFlagWithVideo) {
+                    [self updateCall:call hasVideo:YES];
+                }
+            }
         }
     }];
 }
