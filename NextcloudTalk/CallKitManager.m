@@ -247,7 +247,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
                 NSInteger callFlag = [[roomDict objectForKey:@"callFlag"] integerValue];
                 if (callFlag == CallFlagDisconnected) {
                     [self endCallWithUUID:call.uuid];
-                } else if (callFlag >= CallFlagWithVideo) {
+                } else if ((callFlag & CallFlagWithVideo) != 0) {
                     [self updateCall:call hasVideo:YES];
                 }
             }
