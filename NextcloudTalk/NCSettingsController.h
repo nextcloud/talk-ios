@@ -56,6 +56,7 @@ extern NSString * const kCapabilityChatReferenceId;
 extern NSString * const kCapabilityPhonebookSearch;
 extern NSString * const kCapabilityChatReadStatus;
 extern NSString * const kCapabilityDeleteMessages;
+extern NSString * const kCapabilityCallFlags;
 
 extern NSInteger const kDefaultChatMaxLength;
 extern NSString * const kMinimumRequiredTalkCapability;
