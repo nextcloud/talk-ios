@@ -246,6 +246,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
             if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityCallFlags forAccountId:call.accountId]) {
                 NSInteger callFlag = [[roomDict objectForKey:@"callFlag"] integerValue];
                 if (callFlag == CallFlagDisconnected) {
+                    [self presentMissedCallNotificationForCall:call];
                     [self endCallWithUUID:call.uuid];
                 } else if ((callFlag & CallFlagWithVideo) != 0) {
                     [self updateCall:call hasVideo:YES];
@@ -282,6 +283,12 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 - (void)endCallWithMissedCallNotification:(NSTimer*)timer
 {
     CallKitCall *call = [timer userInfo];
+    [self presentMissedCallNotificationForCall:call];
+    [self endCallWithUUID:call.uuid];
+}
+
+- (void)presentMissedCallNotificationForCall:(CallKitCall *)call
+{
     if (call) {
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
         [userInfo setValue:call.displayName forKey:@"displayName"];
@@ -289,8 +296,6 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
         [userInfo setObject:call.accountId forKey:@"accountId"];
         [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeMissedCall withUserInfo:userInfo];
     }
-    
-    [self endCallWithUUID:call.uuid];
 }
 
 - (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName withAccountId:(NSString *)accountId
