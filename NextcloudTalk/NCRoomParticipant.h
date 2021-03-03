@@ -39,6 +39,7 @@ typedef enum NCParticipantType {
 @property (nonatomic, copy) NSString *sessionId;
 @property (nonatomic, copy) NSString *userId;
 @property (nonatomic, copy) NSString *status;
+@property (nonatomic, copy) NSString *callIconImageName;
 
 + (instancetype)participantWithDictionary:(NSDictionary *)userDict;
 - (BOOL)canModerate;
