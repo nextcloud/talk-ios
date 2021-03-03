@@ -22,6 +22,8 @@
 
 #import "NCRoomParticipant.h"
 
+#import "NCCallController.h"
+
 @implementation NCRoomParticipant
 
 + (instancetype)participantWithDictionary:(NSDictionary *)participantDict
@@ -72,4 +74,22 @@
     }
     return _displayName;
 }
+
+- (NSString *)callIconImageName
+{
+    if (self.inCall == CallFlagDisconnected) {
+        return nil;
+    }
+    
+    if ((self.inCall & CallFlagWithVideo) != 0) {
+        return @"video";
+    }
+    
+    if ((self.inCall & CallFlagWithPhone) != 0) {
+        return @"phone";
+    }
+    
+    return @"audio";
+}
+
 @end
