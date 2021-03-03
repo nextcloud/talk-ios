@@ -120,7 +120,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)joinCall
 {
-    NSInteger flags = (_isAudioOnly) ? CallFlagWithAudio : CallFlagWithVideo;
+    NSInteger flags = (_isAudioOnly) ? CallFlagInCall + CallFlagWithAudio : CallFlagInCall + CallFlagWithAudio + CallFlagWithVideo;
     _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:flags forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
@@ -184,7 +184,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     _userSessionId = [_externalSignalingController sessionId];
     
-    NSInteger flags = (_isAudioOnly) ? CallFlagWithAudio : CallFlagWithVideo;
+    NSInteger flags = (_isAudioOnly) ? CallFlagInCall + CallFlagWithAudio : CallFlagInCall + CallFlagWithAudio + CallFlagWithVideo;
     _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:flags forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
