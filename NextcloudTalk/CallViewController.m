@@ -57,6 +57,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NSMutableDictionary *_videoRenderersDict;
     NSMutableDictionary *_screenRenderersDict;
     NCCallController *_callController;
+    NCChatViewController *_chatViewController;
     UINavigationController *_chatNavigationController;
     ARDCaptureController *_captureController;
     UIView <RTCVideoRenderer> *_screenView;
@@ -1069,9 +1070,9 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)toggleChatView
 {
     if (!_chatNavigationController) {
-        NCChatViewController *chatViewController = [[NCChatViewController alloc] initForRoom:_room];
-        chatViewController.presentedInCall = YES;
-        _chatNavigationController = [[UINavigationController alloc] initWithRootViewController:chatViewController];
+        _chatViewController = [[NCChatViewController alloc] initForRoom:_room];
+        _chatViewController.presentedInCall = YES;
+        _chatNavigationController = [[UINavigationController alloc] initWithRootViewController:_chatViewController];
         [self addChildViewController:_chatNavigationController];
         
         [self.view addSubview:_chatNavigationController.view];
@@ -1094,6 +1095,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         
         [self.view bringSubviewToFront:_buttonsContainerView];
         
+        [_chatViewController willMoveToParentViewController:nil];
         [_chatNavigationController willMoveToParentViewController:nil];
         [_chatNavigationController.view removeFromSuperview];
         [_chatNavigationController removeFromParentViewController];
