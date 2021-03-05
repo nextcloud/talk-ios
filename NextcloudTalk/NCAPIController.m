@@ -71,7 +71,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     _defaultAPISessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configuration];
     
     _apiSessionManagers = [NSMutableDictionary new];
-    _apiUsingCookiesSessionManagers = [NSMutableDictionary new];
     
     for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
         TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
@@ -81,14 +80,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account
 {
-    NSURLSessionConfiguration *configurationUsingCookies = [NSURLSessionConfiguration defaultSessionConfiguration];
-    NCAPISessionManager *apiUsingCookiesSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configurationUsingCookies];
-    [apiUsingCookiesSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
-    [_apiUsingCookiesSessionManagers setObject:apiUsingCookiesSessionManager forKey:account.accountId];
-    
-    NSURLSessionConfiguration *configurationNoCookies = [NSURLSessionConfiguration defaultSessionConfiguration];
-    configurationNoCookies.HTTPCookieStorage = nil;
-    NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configurationNoCookies];
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedCookieStorageForGroupContainerIdentifier:account.accountId];
+    configuration.HTTPCookieStorage = cookieStorage;
+    NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configuration];
     [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
     [_apiSessionManagers setObject:apiSessionManager forKey:account.accountId];
 }
@@ -408,7 +403,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *conversationAPIVersion = [self conversationAPIVersionForAccount:account];
     NSString *URLString = [NSString stringWithFormat:@"%@%@%@/%@", account.server, kNCOCSAPIVersion, conversationAPIVersion, endpoint];
     
-    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.accountId];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSString *sessionId = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"sessionId"];
         if (block) {
@@ -940,7 +935,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:endpoint];
     NSDictionary *parameters = @{@"messages" : messages};
     
-    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.accountId];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
@@ -959,7 +954,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *endpoint = (token) ? [NSString stringWithFormat:@"signaling/%@", token] : @"signaling";
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:endpoint];
     
-    NCAPISessionManager *apiSessionManager = [_apiUsingCookiesSessionManagers objectForKey:account.accountId];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString
                                              parameters:nil progress:nil
                                                 success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
