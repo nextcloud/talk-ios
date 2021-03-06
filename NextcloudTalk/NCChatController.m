@@ -310,6 +310,31 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
     return sortedMessages;
 }
 
+- (void)updateHistoryInBackgroundWithCompletionBlock:(UpdateHistoryInBackgroundCompletionBlock)block
+{
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId history:NO includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        if (!self->_stopChatMessagesPoll) {
+            if (error) {
+                NSLog(@"Could not get background chat history. Error: %@", error.description);
+            } else {
+                // Update chat blocks
+                [self updateLastChatBlockWithNewestKnown:lastKnownMessage];
+                
+                // Store new messages
+                if (messages.count > 0) {
+                    [self storeMessages:messages];
+                }
+            }
+        }
+
+        if (block) {
+            block(error);
+        }
+    }];
+}
+
 - (void)getInitialChatHistory
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
