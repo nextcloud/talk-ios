@@ -810,7 +810,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Chat Controller
 
-- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout lastCommonReadMessage:(NSInteger)lastCommonReadMessage forAccount:(TalkAccount *)account withCompletionBlock:(GetChatMessagesCompletionBlock)block
+- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout lastCommonReadMessage:(NSInteger)lastCommonReadMessage setReadMarker:(BOOL)setReadMarker forAccount:(TalkAccount *)account withCompletionBlock:(GetChatMessagesCompletionBlock)block
 {
     NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"chat/%@", token]];
     NSDictionary *parameters = @{@"lookIntoFuture" : history ? @(0) : @(1),
@@ -818,7 +818,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"timeout" : timeout ? @(30) : @(0),
                                  @"lastKnownMessageId" : @(messageId),
                                  @"lastCommonReadId" : @(lastCommonReadMessage),
-                                 @"setReadMarker" : @(1),
+                                 @"setReadMarker" : setReadMarker ? @(1) : @(0),
                                  @"includeLastKnown" : include ? @(1) : @(0)};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];

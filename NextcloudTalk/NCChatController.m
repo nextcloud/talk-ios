@@ -328,7 +328,7 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                                                             object:self
                                                           userInfo:userInfo];
     } else {
-        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessageId history:YES includeLastMessage:YES timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessageId history:YES includeLastMessage:YES timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
             if (self->_stopChatMessagesPoll) {
                 return;
             }
@@ -392,7 +392,7 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                                                             object:self
                                                           userInfo:userInfo];
     } else {
-        _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
             if (statusCode == 304) {
                 [self updateHistoryFlagInFirstBlock];
             }
@@ -474,7 +474,7 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout lastCommonReadMessage:_room.lastCommonReadMessage forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (self->_stopChatMessagesPoll) {
             return;
         }
