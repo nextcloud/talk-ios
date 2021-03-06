@@ -307,12 +307,24 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             return;
         }
         
-        NSLog(@"Finished rooms update with %ld rooms with new messages", [roomsWithNewMessages count]);
+        NSLog(@"Finished rooms update with %d rooms with new messages", [roomsWithNewMessages count]);
         dispatch_group_t chatUpdateGroup = dispatch_group_create();
         
-        for (NCRoom *room in roomsWithNewMessages) {
-            //TODO: Update chat in rooms
+        // When in low power mode, we only update the conversation list and don't load new messages for each room
+        if (![NSProcessInfo processInfo].isLowPowerModeEnabled) {
+            for (NCRoom *room in roomsWithNewMessages) {
+                dispatch_group_enter(chatUpdateGroup);
+                
+                NSLog(@"Updating room %@", room.internalId);
+                NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
+                
+                [chatController updateHistoryInBackgroundWithCompletionBlock:^(NSError *error) {
+                    NSLog(@"Finished updating room %@", room.internalId);
+                    dispatch_group_leave(chatUpdateGroup);
+                }];
+            }
         }
+
                 
         dispatch_group_notify(chatUpdateGroup, dispatch_get_main_queue(), ^{
             // Notify backgroundFetch that we're finished
