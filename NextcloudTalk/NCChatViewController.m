@@ -1936,7 +1936,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 - (void)savePendingMessage
 {
     _room.pendingMessage = self.textView.text;
-    [[NCRoomsManager sharedInstance] updateRoomLocal:_room];
+    [[NCRoomsManager sharedInstance] updatePendingMessage:_room.pendingMessage forRoom:_room];
 }
 
 #pragma mark - Autocompletion
