@@ -355,8 +355,11 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                                                               userInfo:userInfo];
             if (lastCommonReadMessage > 0) {
                 BOOL newerCommonReadReceived = lastCommonReadMessage > self->_room.lastCommonReadMessage;
-                self->_room.lastCommonReadMessage = lastCommonReadMessage;
+                
                 if (newerCommonReadReceived) {
+                    self->_room.lastCommonReadMessage = lastCommonReadMessage;
+                    [[NCRoomsManager sharedInstance] updateLastCommonReadMessage:lastCommonReadMessage forRoom:self->_room];
+                    
                     [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveNewerCommonReadMessageNotification
                                                                         object:self
                                                                       userInfo:userInfo];
@@ -502,14 +505,11 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                 
                 for (NCChatMessage *message in storedMessages) {
                     // Update the current room with the new message
-                    // The stored information about this room will be updated by calling savePendingMessage
-                    // in NCChatViewController -> a transaction wouldn't make sense here, as it would be overriden again
                     if (message.messageId == lastKnownMessage && message.timestamp > self->_room.lastActivity) {
-                        self->_room.lastMessageId = message.internalId;
                         self->_room.lastActivity = message.timestamp;
-                        self->_room.unreadMention = NO;
-                        self->_room.unreadMessages = 0;
+                        [[NCRoomsManager sharedInstance] updateLastMessage:message withNoUnreadMessages:YES forRoom:self->_room];
                     }
+                    
                     // Notify if "deleted messages" have been received
                     if ([message.systemMessage isEqualToString:@"message_deleted"]) {
                         [userInfo setObject:message forKey:@"deleteMessage"];
@@ -525,8 +525,11 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                                                           userInfo:userInfo];
         if (lastCommonReadMessage > 0) {
             BOOL newerCommonReadReceived = lastCommonReadMessage > self->_room.lastCommonReadMessage;
-            self->_room.lastCommonReadMessage = lastCommonReadMessage;
+            
             if (newerCommonReadReceived) {
+                self->_room.lastCommonReadMessage = lastCommonReadMessage;
+                [[NCRoomsManager sharedInstance] updateLastCommonReadMessage:lastCommonReadMessage forRoom:self->_room];
+                
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveNewerCommonReadMessageNotification
                                                                     object:self
                                                                   userInfo:userInfo];

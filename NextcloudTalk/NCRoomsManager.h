@@ -59,6 +59,8 @@ typedef void (^UpdateRoomsAndChatsCompletionBlock)(NSError *error);
 - (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus;
 - (void)updateRoom:(NSString *)token;
 - (void)updatePendingMessage:(NSString *)message forRoom:(NCRoom *)room;
+- (void)updateLastMessage:(NCChatMessage *)message withNoUnreadMessages:(BOOL)noUnreadMessages forRoom:(NCRoom *)room;
+- (void)updateLastCommonReadMessage:(NSInteger)messageId forRoom:(NCRoom *)room;
 - (void)joinRoom:(NSString *)token;
 - (void)rejoinRoom:(NSString *)token;
 // Chat
