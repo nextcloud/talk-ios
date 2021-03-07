@@ -343,6 +343,18 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
     
     if (storedMessages.count > 0) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
+        
+        for (NCChatMessage *message in storedMessages) {
+            // Notify if "deleted messages" have been received
+            if ([message.systemMessage isEqualToString:@"message_deleted"]) {
+                [userInfo setObject:message forKey:@"deleteMessage"];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveDeletedMessageNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
+            }
+        }
+        
+        [userInfo removeAllObjects];
         [userInfo setObject:self->_room.token forKey:@"room"];
         [userInfo setObject:storedMessages forKey:@"messages"];
         
