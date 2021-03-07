@@ -782,6 +782,9 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room fromChatViewController:self];
     [self.navigationController pushViewController:roomInfoVC animated:YES];
+    
+    // When returning from RoomInfoTableViewController the default keyboard will be shown, so the height might be wrong -> make sure the keyboard is hidden
+    [self dismissKeyboard:YES];
 }
 
 - (void)unreadMessagesButtonPressed:(id)sender
