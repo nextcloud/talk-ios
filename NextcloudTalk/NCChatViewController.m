@@ -392,7 +392,14 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 -(void)appDidBecomeActive:(NSNotification*)notification
 {
-    [self removeUnreadMessagesSeparator];
+    // Check if new messages were added while the app was inactive (eg. via background-refresh)
+    NCChatMessage *lastMessage = [[self->_messages objectForKey:[self->_dateSections lastObject]] lastObject];
+    
+    if (lastMessage) {
+        [self.chatController checkForNewMessagesFromMessageId:lastMessage.messageId];
+        [self checkLastCommonReadMessage];
+    }
+    
     if (!_offlineMode) {
         [[NCRoomsManager sharedInstance] joinRoom:_room.token];
     }
@@ -402,6 +409,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     _hasReceiveNewMessages = NO;
     _leftChatWithVisibleChatVC = YES;
+    [self removeUnreadMessagesSeparator];
     [_chatController stopChatController];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
