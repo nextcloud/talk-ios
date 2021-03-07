@@ -307,7 +307,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             return;
         }
         
-        NSLog(@"Finished rooms update with %d rooms with new messages", [roomsWithNewMessages count]);
+        NSLog(@"Finished rooms update with %lu rooms with new messages", [roomsWithNewMessages count]);
         dispatch_group_t chatUpdateGroup = dispatch_group_create();
         
         // When in low power mode, we only update the conversation list and don't load new messages for each room
