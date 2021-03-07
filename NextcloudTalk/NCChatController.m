@@ -325,6 +325,7 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                 // Store new messages
                 if (messages.count > 0) {
                     [self storeMessages:messages];
+                    [self checkLastCommonReadMessage:lastCommonReadMessage];
                 }
             }
         }
@@ -403,18 +404,8 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
             [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                                 object:self
                                                               userInfo:userInfo];
-            if (lastCommonReadMessage > 0) {
-                BOOL newerCommonReadReceived = lastCommonReadMessage > self->_room.lastCommonReadMessage;
-                
-                if (newerCommonReadReceived) {
-                    self->_room.lastCommonReadMessage = lastCommonReadMessage;
-                    [[NCRoomsManager sharedInstance] updateLastCommonReadMessage:lastCommonReadMessage forRoom:self->_room];
-                    
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveNewerCommonReadMessageNotification
-                                                                        object:self
-                                                                      userInfo:userInfo];
-                }
-            }
+            
+            [self checkLastCommonReadMessage:lastCommonReadMessage];
         }];
     }
 }
@@ -573,18 +564,9 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
                                                             object:self
                                                           userInfo:userInfo];
-        if (lastCommonReadMessage > 0) {
-            BOOL newerCommonReadReceived = lastCommonReadMessage > self->_room.lastCommonReadMessage;
-            
-            if (newerCommonReadReceived) {
-                self->_room.lastCommonReadMessage = lastCommonReadMessage;
-                [[NCRoomsManager sharedInstance] updateLastCommonReadMessage:lastCommonReadMessage forRoom:self->_room];
-                
-                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveNewerCommonReadMessageNotification
-                                                                    object:self
-                                                                  userInfo:userInfo];
-            }
-        }
+        
+        [self checkLastCommonReadMessage:lastCommonReadMessage];
+        
         if (error.code != -999) {
             NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
             [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:YES];
@@ -623,6 +605,24 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                                                             object:self
                                                           userInfo:userInfo];
     }];
+}
+
+- (void)checkLastCommonReadMessage:(NSInteger)lastCommonReadMessage
+{
+    if (lastCommonReadMessage > 0) {
+        BOOL newerCommonReadReceived = lastCommonReadMessage > self->_room.lastCommonReadMessage;
+        
+        if (newerCommonReadReceived) {
+            self->_room.lastCommonReadMessage = lastCommonReadMessage;
+            [[NCRoomsManager sharedInstance] updateLastCommonReadMessage:lastCommonReadMessage forRoom:self->_room];
+            
+            NSMutableDictionary *userInfo = [NSMutableDictionary new];
+            [userInfo setObject:self->_room.token forKey:@"room"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveNewerCommonReadMessageNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+        }
+    }
 }
 
 - (BOOL)isChatBeingBlocked:(NSInteger)statusCode
