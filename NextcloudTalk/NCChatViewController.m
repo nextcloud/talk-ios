@@ -1513,16 +1513,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             // Set last received message as last read message
             NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
             self->_lastReadMessage = lastReceivedMessage.messageId;
-        } else if (firstNewMessagesAfterHistory) {
-            // Now the chat is loaded after getting the initial history and the first new messages block.
-            // Even if there are no new messages, tableview should be reloaded and scrolled to the bottom
-            // as it was done when only initial history was loaded.
-            [self.tableView reloadData];
-            NSMutableArray *messagesForLastDate = [self->_messages objectForKey:[self->_dateSections lastObject]];
-            if (messagesForLastDate.count > 0) {
-                NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
-                [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
-            }
         }
         
         if (firstNewMessagesAfterHistory) {
