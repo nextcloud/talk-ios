@@ -335,6 +335,31 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
     }];
 }
 
+- (void)checkForNewMessagesFromMessageId:(NSInteger)messageId
+{
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    NSArray *storedMessages = [self getNewStoredMessagesInBlock:lastChatBlock sinceMessageId:messageId];
+    
+    if (storedMessages.count > 0) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary new];
+        [userInfo setObject:self->_room.token forKey:@"room"];
+        [userInfo setObject:storedMessages forKey:@"messages"];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+        
+        // Messages are already sorted by messageId here
+        NCChatMessage *lastMessage = [storedMessages lastObject];
+
+        // Make sure we update the unread flags for the room (lastMessage can already be set, but there still might be unread flags)
+        if (lastMessage.timestamp >= self->_room.lastActivity) {
+            self->_room.lastActivity = lastMessage.timestamp;
+            [[NCRoomsManager sharedInstance] updateLastMessage:lastMessage withNoUnreadMessages:YES forRoom:self->_room];
+        }
+    }
+}
+
 - (void)getInitialChatHistory
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];

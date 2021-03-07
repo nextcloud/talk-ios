@@ -58,6 +58,7 @@ extern NSString * const NCChatControllerDidReceiveDeletedMessageNotification;
 - (void)getInitialChatHistoryForOfflineMode;
 - (void)getHistoryBatchFromMessagesId:(NSInteger)messageId;
 - (void)getHistoryBatchOfflineFromMessagesId:(NSInteger)messageId;
+- (void)checkForNewMessagesFromMessageId:(NSInteger)messageId;
 - (void)updateHistoryInBackgroundWithCompletionBlock:(UpdateHistoryInBackgroundCompletionBlock)block;
 - (void)startReceivingNewChatMessages;
 - (void)stopReceivingNewChatMessages;
