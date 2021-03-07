@@ -94,7 +94,6 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, assign) BOOL hasStopped;
 @property (nonatomic, assign) NSInteger lastReadMessage;
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
-@property (nonatomic, strong) NSIndexPath *unreadMessagesSeparatorIP;
 @property (nonatomic, assign) NSInteger chatViewPresentedTimestamp;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
 @property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
@@ -1458,13 +1457,12 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             // Otherwise longer messages will prevent scrolling
             BOOL shouldScrollOnNewMessages = [self shouldScrollOnNewMessages] ;
             
-            // Check if unread messages separator should be added
-            BOOL unreadMessagesReceived = NO;
-            if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0) {
-                unreadMessagesReceived = YES;
+            // Check if unread messages separator should be added (only if it's not already shown)
+            NSIndexPath *indexPathUnreadMessageSeparator;
+            if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && ![self getIndexPathOfUnreadMessageSeparator]) {
                 NSMutableArray *messagesForLastDateBeforeUpdate = [self->_messages objectForKey:[self->_dateSections lastObject]];
                 [messagesForLastDateBeforeUpdate addObject:self->_unreadMessagesSeparator];
-                self->_unreadMessagesSeparatorIP = [NSIndexPath indexPathForRow:messagesForLastDateBeforeUpdate.count - 1 inSection: self->_dateSections.count - 1];
+                indexPathUnreadMessageSeparator = [NSIndexPath indexPathForRow:messagesForLastDateBeforeUpdate.count - 1 inSection: self->_dateSections.count - 1];
                 [self->_messages setObject:messagesForLastDateBeforeUpdate forKey:[self->_dateSections lastObject]];
             }
             
@@ -1493,10 +1491,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             BOOL areReallyNewMessages = firstNewMessage.timestamp >= self->_chatViewPresentedTimestamp;
             
             // Position chat view
-            if (unreadMessagesReceived) {
+            if (indexPathUnreadMessageSeparator) {
                 // Dispatch it in the next cycle so reloadData is always completed.
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.tableView scrollToRowAtIndexPath:self->_unreadMessagesSeparatorIP atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+                    [self.tableView scrollToRowAtIndexPath:indexPathUnreadMessageSeparator atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
                 });
             } else if (shouldScrollOnNewMessages || newMessagesContainUserMessage) {
                 [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
@@ -1902,14 +1900,34 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     _unreadMessageButton.hidden = YES;
 }
 
+- (NSIndexPath *)getIndexPathOfUnreadMessageSeparator
+{
+    // Most likely the unreadMessageSeparator is somewhere near the bottom of the chat, so we look for it from bottom up
+    for (NSInteger sectionIndex = (self->_dateSections.count - 1); sectionIndex >= 0; sectionIndex--) {
+        NSDate *dateSection = [self->_dateSections objectAtIndex:sectionIndex];
+        NSMutableArray *messagesInSection = [self->_messages objectForKey:dateSection];
+        
+        for (NSInteger messageIndex = (messagesInSection.count - 1); messageIndex >= 0; messageIndex--) {
+            NCChatMessage *chatMessage = [messagesInSection objectAtIndex:messageIndex];
+            
+            if (chatMessage && chatMessage.messageId == kUnreadMessagesSeparatorIdentifier) {
+                return [NSIndexPath indexPathForRow:messageIndex inSection:sectionIndex];
+            }
+        }
+    }
+    
+    return nil;
+}
+
 - (void)removeUnreadMessagesSeparator
 {
-    if (_unreadMessagesSeparatorIP) {
-        NSDate *separatorDate = [_dateSections objectAtIndex:_unreadMessagesSeparatorIP.section];
+    NSIndexPath *indexPath = [self getIndexPathOfUnreadMessageSeparator];
+    
+    if (indexPath) {
+        NSDate *separatorDate = [_dateSections objectAtIndex:indexPath.section];
         NSMutableArray *messages = [_messages objectForKey:separatorDate];
-        [messages removeObjectAtIndex:_unreadMessagesSeparatorIP.row];
-        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:_unreadMessagesSeparatorIP] withRowAnimation:UITableViewRowAnimationTop];
-        _unreadMessagesSeparatorIP = nil;
+        [messages removeObjectAtIndex:indexPath.row];
+        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationTop];
     }
 }
 
@@ -1928,7 +1946,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     _hasReceiveInitialHistory = NO;
     _hasRequestedInitialHistory = NO;
     _hasReceiveNewMessages = NO;
-    _unreadMessagesSeparatorIP = nil;
     [self hideNewMessagesView];
     [self.tableView reloadData];
 }
