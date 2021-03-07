@@ -1569,20 +1569,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         return;
     }
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSMutableArray *reloadCells = [NSMutableArray new];
-        for (NSIndexPath *visibleIndexPath in self.tableView.indexPathsForVisibleRows) {
-            NSDate *sectionDate = [self->_dateSections objectAtIndex:visibleIndexPath.section];
-            NCChatMessage *message = [[self->_messages objectForKey:sectionDate] objectAtIndex:visibleIndexPath.row];
-            if (message.messageId > 0 && message.messageId <= self->_room.lastCommonReadMessage) {
-                [reloadCells addObject:visibleIndexPath];
-            }
-        }
-        
-        [self.tableView beginUpdates];
-        [self.tableView reloadRowsAtIndexPaths:reloadCells withRowAnimation:UITableViewRowAnimationNone];
-        [self.tableView endUpdates];
-    });
+    [self checkLastCommonReadMessage];
 }
 
 - (void)didReceiveDeletedMessage:(NSNotification *)notification
@@ -1935,6 +1922,26 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     if ([visibleCellsIPs containsObject:_firstUnreadMessageIP]) {
          [self hideNewMessagesView];
     }
+}
+
+- (void)checkLastCommonReadMessage
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSMutableArray *reloadCells = [NSMutableArray new];
+        for (NSIndexPath *visibleIndexPath in self.tableView.indexPathsForVisibleRows) {
+            NSDate *sectionDate = [self->_dateSections objectAtIndex:visibleIndexPath.section];
+            NCChatMessage *message = [[self->_messages objectForKey:sectionDate] objectAtIndex:visibleIndexPath.row];
+            if (message.messageId > 0 && message.messageId <= self->_room.lastCommonReadMessage) {
+                [reloadCells addObject:visibleIndexPath];
+            }
+        }
+        
+        if (reloadCells.count > 0) {
+            [self.tableView beginUpdates];
+            [self.tableView reloadRowsAtIndexPaths:reloadCells withRowAnimation:UITableViewRowAnimationNone];
+            [self.tableView endUpdates];
+        }
+    });
 }
 
 - (void)cleanChat
