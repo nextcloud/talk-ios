@@ -1366,23 +1366,63 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         
         NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
         if (messages.count > 0) {
-            // Set last received message as last read message
-            NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
-            self->_lastReadMessage = lastReceivedMessage.messageId;
+            NSIndexPath *indexPathUnreadMessageSeparator;
+            int lastMessageIndex = (int)[messages count] - 1;
+            NCChatMessage *lastMessage = [messages objectAtIndex:lastMessageIndex];
+            
             [self appendMessages:messages inDictionary:self->_messages];
+            
+            if (lastMessage && lastMessage.messageId > self->_lastReadMessage) {
+                // Iterate backwards to find the correct location for the unread message separator
+                for (NSInteger sectionIndex = (self->_dateSections.count - 1); sectionIndex >= 0; sectionIndex--) {
+                    NSDate *dateSection = [self->_dateSections objectAtIndex:sectionIndex];
+                    NSMutableArray *messagesInSection = [self->_messages objectForKey:dateSection];
+                    
+                    for (NSInteger messageIndex = (messagesInSection.count - 1); messageIndex >= 0; messageIndex--) {
+                        NCChatMessage *chatMessage = [messagesInSection objectAtIndex:messageIndex];
+                        
+                        if (chatMessage && chatMessage.messageId <= self->_lastReadMessage) {
+                            // Insert unread message separator after the current message
+                            [messagesInSection insertObject:self->_unreadMessagesSeparator atIndex:(messageIndex + 1)];
+                            [self->_messages setObject:messagesInSection forKey:dateSection];
+                            indexPathUnreadMessageSeparator = [NSIndexPath indexPathForRow:(messageIndex + 1) inSection:sectionIndex];
+                            
+                            break;
+                        }
+                    }
+                    
+                    if (indexPathUnreadMessageSeparator) {
+                        break;
+                    }
+                }
+                
+                // Set last received message as last read message
+                self->_lastReadMessage = lastMessage.messageId;
+            }
+            
+            NSMutableArray *storedTemporaryMessages = [self->_chatController getTemporaryMessages];
+            if (storedTemporaryMessages.count > 0) {
+                [self insertMessages:storedTemporaryMessages];
+                
+                if (indexPathUnreadMessageSeparator) {
+                    // It is possible that temporary messages are added which add new sections
+                    // In this case the indexPath of the unreadMessageSeparator would be invalid and could lead to a crash
+                    // Therefore me need to make sure that got the correct indexPath here
+                    indexPathUnreadMessageSeparator = [self getIndexPathOfUnreadMessageSeparator];
+                }
+            }
+            
             [self.tableView reloadData];
-            [self.tableView slk_scrollToBottomAnimated:NO];
+            
+            if (indexPathUnreadMessageSeparator) {
+                [self.tableView scrollToRowAtIndexPath:indexPathUnreadMessageSeparator atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+            } else {
+                [self.tableView slk_scrollToBottomAnimated:NO];
+            }
         } else {
             [self->_chatBackgroundView.placeholderView setHidden:NO];
         }
-        
-        NSMutableArray *storedTemporaryMessages = [self->_chatController getTemporaryMessages];
-        if (storedTemporaryMessages.count > 0) {
-            [self insertMessages:storedTemporaryMessages];
-            [self.tableView reloadData];
-            [self.tableView slk_scrollToBottomAnimated:NO];
-        }
-        
+                
         self->_hasReceiveInitialHistory = YES;
         
         NSError *error = [notification.userInfo objectForKey:@"error"];
