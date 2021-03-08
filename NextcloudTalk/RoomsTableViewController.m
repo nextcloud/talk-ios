@@ -258,6 +258,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES];
         [self setUnreadMessageForInactiveAccountsIndicator];
     }
+    
+    [FTPopOverMenu dismiss];
 }
 
 #pragma mark - Interface Builder Actions
