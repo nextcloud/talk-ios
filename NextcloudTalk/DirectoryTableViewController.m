@@ -339,7 +339,7 @@
     }
     
     // Name and modification date
-    cell.fileNameLabel.text = [item.fileName stringByStandardizingPath];
+    cell.fileNameLabel.text = item.fileName;
     cell.fileInfoLabel.text = [self dateDiff:item.date];
     
     // Icon or preview
@@ -374,7 +374,7 @@
         DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:selectedItemPath inRoom:_token];
         [self.navigationController pushViewController:directoryVC animated:YES];
     } else {
-        [self showConfirmationDialogForSharingItemWithPath:selectedItemPath andName:[item.fileName stringByStandardizingPath]];
+        [self showConfirmationDialogForSharingItemWithPath:selectedItemPath andName:item.fileName];
     }
     
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
