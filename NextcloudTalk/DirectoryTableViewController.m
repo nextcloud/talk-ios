@@ -339,7 +339,7 @@
     }
     
     // Name and modification date
-    cell.fileNameLabel.text = [item.fileName stringByStandardizingPath];
+    cell.fileNameLabel.text = item.fileName;
     cell.fileInfoLabel.text = [self dateDiff:item.date];
     
     // Icon or preview
@@ -368,13 +368,13 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCCommunicationFile *item = [_itemsInDirectory objectAtIndex:indexPath.row];
-    NSString *selectedItemPath = [NSString stringWithFormat:@"%@%@", _path, item.fileName];
+    NSString *selectedItemPath = [NSString stringWithFormat:@"%@/%@", _path, item.fileName];
     
     if (item.directory) {
         DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:selectedItemPath inRoom:_token];
         [self.navigationController pushViewController:directoryVC animated:YES];
     } else {
-        [self showConfirmationDialogForSharingItemWithPath:selectedItemPath andName:[item.fileName stringByStandardizingPath]];
+        [self showConfirmationDialogForSharingItemWithPath:selectedItemPath andName:item.fileName];
     }
     
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
