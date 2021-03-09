@@ -368,7 +368,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCCommunicationFile *item = [_itemsInDirectory objectAtIndex:indexPath.row];
-    NSString *selectedItemPath = [NSString stringWithFormat:@"%@%@", _path, item.fileName];
+    NSString *selectedItemPath = [NSString stringWithFormat:@"%@/%@", _path, item.fileName];
     
     if (item.directory) {
         DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:selectedItemPath inRoom:_token];
