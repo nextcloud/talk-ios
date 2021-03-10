@@ -70,6 +70,7 @@ typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
 typedef void (^GetFileByFileIdCompletionBlock)(NCCommunicationFile *file, NSInteger error, NSString *errorDescription);
 
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
+typedef void (^SetUserPhoneNumberCompletionBlock)(NSError *error, NSInteger statusCode);
 
 typedef void (^GetUserStatusCompletionBlock)(NSDictionary *userStatus, NSError *error);
 typedef void (^SetUserStatusCompletionBlock)(NSError *error);
@@ -158,6 +159,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 // User Profile
 - (NSURLSessionDataTask *)getUserProfileForAccount:(TalkAccount *)account withCompletionBlock:(GetUserProfileCompletionBlock)block;
+- (NSURLSessionDataTask *)setUserPhoneNumber:(NSString *)phoneNumber forAccount:(TalkAccount *)account withCompletionBlock:(SetUserPhoneNumberCompletionBlock)block;
 - (void)saveProfileImageForAccount:(TalkAccount *)account;
 - (UIImage *)userProfileImageForAccount:(TalkAccount *)account withSize:(CGSize)size;
 - (void)removeProfileImageForAccount:(TalkAccount *)account;

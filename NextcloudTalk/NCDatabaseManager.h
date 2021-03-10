@@ -35,6 +35,7 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 @property NSString *user;
 @property NSString *userId;
 @property NSString *userDisplayName;
+@property NSString *phone;
 @property BOOL pushNotificationSubscribed;
 @property NSData *pushNotificationPublicKey;
 @property NSString *deviceIdentifier;
