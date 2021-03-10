@@ -442,6 +442,7 @@ typedef enum AboutSection {
         NSString *phoneNumber = [[setPhoneNumberDialog textFields][0] text];
         [[NCAPIController sharedInstance] setUserPhoneNumber:phoneNumber forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error, NSInteger statusCode) {
             if (error) {
+                [self presentPhoneNumberErrorDialog:phoneNumber];
                 NSLog(@"Error setting phone number: %@", error);
             }
             [self refreshUserProfile];
@@ -456,6 +457,27 @@ typedef enum AboutSection {
     [setPhoneNumberDialog addAction:cancelAction];
     
     [self presentViewController:setPhoneNumberDialog animated:YES completion:nil];
+}
+
+- (void)presentPhoneNumberErrorDialog:(NSString *)phoneNumber
+{
+    NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
+    NSError *error = nil;
+    NBPhoneNumber *failedPhoneNumber = [phoneUtil parse:phoneNumber defaultRegion:nil error:&error];
+    UIAlertController *failedPhoneNumberDialog =
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Could not set phone number", nil)
+                                        message:[NSString stringWithFormat:NSLocalizedString(@"An error occurred while setting %@ as phone number", nil), [phoneUtil format:failedPhoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error]]
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *retryAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Retry", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self presentSetPhoneNumberDialog];
+    }];
+    [failedPhoneNumberDialog addAction:retryAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
+    [failedPhoneNumberDialog addAction:cancelAction];
+    
+    [self presentViewController:failedPhoneNumberDialog animated:YES completion:nil];
 }
 
 #pragma mark - UITextField delegate
