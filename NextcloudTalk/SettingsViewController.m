@@ -39,6 +39,7 @@
 #import "UIImageView+Letters.h"
 #import "CCBKPasscode.h"
 #import "RoundedNumberView.h"
+#import "NBPhoneNumberUtil.h"
 #import <SafariServices/SafariServices.h>
 
 typedef enum SettingsSection {
@@ -426,7 +427,12 @@ typedef enum AboutSection {
     
     __weak typeof(self) weakSelf = self;
     [setPhoneNumberDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-        textField.placeholder = NSLocalizedString(@"Your phone number", nil);
+        NSString *location = [[NSLocale currentLocale] countryCode];
+        NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
+        NSError *error = nil;
+        textField.text = [NSString stringWithFormat:@"+%@", [phoneUtil getCountryCodeForRegion:location]];
+        NBPhoneNumber *exampleNumber = [phoneUtil getExampleNumber:location error:&error];
+        textField.placeholder = [phoneUtil format:exampleNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error];
         textField.keyboardType = UIKeyboardTypePhonePad;
         textField.delegate = weakSelf;
         textField.tag = k_phone_textfield_tag;
@@ -454,22 +460,14 @@ typedef enum AboutSection {
 
 #pragma mark - UITextField delegate
 
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
     if (textField.tag == k_phone_textfield_tag) {
-        // Prevent crashing undo bug
-        // https://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield
-        if (range.length + range.location > textField.text.length) {
-            return NO;
-        }
-        // Set maximum character length
-        NSUInteger newLength = [textField.text length] + [string length] - range.length;
-        BOOL hasAllowedLength = newLength <= 200;
-        // Enable/Disable password confirmation button
-        if (hasAllowedLength) {
-            NSString *newValue = [[textField.text stringByReplacingCharactersInRange:range withString:string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            _setPhoneAction.enabled = (newValue.length > 0);
-        }
-        return hasAllowedLength;
+        NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
+        NSError *error = nil;
+        NSString *inputPhoneNumber = [textField.text stringByReplacingCharactersInRange:range withString:string];
+        NBPhoneNumber *phoneNumber = [phoneUtil parse:inputPhoneNumber defaultRegion:nil error:&error];
+        _setPhoneAction.enabled = [phoneUtil isValidNumber:phoneNumber];
     }
     return YES;
 }
