@@ -40,6 +40,7 @@
 #import "CCBKPasscode.h"
 #import "RoundedNumberView.h"
 #import "NBPhoneNumberUtil.h"
+#import "UIView+Toast.h"
 #import <SafariServices/SafariServices.h>
 
 typedef enum SettingsSection {
@@ -444,6 +445,8 @@ typedef enum AboutSection {
             if (error) {
                 [self presentPhoneNumberErrorDialog:phoneNumber];
                 NSLog(@"Error setting phone number: %@", error);
+            } else {
+                [self.view makeToast:NSLocalizedString(@"Phone number set successfully", nil) duration:3 position:CSToastPositionCenter];
             }
             [self refreshUserProfile];
         }];
