@@ -39,6 +39,8 @@
 #import "UIImageView+Letters.h"
 #import "CCBKPasscode.h"
 #import "RoundedNumberView.h"
+#import "NBPhoneNumberUtil.h"
+#import "UIView+Toast.h"
 #import <SafariServices/SafariServices.h>
 
 typedef enum SettingsSection {
@@ -68,10 +70,13 @@ typedef enum AboutSection {
     kAboutSectionNumber
 } AboutSection;
 
-@interface SettingsViewController ()
+#define k_phone_textfield_tag    99
+
+@interface SettingsViewController () <UITextFieldDelegate>
 {
     NCUserStatus *_activeUserStatus;
     UISwitch *_contactSyncSwitch;
+    UIAlertAction *_setPhoneAction;
 }
 
 @end
@@ -266,10 +271,19 @@ typedef enum AboutSection {
     [UIAlertController alertControllerWithTitle:nil
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
+    // Add phone number
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if (_contactSyncSwitch.on && (!activeAccount.phone || [activeAccount.phone isEqualToString:@""])) {
+        UIAlertAction *addAccountAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Set phone number", nil)
+                                           style:UIAlertActionStyleDefault
+                                           handler:^void (UIAlertAction *action) {
+                                                [self presentSetPhoneNumberDialog];
+                                            }];
+        [addAccountAction setValue:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [optionsActionSheet addAction:addAccountAction];
+    }
     
-    NSString *actionTitle = (multiAccountEnabled) ? NSLocalizedString(@"Remove account", nil) : NSLocalizedString(@"Log out", nil);
-    UIImage *actionImage = (multiAccountEnabled) ? [UIImage imageNamed:@"delete-action"] : [UIImage imageNamed:@"logout"];
-    
+    // Add account
     if (multiAccountEnabled) {
         UIAlertAction *addAccountAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Add account", nil)
                                            style:UIAlertActionStyleDefault
@@ -280,6 +294,9 @@ typedef enum AboutSection {
         [optionsActionSheet addAction:addAccountAction];
     }
     
+    // Remove account / Log out
+    NSString *actionTitle = (multiAccountEnabled) ? NSLocalizedString(@"Remove account", nil) : NSLocalizedString(@"Log out", nil);
+    UIImage *actionImage = (multiAccountEnabled) ? [UIImage imageNamed:@"delete-action"] : [UIImage imageNamed:@"logout"];
     UIAlertAction *logOutAction = [UIAlertAction actionWithTitle:actionTitle
                                                      style:UIAlertActionStyleDestructive
                                                    handler:^void (UIAlertAction *action) {
@@ -390,6 +407,97 @@ typedef enum AboutSection {
     }];
 }
 
+#pragma mark - User phone number
+
+- (void)checkUserPhoneNumber
+{
+    [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        if (!activeAccount.phone || [activeAccount.phone isEqualToString:@""]) {
+            [self presentSetPhoneNumberDialog];
+        }
+    }];
+}
+
+- (void)presentSetPhoneNumberDialog
+{
+    UIAlertController *setPhoneNumberDialog =
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Phone number", nil)
+                                        message:NSLocalizedString(@"You can set your phone number so other users will be able to find you", nil)
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    __weak typeof(self) weakSelf = self;
+    [setPhoneNumberDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        NSString *location = [[NSLocale currentLocale] countryCode];
+        NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
+        NSError *error = nil;
+        textField.text = [NSString stringWithFormat:@"+%@", [phoneUtil getCountryCodeForRegion:location]];
+        NBPhoneNumber *exampleNumber = [phoneUtil getExampleNumber:location error:&error];
+        textField.placeholder = [phoneUtil format:exampleNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error];
+        textField.keyboardType = UIKeyboardTypePhonePad;
+        textField.delegate = weakSelf;
+        textField.tag = k_phone_textfield_tag;
+    }];
+    
+    _setPhoneAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Set", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *phoneNumber = [[setPhoneNumberDialog textFields][0] text];
+        [[NCAPIController sharedInstance] setUserPhoneNumber:phoneNumber forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+            if (error) {
+                [self presentPhoneNumberErrorDialog:phoneNumber];
+                NSLog(@"Error setting phone number: %@", error);
+            } else {
+                [self.view makeToast:NSLocalizedString(@"Phone number set successfully", nil) duration:3 position:CSToastPositionCenter];
+            }
+            [self refreshUserProfile];
+        }];
+    }];
+    _setPhoneAction.enabled = NO;
+    [setPhoneNumberDialog addAction:_setPhoneAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Skip", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        [self refreshUserProfile];
+    }];
+    [setPhoneNumberDialog addAction:cancelAction];
+    
+    [self presentViewController:setPhoneNumberDialog animated:YES completion:nil];
+}
+
+- (void)presentPhoneNumberErrorDialog:(NSString *)phoneNumber
+{
+    NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
+    NSError *error = nil;
+    NBPhoneNumber *failedPhoneNumber = [phoneUtil parse:phoneNumber defaultRegion:nil error:&error];
+    UIAlertController *failedPhoneNumberDialog =
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Could not set phone number", nil)
+                                        message:[NSString stringWithFormat:NSLocalizedString(@"An error occurred while setting %@ as phone number", nil), [phoneUtil format:failedPhoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error]]
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *retryAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Retry", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self presentSetPhoneNumberDialog];
+    }];
+    [failedPhoneNumberDialog addAction:retryAction];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
+    [failedPhoneNumberDialog addAction:cancelAction];
+    
+    [self presentViewController:failedPhoneNumberDialog animated:YES completion:nil];
+}
+
+#pragma mark - UITextField delegate
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    if (textField.tag == k_phone_textfield_tag) {
+        NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
+        NSError *error = nil;
+        NSString *inputPhoneNumber = [textField.text stringByReplacingCharactersInRange:range withString:string];
+        NBPhoneNumber *phoneNumber = [phoneUtil parse:inputPhoneNumber defaultRegion:nil error:&error];
+        _setPhoneAction.enabled = [phoneUtil isValidNumber:phoneNumber];
+    }
+    return YES;
+}
+
+
 #pragma mark - Configuration
 
 - (void)presentVideoResolutionsSelector
@@ -473,6 +581,7 @@ typedef enum AboutSection {
         if (![[NCContactsManager sharedInstance] isContactAccessDetermined]) {
             [[NCContactsManager sharedInstance] requestContactsAccess];
         } else if ([[NCContactsManager sharedInstance] isContactAccessAuthorized]) {
+            [self checkUserPhoneNumber];
             [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:YES];
         }
     } else {
@@ -593,6 +702,14 @@ typedef enum AboutSection {
             dateFormatter.dateStyle = NSDateFormatterMediumStyle;
             dateFormatter.timeStyle = NSDateFormatterShortStyle;
             return [NSString stringWithFormat:NSLocalizedString(@"Last sync: %@", nil), [dateFormatter stringFromDate:lastUpdate]];
+        }
+    }
+    
+    if (settingsSection == kSettingsSectionUser && _contactSyncSwitch.on) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        if (!activeAccount.phone || [activeAccount.phone isEqualToString:@""]) {
+            NSString *missingPhoneString = NSLocalizedString(@"Missing phone number information", nil);
+            return [NSString stringWithFormat:@"⚠ %@", missingPhoneString];
         }
     }
     

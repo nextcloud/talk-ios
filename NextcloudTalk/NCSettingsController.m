@@ -294,11 +294,13 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
         if (!error) {
             NSString *userDisplayName = [userProfile objectForKey:@"display-name"];
             NSString *userId = [userProfile objectForKey:@"id"];
+            NSString *phone = [userProfile objectForKey:@"phone"];
             RLMRealm *realm = [RLMRealm defaultRealm];
             TalkAccount *managedActiveAccount = [TalkAccount objectsWhere:(@"active = true")].firstObject;
             [realm beginWriteTransaction];
             managedActiveAccount.userDisplayName = userDisplayName;
             managedActiveAccount.userId = userId;
+            managedActiveAccount.phone = phone;
             [realm commitWriteTransaction];
             [[NCAPIController sharedInstance] saveProfileImageForAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
             if (block) block(nil);

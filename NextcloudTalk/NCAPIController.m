@@ -1140,6 +1140,32 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+- (NSURLSessionDataTask *)setUserPhoneNumber:(NSString *)phoneNumber forAccount:(TalkAccount *)account withCompletionBlock:(SetUserPhoneNumberCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/cloud/users/%@", account.server, account.userId];
+    NSDictionary *parameters = @{@"format" : @"json",
+                                 @"key" : @"phone",
+                                 @"value" : phoneNumber};
+    
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil, 0);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            NSInteger statusCode = 0;
+            if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
+                NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+                statusCode = httpResponse.statusCode;
+            }
+            block(error, statusCode);
+        }
+    }];
+    
+    return task;
+}
+
 - (void)saveProfileImageForAccount:(TalkAccount *)account
 {
     NSURLRequest *request = [self createAvatarRequestForUser:account.userId andSize:160 usingAccount:account];
