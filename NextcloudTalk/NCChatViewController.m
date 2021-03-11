@@ -1311,7 +1311,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
     _room = room;
     [self setTitleView];
-    [self checkLobbyState];
+    
+    if (!_hasStopped) {
+        [self checkLobbyState];
+    }
 }
 
 - (void)didJoinRoom:(NSNotification *)notification
