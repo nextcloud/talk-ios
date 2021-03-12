@@ -1407,7 +1407,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                 if (indexPathUnreadMessageSeparator) {
                     // It is possible that temporary messages are added which add new sections
                     // In this case the indexPath of the unreadMessageSeparator would be invalid and could lead to a crash
-                    // Therefore me need to make sure that got the correct indexPath here
+                    // Therefore we need to make sure we got the correct indexPath here
                     indexPathUnreadMessageSeparator = [self getIndexPathOfUnreadMessageSeparator];
                 }
             }
