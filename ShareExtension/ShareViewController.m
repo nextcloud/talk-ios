@@ -22,9 +22,12 @@
 
 #import "ShareViewController.h"
 
+#import <Intents/Intents.h>
+
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
+#import "NCIntentController.h"
 #import "NCRoom.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
@@ -109,12 +112,37 @@
         // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
     };
     NSError *error = nil;
-    
+        
     // When running as an extension, set the default configuration to make sure we always use the correct realm-file
     if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]) {
         [RLMRealmConfiguration setDefaultConfiguration:configuration];
     }
     _realm = [RLMRealm realmWithConfiguration:configuration error:&error];
+    
+    if (self.extensionContext && self.extensionContext.intent && [self.extensionContext.intent isKindOfClass:[INSendMessageIntent class]]) {
+        INSendMessageIntent *intent = (INSendMessageIntent *)self.extensionContext.intent;
+
+        NSPredicate *query = [NSPredicate predicateWithFormat:@"internalId = %@", intent.conversationIdentifier];
+        NCRoom *managedRoom = [NCRoom objectsInRealm:_realm withPredicate:query].firstObject;
+
+        if (managedRoom) {
+            NCRoom *room = [[NCRoom alloc] initWithValue:managedRoom];
+            NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", room.accountId];
+            TalkAccount *managedAccount = [TalkAccount objectsInRealm:_realm withPredicate:query].firstObject;
+
+            if (managedAccount) {
+                TalkAccount *intentAccount = [[TalkAccount alloc] initWithValue:managedAccount];
+                [self setupShareViewForAccount:intentAccount];
+                ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:room account:intentAccount serverCapabilities:_serverCapabilities];
+                shareConfirmationVC.delegate = self;
+                shareConfirmationVC.isModal = YES;
+                [self setSharedItemToShareConfirmationViewController:shareConfirmationVC];
+                [self.navigationController pushViewController:shareConfirmationVC animated:YES];
+
+                return;
+            }
+        }
+    }
     
     [self setupShareViewForAccount:nil];
     
@@ -207,6 +235,17 @@
     self.extendedLayoutIncludesOpaqueBars = YES;
 }
 
+- (ServerCapabilities *)getServerCapabilitesForAccount:(TalkAccount *)account withRealm:(RLMRealm *)realm;
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+    ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsInRealm:realm withPredicate:query].firstObject;
+    if (managedServerCapabilities) {
+        return [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
+    }
+    
+    return nil;
+}
+
 #pragma mark - Navigation buttons
 
 - (void)cancelButtonPressed
@@ -270,11 +309,7 @@
     
     NSArray *accountRooms = [self roomsForAccountId:_shareAccount.accountId];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", _shareAccount.accountId];
-    ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsInRealm:_realm withPredicate:query].firstObject;
-    if (managedServerCapabilities) {
-        _serverCapabilities = [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
-    }
+    _serverCapabilities = [self getServerCapabilitesForAccount:_shareAccount withRealm:_realm];
     
     [self.tableView reloadData];
 }
