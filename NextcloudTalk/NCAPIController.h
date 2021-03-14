@@ -85,6 +85,8 @@ typedef void (^CheckAttachmentFolderCompletionBlock)(BOOL created, NSInteger err
 
 typedef void (^GetUserActionsCompletionBlock)(NSDictionary *userActions, NSError *error);
 
+typedef void (^GetUserAvatarImageForUserCompletionBlock)(UIImage *image, NSError *error);
+
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
 typedef void (^GetUserProfileEditableFieldsCompletionBlock)(NSArray *userProfileEditableFields, NSError *error);
 typedef void (^SetUserProfileFieldCompletionBlock)(NSError *error, NSInteger statusCode);
@@ -213,6 +215,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 // User avatars
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account;
+- (void)getUserAvatarForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block;
 
 // User actions
 - (NSURLSessionDataTask *)getUserActionsForUser:(NSString *)userId usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserActionsCompletionBlock)block;
