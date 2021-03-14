@@ -27,6 +27,7 @@
 #import "CallKitManager.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
+#import "NCIntentController.h"
 #import "NCNotification.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
@@ -300,6 +301,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
                 // We replied to the message, so we can assume, we read it as well
                 [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:pushNotification.accountId];
                 [self updateAppIconBadgeNumber];
+                [[NCIntentController sharedInstance] donateSendMessageIntentForRoomToken:pushNotification.roomToken withAccountId:pushNotification.accountId];
             }
             
             [application endBackgroundTask:sendTask];
