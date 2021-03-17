@@ -31,7 +31,6 @@
 #import "UserSettingsTableViewCell.h"
 #import "NCAPIController.h"
 #import "NCNavigationController.h"
-#import "NCUserInterfaceController.h"
 #import "NCUserStatus.h"
 #import "NCConnectionController.h"
 #import "OpenInFirefoxControllerObjC.h"
@@ -41,6 +40,7 @@
 #import "RoundedNumberView.h"
 #import "NBPhoneNumberUtil.h"
 #import "UIView+Toast.h"
+#import "UserProfileViewController.h"
 #import <SafariServices/SafariServices.h>
 
 typedef enum SettingsSection {
@@ -87,7 +87,7 @@ typedef enum AboutSection {
 {
     [super viewDidLoad];
     
-    self.navigationItem.title = NSLocalizedString(@"Profile", nil);
+    self.navigationItem.title = NSLocalizedString(@"Settings", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
@@ -267,84 +267,9 @@ typedef enum AboutSection {
 
 - (void)userProfilePressed
 {
-    UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:nil
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleActionSheet];
-    // Add phone number
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    if (_contactSyncSwitch.on && (!activeAccount.phone || [activeAccount.phone isEqualToString:@""])) {
-        UIAlertAction *addAccountAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Set phone number", nil)
-                                           style:UIAlertActionStyleDefault
-                                           handler:^void (UIAlertAction *action) {
-                                                [self presentSetPhoneNumberDialog];
-                                            }];
-        [addAccountAction setValue:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-        [optionsActionSheet addAction:addAccountAction];
-    }
-    
-    // Add account
-    if (multiAccountEnabled) {
-        UIAlertAction *addAccountAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Add account", nil)
-                                           style:UIAlertActionStyleDefault
-                                           handler:^void (UIAlertAction *action) {
-                                                [self addNewAccount];
-                                            }];
-        [addAccountAction setValue:[[UIImage imageNamed:@"add-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-        [optionsActionSheet addAction:addAccountAction];
-    }
-    
-    // Remove account / Log out
-    NSString *actionTitle = (multiAccountEnabled) ? NSLocalizedString(@"Remove account", nil) : NSLocalizedString(@"Log out", nil);
-    UIImage *actionImage = (multiAccountEnabled) ? [UIImage imageNamed:@"delete-action"] : [UIImage imageNamed:@"logout"];
-    UIAlertAction *logOutAction = [UIAlertAction actionWithTitle:actionTitle
-                                                     style:UIAlertActionStyleDestructive
-                                                   handler:^void (UIAlertAction *action) {
-                                                       [self showLogoutConfirmationDialog];
-                                                   }];
-    [logOutAction setValue:[actionImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [optionsActionSheet addAction:logOutAction];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
-    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self getSectionForSettingsSection:kSettingsSectionUser]]];
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
-}
-
-- (void)addNewAccount
-{
-    [self dismissViewControllerAnimated:true completion:^{
-        [[NCUserInterfaceController sharedInstance] presentLoginViewController];
-    }];
-}
-
-- (void)showLogoutConfirmationDialog
-{
-    NSString *alertTitle = (multiAccountEnabled) ? NSLocalizedString(@"Remove account", nil) : NSLocalizedString(@"Log out", nil);
-    NSString *alertMessage = (multiAccountEnabled) ? NSLocalizedString(@"Do you really want to remove this account?", nil) : NSLocalizedString(@"Do you really want to log out from this account?", nil);
-    NSString *actionTitle = (multiAccountEnabled) ? NSLocalizedString(@"Remove", nil) : NSLocalizedString(@"Log out", nil);
-    
-    UIAlertController *confirmDialog =
-    [UIAlertController alertControllerWithTitle:alertTitle
-                                        message:alertMessage
-                                 preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-        [self logout];
-    }];
-    [confirmDialog addAction:confirmAction];
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
-    [confirmDialog addAction:cancelAction];
-    [self presentViewController:confirmDialog animated:YES completion:nil];
-}
-
-- (void)logout
-{
-    [[NCSettingsController sharedInstance] logoutWithCompletionBlock:^(NSError *error) {
-        [[NCUserInterfaceController sharedInstance] presentConversationsList];
-        [[NCConnectionController sharedInstance] checkAppState];
-    }];
+    UserProfileViewController *userProfileVC = [[UserProfileViewController alloc] initWithAccount:activeAccount];
+    [self.navigationController pushViewController:userProfileVC animated:YES];
 }
 
 #pragma mark - User Status
@@ -742,6 +667,7 @@ typedef enum AboutSection {
             NSString *accountServer = [activeAccount.server stringByReplacingOccurrencesOfString:[[NSURL URLWithString:activeAccount.server] scheme] withString:@""];
             cell.serverAddressLabel.text = [accountServer stringByReplacingOccurrencesOfString:@"://" withString:@""];
             [cell.userImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withSize:CGSizeMake(160, 160)]];
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             return cell;
         }
             break;

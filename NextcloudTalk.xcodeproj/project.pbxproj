@@ -373,6 +373,15 @@
 		2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
 		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
 		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
+		2CF9CBDB26010835002246EF /* UserProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBDA26010835002246EF /* UserProfileViewController.m */; };
+		2CF9CBDF2601F317002246EF /* UserProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBDA26010835002246EF /* UserProfileViewController.m */; };
+		2CF9CBE32601F318002246EF /* UserProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBDA26010835002246EF /* UserProfileViewController.m */; };
+		2CF9CBFC26025F64002246EF /* TextInputTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFA26025F64002246EF /* TextInputTableViewCell.m */; };
+		2CF9CBFD26025F64002246EF /* TextInputTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFA26025F64002246EF /* TextInputTableViewCell.m */; };
+		2CF9CBFE26025F65002246EF /* TextInputTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFA26025F64002246EF /* TextInputTableViewCell.m */; };
+		2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
+		2CF9CC0026025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
+		2CF9CC0126025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
 		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
@@ -775,6 +784,11 @@
 		2CC7159320C54D080045C789 /* ChatTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatTableViewCell.m; sourceTree = "<group>"; };
 		2CD5F3222142781A006B71BF /* NCExternalSignalingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCExternalSignalingController.h; sourceTree = "<group>"; };
 		2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCExternalSignalingController.m; sourceTree = "<group>"; };
+		2CF9CBD926010835002246EF /* UserProfileViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UserProfileViewController.h; sourceTree = "<group>"; };
+		2CF9CBDA26010835002246EF /* UserProfileViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserProfileViewController.m; sourceTree = "<group>"; };
+		2CF9CBF926025F64002246EF /* TextInputTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextInputTableViewCell.h; sourceTree = "<group>"; };
+		2CF9CBFA26025F64002246EF /* TextInputTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TextInputTableViewCell.m; sourceTree = "<group>"; };
+		2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextInputTableViewCell.xib; sourceTree = "<group>"; };
 		4202C63030F0FFBB1C16D75E /* Pods-NextcloudTalk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.debug.xcconfig"; sourceTree = "<group>"; };
 		4D4C7BF2F97F47B0D9094618 /* Pods-NextcloudTalk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.release.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.release.xcconfig"; sourceTree = "<group>"; };
 		4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NextcloudTalk.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1096,6 +1110,11 @@
 				2C063312205A85850043481A /* VideoSettingsViewController.m */,
 				2C78E9E125120DE500E3D4CA /* NCUserStatus.h */,
 				2C78E9E225120DE500E3D4CA /* NCUserStatus.m */,
+				2CF9CBD926010835002246EF /* UserProfileViewController.h */,
+				2CF9CBDA26010835002246EF /* UserProfileViewController.m */,
+				2CF9CBF926025F64002246EF /* TextInputTableViewCell.h */,
+				2CF9CBFA26025F64002246EF /* TextInputTableViewCell.m */,
+				2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -1590,6 +1609,7 @@
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
 				2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */,
 				2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */,
+				2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */,
 				2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */,
 				2C440D1220EA4A770005F9BB /* RoomInfoTableViewController.xib in Resources */,
 				2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */,
@@ -1617,6 +1637,7 @@
 				1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */,
 				2C3195BD24C5A3D90066F221 /* ContactsTableViewCell.xib in Resources */,
 				2C62AFB624C1A449007E460A /* Share.storyboard in Resources */,
+				2CF9CC0126025F65002246EF /* TextInputTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1625,6 +1646,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */,
+				2CF9CC0026025F65002246EF /* TextInputTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1863,6 +1885,7 @@
 				2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
 				2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */,
+				2CF9CBFC26025F64002246EF /* TextInputTableViewCell.m in Sources */,
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
 				2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
@@ -1896,6 +1919,7 @@
 				2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */,
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */,
+				2CF9CBDB26010835002246EF /* UserProfileViewController.m in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
 				2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
@@ -1980,6 +2004,7 @@
 				2C62B01024C1BDC5007E460A /* NCRoom.m in Sources */,
 				2C62AFE224C1BD91007E460A /* ARDSettingsModel.m in Sources */,
 				2C62B01224C1BDC5007E460A /* RoomTableViewCell.m in Sources */,
+				2CF9CBFE26025F65002246EF /* TextInputTableViewCell.m in Sources */,
 				2C62B00324C1BDB5007E460A /* DirectoryTableViewCell.m in Sources */,
 				2C62AFFC24C1BDA5007E460A /* NCChatViewController.m in Sources */,
 				2C62B00E24C1BDC1007E460A /* NCNotificationController.m in Sources */,
@@ -1995,6 +2020,7 @@
 				2C62B02724C1BDCF007E460A /* SettingsViewController.m in Sources */,
 				2C62B00F24C1BDC5007E460A /* RoundedNumberView.m in Sources */,
 				2C62AFBF24C1BD74007E460A /* SLKTextInputbar.m in Sources */,
+				2CF9CBE32601F318002246EF /* UserProfileViewController.m in Sources */,
 				2C62AFE424C1BD91007E460A /* ARDUtilities.m in Sources */,
 				2C1ABD8725769E7D00AEDFB6 /* ShareItemController.m in Sources */,
 				2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */,
@@ -2077,6 +2103,7 @@
 				2CC001D724A37ACA00A20167 /* NCRoomParticipants.m in Sources */,
 				2CC001A224A37A8B00A20167 /* CallParticipantViewCell.m in Sources */,
 				2CC0019C24A37A8100A20167 /* ARDSDPUtils.m in Sources */,
+				2CF9CBDF2601F317002246EF /* UserProfileViewController.m in Sources */,
 				2CC001D524A37ACA00A20167 /* NewRoomTableViewController.m in Sources */,
 				2CC001BB24A37AA700A20167 /* DirectoryTableViewCell.m in Sources */,
 				2CC001B124A37A9500A20167 /* NCChatTitleView.m in Sources */,
@@ -2116,6 +2143,7 @@
 				2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */,
 				2CC001B524A37A9500A20167 /* NCChatViewController.m in Sources */,
 				2CC0017E24A37A5000A20167 /* SLKTextViewController.m in Sources */,
+				2CF9CBFD26025F64002246EF /* TextInputTableViewCell.m in Sources */,
 				1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2CC001E224A37AD400A20167 /* VideoSettingsViewController.m in Sources */,
 				2CC001AA24A37A8F00A20167 /* ChatMessageTableViewCell.m in Sources */,
