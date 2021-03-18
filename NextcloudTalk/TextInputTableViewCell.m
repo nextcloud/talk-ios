@@ -27,9 +27,11 @@ NSString *const kTextInputTableViewCellNibName    = @"TextInputTableViewCell";
 
 @implementation TextInputTableViewCell
 
-- (void)awakeFromNib {
+- (void)awakeFromNib
+{
     [super awakeFromNib];
-    // Initialization code
+    
+    self.textField.returnKeyType = UIReturnKeyDone;
 }
 
 - (void)prepareForReuse
@@ -37,9 +39,11 @@ NSString *const kTextInputTableViewCellNibName    = @"TextInputTableViewCell";
     [super prepareForReuse];
     
     self.textField.text = @"";
+    self.textField.keyboardType = UIKeyboardTypeDefault;
 }
 
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated
+{
     [super setSelected:selected animated:animated];
 
     // Configure the view for the selected state

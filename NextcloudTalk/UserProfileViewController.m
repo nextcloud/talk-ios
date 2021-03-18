@@ -40,10 +40,12 @@ typedef enum ProfileSection {
     kProfileSectionRemoveAccount
 } ProfileSection;
 
-@interface UserProfileViewController ()
+@interface UserProfileViewController () <UIGestureRecognizerDelegate, UITextFieldDelegate>
 {
     TalkAccount *_account;
     BOOL _isEditable;
+    UIBarButtonItem *_editButton;
+    UITextField *_activeTextField;
 }
 
 @end
@@ -79,24 +81,91 @@ typedef enum ProfileSection {
         self.navigationItem.scrollEdgeAppearance = appearance;
     }
     
+    [self showEditButton];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
+    tap.delegate = self;
+    [self.view addGestureRecognizer:tap];
+    
     [self.tableView registerNib:[UINib nibWithNibName:kTextInputTableViewCellNibName bundle:nil] forCellReuseIdentifier:kTextInputCellIdentifier];
 }
 
 - (NSArray *)getProfileSections
 {
     NSMutableArray *sections = [[NSMutableArray alloc] init];
-    [sections addObject:[NSNumber numberWithInt:kProfileSectionName]];
-    [sections addObject:[NSNumber numberWithInt:kProfileSectionEmail]];
-    [sections addObject:[NSNumber numberWithInt:kProfileSectionPhoneNumber]];
-    [sections addObject:[NSNumber numberWithInt:kProfileSectionAddress]];
-    [sections addObject:[NSNumber numberWithInt:kProfileSectionWebsite]];
-    [sections addObject:[NSNumber numberWithInt:kProfileSectionTwitter]];
+    if ((_account.userDisplayName && ![_account.userDisplayName isEqualToString:@""]) || _isEditable) {
+        [sections addObject:[NSNumber numberWithInt:kProfileSectionName]];
+    }
+    if ((_account.email && ![_account.email isEqualToString:@""]) || _isEditable) {
+        [sections addObject:[NSNumber numberWithInt:kProfileSectionEmail]];
+    }
+    if ((_account.phone && ![_account.phone isEqualToString:@""]) || _isEditable) {
+        [sections addObject:[NSNumber numberWithInt:kProfileSectionPhoneNumber]];
+    }
+    if ((_account.address && ![_account.address isEqualToString:@""]) || _isEditable) {
+        [sections addObject:[NSNumber numberWithInt:kProfileSectionAddress]];
+    }
+    if ((_account.website && ![_account.website isEqualToString:@""]) || _isEditable) {
+        [sections addObject:[NSNumber numberWithInt:kProfileSectionWebsite]];
+    }
+    if ((_account.twitter && ![_account.twitter isEqualToString:@""]) || _isEditable) {
+        [sections addObject:[NSNumber numberWithInt:kProfileSectionTwitter]];
+    }
     if (multiAccountEnabled) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionAddAccount]];
     }
     [sections addObject:[NSNumber numberWithInt:kProfileSectionRemoveAccount]];
 
     return [NSArray arrayWithArray:sections];
+}
+
+#pragma mark - User Interface
+
+- (void)showEditButton
+{
+    _editButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(editButtonPressed)];
+    _editButton.accessibilityHint = NSLocalizedString(@"Double tap to edit profile", nil);
+    self.navigationItem.rightBarButtonItem = _editButton;
+}
+
+- (void)showDoneButton
+{
+    _editButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(editButtonPressed)];
+    _editButton.accessibilityHint = NSLocalizedString(@"Double tap to end editing profile", nil);
+    self.navigationItem.rightBarButtonItem = _editButton;
+}
+
+#pragma mark - UITextField delegate
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    _activeTextField = textField;
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return YES;
+}
+
+- (void)dismissKeyboard
+{
+    [_activeTextField resignFirstResponder];
+}
+
+#pragma mark - Actions
+
+- (void)editButtonPressed
+{
+    if (!_isEditable) {
+        _isEditable = YES;
+        [self showDoneButton];
+    } else {
+        _isEditable = NO;
+        [self showEditButton];
+    }
+    
+    [self.tableView reloadData];
 }
 
 - (void)addNewAccount
@@ -147,7 +216,9 @@ typedef enum ProfileSection {
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    switch (section) {
+    NSArray *sections = [self getProfileSections];
+    ProfileSection profileSection = [[sections objectAtIndex:section] intValue];
+    switch (profileSection) {
         case kProfileSectionName:
             return NSLocalizedString(@"Full name", nil);
             break;
@@ -181,7 +252,9 @@ typedef enum ProfileSection {
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
-    if (section == kProfileSectionEmail) {
+    NSArray *sections = [self getProfileSections];
+    ProfileSection profileSection = [[sections objectAtIndex:section] intValue];
+    if (profileSection == kProfileSectionEmail) {
         return NSLocalizedString(@"For password reset and notifications", nil);;
     }
     
@@ -199,6 +272,7 @@ typedef enum ProfileSection {
     if (!textInputCell) {
         textInputCell = [[TextInputTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTextInputCellIdentifier];
     }
+    textInputCell.textField.delegate = self;
     textInputCell.textField.userInteractionEnabled = _isEditable;
     
     NSArray *sections = [self getProfileSections];
@@ -214,6 +288,7 @@ typedef enum ProfileSection {
         case kProfileSectionEmail:
         {
             textInputCell.textField.text = _account.email;
+            textInputCell.textField.keyboardType = UIKeyboardTypeEmailAddress;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your email address", nil);
             cell = textInputCell;
         }
@@ -222,6 +297,7 @@ typedef enum ProfileSection {
         case kProfileSectionPhoneNumber:
         {
             textInputCell.textField.text = _account.phone;
+            textInputCell.textField.keyboardType = UIKeyboardTypePhonePad;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your phone number", nil);
             cell = textInputCell;
         }
@@ -246,6 +322,7 @@ typedef enum ProfileSection {
         case kProfileSectionTwitter:
         {
             textInputCell.textField.text = _account.twitter;
+            textInputCell.textField.keyboardType = UIKeyboardTypeEmailAddress;
             textInputCell.textField.placeholder = NSLocalizedString(@"Twitter handle @…", nil);
             cell = textInputCell;
         }
@@ -279,9 +356,11 @@ typedef enum ProfileSection {
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section == kProfileSectionAddAccount) {
+    NSArray *sections = [self getProfileSections];
+    ProfileSection section = [[sections objectAtIndex:indexPath.section] intValue];
+    if (section == kProfileSectionAddAccount) {
         [self addNewAccount];
-    } else if (indexPath.section == kProfileSectionRemoveAccount) {
+    } else if (section == kProfileSectionRemoveAccount) {
         [self showLogoutConfirmationDialog];
     }
     
