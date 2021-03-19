@@ -58,6 +58,13 @@ extern NSString * const kCapabilityChatReadStatus;
 extern NSString * const kCapabilityDeleteMessages;
 extern NSString * const kCapabilityCallFlags;
 
+extern NSString * const kUserProfileDisplayName;
+extern NSString * const kUserProfileEmail;
+extern NSString * const kUserProfilePhone;
+extern NSString * const kUserProfileAddress;
+extern NSString * const kUserProfileWebsite;
+extern NSString * const kUserProfileTwitter;
+
 extern NSInteger const kDefaultChatMaxLength;
 extern NSString * const kMinimumRequiredTalkCapability;
 
