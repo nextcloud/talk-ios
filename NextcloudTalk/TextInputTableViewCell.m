@@ -31,6 +31,7 @@ NSString *const kTextInputTableViewCellNibName    = @"TextInputTableViewCell";
 {
     [super awakeFromNib];
     
+    self.textField.clearButtonMode = UITextFieldViewModeWhileEditing;
     self.textField.returnKeyType = UIReturnKeyDone;
 }
 

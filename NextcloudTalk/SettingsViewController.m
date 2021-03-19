@@ -366,7 +366,7 @@ typedef enum AboutSection {
     
     _setPhoneAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Set", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *phoneNumber = [[setPhoneNumberDialog textFields][0] text];
-        [[NCAPIController sharedInstance] setUserPhoneNumber:phoneNumber forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+        [[NCAPIController sharedInstance] setUserProfileField:kUserProfilePhone withValue:phoneNumber forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error, NSInteger statusCode) {
             if (error) {
                 [self presentPhoneNumberErrorDialog:phoneNumber];
                 NSLog(@"Error setting phone number: %@", error);

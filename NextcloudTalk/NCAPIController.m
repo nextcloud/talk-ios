@@ -1140,12 +1140,32 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)setUserPhoneNumber:(NSString *)phoneNumber forAccount:(TalkAccount *)account withCompletionBlock:(SetUserPhoneNumberCompletionBlock)block
+- (NSURLSessionDataTask *)getUserProfileEditableFieldsForAccount:(TalkAccount *)account withCompletionBlock:(GetUserProfileEditableFieldsCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/cloud/user/fields", account.server];
+    NSDictionary *parameters = @{@"format" : @"json"};
+    
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSArray *editableFields = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            block(editableFields, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error);
+        }
+    }];
+    
+    return task;
+}
+
+- (NSURLSessionDataTask *)setUserProfileField:(NSString *)field withValue:(NSString*)value forAccount:(TalkAccount *)account withCompletionBlock:(SetUserProfileFieldCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/cloud/users/%@", account.server, account.userId];
     NSDictionary *parameters = @{@"format" : @"json",
-                                 @"key" : @"phone",
-                                 @"value" : phoneNumber};
+                                 @"key" : field,
+                                 @"value" : value};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {

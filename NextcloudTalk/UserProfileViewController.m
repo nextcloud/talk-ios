@@ -23,11 +23,19 @@
 #import "UserProfileViewController.h"
 
 #import "NCAppBranding.h"
+#import "NCAPIController.h"
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "TextInputTableViewCell.h"
+
+#define k_name_textfield_tag        99
+#define k_email_textfield_tag       98
+#define k_phone_textfield_tag       97
+#define k_address_textfield_tag     96
+#define k_website_textfield_tag     95
+#define k_twitter_textfield_tag     94
 
 typedef enum ProfileSection {
     kProfileSectionName = 0,
@@ -44,8 +52,10 @@ typedef enum ProfileSection {
 {
     TalkAccount *_account;
     BOOL _isEditable;
+    BOOL _waitingForModification;
     UIBarButtonItem *_editButton;
     UITextField *_activeTextField;
+    UIActivityIndicatorView *_modifyingProfileView;
 }
 
 @end
@@ -83,6 +93,9 @@ typedef enum ProfileSection {
     
     [self showEditButton];
     
+    _modifyingProfileView = [[UIActivityIndicatorView alloc] init];
+    _modifyingProfileView.color = [NCAppBranding themeTextColor];
+    
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
     tap.delegate = self;
     [self.view addGestureRecognizer:tap];
@@ -119,6 +132,14 @@ typedef enum ProfileSection {
     return [NSArray arrayWithArray:sections];
 }
 
+- (void)refreshUserProfile
+{
+    [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
+        self->_account = [[NCDatabaseManager sharedInstance] activeAccount];
+        [self.tableView reloadData];
+    }];
+}
+
 #pragma mark - User Interface
 
 - (void)showEditButton
@@ -135,11 +156,118 @@ typedef enum ProfileSection {
     self.navigationItem.rightBarButtonItem = _editButton;
 }
 
+- (void)setModifyingProfileUI
+{
+    [_modifyingProfileView startAnimating];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_modifyingProfileView];
+    self.tableView.userInteractionEnabled = NO;
+}
+
+- (void)removeModifyingProfileUI
+{
+    [_modifyingProfileView stopAnimating];
+    if (_isEditable) {
+        [self showDoneButton];
+    } else {
+        [self showEditButton];
+    }
+    self.tableView.userInteractionEnabled = YES;
+}
+
+- (void)showProfileModificationErrorForField:(NSInteger)field inTextField:(UITextField *)textField
+{
+    [self removeModifyingProfileUI];
+    NSString *errorDescription = @"";
+    // The textfield pointer might be pointing to a different textfield at this point because
+    // if the user tapped the "Done" button in navigation bar (so the non-editable view is visible)
+    // That's the reason why we check the field instead of textfield.tag
+    switch (field) {
+        case k_name_textfield_tag:
+            errorDescription = NSLocalizedString(@"An error occured setting user name", nil);
+            break;
+            
+        case k_email_textfield_tag:
+            errorDescription = NSLocalizedString(@"An error occured setting email address", nil);
+            break;
+            
+        case k_phone_textfield_tag:
+            errorDescription = NSLocalizedString(@"An error occured setting phone number", nil);
+            break;
+            
+        case k_address_textfield_tag:
+            errorDescription = NSLocalizedString(@"An error occured setting address", nil);
+            break;
+            
+        case k_website_textfield_tag:
+            errorDescription = NSLocalizedString(@"An error occured setting website", nil);
+            break;
+            
+        case k_twitter_textfield_tag:
+            errorDescription = NSLocalizedString(@"An error occured setting twitter account", nil);
+            break;
+            
+        default:
+            break;
+    }
+    
+    UIAlertController *renameDialog =
+    [UIAlertController alertControllerWithTitle:errorDescription
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        if (self->_isEditable) {
+            [textField becomeFirstResponder];
+        }
+    }];
+    [renameDialog addAction:okAction];
+    [self presentViewController:renameDialog animated:YES completion:nil];
+}
+
 #pragma mark - UITextField delegate
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
     _activeTextField = textField;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    NSString *field = nil;
+    NSString *value = textField.text;
+    NSInteger tag = textField.tag;
+        
+    if (tag == k_name_textfield_tag) {
+        field = kUserProfileDisplayName;
+    } else if (tag == k_email_textfield_tag) {
+        field = kUserProfileEmail;
+    } else if (tag == k_phone_textfield_tag) {
+        field = kUserProfilePhone;
+    } else if (tag == k_address_textfield_tag) {
+        field = kUserProfileAddress;
+    } else if (tag == k_website_textfield_tag) {
+        field = kUserProfileWebsite;
+    } else if (tag == k_twitter_textfield_tag) {
+        field = kUserProfileTwitter;
+    }
+    
+    BOOL waitForModitication = _waitingForModification;
+    _waitingForModification = NO;
+    _activeTextField = nil;
+    
+    [self setModifyingProfileUI];
+    
+    [[NCAPIController sharedInstance] setUserProfileField:field withValue:value forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+        if (error) {
+            [self showProfileModificationErrorForField:tag inTextField:textField];
+        } else {
+            if (waitForModitication) {
+                [self editButtonPressed];
+            }
+            [self refreshUserProfile];
+        }
+        
+        [self removeModifyingProfileUI];
+    }];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -157,6 +285,12 @@ typedef enum ProfileSection {
 
 - (void)editButtonPressed
 {
+    if (_activeTextField) {
+        [self dismissKeyboard];
+        _waitingForModification = YES;
+        return;
+    }
+    
     if (!_isEditable) {
         _isEditable = YES;
         [self showDoneButton];
@@ -281,6 +415,7 @@ typedef enum ProfileSection {
         case kProfileSectionName:
         {
             textInputCell.textField.text = _account.userDisplayName;
+            textInputCell.textField.tag = k_name_textfield_tag;
             cell = textInputCell;
         }
             break;
@@ -290,6 +425,7 @@ typedef enum ProfileSection {
             textInputCell.textField.text = _account.email;
             textInputCell.textField.keyboardType = UIKeyboardTypeEmailAddress;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your email address", nil);
+            textInputCell.textField.tag = k_email_textfield_tag;
             cell = textInputCell;
         }
             break;
@@ -299,6 +435,7 @@ typedef enum ProfileSection {
             textInputCell.textField.text = _account.phone;
             textInputCell.textField.keyboardType = UIKeyboardTypePhonePad;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your phone number", nil);
+            textInputCell.textField.tag = k_phone_textfield_tag;
             cell = textInputCell;
         }
             break;
@@ -307,6 +444,7 @@ typedef enum ProfileSection {
         {
             textInputCell.textField.text = _account.address;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your postal address", nil);
+            textInputCell.textField.tag = k_address_textfield_tag;
             cell = textInputCell;
         }
             break;
@@ -315,6 +453,7 @@ typedef enum ProfileSection {
         {
             textInputCell.textField.text = _account.website;
             textInputCell.textField.placeholder = NSLocalizedString(@"Link https://…", nil);
+            textInputCell.textField.tag = k_website_textfield_tag;
             cell = textInputCell;
         }
             break;
@@ -324,6 +463,7 @@ typedef enum ProfileSection {
             textInputCell.textField.text = _account.twitter;
             textInputCell.textField.keyboardType = UIKeyboardTypeEmailAddress;
             textInputCell.textField.placeholder = NSLocalizedString(@"Twitter handle @…", nil);
+            textInputCell.textField.tag = k_twitter_textfield_tag;
             cell = textInputCell;
         }
             break;

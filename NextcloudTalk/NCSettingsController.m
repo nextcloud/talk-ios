@@ -83,6 +83,14 @@ NSString * const kCapabilityChatReadStatus          = @"chat-read-status";
 NSString * const kCapabilityDeleteMessages          = @"delete-messages";
 NSString * const kCapabilityCallFlags               = @"conversation-call-flags";
 
+NSString * const kUserProfileUserId         = @"id";
+NSString * const kUserProfileDisplayName    = @"displayname";
+NSString * const kUserProfileEmail          = @"email";
+NSString * const kUserProfilePhone          = @"phone";
+NSString * const kUserProfileAddress        = @"address";
+NSString * const kUserProfileWebsite        = @"website";
+NSString * const kUserProfileTwitter        = @"twitter";
+
 NSInteger const kDefaultChatMaxLength           = 1000;
 NSString * const kMinimumRequiredTalkCapability = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
@@ -292,17 +300,17 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 {
     [[NCAPIController sharedInstance] getUserProfileForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
         if (!error) {
-            NSString *userDisplayName = [userProfile objectForKey:@"displayname"];
-            NSString *userId = [userProfile objectForKey:@"id"];
-            NSString *phone = [userProfile objectForKey:@"phone"];
-            id emailObject = [userProfile objectForKey:@"email"];
+            NSString *userDisplayName = [userProfile objectForKey:kUserProfileDisplayName];
+            NSString *userId = [userProfile objectForKey:kUserProfileUserId];
+            NSString *phone = [userProfile objectForKey:kUserProfilePhone];
+            id emailObject = [userProfile objectForKey:kUserProfileEmail];
             NSString *email = emailObject;
-            if (emailObject || [emailObject isEqual:[NSNull null]]) {
+            if (!emailObject || [emailObject isEqual:[NSNull null]]) {
                 email = @"";
             }
-            NSString *address = [userProfile objectForKey:@"address"];
-            NSString *website = [userProfile objectForKey:@"website"];
-            NSString *twitter = [userProfile objectForKey:@"twitter"];
+            NSString *address = [userProfile objectForKey:kUserProfileAddress];
+            NSString *website = [userProfile objectForKey:kUserProfileWebsite];
+            NSString *twitter = [userProfile objectForKey:kUserProfileTwitter];
             RLMRealm *realm = [RLMRealm defaultRealm];
             TalkAccount *managedActiveAccount = [TalkAccount objectsWhere:(@"active = true")].firstObject;
             [realm beginWriteTransaction];
