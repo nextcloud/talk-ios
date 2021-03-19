@@ -233,41 +233,57 @@ typedef enum ProfileSection {
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
     NSString *field = nil;
-    NSString *value = textField.text;
+    NSString *currentValue = nil;
+    NSString *newValue = [textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     NSInteger tag = textField.tag;
         
     if (tag == k_name_textfield_tag) {
         field = kUserProfileDisplayName;
+        currentValue = _account.userDisplayName;
     } else if (tag == k_email_textfield_tag) {
         field = kUserProfileEmail;
+        currentValue = _account.email;
     } else if (tag == k_phone_textfield_tag) {
         field = kUserProfilePhone;
+        currentValue = _account.phone;
     } else if (tag == k_address_textfield_tag) {
         field = kUserProfileAddress;
+        currentValue = _account.address;
     } else if (tag == k_website_textfield_tag) {
         field = kUserProfileWebsite;
+        currentValue = _account.website;
     } else if (tag == k_twitter_textfield_tag) {
         field = kUserProfileTwitter;
+        currentValue = _account.twitter;
     }
     
     BOOL waitForModitication = _waitingForModification;
     _waitingForModification = NO;
     _activeTextField = nil;
     
+    textField.text = newValue;
+    
     [self setModifyingProfileUI];
     
-    [[NCAPIController sharedInstance] setUserProfileField:field withValue:value forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
-        if (error) {
-            [self showProfileModificationErrorForField:tag inTextField:textField];
-        } else {
-            if (waitForModitication) {
-                [self editButtonPressed];
+    if (![newValue isEqualToString:currentValue]) {
+        [[NCAPIController sharedInstance] setUserProfileField:field withValue:newValue forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+            if (error) {
+                [self showProfileModificationErrorForField:tag inTextField:textField];
+            } else {
+                if (waitForModitication) {
+                    [self editButtonPressed];
+                }
+                [self refreshUserProfile];
             }
-            [self refreshUserProfile];
+            
+            [self removeModifyingProfileUI];
+        }];
+    } else {
+        if (waitForModitication) {
+            [self editButtonPressed];
         }
-        
         [self removeModifyingProfileUI];
-    }];
+    }
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
