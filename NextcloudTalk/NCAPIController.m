@@ -1122,7 +1122,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSURLSessionDataTask *)getUserProfileForAccount:(TalkAccount *)account withCompletionBlock:(GetUserProfileCompletionBlock)block
 {
-    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/user", account.server];
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/cloud/users/%@", account.server, account.userId];
     NSDictionary *parameters = @{@"format" : @"json"};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];

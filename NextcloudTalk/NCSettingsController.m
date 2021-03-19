@@ -292,7 +292,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 {
     [[NCAPIController sharedInstance] getUserProfileForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
         if (!error) {
-            NSString *userDisplayName = [userProfile objectForKey:@"display-name"];
+            NSString *userDisplayName = [userProfile objectForKey:@"displayname"];
             NSString *userId = [userProfile objectForKey:@"id"];
             NSString *phone = [userProfile objectForKey:@"phone"];
             id emailObject = [userProfile objectForKey:@"email"];
