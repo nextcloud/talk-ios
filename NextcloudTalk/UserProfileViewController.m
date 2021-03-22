@@ -185,10 +185,13 @@ typedef enum ProfileSection {
 
 - (UIView *)avatarHeaderView
 {
-    UIView *avatarView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, 100)];
+    BOOL shouldShowEditAvatarButton = _isEditable && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityTempUserAvatarAPI forAccountId:_account.accountId];
+    
+    CGFloat headerViewHeight = (shouldShowEditAvatarButton) ? 100 : 80;
+    UIView *avatarView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, headerViewHeight)];
     avatarView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     
-    UIImageView *avatarImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 10, 80, 80)];
+    UIImageView *avatarImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 14, 80, 80)];
     avatarImageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
     avatarImageView.layer.cornerRadius = 40.0;
     avatarImageView.layer.masksToBounds = YES;
@@ -204,7 +207,7 @@ typedef enum ProfileSection {
     editAvatarButton.titleLabel.minimumScaleFactor = 0.9f;
     editAvatarButton.titleLabel.numberOfLines = 1;
     editAvatarButton.titleLabel.adjustsFontSizeToFitWidth = YES;
-    editAvatarButton.hidden = !(_isEditable && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityTempUserAvatarAPI forAccountId:_account.accountId]);
+    editAvatarButton.hidden = !shouldShowEditAvatarButton;
     [avatarView addSubview:editAvatarButton];
     
     return avatarView;
