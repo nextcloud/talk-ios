@@ -91,6 +91,8 @@ typedef enum ProfileSection {
         self.navigationItem.scrollEdgeAppearance = appearance;
     }
     
+    self.tableView.tableHeaderView = [self avatarHeaderView];
+    
     [self showEditButton];
     
     _modifyingProfileView = [[UIActivityIndicatorView alloc] init];
@@ -136,7 +138,7 @@ typedef enum ProfileSection {
 {
     [[NCSettingsController sharedInstance] getUserProfileWithCompletionBlock:^(NSError *error) {
         self->_account = [[NCDatabaseManager sharedInstance] activeAccount];
-        [self.tableView reloadData];
+        [self refreshProfileTableView];
     }];
 }
 
@@ -172,6 +174,40 @@ typedef enum ProfileSection {
         [self showEditButton];
     }
     self.tableView.userInteractionEnabled = YES;
+}
+
+- (void)refreshProfileTableView
+{
+    self.tableView.tableHeaderView = [self avatarHeaderView];
+    [self.tableView.tableHeaderView setNeedsDisplay];
+    [self.tableView reloadData];
+}
+
+- (UIView *)avatarHeaderView
+{
+    UIView *avatarView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, 100)];
+    avatarView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    
+    UIImageView *avatarImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 10, 80, 80)];
+    avatarImageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+    avatarImageView.layer.cornerRadius = 40.0;
+    avatarImageView.layer.masksToBounds = YES;
+    [avatarImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:_account withSize:CGSizeMake(160, 160)]];
+    [avatarView addSubview:avatarImageView];
+    
+    UIButton *editAvatarButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 100, 160, 24)];
+    [editAvatarButton setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
+    [editAvatarButton setTitleColor:[UIColor systemBlueColor] forState:UIControlStateNormal];
+    editAvatarButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    editAvatarButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+    editAvatarButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+    editAvatarButton.titleLabel.minimumScaleFactor = 0.9f;
+    editAvatarButton.titleLabel.numberOfLines = 1;
+    editAvatarButton.titleLabel.adjustsFontSizeToFitWidth = YES;
+    editAvatarButton.hidden = !_isEditable;
+    [avatarView addSubview:editAvatarButton];
+    
+    return avatarView;
 }
 
 - (void)showProfileModificationErrorForField:(NSInteger)field inTextField:(UITextField *)textField
@@ -329,7 +365,7 @@ typedef enum ProfileSection {
         [self showEditButton];
     }
     
-    [self.tableView reloadData];
+    [self refreshProfileTableView];
 }
 
 - (void)addNewAccount
