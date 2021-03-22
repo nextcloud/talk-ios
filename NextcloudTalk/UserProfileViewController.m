@@ -223,6 +223,20 @@ typedef enum ProfileSection {
     [self presentViewController:renameDialog animated:YES completion:nil];
 }
 
+#pragma mark - UIGestureRecognizer delegate
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    // Allow click on tableview cells
+    if ([touch.view isDescendantOfView:self.tableView]) {
+        if (![touch.view isKindOfClass:[UITextField class]]) {
+            [self dismissKeyboard];
+        }
+        return NO;
+    }
+    return YES;
+}
+
 #pragma mark - UITextField delegate
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField
