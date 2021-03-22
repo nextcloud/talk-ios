@@ -82,6 +82,7 @@ NSString * const kCapabilityPhonebookSearch         = @"phonebook-search";
 NSString * const kCapabilityChatReadStatus          = @"chat-read-status";
 NSString * const kCapabilityDeleteMessages          = @"delete-messages";
 NSString * const kCapabilityCallFlags               = @"conversation-call-flags";
+NSString * const kCapabilityTempUserAvatarAPI       = @"temp-user-avatar-api";
 
 NSString * const kUserProfileUserId         = @"id";
 NSString * const kUserProfileDisplayName    = @"displayname";

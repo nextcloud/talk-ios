@@ -57,6 +57,7 @@ extern NSString * const kCapabilityPhonebookSearch;
 extern NSString * const kCapabilityChatReadStatus;
 extern NSString * const kCapabilityDeleteMessages;
 extern NSString * const kCapabilityCallFlags;
+extern NSString * const kCapabilityTempUserAvatarAPI;
 
 extern NSString * const kUserProfileDisplayName;
 extern NSString * const kUserProfileEmail;

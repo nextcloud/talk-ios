@@ -204,7 +204,7 @@ typedef enum ProfileSection {
     editAvatarButton.titleLabel.minimumScaleFactor = 0.9f;
     editAvatarButton.titleLabel.numberOfLines = 1;
     editAvatarButton.titleLabel.adjustsFontSizeToFitWidth = YES;
-    editAvatarButton.hidden = !_isEditable;
+    editAvatarButton.hidden = !(_isEditable && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityTempUserAvatarAPI forAccountId:_account.accountId]);
     [avatarView addSubview:editAvatarButton];
     
     return avatarView;
