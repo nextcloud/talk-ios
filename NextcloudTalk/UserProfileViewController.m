@@ -23,6 +23,7 @@
 #import "UserProfileViewController.h"
 
 #import <AVFoundation/AVFoundation.h>
+#import <TOCropViewController/TOCropViewController.h>
 
 #import "NCAppBranding.h"
 #import "NCAPIController.h"
@@ -50,7 +51,7 @@ typedef enum ProfileSection {
     kProfileSectionRemoveAccount
 } ProfileSection;
 
-@interface UserProfileViewController () <UIGestureRecognizerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@interface UserProfileViewController () <UIGestureRecognizerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, TOCropViewControllerDelegate>
 {
     TalkAccount *_account;
     BOOL _isEditable;
@@ -302,7 +303,6 @@ typedef enum ProfileSection {
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         self->_imagePicker = [[UIImagePickerController alloc] init];
-        self->_imagePicker.allowsEditing = true;
         self->_imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
         self->_imagePicker.delegate = self;
         [self presentViewController:self->_imagePicker animated:YES completion:nil];
@@ -313,7 +313,6 @@ typedef enum ProfileSection {
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         self->_imagePicker = [[UIImagePickerController alloc] init];
-        self->_imagePicker.allowsEditing = true;
         self->_imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
         self->_imagePicker.delegate = self;
         [self presentViewController:self->_imagePicker animated:YES completion:nil];
@@ -387,9 +386,11 @@ typedef enum ProfileSection {
     NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
     
     if ([mediaType isEqualToString:@"public.image"]) {
-        UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
+        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
         [self dismissViewControllerAnimated:YES completion:^{
-            [self sendUserProfileImage:image];
+            TOCropViewController *cropViewController = [[TOCropViewController alloc] initWithCroppingStyle:TOCropViewCroppingStyleCircular image:image];
+            cropViewController.delegate = self;
+            [self presentViewController:cropViewController animated:YES completion:nil];
         }];
     }
 }
@@ -397,6 +398,24 @@ typedef enum ProfileSection {
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - TOCropViewController Delegate
+
+- (void)cropViewController:(TOCropViewController *)cropViewController didCropToImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle
+{
+    [self sendUserProfileImage:image];
+
+    // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
+    cropViewController.transitioningDelegate = nil;
+    [cropViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)cropViewController:(TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled
+{
+    // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
+    cropViewController.transitioningDelegate = nil;
+    [cropViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - UIGestureRecognizer delegate
