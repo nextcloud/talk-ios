@@ -325,6 +325,7 @@ typedef enum ProfileSection {
         if (!error) {
             [self refreshUserProfile];
         } else {
+            [self showSetProfileImageError];
             NSLog(@"Error sending profile image: %@", error.description);
         }
     }];
@@ -366,7 +367,7 @@ typedef enum ProfileSection {
             break;
     }
     
-    UIAlertController *renameDialog =
+    UIAlertController *errorDialog =
     [UIAlertController alertControllerWithTitle:errorDescription
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
@@ -375,8 +376,19 @@ typedef enum ProfileSection {
             [textField becomeFirstResponder];
         }
     }];
-    [renameDialog addAction:okAction];
-    [self presentViewController:renameDialog animated:YES completion:nil];
+    [errorDialog addAction:okAction];
+    [self presentViewController:errorDialog animated:YES completion:nil];
+}
+
+- (void)showSetProfileImageError
+{
+    UIAlertController *errorDialog =
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"An error occured setting profile image", nil)
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
+    [errorDialog addAction:okAction];
+    [self presentViewController:errorDialog animated:YES completion:nil];
 }
 
 #pragma mark - UIImagePickerController Delegate
