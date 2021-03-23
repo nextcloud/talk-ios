@@ -22,6 +22,8 @@
 
 #import "UserProfileViewController.h"
 
+#import <AVFoundation/AVFoundation.h>
+
 #import "NCAppBranding.h"
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
@@ -48,7 +50,7 @@ typedef enum ProfileSection {
     kProfileSectionRemoveAccount
 } ProfileSection;
 
-@interface UserProfileViewController () <UIGestureRecognizerDelegate, UITextFieldDelegate>
+@interface UserProfileViewController () <UIGestureRecognizerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 {
     TalkAccount *_account;
     BOOL _isEditable;
@@ -56,6 +58,8 @@ typedef enum ProfileSection {
     UIBarButtonItem *_editButton;
     UITextField *_activeTextField;
     UIActivityIndicatorView *_modifyingProfileView;
+    UIButton *_editAvatarButton;
+    UIImagePickerController *_imagePicker;
 }
 
 @end
@@ -103,6 +107,13 @@ typedef enum ProfileSection {
     [self.view addGestureRecognizer:tap];
     
     [self.tableView registerNib:[UINib nibWithNibName:kTextInputTableViewCellNibName bundle:nil] forCellReuseIdentifier:kTextInputCellIdentifier];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userProfileImageUpdated:) name:NCUserProfileImageUpdatedNotification object:nil];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (NSArray *)getProfileSections
@@ -140,6 +151,13 @@ typedef enum ProfileSection {
         self->_account = [[NCDatabaseManager sharedInstance] activeAccount];
         [self refreshProfileTableView];
     }];
+}
+
+#pragma mark - Notifications
+
+- (void)userProfileImageUpdated:(NSNotification *)notification
+{
+    [self refreshProfileTableView];
 }
 
 #pragma mark - User Interface
@@ -187,30 +205,130 @@ typedef enum ProfileSection {
 {
     BOOL shouldShowEditAvatarButton = _isEditable && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityTempUserAvatarAPI forAccountId:_account.accountId];
     
-    CGFloat headerViewHeight = (shouldShowEditAvatarButton) ? 100 : 80;
+    CGFloat headerViewHeight = (shouldShowEditAvatarButton) ? 140 : 110;
     UIView *avatarView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, headerViewHeight)];
+    [avatarView setAutoresizingMask:UIViewAutoresizingNone];
     avatarView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     
-    UIImageView *avatarImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 14, 80, 80)];
+    UIImageView *avatarImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 20, 80, 80)];
     avatarImageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
     avatarImageView.layer.cornerRadius = 40.0;
     avatarImageView.layer.masksToBounds = YES;
     [avatarImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:_account withSize:CGSizeMake(160, 160)]];
     [avatarView addSubview:avatarImageView];
     
-    UIButton *editAvatarButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 100, 160, 24)];
-    [editAvatarButton setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
-    [editAvatarButton setTitleColor:[UIColor systemBlueColor] forState:UIControlStateNormal];
-    editAvatarButton.titleLabel.font = [UIFont systemFontOfSize:15];
-    editAvatarButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-    editAvatarButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-    editAvatarButton.titleLabel.minimumScaleFactor = 0.9f;
-    editAvatarButton.titleLabel.numberOfLines = 1;
-    editAvatarButton.titleLabel.adjustsFontSizeToFitWidth = YES;
-    editAvatarButton.hidden = !shouldShowEditAvatarButton;
-    [avatarView addSubview:editAvatarButton];
+    _editAvatarButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 110, 160, 24)];
+    [_editAvatarButton setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
+    [_editAvatarButton setTitleColor:[UIColor systemBlueColor] forState:UIControlStateNormal];
+    _editAvatarButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    _editAvatarButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+    _editAvatarButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+    _editAvatarButton.titleLabel.minimumScaleFactor = 0.9f;
+    _editAvatarButton.titleLabel.numberOfLines = 1;
+    _editAvatarButton.titleLabel.adjustsFontSizeToFitWidth = YES;
+    _editAvatarButton.hidden = !shouldShowEditAvatarButton;
+    [_editAvatarButton addTarget:self action:@selector(showAvatarOptions) forControlEvents:UIControlEventTouchUpInside];
+    [avatarView addSubview:_editAvatarButton];
     
     return avatarView;
+}
+
+- (void)showAvatarOptions
+{
+    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:nil
+                                                                                message:nil
+                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *cameraAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Camera", nil)
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        [self checkAndPresentCamera];
+    }];
+    [cameraAction setValue:[[UIImage imageNamed:@"camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    
+    UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        [self presentPhotoLibrary];
+    }];
+    [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    
+    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
+        [optionsActionSheet addAction:cameraAction];
+    }
+    [optionsActionSheet addAction:photoLibraryAction];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = _editAvatarButton;
+    optionsActionSheet.popoverPresentationController.sourceRect = _editAvatarButton.frame;
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (void)checkAndPresentCamera
+{
+    // https://stackoverflow.com/a/20464727/2512312
+    NSString *mediaType = AVMediaTypeVideo;
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
+    
+    if(authStatus == AVAuthorizationStatusAuthorized) {
+        [self presentCamera];
+        return;
+    } else if(authStatus == AVAuthorizationStatusNotDetermined){
+        [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+            if(granted){
+                [self presentCamera];
+            }
+        }];
+        return;
+    }
+    
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Could not access camera", nil)
+                                 message:NSLocalizedString(@"Camera access is not allowed. Check your settings.", nil)
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+}
+
+- (void)presentCamera
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_imagePicker = [[UIImagePickerController alloc] init];
+        self->_imagePicker.allowsEditing = true;
+        self->_imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+        self->_imagePicker.delegate = self;
+        [self presentViewController:self->_imagePicker animated:YES completion:nil];
+    });
+}
+
+- (void)presentPhotoLibrary
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_imagePicker = [[UIImagePickerController alloc] init];
+        self->_imagePicker.allowsEditing = true;
+        self->_imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        self->_imagePicker.delegate = self;
+        [self presentViewController:self->_imagePicker animated:YES completion:nil];
+    });
+}
+
+- (void)sendUserProfileImage:(UIImage *)image
+{
+    [[NCAPIController sharedInstance] setUserProfileImage:image forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+        if (!error) {
+            [self refreshUserProfile];
+        } else {
+            NSLog(@"Error sending profile image: %@", error.description);
+        }
+    }];
 }
 
 - (void)showProfileModificationErrorForField:(NSInteger)field inTextField:(UITextField *)textField
@@ -260,6 +378,25 @@ typedef enum ProfileSection {
     }];
     [renameDialog addAction:okAction];
     [self presentViewController:renameDialog animated:YES completion:nil];
+}
+
+#pragma mark - UIImagePickerController Delegate
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+    
+    if ([mediaType isEqualToString:@"public.image"]) {
+        UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self sendUserProfileImage:image];
+        }];
+    }
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - UIGestureRecognizer delegate
@@ -415,6 +552,11 @@ typedef enum ProfileSection {
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return 1;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 40;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section

@@ -1100,10 +1100,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account
 {
-    #warning TODO - Clear cache from time to time and reload possible new images
+    return [self createAvatarRequestForUser:userId withCachePolicy:NSURLRequestReturnCacheDataElseLoad andSize:size usingAccount:account];
+}
+
+- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId withCachePolicy:(NSURLRequestCachePolicy)cachePolicy andSize:(NSInteger)size usingAccount:(TalkAccount *)account
+{
     NSString *encodedUser = [userId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/%ld", account.server, encodedUser, (long)size];
-    NSMutableURLRequest *avatarRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
+    NSMutableURLRequest *avatarRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:cachePolicy timeoutInterval:60];
     [avatarRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
     return avatarRequest;
 }
@@ -1186,9 +1190,35 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+- (NSURLSessionDataTask *)setUserProfileImage:(UIImage *)image forAccount:(TalkAccount *)account withCompletionBlock:(SetUserProfileFieldCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/spreed/temp-user-avatar", account.server];
+    NSData *imageData= UIImageJPEGRepresentation(image, 0.7);
+    
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        [formData appendPartWithFileData:imageData name:@"files[]" fileName:@"avatar.jpg" mimeType:@"image/jpeg"];
+    } progress:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        if (block) {
+            block(nil, 0);
+        }
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        if (block) {
+            NSInteger statusCode = 0;
+            if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
+                NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+                statusCode = httpResponse.statusCode;
+            }
+            block(error, statusCode);
+        }
+    }];
+    
+    return task;
+}
+
 - (void)saveProfileImageForAccount:(TalkAccount *)account
 {
-    NSURLRequest *request = [self createAvatarRequestForUser:account.userId andSize:160 usingAccount:account];
+    NSURLRequest *request = [self createAvatarRequestForUser:account.userId withCachePolicy:NSURLRequestReloadIgnoringCacheData andSize:160 usingAccount:account];
     [_imageDownloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull responseObject) {
         NSData *pngData = UIImagePNGRepresentation(responseObject);
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
