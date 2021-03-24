@@ -553,7 +553,7 @@ typedef enum SummaryRow {
         NSError *error = nil;
         NSString *inputPhoneNumber = [textField.text stringByReplacingCharactersInRange:range withString:string];
         NBPhoneNumber *phoneNumber = [phoneUtil parse:inputPhoneNumber defaultRegion:nil error:&error];
-        _setPhoneAction.enabled = [phoneUtil isValidNumber:phoneNumber];
+        _setPhoneAction.enabled = [phoneUtil isValidNumber:phoneNumber] && ![_account.phone isEqualToString:inputPhoneNumber];
     }
     return YES;
 }
