@@ -141,7 +141,7 @@ typedef enum SummaryRow {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionAddress]];
         [sections addObject:[NSNumber numberWithInt:kProfileSectionWebsite]];
         [sections addObject:[NSNumber numberWithInt:kProfileSectionTwitter]];
-    } else {
+    } else if ([self rowsInSummarySection].count > 0){
         [sections addObject:[NSNumber numberWithInt:kProfileSectionSummary]];
     }
     
@@ -766,7 +766,6 @@ typedef enum SummaryRow {
     textInputCell.textField.delegate = self;
     
     ProfileSection section = [[[self getProfileSections] objectAtIndex:indexPath.section] intValue];
-    SummaryRow summaryRow = [[[self rowsInSummarySection] objectAtIndex:indexPath.row] intValue];
     switch (section) {
         case kProfileSectionName:
         {
@@ -834,6 +833,7 @@ typedef enum SummaryRow {
         case kProfileSectionSummary:
         {
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:summaryCellIdentifier];
+            SummaryRow summaryRow = [[[self rowsInSummarySection] objectAtIndex:indexPath.row] intValue];
             switch (summaryRow) {
                 case kSummaryRowEmail:
                     cell.textLabel.text = _account.email;
