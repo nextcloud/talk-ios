@@ -47,9 +47,18 @@ typedef enum ProfileSection {
     kProfileSectionAddress,
     kProfileSectionWebsite,
     kProfileSectionTwitter,
+    kProfileSectionSummary,
     kProfileSectionAddAccount,
     kProfileSectionRemoveAccount
 } ProfileSection;
+
+typedef enum SummaryRow {
+    kSummaryRowEmail = 0,
+    kSummaryRowPhoneNumber,
+    kSummaryRowAddress,
+    kSummaryRowWebsite,
+    kSummaryRowTwitter
+} SummaryRow;
 
 @interface UserProfileViewController () <UIGestureRecognizerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, TOCropViewControllerDelegate>
 {
@@ -120,30 +129,48 @@ typedef enum ProfileSection {
 - (NSArray *)getProfileSections
 {
     NSMutableArray *sections = [[NSMutableArray alloc] init];
-    if ((_account.userDisplayName && ![_account.userDisplayName isEqualToString:@""]) || _isEditable) {
+    
+    if (_isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionName]];
-    }
-    if ((_account.email && ![_account.email isEqualToString:@""]) || _isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionEmail]];
-    }
-    if ((_account.phone && ![_account.phone isEqualToString:@""]) || _isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionPhoneNumber]];
-    }
-    if ((_account.address && ![_account.address isEqualToString:@""]) || _isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionAddress]];
-    }
-    if ((_account.website && ![_account.website isEqualToString:@""]) || _isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionWebsite]];
-    }
-    if ((_account.twitter && ![_account.twitter isEqualToString:@""]) || _isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionTwitter]];
+    } else {
+        [sections addObject:[NSNumber numberWithInt:kProfileSectionSummary]];
     }
+    
     if (multiAccountEnabled) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionAddAccount]];
     }
+    
     [sections addObject:[NSNumber numberWithInt:kProfileSectionRemoveAccount]];
 
     return [NSArray arrayWithArray:sections];
+}
+
+- (NSArray *)rowsInSummarySection
+{
+    NSMutableArray *rows = [[NSMutableArray alloc] init];
+    
+    if ((_account.email && ![_account.email isEqualToString:@""])) {
+        [rows addObject:[NSNumber numberWithInt:kSummaryRowEmail]];
+    }
+    if ((_account.phone && ![_account.phone isEqualToString:@""])) {
+        [rows addObject:[NSNumber numberWithInt:kSummaryRowPhoneNumber]];
+    }
+    if ((_account.address && ![_account.address isEqualToString:@""])) {
+        [rows addObject:[NSNumber numberWithInt:kSummaryRowAddress]];
+    }
+    if ((_account.website && ![_account.website isEqualToString:@""])) {
+        [rows addObject:[NSNumber numberWithInt:kSummaryRowWebsite]];
+    }
+    if ((_account.twitter && ![_account.twitter isEqualToString:@""])) {
+        [rows addObject:[NSNumber numberWithInt:kSummaryRowTwitter]];
+    }
+    
+    return [NSArray arrayWithArray:rows];
 }
 
 - (void)refreshUserProfile
@@ -206,7 +233,7 @@ typedef enum ProfileSection {
 {
     BOOL shouldShowEditAvatarButton = _isEditable && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityTempUserAvatarAPI forAccountId:_account.accountId];
     
-    CGFloat headerViewHeight = (shouldShowEditAvatarButton) ? 140 : 110;
+    CGFloat headerViewHeight = (shouldShowEditAvatarButton) ? 140 : 160;
     UIView *avatarView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, headerViewHeight)];
     [avatarView setAutoresizingMask:UIViewAutoresizingNone];
     avatarView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -217,6 +244,18 @@ typedef enum ProfileSection {
     avatarImageView.layer.masksToBounds = YES;
     [avatarImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:_account withSize:CGSizeMake(160, 160)]];
     [avatarView addSubview:avatarImageView];
+    
+    if (!_isEditable) {
+        UILabel *displayNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 110, 80, 30)];
+        displayNameLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+        displayNameLabel.font = [UIFont systemFontOfSize:26];
+        displayNameLabel.textAlignment = NSTextAlignmentCenter;
+        displayNameLabel.minimumScaleFactor = 0.6f;
+        displayNameLabel.numberOfLines = 1;
+        displayNameLabel.adjustsFontSizeToFitWidth = YES;
+        displayNameLabel.text = _account.userDisplayName;
+        [avatarView addSubview:displayNameLabel];
+    }
     
     _editAvatarButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 110, 160, 24)];
     [_editAvatarButton setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
@@ -582,6 +621,11 @@ typedef enum ProfileSection {
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    NSArray *sections = [self getProfileSections];
+    ProfileSection profileSection = [[sections objectAtIndex:section] intValue];
+    if (profileSection == kProfileSectionSummary) {
+        return [self rowsInSummarySection].count;
+    }
     return 1;
 }
 
@@ -639,6 +683,7 @@ typedef enum ProfileSection {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    static NSString *summaryCellIdentifier = @"SummaryCellIdentifier";
     static NSString *addAccountCellIdentifier = @"AddAccountCellIdentifier";
     static NSString *removeAccountCellIdentifier = @"RemoveAccountCellIdentifier";
     
@@ -651,8 +696,8 @@ typedef enum ProfileSection {
     textInputCell.textField.delegate = self;
     textInputCell.textField.userInteractionEnabled = _isEditable;
     
-    NSArray *sections = [self getProfileSections];
-    ProfileSection section = [[sections objectAtIndex:indexPath.section] intValue];
+    ProfileSection section = [[[self getProfileSections] objectAtIndex:indexPath.section] intValue];
+    SummaryRow summaryRow = [[[self rowsInSummarySection] objectAtIndex:indexPath.row] intValue];
     switch (section) {
         case kProfileSectionName:
         {
@@ -707,6 +752,39 @@ typedef enum ProfileSection {
             textInputCell.textField.placeholder = NSLocalizedString(@"Twitter handle @…", nil);
             textInputCell.textField.tag = k_twitter_textfield_tag;
             cell = textInputCell;
+        }
+            break;
+            
+        case kProfileSectionSummary:
+        {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:summaryCellIdentifier];
+            switch (summaryRow) {
+                case kSummaryRowEmail:
+                    cell.textLabel.text = _account.email;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    break;
+                    
+                case kSummaryRowPhoneNumber:
+                    cell.textLabel.text = _account.phone;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    break;
+                    
+                case kSummaryRowAddress:
+                    cell.textLabel.text = _account.address;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    break;
+                    
+                case kSummaryRowWebsite:
+                    cell.textLabel.text = _account.website;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"browser-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    break;
+                    
+                case kSummaryRowTwitter:
+                    cell.textLabel.text = _account.twitter;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"twitter"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    break;
+            }
+            cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
         }
             break;
             
