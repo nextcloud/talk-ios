@@ -77,6 +77,7 @@ typedef enum AboutSection {
     NCUserStatus *_activeUserStatus;
     UISwitch *_contactSyncSwitch;
     UIAlertAction *_setPhoneAction;
+    NBPhoneNumberUtil *_phoneUtil;
 }
 
 @end
@@ -94,6 +95,8 @@ typedef enum AboutSection {
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
     self.cancelButton.tintColor = [NCAppBranding themeTextColor];
+    
+    _phoneUtil = [[NBPhoneNumberUtil alloc] init];
     
     _contactSyncSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_contactSyncSwitch addTarget: self action: @selector(contactSyncValueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -354,11 +357,9 @@ typedef enum AboutSection {
     __weak typeof(self) weakSelf = self;
     [setPhoneNumberDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         NSString *location = [[NSLocale currentLocale] countryCode];
-        NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
-        NSError *error = nil;
-        textField.text = [NSString stringWithFormat:@"+%@", [phoneUtil getCountryCodeForRegion:location]];
-        NBPhoneNumber *exampleNumber = [phoneUtil getExampleNumber:location error:&error];
-        textField.placeholder = [phoneUtil format:exampleNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error];
+        textField.text = [NSString stringWithFormat:@"+%@", [_phoneUtil getCountryCodeForRegion:location]];
+        NBPhoneNumber *exampleNumber = [_phoneUtil getExampleNumber:location error:nil];
+        textField.placeholder = [_phoneUtil format:exampleNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:nil];
         textField.keyboardType = UIKeyboardTypePhonePad;
         textField.delegate = weakSelf;
         textField.tag = k_phone_textfield_tag;
@@ -389,12 +390,10 @@ typedef enum AboutSection {
 
 - (void)presentPhoneNumberErrorDialog:(NSString *)phoneNumber
 {
-    NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
-    NSError *error = nil;
-    NBPhoneNumber *failedPhoneNumber = [phoneUtil parse:phoneNumber defaultRegion:nil error:&error];
+    NBPhoneNumber *failedPhoneNumber = [_phoneUtil parse:phoneNumber defaultRegion:nil error:nil];
     UIAlertController *failedPhoneNumberDialog =
     [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Could not set phone number", nil)
-                                        message:[NSString stringWithFormat:NSLocalizedString(@"An error occurred while setting %@ as phone number", nil), [phoneUtil format:failedPhoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error]]
+                                        message:[NSString stringWithFormat:NSLocalizedString(@"An error occurred while setting %@ as phone number", nil), [_phoneUtil format:failedPhoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:nil]]
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction *retryAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Retry", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
@@ -413,11 +412,9 @@ typedef enum AboutSection {
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
     if (textField.tag == k_phone_textfield_tag) {
-        NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
-        NSError *error = nil;
         NSString *inputPhoneNumber = [textField.text stringByReplacingCharactersInRange:range withString:string];
-        NBPhoneNumber *phoneNumber = [phoneUtil parse:inputPhoneNumber defaultRegion:nil error:&error];
-        _setPhoneAction.enabled = [phoneUtil isValidNumber:phoneNumber];
+        NBPhoneNumber *phoneNumber = [_phoneUtil parse:inputPhoneNumber defaultRegion:nil error:nil];
+        _setPhoneAction.enabled = [_phoneUtil isValidNumber:phoneNumber];
     }
     return YES;
 }

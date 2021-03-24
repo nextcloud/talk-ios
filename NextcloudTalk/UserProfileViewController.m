@@ -72,6 +72,7 @@ typedef enum SummaryRow {
     UIButton *_editAvatarButton;
     UIImagePickerController *_imagePicker;
     UIAlertAction *_setPhoneAction;
+    NBPhoneNumberUtil *_phoneUtil;
 }
 
 @end
@@ -82,6 +83,7 @@ typedef enum SummaryRow {
 {
     self = [super initWithStyle:UITableViewStyleGrouped];
     _account = account;
+    _phoneUtil = [[NBPhoneNumberUtil alloc] init];
     return self;
 }
 
@@ -549,11 +551,9 @@ typedef enum SummaryRow {
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
     if (textField.tag == k_phone_textfield_tag) {
-        NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
-        NSError *error = nil;
         NSString *inputPhoneNumber = [textField.text stringByReplacingCharactersInRange:range withString:string];
-        NBPhoneNumber *phoneNumber = [phoneUtil parse:inputPhoneNumber defaultRegion:nil error:&error];
-        _setPhoneAction.enabled = [phoneUtil isValidNumber:phoneNumber] && ![_account.phone isEqualToString:inputPhoneNumber];
+        NBPhoneNumber *phoneNumber = [_phoneUtil parse:inputPhoneNumber defaultRegion:nil error:nil];
+        _setPhoneAction.enabled = [_phoneUtil isValidNumber:phoneNumber] && ![_account.phone isEqualToString:inputPhoneNumber];
     }
     return YES;
 }
@@ -636,14 +636,12 @@ typedef enum SummaryRow {
     __weak typeof(self) weakSelf = self;
     [setPhoneNumberDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         NSString *location = [[NSLocale currentLocale] countryCode];
-        NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
-        NSError *error = nil;
-        textField.text = [NSString stringWithFormat:@"+%@", [phoneUtil getCountryCodeForRegion:location]];
+        textField.text = [NSString stringWithFormat:@"+%@", [_phoneUtil getCountryCodeForRegion:location]];
         if (hasPhone) {
             textField.text = self->_account.phone;
         }
-        NBPhoneNumber *exampleNumber = [phoneUtil getExampleNumber:location error:&error];
-        textField.placeholder = [phoneUtil format:exampleNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error];
+        NBPhoneNumber *exampleNumber = [_phoneUtil getExampleNumber:location error:nil];
+        textField.placeholder = [_phoneUtil format:exampleNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:nil];
         textField.keyboardType = UIKeyboardTypePhonePad;
         textField.delegate = weakSelf;
         textField.tag = k_phone_textfield_tag;
@@ -792,10 +790,8 @@ typedef enum SummaryRow {
             
         case kProfileSectionPhoneNumber:
         {
-            NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
-            NSError *error = nil;
-            NBPhoneNumber *phoneNumber = [phoneUtil parse:_account.phone defaultRegion:nil error:&error];
-            textInputCell.textField.text = phoneNumber ? [phoneUtil format:phoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error] : nil;
+            NBPhoneNumber *phoneNumber = [_phoneUtil parse:_account.phone defaultRegion:nil error:nil];
+            textInputCell.textField.text = phoneNumber ? [_phoneUtil format:phoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:nil] : nil;
             textInputCell.textField.keyboardType = UIKeyboardTypePhonePad;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your phone number", nil);
             textInputCell.textField.tag = k_phone_textfield_tag;
@@ -846,10 +842,8 @@ typedef enum SummaryRow {
                     
                 case kSummaryRowPhoneNumber:
                 {
-                    NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
-                    NSError *error = nil;
-                    NBPhoneNumber *phoneNumber = [phoneUtil parse:_account.phone defaultRegion:nil error:&error];
-                    cell.textLabel.text = phoneNumber ? [phoneUtil format:phoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error] : nil;
+                    NBPhoneNumber *phoneNumber = [_phoneUtil parse:_account.phone defaultRegion:nil error:nil];
+                    cell.textLabel.text = phoneNumber ? [_phoneUtil format:phoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:nil] : nil;
                     [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                 }
                     break;
