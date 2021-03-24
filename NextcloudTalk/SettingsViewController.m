@@ -357,9 +357,9 @@ typedef enum AboutSection {
     __weak typeof(self) weakSelf = self;
     [setPhoneNumberDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         NSString *location = [[NSLocale currentLocale] countryCode];
-        textField.text = [NSString stringWithFormat:@"+%@", [_phoneUtil getCountryCodeForRegion:location]];
-        NBPhoneNumber *exampleNumber = [_phoneUtil getExampleNumber:location error:nil];
-        textField.placeholder = [_phoneUtil format:exampleNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:nil];
+        textField.text = [NSString stringWithFormat:@"+%@", [self->_phoneUtil getCountryCodeForRegion:location]];
+        NBPhoneNumber *exampleNumber = [self->_phoneUtil getExampleNumber:location error:nil];
+        textField.placeholder = [self->_phoneUtil format:exampleNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:nil];
         textField.keyboardType = UIKeyboardTypePhonePad;
         textField.delegate = weakSelf;
         textField.tag = k_phone_textfield_tag;
