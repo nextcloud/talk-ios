@@ -475,7 +475,7 @@ typedef enum SummaryRow {
 {
     // Allow click on tableview cells
     if ([touch.view isDescendantOfView:self.tableView]) {
-        if (![touch.view isKindOfClass:[UITextField class]]) {
+        if (![touch.view isDescendantOfView:_activeTextField]) {
             [self dismissKeyboard];
         }
         return NO;
