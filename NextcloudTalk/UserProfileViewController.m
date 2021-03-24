@@ -25,6 +25,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <TOCropViewController/TOCropViewController.h>
 
+#import "NBPhoneNumberUtil.h"
 #import "NCAppBranding.h"
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
@@ -70,6 +71,7 @@ typedef enum SummaryRow {
     UIActivityIndicatorView *_modifyingProfileView;
     UIButton *_editAvatarButton;
     UIImagePickerController *_imagePicker;
+    UIAlertAction *_setPhoneAction;
 }
 
 @end
@@ -372,7 +374,6 @@ typedef enum SummaryRow {
 
 - (void)showProfileModificationErrorForField:(NSInteger)field inTextField:(UITextField *)textField
 {
-    [self removeModifyingProfileUI];
     NSString *errorDescription = @"";
     // The textfield pointer might be pointing to a different textfield at this point because
     // if the user tapped the "Done" button in navigation bar (so the non-editable view is visible)
@@ -496,6 +497,10 @@ typedef enum SummaryRow {
     NSString *currentValue = nil;
     NSString *newValue = [textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     NSInteger tag = textField.tag;
+    
+    BOOL waitForModitication = _waitingForModification;
+    _waitingForModification = NO;
+    _activeTextField = nil;
         
     if (tag == k_name_textfield_tag) {
         field = kUserProfileDisplayName;
@@ -504,8 +509,7 @@ typedef enum SummaryRow {
         field = kUserProfileEmail;
         currentValue = _account.email;
     } else if (tag == k_phone_textfield_tag) {
-        field = kUserProfilePhone;
-        currentValue = _account.phone;
+        return;
     } else if (tag == k_address_textfield_tag) {
         field = kUserProfileAddress;
         currentValue = _account.address;
@@ -516,10 +520,6 @@ typedef enum SummaryRow {
         field = kUserProfileTwitter;
         currentValue = _account.twitter;
     }
-    
-    BOOL waitForModitication = _waitingForModification;
-    _waitingForModification = NO;
-    _activeTextField = nil;
     
     textField.text = newValue;
     
@@ -544,6 +544,18 @@ typedef enum SummaryRow {
         }
         [self removeModifyingProfileUI];
     }
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    if (textField.tag == k_phone_textfield_tag) {
+        NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
+        NSError *error = nil;
+        NSString *inputPhoneNumber = [textField.text stringByReplacingCharactersInRange:range withString:string];
+        NBPhoneNumber *phoneNumber = [phoneUtil parse:inputPhoneNumber defaultRegion:nil error:&error];
+        _setPhoneAction.enabled = [phoneUtil isValidNumber:phoneNumber];
+    }
+    return YES;
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -609,6 +621,66 @@ typedef enum SummaryRow {
     [[NCSettingsController sharedInstance] logoutWithCompletionBlock:^(NSError *error) {
         [[NCUserInterfaceController sharedInstance] presentConversationsList];
         [[NCConnectionController sharedInstance] checkAppState];
+    }];
+}
+
+- (void)presentSetPhoneNumberDialog
+{
+    UIAlertController *setPhoneNumberDialog =
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Phone number", nil)
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    BOOL hasPhone = _account.phone && ![_account.phone isEqualToString:@""];
+    
+    __weak typeof(self) weakSelf = self;
+    [setPhoneNumberDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        NSString *location = [[NSLocale currentLocale] countryCode];
+        NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
+        NSError *error = nil;
+        textField.text = [NSString stringWithFormat:@"+%@", [phoneUtil getCountryCodeForRegion:location]];
+        if (hasPhone) {
+            textField.text = self->_account.phone;
+        }
+        NBPhoneNumber *exampleNumber = [phoneUtil getExampleNumber:location error:&error];
+        textField.placeholder = [phoneUtil format:exampleNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error];
+        textField.keyboardType = UIKeyboardTypePhonePad;
+        textField.delegate = weakSelf;
+        textField.tag = k_phone_textfield_tag;
+    }];
+    
+    _setPhoneAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Set", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *phoneNumber = [[setPhoneNumberDialog textFields][0] text];
+        [self setPhoneNumber:phoneNumber];
+    }];
+    _setPhoneAction.enabled = NO;
+    [setPhoneNumberDialog addAction:_setPhoneAction];
+    
+    if (hasPhone) {
+        UIAlertAction *removeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+            [self setPhoneNumber:@""];
+        }];
+        [setPhoneNumberDialog addAction:removeAction];
+    }
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
+    [setPhoneNumberDialog addAction:cancelAction];
+    
+    [self presentViewController:setPhoneNumberDialog animated:YES completion:nil];
+}
+
+- (void)setPhoneNumber:(NSString *)phoneNumber
+{
+    [self setModifyingProfileUI];
+    
+    [[NCAPIController sharedInstance] setUserProfileField:kUserProfilePhone withValue:phoneNumber forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+        if (error) {
+            [self showProfileModificationErrorForField:k_phone_textfield_tag inTextField:nil];
+        } else {
+            [self refreshUserProfile];
+        }
+        
+        [self removeModifyingProfileUI];
     }];
 }
 
@@ -694,7 +766,6 @@ typedef enum SummaryRow {
         textInputCell = [[TextInputTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTextInputCellIdentifier];
     }
     textInputCell.textField.delegate = self;
-    textInputCell.textField.userInteractionEnabled = _isEditable;
     
     ProfileSection section = [[[self getProfileSections] objectAtIndex:indexPath.section] intValue];
     SummaryRow summaryRow = [[[self rowsInSummarySection] objectAtIndex:indexPath.row] intValue];
@@ -703,6 +774,7 @@ typedef enum SummaryRow {
         {
             textInputCell.textField.text = _account.userDisplayName;
             textInputCell.textField.tag = k_name_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = _isEditable;
             cell = textInputCell;
         }
             break;
@@ -713,16 +785,21 @@ typedef enum SummaryRow {
             textInputCell.textField.keyboardType = UIKeyboardTypeEmailAddress;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your email address", nil);
             textInputCell.textField.tag = k_email_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = _isEditable;
             cell = textInputCell;
         }
             break;
             
         case kProfileSectionPhoneNumber:
         {
-            textInputCell.textField.text = _account.phone;
+            NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
+            NSError *error = nil;
+            NBPhoneNumber *phoneNumber = [phoneUtil parse:_account.phone defaultRegion:nil error:&error];
+            textInputCell.textField.text = phoneNumber ? [phoneUtil format:phoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error] : nil;
             textInputCell.textField.keyboardType = UIKeyboardTypePhonePad;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your phone number", nil);
             textInputCell.textField.tag = k_phone_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = NO;
             cell = textInputCell;
         }
             break;
@@ -732,6 +809,7 @@ typedef enum SummaryRow {
             textInputCell.textField.text = _account.address;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your postal address", nil);
             textInputCell.textField.tag = k_address_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = _isEditable;
             cell = textInputCell;
         }
             break;
@@ -741,6 +819,7 @@ typedef enum SummaryRow {
             textInputCell.textField.text = _account.website;
             textInputCell.textField.placeholder = NSLocalizedString(@"Link https://…", nil);
             textInputCell.textField.tag = k_website_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = _isEditable;
             cell = textInputCell;
         }
             break;
@@ -751,6 +830,7 @@ typedef enum SummaryRow {
             textInputCell.textField.keyboardType = UIKeyboardTypeEmailAddress;
             textInputCell.textField.placeholder = NSLocalizedString(@"Twitter handle @…", nil);
             textInputCell.textField.tag = k_twitter_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = _isEditable;
             cell = textInputCell;
         }
             break;
@@ -765,8 +845,13 @@ typedef enum SummaryRow {
                     break;
                     
                 case kSummaryRowPhoneNumber:
-                    cell.textLabel.text = _account.phone;
+                {
+                    NBPhoneNumberUtil *phoneUtil = [[NBPhoneNumberUtil alloc] init];
+                    NSError *error = nil;
+                    NBPhoneNumber *phoneNumber = [phoneUtil parse:_account.phone defaultRegion:nil error:&error];
+                    cell.textLabel.text = phoneNumber ? [phoneUtil format:phoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:&error] : nil;
                     [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                }
                     break;
                     
                 case kSummaryRowAddress:
@@ -822,6 +907,8 @@ typedef enum SummaryRow {
         [self addNewAccount];
     } else if (section == kProfileSectionRemoveAccount) {
         [self showLogoutConfirmationDialog];
+    } else if (section == kProfileSectionPhoneNumber) {
+        [self presentSetPhoneNumberDialog];
     }
     
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
