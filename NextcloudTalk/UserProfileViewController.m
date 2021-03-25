@@ -870,7 +870,7 @@ typedef enum SummaryRow {
                     
                 case kSummaryRowWebsite:
                     cell.textLabel.text = _account.website;
-                    [cell.imageView setImage:[[UIImage imageNamed:@"browser-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"website"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     break;
                     
                 case kSummaryRowTwitter:
