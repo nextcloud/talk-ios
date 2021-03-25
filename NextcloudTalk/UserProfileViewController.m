@@ -73,6 +73,7 @@ typedef enum SummaryRow {
     UIImagePickerController *_imagePicker;
     UIAlertAction *_setPhoneAction;
     NBPhoneNumberUtil *_phoneUtil;
+    NSArray *_editableFields;
 }
 
 @end
@@ -112,6 +113,7 @@ typedef enum SummaryRow {
     self.tableView.tableHeaderView = [self avatarHeaderView];
     
     [self showEditButton];
+    [self getUserProfileEditableFields];
     
     _modifyingProfileView = [[UIActivityIndicatorView alloc] init];
     _modifyingProfileView.color = [NCAppBranding themeTextColor];
@@ -175,6 +177,17 @@ typedef enum SummaryRow {
     }
     
     return [NSArray arrayWithArray:rows];
+}
+
+- (void)getUserProfileEditableFields
+{
+    _editButton.enabled = NO;
+    [[NCAPIController sharedInstance] getUserProfileEditableFieldsForAccount:_account withCompletionBlock:^(NSArray *userProfileEditableFields, NSError *error) {
+        if (!error) {
+            self->_editableFields = userProfileEditableFields;
+            self->_editButton.enabled = YES;
+        }
+    }];
 }
 
 - (void)refreshUserProfile
@@ -772,7 +785,7 @@ typedef enum SummaryRow {
         {
             textInputCell.textField.text = _account.userDisplayName;
             textInputCell.textField.tag = k_name_textfield_tag;
-            textInputCell.textField.userInteractionEnabled = _isEditable;
+            textInputCell.textField.userInteractionEnabled = [_editableFields containsObject:kUserProfileDisplayName];
             cell = textInputCell;
         }
             break;
@@ -783,7 +796,7 @@ typedef enum SummaryRow {
             textInputCell.textField.keyboardType = UIKeyboardTypeEmailAddress;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your email address", nil);
             textInputCell.textField.tag = k_email_textfield_tag;
-            textInputCell.textField.userInteractionEnabled = _isEditable;
+            textInputCell.textField.userInteractionEnabled = [_editableFields containsObject:kUserProfileEmail];
             cell = textInputCell;
         }
             break;
@@ -805,7 +818,7 @@ typedef enum SummaryRow {
             textInputCell.textField.text = _account.address;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your postal address", nil);
             textInputCell.textField.tag = k_address_textfield_tag;
-            textInputCell.textField.userInteractionEnabled = _isEditable;
+            textInputCell.textField.userInteractionEnabled = [_editableFields containsObject:kUserProfileAddress];
             cell = textInputCell;
         }
             break;
@@ -816,7 +829,7 @@ typedef enum SummaryRow {
             textInputCell.textField.keyboardType = UIKeyboardTypeURL;
             textInputCell.textField.placeholder = NSLocalizedString(@"Link https://…", nil);
             textInputCell.textField.tag = k_website_textfield_tag;
-            textInputCell.textField.userInteractionEnabled = _isEditable;
+            textInputCell.textField.userInteractionEnabled = [_editableFields containsObject:kUserProfileWebsite];
             cell = textInputCell;
         }
             break;
@@ -827,7 +840,7 @@ typedef enum SummaryRow {
             textInputCell.textField.keyboardType = UIKeyboardTypeEmailAddress;
             textInputCell.textField.placeholder = NSLocalizedString(@"Twitter handle @…", nil);
             textInputCell.textField.tag = k_twitter_textfield_tag;
-            textInputCell.textField.userInteractionEnabled = _isEditable;
+            textInputCell.textField.userInteractionEnabled = [_editableFields containsObject:kUserProfileTwitter];
             cell = textInputCell;
         }
             break;
