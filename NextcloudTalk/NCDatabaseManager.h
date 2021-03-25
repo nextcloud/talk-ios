@@ -48,6 +48,7 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 @property NSInteger unreadBadgeNumber;
 @property BOOL unreadNotification;
 @property NSInteger lastContactSync;
+@property BOOL hasCustomAvatar;
 @property BOOL active;
 @end
 

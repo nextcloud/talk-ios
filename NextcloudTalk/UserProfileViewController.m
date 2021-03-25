@@ -25,6 +25,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <TOCropViewController/TOCropViewController.h>
 
+#import "NBPhoneNumberUtil.h"
 #import "NCAppBranding.h"
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
@@ -47,9 +48,18 @@ typedef enum ProfileSection {
     kProfileSectionAddress,
     kProfileSectionWebsite,
     kProfileSectionTwitter,
+    kProfileSectionSummary,
     kProfileSectionAddAccount,
     kProfileSectionRemoveAccount
 } ProfileSection;
+
+typedef enum SummaryRow {
+    kSummaryRowEmail = 0,
+    kSummaryRowPhoneNumber,
+    kSummaryRowAddress,
+    kSummaryRowWebsite,
+    kSummaryRowTwitter
+} SummaryRow;
 
 @interface UserProfileViewController () <UIGestureRecognizerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, TOCropViewControllerDelegate>
 {
@@ -61,6 +71,9 @@ typedef enum ProfileSection {
     UIActivityIndicatorView *_modifyingProfileView;
     UIButton *_editAvatarButton;
     UIImagePickerController *_imagePicker;
+    UIAlertAction *_setPhoneAction;
+    NBPhoneNumberUtil *_phoneUtil;
+    NSArray *_editableFields;
 }
 
 @end
@@ -71,6 +84,7 @@ typedef enum ProfileSection {
 {
     self = [super initWithStyle:UITableViewStyleGrouped];
     _account = account;
+    _phoneUtil = [[NBPhoneNumberUtil alloc] init];
     return self;
 }
 
@@ -99,6 +113,7 @@ typedef enum ProfileSection {
     self.tableView.tableHeaderView = [self avatarHeaderView];
     
     [self showEditButton];
+    [self getUserProfileEditableFields];
     
     _modifyingProfileView = [[UIActivityIndicatorView alloc] init];
     _modifyingProfileView.color = [NCAppBranding themeTextColor];
@@ -120,30 +135,59 @@ typedef enum ProfileSection {
 - (NSArray *)getProfileSections
 {
     NSMutableArray *sections = [[NSMutableArray alloc] init];
-    if ((_account.userDisplayName && ![_account.userDisplayName isEqualToString:@""]) || _isEditable) {
+    
+    if (_isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionName]];
-    }
-    if ((_account.email && ![_account.email isEqualToString:@""]) || _isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionEmail]];
-    }
-    if ((_account.phone && ![_account.phone isEqualToString:@""]) || _isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionPhoneNumber]];
-    }
-    if ((_account.address && ![_account.address isEqualToString:@""]) || _isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionAddress]];
-    }
-    if ((_account.website && ![_account.website isEqualToString:@""]) || _isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionWebsite]];
-    }
-    if ((_account.twitter && ![_account.twitter isEqualToString:@""]) || _isEditable) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionTwitter]];
+    } else if ([self rowsInSummarySection].count > 0){
+        [sections addObject:[NSNumber numberWithInt:kProfileSectionSummary]];
     }
+    
     if (multiAccountEnabled) {
         [sections addObject:[NSNumber numberWithInt:kProfileSectionAddAccount]];
     }
+    
     [sections addObject:[NSNumber numberWithInt:kProfileSectionRemoveAccount]];
 
     return [NSArray arrayWithArray:sections];
+}
+
+- (NSArray *)rowsInSummarySection
+{
+    NSMutableArray *rows = [[NSMutableArray alloc] init];
+    
+    if ((_account.email && ![_account.email isEqualToString:@""])) {
+        [rows addObject:[NSNumber numberWithInt:kSummaryRowEmail]];
+    }
+    if ((_account.phone && ![_account.phone isEqualToString:@""])) {
+        [rows addObject:[NSNumber numberWithInt:kSummaryRowPhoneNumber]];
+    }
+    if ((_account.address && ![_account.address isEqualToString:@""])) {
+        [rows addObject:[NSNumber numberWithInt:kSummaryRowAddress]];
+    }
+    if ((_account.website && ![_account.website isEqualToString:@""])) {
+        [rows addObject:[NSNumber numberWithInt:kSummaryRowWebsite]];
+    }
+    if ((_account.twitter && ![_account.twitter isEqualToString:@""])) {
+        [rows addObject:[NSNumber numberWithInt:kSummaryRowTwitter]];
+    }
+    
+    return [NSArray arrayWithArray:rows];
+}
+
+- (void)getUserProfileEditableFields
+{
+    _editButton.enabled = NO;
+    [[NCAPIController sharedInstance] getUserProfileEditableFieldsForAccount:_account withCompletionBlock:^(NSArray *userProfileEditableFields, NSError *error) {
+        if (!error) {
+            self->_editableFields = userProfileEditableFields;
+            self->_editButton.enabled = YES;
+        }
+    }];
 }
 
 - (void)refreshUserProfile
@@ -158,6 +202,7 @@ typedef enum ProfileSection {
 
 - (void)userProfileImageUpdated:(NSNotification *)notification
 {
+    self->_account = [[NCDatabaseManager sharedInstance] activeAccount];
     [self refreshProfileTableView];
 }
 
@@ -206,7 +251,7 @@ typedef enum ProfileSection {
 {
     BOOL shouldShowEditAvatarButton = _isEditable && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityTempUserAvatarAPI forAccountId:_account.accountId];
     
-    CGFloat headerViewHeight = (shouldShowEditAvatarButton) ? 140 : 110;
+    CGFloat headerViewHeight = (shouldShowEditAvatarButton) ? 140 : 160;
     UIView *avatarView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, headerViewHeight)];
     [avatarView setAutoresizingMask:UIViewAutoresizingNone];
     avatarView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -217,6 +262,18 @@ typedef enum ProfileSection {
     avatarImageView.layer.masksToBounds = YES;
     [avatarImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:_account withSize:CGSizeMake(160, 160)]];
     [avatarView addSubview:avatarImageView];
+    
+    if (!_isEditable) {
+        UILabel *displayNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 110, 80, 30)];
+        displayNameLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+        displayNameLabel.font = [UIFont systemFontOfSize:26];
+        displayNameLabel.textAlignment = NSTextAlignmentCenter;
+        displayNameLabel.minimumScaleFactor = 0.6f;
+        displayNameLabel.numberOfLines = 1;
+        displayNameLabel.adjustsFontSizeToFitWidth = YES;
+        displayNameLabel.text = _account.userDisplayName;
+        [avatarView addSubview:displayNameLabel];
+    }
     
     _editAvatarButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 110, 160, 24)];
     [_editAvatarButton setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
@@ -254,10 +311,20 @@ typedef enum ProfileSection {
     }];
     [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
+    UIAlertAction *removeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove", nil)
+                                                                 style:UIAlertActionStyleDestructive
+                                                               handler:^void (UIAlertAction *action) {
+        [self removeUserProfileImage];
+    }];
+    [removeAction setValue:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         [optionsActionSheet addAction:cameraAction];
     }
     [optionsActionSheet addAction:photoLibraryAction];
+    if (_account.hasCustomAvatar) {
+        [optionsActionSheet addAction:removeAction];
+    }
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
@@ -325,15 +392,26 @@ typedef enum ProfileSection {
         if (!error) {
             [self refreshUserProfile];
         } else {
-            [self showSetProfileImageError];
+            [self showProfileImageError:YES];
             NSLog(@"Error sending profile image: %@", error.description);
+        }
+    }];
+}
+
+- (void)removeUserProfileImage
+{
+    [[NCAPIController sharedInstance] removeUserProfileImageForAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+        if (!error) {
+            [self refreshUserProfile];
+        } else {
+            [self showProfileImageError:NO];
+            NSLog(@"Error removing profile image: %@", error.description);
         }
     }];
 }
 
 - (void)showProfileModificationErrorForField:(NSInteger)field inTextField:(UITextField *)textField
 {
-    [self removeModifyingProfileUI];
     NSString *errorDescription = @"";
     // The textfield pointer might be pointing to a different textfield at this point because
     // if the user tapped the "Done" button in navigation bar (so the non-editable view is visible)
@@ -380,10 +458,11 @@ typedef enum ProfileSection {
     [self presentViewController:errorDialog animated:YES completion:nil];
 }
 
-- (void)showSetProfileImageError
+- (void)showProfileImageError:(BOOL)setting
 {
+    NSString *reason = setting ? NSLocalizedString(@"An error occured setting profile image", nil) : NSLocalizedString(@"An error occured removing profile image", nil);
     UIAlertController *errorDialog =
-    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"An error occured setting profile image", nil)
+    [UIAlertController alertControllerWithTitle:reason
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
@@ -436,7 +515,7 @@ typedef enum ProfileSection {
 {
     // Allow click on tableview cells
     if ([touch.view isDescendantOfView:self.tableView]) {
-        if (![touch.view isKindOfClass:[UITextField class]]) {
+        if (![touch.view isDescendantOfView:_activeTextField]) {
             [self dismissKeyboard];
         }
         return NO;
@@ -457,6 +536,10 @@ typedef enum ProfileSection {
     NSString *currentValue = nil;
     NSString *newValue = [textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     NSInteger tag = textField.tag;
+    
+    BOOL waitForModitication = _waitingForModification;
+    _waitingForModification = NO;
+    _activeTextField = nil;
         
     if (tag == k_name_textfield_tag) {
         field = kUserProfileDisplayName;
@@ -465,8 +548,7 @@ typedef enum ProfileSection {
         field = kUserProfileEmail;
         currentValue = _account.email;
     } else if (tag == k_phone_textfield_tag) {
-        field = kUserProfilePhone;
-        currentValue = _account.phone;
+        return;
     } else if (tag == k_address_textfield_tag) {
         field = kUserProfileAddress;
         currentValue = _account.address;
@@ -477,10 +559,6 @@ typedef enum ProfileSection {
         field = kUserProfileTwitter;
         currentValue = _account.twitter;
     }
-    
-    BOOL waitForModitication = _waitingForModification;
-    _waitingForModification = NO;
-    _activeTextField = nil;
     
     textField.text = newValue;
     
@@ -505,6 +583,16 @@ typedef enum ProfileSection {
         }
         [self removeModifyingProfileUI];
     }
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    if (textField.tag == k_phone_textfield_tag) {
+        NSString *inputPhoneNumber = [textField.text stringByReplacingCharactersInRange:range withString:string];
+        NBPhoneNumber *phoneNumber = [_phoneUtil parse:inputPhoneNumber defaultRegion:nil error:nil];
+        _setPhoneAction.enabled = [_phoneUtil isValidNumber:phoneNumber] && ![_account.phone isEqualToString:inputPhoneNumber];
+    }
+    return YES;
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -573,6 +661,64 @@ typedef enum ProfileSection {
     }];
 }
 
+- (void)presentSetPhoneNumberDialog
+{
+    UIAlertController *setPhoneNumberDialog =
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Phone number", nil)
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    BOOL hasPhone = _account.phone && ![_account.phone isEqualToString:@""];
+    
+    __weak typeof(self) weakSelf = self;
+    [setPhoneNumberDialog addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        NSString *location = [[NSLocale currentLocale] countryCode];
+        textField.text = [NSString stringWithFormat:@"+%@", [self->_phoneUtil getCountryCodeForRegion:location]];
+        if (hasPhone) {
+            textField.text = self->_account.phone;
+        }
+        NBPhoneNumber *exampleNumber = [self->_phoneUtil getExampleNumber:location error:nil];
+        textField.placeholder = [self->_phoneUtil format:exampleNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:nil];
+        textField.keyboardType = UIKeyboardTypePhonePad;
+        textField.delegate = weakSelf;
+        textField.tag = k_phone_textfield_tag;
+    }];
+    
+    _setPhoneAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Set", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *phoneNumber = [[setPhoneNumberDialog textFields][0] text];
+        [self setPhoneNumber:phoneNumber];
+    }];
+    _setPhoneAction.enabled = NO;
+    [setPhoneNumberDialog addAction:_setPhoneAction];
+    
+    if (hasPhone) {
+        UIAlertAction *removeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+            [self setPhoneNumber:@""];
+        }];
+        [setPhoneNumberDialog addAction:removeAction];
+    }
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
+    [setPhoneNumberDialog addAction:cancelAction];
+    
+    [self presentViewController:setPhoneNumberDialog animated:YES completion:nil];
+}
+
+- (void)setPhoneNumber:(NSString *)phoneNumber
+{
+    [self setModifyingProfileUI];
+    
+    [[NCAPIController sharedInstance] setUserProfileField:kUserProfilePhone withValue:phoneNumber forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+        if (error) {
+            [self showProfileModificationErrorForField:k_phone_textfield_tag inTextField:nil];
+        } else {
+            [self refreshUserProfile];
+        }
+        
+        [self removeModifyingProfileUI];
+    }];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -582,6 +728,11 @@ typedef enum ProfileSection {
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    NSArray *sections = [self getProfileSections];
+    ProfileSection profileSection = [[sections objectAtIndex:section] intValue];
+    if (profileSection == kProfileSectionSummary) {
+        return [self rowsInSummarySection].count;
+    }
     return 1;
 }
 
@@ -639,6 +790,7 @@ typedef enum ProfileSection {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    static NSString *summaryCellIdentifier = @"SummaryCellIdentifier";
     static NSString *addAccountCellIdentifier = @"AddAccountCellIdentifier";
     static NSString *removeAccountCellIdentifier = @"RemoveAccountCellIdentifier";
     
@@ -649,15 +801,15 @@ typedef enum ProfileSection {
         textInputCell = [[TextInputTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTextInputCellIdentifier];
     }
     textInputCell.textField.delegate = self;
-    textInputCell.textField.userInteractionEnabled = _isEditable;
+    textInputCell.textField.autocorrectionType = UITextAutocorrectionTypeNo;
     
-    NSArray *sections = [self getProfileSections];
-    ProfileSection section = [[sections objectAtIndex:indexPath.section] intValue];
+    ProfileSection section = [[[self getProfileSections] objectAtIndex:indexPath.section] intValue];
     switch (section) {
         case kProfileSectionName:
         {
             textInputCell.textField.text = _account.userDisplayName;
             textInputCell.textField.tag = k_name_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = [_editableFields containsObject:kUserProfileDisplayName];
             cell = textInputCell;
         }
             break;
@@ -668,16 +820,19 @@ typedef enum ProfileSection {
             textInputCell.textField.keyboardType = UIKeyboardTypeEmailAddress;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your email address", nil);
             textInputCell.textField.tag = k_email_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = [_editableFields containsObject:kUserProfileEmail];
             cell = textInputCell;
         }
             break;
             
         case kProfileSectionPhoneNumber:
         {
-            textInputCell.textField.text = _account.phone;
+            NBPhoneNumber *phoneNumber = [_phoneUtil parse:_account.phone defaultRegion:nil error:nil];
+            textInputCell.textField.text = phoneNumber ? [_phoneUtil format:phoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:nil] : nil;
             textInputCell.textField.keyboardType = UIKeyboardTypePhonePad;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your phone number", nil);
             textInputCell.textField.tag = k_phone_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = NO;
             cell = textInputCell;
         }
             break;
@@ -687,6 +842,7 @@ typedef enum ProfileSection {
             textInputCell.textField.text = _account.address;
             textInputCell.textField.placeholder = NSLocalizedString(@"Your postal address", nil);
             textInputCell.textField.tag = k_address_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = [_editableFields containsObject:kUserProfileAddress];
             cell = textInputCell;
         }
             break;
@@ -694,8 +850,10 @@ typedef enum ProfileSection {
         case kProfileSectionWebsite:
         {
             textInputCell.textField.text = _account.website;
+            textInputCell.textField.keyboardType = UIKeyboardTypeURL;
             textInputCell.textField.placeholder = NSLocalizedString(@"Link https://…", nil);
             textInputCell.textField.tag = k_website_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = [_editableFields containsObject:kUserProfileWebsite];
             cell = textInputCell;
         }
             break;
@@ -706,7 +864,45 @@ typedef enum ProfileSection {
             textInputCell.textField.keyboardType = UIKeyboardTypeEmailAddress;
             textInputCell.textField.placeholder = NSLocalizedString(@"Twitter handle @…", nil);
             textInputCell.textField.tag = k_twitter_textfield_tag;
+            textInputCell.textField.userInteractionEnabled = [_editableFields containsObject:kUserProfileTwitter];
             cell = textInputCell;
+        }
+            break;
+            
+        case kProfileSectionSummary:
+        {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:summaryCellIdentifier];
+            SummaryRow summaryRow = [[[self rowsInSummarySection] objectAtIndex:indexPath.row] intValue];
+            switch (summaryRow) {
+                case kSummaryRowEmail:
+                    cell.textLabel.text = _account.email;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    break;
+                    
+                case kSummaryRowPhoneNumber:
+                {
+                    NBPhoneNumber *phoneNumber = [_phoneUtil parse:_account.phone defaultRegion:nil error:nil];
+                    cell.textLabel.text = phoneNumber ? [_phoneUtil format:phoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:nil] : nil;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                }
+                    break;
+                    
+                case kSummaryRowAddress:
+                    cell.textLabel.text = _account.address;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    break;
+                    
+                case kSummaryRowWebsite:
+                    cell.textLabel.text = _account.website;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"website"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    break;
+                    
+                case kSummaryRowTwitter:
+                    cell.textLabel.text = _account.twitter;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"twitter"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    break;
+            }
+            cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
         }
             break;
             
@@ -744,6 +940,8 @@ typedef enum ProfileSection {
         [self addNewAccount];
     } else if (section == kProfileSectionRemoveAccount) {
         [self showLogoutConfirmationDialog];
+    } else if (section == kProfileSectionPhoneNumber) {
+        [self presentSetPhoneNumberDialog];
     }
     
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
