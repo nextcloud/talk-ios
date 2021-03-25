@@ -202,6 +202,7 @@ typedef enum SummaryRow {
 
 - (void)userProfileImageUpdated:(NSNotification *)notification
 {
+    self->_account = [[NCDatabaseManager sharedInstance] activeAccount];
     [self refreshProfileTableView];
 }
 
@@ -310,10 +311,20 @@ typedef enum SummaryRow {
     }];
     [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
+    UIAlertAction *removeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove", nil)
+                                                                 style:UIAlertActionStyleDestructive
+                                                               handler:^void (UIAlertAction *action) {
+        [self removeUserProfileImage];
+    }];
+    [removeAction setValue:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         [optionsActionSheet addAction:cameraAction];
     }
     [optionsActionSheet addAction:photoLibraryAction];
+    if (_account.hasCustomAvatar) {
+        [optionsActionSheet addAction:removeAction];
+    }
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
@@ -381,8 +392,20 @@ typedef enum SummaryRow {
         if (!error) {
             [self refreshUserProfile];
         } else {
-            [self showSetProfileImageError];
+            [self showProfileImageError:YES];
             NSLog(@"Error sending profile image: %@", error.description);
+        }
+    }];
+}
+
+- (void)removeUserProfileImage
+{
+    [[NCAPIController sharedInstance] removeUserProfileImageForAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+        if (!error) {
+            [self refreshUserProfile];
+        } else {
+            [self showProfileImageError:NO];
+            NSLog(@"Error removing profile image: %@", error.description);
         }
     }];
 }
@@ -435,10 +458,11 @@ typedef enum SummaryRow {
     [self presentViewController:errorDialog animated:YES completion:nil];
 }
 
-- (void)showSetProfileImageError
+- (void)showProfileImageError:(BOOL)setting
 {
+    NSString *reason = setting ? NSLocalizedString(@"An error occured setting profile image", nil) : NSLocalizedString(@"An error occured removing profile image", nil);
     UIAlertController *errorDialog =
-    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"An error occured setting profile image", nil)
+    [UIAlertController alertControllerWithTitle:reason
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];

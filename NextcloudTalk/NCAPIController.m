@@ -1216,10 +1216,42 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+- (NSURLSessionDataTask *)removeUserProfileImageForAccount:(TalkAccount *)account withCompletionBlock:(SetUserProfileFieldCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/spreed/temp-user-avatar", account.server];
+    
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil, 0);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            NSInteger statusCode = 0;
+            if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
+                NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+                statusCode = httpResponse.statusCode;
+            }
+            block(error, statusCode);
+        }
+    }];
+    
+    return task;
+}
+
 - (void)saveProfileImageForAccount:(TalkAccount *)account
 {
     NSURLRequest *request = [self createAvatarRequestForUser:account.userId withCachePolicy:NSURLRequestReloadIgnoringCacheData andSize:160 usingAccount:account];
     [_imageDownloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull responseObject) {
+        
+        NSDictionary *headers = [response allHeaderFields];
+        RLMRealm *realm = [RLMRealm defaultRealm];
+        NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+        TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+        [realm beginWriteTransaction];
+        managedAccount.hasCustomAvatar = [[headers objectForKey:@"X-NC-IsCustomAvatar"] boolValue];
+        [realm commitWriteTransaction];
+        
         NSData *pngData = UIImagePNGRepresentation(responseObject);
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString *documentsPath = [paths objectAtIndex:0];
