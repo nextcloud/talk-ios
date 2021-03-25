@@ -813,6 +813,7 @@ typedef enum SummaryRow {
         case kProfileSectionWebsite:
         {
             textInputCell.textField.text = _account.website;
+            textInputCell.textField.keyboardType = UIKeyboardTypeURL;
             textInputCell.textField.placeholder = NSLocalizedString(@"Link https://…", nil);
             textInputCell.textField.tag = k_website_textfield_tag;
             textInputCell.textField.userInteractionEnabled = _isEditable;
