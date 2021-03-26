@@ -25,6 +25,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <TOCropViewController/TOCropViewController.h>
 
+#import "HeaderWithButton.h"
 #import "NBPhoneNumberUtil.h"
 #import "NCAppBranding.h"
 #import "NCAPIController.h"
@@ -74,6 +75,7 @@ typedef enum SummaryRow {
     UIAlertAction *_setPhoneAction;
     NBPhoneNumberUtil *_phoneUtil;
     NSArray *_editableFields;
+    BOOL _showScopes;
 }
 
 @end
@@ -114,6 +116,11 @@ typedef enum SummaryRow {
     
     [self showEditButton];
     [self getUserProfileEditableFields];
+    
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:_account.accountId];
+    if (serverCapabilities) {
+       _showScopes = serverCapabilities.accountPropertyScopesVersion2;
+    }
     
     _modifyingProfileView = [[UIActivityIndicatorView alloc] init];
     _modifyingProfileView.color = [NCAppBranding themeTextColor];
@@ -470,6 +477,77 @@ typedef enum SummaryRow {
     [self presentViewController:errorDialog animated:YES completion:nil];
 }
 
+- (UIImage *)imageForScope:(NSString *)scope
+{
+    if ([scope isEqualToString:kUserProfileScopePrivate]) {
+        return [[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    } else if ([scope isEqualToString:kUserProfileScopeLocal]) {
+        return [[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    } else if ([scope isEqualToString:kUserProfileScopeFederated]) {
+        return [[UIImage imageNamed:@"group"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    } else if ([scope isEqualToString:kUserProfileScopePublished]) {
+        return [[UIImage imageNamed:@"browser-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    }
+    
+    return nil;
+}
+
+- (void)showScopeSelectionDialog:(UIButton *)sender
+{
+    UIAlertController *scopesActionSheet =
+    [UIAlertController alertControllerWithTitle:nil
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *privateAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Private", nil)
+                                                            style:UIAlertActionStyleDefault
+                                                          handler:^void (UIAlertAction *action) {
+        [self setUserProfileFieldScope:kUserProfileScopePrivate];
+    }];
+    
+    [privateAction setValue:[[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [scopesActionSheet addAction:privateAction];
+    
+    UIAlertAction *localAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Local", nil)
+                                                          style:UIAlertActionStyleDefault
+                                                        handler:^void (UIAlertAction *action) {
+        [self setUserProfileFieldScope:kUserProfileScopeLocal];
+    }];
+    
+    [localAction setValue:[[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [scopesActionSheet addAction:localAction];
+    
+    UIAlertAction *federatedAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Federated", nil)
+                                                              style:UIAlertActionStyleDefault
+                                                            handler:^void (UIAlertAction *action) {
+        [self setUserProfileFieldScope:kUserProfileScopeFederated];
+    }];
+    
+    [federatedAction setValue:[[UIImage imageNamed:@"group"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [scopesActionSheet addAction:federatedAction];
+    
+    UIAlertAction *publishedAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Published", nil)
+                                                              style:UIAlertActionStyleDefault
+                                                            handler:^void (UIAlertAction *action) {
+        [self setUserProfileFieldScope:kUserProfileScopePublished];
+    }];
+    
+    [publishedAction setValue:[[UIImage imageNamed:@"browser-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [scopesActionSheet addAction:publishedAction];
+    
+    [scopesActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    scopesActionSheet.popoverPresentationController.sourceView = sender;
+    scopesActionSheet.popoverPresentationController.sourceRect = sender.frame;
+    
+    [self presentViewController:scopesActionSheet animated:YES completion:nil];
+}
+
+- (void)setUserProfileFieldScope:(NSString *)scope
+{
+}
+
 #pragma mark - UIImagePickerController Delegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
@@ -741,37 +819,73 @@ typedef enum SummaryRow {
     return 40;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
+    HeaderWithButton *headerView = [[HeaderWithButton alloc] init];
+    CGSize imageSize = CGSizeMake(20, 20);
+    CGFloat topInset = (headerView.button.frame.size.height - imageSize.height) / 2;
+    CGFloat rightInset = 5;
+    CGFloat leftInset = (headerView.button.frame.size.width - imageSize.width - rightInset);
+    headerView.button.imageEdgeInsets = UIEdgeInsetsMake(topInset, leftInset, topInset, rightInset);
+    [headerView.button addTarget:self action:@selector(showScopeSelectionDialog:) forControlEvents:UIControlEventTouchUpInside];
+    
     NSArray *sections = [self getProfileSections];
     ProfileSection profileSection = [[sections objectAtIndex:section] intValue];
     switch (profileSection) {
         case kProfileSectionName:
-            return NSLocalizedString(@"Full name", nil);
+        {
+            headerView.label.text = [NSLocalizedString(@"Full name", nil) uppercaseString];
+            headerView.button.tag = k_name_textfield_tag;
+            [headerView.button setImage:[self imageForScope:_account.userDisplayNameScope] forState:UIControlStateNormal];
+        }
             break;
             
         case kProfileSectionEmail:
-            return NSLocalizedString(@"Email", nil);
+        {
+            headerView.label.text = [NSLocalizedString(@"Email", nil) uppercaseString];
+            headerView.button.tag = k_email_textfield_tag;
+            [headerView.button setImage:[self imageForScope:_account.emailScope] forState:UIControlStateNormal];
+        }
             break;
             
         case kProfileSectionPhoneNumber:
-            return NSLocalizedString(@"Phone number", nil);
+        {
+            headerView.label.text = [NSLocalizedString(@"Phone number", nil) uppercaseString];
+            headerView.button.tag = k_phone_textfield_tag;
+            [headerView.button setImage:[self imageForScope:_account.phoneScope] forState:UIControlStateNormal];
+        }
             break;
             
         case kProfileSectionAddress:
-            return NSLocalizedString(@"Address", nil);
+        {
+            headerView.label.text = [NSLocalizedString(@"Address", nil) uppercaseString];
+            headerView.button.tag = k_address_textfield_tag;
+            [headerView.button setImage:[self imageForScope:_account.addressScope] forState:UIControlStateNormal];
+        }
             break;
             
         case kProfileSectionWebsite:
-            return NSLocalizedString(@"Website", nil);
+        {
+            headerView.label.text = [NSLocalizedString(@"Website", nil) uppercaseString];
+            headerView.button.tag = k_website_textfield_tag;
+            [headerView.button setImage:[self imageForScope:_account.websiteScope] forState:UIControlStateNormal];
+        }
             break;
             
         case kProfileSectionTwitter:
-            return NSLocalizedString(@"Twitter", nil);
+        {
+            headerView.label.text = [NSLocalizedString(@"Twitter", nil) uppercaseString];
+            headerView.button.tag = k_twitter_textfield_tag;
+            [headerView.button setImage:[self imageForScope:_account.twitterScope] forState:UIControlStateNormal];
+        }
             break;
             
         default:
             break;
+    }
+    
+    if (headerView.button.tag) {
+        return headerView;
     }
     
     return nil;
@@ -872,11 +986,13 @@ typedef enum SummaryRow {
         case kProfileSectionSummary:
         {
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:summaryCellIdentifier];
+            UIImage *scopeImage = nil;
             SummaryRow summaryRow = [[[self rowsInSummarySection] objectAtIndex:indexPath.row] intValue];
             switch (summaryRow) {
                 case kSummaryRowEmail:
                     cell.textLabel.text = _account.email;
                     [cell.imageView setImage:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    scopeImage = [self imageForScope:_account.emailScope];
                     break;
                     
                 case kSummaryRowPhoneNumber:
@@ -884,25 +1000,35 @@ typedef enum SummaryRow {
                     NBPhoneNumber *phoneNumber = [_phoneUtil parse:_account.phone defaultRegion:nil error:nil];
                     cell.textLabel.text = phoneNumber ? [_phoneUtil format:phoneNumber numberFormat:NBEPhoneNumberFormatINTERNATIONAL error:nil] : nil;
                     [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    scopeImage = [self imageForScope:_account.phoneScope];
                 }
                     break;
                     
                 case kSummaryRowAddress:
                     cell.textLabel.text = _account.address;
                     [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    scopeImage = [self imageForScope:_account.addressScope];
                     break;
                     
                 case kSummaryRowWebsite:
                     cell.textLabel.text = _account.website;
                     [cell.imageView setImage:[[UIImage imageNamed:@"website"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    scopeImage = [self imageForScope:_account.websiteScope];
                     break;
                     
                 case kSummaryRowTwitter:
                     cell.textLabel.text = _account.twitter;
                     [cell.imageView setImage:[[UIImage imageNamed:@"twitter"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    scopeImage = [self imageForScope:_account.websiteScope];
                     break;
             }
             cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+            if (_showScopes) {
+                UIImageView *scopeImageView = [[UIImageView alloc] initWithImage:scopeImage];
+                scopeImageView.frame = CGRectMake(0, 0, 20, 20);
+                scopeImageView.tintColor = [NCAppBranding placeholderColor];
+//                cell.accessoryView = scopeImageView;
+            }
         }
             break;
             

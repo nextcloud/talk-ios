@@ -99,6 +99,11 @@ NSString * const kUserProfileTwitter            = @"twitter";
 NSString * const kUserProfileTwitterScope       = @"twitterScope";
 NSString * const kUserProfileAvatarScope        = @"avatarScope";
 
+NSString * const kUserProfileScopePrivate       = @"v2-private";
+NSString * const kUserProfileScopeLocal         = @"v2-local";
+NSString * const kUserProfileScopeFederated     = @"v2-federated";
+NSString * const kUserProfileScopePublished     = @"v2-published";
+
 NSInteger const kDefaultChatMaxLength           = 1000;
 NSString * const kMinimumRequiredTalkCapability = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
