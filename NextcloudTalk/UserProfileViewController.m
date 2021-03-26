@@ -816,7 +816,36 @@ typedef enum SummaryRow {
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    return 40;
+    NSArray *sections = [self getProfileSections];
+    ProfileSection profileSection = [[sections objectAtIndex:section] intValue];
+    switch (profileSection) {
+        case kProfileSectionName:
+        case kProfileSectionEmail:
+        case kProfileSectionPhoneNumber:
+        case kProfileSectionAddress:
+        case kProfileSectionWebsite:
+        case kProfileSectionTwitter:
+            return 40;
+        case kProfileSectionSummary:
+        case kProfileSectionAddAccount:
+            return 10;
+        default:
+            return 0;
+    }
+    return 0;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    NSArray *sections = [self getProfileSections];
+    ProfileSection profileSection = [[sections objectAtIndex:section] intValue];
+    switch (profileSection) {
+        case kProfileSectionEmail:
+            return 30;
+        default:
+            return 0;
+    }
+    return 0;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
