@@ -37,6 +37,11 @@
     if (self) {
         [[NSBundle mainBundle] loadNibNamed:@"HeaderWithButton" owner:self options:nil];
         
+        _label.textColor = [UIColor darkGrayColor];
+        if (@available(iOS 13.0, *)) {
+            _label.textColor = [UIColor secondaryLabelColor];
+        }
+        
         [self addSubview:self.contentView];
         
         self.contentView.frame = self.bounds;
