@@ -480,7 +480,7 @@ typedef enum SummaryRow {
 - (UIImage *)imageForScope:(NSString *)scope
 {
     if ([scope isEqualToString:kUserProfileScopePrivate]) {
-        return [[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        return [[UIImage imageNamed:@"mobile-phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     } else if ([scope isEqualToString:kUserProfileScopeLocal]) {
         return [[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     } else if ([scope isEqualToString:kUserProfileScopeFederated]) {
@@ -519,7 +519,7 @@ typedef enum SummaryRow {
                                                           handler:^void (UIAlertAction *action) {
         [self setUserProfileField:field scopeValue:kUserProfileScopePrivate];
     }];
-    [privateAction setValue:[[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [privateAction setValue:[[UIImage imageNamed:@"mobile-phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
     UIAlertAction *localAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Local", nil)
                                                           style:UIAlertActionStyleDefault
