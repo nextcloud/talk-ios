@@ -519,36 +519,40 @@ typedef enum SummaryRow {
                                                           handler:^void (UIAlertAction *action) {
         [self setUserProfileField:field scopeValue:kUserProfileScopePrivate];
     }];
-    
     [privateAction setValue:[[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    [scopesActionSheet addAction:privateAction];
     
     UIAlertAction *localAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Local", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^void (UIAlertAction *action) {
         [self setUserProfileField:field scopeValue:kUserProfileScopeLocal];
     }];
-    
     [localAction setValue:[[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    [scopesActionSheet addAction:localAction];
     
     UIAlertAction *federatedAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Federated", nil)
                                                               style:UIAlertActionStyleDefault
                                                             handler:^void (UIAlertAction *action) {
         [self setUserProfileField:field scopeValue:kUserProfileScopeFederated];
     }];
-    
     [federatedAction setValue:[[UIImage imageNamed:@"group"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    [scopesActionSheet addAction:federatedAction];
     
     UIAlertAction *publishedAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Published", nil)
                                                               style:UIAlertActionStyleDefault
                                                             handler:^void (UIAlertAction *action) {
         [self setUserProfileField:field scopeValue:kUserProfileScopePublished];
     }];
-    
     [publishedAction setValue:[[UIImage imageNamed:@"browser-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    [scopesActionSheet addAction:publishedAction];
+    
+    if (field != kUserProfileDisplayNameScope && field != kUserProfileEmailScope) {
+        [scopesActionSheet addAction:privateAction];
+    }
+    
+    [scopesActionSheet addAction:localAction];
+    
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:_account.accountId];
+    if (serverCapabilities.accountPropertyScopesFederationEnabled) {
+        [scopesActionSheet addAction:federatedAction];
+        [scopesActionSheet addAction:publishedAction];
+    }
     
     [scopesActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
