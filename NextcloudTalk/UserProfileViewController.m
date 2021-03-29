@@ -494,6 +494,21 @@ typedef enum SummaryRow {
 
 - (void)showScopeSelectionDialog:(UIButton *)sender
 {
+    NSString *field = nil;
+    if (sender.tag == k_name_textfield_tag) {
+        field = kUserProfileDisplayNameScope;
+    } else if (sender.tag == k_email_textfield_tag) {
+        field = kUserProfileEmailScope;
+    } else if (sender.tag == k_phone_textfield_tag) {
+        field = kUserProfilePhoneScope;
+    } else if (sender.tag == k_address_textfield_tag) {
+        field = kUserProfileAddressScope;
+    } else if (sender.tag == k_website_textfield_tag) {
+        field = kUserProfileWebsiteScope;
+    } else if (sender.tag == k_twitter_textfield_tag) {
+        field = kUserProfileTwitterScope;
+    }
+    
     UIAlertController *scopesActionSheet =
     [UIAlertController alertControllerWithTitle:nil
                                         message:nil
@@ -502,7 +517,7 @@ typedef enum SummaryRow {
     UIAlertAction *privateAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Private", nil)
                                                             style:UIAlertActionStyleDefault
                                                           handler:^void (UIAlertAction *action) {
-        [self setUserProfileFieldScope:kUserProfileScopePrivate];
+        [self setUserProfileField:field scopeValue:kUserProfileScopePrivate];
     }];
     
     [privateAction setValue:[[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
@@ -511,7 +526,7 @@ typedef enum SummaryRow {
     UIAlertAction *localAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Local", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^void (UIAlertAction *action) {
-        [self setUserProfileFieldScope:kUserProfileScopeLocal];
+        [self setUserProfileField:field scopeValue:kUserProfileScopeLocal];
     }];
     
     [localAction setValue:[[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
@@ -520,7 +535,7 @@ typedef enum SummaryRow {
     UIAlertAction *federatedAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Federated", nil)
                                                               style:UIAlertActionStyleDefault
                                                             handler:^void (UIAlertAction *action) {
-        [self setUserProfileFieldScope:kUserProfileScopeFederated];
+        [self setUserProfileField:field scopeValue:kUserProfileScopeFederated];
     }];
     
     [federatedAction setValue:[[UIImage imageNamed:@"group"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
@@ -529,7 +544,7 @@ typedef enum SummaryRow {
     UIAlertAction *publishedAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Published", nil)
                                                               style:UIAlertActionStyleDefault
                                                             handler:^void (UIAlertAction *action) {
-        [self setUserProfileFieldScope:kUserProfileScopePublished];
+        [self setUserProfileField:field scopeValue:kUserProfileScopePublished];
     }];
     
     [publishedAction setValue:[[UIImage imageNamed:@"browser-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
@@ -544,8 +559,30 @@ typedef enum SummaryRow {
     [self presentViewController:scopesActionSheet animated:YES completion:nil];
 }
 
-- (void)setUserProfileFieldScope:(NSString *)scope
+- (void)setUserProfileField:(NSString *)field scopeValue:(NSString *)scope
 {
+    [self setModifyingProfileUI];
+    
+    [[NCAPIController sharedInstance] setUserProfileField:field withValue:scope forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+        if (error) {
+            [self showScopeModificationError];
+        } else {
+            [self refreshUserProfile];
+        }
+        
+        [self removeModifyingProfileUI];
+    }];
+}
+
+- (void)showScopeModificationError
+{
+    UIAlertController *errorDialog =
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"An error occured changing privacy setting", nil)
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
+    [errorDialog addAction:okAction];
+    [self presentViewController:errorDialog animated:YES completion:nil];
 }
 
 #pragma mark - UIImagePickerController Delegate
