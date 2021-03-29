@@ -825,9 +825,9 @@ typedef enum SummaryRow {
         case kProfileSectionAddress:
         case kProfileSectionWebsite:
         case kProfileSectionTwitter:
+        case kProfileSectionAddAccount:
             return 40;
         case kProfileSectionSummary:
-        case kProfileSectionAddAccount:
             return 10;
         default:
             return 0;
