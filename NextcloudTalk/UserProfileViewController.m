@@ -478,20 +478,29 @@ typedef enum SummaryRow {
 - (void)showScopeSelectionDialog:(UIButton *)sender
 {
     NSString *field = nil;
+    NSString *currentValue = nil;
+    
     if (sender.tag == k_name_textfield_tag) {
         field = kUserProfileDisplayNameScope;
+        currentValue = _account.userDisplayNameScope;
     } else if (sender.tag == k_email_textfield_tag) {
         field = kUserProfileEmailScope;
+        currentValue = _account.emailScope;
     } else if (sender.tag == k_phone_textfield_tag) {
         field = kUserProfilePhoneScope;
+        currentValue = _account.phoneScope;
     } else if (sender.tag == k_address_textfield_tag) {
         field = kUserProfileAddressScope;
+        currentValue = _account.addressScope;
     } else if (sender.tag == k_website_textfield_tag) {
         field = kUserProfileWebsiteScope;
+        currentValue = _account.websiteScope;
     } else if (sender.tag == k_twitter_textfield_tag) {
         field = kUserProfileTwitterScope;
+        currentValue = _account.twitterScope;
     } else if (sender.tag == k_avatar_scope_button_tag) {
         field = kUserProfileAvatarScope;
+        currentValue = _account.avatarScope;
     }
     
     UIAlertController *scopesActionSheet =
@@ -502,28 +511,36 @@ typedef enum SummaryRow {
     UIAlertAction *privateAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Private", nil)
                                                             style:UIAlertActionStyleDefault
                                                           handler:^void (UIAlertAction *action) {
-        [self setUserProfileField:field scopeValue:kUserProfileScopePrivate];
+        if (![currentValue isEqualToString:kUserProfileScopePrivate]) {
+            [self setUserProfileField:field scopeValue:kUserProfileScopePrivate];
+        }
     }];
     [privateAction setValue:[[UIImage imageNamed:@"mobile-phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
     UIAlertAction *localAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Local", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^void (UIAlertAction *action) {
-        [self setUserProfileField:field scopeValue:kUserProfileScopeLocal];
+        if (![currentValue isEqualToString:kUserProfileScopeLocal]) {
+            [self setUserProfileField:field scopeValue:kUserProfileScopeLocal];
+        }
     }];
     [localAction setValue:[[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
     UIAlertAction *federatedAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Federated", nil)
                                                               style:UIAlertActionStyleDefault
                                                             handler:^void (UIAlertAction *action) {
-        [self setUserProfileField:field scopeValue:kUserProfileScopeFederated];
+        if (![currentValue isEqualToString:kUserProfileScopeFederated]) {
+            [self setUserProfileField:field scopeValue:kUserProfileScopeFederated];
+        }
     }];
     [federatedAction setValue:[[UIImage imageNamed:@"group"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
     UIAlertAction *publishedAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Published", nil)
                                                               style:UIAlertActionStyleDefault
                                                             handler:^void (UIAlertAction *action) {
-        [self setUserProfileField:field scopeValue:kUserProfileScopePublished];
+        if (![currentValue isEqualToString:kUserProfileScopePublished]) {
+            [self setUserProfileField:field scopeValue:kUserProfileScopePublished];
+        }
     }];
     [publishedAction setValue:[[UIImage imageNamed:@"browser-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
