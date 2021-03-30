@@ -25,6 +25,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <TOCropViewController/TOCropViewController.h>
 
+#import "AvatarHeaderView.h"
 #import "HeaderWithButton.h"
 #import "NBPhoneNumberUtil.h"
 #import "NCAppBranding.h"
@@ -41,6 +42,7 @@
 #define k_address_textfield_tag     96
 #define k_website_textfield_tag     95
 #define k_twitter_textfield_tag     94
+#define k_avatar_scope_button_tag   93
 
 typedef enum ProfileSection {
     kProfileSectionName = 0,
@@ -256,46 +258,27 @@ typedef enum SummaryRow {
 
 - (UIView *)avatarHeaderView
 {
-    BOOL shouldShowEditAvatarButton = _isEditable && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityTempUserAvatarAPI forAccountId:_account.accountId];
+    AvatarHeaderView *headerView = [[AvatarHeaderView alloc] init];
+    headerView.frame = CGRectMake(0, 0, 200, 150);
     
-    CGFloat headerViewHeight = (shouldShowEditAvatarButton) ? 140 : 160;
-    UIView *avatarView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, headerViewHeight)];
-    [avatarView setAutoresizingMask:UIViewAutoresizingNone];
-    avatarView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    headerView.avatarImageView.layer.cornerRadius = 40.0;
+    headerView.avatarImageView.layer.masksToBounds = YES;
+    [headerView.avatarImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:_account withSize:CGSizeMake(160, 160)]];
     
-    UIImageView *avatarImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 20, 80, 80)];
-    avatarImageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-    avatarImageView.layer.cornerRadius = 40.0;
-    avatarImageView.layer.masksToBounds = YES;
-    [avatarImageView setImage:[[NCAPIController sharedInstance] userProfileImageForAccount:_account withSize:CGSizeMake(160, 160)]];
-    [avatarView addSubview:avatarImageView];
+    headerView.nameLabel.text = _account.userDisplayName;
+    headerView.nameLabel.hidden = _isEditable;
     
-    if (!_isEditable) {
-        UILabel *displayNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 110, 80, 30)];
-        displayNameLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        displayNameLabel.font = [UIFont systemFontOfSize:26];
-        displayNameLabel.textAlignment = NSTextAlignmentCenter;
-        displayNameLabel.minimumScaleFactor = 0.6f;
-        displayNameLabel.numberOfLines = 1;
-        displayNameLabel.adjustsFontSizeToFitWidth = YES;
-        displayNameLabel.text = _account.userDisplayName;
-        [avatarView addSubview:displayNameLabel];
-    }
+    headerView.scopeButton.tag = k_avatar_scope_button_tag;
+    [headerView.scopeButton setImage:[self imageForScope:_account.avatarScope] forState:UIControlStateNormal];
+    [headerView.scopeButton addTarget:self action:@selector(showScopeSelectionDialog:) forControlEvents:UIControlEventTouchUpInside];
+    headerView.scopeButton.hidden = !(_isEditable && _showScopes);
     
-    _editAvatarButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 110, 160, 24)];
-    [_editAvatarButton setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
-    [_editAvatarButton setTitleColor:[UIColor systemBlueColor] forState:UIControlStateNormal];
-    _editAvatarButton.titleLabel.font = [UIFont systemFontOfSize:15];
-    _editAvatarButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-    _editAvatarButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-    _editAvatarButton.titleLabel.minimumScaleFactor = 0.9f;
-    _editAvatarButton.titleLabel.numberOfLines = 1;
-    _editAvatarButton.titleLabel.adjustsFontSizeToFitWidth = YES;
-    _editAvatarButton.hidden = !shouldShowEditAvatarButton;
-    [_editAvatarButton addTarget:self action:@selector(showAvatarOptions) forControlEvents:UIControlEventTouchUpInside];
-    [avatarView addSubview:_editAvatarButton];
+    headerView.editButton.hidden = !(_isEditable && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityTempUserAvatarAPI forAccountId:_account.accountId]);
+    [headerView.editButton setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
+    [headerView.editButton addTarget:self action:@selector(showAvatarOptions) forControlEvents:UIControlEventTouchUpInside];
+    _editAvatarButton = headerView.editButton;
     
-    return avatarView;
+    return headerView;
 }
 
 - (void)showAvatarOptions
@@ -507,6 +490,8 @@ typedef enum SummaryRow {
         field = kUserProfileWebsiteScope;
     } else if (sender.tag == k_twitter_textfield_tag) {
         field = kUserProfileTwitterScope;
+    } else if (sender.tag == k_avatar_scope_button_tag) {
+        field = kUserProfileAvatarScope;
     }
     
     UIAlertController *scopesActionSheet =
@@ -869,7 +854,7 @@ typedef enum SummaryRow {
         case kProfileSectionAddAccount:
             return 40;
         case kProfileSectionSummary:
-            return 10;
+            return 20;
         default:
             return 0;
     }
