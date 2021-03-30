@@ -1,3 +1,4 @@
+//
 /**
  * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
  *
@@ -20,29 +21,29 @@
  *
  */
 
-#import "HeaderWithButton.h"
+#import "AvatarHeaderView.h"
 
-@interface HeaderWithButton ()
+@interface AvatarHeaderView ()
 
 @property (strong, nonatomic) IBOutlet UIView *contentView;
 
 @end
 
-@implementation HeaderWithButton
+@implementation AvatarHeaderView
 
 - (instancetype)init
 {
     self = [super init];
     
     if (self) {
-        [[NSBundle mainBundle] loadNibNamed:@"HeaderWithButton" owner:self options:nil];
-        
-        _label.textColor = [UIColor darkGrayColor];
-        if (@available(iOS 13.0, *)) {
-            _label.textColor = [UIColor secondaryLabelColor];
-        }
+        [[NSBundle mainBundle] loadNibNamed:@"AvatarHeaderView" owner:self options:nil];
         
         [self addSubview:self.contentView];
+        
+        self.editButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+        self.editButton.titleLabel.minimumScaleFactor = 0.9f;
+        self.editButton.titleLabel.numberOfLines = 1;
+        self.editButton.titleLabel.adjustsFontSizeToFitWidth = YES;
         
         self.contentView.frame = self.bounds;
     }

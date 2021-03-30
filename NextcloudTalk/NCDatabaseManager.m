@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName       = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion   = 17;
+uint64_t const kTalkDatabaseSchemaVersion   = 19;
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
@@ -262,6 +262,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 17;
     NSDictionary *themingCaps = [serverCaps objectForKey:@"theming"];
     NSDictionary *talkCaps = [serverCaps objectForKey:@"spreed"];
     NSDictionary *userStatusCaps = [serverCaps objectForKey:@"user_status"];
+    NSDictionary *provisioningAPICaps = [serverCaps objectForKey:@"provisioning_api"];
     
     ServerCapabilities *capabilities = [[ServerCapabilities alloc] init];
     capabilities.accountId = accountId;
@@ -294,6 +295,8 @@ uint64_t const kTalkDatabaseSchemaVersion   = 17;
     }
     capabilities.attachmentsAllowed = [[[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
     capabilities.attachmentsFolder = [[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
+    capabilities.accountPropertyScopesVersion2 = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesVersion"] integerValue] == 2;
+    capabilities.accountPropertyScopesFederationEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesFederationEnabled"] boolValue];
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{

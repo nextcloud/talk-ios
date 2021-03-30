@@ -35,11 +35,17 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 @property NSString *user;
 @property NSString *userId;
 @property NSString *userDisplayName;
+@property NSString *userDisplayNameScope;
 @property NSString *phone;
+@property NSString *phoneScope;
 @property NSString *email;
+@property NSString *emailScope;
 @property NSString *address;
+@property NSString *addressScope;
 @property NSString *website;
+@property NSString *websiteScope;
 @property NSString *twitter;
+@property NSString *twitterScope;
 @property BOOL pushNotificationSubscribed;
 @property NSData *pushNotificationPublicKey;
 @property NSString *deviceIdentifier;
@@ -48,6 +54,7 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 @property NSInteger unreadBadgeNumber;
 @property BOOL unreadNotification;
 @property NSInteger lastContactSync;
+@property NSString *avatarScope;
 @property BOOL hasCustomAvatar;
 @property BOOL active;
 @end
@@ -79,6 +86,8 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 @property BOOL canCreate;
 @property BOOL attachmentsAllowed;
 @property NSString *attachmentsFolder;
+@property BOOL accountPropertyScopesVersion2;
+@property BOOL accountPropertyScopesFederationEnabled;
 @end
 
 @interface NCDatabaseManager : NSObject

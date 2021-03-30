@@ -60,11 +60,23 @@ extern NSString * const kCapabilityCallFlags;
 extern NSString * const kCapabilityTempUserAvatarAPI;
 
 extern NSString * const kUserProfileDisplayName;
+extern NSString * const kUserProfileDisplayNameScope;
 extern NSString * const kUserProfileEmail;
+extern NSString * const kUserProfileEmailScope;
 extern NSString * const kUserProfilePhone;
+extern NSString * const kUserProfilePhoneScope;
 extern NSString * const kUserProfileAddress;
+extern NSString * const kUserProfileAddressScope;
 extern NSString * const kUserProfileWebsite;
+extern NSString * const kUserProfileWebsiteScope;
 extern NSString * const kUserProfileTwitter;
+extern NSString * const kUserProfileTwitterScope;
+extern NSString * const kUserProfileAvatarScope;
+
+extern NSString * const kUserProfileScopePrivate;
+extern NSString * const kUserProfileScopeLocal;
+extern NSString * const kUserProfileScopeFederated;
+extern NSString * const kUserProfileScopePublished;
 
 extern NSInteger const kDefaultChatMaxLength;
 extern NSString * const kMinimumRequiredTalkCapability;

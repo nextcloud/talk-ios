@@ -84,13 +84,25 @@ NSString * const kCapabilityDeleteMessages          = @"delete-messages";
 NSString * const kCapabilityCallFlags               = @"conversation-call-flags";
 NSString * const kCapabilityTempUserAvatarAPI       = @"temp-user-avatar-api";
 
-NSString * const kUserProfileUserId         = @"id";
-NSString * const kUserProfileDisplayName    = @"displayname";
-NSString * const kUserProfileEmail          = @"email";
-NSString * const kUserProfilePhone          = @"phone";
-NSString * const kUserProfileAddress        = @"address";
-NSString * const kUserProfileWebsite        = @"website";
-NSString * const kUserProfileTwitter        = @"twitter";
+NSString * const kUserProfileUserId             = @"id";
+NSString * const kUserProfileDisplayName        = @"displayname";
+NSString * const kUserProfileDisplayNameScope   = @"displaynameScope";
+NSString * const kUserProfileEmail              = @"email";
+NSString * const kUserProfileEmailScope         = @"emailScope";
+NSString * const kUserProfilePhone              = @"phone";
+NSString * const kUserProfilePhoneScope         = @"phoneScope";
+NSString * const kUserProfileAddress            = @"address";
+NSString * const kUserProfileAddressScope       = @"addressScope";
+NSString * const kUserProfileWebsite            = @"website";
+NSString * const kUserProfileWebsiteScope       = @"websiteScope";
+NSString * const kUserProfileTwitter            = @"twitter";
+NSString * const kUserProfileTwitterScope       = @"twitterScope";
+NSString * const kUserProfileAvatarScope        = @"avatarScope";
+
+NSString * const kUserProfileScopePrivate       = @"v2-private";
+NSString * const kUserProfileScopeLocal         = @"v2-local";
+NSString * const kUserProfileScopeFederated     = @"v2-federated";
+NSString * const kUserProfileScopePublished     = @"v2-published";
 
 NSInteger const kDefaultChatMaxLength           = 1000;
 NSString * const kMinimumRequiredTalkCapability = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
@@ -301,27 +313,28 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 {
     [[NCAPIController sharedInstance] getUserProfileForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
         if (!error) {
-            NSString *userDisplayName = [userProfile objectForKey:kUserProfileDisplayName];
-            NSString *userId = [userProfile objectForKey:kUserProfileUserId];
-            NSString *phone = [userProfile objectForKey:kUserProfilePhone];
             id emailObject = [userProfile objectForKey:kUserProfileEmail];
             NSString *email = emailObject;
             if (!emailObject || [emailObject isEqual:[NSNull null]]) {
                 email = @"";
             }
-            NSString *address = [userProfile objectForKey:kUserProfileAddress];
-            NSString *website = [userProfile objectForKey:kUserProfileWebsite];
-            NSString *twitter = [userProfile objectForKey:kUserProfileTwitter];
             RLMRealm *realm = [RLMRealm defaultRealm];
             TalkAccount *managedActiveAccount = [TalkAccount objectsWhere:(@"active = true")].firstObject;
             [realm beginWriteTransaction];
-            managedActiveAccount.userDisplayName = userDisplayName;
-            managedActiveAccount.userId = userId;
-            managedActiveAccount.phone = phone;
+            managedActiveAccount.userId = [userProfile objectForKey:kUserProfileUserId];
+            managedActiveAccount.userDisplayName = [userProfile objectForKey:kUserProfileDisplayName];
+            managedActiveAccount.userDisplayNameScope = [userProfile objectForKey:kUserProfileDisplayNameScope];
+            managedActiveAccount.phone = [userProfile objectForKey:kUserProfilePhone];
+            managedActiveAccount.phoneScope = [userProfile objectForKey:kUserProfilePhoneScope];
             managedActiveAccount.email = email;
-            managedActiveAccount.address = address;
-            managedActiveAccount.website = website;
-            managedActiveAccount.twitter = twitter;
+            managedActiveAccount.emailScope = [userProfile objectForKey:kUserProfileEmailScope];
+            managedActiveAccount.address = [userProfile objectForKey:kUserProfileAddress];
+            managedActiveAccount.addressScope = [userProfile objectForKey:kUserProfileAddressScope];
+            managedActiveAccount.website = [userProfile objectForKey:kUserProfileWebsite];
+            managedActiveAccount.websiteScope = [userProfile objectForKey:kUserProfileWebsiteScope];
+            managedActiveAccount.twitter = [userProfile objectForKey:kUserProfileTwitter];
+            managedActiveAccount.twitterScope = [userProfile objectForKey:kUserProfileTwitterScope];
+            managedActiveAccount.avatarScope = [userProfile objectForKey:kUserProfileAvatarScope];
             [realm commitWriteTransaction];
             [[NCAPIController sharedInstance] saveProfileImageForAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
             if (block) block(nil);

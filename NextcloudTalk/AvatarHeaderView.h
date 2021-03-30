@@ -1,3 +1,4 @@
+//
 /**
  * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
  *
@@ -20,34 +21,17 @@
  *
  */
 
-#import "HeaderWithButton.h"
+#import <UIKit/UIKit.h>
 
-@interface HeaderWithButton ()
+NS_ASSUME_NONNULL_BEGIN
 
-@property (strong, nonatomic) IBOutlet UIView *contentView;
+@interface AvatarHeaderView : UIView
 
-@end
-
-@implementation HeaderWithButton
-
-- (instancetype)init
-{
-    self = [super init];
-    
-    if (self) {
-        [[NSBundle mainBundle] loadNibNamed:@"HeaderWithButton" owner:self options:nil];
-        
-        _label.textColor = [UIColor darkGrayColor];
-        if (@available(iOS 13.0, *)) {
-            _label.textColor = [UIColor secondaryLabelColor];
-        }
-        
-        [self addSubview:self.contentView];
-        
-        self.contentView.frame = self.bounds;
-    }
-    
-    return self;
-}
+@property (weak, nonatomic) IBOutlet UIImageView *avatarImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UIButton *editButton;
+@property (weak, nonatomic) IBOutlet UIButton *scopeButton;
 
 @end
+
+NS_ASSUME_NONNULL_END

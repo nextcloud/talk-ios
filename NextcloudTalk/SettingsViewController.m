@@ -738,11 +738,12 @@ typedef enum AboutSection {
                 {
                     cell = [tableView dequeueReusableCellWithIdentifier:contactsSyncCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:browserConfigurationCellIdentifier];
-                        cell.textLabel.text = NSLocalizedString(@"Contact sync", nil);
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:browserConfigurationCellIdentifier];
+                        cell.textLabel.text = NSLocalizedString(@"Phone number integration", nil);
+                        cell.detailTextLabel.text = NSLocalizedString(@"Match system contacts", nil);
                         cell.selectionStyle = UITableViewCellSelectionStyleNone;
                         cell.imageView.contentMode = UIViewContentModeScaleAspectFit;
-                        [cell.imageView setImage:[[UIImage imageNamed:@"contact"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                        [cell.imageView setImage:[[UIImage imageNamed:@"mobile-phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                         cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     }
                     cell.accessoryView = _contactSyncSwitch;
