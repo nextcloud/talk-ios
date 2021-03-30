@@ -901,6 +901,9 @@ typedef enum SummaryRow {
     headerView.button.imageEdgeInsets = UIEdgeInsetsMake(topInset, leftInset, topInset, rightInset);
     [headerView.button addTarget:self action:@selector(showScopeSelectionDialog:) forControlEvents:UIControlEventTouchUpInside];
     
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:_account.accountId];
+    BOOL shouldEnableNameAndEmailScopeButton = serverCapabilities.accountPropertyScopesFederationEnabled;
+    
     NSArray *sections = [self getProfileSections];
     ProfileSection profileSection = [[sections objectAtIndex:section] intValue];
     switch (profileSection) {
@@ -908,6 +911,7 @@ typedef enum SummaryRow {
         {
             headerView.label.text = [NSLocalizedString(@"Full name", nil) uppercaseString];
             headerView.button.tag = k_name_textfield_tag;
+            headerView.button.enabled = shouldEnableNameAndEmailScopeButton;
             [headerView.button setImage:[self imageForScope:_account.userDisplayNameScope] forState:UIControlStateNormal];
         }
             break;
@@ -916,6 +920,7 @@ typedef enum SummaryRow {
         {
             headerView.label.text = [NSLocalizedString(@"Email", nil) uppercaseString];
             headerView.button.tag = k_email_textfield_tag;
+            headerView.button.enabled = shouldEnableNameAndEmailScopeButton;
             [headerView.button setImage:[self imageForScope:_account.emailScope] forState:UIControlStateNormal];
         }
             break;
