@@ -26,12 +26,14 @@
 #import <TOCropViewController/TOCropViewController.h>
 
 #import "AvatarHeaderView.h"
+#import "DetailedOptionsSelectorTableViewController.h"
 #import "HeaderWithButton.h"
 #import "NBPhoneNumberUtil.h"
 #import "NCAppBranding.h"
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
+#import "NCNavigationController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "TextInputTableViewCell.h"
@@ -64,7 +66,7 @@ typedef enum SummaryRow {
     kSummaryRowTwitter
 } SummaryRow;
 
-@interface UserProfileViewController () <UIGestureRecognizerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, TOCropViewControllerDelegate>
+@interface UserProfileViewController () <UIGestureRecognizerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, TOCropViewControllerDelegate, DetailedOptionsSelectorTableViewControllerDelegate>
 {
     TalkAccount *_account;
     BOOL _isEditable;
@@ -479,90 +481,84 @@ typedef enum SummaryRow {
 {
     NSString *field = nil;
     NSString *currentValue = nil;
+    NSString *title = nil;
     
     if (sender.tag == k_name_textfield_tag) {
         field = kUserProfileDisplayNameScope;
         currentValue = _account.userDisplayNameScope;
+        title = NSLocalizedString(@"Full name", nil);
     } else if (sender.tag == k_email_textfield_tag) {
         field = kUserProfileEmailScope;
         currentValue = _account.emailScope;
+        title = NSLocalizedString(@"Email", nil);
     } else if (sender.tag == k_phone_textfield_tag) {
         field = kUserProfilePhoneScope;
         currentValue = _account.phoneScope;
+        title = NSLocalizedString(@"Phone number", nil);
     } else if (sender.tag == k_address_textfield_tag) {
         field = kUserProfileAddressScope;
         currentValue = _account.addressScope;
+        title = NSLocalizedString(@"Address", nil);
     } else if (sender.tag == k_website_textfield_tag) {
         field = kUserProfileWebsiteScope;
         currentValue = _account.websiteScope;
+        title = NSLocalizedString(@"Website", nil);
     } else if (sender.tag == k_twitter_textfield_tag) {
         field = kUserProfileTwitterScope;
         currentValue = _account.twitterScope;
+        title = NSLocalizedString(@"Twitter", nil);
     } else if (sender.tag == k_avatar_scope_button_tag) {
         field = kUserProfileAvatarScope;
         currentValue = _account.avatarScope;
+        title = NSLocalizedString(@"Profile picture", nil);
     }
     
-    UIAlertController *scopesActionSheet =
-    [UIAlertController alertControllerWithTitle:nil
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    NSMutableArray *options = [NSMutableArray new];
     
-    UIAlertAction *privateAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Private", nil)
-                                                            style:UIAlertActionStyleDefault
-                                                          handler:^void (UIAlertAction *action) {
-        if (![currentValue isEqualToString:kUserProfileScopePrivate]) {
-            [self setUserProfileField:field scopeValue:kUserProfileScopePrivate];
-        }
-    }];
-    [privateAction setValue:[[UIImage imageNamed:@"mobile-phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    DetailedOption *privateOption = [[DetailedOption alloc] init];
+    privateOption.identifier = kUserProfileScopePrivate;
+    privateOption.image = [[UIImage imageNamed:@"mobile-phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    privateOption.title = NSLocalizedString(@"Private", nil);
+    privateOption.subtitle = NSLocalizedString(@"Only visible to people matched via phone number integration", nil);
+    privateOption.selected = [currentValue isEqualToString:kUserProfileScopePrivate];
     
-    UIAlertAction *localAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Local", nil)
-                                                          style:UIAlertActionStyleDefault
-                                                        handler:^void (UIAlertAction *action) {
-        if (![currentValue isEqualToString:kUserProfileScopeLocal]) {
-            [self setUserProfileField:field scopeValue:kUserProfileScopeLocal];
-        }
-    }];
-    [localAction setValue:[[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    DetailedOption *localOption = [[DetailedOption alloc] init];
+    localOption.identifier = kUserProfileScopeLocal;
+    localOption.image = [[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    localOption.title = NSLocalizedString(@"Local", nil);
+    localOption.subtitle = NSLocalizedString(@"Only visible to people on this instance and guests", nil);
+    localOption.selected = [currentValue isEqualToString:kUserProfileScopeLocal];
     
-    UIAlertAction *federatedAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Federated", nil)
-                                                              style:UIAlertActionStyleDefault
-                                                            handler:^void (UIAlertAction *action) {
-        if (![currentValue isEqualToString:kUserProfileScopeFederated]) {
-            [self setUserProfileField:field scopeValue:kUserProfileScopeFederated];
-        }
-    }];
-    [federatedAction setValue:[[UIImage imageNamed:@"group"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    DetailedOption *federatedOption = [[DetailedOption alloc] init];
+    federatedOption.identifier = kUserProfileScopeFederated;
+    federatedOption.image = [[UIImage imageNamed:@"group"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    federatedOption.title = NSLocalizedString(@"Federated", nil);
+    federatedOption.subtitle = NSLocalizedString(@"Only synchronize to trusted servers", nil);
+    federatedOption.selected = [currentValue isEqualToString:kUserProfileScopeFederated];
     
-    UIAlertAction *publishedAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Published", nil)
-                                                              style:UIAlertActionStyleDefault
-                                                            handler:^void (UIAlertAction *action) {
-        if (![currentValue isEqualToString:kUserProfileScopePublished]) {
-            [self setUserProfileField:field scopeValue:kUserProfileScopePublished];
-        }
-    }];
-    [publishedAction setValue:[[UIImage imageNamed:@"browser-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    DetailedOption *publishedOption = [[DetailedOption alloc] init];
+    publishedOption.identifier = kUserProfileScopePrivate;
+    publishedOption.image = [[UIImage imageNamed:@"browser-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    publishedOption.title = NSLocalizedString(@"Published", nil);
+    publishedOption.subtitle = NSLocalizedString(@"Synchronize to trusted servers and the global and public address book", nil);
+    publishedOption.selected = [currentValue isEqualToString:kUserProfileScopePublished];
     
     if (field != kUserProfileDisplayNameScope && field != kUserProfileEmailScope) {
-        [scopesActionSheet addAction:privateAction];
+        [options addObject:privateOption];
     }
     
-    [scopesActionSheet addAction:localAction];
+    [options addObject:localOption];
     
     ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:_account.accountId];
     if (serverCapabilities.accountPropertyScopesFederationEnabled) {
-        [scopesActionSheet addAction:federatedAction];
-        [scopesActionSheet addAction:publishedAction];
+        [options addObject:federatedOption];
+        [options addObject:publishedOption];
     }
     
-    [scopesActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    scopesActionSheet.popoverPresentationController.sourceView = sender;
-    scopesActionSheet.popoverPresentationController.sourceRect = sender.frame;
-    
-    [self presentViewController:scopesActionSheet animated:YES completion:nil];
+    DetailedOptionsSelectorTableViewController *optionSelectorVC = [[DetailedOptionsSelectorTableViewController alloc] initWithOptions:options forSenderIdentifier:field andTitle:title];
+    optionSelectorVC.delegate = self;
+    NCNavigationController *optionSelectorNC = [[NCNavigationController alloc] initWithRootViewController:optionSelectorVC];
+    [self presentViewController:optionSelectorNC animated:YES completion:nil];
 }
 
 - (void)setUserProfileField:(NSString *)field scopeValue:(NSString *)scope
@@ -589,6 +585,22 @@ typedef enum SummaryRow {
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
     [errorDialog addAction:okAction];
     [self presentViewController:errorDialog animated:YES completion:nil];
+}
+
+#pragma mark - DetailedOptionSelector Delegate
+
+- (void)detailedOptionsSelector:(DetailedOptionsSelectorTableViewController *)viewController didSelectOptionWithIdentifier:(DetailedOption *)option
+{
+    [self dismissViewControllerAnimated:YES completion:^{
+        if (!option.selected) {
+            [self setUserProfileField:viewController.senderId scopeValue:option.identifier];
+        }
+    }];
+}
+
+- (void)detailedOptionsSelectorWasCancelled:(DetailedOptionsSelectorTableViewController *)viewController
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - UIImagePickerController Delegate

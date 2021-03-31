@@ -79,6 +79,9 @@
 		2C36A03F261342FF0026F04A /* AvatarHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C36A03E261342FF0026F04A /* AvatarHeaderView.xib */; };
 		2C36A040261342FF0026F04A /* AvatarHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C36A03E261342FF0026F04A /* AvatarHeaderView.xib */; };
 		2C36A041261342FF0026F04A /* AvatarHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C36A03E261342FF0026F04A /* AvatarHeaderView.xib */; };
+		2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */; };
+		2C36A04B261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */; };
+		2C36A04C261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */; };
 		2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
 		2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
 		2C3780C5210F4A26003F9AE8 /* HeaderWithButton.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */; };
@@ -491,6 +494,8 @@
 		2C36A036261342220026F04A /* AvatarHeaderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AvatarHeaderView.h; sourceTree = "<group>"; };
 		2C36A037261342220026F04A /* AvatarHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AvatarHeaderView.m; sourceTree = "<group>"; };
 		2C36A03E261342FF0026F04A /* AvatarHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AvatarHeaderView.xib; sourceTree = "<group>"; };
+		2C36A048261487BC0026F04A /* DetailedOptionsSelectorTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetailedOptionsSelectorTableViewController.h; sourceTree = "<group>"; };
+		2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetailedOptionsSelectorTableViewController.m; sourceTree = "<group>"; };
 		2C3780BB2107209C003F9AE8 /* NCRoomParticipant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCRoomParticipant.h; sourceTree = "<group>"; };
 		2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCRoomParticipants.m; sourceTree = "<group>"; };
 		2C3780C1210F49DC003F9AE8 /* HeaderWithButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HeaderWithButton.h; sourceTree = "<group>"; };
@@ -946,6 +951,8 @@
 				2C36A036261342220026F04A /* AvatarHeaderView.h */,
 				2C36A037261342220026F04A /* AvatarHeaderView.m */,
 				2C36A03E261342FF0026F04A /* AvatarHeaderView.xib */,
+				2C36A048261487BC0026F04A /* DetailedOptionsSelectorTableViewController.h */,
+				2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -1906,6 +1913,7 @@
 				2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
+				2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
 				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
 				2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */,
@@ -2070,6 +2078,7 @@
 				1FEDE3C8257D439500853F79 /* NCChatFileController.m in Sources */,
 				2C62B01A24C1BDC6007E460A /* RoomSearchTableViewController.m in Sources */,
 				2C62AFEB24C1BD99007E460A /* AvatarBackgroundImageView.m in Sources */,
+				2C36A04C261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
 				2C62AFC324C1BD74007E460A /* SLKTypingIndicatorView.m in Sources */,
 				2C62AFF724C1BDA5007E460A /* NCMessageTextView.m in Sources */,
 				1FEDE3D0257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
@@ -2131,6 +2140,7 @@
 				2CC0019F24A37A8100A20167 /* ARDUtilities.m in Sources */,
 				2CC0019E24A37A8100A20167 /* ARDSettingsStore.m in Sources */,
 				2CC001E324A37ADB00A20167 /* HeaderWithButton.m in Sources */,
+				2C36A04B261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
 				2CC001AC24A37A8F00A20167 /* GroupedChatMessageTableViewCell.m in Sources */,
 				2CC001C124A37AC500A20167 /* NCNotification.m in Sources */,
 				2C1ABD9125769F4F00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */,
