@@ -1,4 +1,3 @@
-//
 /**
  * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
  *
