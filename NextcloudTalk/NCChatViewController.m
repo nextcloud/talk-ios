@@ -362,6 +362,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)leaveChat
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
     [_lobbyCheckTimer invalidate];
     [_chatController stopChatController];
     
