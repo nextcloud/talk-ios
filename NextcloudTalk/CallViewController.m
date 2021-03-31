@@ -1096,6 +1096,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self.view bringSubviewToFront:_buttonsContainerView];
         
         [_chatViewController leaveChat];
+        _chatViewController = nil;
         
         [_chatNavigationController willMoveToParentViewController:nil];
         [_chatNavigationController.view removeFromSuperview];
