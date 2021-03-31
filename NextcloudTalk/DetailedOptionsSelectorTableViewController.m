@@ -56,6 +56,10 @@
     self.navigationController.navigationBar.translucent = NO;
     
     self.navigationController.title = self.title;
+    
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                  target:self action:@selector(cancelButtonPressed)];
+    self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
 }
 
 #pragma mark - Table view data source
@@ -89,6 +93,11 @@
 {
     DetailedOption *option = [_options objectAtIndex:indexPath.row];
     [self.delegate detailedOptionsSelector:self didSelectOptionWithIdentifier:option];
+}
+
+- (void)cancelButtonPressed
+{
+    [self.delegate detailedOptionsSelectorWasCancelled:self];
 }
 
 @end

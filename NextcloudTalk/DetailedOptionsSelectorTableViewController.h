@@ -33,6 +33,7 @@
 @class DetailedOptionsSelectorTableViewController;
 @protocol DetailedOptionsSelectorTableViewControllerDelegate <NSObject>
 - (void)detailedOptionsSelector:(DetailedOptionsSelectorTableViewController *)viewController didSelectOptionWithIdentifier:(DetailedOption *)option;
+- (void)detailedOptionsSelectorWasCancelled:(DetailedOptionsSelectorTableViewController *)viewController;
 @end
 
 @interface DetailedOptionsSelectorTableViewController : UITableViewController
