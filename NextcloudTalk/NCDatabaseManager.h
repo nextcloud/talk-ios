@@ -56,6 +56,7 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 @property NSInteger lastContactSync;
 @property NSString *avatarScope;
 @property BOOL hasCustomAvatar;
+@property BOOL hasContactSyncEnabled;
 @property BOOL active;
 @end
 

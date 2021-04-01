@@ -254,12 +254,31 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 
 - (BOOL)isContactSyncEnabled
 {
-    return [[[NSUserDefaults standardUserDefaults] objectForKey:kContactSyncEnabled] boolValue];
+    // Migration from global setting to per-account setting
+    if ([[[NSUserDefaults standardUserDefaults] objectForKey:kContactSyncEnabled] boolValue]) {
+        // If global setting was enabled then we enable contact sync for all accounts
+        RLMRealm *realm = [RLMRealm defaultRealm];
+        [realm beginWriteTransaction];
+        for (TalkAccount *account in [TalkAccount allObjects]) {
+            account.hasContactSyncEnabled = YES;
+        }
+        [realm commitWriteTransaction];
+        // Remove global setting
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kContactSyncEnabled];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        return YES;
+    }
+    
+    return [[NCDatabaseManager sharedInstance] activeAccount].hasContactSyncEnabled;
 }
 
 - (void)setContactSync:(BOOL)enabled
 {
-    [[NSUserDefaults standardUserDefaults] setObject:@(enabled) forKey:kContactSyncEnabled];
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    TalkAccount *account = [TalkAccount objectsWhere:(@"active = true")].firstObject;
+    account.hasContactSyncEnabled = enabled;
+    [realm commitWriteTransaction];
 }
 
 #pragma mark - KeyChain
