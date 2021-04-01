@@ -995,6 +995,28 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return [self getRequestURLForAccount:account withEndpoint:@"signaling/backend"];
 }
 
+#pragma mark - Settings
+
+- (NSURLSessionDataTask *)setReadStatusPrivacySettingEnabled:(BOOL)enabled forAccount:(TalkAccount *)account withCompletionBlock:(SetReadStatusPrivacySettingCompletionBlock)block
+{
+    NSString *URLString = [self getRequestURLForAccount:account withEndpoint:[NSString stringWithFormat:@"settings/user"]];
+    NSDictionary *parameters = @{@"key" : @"read_status_privacy",
+                                 @"value" : @(enabled)};
+    
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+    
+    return task;
+}
+
 #pragma mark - Files
 
 - (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block

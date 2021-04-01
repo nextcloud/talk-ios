@@ -65,6 +65,8 @@ typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);
 typedef void (^GetSignalingSettingsCompletionBlock)(NSDictionary *settings, NSError *error);
 
+typedef void (^SetReadStatusPrivacySettingCompletionBlock)(NSError *error);
+
 typedef void (^ReadFolderCompletionBlock)(NSArray *items, NSError *error);
 typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
 typedef void (^GetFileByFileIdCompletionBlock)(NCCommunicationFile *file, NSInteger error, NSString *errorDescription);
@@ -145,6 +147,9 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)pullSignalingMessagesFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
 - (NSURLSessionDataTask *)getSignalingSettingsForAccount:(TalkAccount *)account withCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
 - (NSString *)authenticationBackendUrlForAccount:(TalkAccount *)account;
+
+// Settings Controller
+- (NSURLSessionDataTask *)setReadStatusPrivacySettingEnabled:(BOOL)enabled forAccount:(TalkAccount *)account withCompletionBlock:(SetReadStatusPrivacySettingCompletionBlock)block;
 
 // WebDAV client
 - (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block;

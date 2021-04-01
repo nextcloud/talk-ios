@@ -198,9 +198,11 @@
     
     self.fileParameter = message.file;
     
-    BOOL shouldShowReadStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
-    if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"] && shouldShowReadStatus) {
-        if (lastCommonRead >= message.messageId) {
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    BOOL shouldShowDeliveryStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
+    BOOL shouldShowReadStatus = !serverCapabilities.readStatusPrivacy;
+    if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"] && shouldShowDeliveryStatus) {
+        if (lastCommonRead >= message.messageId && shouldShowReadStatus) {
             [self setDeliveryState:ChatMessageDeliveryStateRead];
         } else {
             [self setDeliveryState:ChatMessageDeliveryStateSent];
