@@ -87,6 +87,7 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 @property BOOL canCreate;
 @property BOOL attachmentsAllowed;
 @property NSString *attachmentsFolder;
+@property BOOL readStatusPrivacy;
 @property BOOL accountPropertyScopesVersion2;
 @property BOOL accountPropertyScopesFederationEnabled;
 @end

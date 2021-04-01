@@ -236,7 +236,9 @@
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    BOOL shouldShowReadStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    BOOL shouldShowDeliveryStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
+    BOOL shouldShowReadStatus = !serverCapabilities.readStatusPrivacy;
     
     if ([message.actorType isEqualToString:@"guests"]) {
         self.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
@@ -268,8 +270,8 @@
         [self setDeliveryState:ChatMessageDeliveryStateFailed];
     } else if (message.isTemporary){
         [self setDeliveryState:ChatMessageDeliveryStateSending];
-    } else if ([message isMessageFromUser:activeAccount.userId] && shouldShowReadStatus) {
-        if (lastCommonRead >= message.messageId) {
+    } else if ([message isMessageFromUser:activeAccount.userId] && shouldShowDeliveryStatus) {
+        if (lastCommonRead >= message.messageId && shouldShowReadStatus) {
             [self setDeliveryState:ChatMessageDeliveryStateRead];
         } else {
             [self setDeliveryState:ChatMessageDeliveryStateSent];

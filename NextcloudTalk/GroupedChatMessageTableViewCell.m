@@ -84,7 +84,9 @@
     self.messageId = message.messageId;
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    BOOL shouldShowReadStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    BOOL shouldShowDeliveryStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
+    BOOL shouldShowReadStatus = !serverCapabilities.readStatusPrivacy;
     
     if (message.isDeleting) {
         [self setDeliveryState:ChatMessageDeliveryStateDeleting];
@@ -92,8 +94,8 @@
         [self setDeliveryState:ChatMessageDeliveryStateFailed];
     } else if (message.isTemporary){
         [self setDeliveryState:ChatMessageDeliveryStateSending];
-    } else if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"] && shouldShowReadStatus) {
-        if (lastCommonRead >= message.messageId) {
+    } else if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"] && shouldShowDeliveryStatus) {
+        if (lastCommonRead >= message.messageId && shouldShowReadStatus) {
             [self setDeliveryState:ChatMessageDeliveryStateRead];
         } else {
             [self setDeliveryState:ChatMessageDeliveryStateSent];

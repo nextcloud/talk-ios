@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName       = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion   = 20;
+uint64_t const kTalkDatabaseSchemaVersion   = 21;
 
 @implementation TalkAccount
 + (NSString *)primaryKey {
@@ -295,6 +295,7 @@ uint64_t const kTalkDatabaseSchemaVersion   = 20;
     }
     capabilities.attachmentsAllowed = [[[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
     capabilities.attachmentsFolder = [[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
+    capabilities.readStatusPrivacy = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"read-privacy"] boolValue];
     capabilities.accountPropertyScopesVersion2 = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesVersion"] integerValue] == 2;
     capabilities.accountPropertyScopesFederationEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesFederationEnabled"] boolValue];
     
