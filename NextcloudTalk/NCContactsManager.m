@@ -193,14 +193,20 @@ NSString * const NCContactsManagerContactsAccessUpdatedNotification = @"NCContac
     }];
 }
 
-- (void)removeAllStoredContacts
+- (void)removeStoredContacts
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm beginWriteTransaction];
-    [realm deleteObjects:[NCContact allObjects]];
-    [realm deleteObjects:[ABContact allObjects]];
-    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
-        talkAccount.lastContactSync = 0;
+    TalkAccount *account = [TalkAccount objectsWhere:(@"active = true")].firstObject;
+    // Remove stored contacts for active account
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+    RLMResults *managedNCContactsToBeDeleted = [NCContact objectsWithPredicate:query];
+    [realm deleteObjects:managedNCContactsToBeDeleted];
+    account.lastContactSync = 0;
+    // If there are no other account with contact sync enabled -> delete address book copy
+    TalkAccount *accountWithContactSyncEnabled = [TalkAccount objectsWhere:(@"hasContactSyncEnabled = true AND active = false")].firstObject;
+    if (!accountWithContactSyncEnabled) {
+        [realm deleteObjects:[ABContact allObjects]];
     }
     [realm commitWriteTransaction];
 }

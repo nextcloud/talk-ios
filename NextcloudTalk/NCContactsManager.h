@@ -32,7 +32,7 @@ extern NSString * const NCContactsManagerContactsAccessUpdatedNotification;
 - (BOOL)isContactAccessDetermined;
 - (BOOL)isContactAccessAuthorized;
 - (void)searchInServerForAddressBookContacts:(BOOL)forceSync;
-- (void)removeAllStoredContacts;
+- (void)removeStoredContacts;
 
 @end
 
