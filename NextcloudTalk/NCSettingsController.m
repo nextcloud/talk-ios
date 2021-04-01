@@ -322,7 +322,9 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
             TalkAccount *managedActiveAccount = [TalkAccount objectsWhere:(@"active = true")].firstObject;
             [realm beginWriteTransaction];
             managedActiveAccount.userId = [userProfile objectForKey:kUserProfileUserId];
-            managedActiveAccount.userDisplayName = [userProfile objectForKey:kUserProfileDisplayName];
+            // "display-name" is returned by /cloud/user endpoint
+            // change to kUserProfileDisplayName ("displayName") when using /cloud/users/{userId} endpoint
+            managedActiveAccount.userDisplayName = [userProfile objectForKey:@"display-name"];
             managedActiveAccount.userDisplayNameScope = [userProfile objectForKey:kUserProfileDisplayNameScope];
             managedActiveAccount.phone = [userProfile objectForKey:kUserProfilePhone];
             managedActiveAccount.phoneScope = [userProfile objectForKey:kUserProfilePhoneScope];
