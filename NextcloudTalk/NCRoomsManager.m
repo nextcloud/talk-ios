@@ -674,7 +674,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     if (roomToken) {
         [self startChatWithRoomToken:roomToken];
         
-        // In case this notification occured because of a failed chat-sending event, make sure the text is not lost
+        // In case this notification occurred because of a failed chat-sending event, make sure the text is not lost
         // Note: This will override any stored pending message
         NSString *responseUserText = [notification.userInfo objectForKey:@"responseUserText"];
         if (_chatViewController && responseUserText) {
