@@ -430,7 +430,7 @@ typedef enum SummaryRow {
             break;
             
         case k_twitter_textfield_tag:
-            errorDescription = NSLocalizedString(@"An error occurred setting twitter account", nil);
+            errorDescription = NSLocalizedString(@"An error occurred setting Twitter account", nil);
             break;
             
         default:
