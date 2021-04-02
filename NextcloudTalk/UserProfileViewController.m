@@ -410,27 +410,27 @@ typedef enum SummaryRow {
     // That's the reason why we check the field instead of textfield.tag
     switch (field) {
         case k_name_textfield_tag:
-            errorDescription = NSLocalizedString(@"An error occured setting user name", nil);
+            errorDescription = NSLocalizedString(@"An error occurred setting user name", nil);
             break;
             
         case k_email_textfield_tag:
-            errorDescription = NSLocalizedString(@"An error occured setting email address", nil);
+            errorDescription = NSLocalizedString(@"An error occurred setting email address", nil);
             break;
             
         case k_phone_textfield_tag:
-            errorDescription = NSLocalizedString(@"An error occured setting phone number", nil);
+            errorDescription = NSLocalizedString(@"An error occurred setting phone number", nil);
             break;
             
         case k_address_textfield_tag:
-            errorDescription = NSLocalizedString(@"An error occured setting address", nil);
+            errorDescription = NSLocalizedString(@"An error occurred setting address", nil);
             break;
             
         case k_website_textfield_tag:
-            errorDescription = NSLocalizedString(@"An error occured setting website", nil);
+            errorDescription = NSLocalizedString(@"An error occurred setting website", nil);
             break;
             
         case k_twitter_textfield_tag:
-            errorDescription = NSLocalizedString(@"An error occured setting twitter account", nil);
+            errorDescription = NSLocalizedString(@"An error occurred setting twitter account", nil);
             break;
             
         default:
@@ -452,7 +452,7 @@ typedef enum SummaryRow {
 
 - (void)showProfileImageError:(BOOL)setting
 {
-    NSString *reason = setting ? NSLocalizedString(@"An error occured setting profile image", nil) : NSLocalizedString(@"An error occured removing profile image", nil);
+    NSString *reason = setting ? NSLocalizedString(@"An error occurred setting profile image", nil) : NSLocalizedString(@"An error occurred removing profile image", nil);
     UIAlertController *errorDialog =
     [UIAlertController alertControllerWithTitle:reason
                                         message:nil
@@ -579,7 +579,7 @@ typedef enum SummaryRow {
 - (void)showScopeModificationError
 {
     UIAlertController *errorDialog =
-    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"An error occured changing privacy setting", nil)
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"An error occurred changing privacy setting", nil)
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
