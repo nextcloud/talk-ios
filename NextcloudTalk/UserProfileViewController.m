@@ -324,7 +324,8 @@ typedef enum SummaryRow {
     [removeAction setValue:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
-        [optionsActionSheet addAction:cameraAction];
+        // Removing this option for now
+        // [optionsActionSheet addAction:cameraAction];
     }
     [optionsActionSheet addAction:photoLibraryAction];
     if (_account.hasCustomAvatar) {
