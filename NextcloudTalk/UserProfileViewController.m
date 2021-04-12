@@ -1017,6 +1017,8 @@ typedef enum SummaryRow {
         textInputCell = [[TextInputTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTextInputCellIdentifier];
     }
     textInputCell.textField.delegate = self;
+    textInputCell.textField.keyboardType = UIKeyboardTypeDefault;
+    textInputCell.textField.placeholder = nil;
     textInputCell.textField.autocorrectionType = UITextAutocorrectionTypeNo;
     
     ProfileSection section = [[[self getProfileSections] objectAtIndex:indexPath.section] intValue];
