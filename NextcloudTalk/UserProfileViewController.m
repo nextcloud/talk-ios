@@ -138,6 +138,19 @@ typedef enum SummaryRow {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userProfileImageUpdated:) name:NCUserProfileImageUpdatedNotification object:nil];
 }
 
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    
+    // Workaround to fix name label width
+    AvatarHeaderView *headerView = (AvatarHeaderView *)self.tableView.tableHeaderView;
+    CGRect labelFrame = headerView.nameLabel.frame;
+    CGFloat padding = 16;
+    labelFrame.origin.x = padding;
+    labelFrame.size.width = self.tableView.bounds.size.width - padding * 2;
+    headerView.nameLabel.frame = labelFrame;
+}
+
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
