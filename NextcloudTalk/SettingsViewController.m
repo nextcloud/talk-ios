@@ -546,7 +546,7 @@ typedef enum AboutSection {
 {
     _readStatusSwitch.enabled = YES;
     UIAlertController *errorDialog =
-    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"An error occured changing read status setting", nil)
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"An error occurred changing read status setting", nil)
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
