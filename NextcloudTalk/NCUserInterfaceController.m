@@ -167,7 +167,8 @@
 
 - (void)logOutCurrentUser
 {
-    [[NCSettingsController sharedInstance] logoutWithCompletionBlock:^(NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCSettingsController sharedInstance] logoutAccountWithAccountId:activeAccount.accountId withCompletionBlock:^(NSError *error) {
         [[NCUserInterfaceController sharedInstance] presentConversationsList];
         [[NCConnectionController sharedInstance] checkAppState];
     }];

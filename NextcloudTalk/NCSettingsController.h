@@ -137,7 +137,7 @@ typedef enum NCPasscodeType {
 - (NSString *)combinedPushToken;
 - (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
-- (void)logoutWithCompletionBlock:(LogoutCompletionBlock)block;
+- (void)logoutAccountWithAccountId:(NSString *)accountId withCompletionBlock:(LogoutCompletionBlock)block;
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
 - (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block;
 - (void)setSignalingConfigurationForAccountId:(NSString *)accountId;

@@ -366,11 +366,9 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     }];
 }
 
-- (void)logoutWithCompletionBlock:(LogoutCompletionBlock)block
+- (void)logoutAccountWithAccountId:(NSString *)accountId withCompletionBlock:(LogoutCompletionBlock)block
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    // Make a copy of the active TalkAccount so it can be deleted/invalidated while removing account info.
-    TalkAccount *removingAccount = [[TalkAccount alloc] initWithValue:activeAccount];
+    TalkAccount *removingAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
     if (removingAccount.deviceIdentifier) {
         [[NCAPIController sharedInstance] unsubscribeAccount:removingAccount fromNextcloudServerWithCompletionBlock:^(NSError *error) {
             if (!error) {
