@@ -98,6 +98,7 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 
 - (NSInteger)numberOfAccounts;
 - (TalkAccount *)activeAccount;
+- (NSArray *)allAccounts;
 - (NSArray *)inactiveAccounts;
 - (TalkAccount *)talkAccountForAccountId:(NSString *)accountId;
 - (void)setActiveAccountWithAccountId:(NSString *)accountId;

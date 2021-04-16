@@ -1310,9 +1310,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         
         NSDictionary *headers = [response allHeaderFields];
         RLMRealm *realm = [RLMRealm defaultRealm];
+        [realm beginWriteTransaction];
         NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
         TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
-        [realm beginWriteTransaction];
         managedAccount.hasCustomAvatar = [[headers objectForKey:@"X-NC-IsCustomAvatar"] boolValue];
         [realm commitWriteTransaction];
         

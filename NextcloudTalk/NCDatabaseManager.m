@@ -112,6 +112,16 @@ uint64_t const kTalkDatabaseSchemaVersion   = 21;
     return nil;
 }
 
+- (NSArray *)allAccounts
+{
+    NSMutableArray *allAccounts = [NSMutableArray new];
+    for (TalkAccount *managedAccount in [TalkAccount allObjects]) {
+        TalkAccount *account = [[TalkAccount alloc] initWithValue:managedAccount];
+        [allAccounts addObject:account];
+    }
+    return allAccounts;
+}
+
 - (NSArray *)inactiveAccounts
 {
     NSMutableArray *inactiveAccounts = [NSMutableArray new];
@@ -167,12 +177,14 @@ uint64_t const kTalkDatabaseSchemaVersion   = 21;
 - (void)removeAccountWithAccountId:(NSString *)accountId
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    BOOL isLastAccount = [self numberOfAccounts] == 1;
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     TalkAccount *removeAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+    if (removeAccount) {
+        [realm deleteObject:removeAccount];
+    }
     ServerCapabilities *serverCapabilities = [ServerCapabilities objectsWithPredicate:query].firstObject;
-    BOOL isLastAccount = [self numberOfAccounts] == 1;
-    [realm beginWriteTransaction];
-    [realm deleteObject:removeAccount];
     if (serverCapabilities) {
         [realm deleteObject:serverCapabilities];
     }
