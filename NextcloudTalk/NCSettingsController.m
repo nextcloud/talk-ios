@@ -338,8 +338,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
                 email = @"";
             }
             RLMRealm *realm = [RLMRealm defaultRealm];
-            TalkAccount *managedActiveAccount = [TalkAccount objectsWhere:(@"active = true")].firstObject;
             [realm beginWriteTransaction];
+            TalkAccount *managedActiveAccount = [TalkAccount objectsWhere:(@"active = true")].firstObject;
             managedActiveAccount.userId = [userProfile objectForKey:kUserProfileUserId];
             // "display-name" is returned by /cloud/user endpoint
             // change to kUserProfileDisplayName ("displayName") when using /cloud/users/{userId} endpoint
