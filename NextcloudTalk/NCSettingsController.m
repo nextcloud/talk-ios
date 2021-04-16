@@ -613,9 +613,9 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
                 NSString *signature = [responseDict objectForKey:@"signature"];
                 
                 RLMRealm *realm = [RLMRealm defaultRealm];
+                [realm beginWriteTransaction];
                 NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
                 TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
-                [realm beginWriteTransaction];
                 managedAccount.userPublicKey = publicKey;
                 managedAccount.deviceIdentifier = deviceIdentifier;
                 managedAccount.deviceSignature = signature;
@@ -624,9 +624,9 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
                 [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId] toPushServerWithCompletionBlock:^(NSError *error) {
                     if (!error) {
                         RLMRealm *realm = [RLMRealm defaultRealm];
+                        [realm beginWriteTransaction];
                         NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
                         TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
-                        [realm beginWriteTransaction];
                         managedAccount.pushNotificationSubscribed = YES;
                         [realm commitWriteTransaction];
                         NSLog(@"Subscribed to Push Notification server successfully.");
@@ -665,9 +665,9 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     BIO_read(publicKeyBIO, keyBytes, len);
     NSData *pnPublicKey = [NSData dataWithBytes:keyBytes length:len];
     RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
-    [realm beginWriteTransaction];
     managedAccount.pushNotificationPublicKey = pnPublicKey;
     [realm commitWriteTransaction];
     NSLog(@"Push Notifications Key Pair generated: \n%@", [[NSString alloc] initWithData:pnPublicKey encoding:NSUTF8StringEncoding]);
