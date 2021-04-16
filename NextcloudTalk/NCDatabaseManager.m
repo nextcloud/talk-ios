@@ -112,6 +112,16 @@ uint64_t const kTalkDatabaseSchemaVersion   = 21;
     return nil;
 }
 
+- (NSArray *)allAccounts
+{
+    NSMutableArray *allAccounts = [NSMutableArray new];
+    for (TalkAccount *managedAccount in [TalkAccount allObjects]) {
+        TalkAccount *account = [[TalkAccount alloc] initWithValue:managedAccount];
+        [allAccounts addObject:account];
+    }
+    return allAccounts;
+}
+
 - (NSArray *)inactiveAccounts
 {
     NSMutableArray *inactiveAccounts = [NSMutableArray new];

@@ -149,16 +149,19 @@
         [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
         [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
         
-        for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
-            if (tokenChanged) {
-                // Remove subscribed flag if token has changed
-                RLMRealm *realm = [RLMRealm defaultRealm];
-                [realm beginWriteTransaction];
-                talkAccount.pushNotificationSubscribed = NO;
-                [realm commitWriteTransaction];
+        if (tokenChanged) {
+            // Remove subscribed flag if token has changed
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm beginWriteTransaction];
+            for (TalkAccount *account in [TalkAccount allObjects]) {
+                account.pushNotificationSubscribed = NO;
             }
-            TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
-            if (!account.pushNotificationSubscribed) {
+            [realm commitWriteTransaction];
+        }
+        
+        // Check if any account needs to subscribe for push notifications
+        for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
+            if (tokenChanged || !account.pushNotificationSubscribed) {
                 [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId];
             }
         }
