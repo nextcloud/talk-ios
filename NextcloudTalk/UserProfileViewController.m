@@ -551,7 +551,7 @@ typedef enum SummaryRow {
     federatedOption.selected = [currentValue isEqualToString:kUserProfileScopeFederated];
     
     DetailedOption *publishedOption = [[DetailedOption alloc] init];
-    publishedOption.identifier = kUserProfileScopePrivate;
+    publishedOption.identifier = kUserProfileScopePublished;
     publishedOption.image = [[UIImage imageNamed:@"browser-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     publishedOption.title = NSLocalizedString(@"Published", nil);
     publishedOption.subtitle = NSLocalizedString(@"Synchronize to trusted servers and the global and public address book", nil);
