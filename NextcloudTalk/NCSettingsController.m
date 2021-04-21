@@ -35,6 +35,7 @@
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCExternalSignalingController.h"
+#import "NCRoomsManager.h"
 #import "NCUserInterfaceController.h"
 #import "JDStatusBarNotification.h"
 #import "NCChatFileController.h"
@@ -391,6 +392,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     [[NCAPIController sharedInstance] removeProfileImageForAccount:removingAccount];
     [[NCDatabaseManager sharedInstance] removeAccountWithAccountId:removingAccount.accountId];
     [[[NCChatFileController alloc] init] deleteDownloadDirectoryForAccount:removingAccount];
+    [[[NCRoomsManager sharedInstance] chatViewController] leaveChat];
     
     // Activate any of the inactive accounts
     NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
