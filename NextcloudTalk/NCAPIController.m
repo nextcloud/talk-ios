@@ -155,8 +155,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
             block(responseContacts, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
+        // NSInteger statusCode = [self getResponseStatusCode:task.response];
+        // Ignore status code for now https://github.com/nextcloud/server/pull/26679
+        // [self checkResponseStatusCode:statusCode forAccount:account];
         if (block) {
             block(nil, error);
         }
@@ -1251,7 +1252,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
+        // Ignore status code for now https://github.com/nextcloud/server/pull/26679
+        // [self checkResponseStatusCode:statusCode forAccount:account];
         if (block) {
             block(error, statusCode);
         }
