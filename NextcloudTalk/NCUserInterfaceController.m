@@ -110,6 +110,23 @@
     }
 }
 
+- (void)presentLoggedOutInvalidCredentialsAlert
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Logged out", nil)
+                                 message:NSLocalizedString(@"Credentials for this account were no longer valid", nil)
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    
+    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+}
+
 - (void)presentOfflineWarningAlert
 {
     UIAlertController * alert = [UIAlertController

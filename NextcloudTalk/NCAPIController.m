@@ -1582,6 +1582,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     if (statusCode == 401) {
         [[NCSettingsController sharedInstance] logoutAccountWithAccountId:account.accountId withCompletionBlock:^(NSError *error) {
             [[NCUserInterfaceController sharedInstance] presentConversationsList];
+            [[NCUserInterfaceController sharedInstance] presentLoggedOutInvalidCredentialsAlert];
             [[NCConnectionController sharedInstance] checkAppState];
         }];
     }

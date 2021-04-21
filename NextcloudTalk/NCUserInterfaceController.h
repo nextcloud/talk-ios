@@ -36,6 +36,7 @@
 - (void)presentConversationsList;
 - (void)presentLoginViewController;
 - (void)presentOfflineWarningAlert;
+- (void)presentLoggedOutInvalidCredentialsAlert;
 - (void)presentChatForLocalNotification:(NSDictionary *)userInfo;
 - (void)presentChatForPushNotification:(NCPushNotification *)pushNotification;
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification;
