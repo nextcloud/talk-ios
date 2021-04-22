@@ -238,7 +238,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)notificationWillBePresented:(NSNotification *)notification
 {
-    [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:NO];
+    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:nil];
     [self setUnreadMessageForInactiveAccountsIndicator];
 }
 
@@ -255,7 +255,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)appWillEnterForeground:(NSNotification *)notification
 {
     if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
-        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES];
+        [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES withCompletionBlock:nil];
         [self setUnreadMessageForInactiveAccountsIndicator];
     }
     
@@ -294,7 +294,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)refreshControlTarget
 {
-    [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES];
+    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES withCompletionBlock:nil];
     // Actuate `Peek` feedback (weak boom)
     AudioServicesPlaySystemSound(1519);
 }

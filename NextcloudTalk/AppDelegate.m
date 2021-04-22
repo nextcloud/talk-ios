@@ -32,6 +32,10 @@
 
 #import <UserNotifications/UserNotifications.h>
 
+#import <BackgroundTasks/BGTaskScheduler.h>
+#import <BackgroundTasks/BGTaskRequest.h>
+#import <BackgroundTasks/BGTask.h>
+
 #import "NCAudioController.h"
 #import "NCAppBranding.h"
 #import "NCConnectionController.h"
@@ -82,6 +86,8 @@
         [[BKPasscodeLockScreenManager sharedManager] showLockScreen:NO];
     });
     
+    [self registerBackgroundFetchTask];
+    
     return YES;
 }
 
@@ -112,6 +118,10 @@
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
     // show passcode view controller when enter background. Screen will be obscured from here.
     [[BKPasscodeLockScreenManager sharedManager] showLockScreen:NO];
+    
+    if (@available(iOS 13.0, *)) {
+        [self scheduleAppRefresh];
+    }
 }
 
 
@@ -310,5 +320,67 @@
     navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
     return navigationController;
 }
+
+#pragma mark - BackgroundFetch / AppRefresh
+
+- (void)registerBackgroundFetchTask {
+    NSString *refreshTaskIdentifier = [NSString stringWithFormat:@"%@.refresh", NSBundle.mainBundle.bundleIdentifier];
+
+    if (@available(iOS 13.0, *)) {
+        // see: https://developer.apple.com/documentation/backgroundtasks/bgtaskscheduler?language=objc
+        [[BGTaskScheduler sharedScheduler] registerForTaskWithIdentifier:refreshTaskIdentifier
+                                                              usingQueue:nil
+                                                           launchHandler:^(__kindof BGTask * _Nonnull task) {
+            [self handleAppRefresh:task];
+        }];
+    } else {
+        [UIApplication.sharedApplication setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
+    }
+}
+
+- (void)scheduleAppRefresh API_AVAILABLE(ios(13.0))
+{
+    NSString *refreshTaskIdentifier = [NSString stringWithFormat:@"%@.refresh", NSBundle.mainBundle.bundleIdentifier];
+    
+    BGAppRefreshTaskRequest *request = [[BGAppRefreshTaskRequest alloc] initWithIdentifier:refreshTaskIdentifier];
+    request.earliestBeginDate = [NSDate dateWithTimeIntervalSinceNow:UIApplicationBackgroundFetchIntervalMinimum];
+    
+    NSError *error = nil;
+    [[BGTaskScheduler sharedScheduler] submitTaskRequest:request error:&error];
+    
+    if (error) {
+        NSLog(@"Failed to submit apprefresh request: %@", error);
+    }
+}
+
+- (void)handleAppRefresh:(BGTask *)task API_AVAILABLE(ios(13.0))
+{
+    NSLog(@"Performing background fetch -> handleAppRefresh");
+    
+    // With BGTasks (iOS >= 13) we need to schedule another refresh when running in background
+    [self scheduleAppRefresh];
+
+    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:^(NSError *error) {
+        if (error) {
+            [task setTaskCompletedWithSuccess:NO];
+        } else {
+            [task setTaskCompletedWithSuccess:YES];
+        }
+    }];
+}
+
+- (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    NSLog(@"Performing background fetch -> performFetchWithCompletionHandler");
+    
+    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:^(NSError *error) {
+        if (error) {
+            completionHandler(UIBackgroundFetchResultFailed);
+        } else {
+            completionHandler(UIBackgroundFetchResultNewData);
+        }
+    }];
+}
+
 
 @end

@@ -35,6 +35,9 @@ extern NSString * const NCRoomsManagerDidUpdateRoomNotification;
 // Call
 extern NSString * const NCRoomsManagerDidStartCallNotification;
 
+typedef void (^UpdateRoomsCompletionBlock)(NSArray *roomsWithNewMessages, NSError *error);
+typedef void (^UpdateRoomsAndChatsCompletionBlock)(NSError *error);
+
 @interface NCRoomController : NSObject
 
 @property (nonatomic, strong) NSString *userSessionId;
@@ -52,9 +55,12 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 // Room
 - (NSArray *)roomsForAccountId:(NSString *)accountId witRealm:(RLMRealm *)realm;
 - (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId;
+- (void)updateRoomsAndChatsUpdatingUserStatus:(BOOL)updateStatus withCompletionBlock:(UpdateRoomsAndChatsCompletionBlock)block;
 - (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus;
 - (void)updateRoom:(NSString *)token;
-- (void)updateRoomLocal:(NCRoom *) room;
+- (void)updatePendingMessage:(NSString *)message forRoom:(NCRoom *)room;
+- (void)updateLastMessage:(NCChatMessage *)message withNoUnreadMessages:(BOOL)noUnreadMessages forRoom:(NCRoom *)room;
+- (void)updateLastCommonReadMessage:(NSInteger)messageId forRoom:(NCRoom *)room;
 - (void)joinRoom:(NSString *)token;
 - (void)rejoinRoom:(NSString *)token;
 // Chat

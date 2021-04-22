@@ -310,6 +310,69 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
     return sortedMessages;
 }
 
+- (void)updateHistoryInBackgroundWithCompletionBlock:(UpdateHistoryInBackgroundCompletionBlock)block
+{
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId history:NO includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        if (!self->_stopChatMessagesPoll) {
+            if (error) {
+                NSLog(@"Could not get background chat history. Error: %@", error.description);
+            } else {
+                // Update chat blocks
+                [self updateLastChatBlockWithNewestKnown:lastKnownMessage];
+                
+                // Store new messages
+                if (messages.count > 0) {
+                    [self storeMessages:messages];
+                    [self checkLastCommonReadMessage:lastCommonReadMessage];
+                }
+            }
+        }
+
+        if (block) {
+            block(error);
+        }
+    }];
+}
+
+- (void)checkForNewMessagesFromMessageId:(NSInteger)messageId
+{
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    NSArray *storedMessages = [self getNewStoredMessagesInBlock:lastChatBlock sinceMessageId:messageId];
+    
+    if (storedMessages.count > 0) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary new];
+        
+        for (NCChatMessage *message in storedMessages) {
+            // Notify if "deleted messages" have been received
+            if ([message.systemMessage isEqualToString:@"message_deleted"]) {
+                [userInfo setObject:message forKey:@"deleteMessage"];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveDeletedMessageNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
+            }
+        }
+        
+        [userInfo removeAllObjects];
+        [userInfo setObject:self->_room.token forKey:@"room"];
+        [userInfo setObject:storedMessages forKey:@"messages"];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+        
+        // Messages are already sorted by messageId here
+        NCChatMessage *lastMessage = [storedMessages lastObject];
+
+        // Make sure we update the unread flags for the room (lastMessage can already be set, but there still might be unread flags)
+        if (lastMessage.timestamp >= self->_room.lastActivity) {
+            self->_room.lastActivity = lastMessage.timestamp;
+            [[NCRoomsManager sharedInstance] updateLastMessage:lastMessage withNoUnreadMessages:YES forRoom:self->_room];
+        }
+    }
+}
+
 - (void)getInitialChatHistory
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
@@ -327,8 +390,17 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                             object:self
                                                           userInfo:userInfo];
+        
+        // Messages are already sorted by messageId here
+        NCChatMessage *lastMessage = [storedMessages lastObject];
+        
+        // Make sure we update the unread flags for the room (lastMessage can already be set, but there still might be unread flags)
+        if (lastMessage.timestamp >= self->_room.lastActivity) {
+            self->_room.lastActivity = lastMessage.timestamp;
+            [[NCRoomsManager sharedInstance] updateLastMessage:lastMessage withNoUnreadMessages:YES forRoom:self->_room];
+        }
     } else {
-        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessageId history:YES includeLastMessage:YES timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessageId history:YES includeLastMessage:YES timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
             if (self->_stopChatMessagesPoll) {
                 return;
             }
@@ -353,15 +425,8 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
             [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                                 object:self
                                                               userInfo:userInfo];
-            if (lastCommonReadMessage > 0) {
-                BOOL newerCommonReadReceived = lastCommonReadMessage > self->_room.lastCommonReadMessage;
-                self->_room.lastCommonReadMessage = lastCommonReadMessage;
-                if (newerCommonReadReceived) {
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveNewerCommonReadMessageNotification
-                                                                        object:self
-                                                                      userInfo:userInfo];
-                }
-            }
+            
+            [self checkLastCommonReadMessage:lastCommonReadMessage];
         }];
     }
 }
@@ -392,7 +457,7 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                                                             object:self
                                                           userInfo:userInfo];
     } else {
-        _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
             if (statusCode == 304) {
                 [self updateHistoryFlagInFirstBlock];
             }
@@ -474,7 +539,7 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout lastCommonReadMessage:_room.lastCommonReadMessage forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (self->_stopChatMessagesPoll) {
             return;
         }
@@ -502,14 +567,11 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                 
                 for (NCChatMessage *message in storedMessages) {
                     // Update the current room with the new message
-                    // The stored information about this room will be updated by calling savePendingMessage
-                    // in NCChatViewController -> a transaction wouldn't make sense here, as it would be overriden again
                     if (message.messageId == lastKnownMessage && message.timestamp > self->_room.lastActivity) {
-                        self->_room.lastMessageId = message.internalId;
                         self->_room.lastActivity = message.timestamp;
-                        self->_room.unreadMention = NO;
-                        self->_room.unreadMessages = 0;
+                        [[NCRoomsManager sharedInstance] updateLastMessage:message withNoUnreadMessages:YES forRoom:self->_room];
                     }
+                    
                     // Notify if "deleted messages" have been received
                     if ([message.systemMessage isEqualToString:@"message_deleted"]) {
                         [userInfo setObject:message forKey:@"deleteMessage"];
@@ -523,15 +585,9 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
                                                             object:self
                                                           userInfo:userInfo];
-        if (lastCommonReadMessage > 0) {
-            BOOL newerCommonReadReceived = lastCommonReadMessage > self->_room.lastCommonReadMessage;
-            self->_room.lastCommonReadMessage = lastCommonReadMessage;
-            if (newerCommonReadReceived) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveNewerCommonReadMessageNotification
-                                                                    object:self
-                                                                  userInfo:userInfo];
-            }
-        }
+        
+        [self checkLastCommonReadMessage:lastCommonReadMessage];
+        
         if (error.code != -999) {
             NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
             [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:YES];
@@ -570,6 +626,24 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                                                             object:self
                                                           userInfo:userInfo];
     }];
+}
+
+- (void)checkLastCommonReadMessage:(NSInteger)lastCommonReadMessage
+{
+    if (lastCommonReadMessage > 0) {
+        BOOL newerCommonReadReceived = lastCommonReadMessage > self->_room.lastCommonReadMessage;
+        
+        if (newerCommonReadReceived) {
+            self->_room.lastCommonReadMessage = lastCommonReadMessage;
+            [[NCRoomsManager sharedInstance] updateLastCommonReadMessage:lastCommonReadMessage forRoom:self->_room];
+            
+            NSMutableDictionary *userInfo = [NSMutableDictionary new];
+            [userInfo setObject:self->_room.token forKey:@"room"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveNewerCommonReadMessageNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+        }
+    }
 }
 
 - (BOOL)isChatBeingBlocked:(NSInteger)statusCode
