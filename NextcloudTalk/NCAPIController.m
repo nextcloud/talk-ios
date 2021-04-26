@@ -1319,8 +1319,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         [realm commitWriteTransaction];
         
         NSData *pngData = UIImagePNGRepresentation(responseObject);
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentsPath = [paths objectAtIndex:0];
+        NSString *documentsPath = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] path];
         NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
         NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
         [pngData writeToFile:filePath atomically:YES];
@@ -1332,10 +1331,21 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (UIImage *)userProfileImageForAccount:(TalkAccount *)account withSize:(CGSize)size
 {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsPath = [paths objectAtIndex:0];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *documentsPath = [[fileManager containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] path];
     NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
     NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
+    
+    // Migrate to app group directory
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *oldDocumentsPath = [paths objectAtIndex:0];
+    NSString *oldPath = [oldDocumentsPath stringByAppendingPathComponent:fileName];
+    if ([fileManager fileExistsAtPath:oldPath]) {
+        NSError *error = nil;
+        [fileManager moveItemAtPath:oldPath toPath:filePath error:&error];
+        NSLog(@"Migrating profile picture. Error: %@", error);
+    }
+    
     return [self imageWithImage:[UIImage imageWithContentsOfFile:filePath] convertToSize:size];
 }
 

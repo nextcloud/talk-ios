@@ -44,8 +44,9 @@
     NSMutableArray *_rooms;
     PlaceholderView *_roomsBackgroundView;
     PlaceholderView *_roomSearchBackgroundView;
-    TalkAccount *_activeAccount;
+    TalkAccount *_shareAccount;
     ServerCapabilities *_serverCapabilities;
+    RLMRealm *_realm;
 }
 
 @end
@@ -101,18 +102,8 @@
         // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
     };
     NSError *error = nil;
-    RLMRealm *realm = [RLMRealm realmWithConfiguration:configuration error:&error];
-    TalkAccount *managedActiveAccount = [TalkAccount objectsInRealm:realm where:(@"active = true")].firstObject;
-    if (managedActiveAccount) {
-        _activeAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
-        NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:_activeAccount.accountId witRealm:realm];
-        _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
-        NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", _activeAccount.accountId];
-        ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsInRealm:realm withPredicate:query].firstObject;
-        if (managedServerCapabilities) {
-            _serverCapabilities = [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
-        }
-    }
+    _realm = [RLMRealm realmWithConfiguration:configuration error:&error];
+    [self setupShareViewForAccount:nil];
     
     // Configure table views
     NSBundle *bundle = [NSBundle bundleForClass:[ShareTableViewCell class]];
@@ -220,6 +211,102 @@
 {
     NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
     [self.extensionContext cancelRequestWithError:error];
+}
+
+#pragma mark - Accounts
+
+- (void)setProfileButtonForAccount:(TalkAccount *)account
+{
+    UIButton *profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [profileButton addTarget:self action:@selector(showAccountSelector) forControlEvents:UIControlEventTouchUpInside];
+    profileButton.frame = CGRectMake(0, 0, 30, 30);
+    profileButton.accessibilityLabel = NSLocalizedString(@"User profile and settings", nil);
+    profileButton.accessibilityHint = NSLocalizedString(@"Double tap to go to user profile and application settings", nil);
+    
+    UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(90, 90)];
+    if (profileImage) {
+        UIGraphicsBeginImageContextWithOptions(profileButton.bounds.size, NO, 3.0);
+        [[UIBezierPath bezierPathWithRoundedRect:profileButton.bounds cornerRadius:profileButton.bounds.size.height] addClip];
+        [profileImage drawInRect:profileButton.bounds];
+        profileImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        [profileButton setImage:profileImage forState:UIControlStateNormal];
+    } else {
+        UIImage *profileImage = [[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [profileButton setImage:profileImage forState:UIControlStateNormal];
+        profileButton.contentMode = UIViewContentModeCenter;
+    }
+    
+    UIBarButtonItem *profileBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:profileButton];
+    if (@available(iOS 11.0, *)) {
+        NSLayoutConstraint *width = [profileBarButtonItem.customView.widthAnchor constraintEqualToConstant:30];
+        width.active = YES;
+        NSLayoutConstraint *height = [profileBarButtonItem.customView.heightAnchor constraintEqualToConstant:30];
+        height.active = YES;
+    }
+    
+    [self.navigationItem setRightBarButtonItem:profileBarButtonItem];
+}
+
+- (void)setupShareViewForAccount:(TalkAccount *)account
+{
+    _shareAccount = account;
+    if (!account) {
+        TalkAccount *managedActiveAccount = [TalkAccount objectsInRealm:_realm where:(@"active = true")].firstObject;
+        if (managedActiveAccount) {
+            _shareAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
+        } else {
+            // No account is configured in the app yet
+            return;
+        }
+    }
+    
+    // Show account button selector if there are more than one account
+    if ([TalkAccount allObjectsInRealm:_realm].count > 1) {
+        [self setProfileButtonForAccount:_shareAccount];
+    }
+    
+    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:_shareAccount.accountId witRealm:_realm];
+    _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", _shareAccount.accountId];
+    ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsInRealm:_realm withPredicate:query].firstObject;
+    if (managedServerCapabilities) {
+        _serverCapabilities = [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
+    }
+    
+    [self.tableView reloadData];
+}
+
+- (void)showAccountSelector
+{
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Accounts", nil)
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    NSMutableArray *allAccounts = [NSMutableArray new];
+    for (TalkAccount *managedAccount in [TalkAccount allObjects]) {
+        TalkAccount *account = [[TalkAccount alloc] initWithValue:managedAccount];
+        [allAccounts addObject:account];
+        
+        UIAlertAction *action = [UIAlertAction actionWithTitle:account.userDisplayName
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^void (UIAlertAction *action) {
+                                                           [self setupShareViewForAccount:account];
+                                                       }];
+        if ([_shareAccount.accountId isEqualToString:account.accountId]) {
+            [action setValue:[[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        }
+        
+        [optionsActionSheet addAction:action];
+    }
+    
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.barButtonItem = self.navigationItem.rightBarButtonItem;
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
 #pragma mark - Shared items
@@ -377,7 +464,7 @@
     switch (room.type) {
         case kNCRoomTypeOneToOne:
         {
-            NSURLRequest *request = [[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:_activeAccount];
+            NSURLRequest *request = [[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:_shareAccount];
             [cell.avatarImageView setImageWithURLRequest:request placeholderImage:nil success:nil failure:nil];
             [cell.avatarImageView setContentMode:UIViewContentModeScaleToFill];
         }
@@ -421,7 +508,7 @@
         isFilteredTable = YES;
     }
     
-    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:room account:_activeAccount serverCapabilities:_serverCapabilities];
+    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:room account:_shareAccount serverCapabilities:_serverCapabilities];
     shareConfirmationVC.delegate = self;
     [self setSharedItemToShareConfirmationViewController:shareConfirmationVC];
     [self.navigationController pushViewController:shareConfirmationVC animated:YES];
