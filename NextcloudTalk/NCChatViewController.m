@@ -60,6 +60,7 @@
 #import "BarButtonItemWithActivity.h"
 #import "ShareItem.h"
 #import "NCChatFileController.h"
+#import "ShareLocationViewController.h"
 #import <NCCommunication/NCCommunication.h>
 #import <QuickLook/QuickLook.h>
 
@@ -869,6 +870,13 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }];
     [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
+    UIAlertAction *shareLocationAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Location", nil)
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        [self presentShareLocation];
+    }];
+    [shareLocationAction setValue:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    
     UIAlertAction *filesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Files", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^void (UIAlertAction *action) {
@@ -888,6 +896,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }
     
     [optionsActionSheet addAction:photoLibraryAction];
+    [optionsActionSheet addAction:shareLocationAction];
     [optionsActionSheet addAction:filesAction];
     [optionsActionSheet addAction:ncFilesAction];
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
@@ -958,6 +967,13 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         self->_imagePicker.delegate = self;
         [self presentViewController:self->_imagePicker animated:YES completion:nil];
     });
+}
+
+- (void)presentShareLocation
+{
+    ShareLocationViewController *shareLocationVC = [[ShareLocationViewController alloc] init];
+    NCNavigationController *shareLocationNC = [[NCNavigationController alloc] initWithRootViewController:shareLocationVC];
+    [self presentViewController:shareLocationNC animated:YES completion:nil];
 }
 
 - (void)presentDocumentPicker
