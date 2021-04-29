@@ -26,10 +26,17 @@
 
 #import "NCAppBranding.h"
 
+typedef enum ShareLocationSection {
+    kShareLocationSectionCurrent = 0,
+    kShareLocationSectionNearby,
+    kShareLocationSectionNumber
+} ShareLocationSection;
+
 @interface ShareLocationViewController () <CLLocationManagerDelegate, MKMapViewDelegate, UITableViewDelegate, UITableViewDataSource>
 {
     CLLocationManager *_locationManager;
     CLLocation *_currentLocation;
+    NSArray *_nearbyPlaces;
     BOOL _hasBeenCentered;
 }
 
@@ -67,7 +74,7 @@
     NSLog(@"didChangeAuthorizationStatus: %d", status);
 }
 
-#pragma mark - CLLocationManagerDelegate
+#pragma mark - MKMapViewDelegate
 
 - (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
@@ -79,25 +86,79 @@
         [mapView setRegion:mapRegion animated: YES];
     }
     
-    _currentLocation = mapView.userLocation.location;
-    [self.tableView reloadData];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_currentLocation = mapView.userLocation.location;
+        [self.tableView reloadSections:[[NSIndexSet alloc] initWithIndex:kShareLocationSectionCurrent] withRowAnimation:UITableViewRowAnimationNone];
+    });
+}
+
+- (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
+{
+    [self searchForNearbyPlaces];
+}
+
+#pragma mark - Search places
+
+- (void)searchForNearbyPlaces
+{
+    if (@available(iOS 14.0, *)) {
+        MKLocalPointsOfInterestRequest *request = [[MKLocalPointsOfInterestRequest alloc] initWithCoordinateRegion:self.mapView.region];
+        MKLocalSearch *search = [[MKLocalSearch alloc] initWithPointsOfInterestRequest:request];
+        [search startWithCompletionHandler:^(MKLocalSearchResponse * _Nullable response, NSError * _Nullable error) {
+            if (response) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self->_nearbyPlaces = response.mapItems;
+                    [self.tableView reloadSections:[[NSIndexSet alloc] initWithIndex:kShareLocationSectionNearby] withRowAnimation:UITableViewRowAnimationNone];
+                });
+            }
+        }];
+    }
 }
 
 #pragma mark - UITableView delegate and data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 1;
+    if (section == kShareLocationSectionCurrent) {
+        return _currentLocation ? 1 : 0;
+    } else if (section == kShareLocationSectionNearby) {
+        return _nearbyPlaces.count;
+    }
+    return 0;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return kShareLocationSectionNumber;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    if (section == kShareLocationSectionNearby && _nearbyPlaces.count > 0) {
+        return NSLocalizedString(@"Nearby places", nil);;
+    }
+    
+    return nil;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"UserLocationCellIdentifier"];
-    [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-    cell.textLabel.text = NSLocalizedString(@"Share current location", nil);
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"%@: %.0fm", NSLocalizedString(@"Accuracy", nil), _currentLocation.horizontalAccuracy];
+    if (indexPath.section == kShareLocationSectionCurrent) {
+        UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"UserLocationCellIdentifier"];
+        [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        cell.textLabel.text = NSLocalizedString(@"Share current location", nil);
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@: %.0fm", NSLocalizedString(@"Accuracy", nil), _currentLocation.horizontalAccuracy];
+        return cell;
+    } else if (indexPath.section == kShareLocationSectionNearby) {
+        MKMapItem *nearbyPlace = [_nearbyPlaces objectAtIndex:indexPath.row];
+        UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"NearbyLocationCellIdentifier"];
+        [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        cell.imageView.tintColor = [NCAppBranding placeholderColor];
+        cell.textLabel.text = nearbyPlace.name;
+        return cell;
+    }
     
-    return cell;
+    return nil;
 }
 
 @end
