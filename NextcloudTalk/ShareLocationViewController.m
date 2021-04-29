@@ -25,6 +25,7 @@
 #import <CoreLocation/CoreLocation.h>
 
 #import "NCAppBranding.h"
+#import "NCUtils.h"
 
 typedef enum ShareLocationSection {
     kShareLocationSectionCurrent = 0,
@@ -32,11 +33,14 @@ typedef enum ShareLocationSection {
     kShareLocationSectionNumber
 } ShareLocationSection;
 
-@interface ShareLocationViewController () <CLLocationManagerDelegate, MKMapViewDelegate, UITableViewDelegate, UITableViewDataSource>
+@interface ShareLocationViewController () <CLLocationManagerDelegate, MKMapViewDelegate, UITableViewDelegate, UITableViewDataSource, UISearchControllerDelegate, UISearchResultsUpdating>
 {
+    UISearchController *_searchController;
+    UITableViewController *_resultTableViewController;
     CLLocationManager *_locationManager;
     CLLocation *_currentLocation;
     NSArray *_nearbyPlaces;
+    NSArray *_searchedPlaces;
     BOOL _hasBeenCentered;
 }
 
@@ -65,6 +69,56 @@ typedef enum ShareLocationSection {
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    // Only make search available on iOS 13+
+    if (@available(iOS 13.0, *)) {
+        _resultTableViewController = [[UITableViewController alloc] init];
+        _resultTableViewController.tableView.delegate = self;
+        _resultTableViewController.tableView.dataSource = self;
+        _resultTableViewController.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        
+        _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
+        _searchController.delegate = self;
+        _searchController.searchResultsUpdater = self;
+        [_searchController.searchBar sizeToFit];
+        
+        UIColor *themeColor = [NCAppBranding themeColor];
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        appearance.backgroundColor = themeColor;
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+        self.navigationItem.standardAppearance = appearance;
+        self.navigationItem.compactAppearance = appearance;
+        self.navigationItem.scrollEdgeAppearance = appearance;
+
+        self.navigationItem.searchController = _searchController;
+        self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
+        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
+        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+        UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
+        searchTextField.tintColor = [NCAppBranding themeTextColor];
+        searchTextField.textColor = [NCAppBranding themeTextColor];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Search bar placeholder
+            searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search for places", nil)
+            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
+            // Search bar search icon
+            UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
+            searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
+            // Search bar search clear button
+            UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
+            [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
+            [clearButton setTintColor:[NCAppBranding themeTextColor]];
+        });
+        
+        // Place resultTableViewController correctly
+        self.definesPresentationContext = YES;
+        
+        // Fix uisearchcontroller animation
+        self.extendedLayoutIncludesOpaqueBars = YES;
+    }
 }
 
 #pragma mark - CLLocationManagerDelegate
@@ -115,20 +169,52 @@ typedef enum ShareLocationSection {
     }
 }
 
+- (void)searchForPlacesWithString:(NSString *)searchString
+{
+    if (@available(iOS 13.0, *)) {
+        MKLocalSearchRequest *request = [[MKLocalSearchRequest alloc] initWithNaturalLanguageQuery:searchString];
+        MKLocalSearch *search = [[MKLocalSearch alloc] initWithRequest:request];
+        [search startWithCompletionHandler:^(MKLocalSearchResponse * _Nullable response, NSError * _Nullable error) {
+            if (response) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self->_searchedPlaces = response.mapItems;
+                    [self->_resultTableViewController.tableView reloadData];
+                });
+            }
+        }];
+    }
+}
+
+#pragma mark - Search controller
+
+- (void)updateSearchResultsForSearchController:(UISearchController *)searchController
+{
+    [self searchForPlacesWithString:_searchController.searchBar.text];
+}
+
 #pragma mark - UITableView delegate and data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    if (tableView == _resultTableViewController.tableView) {
+        return _searchedPlaces.count;
+    }
+    
     if (section == kShareLocationSectionCurrent) {
         return _currentLocation ? 1 : 0;
     } else if (section == kShareLocationSectionNearby) {
         return _nearbyPlaces.count;
     }
+    
     return 0;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
+    if (tableView == _resultTableViewController.tableView) {
+        return 1;
+    }
+    
     return kShareLocationSectionNumber;
 }
 
@@ -143,6 +229,17 @@ typedef enum ShareLocationSection {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    // Search result table view
+    if (tableView == _resultTableViewController.tableView) {
+        MKMapItem *nearbyPlace = [_searchedPlaces objectAtIndex:indexPath.row];
+        UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"NearbyLocationCellIdentifier"];
+        [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        cell.imageView.tintColor = [NCAppBranding placeholderColor];
+        cell.textLabel.text = nearbyPlace.name;
+        return cell;
+    }
+    
+    // Main view table view
     if (indexPath.section == kShareLocationSectionCurrent) {
         UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"UserLocationCellIdentifier"];
         [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
