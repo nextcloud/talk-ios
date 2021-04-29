@@ -70,6 +70,10 @@ typedef enum ShareLocationSection {
     self.tableView.dataSource = self;
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                  target:self action:@selector(cancelButtonPressed)];
+    self.navigationItem.leftBarButtonItem = cancelButton;
+    
     // Only make search available on iOS 13+
     if (@available(iOS 13.0, *)) {
         _resultTableViewController = [[UITableViewController alloc] init];
@@ -149,6 +153,13 @@ typedef enum ShareLocationSection {
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
     [self searchForNearbyPlaces];
+}
+
+#pragma mark - Actions
+
+- (void)cancelButtonPressed
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - Search places
