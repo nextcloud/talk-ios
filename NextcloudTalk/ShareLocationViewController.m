@@ -247,6 +247,17 @@ typedef enum ShareLocationSection {
         [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         cell.imageView.tintColor = [NCAppBranding placeholderColor];
         cell.textLabel.text = nearbyPlace.name;
+        NSString *subtitle = nil;
+        if (nearbyPlace.placemark.thoroughfare && nearbyPlace.placemark.subThoroughfare) {
+            subtitle = [NSString stringWithFormat:@"%@ %@, ", nearbyPlace.placemark.thoroughfare, nearbyPlace.placemark.subThoroughfare];
+        }
+        if (nearbyPlace.placemark.locality) {
+            subtitle = [subtitle stringByAppendingString:[NSString stringWithFormat:@"%@, ", nearbyPlace.placemark.locality]];
+        }
+        if (nearbyPlace.placemark.country) {
+            subtitle = [subtitle stringByAppendingString:[NSString stringWithFormat:@"%@", nearbyPlace.placemark.country]];;
+        }
+        cell.detailTextLabel.text = subtitle;
         return cell;
     }
     
