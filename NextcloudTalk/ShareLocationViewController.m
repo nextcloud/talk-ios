@@ -132,13 +132,37 @@ typedef enum ShareLocationSection {
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
-    NSLog(@"didChangeAuthorizationStatus: %d", status);
+    _myLocationButton.hidden = YES;
+    if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways) {
+        _myLocationButton.hidden = NO;
+    } else if (status == kCLAuthorizationStatusNotDetermined) {
+        [_locationManager requestWhenInUseAuthorization];
+    } else if (status == kCLAuthorizationStatusDenied) {
+        [self showAuthorizationStatusDeniedAlert];
+    }
+}
+
+- (void)showAuthorizationStatusDeniedAlert
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Could not access your location", nil)
+                                 message:NSLocalizedString(@"Location service has been denied. Check your settings.", nil)
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 #pragma mark - MKMapViewDelegate
 
 - (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
+    // Center the map view the first time the user location is updated
     if (!_hasBeenCentered) {
         _hasBeenCentered = YES;
         [self centerMapViewToUserLocation];
