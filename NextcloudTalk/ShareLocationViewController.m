@@ -149,12 +149,13 @@ typedef enum ShareLocationSection {
                                  message:NSLocalizedString(@"Location service has been denied. Check your settings.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction* okButton = [UIAlertAction
-                               actionWithTitle:NSLocalizedString(@"OK", nil)
-                               style:UIAlertActionStyleDefault
-                               handler:nil];
-    
-    [alert addAction:okButton];
+    UIAlertAction* settingsButton = [UIAlertAction actionWithTitle:NSLocalizedString(@"Settings", nil)
+                                                             style:UIAlertActionStyleDefault
+                                                           handler:^(UIAlertAction * _Nonnull action) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
+    }];
+    [alert addAction:settingsButton];
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];
 }
 
