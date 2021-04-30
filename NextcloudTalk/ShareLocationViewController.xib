@@ -12,6 +12,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ShareLocationViewController">
             <connections>
                 <outlet property="mapView" destination="xqt-QL-SJa" id="Koa-J5-idi"/>
+                <outlet property="myLocationButton" destination="o0u-Ji-zSj" id="SfC-BU-GMZ"/>
                 <outlet property="tableView" destination="ktb-ke-uLa" id="GST-Ll-Tkr"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
@@ -30,13 +31,31 @@
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                 </tableView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="o0u-Ji-zSj">
+                    <rect key="frame" x="366" y="94" width="44" height="44"/>
+                    <color key="backgroundColor" white="0.5" alpha="0.94536939204133896" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="44" id="ZwI-WX-BJp"/>
+                        <constraint firstAttribute="width" constant="44" id="aKN-KS-125"/>
+                    </constraints>
+                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <state key="normal" image="my-location-fill"/>
+                    <connections>
+                        <action selector="myLocationButtonPressed:" destination="-1" eventType="touchUpInside" id="SXa-lf-mTF"/>
+                    </connections>
+                </button>
             </subviews>
             <viewLayoutGuide key="safeArea" id="Q5M-cg-NOt"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="o0u-Ji-zSj" firstAttribute="top" secondItem="Q5M-cg-NOt" secondAttribute="top" constant="50" id="51C-fw-6QL"/>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="o0u-Ji-zSj" secondAttribute="trailing" constant="4" id="6z2-zI-L8M"/>
+            </constraints>
             <point key="canvasLocation" x="137.68115942028987" y="80.357142857142847"/>
         </view>
     </objects>
     <resources>
+        <image name="my-location-fill" width="24" height="24"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

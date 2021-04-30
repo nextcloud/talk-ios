@@ -66,6 +66,9 @@ typedef enum ShareLocationSection {
     self.mapView.delegate = self;
     self.mapView.showsUserLocation = YES;
     
+    self.myLocationButton.layer.cornerRadius = 22;
+    self.myLocationButton.clipsToBounds = YES;
+    
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
@@ -138,10 +141,7 @@ typedef enum ShareLocationSection {
 {
     if (!_hasBeenCentered) {
         _hasBeenCentered = YES;
-        MKCoordinateRegion mapRegion;
-        mapRegion.center = mapView.userLocation.coordinate;
-        mapRegion.span = MKCoordinateSpanMake(0.01, 0.01);
-        [mapView setRegion:mapRegion animated: YES];
+        [self centerMapViewToUserLocation];
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -160,6 +160,21 @@ typedef enum ShareLocationSection {
 - (void)cancelButtonPressed
 {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)myLocationButtonPressed:(id)sender
+{
+    [self centerMapViewToUserLocation];
+}
+
+#pragma mark - Map View
+
+- (void)centerMapViewToUserLocation
+{
+    MKCoordinateRegion mapRegion;
+    mapRegion.center = self.mapView.userLocation.coordinate;
+    mapRegion.span = MKCoordinateSpanMake(0.01, 0.01);
+    [self.mapView setRegion:mapRegion animated: YES];
 }
 
 #pragma mark - Search places
