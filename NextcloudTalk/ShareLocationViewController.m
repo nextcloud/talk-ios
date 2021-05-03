@@ -24,7 +24,9 @@
 
 #import <CoreLocation/CoreLocation.h>
 
+#import "GeoLocationRichObject.h"
 #import "NCAppBranding.h"
+#import "NCAPIController.h"
 #import "NCUtils.h"
 
 typedef enum ShareLocationSection {
@@ -282,20 +284,20 @@ typedef enum ShareLocationSection {
 {
     // Search result table view
     if (tableView == _resultTableViewController.tableView) {
-        MKMapItem *nearbyPlace = [_searchedPlaces objectAtIndex:indexPath.row];
-        UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"NearbyLocationCellIdentifier"];
+        MKMapItem *searchedPlace = [_searchedPlaces objectAtIndex:indexPath.row];
+        UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"SearchedLocationCellIdentifier"];
         [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         cell.imageView.tintColor = [NCAppBranding placeholderColor];
-        cell.textLabel.text = nearbyPlace.name;
+        cell.textLabel.text = searchedPlace.name;
         NSString *subtitle = nil;
-        if (nearbyPlace.placemark.thoroughfare && nearbyPlace.placemark.subThoroughfare) {
-            subtitle = [NSString stringWithFormat:@"%@ %@, ", nearbyPlace.placemark.thoroughfare, nearbyPlace.placemark.subThoroughfare];
+        if (searchedPlace.placemark.thoroughfare && searchedPlace.placemark.subThoroughfare) {
+            subtitle = [NSString stringWithFormat:@"%@ %@, ", searchedPlace.placemark.thoroughfare, searchedPlace.placemark.subThoroughfare];
         }
-        if (nearbyPlace.placemark.locality) {
-            subtitle = [subtitle stringByAppendingString:[NSString stringWithFormat:@"%@, ", nearbyPlace.placemark.locality]];
+        if (searchedPlace.placemark.locality) {
+            subtitle = [subtitle stringByAppendingString:[NSString stringWithFormat:@"%@, ", searchedPlace.placemark.locality]];
         }
-        if (nearbyPlace.placemark.country) {
-            subtitle = [subtitle stringByAppendingString:[NSString stringWithFormat:@"%@", nearbyPlace.placemark.country]];;
+        if (searchedPlace.placemark.country) {
+            subtitle = [subtitle stringByAppendingString:[NSString stringWithFormat:@"%@", searchedPlace.placemark.country]];;
         }
         cell.detailTextLabel.text = subtitle;
         return cell;
@@ -322,6 +324,23 @@ typedef enum ShareLocationSection {
     }
     
     return nil;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // Search result table view
+    if (tableView == _resultTableViewController.tableView) {
+        MKMapItem *searchedPlace = [_searchedPlaces objectAtIndex:indexPath.row];
+        [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:searchedPlace.placemark.location.coordinate.latitude longitude:searchedPlace.placemark.location.coordinate.longitude andName:searchedPlace.name];
+    }
+    
+    // Main view table view
+    if (indexPath.section == kShareLocationSectionCurrent) {
+        [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:_currentLocation.coordinate.latitude longitude:_currentLocation.coordinate.longitude andName:NSLocalizedString(@"My location", nil)];
+    } else if (indexPath.section == kShareLocationSectionNearby) {
+        MKMapItem *nearbyPlace = [_nearbyPlaces objectAtIndex:indexPath.row];
+        [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:nearbyPlace.placemark.location.coordinate.latitude longitude:nearbyPlace.placemark.location.coordinate.longitude andName:nearbyPlace.name];
+    }
 }
 
 @end

@@ -20,24 +20,22 @@
  *
  */
 
-#import <UIKit/UIKit.h>
-#import <MapKit/MapKit.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class ShareLocationViewController;
-@protocol ShareLocationViewControllerDelegate <NSObject>
+extern NSString * const GeoLocationRichObjectType;
 
-- (void)shareLocationViewController:(ShareLocationViewController *)viewController didSelectLocationWithLatitude:(double)latitude longitude:(double)longitude andName:(NSString *)name;
+@interface GeoLocationRichObject : NSObject
 
-@end
+@property (nonatomic, copy) NSString *objectType;
+@property (nonatomic, copy) NSString *objectId;
+@property (nonatomic, copy) NSString *latitude;
+@property (nonatomic, copy) NSString *longitude;
+@property (nonatomic, copy) NSString *name;
 
-@interface ShareLocationViewController : UIViewController
-
-@property (nonatomic, weak) id<ShareLocationViewControllerDelegate> delegate;
-@property (weak, nonatomic) IBOutlet MKMapView *mapView;
-@property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (weak, nonatomic) IBOutlet UIButton *myLocationButton;
++ (instancetype)geoLocationRichObjectWithLatitude:(double)latitude longitude:(double)longitude name:(NSString *)name;
+- (NSDictionary *)richObjectDictionary;
 
 @end
 

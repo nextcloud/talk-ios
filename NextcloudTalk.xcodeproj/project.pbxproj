@@ -275,6 +275,9 @@
 		2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */; };
 		2CB6ACC026385A3800D3D641 /* ShareLocationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */; };
 		2CB6ACC126385A3800D3D641 /* ShareLocationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */; };
+		2CB6ACCA26401D5200D3D641 /* GeoLocationRichObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */; };
+		2CB6ACCB26401D5200D3D641 /* GeoLocationRichObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */; };
+		2CB6ACCC26401D5200D3D641 /* GeoLocationRichObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */; };
 		2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
 		2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
@@ -769,6 +772,8 @@
 		2CB6ACB926385A3800D3D641 /* ShareLocationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareLocationViewController.h; sourceTree = "<group>"; };
 		2CB6ACBA26385A3800D3D641 /* ShareLocationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareLocationViewController.m; sourceTree = "<group>"; };
 		2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShareLocationViewController.xib; sourceTree = "<group>"; };
+		2CB6ACC826401D5100D3D641 /* GeoLocationRichObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeoLocationRichObject.h; sourceTree = "<group>"; };
+		2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GeoLocationRichObject.m; sourceTree = "<group>"; };
 		2CBF82AC1FC888FC00636459 /* NCPushNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushNotification.h; sourceTree = "<group>"; };
 		2CBF82AD1FC888FC00636459 /* NCPushNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushNotification.m; sourceTree = "<group>"; };
 		2CBF82B01FCC7DBA00636459 /* CCCertificate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCCertificate.h; sourceTree = "<group>"; };
@@ -1425,6 +1430,8 @@
 				2CB6ACB926385A3800D3D641 /* ShareLocationViewController.h */,
 				2CB6ACBA26385A3800D3D641 /* ShareLocationViewController.m */,
 				2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */,
+				2CB6ACC826401D5100D3D641 /* GeoLocationRichObject.h */,
+				2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */,
 			);
 			name = Maps;
 			sourceTree = "<group>";
@@ -1899,6 +1906,7 @@
 				2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */,
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
 				2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */,
+				2CB6ACCA26401D5200D3D641 /* GeoLocationRichObject.m in Sources */,
 				2C415F9B2136BDD6005F7F37 /* FileMessageTableViewCell.m in Sources */,
 				2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */,
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
@@ -2004,6 +2012,7 @@
 				1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C62AFF824C1BDA5007E460A /* QuotedMessageView.m in Sources */,
 				2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */,
+				2CB6ACCC26401D5200D3D641 /* GeoLocationRichObject.m in Sources */,
 				2C62B00624C1BDB9007E460A /* LoginViewController.m in Sources */,
 				2C62AFEF24C1BD9F007E460A /* ChatMessageTableViewCell.m in Sources */,
 				2C62B02A24C1BDCF007E460A /* VideoResolutionsViewController.m in Sources */,
@@ -2209,6 +2218,7 @@
 				1F3D3B23255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
 				2CC001D024A37ACA00A20167 /* RoomTableViewCell.m in Sources */,
 				2CB6ACBD26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
+				2CB6ACCB26401D5200D3D641 /* GeoLocationRichObject.m in Sources */,
 				2CC0015D24A257B800A20167 /* NCSettingsController.m in Sources */,
 				2CC0017424A3796400A20167 /* NCAPISessionManager.m in Sources */,
 				2CC0016324A25B7400A20167 /* NCDatabaseManager.m in Sources */,
