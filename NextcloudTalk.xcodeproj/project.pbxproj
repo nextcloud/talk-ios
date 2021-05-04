@@ -278,6 +278,12 @@
 		2CB6ACCA26401D5200D3D641 /* GeoLocationRichObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */; };
 		2CB6ACCB26401D5200D3D641 /* GeoLocationRichObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */; };
 		2CB6ACCC26401D5200D3D641 /* GeoLocationRichObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */; };
+		2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */; };
+		2CB6ACD32640814100D3D641 /* LocationMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */; };
+		2CB6ACD42640814100D3D641 /* LocationMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */; };
+		2CB6ACDA2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
+		2CB6ACDB2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
+		2CB6ACDC2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
 		2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
 		2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
@@ -774,6 +780,10 @@
 		2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShareLocationViewController.xib; sourceTree = "<group>"; };
 		2CB6ACC826401D5100D3D641 /* GeoLocationRichObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeoLocationRichObject.h; sourceTree = "<group>"; };
 		2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GeoLocationRichObject.m; sourceTree = "<group>"; };
+		2CB6ACD02640814100D3D641 /* LocationMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocationMessageTableViewCell.h; sourceTree = "<group>"; };
+		2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocationMessageTableViewCell.m; sourceTree = "<group>"; };
+		2CB6ACD82641483800D3D641 /* NCMessageLocationParameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCMessageLocationParameter.h; sourceTree = "<group>"; };
+		2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCMessageLocationParameter.m; sourceTree = "<group>"; };
 		2CBF82AC1FC888FC00636459 /* NCPushNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushNotification.h; sourceTree = "<group>"; };
 		2CBF82AD1FC888FC00636459 /* NCPushNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushNotification.m; sourceTree = "<group>"; };
 		2CBF82B01FCC7DBA00636459 /* CCCertificate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCCertificate.h; sourceTree = "<group>"; };
@@ -1205,6 +1215,8 @@
 				2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */,
 				2C415F992136BDD6005F7F37 /* FileMessageTableViewCell.h */,
 				2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */,
+				2CB6ACD02640814100D3D641 /* LocationMessageTableViewCell.h */,
+				2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */,
 				2CA155542099E07700CE8EF0 /* GroupedChatMessageTableViewCell.h */,
 				2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */,
 				2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */,
@@ -1477,6 +1489,8 @@
 				2C43BA7521309A1000B3068A /* NCMessageParameter.m */,
 				1FEDE3CD257D43AB00853F79 /* NCMessageFileParameter.h */,
 				1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */,
+				2CB6ACD82641483800D3D641 /* NCMessageLocationParameter.h */,
+				2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -1894,6 +1908,7 @@
 				1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */,
 				2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */,
+				2CB6ACDA2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */,
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
 				2C1ABDA125769F8400AEDFB6 /* ShareItemController.m in Sources */,
@@ -1975,6 +1990,7 @@
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */,
 				2CF9CBDB26010835002246EF /* UserProfileViewController.m in Sources */,
+				2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
 				2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
@@ -2034,6 +2050,7 @@
 				2C62AFF024C1BD9F007E460A /* FileMessageTableViewCell.m in Sources */,
 				2C62B00C24C1BDC1007E460A /* NCNotification.m in Sources */,
 				2C62B01B24C1BDC9007E460A /* CCBKPasscode.m in Sources */,
+				2CB6ACDC2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				2C62AFF524C1BDA5007E460A /* MessageBodyTextView.m in Sources */,
 				2C62B03024C1BDDC007E460A /* NCPeerConnection.m in Sources */,
 				2C62AFFB24C1BDA5007E460A /* NCChatController.m in Sources */,
@@ -2051,6 +2068,7 @@
 				2C62AFF924C1BDA5007E460A /* ReplyMessageView.m in Sources */,
 				2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */,
 				2C62AFED24C1BD99007E460A /* NCAudioController.m in Sources */,
+				2CB6ACD42640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
 				2C62AFF624C1BDA5007E460A /* NCChatTitleView.m in Sources */,
 				2C62B01624C1BDC5007E460A /* RoomNameTableViewCell.m in Sources */,
 				2C62B01824C1BDC5007E460A /* RoomInfoTableViewController.m in Sources */,
@@ -2138,6 +2156,7 @@
 				2CC0018024A37A5500A20167 /* UIResponder+SLKAdditions.m in Sources */,
 				2CC001B024A37A9500A20167 /* MessageBodyTextView.m in Sources */,
 				2CC001DD24A37AD400A20167 /* NCUtils.m in Sources */,
+				2CB6ACD32640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
 				2CC0019B24A37A8100A20167 /* ARDCaptureController.m in Sources */,
 				2CC0017B24A37A4800A20167 /* SLKTextInputbar.m in Sources */,
 				2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */,
@@ -2182,6 +2201,7 @@
 				2CC001AD24A37A8F00A20167 /* SystemMessageTableViewCell.m in Sources */,
 				2CC001E824A37ADF00A20167 /* NCSignalingMessage.m in Sources */,
 				2CC0019924A37A7700A20167 /* OpenInFirefoxControllerObjC.m in Sources */,
+				2CB6ACDB2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				2CC001A624A37A8B00A20167 /* AvatarBackgroundImageView.m in Sources */,
 				2CC001B424A37A9500A20167 /* ReplyMessageView.m in Sources */,
 				2CC001D424A37ACA00A20167 /* RoomNameTableViewCell.m in Sources */,

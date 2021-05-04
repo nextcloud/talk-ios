@@ -22,23 +22,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "NCMessageLocationParameter.h"
+#import "NCMessageParameter.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const GeoLocationRichObjectType;
+@interface NCMessageLocationParameter : NCMessageParameter
 
-@interface GeoLocationRichObject : NSObject
-
-@property (nonatomic, copy) NSString *objectType;
-@property (nonatomic, copy) NSString *objectId;
-@property (nonatomic, copy) NSString *latitude;
-@property (nonatomic, copy) NSString *longitude;
-@property (nonatomic, copy) NSString *name;
-
-+ (instancetype)geoLocationRichObjectWithLatitude:(double)latitude longitude:(double)longitude name:(NSString *)name;
-+ (instancetype)geoLocationRichObjectFromMessageLocationParameter:(NCMessageLocationParameter *)parameter;
-- (NSDictionary *)richObjectDictionary;
+@property (nonatomic, strong) NSString *latitude;
+@property (nonatomic, strong) NSString *longitude;
 
 @end
 

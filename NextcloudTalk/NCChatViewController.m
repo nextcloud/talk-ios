@@ -30,10 +30,11 @@
 #import "DirectoryTableViewController.h"
 #import "GroupedChatMessageTableViewCell.h"
 #import "FileMessageTableViewCell.h"
-#import "FTPopOverMenu.h"
+#import "LocationMessageTableViewCell.h"
 #import "SystemMessageTableViewCell.h"
 #import "MessageSeparatorTableViewCell.h"
 #import "DateHeaderView.h"
+#import "FTPopOverMenu.h"
 #import "PlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -239,6 +240,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:FileMessageCellIdentifier];
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:GroupedFileMessageCellIdentifier];
+    [self.tableView registerClass:[LocationMessageTableViewCell class] forCellReuseIdentifier:LocationMessageCellIdentifier];
+    [self.tableView registerClass:[LocationMessageTableViewCell class] forCellReuseIdentifier:GroupedLocationMessageCellIdentifier];
     [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:SystemMessageCellIdentifier];
     [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:InvisibleSystemMessageCellIdentifier];
     [self.tableView registerClass:[MessageSeparatorTableViewCell class] forCellReuseIdentifier:MessageSeparatorCellIdentifier];
@@ -2198,6 +2201,15 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
         return fileCell;
     }
+    if (message.geoLocation) {
+        NSString *locationCellIdentifier = (message.isGroupMessage) ? GroupedLocationMessageCellIdentifier : LocationMessageCellIdentifier;
+        LocationMessageTableViewCell *locationCell = (LocationMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:locationCellIdentifier];
+//        locationCell.delegate = self;
+        
+        [locationCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
+
+        return locationCell;
+    }
     if (message.parent) {
         ChatMessageTableViewCell *replyCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
         replyCell.delegate = self;
@@ -2288,6 +2300,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
     if (message.file) {
         height += kFileMessageCellFilePreviewHeight + 15;
+    }
+    
+    if (message.geoLocation) {
+        height += kLocationMessageCellPreviewHeight + 15;
     }
     
     return height;

@@ -39,6 +39,17 @@ NSString * const GeoLocationRichObjectType = @"geo-location";
     return object;
 }
 
++ (instancetype)geoLocationRichObjectFromMessageLocationParameter:(NCMessageLocationParameter *)parameter
+{
+    GeoLocationRichObject *richObject = [[self alloc] init];
+    richObject.objectType = parameter.type;
+    richObject.objectId = parameter.parameterId;
+    richObject.latitude = parameter.latitude;
+    richObject.longitude = parameter.longitude;
+    richObject.name = parameter.name;
+    return richObject;
+}
+
 - (NSDictionary *)metaData
 {
     return @{

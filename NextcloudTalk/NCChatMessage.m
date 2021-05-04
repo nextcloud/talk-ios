@@ -36,6 +36,7 @@ NSString * const kMessageTypeCommand        = @"command";
 @interface NCChatMessage ()
 {
     NCMessageFileParameter *_fileParameter;
+    NCMessageLocationParameter *_locationParameter;
 }
 
 @end
@@ -201,6 +202,21 @@ NSString * const kMessageTypeCommand        = @"command";
     }
 
     return _fileParameter;
+}
+
+- (NCMessageLocationParameter *)geoLocation;
+{
+    if (!_locationParameter) {
+        for (NSDictionary *parameterDict in [[self messageParameters] allValues]) {
+            NCMessageLocationParameter *parameter = [[NCMessageLocationParameter alloc] initWithDictionary:parameterDict] ;
+            if ([parameter.type isEqualToString:@"geo-location"]) {
+                _locationParameter = parameter;
+                break;
+            }
+        }
+    }
+
+    return _locationParameter;
 }
 
 - (NSDictionary *)messageParameters
