@@ -32,6 +32,7 @@
 #import "FileMessageTableViewCell.h"
 #import "LocationMessageTableViewCell.h"
 #import "SystemMessageTableViewCell.h"
+#import "MapViewController.h"
 #import "MessageSeparatorTableViewCell.h"
 #import "DateHeaderView.h"
 #import "FTPopOverMenu.h"
@@ -75,7 +76,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionOpenFileInNextcloud
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -2204,7 +2205,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     if (message.geoLocation) {
         NSString *locationCellIdentifier = (message.isGroupMessage) ? GroupedLocationMessageCellIdentifier : LocationMessageCellIdentifier;
         LocationMessageTableViewCell *locationCell = (LocationMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:locationCellIdentifier];
-//        locationCell.delegate = self;
+        locationCell.delegate = self;
         
         [locationCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
 
@@ -2483,6 +2484,15 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     NCChatFileController *downloader = [[NCChatFileController alloc] init];
     downloader.delegate = self;
     [downloader downloadFileFromMessage:fileParameter];
+}
+
+#pragma mark - LocationMessageTableViewCellDelegate
+
+- (void)cellWantsToOpenLocation:(GeoLocationRichObject *)geoLocationRichObject
+{
+    MapViewController *mapVC = [[MapViewController alloc] initWithGeoLocationRichObject:geoLocationRichObject];
+    NCNavigationController *mapNC = [[NCNavigationController alloc] initWithRootViewController:mapVC];
+    [self presentViewController:mapNC animated:YES completion:nil];
 }
 
 #pragma mark - ChatMessageTableViewCellDelegate

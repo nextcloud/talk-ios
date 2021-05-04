@@ -284,6 +284,12 @@
 		2CB6ACDA2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
 		2CB6ACDB2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
 		2CB6ACDC2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
+		2CB6ACE92641954700D3D641 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE72641954700D3D641 /* MapViewController.m */; };
+		2CB6ACEA2641954700D3D641 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE72641954700D3D641 /* MapViewController.m */; };
+		2CB6ACEB2641954700D3D641 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE72641954700D3D641 /* MapViewController.m */; };
+		2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
+		2CB6ACED2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
+		2CB6ACEE2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
 		2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
 		2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
@@ -784,6 +790,9 @@
 		2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocationMessageTableViewCell.m; sourceTree = "<group>"; };
 		2CB6ACD82641483800D3D641 /* NCMessageLocationParameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCMessageLocationParameter.h; sourceTree = "<group>"; };
 		2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCMessageLocationParameter.m; sourceTree = "<group>"; };
+		2CB6ACE62641954700D3D641 /* MapViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
+		2CB6ACE72641954700D3D641 /* MapViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
+		2CB6ACE82641954700D3D641 /* MapViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MapViewController.xib; sourceTree = "<group>"; };
 		2CBF82AC1FC888FC00636459 /* NCPushNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushNotification.h; sourceTree = "<group>"; };
 		2CBF82AD1FC888FC00636459 /* NCPushNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushNotification.m; sourceTree = "<group>"; };
 		2CBF82B01FCC7DBA00636459 /* CCCertificate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCCertificate.h; sourceTree = "<group>"; };
@@ -1444,6 +1453,9 @@
 				2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */,
 				2CB6ACC826401D5100D3D641 /* GeoLocationRichObject.h */,
 				2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */,
+				2CB6ACE62641954700D3D641 /* MapViewController.h */,
+				2CB6ACE72641954700D3D641 /* MapViewController.m */,
+				2CB6ACE82641954700D3D641 /* MapViewController.xib */,
 			);
 			name = Maps;
 			sourceTree = "<group>";
@@ -1682,6 +1694,7 @@
 				2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
 				2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
+				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 				2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */,
 			);
@@ -1698,6 +1711,7 @@
 				2C3195C324C5E2100066F221 /* ShareTableViewCell.xib in Resources */,
 				2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */,
 				1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */,
+				2CB6ACEE2641954700D3D641 /* MapViewController.xib in Resources */,
 				2C3195BD24C5A3D90066F221 /* ContactsTableViewCell.xib in Resources */,
 				2C62AFB624C1A449007E460A /* Share.storyboard in Resources */,
 				2C36A041261342FF0026F04A /* AvatarHeaderView.xib in Resources */,
@@ -1712,6 +1726,7 @@
 				1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */,
 				2CF9CC0026025F65002246EF /* TextInputTableViewCell.xib in Resources */,
 				2C36A040261342FF0026F04A /* AvatarHeaderView.xib in Resources */,
+				2CB6ACED2641954700D3D641 /* MapViewController.xib in Resources */,
 				2CB6ACC026385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1926,6 +1941,7 @@
 				2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */,
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
+				2CB6ACE92641954700D3D641 /* MapViewController.m in Sources */,
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
@@ -2107,6 +2123,7 @@
 				2C62AFF224C1BD9F007E460A /* SystemMessageTableViewCell.m in Sources */,
 				2C1ABDD0257E939600AEDFB6 /* NCContact.m in Sources */,
 				2C1ABDC8257A7CF100AEDFB6 /* NCContactsManager.m in Sources */,
+				2CB6ACEB2641954700D3D641 /* MapViewController.m in Sources */,
 				2C62B00524C1BDB9007E460A /* AuthenticationViewController.m in Sources */,
 				2C62B00124C1BDAA007E460A /* AddParticipantsTableViewController.m in Sources */,
 				2C62B00A24C1BDBD007E460A /* NCImageSessionManager.m in Sources */,
@@ -2257,6 +2274,7 @@
 				2CC001BC24A37AA700A20167 /* DirectoryTableViewController.m in Sources */,
 				2CC0016624A25BD600A20167 /* NCChatController.m in Sources */,
 				2CC001E024A37AD400A20167 /* UserSettingsTableViewCell.m in Sources */,
+				2CB6ACEA2641954700D3D641 /* MapViewController.m in Sources */,
 				2CC001E524A37ADB00A20167 /* UIBarButtonItem+Badge.m in Sources */,
 				2CC0016124A25B5500A20167 /* NCAPIController.m in Sources */,
 			);
