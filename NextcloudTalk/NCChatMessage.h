@@ -26,6 +26,7 @@
 #import "NCDatabaseManager.h"
 #import "NCMessageParameter.h"
 #import "NCMessageFileParameter.h"
+#import "NCMessageLocationParameter.h"
 #import "NCRoomParticipant.h"
 
 extern NSInteger const kChatMessageGroupTimeDifference;
@@ -66,6 +67,7 @@ extern NSString * const kMessageTypeCommand;
 - (BOOL)isMessageFromUser:(NSString *)userId;
 - (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType;
 - (NCMessageFileParameter *)file;
+- (NCMessageLocationParameter *)geoLocation;
 - (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)systemMessageFormat;

@@ -30,10 +30,12 @@
 #import "DirectoryTableViewController.h"
 #import "GroupedChatMessageTableViewCell.h"
 #import "FileMessageTableViewCell.h"
-#import "FTPopOverMenu.h"
+#import "LocationMessageTableViewCell.h"
 #import "SystemMessageTableViewCell.h"
+#import "MapViewController.h"
 #import "MessageSeparatorTableViewCell.h"
 #import "DateHeaderView.h"
+#import "FTPopOverMenu.h"
 #import "PlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -60,6 +62,8 @@
 #import "BarButtonItemWithActivity.h"
 #import "ShareItem.h"
 #import "NCChatFileController.h"
+#import "ShareLocationViewController.h"
+#import "GeoLocationRichObject.h"
 #import <NCCommunication/NCCommunication.h>
 #import <QuickLook/QuickLook.h>
 
@@ -72,8 +76,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionOpenFileInNextcloud
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource,
-    ChatMessageTableViewCellDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -238,6 +241,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.tableView registerClass:[GroupedChatMessageTableViewCell class] forCellReuseIdentifier:GroupedChatMessageCellIdentifier];
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:FileMessageCellIdentifier];
     [self.tableView registerClass:[FileMessageTableViewCell class] forCellReuseIdentifier:GroupedFileMessageCellIdentifier];
+    [self.tableView registerClass:[LocationMessageTableViewCell class] forCellReuseIdentifier:LocationMessageCellIdentifier];
+    [self.tableView registerClass:[LocationMessageTableViewCell class] forCellReuseIdentifier:GroupedLocationMessageCellIdentifier];
     [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:SystemMessageCellIdentifier];
     [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:InvisibleSystemMessageCellIdentifier];
     [self.tableView registerClass:[MessageSeparatorTableViewCell class] forCellReuseIdentifier:MessageSeparatorCellIdentifier];
@@ -869,6 +874,13 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }];
     [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
+    UIAlertAction *shareLocationAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Location", nil)
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        [self presentShareLocation];
+    }];
+    [shareLocationAction setValue:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    
     UIAlertAction *filesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Files", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^void (UIAlertAction *action) {
@@ -883,11 +895,14 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }];
     [ncFilesAction setValue:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
+    // Add actions
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         [optionsActionSheet addAction:cameraAction];
     }
-    
     [optionsActionSheet addAction:photoLibraryAction];
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
+        [optionsActionSheet addAction:shareLocationAction];
+    }
     [optionsActionSheet addAction:filesAction];
     [optionsActionSheet addAction:ncFilesAction];
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
@@ -958,6 +973,14 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         self->_imagePicker.delegate = self;
         [self presentViewController:self->_imagePicker animated:YES completion:nil];
     });
+}
+
+- (void)presentShareLocation
+{
+    ShareLocationViewController *shareLocationVC = [[ShareLocationViewController alloc] init];
+    shareLocationVC.delegate = self;
+    NCNavigationController *shareLocationNC = [[NCNavigationController alloc] initWithRootViewController:shareLocationVC];
+    [self presentViewController:shareLocationNC animated:YES completion:nil];
 }
 
 - (void)presentDocumentPicker
@@ -1130,6 +1153,20 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 - (void)shareConfirmationViewControllerDidFinish:(ShareConfirmationViewController *)viewController
 {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - ShareLocationViewController Delegate
+
+-(void)shareLocationViewController:(ShareLocationViewController *)viewController didSelectLocationWithLatitude:(double)latitude longitude:(double)longitude andName:(NSString *)name
+{
+    GeoLocationRichObject *richObject = [GeoLocationRichObject geoLocationRichObjectWithLatitude:latitude longitude:longitude name:name];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] shareRichObject:richObject.richObjectDictionary inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
+        if (error) {
+            NSLog(@"Error sharing rich object: %@", error);
+        }
+    }];
+    [viewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - Gesture recognizer
@@ -2167,6 +2204,15 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
         return fileCell;
     }
+    if (message.geoLocation) {
+        NSString *locationCellIdentifier = (message.isGroupMessage) ? GroupedLocationMessageCellIdentifier : LocationMessageCellIdentifier;
+        LocationMessageTableViewCell *locationCell = (LocationMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:locationCellIdentifier];
+        locationCell.delegate = self;
+        
+        [locationCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
+
+        return locationCell;
+    }
     if (message.parent) {
         ChatMessageTableViewCell *replyCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
         replyCell.delegate = self;
@@ -2257,6 +2303,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
     if (message.file) {
         height += kFileMessageCellFilePreviewHeight + 15;
+    }
+    
+    if (message.geoLocation) {
+        height += kLocationMessageCellPreviewHeight + 15;
     }
     
     return height;
@@ -2436,6 +2486,15 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     NCChatFileController *downloader = [[NCChatFileController alloc] init];
     downloader.delegate = self;
     [downloader downloadFileFromMessage:fileParameter];
+}
+
+#pragma mark - LocationMessageTableViewCellDelegate
+
+- (void)cellWantsToOpenLocation:(GeoLocationRichObject *)geoLocationRichObject
+{
+    MapViewController *mapVC = [[MapViewController alloc] initWithGeoLocationRichObject:geoLocationRichObject];
+    NCNavigationController *mapNC = [[NCNavigationController alloc] initWithRootViewController:mapVC];
+    [self presentViewController:mapNC animated:YES completion:nil];
 }
 
 #pragma mark - ChatMessageTableViewCellDelegate
