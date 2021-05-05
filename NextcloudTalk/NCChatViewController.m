@@ -895,12 +895,14 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }];
     [ncFilesAction setValue:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
+    // Add actions
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         [optionsActionSheet addAction:cameraAction];
     }
-    
     [optionsActionSheet addAction:photoLibraryAction];
-    [optionsActionSheet addAction:shareLocationAction];
+    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
+        [optionsActionSheet addAction:shareLocationAction];
+    }
     [optionsActionSheet addAction:filesAction];
     [optionsActionSheet addAction:ncFilesAction];
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
