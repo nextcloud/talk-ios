@@ -63,6 +63,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     RoomSearchTableViewController *_resultTableViewController;
     PlaceholderView *_roomsBackgroundView;
     UIBarButtonItem *_settingsButton;
+    NSTimer *_refreshRoomsTimer;
 }
 
 @end
@@ -119,6 +120,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesUpdated:) name:NCServerCapabilitiesUpdatedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userProfileImageUpdated:) name:NCUserProfileImageUpdatedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
 }
 
 - (void)setupNavigationBar
@@ -199,6 +201,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self refreshRoomList];
 }
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    [self stopRefreshRoomsTimer];
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -256,10 +265,16 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
         [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES withCompletionBlock:nil];
+        [self startRefreshRoomsTimer];
         [self setUnreadMessageForInactiveAccountsIndicator];
     }
     
     [FTPopOverMenu dismiss];
+}
+
+- (void)appWillResignActive:(NSNotification *)notification
+{
+    [self stopRefreshRoomsTimer];
 }
 
 #pragma mark - Interface Builder Actions
@@ -269,6 +284,25 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NewRoomTableViewController *newRoowVC = [[NewRoomTableViewController alloc] init];
     NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:newRoowVC];
     [self presentViewController:navigationController animated:YES completion:nil];
+}
+
+#pragma mark - Refresh Timer
+
+- (void)startRefreshRoomsTimer
+{
+    [self stopRefreshRoomsTimer];
+    _refreshRoomsTimer = [NSTimer scheduledTimerWithTimeInterval:30.0 target:self selector:@selector(refreshRooms) userInfo:nil repeats:YES];
+}
+
+- (void)stopRefreshRoomsTimer
+{
+    [_refreshRoomsTimer invalidate];
+    _refreshRoomsTimer = nil;
+}
+
+- (void)refreshRooms
+{
+    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES withCompletionBlock:nil];
 }
 
 #pragma mark - Refresh Control
@@ -427,6 +461,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [self setProfileButton];
             BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
             [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:isAppActive];
+            [self startRefreshRoomsTimer];
             [self setupNavigationBar];
         }
             break;
