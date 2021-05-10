@@ -36,6 +36,8 @@
 	<string>Camera is used in video calls</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Contacts access is needed to match your address book contacts with contacts in your server</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>It is needed to share your location with others</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone is used in voice and video calls</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -83,7 +85,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>It is needed to share your location with others</string>
 </dict>
 </plist>
