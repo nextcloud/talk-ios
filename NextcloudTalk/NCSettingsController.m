@@ -84,7 +84,7 @@ NSString * const kCapabilityChatReadStatus          = @"chat-read-status";
 NSString * const kCapabilityDeleteMessages          = @"delete-messages";
 NSString * const kCapabilityCallFlags               = @"conversation-call-flags";
 NSString * const kCapabilityTempUserAvatarAPI       = @"temp-user-avatar-api";
-NSString * const kCapabilityLocationSharing         = @"location-sharing";
+NSString * const kCapabilityLocationSharing         = @"geo-location-sharing";
 
 NSString * const kUserProfileUserId             = @"id";
 NSString * const kUserProfileDisplayName        = @"displayname";
