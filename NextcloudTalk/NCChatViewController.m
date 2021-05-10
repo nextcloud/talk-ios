@@ -99,7 +99,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
 @property (nonatomic, assign) NSInteger chatViewPresentedTimestamp;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
-@property (nonatomic, assign) NSIndexPath *firstUnreadMessageIP;
+@property (nonatomic, assign) NCChatMessage *firstUnreadMessage;
 @property (nonatomic, strong) UIButton *unreadMessageButton;
 @property (nonatomic, strong) NSTimer *lobbyCheckTimer;
 @property (nonatomic, strong) ReplyMessageView *replyMessageView;
@@ -262,7 +262,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     self.tableView.backgroundView = _chatBackgroundView;
     
     // Unread messages indicator
-    _firstUnreadMessageIP = nil;
+    _firstUnreadMessage = nil;
     _unreadMessageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 126, 24)];
     _unreadMessageButton.backgroundColor = [NCAppBranding themeColor];
     [_unreadMessageButton setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
@@ -803,8 +803,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)unreadMessagesButtonPressed:(id)sender
 {
-    if (_firstUnreadMessageIP) {
-        [self.tableView scrollToRowAtIndexPath:_firstUnreadMessageIP atScrollPosition:UITableViewScrollPositionNone animated:YES];
+    if (_firstUnreadMessage) {
+        [self.tableView scrollToRowAtIndexPath:[self indexPathForMessage:_firstUnreadMessage] atScrollPosition:UITableViewScrollPositionNone animated:YES];
     }
 }
 
@@ -1316,8 +1316,29 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             }
         }
     }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    [super scrollViewDidEndDecelerating:scrollView];
     
-    if (_firstUnreadMessageIP) {
+    if (_firstUnreadMessage) {
+        [self checkUnreadMessagesVisibility];
+    }
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+    
+    if (!decelerate && _firstUnreadMessage) {
+        [self checkUnreadMessagesVisibility];
+    }
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+{
+    if (_firstUnreadMessage) {
         [self checkUnreadMessagesVisibility];
     }
 }
@@ -1577,7 +1598,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             }
             
             NCChatMessage *firstNewMessage = [messages objectAtIndex:0];
-            NSIndexPath *firstMessageIndexPath = [self indexPathForMessage:firstNewMessage];
             // This variable is needed since several calls to receiveMessages API might be needed
             // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
             // to receive all the unread messages.
@@ -1591,8 +1611,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                 });
             } else if (shouldScrollOnNewMessages || newMessagesContainUserMessage) {
                 [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-            } else if (!self->_firstUnreadMessageIP && areReallyNewMessages) {
-                [self showNewMessagesViewUntilIndexPath:firstMessageIndexPath];
+            } else if (!self->_firstUnreadMessage && areReallyNewMessages) {
+                [self showNewMessagesViewUntilMessage:firstNewMessage];
             }
             
             // Set last received message as last read message
@@ -1956,9 +1976,9 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     return NO;
 }
 
-- (void)showNewMessagesViewUntilIndexPath:(NSIndexPath *)messageIP
+- (void)showNewMessagesViewUntilMessage:(NCChatMessage *)message
 {
-    _firstUnreadMessageIP = messageIP;
+    _firstUnreadMessage = message;
     _unreadMessageButton.hidden = NO;
     // Check if unread messages are already visible
     [self checkUnreadMessagesVisibility];
@@ -1966,7 +1986,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)hideNewMessagesView
 {
-    _firstUnreadMessageIP = nil;
+    _firstUnreadMessage = nil;
     _unreadMessageButton.hidden = YES;
 }
 
@@ -2003,8 +2023,9 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)checkUnreadMessagesVisibility
 {
+    NSIndexPath *indexPath = [self indexPathForMessage:_firstUnreadMessage];
     NSArray* visibleCellsIPs = [self.tableView indexPathsForVisibleRows];
-    if ([visibleCellsIPs containsObject:_firstUnreadMessageIP]) {
+    if ([visibleCellsIPs containsObject:indexPath]) {
          [self hideNewMessagesView];
     }
 }
