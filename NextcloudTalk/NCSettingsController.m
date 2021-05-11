@@ -86,6 +86,7 @@ NSString * const kCapabilityCallFlags               = @"conversation-call-flags"
 NSString * const kCapabilityTempUserAvatarAPI       = @"temp-user-avatar-api";
 NSString * const kCapabilityLocationSharing         = @"geo-location-sharing";
 NSString * const kCapabilityConversationV4          = @"conversation-v4";
+NSString * const kCapabilitySIPSupport              = @"sip-support";
 
 NSString * const kUserProfileUserId             = @"id";
 NSString * const kUserProfileDisplayName        = @"displayname";
