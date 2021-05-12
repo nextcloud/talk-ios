@@ -1456,7 +1456,9 @@ typedef enum FileAction {
             cell.labelTitle.text = participant.displayName;
             
             // Avatar
-            if (participant.participantType == kNCParticipantTypeGuest) {
+            if ([participant.actorType isEqualToString:@"emails"]) {
+                [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
+            } else if (participant.participantType == kNCParticipantTypeGuest) {
                 UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
                 NSString *avatarName = ([participant.displayName isEqualToString:@""]) ? @"?" : participant.displayName;
                 NSString *guestName = ([participant.displayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : participant.displayName;
