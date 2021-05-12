@@ -86,6 +86,10 @@ typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
 typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
 typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
+extern NSInteger const APIv1;
+extern NSInteger const APIv2;
+extern NSInteger const APIv3;
+extern NSInteger const APIv4;
 extern NSInteger const kReceivedChatMessagesLimit;
 
 @interface OCURLSessionManager : AFURLSessionManager
@@ -100,6 +104,10 @@ extern NSInteger const kReceivedChatMessagesLimit;
 + (instancetype)sharedInstance;
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account;
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account;
+- (NSInteger)conversationAPIVersionForAccount:(TalkAccount *)account;
+- (NSInteger)callAPIVersionForAccount:(TalkAccount *)account;
+- (NSInteger)chatAPIVersionForAccount:(TalkAccount *)accounts;
+- (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
 
 // Contacts Controller
 - (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSDictionary *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block;
