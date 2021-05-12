@@ -33,11 +33,15 @@
     }
     
     NCRoomParticipant *participant = [[NCRoomParticipant alloc] init];
+    participant.attendeeId = [[participantDict objectForKey:@"attendeeId"] integerValue];
+    participant.actorType = [participantDict objectForKey:@"actorType"];
+    participant.actorId = [participantDict objectForKey:@"actorId"];
     participant.displayName = [participantDict objectForKey:@"displayName"];
     participant.inCall = [[participantDict objectForKey:@"inCall"] integerValue];
     participant.lastPing = [[participantDict objectForKey:@"lastPing"] integerValue];
     participant.participantType = (NCParticipantType)[[participantDict objectForKey:@"participantType"] integerValue];
     participant.sessionId = [participantDict objectForKey:@"sessionId"];
+    participant.sessionIds = [participantDict objectForKey:@"sessionIds"];
     participant.userId = [participantDict objectForKey:@"userId"];
     participant.status = [participantDict objectForKey:@"status"];
     

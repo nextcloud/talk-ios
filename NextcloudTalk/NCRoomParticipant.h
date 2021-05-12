@@ -32,12 +32,16 @@ typedef enum NCParticipantType {
 
 @interface NCRoomParticipant : NSObject
 
+@property (nonatomic, assign) NSInteger attendeeId;
+@property (nonatomic, copy) NSString *actorType;
+@property (nonatomic, copy) NSString *actorId;
 @property (nonatomic, copy) NSString *displayName;
 @property (nonatomic, assign) NSInteger inCall;
 @property (nonatomic, assign) NSInteger lastPing;
 @property (nonatomic, assign) NCParticipantType participantType;
-@property (nonatomic, copy) NSString *sessionId;
-@property (nonatomic, copy) NSString *userId;
+@property (nonatomic, copy) NSString *sessionId; // Deprecated in Conversations APIv4
+@property (nonatomic, copy) NSArray *sessionIds;
+@property (nonatomic, copy) NSString *userId; // Deprecated in Conversations APIv3
 @property (nonatomic, copy) NSString *status;
 @property (nonatomic, copy) NSString *callIconImageName;
 
