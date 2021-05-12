@@ -349,7 +349,7 @@ typedef enum FileAction {
 - (BOOL)isAppUser:(NCRoomParticipant *)participant
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    if ([participant.userId isEqualToString:activeAccount.userId]) {
+    if ([participant.participantId isEqualToString:activeAccount.userId]) {
         return YES;
     }
     return NO;
@@ -1463,7 +1463,7 @@ typedef enum FileAction {
                 cell.labelTitle.text = guestName;
                 [cell.contactImage setImageWithString:avatarName color:guestAvatarColor circular:true];
             } else {
-                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.participantId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                          placeholderImage:nil success:nil failure:nil];
                 [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
             }

@@ -336,7 +336,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 3.0;
         
         BOOL isAnyoneInCall = NO;
         for (NCRoomParticipant *participant in participants) {
-            if ([account.userId isEqualToString:participant.userId] && participant.inCall) {
+            if ([account.userId isEqualToString:participant.participantId] && participant.inCall) {
                 // Account is already in a call (answered the call on a different device) -> no need to keep ringing
                 [self endCallWithUUID:call.uuid];
                 return;
