@@ -785,6 +785,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     NSDictionary *parameters = @{@"participant" : user};
+    if (conversationAPIVersion >= APIv4) {
+        parameters = @{@"attendeeId" : user};
+    }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -809,6 +812,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     NSDictionary *parameters = @{@"participant" : moderator};
+    if (conversationAPIVersion >= APIv4) {
+        parameters = @{@"attendeeId" : moderator};
+    }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {

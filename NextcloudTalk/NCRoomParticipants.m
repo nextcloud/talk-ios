@@ -67,6 +67,10 @@
 
 - (NSString *)participantId
 {
+    // Conversation API v3
+    if (_actorId) {
+        return _actorId;
+    }
     return (_participantType == kNCParticipantTypeGuest) ? _sessionId : _userId;
 }
 

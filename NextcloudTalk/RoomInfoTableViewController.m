@@ -937,7 +937,12 @@ typedef enum FileAction {
 - (void)promoteToModerator:(NCRoomParticipant *)participant
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] promoteParticipant:participant.participantId toModeratorOfRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSString *participantId = participant.participantId;
+    if ([[NCAPIController sharedInstance] conversationAPIVersionForAccount:activeAccount] >= APIv4) {
+        participantId = [NSString stringWithFormat:@"%ld", (long)participant.attendeeId];
+    }
+    [[NCAPIController sharedInstance] promoteParticipant:participantId toModeratorOfRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self getRoomParticipants];
         } else {
@@ -950,7 +955,12 @@ typedef enum FileAction {
 - (void)demoteFromModerator:(NCRoomParticipant *)participant
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] demoteModerator:participant.participantId toParticipantOfRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSString *participantId = participant.participantId;
+    if ([[NCAPIController sharedInstance] conversationAPIVersionForAccount:activeAccount] >= APIv4) {
+        participantId = [NSString stringWithFormat:@"%ld", (long)participant.attendeeId];
+    }
+    [[NCAPIController sharedInstance] demoteModerator:participantId toParticipantOfRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self getRoomParticipants];
         } else {
