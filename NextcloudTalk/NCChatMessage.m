@@ -252,9 +252,8 @@ NSString * const kMessageTypeCommand        = @"command";
                                                  range:NSMakeRange(0, [originalMessage length])];
     
     // Find message parameters
-    NSMutableArray *parameters = [NSMutableArray arrayWithCapacity:matches.count];
-    for (int i = 0; i < matches.count; i++) {
-        NSTextCheckingResult *match = [matches objectAtIndex:i];
+    NSMutableArray *parameters = [NSMutableArray new];
+    for (NSTextCheckingResult *match in matches) {
         NSString* parameter = [originalMessage substringWithRange:match.range];
         NSString *parameterKey = [[parameter stringByReplacingOccurrencesOfString:@"{" withString:@""]
                                  stringByReplacingOccurrencesOfString:@"}" withString:@""];
@@ -270,13 +269,13 @@ NSString * const kMessageTypeCommand        = @"command";
             parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:replaceString];
             // Calculate parameter range
             NSRange searchRange = NSMakeRange(0,parsedMessage.length);
-            if (i > 0) {
-                NCMessageParameter *lastParameter = [parameters objectAtIndex:i-1];
+            if (parameters.count > 0) {
+                NCMessageParameter *lastParameter = [parameters objectAtIndex:parameters.count - 1];
                 NSInteger newRangeLocation = lastParameter.range.location + lastParameter.range.length;
                 searchRange = NSMakeRange(newRangeLocation, parsedMessage.length - newRangeLocation);
             }
             messageParameter.range = [parsedMessage rangeOfString:replaceString options:0 range:searchRange];
-            [parameters insertObject:messageParameter atIndex:i];
+            [parameters addObject:messageParameter];
         }
     }
     
