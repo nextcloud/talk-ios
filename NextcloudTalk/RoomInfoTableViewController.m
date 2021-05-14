@@ -972,26 +972,40 @@ typedef enum FileAction {
 
 - (void)removeParticipant:(NCRoomParticipant *)participant
 {
-    if (participant.participantType == kNCParticipantTypeGuest) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSInteger conversationAPIVersion = [[NCAPIController sharedInstance] conversationAPIVersionForAccount:activeAccount];
+    if (conversationAPIVersion >= APIv3) {
         [self setModifyingRoomUI];
-        [[NCAPIController sharedInstance] removeGuest:participant.participantId fromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] removeAttendee:participant.attendeeId fromRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self getRoomParticipants];
             } else {
-                NSLog(@"Error removing guest from room: %@", error.description);
+                NSLog(@"Error removing attendee from room: %@", error.description);
                 [self showRoomModificationError:kModificationErrorRemove];
             }
         }];
     } else {
-        [self setModifyingRoomUI];
-        [[NCAPIController sharedInstance] removeParticipant:participant.participantId fromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
-            if (!error) {
-                [self getRoomParticipants];
-            } else {
-                NSLog(@"Error removing participant from room: %@", error.description);
-                [self showRoomModificationError:kModificationErrorRemove];
-            }
-        }];
+        if (participant.participantType == kNCParticipantTypeGuest) {
+            [self setModifyingRoomUI];
+            [[NCAPIController sharedInstance] removeGuest:participant.participantId fromRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
+                if (!error) {
+                    [self getRoomParticipants];
+                } else {
+                    NSLog(@"Error removing guest from room: %@", error.description);
+                    [self showRoomModificationError:kModificationErrorRemove];
+                }
+            }];
+        } else {
+            [self setModifyingRoomUI];
+            [[NCAPIController sharedInstance] removeParticipant:participant.participantId fromRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
+                if (!error) {
+                    [self getRoomParticipants];
+                } else {
+                    NSLog(@"Error removing participant from room: %@", error.description);
+                    [self showRoomModificationError:kModificationErrorRemove];
+                }
+            }];
+        }
     }
 }
 
