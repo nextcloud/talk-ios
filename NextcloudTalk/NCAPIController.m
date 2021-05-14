@@ -809,7 +809,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     NSDictionary *parameters = @{@"participant" : user};
-    if (conversationAPIVersion >= APIv4) {
+    if (conversationAPIVersion >= APIv3) {
         parameters = @{@"attendeeId" : user};
     }
     
@@ -836,7 +836,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     NSDictionary *parameters = @{@"participant" : moderator};
-    if (conversationAPIVersion >= APIv4) {
+    if (conversationAPIVersion >= APIv3) {
         parameters = @{@"attendeeId" : moderator};
     }
     
