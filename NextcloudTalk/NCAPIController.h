@@ -86,6 +86,10 @@ typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
 typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
 typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
+extern NSInteger const APIv1;
+extern NSInteger const APIv2;
+extern NSInteger const APIv3;
+extern NSInteger const APIv4;
 extern NSInteger const kReceivedChatMessagesLimit;
 
 @interface OCURLSessionManager : AFURLSessionManager
@@ -100,6 +104,10 @@ extern NSInteger const kReceivedChatMessagesLimit;
 + (instancetype)sharedInstance;
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account;
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account;
+- (NSInteger)conversationAPIVersionForAccount:(TalkAccount *)account;
+- (NSInteger)callAPIVersionForAccount:(TalkAccount *)account;
+- (NSInteger)chatAPIVersionForAccount:(TalkAccount *)accounts;
+- (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
 
 // Contacts Controller
 - (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSDictionary *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block;
@@ -125,6 +133,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 // Participants Controller
 - (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)addParticipant:(NSString *)participant ofType:(NSString *)type toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
+- (NSURLSessionDataTask *)removeAttendee:(NSInteger)attendeeId fromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 - (NSURLSessionDataTask *)removeParticipant:(NSString *)user fromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 - (NSURLSessionDataTask *)removeGuest:(NSString *)guest fromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 - (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(LeaveRoomCompletionBlock)block;

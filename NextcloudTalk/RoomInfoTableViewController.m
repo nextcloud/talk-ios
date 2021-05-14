@@ -349,7 +349,7 @@ typedef enum FileAction {
 - (BOOL)isAppUser:(NCRoomParticipant *)participant
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    if ([participant.userId isEqualToString:activeAccount.userId]) {
+    if ([participant.participantId isEqualToString:activeAccount.userId]) {
         return YES;
     }
     return NO;
@@ -937,7 +937,12 @@ typedef enum FileAction {
 - (void)promoteToModerator:(NCRoomParticipant *)participant
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] promoteParticipant:participant.participantId toModeratorOfRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSString *participantId = participant.participantId;
+    if ([[NCAPIController sharedInstance] conversationAPIVersionForAccount:activeAccount] >= APIv3) {
+        participantId = [NSString stringWithFormat:@"%ld", (long)participant.attendeeId];
+    }
+    [[NCAPIController sharedInstance] promoteParticipant:participantId toModeratorOfRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self getRoomParticipants];
         } else {
@@ -950,7 +955,12 @@ typedef enum FileAction {
 - (void)demoteFromModerator:(NCRoomParticipant *)participant
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] demoteModerator:participant.participantId toParticipantOfRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSString *participantId = participant.participantId;
+    if ([[NCAPIController sharedInstance] conversationAPIVersionForAccount:activeAccount] >= APIv3) {
+        participantId = [NSString stringWithFormat:@"%ld", (long)participant.attendeeId];
+    }
+    [[NCAPIController sharedInstance] demoteModerator:participantId toParticipantOfRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self getRoomParticipants];
         } else {
@@ -962,26 +972,40 @@ typedef enum FileAction {
 
 - (void)removeParticipant:(NCRoomParticipant *)participant
 {
-    if (participant.participantType == kNCParticipantTypeGuest) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSInteger conversationAPIVersion = [[NCAPIController sharedInstance] conversationAPIVersionForAccount:activeAccount];
+    if (conversationAPIVersion >= APIv3) {
         [self setModifyingRoomUI];
-        [[NCAPIController sharedInstance] removeGuest:participant.participantId fromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] removeAttendee:participant.attendeeId fromRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
             if (!error) {
                 [self getRoomParticipants];
             } else {
-                NSLog(@"Error removing guest from room: %@", error.description);
+                NSLog(@"Error removing attendee from room: %@", error.description);
                 [self showRoomModificationError:kModificationErrorRemove];
             }
         }];
     } else {
-        [self setModifyingRoomUI];
-        [[NCAPIController sharedInstance] removeParticipant:participant.participantId fromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
-            if (!error) {
-                [self getRoomParticipants];
-            } else {
-                NSLog(@"Error removing participant from room: %@", error.description);
-                [self showRoomModificationError:kModificationErrorRemove];
-            }
-        }];
+        if (participant.participantType == kNCParticipantTypeGuest) {
+            [self setModifyingRoomUI];
+            [[NCAPIController sharedInstance] removeGuest:participant.participantId fromRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
+                if (!error) {
+                    [self getRoomParticipants];
+                } else {
+                    NSLog(@"Error removing guest from room: %@", error.description);
+                    [self showRoomModificationError:kModificationErrorRemove];
+                }
+            }];
+        } else {
+            [self setModifyingRoomUI];
+            [[NCAPIController sharedInstance] removeParticipant:participant.participantId fromRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
+                if (!error) {
+                    [self getRoomParticipants];
+                } else {
+                    NSLog(@"Error removing participant from room: %@", error.description);
+                    [self showRoomModificationError:kModificationErrorRemove];
+                }
+            }];
+        }
     }
 }
 
@@ -1446,14 +1470,16 @@ typedef enum FileAction {
             cell.labelTitle.text = participant.displayName;
             
             // Avatar
-            if (participant.participantType == kNCParticipantTypeGuest) {
+            if ([participant.actorType isEqualToString:@"emails"]) {
+                [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
+            } else if (participant.participantType == kNCParticipantTypeGuest) {
                 UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
                 NSString *avatarName = ([participant.displayName isEqualToString:@""]) ? @"?" : participant.displayName;
                 NSString *guestName = ([participant.displayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : participant.displayName;
                 cell.labelTitle.text = guestName;
                 [cell.contactImage setImageWithString:avatarName color:guestAvatarColor circular:true];
             } else {
-                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.participantId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                          placeholderImage:nil success:nil failure:nil];
                 [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
             }

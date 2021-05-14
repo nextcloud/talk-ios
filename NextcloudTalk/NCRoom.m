@@ -60,6 +60,8 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.lastCommonReadMessage = [[roomDict objectForKey:@"lastCommonReadMessage"] integerValue];
     room.canStartCall = [[roomDict objectForKey:@"canStartCall"] boolValue];
     room.hasCall = [[roomDict objectForKey:@"hasCall"] boolValue];
+    room.canLeaveConversation = [[roomDict objectForKey:@"canLeaveConversation"] boolValue];
+    room.canDeleteConversation = [[roomDict objectForKey:@"canDeleteConversation"] boolValue];
     
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
@@ -127,6 +129,8 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     managedRoom.canStartCall = room.canStartCall;
     managedRoom.hasCall = room.hasCall;
     managedRoom.lastUpdate = room.lastUpdate;
+    managedRoom.canLeaveConversation = room.canLeaveConversation;
+    managedRoom.canDeleteConversation = room.canDeleteConversation;
 }
 
 + (NSString *)primaryKey {
@@ -166,7 +170,8 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     // Allow users to leave when there are no moderators in the room
     // (No need to check room type because in one2one rooms users will always be moderators)
     // or when in a group call and there are other participants.
-    return ![self canModerate] || (self.type != kNCRoomTypeOneToOne && [self.participants count] > 1);
+    // We can also check "canLeaveConversation" since v2
+    return self.canLeaveConversation || ![self canModerate] || (self.type != kNCRoomTypeOneToOne && [self.participants count] > 1);
 }
 
 - (NSString *)deletionMessage

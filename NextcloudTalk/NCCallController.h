@@ -28,8 +28,6 @@
 @class NCCallController;
 @class RTCCameraVideoCapturer;
 
-typedef void (^GetUserIdForSessionIdCompletionBlock)(NSString *userId, NSError *error);
-
 typedef enum CallFlag {
     CallFlagDisconnected = 0,
     CallFlagInCall = 1,
@@ -77,6 +75,5 @@ typedef enum CallFlag {
 - (void)enableVideo:(BOOL)enable;
 - (void)enableAudio:(BOOL)enable;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
-- (void)getUserIdInServerFromSessionId:(NSString *)sessionId withCompletionBlock:(GetUserIdForSessionIdCompletionBlock)block;
 
 @end

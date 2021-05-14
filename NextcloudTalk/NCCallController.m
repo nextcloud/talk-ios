@@ -724,36 +724,18 @@ static NSString * const kNCVideoTrackKind = @"video";
     if ([_externalSignalingController isEnabled]) {
         return [_externalSignalingController getUserIdFromSessionId:sessionId];
     }
+    NSInteger callAPIVersion = [[NCAPIController sharedInstance] callAPIVersionForAccount:_account];
     NSString *userId = nil;
     for (NSMutableDictionary *user in _peersInCall) {
         NSString *userSessionId = [user objectForKey:@"sessionId"];
         if ([userSessionId isEqualToString:sessionId]) {
             userId = [user objectForKey:@"userId"];
+            if (callAPIVersion >= APIv3) {
+                userId = [user objectForKey:@"actorId"];
+            }
         }
     }
     return userId;
-}
-
-- (void)getUserIdInServerFromSessionId:(NSString *)sessionId withCompletionBlock:(GetUserIdForSessionIdCompletionBlock)block
-{
-    [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:_account withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
-        if (!error) {
-            NSString *userId = nil;
-            for (NSMutableDictionary *user in peers) {
-                NSString *userSessionId = [user objectForKey:@"sessionId"];
-                if ([userSessionId isEqualToString:sessionId]) {
-                    userId = [user objectForKey:@"userId"];
-                }
-            }
-            if (block) {
-                block(userId, nil);
-            }
-        } else {
-            if (block) {
-                block(nil, error);
-            }
-        }
-    }];
 }
 
 #pragma mark - NCPeerConnectionDelegate
