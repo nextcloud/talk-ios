@@ -62,7 +62,7 @@
 
 - (BOOL)isOffline
 {
-    return [_sessionId isEqualToString:@"0"] || [_sessionId isEqualToString:@""];
+    return ([_sessionId isEqualToString:@"0"] || [_sessionId isEqualToString:@""] || !_sessionId) && _sessionIds.count == 0;
 }
 
 - (NSString *)participantId
