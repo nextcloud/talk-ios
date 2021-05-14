@@ -362,9 +362,9 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
                 if ([participantId isEqualToString:_userId]) {
                     NSLog(@"App user joined room.");
                 } else {
-                    [_participantsMap setObject:participant forKey:[participant objectForKey:@"sessionid"]];
                     NSLog(@"Participant joined room.");
                 }
+                [_participantsMap setObject:participant forKey:[participant objectForKey:@"sessionid"]];
             }
         }
     } else if ([eventType isEqualToString:@"leave"]) {
