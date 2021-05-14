@@ -738,28 +738,6 @@ static NSString * const kNCVideoTrackKind = @"video";
     return userId;
 }
 
-- (void)getUserIdInServerFromSessionId:(NSString *)sessionId withCompletionBlock:(GetUserIdForSessionIdCompletionBlock)block
-{
-    [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:_account withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
-        if (!error) {
-            NSString *userId = nil;
-            for (NSMutableDictionary *user in peers) {
-                NSString *userSessionId = [user objectForKey:@"sessionId"];
-                if ([userSessionId isEqualToString:sessionId]) {
-                    userId = [user objectForKey:@"userId"];
-                }
-            }
-            if (block) {
-                block(userId, nil);
-            }
-        } else {
-            if (block) {
-                block(nil, error);
-            }
-        }
-    }];
-}
-
 #pragma mark - NCPeerConnectionDelegate
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didAddStream:(RTCMediaStream *)stream
