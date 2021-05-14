@@ -724,11 +724,15 @@ static NSString * const kNCVideoTrackKind = @"video";
     if ([_externalSignalingController isEnabled]) {
         return [_externalSignalingController getUserIdFromSessionId:sessionId];
     }
+    NSInteger callAPIVersion = [[NCAPIController sharedInstance] callAPIVersionForAccount:_account];
     NSString *userId = nil;
     for (NSMutableDictionary *user in _peersInCall) {
         NSString *userSessionId = [user objectForKey:@"sessionId"];
         if ([userSessionId isEqualToString:sessionId]) {
             userId = [user objectForKey:@"userId"];
+            if (callAPIVersion >= APIv3) {
+                userId = [user objectForKey:@"actorId"];
+            }
         }
     }
     return userId;
