@@ -1399,31 +1399,37 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     [super scrollViewDidEndDecelerating:scrollView];
     
-    if (_firstUnreadMessage) {
-        [self checkUnreadMessagesVisibility];
+    if ([scrollView isEqual:self.tableView]) {
+        if (_firstUnreadMessage) {
+            [self checkUnreadMessagesVisibility];
+        }
+        
+        [self updateToolbar:YES];
     }
-    
-    [self updateToolbar:YES];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
     
-    if (!decelerate && _firstUnreadMessage) {
-        [self checkUnreadMessagesVisibility];
+    if ([scrollView isEqual:self.tableView]) {
+        if (!decelerate && _firstUnreadMessage) {
+            [self checkUnreadMessagesVisibility];
+        }
+        
+        [self updateToolbar:YES];
     }
-    
-    [self updateToolbar:YES];
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
-    if (_firstUnreadMessage) {
-        [self checkUnreadMessagesVisibility];
+    if ([scrollView isEqual:self.tableView]) {
+        if (_firstUnreadMessage) {
+            [self checkUnreadMessagesVisibility];
+        }
+        
+        [self updateToolbar:YES];
     }
-    
-    [self updateToolbar:YES];
 }
 
 #pragma mark - UITextViewDelegate Methods
