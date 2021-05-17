@@ -108,6 +108,9 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) BarButtonItemWithActivity *voiceCallButton;
 @property (nonatomic, assign) BOOL isPreviewControllerShown;
 @property (nonatomic, strong) NSString *previewControllerFilePath;
+@property (nonatomic, strong) dispatch_group_t animationDispatchGroup;
+@property (nonatomic, strong) dispatch_queue_t animationDispatchQueue;
+@property (nonatomic, strong) UIView *inputbarBorderView;
 
 @end
 
@@ -131,6 +134,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [self registerClassForTypingIndicatorView:[ReplyMessageView class]];
         // Set image downloader to file preview imageviews.
         [FilePreviewImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
+        // Initialize the animation dispatch group/queue
+        NSString *dispatchQueueIdentifier = [NSString stringWithFormat:@"%@.%@", groupIdentifier, @"animationQueue"];
+        const char *dispatchQueueIdentifierChar = [dispatchQueueIdentifier UTF8String];
+        self.animationDispatchGroup = dispatch_group_create();
+        self.animationDispatchQueue = dispatch_queue_create(dispatchQueueIdentifierChar, DISPATCH_QUEUE_SERIAL);
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didLeaveRoom:) name:NCRoomsManagerDidLeaveRoomNotification object:nil];
@@ -199,11 +207,16 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         self.textInputbar.counterStyle = SLKCounterStyleCountdownReversed;
     }
     self.textInputbar.translucent = NO;
-    self.textInputbar.contentInset = UIEdgeInsetsMake(5, 4, 5, 4);
+    self.textInputbar.contentInset = UIEdgeInsetsMake(8, 4, 8, 4);
+    self.textView.textContainerInset = UIEdgeInsetsMake(8, 8, 8, 8);
     
     UIColor *defaultToolbarColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0];
     self.textInputbar.backgroundColor = defaultToolbarColor;
     [self.view setBackgroundColor:defaultToolbarColor];
+    
+    // Make sure we update the textView frame
+    [self.textView layoutSubviews];
+    self.textView.layer.cornerRadius = self.textView.frame.size.height / 2;
     
     [self.textInputbar.editorTitle setTextColor:[UIColor darkGrayColor]];
     [self.textInputbar.editorLeftButton setTintColor:[UIColor systemBlueColor]];
@@ -223,11 +236,30 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         self.navigationItem.compactAppearance = appearance;
         self.navigationItem.scrollEdgeAppearance = appearance;
         
-        [self.textInputbar setBackgroundColor:[UIColor secondarySystemBackgroundColor]];
-        [self.view setBackgroundColor:[UIColor secondarySystemBackgroundColor]];
+        [self.view setBackgroundColor:[UIColor systemBackgroundColor]];
+        [self.textInputbar setBackgroundColor:[UIColor systemBackgroundColor]];
+        
         [self.textInputbar.editorTitle setTextColor:[UIColor labelColor]];
+        [self.textView.layer setBorderWidth:1.0];
         [self.textView.layer setBorderColor:[UIColor systemGray4Color].CGColor];
     }
+    
+    // Hide default top border of UIToolbar
+    [self.textInputbar setShadowImage:[UIImage new] forToolbarPosition:UIBarPositionAny];
+    
+    // Add new border subView to inputbar
+    self.inputbarBorderView = [UIView new];
+    [self.inputbarBorderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin];
+    self.inputbarBorderView.frame = CGRectMake(0, 0, self.textInputbar.frame.size.width, 1);
+    self.inputbarBorderView.hidden = YES;
+    
+    if (@available(iOS 13.0, *)) {
+        self.inputbarBorderView.backgroundColor = [UIColor systemGray6Color];
+    } else {
+        self.inputbarBorderView.backgroundColor = [NCAppBranding placeholderColor];
+    }
+
+    [self.textInputbar addSubview:self.inputbarBorderView];
     
     // Add long press gesture recognizer
     UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
@@ -306,6 +338,48 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[unreadMessagesButton(buttonWidth)]-(>=0)-|" options:0 metrics:metrics views:views]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual
                                                              toItem:_unreadMessageButton attribute:NSLayoutAttributeCenterX multiplier:1.f constant:0.f]];
+    
+    // We can't use UIColor with systemBlueColor directly, because it will switch to indigo. So make sure we actually get a blue tint here
+    [self.textView setTintColor:[UIColor colorWithCGColor:[UIColor systemBlueColor].CGColor]];
+}
+
+- (void)updateToolbar:(BOOL)animated
+{
+    void (^animations)(void) = ^void() {
+        CGFloat minimumOffset = (self.tableView.contentSize.height - self.tableView.frame.size.height) - 10;
+        
+        if (self.tableView.contentOffset.y < minimumOffset) {
+            // Scrolled -> show top border
+            self.inputbarBorderView.hidden = NO;
+        } else {
+            // At the bottom -> no top border
+            self.inputbarBorderView.hidden = YES;
+        }
+    };
+
+    if (animated) {
+        // Make sure the previous animation is finished before issuing another one
+        dispatch_async(self.animationDispatchQueue, ^{
+            dispatch_group_enter(self.animationDispatchGroup);
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // Make sure we use the superview of the border here
+                [UIView transitionWithView:self.textInputbar
+                                  duration:0.3
+                                   options:UIViewAnimationOptionTransitionCrossDissolve
+                                animations:animations
+                                completion:^(BOOL finished) {
+                    dispatch_group_leave(self.animationDispatchGroup);
+                }];
+            });
+            
+            dispatch_group_wait(self.animationDispatchGroup, DISPATCH_TIME_FOREVER);
+        });
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            animations();
+        });
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -427,6 +501,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         if ([self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection]) {
             // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
             [self.textView.layer setBorderColor:[UIColor systemGray4Color].CGColor];
+            [self.textView setTintColor:[UIColor colorWithCGColor:[UIColor systemBlueColor].CGColor]];
+            [self updateToolbar:YES];
         }
     }
 }
@@ -1005,6 +1081,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         // Make sure we're really at the bottom after showing the replyMessageView
         if (isAtBottom) {
             [self.tableView slk_scrollToBottomAnimated:NO];
+            [self updateToolbar:NO];
         }
     });
 }
@@ -1322,8 +1399,12 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     [super scrollViewDidEndDecelerating:scrollView];
     
-    if (_firstUnreadMessage) {
-        [self checkUnreadMessagesVisibility];
+    if ([scrollView isEqual:self.tableView]) {
+        if (_firstUnreadMessage) {
+            [self checkUnreadMessagesVisibility];
+        }
+        
+        [self updateToolbar:YES];
     }
 }
 
@@ -1331,15 +1412,23 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
     
-    if (!decelerate && _firstUnreadMessage) {
-        [self checkUnreadMessagesVisibility];
+    if ([scrollView isEqual:self.tableView]) {
+        if (!decelerate && _firstUnreadMessage) {
+            [self checkUnreadMessagesVisibility];
+        }
+        
+        [self updateToolbar:YES];
     }
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
-    if (_firstUnreadMessage) {
-        [self checkUnreadMessagesVisibility];
+    if ([scrollView isEqual:self.tableView]) {
+        if (_firstUnreadMessage) {
+            [self checkUnreadMessagesVisibility];
+        }
+        
+        [self updateToolbar:YES];
     }
 }
 
@@ -1485,10 +1574,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             } else {
                 [self.tableView slk_scrollToBottomAnimated:NO];
             }
+            [self updateToolbar:NO];
         } else {
             [self->_chatBackgroundView.placeholderView setHidden:NO];
         }
-                
+        
         self->_hasReceiveInitialHistory = YES;
         
         NSError *error = [notification.userInfo objectForKey:@"error"];
@@ -1514,6 +1604,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             [self setOfflineFooterView];
             [self.tableView reloadData];
             [self.tableView slk_scrollToBottomAnimated:NO];
+            [self updateToolbar:NO];
         } else {
             [self->_chatBackgroundView.placeholderView setHidden:NO];
         }
@@ -1523,6 +1614,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             [self insertMessages:storedTemporaryMessages];
             [self.tableView reloadData];
             [self.tableView slk_scrollToBottomAnimated:NO];
+            [self updateToolbar:NO];
         }
     });
 }
