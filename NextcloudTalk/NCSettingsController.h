@@ -61,6 +61,7 @@ extern NSString * const kCapabilityTempUserAvatarAPI;
 extern NSString * const kCapabilityLocationSharing;
 extern NSString * const kCapabilityConversationV4;
 extern NSString * const kCapabilitySIPSupport;
+extern NSString * const kCapabilityVoiceMessage;
 
 extern NSString * const kUserProfileDisplayName;
 extern NSString * const kUserProfileDisplayNameScope;

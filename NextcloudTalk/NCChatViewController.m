@@ -67,6 +67,9 @@
 #import <NCCommunication/NCCommunication.h>
 #import <QuickLook/QuickLook.h>
 
+#define k_send_message_button_tag   99
+#define k_voice_record_button_tag   98
+
 typedef enum NCChatMessageAction {
     kNCChatMessageActionReply = 1,
     kNCChatMessageActionCopy,
@@ -189,10 +192,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     self.shouldScrollToBottomAfterKeyboardShows = NO;
     self.inverted = NO;
     
-    [self.rightButton setTitle:@"" forState:UIControlStateNormal];
-    [self.rightButton setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
-    self.rightButton.accessibilityLabel = NSLocalizedString(@"Send message", nil);
-    self.rightButton.accessibilityHint = NSLocalizedString(@"Double tap to send message", nil);
+    [self showSendMessageButton];
     [self.leftButton setImage:[UIImage imageNamed:@"attachment"] forState:UIControlStateNormal];
     self.leftButton.accessibilityLabel = NSLocalizedString(@"Share a file from your Nextcloud", nil);
     self.leftButton.accessibilityHint = NSLocalizedString(@"Double tap to open file browser", nil);
@@ -581,6 +581,24 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 #pragma mark - User Interface
 
+- (void)showVoiceMessageRecordButton
+{
+    [self.rightButton setTitle:@"" forState:UIControlStateNormal];
+    [self.rightButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+    self.rightButton.tag = k_voice_record_button_tag;
+    self.rightButton.accessibilityLabel = NSLocalizedString(@"Record voice message", nil);
+    self.rightButton.accessibilityHint = NSLocalizedString(@"Tap and hold to record a voice message", nil);
+}
+
+- (void)showSendMessageButton
+{
+    [self.rightButton setTitle:@"" forState:UIControlStateNormal];
+    [self.rightButton setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
+    self.rightButton.tag = k_send_message_button_tag;
+    self.rightButton.accessibilityLabel = NSLocalizedString(@"Send message", nil);
+    self.rightButton.accessibilityHint = NSLocalizedString(@"Double tap to send message", nil);
+}
+
 - (void)disableRoomControls
 {
     _titleView.userInteractionEnabled = NO;
@@ -604,11 +622,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [_voiceCallButton setEnabled:YES];
         
         [self.leftButton setEnabled:YES];
+        [self.rightButton setEnabled:[self canPressRightButton]];
         self.textInputbar.userInteractionEnabled = YES;
-        
-        if ([self.textView.text length] > 0) {
-            [self.rightButton setEnabled:YES];
-        }
     }
     
     if (![_room userCanStartCall] && !_room.hasCall) {
@@ -914,14 +929,31 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId];
 }
 
+- (BOOL)canPressRightButton
+{
+    BOOL canPress = [super canPressRightButton];
+    
+    if (!canPress && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityVoiceMessage]) {
+        [self showVoiceMessageRecordButton];
+        return YES;
+    }
+    
+    [self showSendMessageButton];
+    
+    return canPress;
+}
+
 - (void)didPressRightButton:(id)sender
 {
-    [self sendChatMessage:self.textView.text fromInputField:YES];
-    [_replyMessageView dismiss];
-    [super didPressRightButton:sender];
-    
-    // Input field is empty after send -> this clears a previously saved pending message
-    [self savePendingMessage];
+    UIButton *button = sender;
+    if (button.tag == k_send_message_button_tag) {
+        [self sendChatMessage:self.textView.text fromInputField:YES];
+        [_replyMessageView dismiss];
+        [super didPressRightButton:sender];
+        
+        // Input field is empty after send -> this clears a previously saved pending message
+        [self savePendingMessage];
+    }
 }
 
 - (void)didPressLeftButton:(id)sender

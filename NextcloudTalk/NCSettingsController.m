@@ -87,6 +87,7 @@ NSString * const kCapabilityTempUserAvatarAPI       = @"temp-user-avatar-api";
 NSString * const kCapabilityLocationSharing         = @"geo-location-sharing";
 NSString * const kCapabilityConversationV4          = @"conversation-v4";
 NSString * const kCapabilitySIPSupport              = @"sip-support";
+NSString * const kCapabilityVoiceMessage            = @"voice-message-sharing";
 
 NSString * const kUserProfileUserId             = @"id";
 NSString * const kUserProfileDisplayName        = @"displayname";
