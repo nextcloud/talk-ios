@@ -22,6 +22,8 @@
 
 #import <Foundation/Foundation.h>
 #import <Realm/Realm.h>
+#import "TalkAccount.h"
+#import "ServerCapabilities.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,68 +31,26 @@ extern NSString *const kTalkDatabaseFolder;
 extern NSString *const kTalkDatabaseFileName;
 extern uint64_t const kTalkDatabaseSchemaVersion;
 
-@interface TalkAccount : RLMObject
-@property NSString *accountId;
-@property NSString *server;
-@property NSString *user;
-@property NSString *userId;
-@property NSString *userDisplayName;
-@property NSString *userDisplayNameScope;
-@property NSString *phone;
-@property NSString *phoneScope;
-@property NSString *email;
-@property NSString *emailScope;
-@property NSString *address;
-@property NSString *addressScope;
-@property NSString *website;
-@property NSString *websiteScope;
-@property NSString *twitter;
-@property NSString *twitterScope;
-@property BOOL pushNotificationSubscribed;
-@property NSData *pushNotificationPublicKey;
-@property NSString *deviceIdentifier;
-@property NSString *deviceSignature;
-@property NSString *userPublicKey;
-@property NSInteger unreadBadgeNumber;
-@property BOOL unreadNotification;
-@property NSInteger lastContactSync;
-@property NSString *avatarScope;
-@property BOOL hasCustomAvatar;
-@property BOOL hasContactSyncEnabled;
-@property BOOL active;
-@end
+extern NSString * const kCapabilitySystemMessages;
+extern NSString * const kCapabilityNotificationLevels;
+extern NSString * const kCapabilityInviteGroupsAndMails;
+extern NSString * const kCapabilityLockedOneToOneRooms;
+extern NSString * const kCapabilityWebinaryLobby;
+extern NSString * const kCapabilityChatReadMarker;
+extern NSString * const kCapabilityStartCallFlag;
+extern NSString * const kCapabilityCirclesSupport;
+extern NSString * const kCapabilityChatReferenceId;
+extern NSString * const kCapabilityPhonebookSearch;
+extern NSString * const kCapabilityChatReadStatus;
+extern NSString * const kCapabilityDeleteMessages;
+extern NSString * const kCapabilityCallFlags;
+extern NSString * const kCapabilityTempUserAvatarAPI;
+extern NSString * const kCapabilityLocationSharing;
+extern NSString * const kCapabilityConversationV4;
+extern NSString * const kCapabilitySIPSupport;
+extern NSString * const kCapabilityVoiceMessage;
 
-@interface ServerCapabilities : RLMObject
-@property NSString *accountId;
-@property NSString *name;
-@property NSString *slogan;
-@property NSString *url;
-@property NSString *logo;
-@property NSString *color;
-@property NSString *colorElement;
-@property NSString *colorElementBright;
-@property NSString *colorElementDark;
-@property NSString *colorText;
-@property NSString *background;
-@property BOOL backgroundDefault;
-@property BOOL backgroundPlain;
-@property NSString *version;
-@property NSInteger versionMajor;
-@property NSInteger versionMinor;
-@property NSInteger versionMicro;
-@property NSString *edition;
-@property BOOL userStatus;
-@property NSString *webDAVRoot;
-@property BOOL extendedSupport;
-@property RLMArray<RLMString> *talkCapabilities;
-@property NSInteger chatMaxLength;
-@property BOOL canCreate;
-@property BOOL attachmentsAllowed;
-@property NSString *attachmentsFolder;
-@property BOOL readStatusPrivacy;
-@property BOOL accountPropertyScopesVersion2;
-@property BOOL accountPropertyScopesFederationEnabled;
-@end
+extern NSString * const kMinimumRequiredTalkCapability;
 
 @interface NCDatabaseManager : NSObject
 
@@ -114,6 +74,8 @@ extern uint64_t const kTalkDatabaseSchemaVersion;
 
 - (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId;
 - (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId;
+- (BOOL)serverHasTalkCapability:(NSString *)capability;
+- (BOOL)serverHasTalkCapability:(NSString *)capability forAccountId:(NSString *)accountId;
 
 @end
 

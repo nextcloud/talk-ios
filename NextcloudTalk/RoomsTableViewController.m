@@ -50,6 +50,7 @@
 #import "SettingsViewController.h"
 #import "PlaceholderView.h"
 #import "UIBarButtonItem+Badge.h"
+#import "NotificationCenterNotifications.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
@@ -772,7 +773,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [favoriteAction setValue:[[UIImage imageNamed:favImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     [optionsActionSheet addAction:favoriteAction];
     // Notification levels
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         UIAlertAction *notificationsAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Notifications: %@", nil), room.notificationLevelString]
                                                                       style:UIAlertActionStyleDefault
                                                                     handler:^void (UIAlertAction *action) {

@@ -23,7 +23,6 @@
 #import "NCContact.h"
 
 #import "ABContact.h"
-#import "NCDatabaseManager.h"
 #import "NCUser.h"
 
 @implementation NCContact

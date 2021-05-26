@@ -246,7 +246,7 @@ typedef enum FileAction {
         // Public room section
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionPublic]];
         // Webinar section
-        if (_room.type != kNCRoomTypeOneToOne && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
+        if (_room.type != kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
             [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionWebinar]];
         }
     }
@@ -275,7 +275,7 @@ typedef enum FileAction {
     // Favorite action
     [actions addObject:[NSNumber numberWithInt:kRoomActionFavorite]];
     // Notification levels action
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         [actions addObject:[NSNumber numberWithInt:kRoomActionNotifications]];
     }
     // Public room actions

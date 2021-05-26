@@ -24,6 +24,7 @@
 
 #import "NCUser.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "PlaceholderView.h"
 #import "UIImageView+AFNetworking.h"
 

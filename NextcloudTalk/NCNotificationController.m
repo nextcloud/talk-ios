@@ -25,6 +25,7 @@
 
 #import "NCAPIController.h"
 #import "NCConnectionController.h"
+#import "NCDatabaseManager.h"
 #import "NCNotification.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"

@@ -703,7 +703,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (NSInteger)getLastReadMessage
 {
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
         return _lastReadMessage;
     }
     return 0;
@@ -917,7 +917,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     NSString *referenceId = nil;
     NCChatMessage *replyToMessage = (_replyMessageView.isVisible && fromInputField) ? _replyMessageView.message : nil;
     
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
         NCChatMessage *temporaryMessage = [self createTemporaryMessage:message replyToMessage:replyToMessage];
         referenceId = temporaryMessage.referenceId;
         [self appendTemporaryMessage:temporaryMessage];
@@ -933,7 +933,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     BOOL canPress = [super canPressRightButton];
     
-    if (!canPress && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityVoiceMessage]) {
+    if (!canPress && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityVoiceMessage]) {
         [self showVoiceMessageRecordButton];
         return YES;
     }
@@ -1008,7 +1008,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [optionsActionSheet addAction:cameraAction];
     }
     [optionsActionSheet addAction:photoLibraryAction];
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
         [optionsActionSheet addAction:shareLocationAction];
     }
     [optionsActionSheet addAction:filesAction];

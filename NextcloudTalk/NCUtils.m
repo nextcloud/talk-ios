@@ -26,7 +26,7 @@
 #import <CommonCrypto/CommonDigest.h>
 
 #import "NCDatabaseManager.h"
-#import "NCSettingsController.h"
+#import "NCUserDefaults.h"
 #import "OpenInFirefoxControllerObjC.h"
 
 static NSString *const nextcloudScheme = @"nextcloud:";
@@ -77,12 +77,17 @@ static NSString *const nextcloudScheme = @"nextcloud:";
 
  + (BOOL)isNextcloudAppInstalled
 {
+    BOOL isInstalled = NO;
+#ifndef APP_EXTENSION
     NSURL *url = [NSURL URLWithString:nextcloudScheme];
-    return [[UIApplication sharedApplication] canOpenURL:url];
+    isInstalled = [[UIApplication sharedApplication] canOpenURL:url];
+#endif
+    return isInstalled;
 }
 
 + (void)openFileInNextcloudApp:(NSString *)path withFileLink:(NSString *)link
 {
+#ifndef APP_EXTENSION
     if (![self isNextcloudAppInstalled]) {
         return;
     }
@@ -90,20 +95,23 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     NSString *nextcloudURLString = [NSString stringWithFormat:@"%@//open-file?path=%@&user=%@&link=%@", nextcloudScheme, path, activeAccount.user, link];
     NSURL *nextcloudURL = [NSURL URLWithString:[nextcloudURLString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     [[UIApplication sharedApplication] openURL:nextcloudURL options:@{} completionHandler:nil];
+#endif
 }
 
 + (void)openFileInNextcloudAppOrBrowser:(NSString *)path withFileLink:(NSString *)link
 {
+#ifndef APP_EXTENSION
     if (path && link) {
         NSURL *url = [NSURL URLWithString:link];
         if ([NCUtils isNextcloudAppInstalled]) {
             [NCUtils openFileInNextcloudApp:path withFileLink:link];
-        } else if ([[NCSettingsController sharedInstance].defaultBrowser isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
+        } else if ([[NCUserDefaults defaultBrowser] isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
             [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:url];
         } else {
             [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
         }
     }
+#endif
 }
 
 + (NSDate *)dateFromDateAtomFormat:(NSString *)dateAtomFormatString

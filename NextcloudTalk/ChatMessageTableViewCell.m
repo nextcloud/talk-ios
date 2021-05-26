@@ -237,7 +237,7 @@
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    BOOL shouldShowDeliveryStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
+    BOOL shouldShowDeliveryStatus = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     BOOL shouldShowReadStatus = !serverCapabilities.readStatusPrivacy;
     
     if ([message.actorType isEqualToString:@"guests"]) {

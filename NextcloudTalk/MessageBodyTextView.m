@@ -22,6 +22,7 @@
 
 #import "MessageBodyTextView.h"
 #import "NCSettingsController.h"
+#import "NCUserDefaults.h"
 #import "OpenInFirefoxControllerObjC.h"
 
 @implementation MessageBodyTextView
@@ -65,7 +66,7 @@
 
 - (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(nonnull NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction
 {
-    if ([[NCSettingsController sharedInstance].defaultBrowser isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
+    if ([[NCUserDefaults defaultBrowser] isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
         [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:URL];
         return NO;
     }

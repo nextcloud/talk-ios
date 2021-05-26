@@ -25,6 +25,7 @@
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCContact.h"
+#import "NCDatabaseManager.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"

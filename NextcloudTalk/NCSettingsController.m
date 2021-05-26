@@ -28,22 +28,22 @@
 #import <openssl/bn.h>
 #import <openssl/sha.h>
 #import <openssl/err.h>
-#import <CommonCrypto/CommonDigest.h>
 #import "OpenInFirefoxControllerObjC.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCExternalSignalingController.h"
+#import "NCKeyChainController.h"
 #import "NCRoomsManager.h"
 #import "NCUserInterfaceController.h"
+#import "NCUserDefaults.h"
 #import "JDStatusBarNotification.h"
 #import "NCChatFileController.h"
+#import "NotificationCenterNotifications.h"
 
 @interface NCSettingsController ()
 {
-    UICKeyChainStore *_keychain;
-    NSString *_defaultBrowser;
     NSString *_lockScreenPasscode;
     NCPasscodeType _lockScreenPasscodeType;
 }
@@ -51,43 +51,6 @@
 @end
 
 @implementation NCSettingsController
-
-NSString * const kNCServerKey                   = @"ncServer";
-NSString * const kNCUserKey                     = @"ncUser";
-NSString * const kNCUserIdKey                   = @"ncUserId";
-NSString * const kNCUserDisplayNameKey          = @"ncUserDisplayName";
-NSString * const kNCTokenKey                    = @"ncToken";
-NSString * const kNCPushTokenKey                = @"ncPushToken";
-NSString * const kNCNormalPushTokenKey          = @"ncNormalPushToken";
-NSString * const kNCPushKitTokenKey             = @"ncPushKitToken";
-NSString * const kNCPushSubscribedKey           = @"ncPushSubscribed";
-NSString * const kNCPNPublicKey                 = @"ncPNPublicKey";
-NSString * const kNCPNPrivateKey                = @"ncPNPrivateKey";
-NSString * const kNCDeviceIdentifier            = @"ncDeviceIdentifier";
-NSString * const kNCDeviceSignature             = @"ncDeviceSignature";
-NSString * const kNCUserPublicKey               = @"ncUserPublicKey";
-NSString * const kNCUserDefaultBrowser          = @"ncUserDefaultBrowser";
-NSString * const kNCLockScreenPasscode          = @"ncLockScreenPasscode";
-NSString * const kNCLockScreenPasscodeType      = @"ncLockScreenPasscodeType";
-
-NSString * const kCapabilitySystemMessages          = @"system-messages";
-NSString * const kCapabilityNotificationLevels      = @"notification-levels";
-NSString * const kCapabilityInviteGroupsAndMails    = @"invite-groups-and-mails";
-NSString * const kCapabilityLockedOneToOneRooms     = @"locked-one-to-one-rooms";
-NSString * const kCapabilityWebinaryLobby           = @"webinary-lobby";
-NSString * const kCapabilityChatReadMarker          = @"chat-read-marker";
-NSString * const kCapabilityStartCallFlag           = @"start-call-flag";
-NSString * const kCapabilityCirclesSupport          = @"circles-support";
-NSString * const kCapabilityChatReferenceId         = @"chat-reference-id";
-NSString * const kCapabilityPhonebookSearch         = @"phonebook-search";
-NSString * const kCapabilityChatReadStatus          = @"chat-read-status";
-NSString * const kCapabilityDeleteMessages          = @"delete-messages";
-NSString * const kCapabilityCallFlags               = @"conversation-call-flags";
-NSString * const kCapabilityTempUserAvatarAPI       = @"temp-user-avatar-api";
-NSString * const kCapabilityLocationSharing         = @"geo-location-sharing";
-NSString * const kCapabilityConversationV4          = @"conversation-v4";
-NSString * const kCapabilitySIPSupport              = @"sip-support";
-NSString * const kCapabilityVoiceMessage            = @"voice-message-sharing";
 
 NSString * const kUserProfileUserId             = @"id";
 NSString * const kUserProfileDisplayName        = @"displayname";
@@ -110,15 +73,9 @@ NSString * const kUserProfileScopeFederated     = @"v2-federated";
 NSString * const kUserProfileScopePublished     = @"v2-published";
 
 NSInteger const kDefaultChatMaxLength           = 1000;
-NSString * const kMinimumRequiredTalkCapability = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
 NSString * const kPreferredFileSorting  = @"preferredFileSorting";
 NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
-
-NSString * const NCTalkNotInstalledNotification = @"NCTalkNotInstalledNotification";
-NSString * const NCOutdatedTalkVersionNotification = @"NCOutdatedTalkVersionNotification";
-NSString * const NCServerCapabilitiesUpdatedNotification = @"NCServerCapabilitiesUpdatedNotification";
-NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpdatedNotification";
 
 + (NCSettingsController *)sharedInstance
 {
@@ -135,7 +92,6 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     self = [super init];
     if (self) {
         _videoSettingsModel = [[ARDSettingsModel alloc] init];
-        _keychain = [UICKeyChainStore keyChainStoreWithService:bundleIdentifier accessGroup:groupIdentifier];
         _signalingConfigutations = [NSMutableDictionary new];
         _externalSignalingControllers = [NSMutableDictionary new];
         
@@ -143,6 +99,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
         [self configureDatabase];
         [self checkStoredDataInKechain];
         [self configureAppSettings];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tokenRevokedResponseReceived:) name:NCTokenRevokedResponseReceivedNotification object:nil];
     }
     return self;
 }
@@ -169,8 +127,8 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
         account.userPublicKey = _ncUserPublicKey;
         account.active = YES;
         
-        [self setToken:_ncToken forAccountId:account.accountId];
-        [self setPushNotificationPrivateKey:_ncPNPrivateKey forAccountId:account.accountId];
+        [[NCKeyChainController sharedInstance] setToken:_ncToken forAccountId:account.accountId];
+        [[NCKeyChainController sharedInstance] setPushNotificationPrivateKey:_ncPNPrivateKey forAccountId:account.accountId];
         
         RLMRealm *realm = [RLMRealm defaultRealm];
         [realm transactionWithBlock:^{
@@ -188,7 +146,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     if ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) {
         NSLog(@"Removing all data stored in Keychain");
         [self cleanUserAndServerStoredValues];
-        [UICKeyChainStore removeAllItemsForService:bundleIdentifier accessGroup:groupIdentifier];
+        [[NCKeyChainController sharedInstance] removeAllItems];
     }
 }
 
@@ -201,7 +159,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     if (!account) {
         [[NCDatabaseManager sharedInstance] createAccountForUser:user inServer:server];
         [[NCDatabaseManager sharedInstance] setActiveAccountWithAccountId:accountId];
-        [self setToken:token forAccountId:accountId];
+        [[NCKeyChainController sharedInstance] setToken:token forAccountId:accountId];
         TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
         [[NCAPIController sharedInstance] createAPISessionManagerForAccount:talkAccount];
         [self subscribeForPushNotificationsForAccountId:accountId];
@@ -220,24 +178,16 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     [[NCConnectionController sharedInstance] checkAppState];
 }
 
-- (void)setToken:(NSString *)token forAccountId:(NSString *)accountId
-{
-    [_keychain setString:token forKey:[NSString stringWithFormat:@"%@-%@", kNCTokenKey, accountId]];
-}
+#pragma mark - Notifications
 
-- (NSString *)tokenForAccountId:(NSString *)accountId
+- (void)tokenRevokedResponseReceived:(NSNotification *)notification
 {
-    return [_keychain stringForKey:[NSString stringWithFormat:@"%@-%@", kNCTokenKey, accountId]];
-}
-
-- (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccountId:(NSString *)accountId
-{
-    [_keychain setData:privateKey forKey:[NSString stringWithFormat:@"%@-%@", kNCPNPrivateKey, accountId]];
-}
-
-- (NSData *)pushNotificationPrivateKeyForAccountId:(NSString *)accountId
-{
-    return [_keychain dataForKey:[NSString stringWithFormat:@"%@-%@", kNCPNPrivateKey, accountId]];
+    NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
+    [self logoutAccountWithAccountId:accountId withCompletionBlock:^(NSError *error) {
+        [[NCUserInterfaceController sharedInstance] presentConversationsList];
+        [[NCUserInterfaceController sharedInstance] presentLoggedOutInvalidCredentialsAlert];
+        [[NCConnectionController sharedInstance] checkAppState];
+    }];
 }
 
 #pragma mark - User defaults
@@ -290,20 +240,20 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
 
 - (void)readValuesFromKeyChain
 {
-    _ncServer = [_keychain stringForKey:kNCServerKey];
-    _ncUser = [_keychain stringForKey:kNCUserKey];
-    _ncUserId = [_keychain stringForKey:kNCUserIdKey];
-    _ncUserDisplayName = [_keychain stringForKey:kNCUserDisplayNameKey];
-    _ncToken = [_keychain stringForKey:kNCTokenKey];
-    _ncPushToken = [_keychain stringForKey:kNCPushTokenKey];
-    _ncNormalPushToken = [_keychain stringForKey:kNCNormalPushTokenKey];
-    _ncPushKitToken = [_keychain stringForKey:kNCPushKitTokenKey];
-    _pushNotificationSubscribed = [_keychain stringForKey:kNCPushSubscribedKey];
-    _ncPNPublicKey = [_keychain dataForKey:kNCPNPublicKey];
-    _ncPNPrivateKey = [_keychain dataForKey:kNCPNPrivateKey];
-    _ncDeviceIdentifier = [_keychain stringForKey:kNCDeviceIdentifier];
-    _ncDeviceSignature = [_keychain stringForKey:kNCDeviceSignature];
-    _ncUserPublicKey = [_keychain stringForKey:kNCUserPublicKey];
+    _ncServer = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCServerKey];
+    _ncUser = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserKey];
+    _ncUserId = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserIdKey];
+    _ncUserDisplayName = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserDisplayNameKey];
+    _ncToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCTokenKey];
+    _ncPushToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCPushTokenKey];
+    _ncNormalPushToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCNormalPushTokenKey];
+    _ncPushKitToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCPushKitTokenKey];
+    _pushNotificationSubscribed = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCPushSubscribedKey];
+    _ncPNPublicKey = [[NCKeyChainController sharedInstance].keychain dataForKey:kNCPNPublicKey];
+    _ncPNPrivateKey = [[NCKeyChainController sharedInstance].keychain dataForKey:kNCPNPrivateKey];
+    _ncDeviceIdentifier = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCDeviceIdentifier];
+    _ncDeviceSignature = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCDeviceSignature];
+    _ncUserPublicKey = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserPublicKey];
 }
 
 - (void)cleanUserAndServerStoredValues
@@ -319,16 +269,16 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     _ncDeviceSignature = nil;
     _pushNotificationSubscribed = nil;
     
-    [_keychain removeItemForKey:kNCServerKey];
-    [_keychain removeItemForKey:kNCUserKey];
-    [_keychain removeItemForKey:kNCUserDisplayNameKey];
-    [_keychain removeItemForKey:kNCTokenKey];
-    [_keychain removeItemForKey:kNCPushSubscribedKey];
-    [_keychain removeItemForKey:kNCPNPublicKey];
-    [_keychain removeItemForKey:kNCPNPrivateKey];
-    [_keychain removeItemForKey:kNCDeviceIdentifier];
-    [_keychain removeItemForKey:kNCDeviceSignature];
-    [_keychain removeItemForKey:kNCUserPublicKey];
+    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCServerKey];
+    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCUserKey];
+    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCUserDisplayNameKey];
+    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCTokenKey];
+    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCPushSubscribedKey];
+    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCPNPublicKey];
+    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCPNPrivateKey];
+    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCDeviceIdentifier];
+    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCDeviceSignature];
+    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCUserPublicKey];
 }
 
 #pragma mark - User Profile
@@ -427,43 +377,22 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     }
     _supportedBrowsers = supportedBrowsers;
     // Check if default browser is valid
-    if (![supportedBrowsers containsObject:self.defaultBrowser]) {
-        self.defaultBrowser = @"Safari";
+    if (![supportedBrowsers containsObject:[NCUserDefaults defaultBrowser]]) {
+        [NCUserDefaults setDefaultBrowser:@"Safari"];
     }
-}
-
-- (void)setDefaultBrowser:(NSString *)defaultBrowser
-{
-    _defaultBrowser = defaultBrowser;
-    [[NSUserDefaults standardUserDefaults] setObject:defaultBrowser forKey:kNCUserDefaultBrowser];
-}
-
-- (NSString *)defaultBrowser
-{
-    NSString *browser = [[NSUserDefaults standardUserDefaults] objectForKey:kNCUserDefaultBrowser];
-    if (!browser) {
-        browser = @"Safari";
-        // Legacy
-        NSString *oldDefaultBrowser = [_keychain stringForKey:kNCUserDefaultBrowser];
-        if (oldDefaultBrowser) {
-            browser = oldDefaultBrowser;
-        }
-        [[NSUserDefaults standardUserDefaults] setObject:browser forKey:kNCUserDefaultBrowser];
-    }
-    return browser;
 }
 
 #pragma mark - Lock screen
 
 - (void)configureLockScreen
 {
-    _lockScreenPasscode = [_keychain stringForKey:kNCLockScreenPasscode];
+    _lockScreenPasscode = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCLockScreenPasscode];
 }
 
 - (void)setLockScreenPasscode:(NSString *)lockScreenPasscode
 {
     _lockScreenPasscode = lockScreenPasscode;
-    [_keychain setString:lockScreenPasscode forKey:kNCLockScreenPasscode];
+    [[NCKeyChainController sharedInstance].keychain setString:lockScreenPasscode forKey:kNCLockScreenPasscode];
 }
 
 - (NCPasscodeType)lockScreenPasscodeType
@@ -563,24 +492,6 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
                                                               userInfo:nil];
         }
     }
-}
-
-- (BOOL)serverHasTalkCapability:(NSString *)capability
-{
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    return [self serverHasTalkCapability:capability forAccountId:activeAccount.accountId];
-}
-
-- (BOOL)serverHasTalkCapability:(NSString *)capability forAccountId:(NSString *)accountId
-{
-    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:accountId];
-    if (serverCapabilities) {
-        NSArray *talkFeatures = [serverCapabilities.talkCapabilities valueForKey:@"self"];
-        if ([talkFeatures containsObject:capability]) {
-            return YES;
-        }
-    }
-    return NO;
 }
 
 - (NSInteger)chatMaxLengthConfigCapability
@@ -687,7 +598,7 @@ NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpd
     
     BIO_read(privateKeyBIO, keyBytes, len);
     NSData *pnPrivateKey = [NSData dataWithBytes:keyBytes length:len];
-    [self setPushNotificationPrivateKey:pnPrivateKey forAccountId:accountId];
+    [[NCKeyChainController sharedInstance] setPushNotificationPrivateKey:pnPrivateKey forAccountId:accountId];
     EVP_PKEY_free(pkey);
     
     return YES;
@@ -721,67 +632,6 @@ cleanup:
     BN_free(bigNumber);
     
     return pkey;
-}
-
-- (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey
-{
-    NSString *privateKeyString = [[NSString alloc] initWithData:privateKey encoding:NSUTF8StringEncoding];
-    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:message options:0];
-    char *privKey = (char *)[privateKeyString UTF8String];
-    
-    // Get Device Private Key from PEM
-    BIO *bio = BIO_new(BIO_s_mem());
-    BIO_write(bio, privKey, (int)strlen(privKey));
-    
-    EVP_PKEY* pkey = 0;
-    PEM_read_bio_PrivateKey(bio, &pkey, 0, 0);
-    
-    RSA* rsa = EVP_PKEY_get1_RSA(pkey);
-    
-    // Decrypt the message
-    unsigned char *decrypted = (unsigned char *) malloc(4096);
-    
-    int decrypted_length = RSA_private_decrypt((int)[decodedData length], [decodedData bytes], decrypted, rsa, RSA_PKCS1_PADDING);
-    if(decrypted_length == -1) {
-        char buffer[500];
-        ERR_error_string(ERR_get_error(), buffer);
-        NSLog(@"%@",[NSString stringWithUTF8String:buffer]);
-        return nil;
-    }
-    
-    NSString *decryptString = [[NSString alloc] initWithBytes:decrypted length:decrypted_length encoding:NSUTF8StringEncoding];
-    
-    if (decrypted)
-        free(decrypted);
-    free(bio);
-    free(rsa);
-    
-    return decryptString;
-}
-
-- (NSString *)pushTokenSHA512
-{
-    return [self createSHA512:[self combinedPushToken]];
-}
-
-- (NSString *)combinedPushToken
-{
-    return [NSString stringWithFormat:@"%@ %@", self.ncNormalPushToken, self.ncPushKitToken];
-}
-
-#pragma mark - Utils
-
-- (NSString *)createSHA512:(NSString *)string
-{
-    const char *cstr = [string cStringUsingEncoding:NSUTF8StringEncoding];
-    NSData *data = [NSData dataWithBytes:cstr length:string.length];
-    uint8_t digest[CC_SHA512_DIGEST_LENGTH];
-    CC_SHA512(data.bytes, (unsigned int)data.length, digest);
-    NSMutableString* output = [NSMutableString  stringWithCapacity:CC_SHA512_DIGEST_LENGTH * 2];
-    
-    for(int i = 0; i < CC_SHA512_DIGEST_LENGTH; i++)
-        [output appendFormat:@"%02x", digest[i]];
-    return output;
 }
 
 @end

@@ -26,6 +26,7 @@
 #import "RoomNameTableViewCell.h"
 #import "NCUser.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCAppBranding.h"
 #import "UIImageView+AFNetworking.h"
 

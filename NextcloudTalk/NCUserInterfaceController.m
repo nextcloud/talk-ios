@@ -30,6 +30,7 @@
 #import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
+#import "NotificationCenterNotifications.h"
 #import "JDStatusBarNotification.h"
 #import "UIView+Toast.h"
 

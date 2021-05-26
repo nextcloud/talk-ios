@@ -32,11 +32,10 @@
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
-#import "NCSettingsController.h"
+#import "NCKeyChainController.h"
 #import "NCUtils.h"
 #import "MBProgressHUD.h"
 #import "NCNavigationController.h"
-#import "NCUserInterfaceController.h"
 
 
 @interface ShareConfirmationViewController () <NCCommunicationCommonDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, QLPreviewControllerDataSource, QLPreviewControllerDelegate, ShareItemControllerDelegate, TOCropViewControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, UINavigationControllerDelegate>
@@ -109,7 +108,7 @@
     _sharingIndicatorView.color = [NCAppBranding themeTextColor];
     
     // Configure communication lib
-    NSString *userToken = [[NCSettingsController sharedInstance] tokenForAccountId:_account.accountId];
+    NSString *userToken = [[NCKeyChainController sharedInstance] tokenForAccountId:_account.accountId];
     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
     
     [[NCCommunicationCommon shared] setupWithAccount:_account.accountId user:_account.user userId:_account.userId password:userToken
@@ -327,7 +326,7 @@
                                handler:nil];
     
     [alert addAction:okButton];
-    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)presentCamera

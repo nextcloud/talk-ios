@@ -24,6 +24,7 @@
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "NCSettingsController.h"
 #import "NSDate+DateTools.h"

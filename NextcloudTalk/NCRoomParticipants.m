@@ -22,7 +22,7 @@
 
 #import "NCRoomParticipant.h"
 
-#import "NCCallController.h"
+#import "CallConstants.h"
 
 @implementation NCRoomParticipant
 

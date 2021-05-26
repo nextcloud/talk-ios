@@ -26,6 +26,7 @@
 
 #import "DirectoryTableViewCell.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCAppBranding.h"
 #import "NCSettingsController.h"
 #import "NCUtils.h"

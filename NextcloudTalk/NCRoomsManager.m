@@ -35,6 +35,7 @@
 #import "NCUserInterfaceController.h"
 #import "CallKitManager.h"
 #import "NCChatController.h"
+#import "NCChatBlock.h"
 
 NSString * const NCRoomsManagerDidJoinRoomNotification              = @"NCRoomsManagerDidJoinRoomNotification";
 NSString * const NCRoomsManagerDidLeaveRoomNotification             = @"NCRoomsManagerDidLeaveRoomNotification";
