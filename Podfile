@@ -49,11 +49,3 @@ pre_install do |installer|
     puts 'end pre_install.'
 end
 
-# post_install do |installer|
-#   installer.pods_project.targets.each do |target|
-#     target.build_configurations.each do |config|
-#       config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'NO'
-#     end
-#   end
-# end
-
