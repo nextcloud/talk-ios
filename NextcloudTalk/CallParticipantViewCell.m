@@ -23,12 +23,13 @@
 #import "CallParticipantViewCell.h"
 
 #import "DBImageColorPicker.h"
+#import "UIImageView+AFNetworking.h"
+#import "UIImageView+Letters.h"
+
 #import "CallViewController.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCUtils.h"
-#import "UIImageView+AFNetworking.h"
-#import "UIImageView+Letters.h"
 
 NSString *const kCallParticipantCellIdentifier = @"CallParticipantCellIdentifier";
 NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";

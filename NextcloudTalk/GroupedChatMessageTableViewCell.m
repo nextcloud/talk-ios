@@ -21,11 +21,12 @@
  */
 
 #import "GroupedChatMessageTableViewCell.h"
+
 #import "MaterialActivityIndicator.h"
-#import "NCDatabaseManager.h"
-#import "NCSettingsController.h"
 #import "SLKUIConstants.h"
+
 #import "NCAppBranding.h"
+#import "NCDatabaseManager.h"
 
 @implementation GroupedChatMessageTableViewCell
 

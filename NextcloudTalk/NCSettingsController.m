@@ -28,7 +28,10 @@
 #import <openssl/bn.h>
 #import <openssl/sha.h>
 #import <openssl/err.h>
+
+#import "JDStatusBarNotification.h"
 #import "OpenInFirefoxControllerObjC.h"
+
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCConnectionController.h"
@@ -38,7 +41,6 @@
 #import "NCRoomsManager.h"
 #import "NCUserInterfaceController.h"
 #import "NCUserDefaults.h"
-#import "JDStatusBarNotification.h"
 #import "NCChatFileController.h"
 #import "NotificationCenterNotifications.h"
 

@@ -23,6 +23,9 @@
 #import "NCUserInterfaceController.h"
 
 #import "AFNetworking.h"
+#import "JDStatusBarNotification.h"
+#import "UIView+Toast.h"
+
 #import "AuthenticationViewController.h"
 #import "LoginViewController.h"
 #import "NCAppBranding.h"
@@ -31,8 +34,6 @@
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NotificationCenterNotifications.h"
-#import "JDStatusBarNotification.h"
-#import "UIView+Toast.h"
 
 @interface NCUserInterfaceController () <LoginViewControllerDelegate, AuthenticationViewControllerDelegate>
 {

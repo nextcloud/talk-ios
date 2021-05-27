@@ -25,9 +25,10 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <CommonCrypto/CommonDigest.h>
 
+#import "OpenInFirefoxControllerObjC.h"
+
 #import "NCDatabaseManager.h"
 #import "NCUserDefaults.h"
-#import "OpenInFirefoxControllerObjC.h"
 
 static NSString *const nextcloudScheme = @"nextcloud:";
 

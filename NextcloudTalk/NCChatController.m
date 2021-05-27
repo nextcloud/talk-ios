@@ -26,7 +26,6 @@
 #import "NCChatBlock.h"
 #import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
-#import "NCSettingsController.h"
 
 NSString * const NCChatControllerDidReceiveInitialChatHistoryNotification           = @"NCChatControllerDidReceiveInitialChatHistoryNotification";
 NSString * const NCChatControllerDidReceiveInitialChatHistoryOfflineNotification    = @"NCChatControllerDidReceiveInitialChatHistoryOfflineNotification";

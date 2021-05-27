@@ -21,6 +21,7 @@
  */
 
 #import "UserSettingsTableViewCell.h"
+
 #import "NCAppBranding.h"
 
 NSString *const kUserSettingsCellIdentifier = @"UserSettingsCellIdentifier";

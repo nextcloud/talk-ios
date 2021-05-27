@@ -21,6 +21,7 @@
  */
 
 #import "NCMessageTextView.h"
+
 #import "NCAppBranding.h"
 
 @implementation NCMessageTextView

@@ -22,6 +22,8 @@
 
 #import "AddParticipantsTableViewController.h"
 
+#import "UIImageView+AFNetworking.h"
+
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCContact.h"
@@ -30,7 +32,6 @@
 #import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "ResultMultiSelectionTableViewController.h"
-#import "UIImageView+AFNetworking.h"
 
 @interface AddParticipantsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {

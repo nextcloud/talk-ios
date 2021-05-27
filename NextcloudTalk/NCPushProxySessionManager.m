@@ -21,6 +21,7 @@
  */
 
 #import "NCPushProxySessionManager.h"
+
 #import "CCCertificate.h"
 
 @implementation NCPushProxySessionManager

@@ -21,16 +21,17 @@
  */
 
 #import "ChatMessageTableViewCell.h"
-#import "SLKUIConstants.h"
-#import "QuotedMessageView.h"
-#import "NCAPIController.h"
-#import "NCDatabaseManager.h"
-#import "NCSettingsController.h"
-#import "NCUtils.h"
+
 #import "MaterialActivityIndicator.h"
+#import "SLKUIConstants.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
+
+#import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCDatabaseManager.h"
+#import "NCUtils.h"
+#import "QuotedMessageView.h"
 
 @interface ChatMessageTableViewCell ()
 @property (nonatomic, strong) UIView *quoteContainerView;

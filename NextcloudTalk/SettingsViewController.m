@@ -22,27 +22,28 @@
 
 #import "SettingsViewController.h"
 
-#import "NCSettingsController.h"
-#import "NCAPIController.h"
-#import "NCAppBranding.h"
-#import "NCContactsManager.h"
-#import "NCDatabaseManager.h"
-#import "AccountTableViewCell.h"
-#import "UserSettingsTableViewCell.h"
-#import "NCAPIController.h"
-#import "NCNavigationController.h"
-#import "NCUserStatus.h"
-#import "NCUserDefaults.h"
-#import "NCConnectionController.h"
+#import <SafariServices/SafariServices.h>
+
+#import "CCBKPasscode.h"
+#import "NBPhoneNumberUtil.h"
 #import "OpenInFirefoxControllerObjC.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
-#import "CCBKPasscode.h"
-#import "RoundedNumberView.h"
-#import "NBPhoneNumberUtil.h"
 #import "UIView+Toast.h"
+
+#import "AccountTableViewCell.h"
+#import "NCAPIController.h"
+#import "NCAppBranding.h"
+#import "NCConnectionController.h"
+#import "NCContactsManager.h"
+#import "NCDatabaseManager.h"
+#import "NCNavigationController.h"
+#import "NCSettingsController.h"
+#import "NCUserStatus.h"
+#import "NCUserDefaults.h"
+#import "RoundedNumberView.h"
 #import "UserProfileViewController.h"
-#import <SafariServices/SafariServices.h>
+#import "UserSettingsTableViewCell.h"
 
 typedef enum SettingsSection {
     kSettingsSectionUser = 0,

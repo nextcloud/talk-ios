@@ -24,12 +24,15 @@
 
 #import <QuickLook/QuickLook.h>
 
+#import "UIImageView+AFNetworking.h"
+#import "UIImageView+Letters.h"
+
 #import "AddParticipantsTableViewController.h"
 #import "ContactsTableViewCell.h"
-#import "RoomNameTableViewCell.h"
 #import "HeaderWithButton.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCChatFileController.h"
 #import "NCDatabaseManager.h"
 #import "NCNavigationController.h"
 #import "NCRoomsManager.h"
@@ -37,9 +40,7 @@
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
-#import "UIImageView+Letters.h"
-#import "UIImageView+AFNetworking.h"
-#import "NCChatFileController.h"
+#import "RoomNameTableViewCell.h"
 
 typedef enum RoomInfoSection {
     kRoomInfoSectionName = 0,

@@ -36,19 +36,19 @@
 #import <BackgroundTasks/BGTaskRequest.h>
 #import <BackgroundTasks/BGTask.h>
 
+#import "UICKeyChainStore.h"
+
 #import "NCAudioController.h"
 #import "NCAppBranding.h"
-#import "NCConnectionController.h"
-#import "NCPushNotificationsUtils.h"
 #import "NCDatabaseManager.h"
 #import "NCKeyChainController.h"
 #import "NCNavigationController.h"
 #import "NCNotificationController.h"
 #import "NCPushNotification.h"
+#import "NCPushNotificationsUtils.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
-#import "UICKeyChainStore.h"
 
 @interface AppDelegate ()
 

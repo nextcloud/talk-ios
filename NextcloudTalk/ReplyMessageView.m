@@ -21,7 +21,9 @@
  */
 
 #import "ReplyMessageView.h"
+
 #import "SLKUIConstants.h"
+
 #import "NCChatMessage.h"
 #import "QuotedMessageView.h"
 

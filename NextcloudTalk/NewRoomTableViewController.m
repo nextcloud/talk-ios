@@ -22,8 +22,8 @@
 
 #import "NewRoomTableViewController.h"
 
-#import "RoomCreationTableViewController.h"
-#import "RoomCreation2TableViewController.h"
+#import "UIImageView+AFNetworking.h"
+
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCContact.h"
@@ -33,8 +33,9 @@
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
+#import "RoomCreationTableViewController.h"
+#import "RoomCreation2TableViewController.h"
 #import "SearchTableViewController.h"
-#import "UIImageView+AFNetworking.h"
 
 typedef enum HeaderSection {
     kHeaderSectionNewGroup = 0,

@@ -22,14 +22,15 @@
 
 #import "RoomCreationTableViewController.h"
 
+#import "UIImageView+AFNetworking.h"
+
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
+#import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "ResultMultiSelectionTableViewController.h"
 #import "RoomCreation2TableViewController.h"
-#import "UIImageView+AFNetworking.h"
-#import "NCUtils.h"
 
 @interface RoomCreationTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {

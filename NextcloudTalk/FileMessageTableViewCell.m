@@ -21,17 +21,17 @@
  */
 
 #import "FileMessageTableViewCell.h"
-#import "SLKUIConstants.h"
+
 #import "MaterialActivityIndicator.h"
-#import "NCUtils.h"
+#import "SLKUIConstants.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 
 #import "NCAPIController.h"
-#import "NCDatabaseManager.h"
-#import "NCSettingsController.h"
-#import "NCChatFileController.h"
 #import "NCAppBranding.h"
+#import "NCChatFileController.h"
+#import "NCDatabaseManager.h"
+#import "NCUtils.h"
 
 @implementation FilePreviewImageView : UIImageView
 

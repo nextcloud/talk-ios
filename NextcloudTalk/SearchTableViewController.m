@@ -22,11 +22,12 @@
 
 #import "SearchTableViewController.h"
 
-#import "NCUser.h"
+#import "UIImageView+AFNetworking.h"
+
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
+#import "NCUser.h"
 #import "PlaceholderView.h"
-#import "UIImageView+AFNetworking.h"
 
 @interface SearchTableViewController ()
 {

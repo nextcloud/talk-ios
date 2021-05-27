@@ -21,51 +21,54 @@
  */
 
 #import <AVFoundation/AVFoundation.h>
+#import <QuickLook/QuickLook.h>
+
+#import <NCCommunication/NCCommunication.h>
 
 #import "NCChatViewController.h"
 
 #import "AFImageDownloader.h"
+#import "FTPopOverMenu.h"
+#import "NSDate+DateTools.h"
+#import "UIImageView+AFNetworking.h"
+#import "UIImageView+Letters.h"
+#import "UIView+Toast.h"
+
+#import "BarButtonItemWithActivity.h"
 #import "CallKitManager.h"
 #import "ChatMessageTableViewCell.h"
+#import "DateHeaderView.h"
 #import "DirectoryTableViewController.h"
 #import "GroupedChatMessageTableViewCell.h"
 #import "FileMessageTableViewCell.h"
+#import "GeoLocationRichObject.h"
 #import "LocationMessageTableViewCell.h"
-#import "SystemMessageTableViewCell.h"
 #import "MapViewController.h"
 #import "MessageSeparatorTableViewCell.h"
-#import "DateHeaderView.h"
-#import "FTPopOverMenu.h"
 #import "PlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCChatController.h"
+#import "NCChatFileController.h"
 #import "NCChatMessage.h"
-#import "NCDatabaseManager.h"
-#import "NCMessageParameter.h"
 #import "NCChatTitleView.h"
+#import "NCDatabaseManager.h"
+#import "NCImageSessionManager.h"
+#import "NCMessageParameter.h"
 #import "NCMessageTextView.h"
 #import "NCNavigationController.h"
-#import "NCImageSessionManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
-#import "NSDate+DateTools.h"
-#import "ReplyMessageView.h"
 #import "QuotedMessageView.h"
+#import "ReplyMessageView.h"
 #import "RoomInfoTableViewController.h"
 #import "ShareConfirmationViewController.h"
-#import "UIImageView+AFNetworking.h"
-#import "UIImageView+Letters.h"
-#import "UIView+Toast.h"
-#import "BarButtonItemWithActivity.h"
 #import "ShareItem.h"
-#import "NCChatFileController.h"
+#import "SystemMessageTableViewCell.h"
 #import "ShareLocationViewController.h"
-#import "GeoLocationRichObject.h"
-#import <NCCommunication/NCCommunication.h>
-#import <QuickLook/QuickLook.h>
+
 
 #define k_send_message_button_tag   99
 #define k_voice_record_button_tag   98

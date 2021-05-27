@@ -25,12 +25,13 @@
 #import <AVFoundation/AVFoundation.h>
 #import <TOCropViewController/TOCropViewController.h>
 
+#import "NBPhoneNumberUtil.h"
+
 #import "AvatarHeaderView.h"
 #import "DetailedOptionsSelectorTableViewController.h"
 #import "HeaderWithButton.h"
-#import "NBPhoneNumberUtil.h"
-#import "NCAppBranding.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCNavigationController.h"

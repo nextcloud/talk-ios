@@ -21,7 +21,7 @@
  */
 
 #import "MessageBodyTextView.h"
-#import "NCSettingsController.h"
+
 #import "NCUserDefaults.h"
 #import "OpenInFirefoxControllerObjC.h"
 

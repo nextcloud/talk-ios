@@ -24,18 +24,18 @@
 
 #import <Realm/Realm.h>
 
+#import "CallKitManager.h"
 #import "NCChatViewController.h"
-#import "NewRoomTableViewController.h"
-#import "RoomCreation2TableViewController.h"
 #import "NCAPIController.h"
-#import "NCDatabaseManager.h"
+#import "NCChatBlock.h"
+#import "NCChatController.h"
 #import "NCChatMessage.h"
+#import "NCDatabaseManager.h"
 #import "NCExternalSignalingController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
-#import "CallKitManager.h"
-#import "NCChatController.h"
-#import "NCChatBlock.h"
+#import "NewRoomTableViewController.h"
+#import "RoomCreation2TableViewController.h"
 
 NSString * const NCRoomsManagerDidJoinRoomNotification              = @"NCRoomsManagerDidJoinRoomNotification";
 NSString * const NCRoomsManagerDidLeaveRoomNotification             = @"NCRoomsManagerDidLeaveRoomNotification";

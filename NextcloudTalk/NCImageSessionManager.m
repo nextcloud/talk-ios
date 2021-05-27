@@ -21,6 +21,7 @@
  */
 
 #import "NCImageSessionManager.h"
+
 #import "CCCertificate.h"
 
 @implementation NCImageSessionManager

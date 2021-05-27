@@ -21,9 +21,9 @@
  */
 
 #import "NCChatFileController.h"
-#import "NCDatabaseManager.h"
-#import "NCSettingsController.h"
+
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 
 NSString * const NCChatFileControllerDidChangeIsDownloadingNotification     = @"NCChatFileControllerDidChangeIsDownloadingNotification";
 NSString * const NCChatFileControllerDidChangeDownloadProgressNotification  = @"NCChatFileControllerDidChangeDownloadProgressNotification";
