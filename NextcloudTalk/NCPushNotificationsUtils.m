@@ -20,7 +20,7 @@
  *
  */
 
-#import "NCCrypto.h"
+#import "NCPushNotificationsUtils.h"
 
 #import <openssl/rsa.h>
 #import <openssl/pem.h>
@@ -29,7 +29,7 @@
 #import <openssl/sha.h>
 #import <openssl/err.h>
 
-@implementation NCCrypto
+@implementation NCPushNotificationsUtils
 
 + (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey
 {

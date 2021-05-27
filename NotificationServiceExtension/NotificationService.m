@@ -25,11 +25,11 @@
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
-#import "NCCrypto.h"
 #import "NCDatabaseManager.h"
 #import "NCKeyChainController.h"
 #import "NCNotification.h"
 #import "NCPushNotification.h"
+#import "NCPushNotificationsUtils.h"
 
 @interface NotificationService ()
 
@@ -96,7 +96,7 @@
         NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
         if (message && pushNotificationPrivateKey) {
             @try {
-                NSString *decryptedMessage = [NCCrypto decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+                NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
                 if (decryptedMessage) {
                     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
                     

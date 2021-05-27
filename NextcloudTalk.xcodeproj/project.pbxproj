@@ -79,8 +79,8 @@
 		2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */; };
 		2C4446ED265D25BA00DF1DBC /* NCKeyChainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */; };
 		2C4446F0265D454200DF1DBC /* NotificationCenterNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */; };
-		2C4446F3265D51A600DF1DBC /* NCCrypto.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446F2265D51A600DF1DBC /* NCCrypto.m */; };
-		2C4446F4265D51A600DF1DBC /* NCCrypto.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446F2265D51A600DF1DBC /* NCCrypto.m */; };
+		2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446F2265D51A600DF1DBC /* NCPushNotificationsUtils.m */; };
+		2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446F2265D51A600DF1DBC /* NCPushNotificationsUtils.m */; };
 		2C4446F5265D583200DF1DBC /* NCKeyChainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */; };
 		2C4446F6265D593200DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
 		2C4446F7265D593300DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
@@ -380,8 +380,8 @@
 		2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCKeyChainController.m; sourceTree = "<group>"; };
 		2C4446EE265D454200DF1DBC /* NotificationCenterNotifications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationCenterNotifications.h; sourceTree = "<group>"; };
 		2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationCenterNotifications.m; sourceTree = "<group>"; };
-		2C4446F1265D51A600DF1DBC /* NCCrypto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCCrypto.h; sourceTree = "<group>"; };
-		2C4446F2265D51A600DF1DBC /* NCCrypto.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCCrypto.m; sourceTree = "<group>"; };
+		2C4446F1265D51A600DF1DBC /* NCPushNotificationsUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushNotificationsUtils.h; sourceTree = "<group>"; };
+		2C4446F2265D51A600DF1DBC /* NCPushNotificationsUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushNotificationsUtils.m; sourceTree = "<group>"; };
 		2C4446FA265D5BEF00DF1DBC /* CallConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CallConstants.h; sourceTree = "<group>"; };
 		2C444701265D641300DF1DBC /* NCUserDefaults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCUserDefaults.h; sourceTree = "<group>"; };
 		2C444702265D641300DF1DBC /* NCUserDefaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCUserDefaults.m; sourceTree = "<group>"; };
@@ -1031,8 +1031,6 @@
 				2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */,
 				2C4446EA265D25BA00DF1DBC /* NCKeyChainController.h */,
 				2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */,
-				2C4446F1265D51A600DF1DBC /* NCCrypto.h */,
-				2C4446F2265D51A600DF1DBC /* NCCrypto.m */,
 				2C444701265D641300DF1DBC /* NCUserDefaults.h */,
 				2C444702265D641300DF1DBC /* NCUserDefaults.m */,
 			);
@@ -1270,6 +1268,8 @@
 				2CBF82AD1FC888FC00636459 /* NCPushNotification.m */,
 				2C9B0B96217F6DBA00A4752C /* NCNotificationController.h */,
 				2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */,
+				2C4446F1265D51A600DF1DBC /* NCPushNotificationsUtils.h */,
+				2C4446F2265D51A600DF1DBC /* NCPushNotificationsUtils.m */,
 			);
 			name = Notifications;
 			sourceTree = "<group>";
@@ -1762,7 +1762,7 @@
 				2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */,
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
 				2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */,
-				2C4446F3265D51A600DF1DBC /* NCCrypto.m in Sources */,
+				2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
 				C1292B8C237313590004C3B7 /* CCBKPasscode.m in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
@@ -1932,7 +1932,7 @@
 				2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */,
 				1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				2C4446F6265D593200DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */,
-				2C4446F4265D51A600DF1DBC /* NCCrypto.m in Sources */,
+				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */,
 				2C4446DE2658158000DF1DBC /* NCChatBlock.m in Sources */,
 				2C4446D9265814D100DF1DBC /* ServerCapabilities.m in Sources */,

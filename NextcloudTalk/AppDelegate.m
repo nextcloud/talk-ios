@@ -39,7 +39,7 @@
 #import "NCAudioController.h"
 #import "NCAppBranding.h"
 #import "NCConnectionController.h"
-#import "NCCrypto.h"
+#import "NCPushNotificationsUtils.h"
 #import "NCDatabaseManager.h"
 #import "NCKeyChainController.h"
 #import "NCNavigationController.h"
@@ -218,7 +218,7 @@
         TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
         NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
         if (message && pushNotificationPrivateKey) {
-            NSString *decryptedMessage = [NCCrypto decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+            NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
             if (decryptedMessage) {
                 NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
                 [[NCNotificationController sharedInstance] processBackgroundPushNotification:pushNotification];
@@ -249,7 +249,7 @@
         TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
         NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
         if (message && pushNotificationPrivateKey) {
-            NSString *decryptedMessage = [NCCrypto decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+            NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
             if (decryptedMessage) {
                 NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
                 if (pushNotification && pushNotification.type == NCPushNotificationTypeCall) {
