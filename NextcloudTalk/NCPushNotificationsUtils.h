@@ -20,30 +20,14 @@
  *
  */
 
-#import "NCMessageTextView.h"
+#import <Foundation/Foundation.h>
 
-#import "NCAppBranding.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation NCMessageTextView
+@interface NCPushNotificationsUtils : NSObject
 
-- (instancetype)init
-{
-    if (self = [super init]) {
-        // Do something
-    }
-    return self;
-}
-
-- (void)willMoveToSuperview:(UIView *)newSuperview
-{
-    [super willMoveToSuperview:newSuperview];
-    
-    self.keyboardType = UIKeyboardTypeDefault;
-    
-    self.backgroundColor = [NCAppBranding backgroundColor];
-    
-    self.placeholder = NSLocalizedString(@"Write message, @ to mention someone …", nil);
-    self.placeholderColor = [NCAppBranding placeholderColor];
-}
++ (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
 
 @end
+
+NS_ASSUME_NONNULL_END

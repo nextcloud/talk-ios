@@ -21,13 +21,15 @@
  */
 
 #import "NotificationService.h"
+#import <Realm/Realm.h>
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
+#import "NCKeyChainController.h"
 #import "NCNotification.h"
 #import "NCPushNotification.h"
-#import "NCSettingsController.h"
+#import "NCPushNotificationsUtils.h"
 
 @interface NotificationService ()
 
@@ -91,10 +93,10 @@
     NSString *message = [self.bestAttemptContent.userInfo objectForKey:@"subject"];
     for (TalkAccount *talkAccount in [TalkAccount allObjectsInRealm:realm]) {
         TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
-        NSData *pushNotificationPrivateKey = [[NCSettingsController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
+        NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
         if (message && pushNotificationPrivateKey) {
             @try {
-                NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+                NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
                 if (decryptedMessage) {
                     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
                     

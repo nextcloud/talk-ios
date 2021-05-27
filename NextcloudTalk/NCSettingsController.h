@@ -23,44 +23,6 @@
 #import <Foundation/Foundation.h>
 
 #import "ARDSettingsModel.h"
-#import "UICKeyChainStore.h"
-
-
-extern NSString * const kNCServerKey;
-extern NSString * const kNCUserKey;
-extern NSString * const kNCUserIdKey;
-extern NSString * const kNCUserDisplayNameKey;
-extern NSString * const kNCTokenKey;
-extern NSString * const kNCPushTokenKey;
-extern NSString * const kNCNormalPushTokenKey;
-extern NSString * const kNCPushKitTokenKey;
-extern NSString * const kNCPushSubscribedKey;
-extern NSString * const kNCPNPublicKey;
-extern NSString * const kNCPNPrivateKey;
-extern NSString * const kNCDeviceIdentifier;
-extern NSString * const kNCDeviceSignature;
-extern NSString * const kNCUserPublicKey;
-extern NSString * const kNCUserDefaultBrowser;
-extern NSString * const kNCLockScreenPasscode;
-extern NSString * const kNCLockScreenPasscodeType;
-
-extern NSString * const kCapabilitySystemMessages;
-extern NSString * const kCapabilityNotificationLevels;
-extern NSString * const kCapabilityInviteGroupsAndMails;
-extern NSString * const kCapabilityLockedOneToOneRooms;
-extern NSString * const kCapabilityWebinaryLobby;
-extern NSString * const kCapabilityChatReadMarker;
-extern NSString * const kCapabilityStartCallFlag;
-extern NSString * const kCapabilityCirclesSupport;
-extern NSString * const kCapabilityChatReferenceId;
-extern NSString * const kCapabilityPhonebookSearch;
-extern NSString * const kCapabilityChatReadStatus;
-extern NSString * const kCapabilityDeleteMessages;
-extern NSString * const kCapabilityCallFlags;
-extern NSString * const kCapabilityTempUserAvatarAPI;
-extern NSString * const kCapabilityLocationSharing;
-extern NSString * const kCapabilityConversationV4;
-extern NSString * const kCapabilitySIPSupport;
 
 extern NSString * const kUserProfileDisplayName;
 extern NSString * const kUserProfileDisplayNameScope;
@@ -82,17 +44,11 @@ extern NSString * const kUserProfileScopeFederated;
 extern NSString * const kUserProfileScopePublished;
 
 extern NSInteger const kDefaultChatMaxLength;
-extern NSString * const kMinimumRequiredTalkCapability;
 
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
 typedef void (^GetSignalingConfigCompletionBlock)(NSError *error);
-
-extern NSString * const NCTalkNotInstalledNotification;
-extern NSString * const NCOutdatedTalkVersionNotification;
-extern NSString * const NCServerCapabilitiesUpdatedNotification;
-extern NSString * const NCUserProfileImageUpdatedNotification;
 
 typedef enum NCPreferredFileSorting {
     NCAlphabeticalSorting = 1,
@@ -122,7 +78,6 @@ typedef enum NCPasscodeType {
 @property (nonatomic, copy) NSString *ncDeviceIdentifier;
 @property (nonatomic, copy) NSString *ncDeviceSignature;
 @property (nonatomic, copy) NSString *ncUserPublicKey;
-@property (nonatomic, copy) NSString *defaultBrowser;
 @property (nonatomic, copy) NSMutableArray *supportedBrowsers;
 @property (nonatomic, copy) NSString *lockScreenPasscode;
 @property (nonatomic, assign) NCPasscodeType lockScreenPasscodeType;
@@ -133,12 +88,7 @@ typedef enum NCPasscodeType {
 + (instancetype)sharedInstance;
 - (void)addNewAccountForUser:(NSString *)user withToken:(NSString *)token inServer:(NSString *)server;
 - (void)setActiveAccountWithAccountId:(NSString *)accountId;
-- (NSString *)tokenForAccountId:(NSString *)accountId;
-- (NSData *)pushNotificationPrivateKeyForAccountId:(NSString *)accountId;
 - (void)cleanUserAndServerStoredValues;
-- (NSString *)pushTokenSHA512;
-- (NSString *)combinedPushToken;
-- (NSString *)decryptPushNotification:(NSString *)message withDevicePrivateKey:(NSData *)privateKey;
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
 - (void)logoutAccountWithAccountId:(NSString *)accountId withCompletionBlock:(LogoutCompletionBlock)block;
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
@@ -146,8 +96,6 @@ typedef enum NCPasscodeType {
 - (void)setSignalingConfigurationForAccountId:(NSString *)accountId;
 - (NCExternalSignalingController *)externalSignalingControllerForAccountId:(NSString *)accountId;
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId;
-- (BOOL)serverHasTalkCapability:(NSString *)capability;
-- (BOOL)serverHasTalkCapability:(NSString *)capability forAccountId:(NSString *)accountId;
 - (NSInteger)chatMaxLengthConfigCapability;
 - (BOOL)canCreateGroupAndPublicRooms;
 - (NCPreferredFileSorting)getPreferredFileSorting;

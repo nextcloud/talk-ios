@@ -23,6 +23,7 @@
 #import "ContactsTableViewCell.h"
 
 #import "UIImageView+AFNetworking.h"
+
 #import "NCAppBranding.h"
 
 NSString *const kContactCellIdentifier = @"ContactCellIdentifier";

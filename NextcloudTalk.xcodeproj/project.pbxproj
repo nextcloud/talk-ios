@@ -8,19 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */; };
-		1F3D3B23255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */; };
-		1F3D3B24255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */; };
 		1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
-		1F5CDF652584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
-		1F5CDF662584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
 		1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3C4257D439500853F79 /* NCChatFileController.m */; };
-		1FEDE3C7257D439500853F79 /* NCChatFileController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3C4257D439500853F79 /* NCChatFileController.m */; };
-		1FEDE3C8257D439500853F79 /* NCChatFileController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3C4257D439500853F79 /* NCChatFileController.m */; };
 		1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
 		1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
 		1FEDE3D0257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
@@ -40,25 +34,14 @@
 		2C1ABD8725769E7D00AEDFB6 /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
 		2C1ABD8825769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */; };
 		2C1ABD8925769E7D00AEDFB6 /* ShareItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8525769E7D00AEDFB6 /* ShareItem.m */; };
-		2C1ABD8D25769F4E00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8025769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m */; };
-		2C1ABD9125769F4F00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8025769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m */; };
-		2C1ABD9525769F6900AEDFB6 /* ShareConfirmationCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */; };
 		2C1ABD9925769F7500AEDFB6 /* ShareItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8525769E7D00AEDFB6 /* ShareItem.m */; };
-		2C1ABD9D25769F7500AEDFB6 /* ShareItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8525769E7D00AEDFB6 /* ShareItem.m */; };
-		2C1ABDA125769F8400AEDFB6 /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
-		2C1ABDA525769F8600AEDFB6 /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
 		2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */; };
-		2C1ABDC7257A7CF100AEDFB6 /* NCContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */; };
-		2C1ABDC8257A7CF100AEDFB6 /* NCContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */; };
 		2C1ABDCE257E939600AEDFB6 /* NCContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDCD257E939600AEDFB6 /* NCContact.m */; };
 		2C1ABDCF257E939600AEDFB6 /* NCContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDCD257E939600AEDFB6 /* NCContact.m */; };
 		2C1ABDD0257E939600AEDFB6 /* NCContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDCD257E939600AEDFB6 /* NCContact.m */; };
 		2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDE4257F883400AEDFB6 /* ABContact.m */; };
-		2C1ABDE6257F883400AEDFB6 /* ABContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDE4257F883400AEDFB6 /* ABContact.m */; };
-		2C1ABDE7257F883400AEDFB6 /* ABContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDE4257F883400AEDFB6 /* ABContact.m */; };
 		2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */; };
 		2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
-		2C1EF36C25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
 		2C1EF36D25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
 		2C2026A0236832D300DFC89B /* FTPopOverMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C20269F236832D300DFC89B /* FTPopOverMenu.m */; };
 		2C2026A42369F47400DFC89B /* AccountTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2026A22369F47400DFC89B /* AccountTableViewCell.m */; };
@@ -68,20 +51,13 @@
 		2C3195B924C1C30D0066F221 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60131FB4A9DA006E87EF /* libcrypto.a */; };
 		2C3195BA24C1C30D0066F221 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60141FB4A9DA006E87EF /* libssl.a */; };
 		2C3195BC24C599130066F221 /* PlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* PlaceholderView.xib */; };
-		2C3195BD24C5A3D90066F221 /* ContactsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */; };
 		2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
 		2C3195C224C5E2100066F221 /* ShareTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3195C024C5E2100066F221 /* ShareTableViewCell.m */; };
 		2C3195C324C5E2100066F221 /* ShareTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C3195C124C5E2100066F221 /* ShareTableViewCell.xib */; };
 		2C330372255E6EBC00BDB4E4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C330374255E6EBC00BDB4E4 /* InfoPlist.strings */; };
 		2C36A038261342220026F04A /* AvatarHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C36A037261342220026F04A /* AvatarHeaderView.m */; };
-		2C36A039261342220026F04A /* AvatarHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C36A037261342220026F04A /* AvatarHeaderView.m */; };
-		2C36A03A261342220026F04A /* AvatarHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C36A037261342220026F04A /* AvatarHeaderView.m */; };
 		2C36A03F261342FF0026F04A /* AvatarHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C36A03E261342FF0026F04A /* AvatarHeaderView.xib */; };
-		2C36A040261342FF0026F04A /* AvatarHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C36A03E261342FF0026F04A /* AvatarHeaderView.xib */; };
-		2C36A041261342FF0026F04A /* AvatarHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C36A03E261342FF0026F04A /* AvatarHeaderView.xib */; };
 		2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */; };
-		2C36A04B261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */; };
-		2C36A04C261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */; };
 		2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
 		2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
 		2C3780C5210F4A26003F9AE8 /* HeaderWithButton.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */; };
@@ -91,6 +67,37 @@
 		2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
 		2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C440D0F20EA4A770005F9BB /* RoomInfoTableViewController.m */; };
 		2C440D1220EA4A770005F9BB /* RoomInfoTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C440D1020EA4A770005F9BB /* RoomInfoTableViewController.xib */; };
+		2C4446D32658147900DF1DBC /* TalkAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446D22658147900DF1DBC /* TalkAccount.m */; };
+		2C4446D42658147900DF1DBC /* TalkAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446D22658147900DF1DBC /* TalkAccount.m */; };
+		2C4446D52658147900DF1DBC /* TalkAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446D22658147900DF1DBC /* TalkAccount.m */; };
+		2C4446D8265814D100DF1DBC /* ServerCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446D7265814D100DF1DBC /* ServerCapabilities.m */; };
+		2C4446D9265814D100DF1DBC /* ServerCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446D7265814D100DF1DBC /* ServerCapabilities.m */; };
+		2C4446DA265814D100DF1DBC /* ServerCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446D7265814D100DF1DBC /* ServerCapabilities.m */; };
+		2C4446DD2658158000DF1DBC /* NCChatBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446DC2658158000DF1DBC /* NCChatBlock.m */; };
+		2C4446DE2658158000DF1DBC /* NCChatBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446DC2658158000DF1DBC /* NCChatBlock.m */; };
+		2C4446DF2658158000DF1DBC /* NCChatBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446DC2658158000DF1DBC /* NCChatBlock.m */; };
+		2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */; };
+		2C4446ED265D25BA00DF1DBC /* NCKeyChainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */; };
+		2C4446F0265D454200DF1DBC /* NotificationCenterNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */; };
+		2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446F2265D51A600DF1DBC /* NCPushNotificationsUtils.m */; };
+		2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446F2265D51A600DF1DBC /* NCPushNotificationsUtils.m */; };
+		2C4446F5265D583200DF1DBC /* NCKeyChainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */; };
+		2C4446F6265D593200DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
+		2C4446F7265D593300DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
+		2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */; };
+		2C4446F9265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */; };
+		2C4446FB265D5C5700DF1DBC /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
+		2C4446FC265D5C5800DF1DBC /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
+		2C4446FD265D5DFA00DF1DBC /* ABContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDE4257F883400AEDFB6 /* ABContact.m */; };
+		2C4446FE265D5DFA00DF1DBC /* ABContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDE4257F883400AEDFB6 /* ABContact.m */; };
+		2C4446FF265D5EB100DF1DBC /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
+		2C444700265D5EB200DF1DBC /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
+		2C444703265D641300DF1DBC /* NCUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C444702265D641300DF1DBC /* NCUserDefaults.m */; };
+		2C444704265D641300DF1DBC /* NCUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C444702265D641300DF1DBC /* NCUserDefaults.m */; };
+		2C444705265D641300DF1DBC /* NCUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C444702265D641300DF1DBC /* NCUserDefaults.m */; };
+		2C444706265E59B100DF1DBC /* ShareConfirmationCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8025769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m */; };
+		2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */; };
+		2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
 		2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4987BC21E640E20060AC27 /* CallKitManager.m */; };
 		2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
 		2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
@@ -106,103 +113,25 @@
 		2C62AFB624C1A449007E460A /* Share.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C62AFB524C1A449007E460A /* Share.storyboard */; };
 		2C62AFB924C1A4E6007E460A /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C62AFB824C1A4E6007E460A /* ShareViewController.m */; };
 		2C62AFBB24C1B7B1007E460A /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
-		2C62AFBC24C1BD69007E460A /* FTPopOverMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C20269F236832D300DFC89B /* FTPopOverMenu.m */; };
-		2C62AFBD24C1BD6D007E460A /* SLKInputAccessoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */; };
-		2C62AFBE24C1BD74007E460A /* SLKTextInput+Implementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */; };
-		2C62AFBF24C1BD74007E460A /* SLKTextInputbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A12264775E0053078A /* SLKTextInputbar.m */; };
-		2C62AFC024C1BD74007E460A /* SLKTextView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A32264775E0053078A /* SLKTextView+SLKAdditions.m */; };
-		2C62AFC124C1BD74007E460A /* SLKTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A52264775E0053078A /* SLKTextView.m */; };
-		2C62AFC224C1BD74007E460A /* SLKTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A72264775E0053078A /* SLKTextViewController.m */; };
-		2C62AFC324C1BD74007E460A /* SLKTypingIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AA2264775E0053078A /* SLKTypingIndicatorView.m */; };
-		2C62AFC424C1BD74007E460A /* UIResponder+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AD2264775E0053078A /* UIResponder+SLKAdditions.m */; };
-		2C62AFC524C1BD74007E460A /* UIScrollView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AF2264775E0053078A /* UIScrollView+SLKAdditions.m */; };
-		2C62AFC624C1BD74007E460A /* UIView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303B12264775E0053078A /* UIView+SLKAdditions.m */; };
-		2C62AFDE24C1BD8A007E460A /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
 		2C62AFDF24C1BD8D007E460A /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
-		2C62AFE024C1BD91007E460A /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
-		2C62AFE124C1BD91007E460A /* ARDSDPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */; };
-		2C62AFE224C1BD91007E460A /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
-		2C62AFE324C1BD91007E460A /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
-		2C62AFE424C1BD91007E460A /* ARDUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */; };
-		2C62AFE524C1BD91007E460A /* RTCIceCandidate+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D6E1F309DA500FF4A0D /* RTCIceCandidate+JSON.m */; };
-		2C62AFE624C1BD91007E460A /* RTCSessionDescription+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D701F309DA500FF4A0D /* RTCSessionDescription+JSON.m */; };
-		2C62AFE724C1BD99007E460A /* CallParticipantViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EFA31F86FF4A008AFA74 /* CallParticipantViewCell.m */; };
-		2C62AFE824C1BD99007E460A /* CallViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF9E1F828C41008AFA74 /* CallViewController.m */; };
-		2C62AFE924C1BD99007E460A /* NBMPeersFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EFA81F87EF39008AFA74 /* NBMPeersFlowLayout.m */; };
-		2C62AFEA24C1BD99007E460A /* NCCallController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF9B1F826B22008AFA74 /* NCCallController.m */; };
-		2C62AFEB24C1BD99007E460A /* AvatarBackgroundImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8CDD0521C2EDE8004E2997 /* AvatarBackgroundImageView.m */; };
-		2C62AFEC24C1BD99007E460A /* CallKitManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4987BC21E640E20060AC27 /* CallKitManager.m */; };
-		2C62AFED24C1BD99007E460A /* NCAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4DE9F121F732B40096940D /* NCAudioController.m */; };
-		2C62AFEE24C1BD9F007E460A /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
-		2C62AFEF24C1BD9F007E460A /* ChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */; };
-		2C62AFF024C1BD9F007E460A /* FileMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */; };
-		2C62AFF124C1BD9F007E460A /* GroupedChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */; };
-		2C62AFF224C1BD9F007E460A /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
-		2C62AFF324C1BD9F007E460A /* MessageSeparatorTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */; };
-		2C62AFF424C1BDA5007E460A /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
-		2C62AFF524C1BDA5007E460A /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
-		2C62AFF624C1BDA5007E460A /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
-		2C62AFF724C1BDA5007E460A /* NCMessageTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */; };
-		2C62AFF824C1BDA5007E460A /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
-		2C62AFF924C1BDA5007E460A /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
 		2C62AFFA24C1BDA5007E460A /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
-		2C62AFFB24C1BDA5007E460A /* NCChatController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C42ADB320B58E6300296DEA /* NCChatController.m */; };
-		2C62AFFC24C1BDA5007E460A /* NCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15544208E41B500CE8EF0 /* NCChatViewController.m */; };
 		2C62AFFD24C1BDA5007E460A /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
-		2C62AFFE24C1BDAA007E460A /* ContactsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */; };
 		2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
-		2C62B00024C1BDAA007E460A /* SearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCF1F1E1779002FE6A2 /* SearchTableViewController.m */; };
-		2C62B00124C1BDAA007E460A /* AddParticipantsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A12402017872600864818 /* AddParticipantsTableViewController.m */; };
-		2C62B00224C1BDAA007E460A /* ResultMultiSelectionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */; };
-		2C62B00324C1BDB5007E460A /* DirectoryTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */; };
-		2C62B00424C1BDB5007E460A /* DirectoryTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */; };
-		2C62B00524C1BDB9007E460A /* AuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */; };
-		2C62B00624C1BDB9007E460A /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */; };
 		2C62B00724C1BDBD007E460A /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
-		2C62B00824C1BDBD007E460A /* NCConnectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC901F014354002FE6A2 /* NCConnectionController.m */; };
 		2C62B00924C1BDBD007E460A /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
 		2C62B00A24C1BDBD007E460A /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
-		2C62B00B24C1BDBD007E460A /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		2C62B00C24C1BDC1007E460A /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
 		2C62B00D24C1BDC1007E460A /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
-		2C62B00E24C1BDC1007E460A /* NCNotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */; };
-		2C62B00F24C1BDC5007E460A /* RoundedNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */; };
 		2C62B01024C1BDC5007E460A /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
-		2C62B01224C1BDC5007E460A /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
-		2C62B01324C1BDC5007E460A /* NCRoomsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */; };
-		2C62B01424C1BDC5007E460A /* RoomCreationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */; };
-		2C62B01524C1BDC5007E460A /* RoomCreation2TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007BB20D8F24B0096D91F /* RoomCreation2TableViewController.m */; };
-		2C62B01624C1BDC5007E460A /* RoomNameTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */; };
-		2C62B01724C1BDC5007E460A /* NewRoomTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C820E125C20096D91F /* NewRoomTableViewController.m */; };
-		2C62B01824C1BDC5007E460A /* RoomInfoTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C440D0F20EA4A770005F9BB /* RoomInfoTableViewController.m */; };
-		2C62B01924C1BDC6007E460A /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
-		2C62B01A24C1BDC6007E460A /* RoomSearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */; };
-		2C62B01B24C1BDC9007E460A /* CCBKPasscode.m in Sources */ = {isa = PBXBuildFile; fileRef = C1292B8B237313590004C3B7 /* CCBKPasscode.m */; };
 		2C62B01C24C1BDC9007E460A /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
-		2C62B02524C1BDCF007E460A /* NCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */; };
 		2C62B02624C1BDCF007E460A /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
-		2C62B02724C1BDCF007E460A /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7C106021AF199300461817 /* SettingsViewController.m */; };
-		2C62B02824C1BDCF007E460A /* AccountTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2026A22369F47400DFC89B /* AccountTableViewCell.m */; };
-		2C62B02924C1BDCF007E460A /* UserSettingsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A1234200E0A5700864818 /* UserSettingsTableViewCell.m */; };
-		2C62B02A24C1BDCF007E460A /* VideoResolutionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063317205ACB140043481A /* VideoResolutionsViewController.m */; };
-		2C62B02B24C1BDCF007E460A /* VideoSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063312205A85850043481A /* VideoSettingsViewController.m */; };
-		2C62B02C24C1BDD7007E460A /* NCUserInterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06330E2046CC8B0043481A /* NCUserInterfaceController.m */; };
-		2C62B02D24C1BDD7007E460A /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
 		2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
-		2C62B02F24C1BDD7007E460A /* UIBarButtonItem+Badge.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */; };
-		2C62B03024C1BDDC007E460A /* NCPeerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF941F7E70EB008AFA74 /* NCPeerConnection.m */; };
-		2C62B03124C1BDDC007E460A /* NCSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF981F80F81E008AFA74 /* NCSignalingController.m */; };
-		2C62B03224C1BDDC007E460A /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
-		2C62B03324C1BDDC007E460A /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
-		2C694D9525010C0100DD0008 /* ShareConfirmationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A245924FE7B5300921A21 /* ShareConfirmationViewController.m */; };
 		2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
 		2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
 		2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
 		2C738158210613A200CDB8DB /* NCChatTitleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C738157210613A200CDB8DB /* NCChatTitleView.xib */; };
 		2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
-		2C78E9E42512136000E3D4CA /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
-		2C78E9E52512136100E3D4CA /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
 		2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF941F7E70EB008AFA74 /* NCPeerConnection.m */; };
 		2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF981F80F81E008AFA74 /* NCSignalingController.m */; };
 		2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF9B1F826B22008AFA74 /* NCCallController.m */; };
@@ -270,23 +199,13 @@
 		2CB5D0531FB4D1FD00D7A5B7 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60141FB4A9DA006E87EF /* libssl.a */; };
 		2CB5D0541FB4D20B00D7A5B7 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60131FB4A9DA006E87EF /* libcrypto.a */; };
 		2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACBA26385A3800D3D641 /* ShareLocationViewController.m */; };
-		2CB6ACBD26385A3800D3D641 /* ShareLocationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACBA26385A3800D3D641 /* ShareLocationViewController.m */; };
-		2CB6ACBE26385A3800D3D641 /* ShareLocationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACBA26385A3800D3D641 /* ShareLocationViewController.m */; };
 		2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */; };
-		2CB6ACC026385A3800D3D641 /* ShareLocationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */; };
-		2CB6ACC126385A3800D3D641 /* ShareLocationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */; };
 		2CB6ACCA26401D5200D3D641 /* GeoLocationRichObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */; };
-		2CB6ACCB26401D5200D3D641 /* GeoLocationRichObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */; };
-		2CB6ACCC26401D5200D3D641 /* GeoLocationRichObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */; };
 		2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */; };
-		2CB6ACD32640814100D3D641 /* LocationMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */; };
-		2CB6ACD42640814100D3D641 /* LocationMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */; };
 		2CB6ACDA2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
 		2CB6ACDB2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
 		2CB6ACDC2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
 		2CB6ACE92641954700D3D641 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE72641954700D3D641 /* MapViewController.m */; };
-		2CB6ACEA2641954700D3D641 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE72641954700D3D641 /* MapViewController.m */; };
-		2CB6ACEB2641954700D3D641 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE72641954700D3D641 /* MapViewController.m */; };
 		2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
 		2CB6ACED2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
 		2CB6ACEE2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
@@ -297,98 +216,22 @@
 		2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC0015224A1F0E900A20167 /* NotificationService.m */; };
 		2CC0015724A1F0E900A20167 /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		2CC0015D24A257B800A20167 /* NCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */; };
 		2CC0015E24A25A8000A20167 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60131FB4A9DA006E87EF /* libcrypto.a */; };
 		2CC0015F24A25A8000A20167 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C8B60141FB4A9DA006E87EF /* libssl.a */; };
 		2CC0016124A25B5500A20167 /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
-		2CC0016224A25B6B00A20167 /* NCConnectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC901F014354002FE6A2 /* NCConnectionController.m */; };
 		2CC0016324A25B7400A20167 /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
-		2CC0016524A25B8900A20167 /* NCUserInterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06330E2046CC8B0043481A /* NCUserInterfaceController.m */; };
-		2CC0016624A25BD600A20167 /* NCChatController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C42ADB320B58E6300296DEA /* NCChatController.m */; };
 		2CC0016724A25BE100A20167 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
 		2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
-		2CC0017024A3792800A20167 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
 		2CC0017424A3796400A20167 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
-		2CC0017524A3797600A20167 /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
-		2CC0017824A37A3600A20167 /* FTPopOverMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C20269F236832D300DFC89B /* FTPopOverMenu.m */; };
-		2CC0017924A37A4200A20167 /* SLKTextInput+Implementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */; };
-		2CC0017A24A37A4400A20167 /* SLKInputAccessoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */; };
-		2CC0017B24A37A4800A20167 /* SLKTextInputbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A12264775E0053078A /* SLKTextInputbar.m */; };
-		2CC0017C24A37A4B00A20167 /* SLKTextView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A32264775E0053078A /* SLKTextView+SLKAdditions.m */; };
-		2CC0017D24A37A4D00A20167 /* SLKTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A52264775E0053078A /* SLKTextView.m */; };
-		2CC0017E24A37A5000A20167 /* SLKTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A72264775E0053078A /* SLKTextViewController.m */; };
-		2CC0017F24A37A5200A20167 /* SLKTypingIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AA2264775E0053078A /* SLKTypingIndicatorView.m */; };
-		2CC0018024A37A5500A20167 /* UIResponder+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AD2264775E0053078A /* UIResponder+SLKAdditions.m */; };
-		2CC0018124A37A5800A20167 /* UIScrollView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AF2264775E0053078A /* UIScrollView+SLKAdditions.m */; };
-		2CC0018224A37A5B00A20167 /* UIView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303B12264775E0053078A /* UIView+SLKAdditions.m */; };
-		2CC0019924A37A7700A20167 /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
 		2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
-		2CC0019B24A37A8100A20167 /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
-		2CC0019C24A37A8100A20167 /* ARDSDPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */; };
-		2CC0019D24A37A8100A20167 /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
-		2CC0019E24A37A8100A20167 /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
-		2CC0019F24A37A8100A20167 /* ARDUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */; };
-		2CC001A024A37A8100A20167 /* RTCIceCandidate+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D6E1F309DA500FF4A0D /* RTCIceCandidate+JSON.m */; };
-		2CC001A124A37A8100A20167 /* RTCSessionDescription+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D701F309DA500FF4A0D /* RTCSessionDescription+JSON.m */; };
-		2CC001A224A37A8B00A20167 /* CallParticipantViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EFA31F86FF4A008AFA74 /* CallParticipantViewCell.m */; };
-		2CC001A324A37A8B00A20167 /* CallViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF9E1F828C41008AFA74 /* CallViewController.m */; };
-		2CC001A424A37A8B00A20167 /* NBMPeersFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EFA81F87EF39008AFA74 /* NBMPeersFlowLayout.m */; };
-		2CC001A524A37A8B00A20167 /* NCCallController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF9B1F826B22008AFA74 /* NCCallController.m */; };
-		2CC001A624A37A8B00A20167 /* AvatarBackgroundImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8CDD0521C2EDE8004E2997 /* AvatarBackgroundImageView.m */; };
-		2CC001A724A37A8B00A20167 /* CallKitManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4987BC21E640E20060AC27 /* CallKitManager.m */; };
-		2CC001A824A37A8B00A20167 /* NCAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4DE9F121F732B40096940D /* NCAudioController.m */; };
-		2CC001A924A37A8F00A20167 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
-		2CC001AA24A37A8F00A20167 /* ChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */; };
-		2CC001AB24A37A8F00A20167 /* FileMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */; };
-		2CC001AC24A37A8F00A20167 /* GroupedChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */; };
-		2CC001AD24A37A8F00A20167 /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
-		2CC001AE24A37A8F00A20167 /* MessageSeparatorTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */; };
-		2CC001AF24A37A9500A20167 /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
-		2CC001B024A37A9500A20167 /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
-		2CC001B124A37A9500A20167 /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
-		2CC001B224A37A9500A20167 /* NCMessageTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */; };
-		2CC001B324A37A9500A20167 /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
-		2CC001B424A37A9500A20167 /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
-		2CC001B524A37A9500A20167 /* NCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15544208E41B500CE8EF0 /* NCChatViewController.m */; };
-		2CC001B624A37A9A00A20167 /* ContactsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */; };
 		2CC001B724A37A9A00A20167 /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
-		2CC001B824A37A9A00A20167 /* SearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCF1F1E1779002FE6A2 /* SearchTableViewController.m */; };
-		2CC001B924A37A9A00A20167 /* AddParticipantsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A12402017872600864818 /* AddParticipantsTableViewController.m */; };
-		2CC001BA24A37A9A00A20167 /* ResultMultiSelectionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */; };
-		2CC001BB24A37AA700A20167 /* DirectoryTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */; };
-		2CC001BC24A37AA700A20167 /* DirectoryTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */; };
-		2CC001BD24A37ABD00A20167 /* AuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */; };
-		2CC001BE24A37ABD00A20167 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */; };
 		2CC001C124A37AC500A20167 /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
 		2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
-		2CC001C324A37AC500A20167 /* NCNotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */; };
-		2CC001CD24A37ACA00A20167 /* RoundedNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */; };
 		2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
-		2CC001D024A37ACA00A20167 /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
-		2CC001D124A37ACA00A20167 /* NCRoomsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */; };
-		2CC001D224A37ACA00A20167 /* RoomCreationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */; };
-		2CC001D324A37ACA00A20167 /* RoomCreation2TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007BB20D8F24B0096D91F /* RoomCreation2TableViewController.m */; };
-		2CC001D424A37ACA00A20167 /* RoomNameTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */; };
-		2CC001D524A37ACA00A20167 /* NewRoomTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C820E125C20096D91F /* NewRoomTableViewController.m */; };
-		2CC001D624A37ACA00A20167 /* RoomInfoTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C440D0F20EA4A770005F9BB /* RoomInfoTableViewController.m */; };
-		2CC001D724A37ACA00A20167 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
-		2CC001D824A37ACA00A20167 /* RoomSearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */; };
-		2CC001DA24A37AD000A20167 /* CCBKPasscode.m in Sources */ = {isa = PBXBuildFile; fileRef = C1292B8B237313590004C3B7 /* CCBKPasscode.m */; };
 		2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		2CC001DD24A37AD400A20167 /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
-		2CC001DE24A37AD400A20167 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7C106021AF199300461817 /* SettingsViewController.m */; };
-		2CC001DF24A37AD400A20167 /* AccountTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2026A22369F47400DFC89B /* AccountTableViewCell.m */; };
-		2CC001E024A37AD400A20167 /* UserSettingsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A1234200E0A5700864818 /* UserSettingsTableViewCell.m */; };
-		2CC001E124A37AD400A20167 /* VideoResolutionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063317205ACB140043481A /* VideoResolutionsViewController.m */; };
-		2CC001E224A37AD400A20167 /* VideoSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063312205A85850043481A /* VideoSettingsViewController.m */; };
-		2CC001E324A37ADB00A20167 /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
-		2CC001E424A37ADB00A20167 /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
-		2CC001E524A37ADB00A20167 /* UIBarButtonItem+Badge.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */; };
-		2CC001E624A37ADF00A20167 /* NCPeerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF941F7E70EB008AFA74 /* NCPeerConnection.m */; };
-		2CC001E724A37ADF00A20167 /* NCSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EF981F80F81E008AFA74 /* NCSignalingController.m */; };
-		2CC001E824A37ADF00A20167 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
 		2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */; };
 		2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */; };
 		2CC007B920D8139D0096D91F /* RoomCreationTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007B720D8139D0096D91F /* RoomCreationTableViewController.xib */; };
@@ -404,14 +247,8 @@
 		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
 		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
 		2CF9CBDB26010835002246EF /* UserProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBDA26010835002246EF /* UserProfileViewController.m */; };
-		2CF9CBDF2601F317002246EF /* UserProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBDA26010835002246EF /* UserProfileViewController.m */; };
-		2CF9CBE32601F318002246EF /* UserProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBDA26010835002246EF /* UserProfileViewController.m */; };
 		2CF9CBFC26025F64002246EF /* TextInputTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFA26025F64002246EF /* TextInputTableViewCell.m */; };
-		2CF9CBFD26025F64002246EF /* TextInputTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFA26025F64002246EF /* TextInputTableViewCell.m */; };
-		2CF9CBFE26025F65002246EF /* TextInputTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFA26025F64002246EF /* TextInputTableViewCell.m */; };
 		2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
-		2CF9CC0026025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
-		2CF9CC0126025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
 		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
@@ -533,6 +370,21 @@
 		2C440D0E20EA4A770005F9BB /* RoomInfoTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomInfoTableViewController.h; sourceTree = "<group>"; };
 		2C440D0F20EA4A770005F9BB /* RoomInfoTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomInfoTableViewController.m; sourceTree = "<group>"; };
 		2C440D1020EA4A770005F9BB /* RoomInfoTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomInfoTableViewController.xib; sourceTree = "<group>"; };
+		2C4446D12658147900DF1DBC /* TalkAccount.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TalkAccount.h; sourceTree = "<group>"; };
+		2C4446D22658147900DF1DBC /* TalkAccount.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TalkAccount.m; sourceTree = "<group>"; };
+		2C4446D6265814D100DF1DBC /* ServerCapabilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ServerCapabilities.h; sourceTree = "<group>"; };
+		2C4446D7265814D100DF1DBC /* ServerCapabilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ServerCapabilities.m; sourceTree = "<group>"; };
+		2C4446DB2658158000DF1DBC /* NCChatBlock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatBlock.h; sourceTree = "<group>"; };
+		2C4446DC2658158000DF1DBC /* NCChatBlock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatBlock.m; sourceTree = "<group>"; };
+		2C4446EA265D25BA00DF1DBC /* NCKeyChainController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCKeyChainController.h; sourceTree = "<group>"; };
+		2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCKeyChainController.m; sourceTree = "<group>"; };
+		2C4446EE265D454200DF1DBC /* NotificationCenterNotifications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationCenterNotifications.h; sourceTree = "<group>"; };
+		2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationCenterNotifications.m; sourceTree = "<group>"; };
+		2C4446F1265D51A600DF1DBC /* NCPushNotificationsUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushNotificationsUtils.h; sourceTree = "<group>"; };
+		2C4446F2265D51A600DF1DBC /* NCPushNotificationsUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushNotificationsUtils.m; sourceTree = "<group>"; };
+		2C4446FA265D5BEF00DF1DBC /* CallConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CallConstants.h; sourceTree = "<group>"; };
+		2C444701265D641300DF1DBC /* NCUserDefaults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCUserDefaults.h; sourceTree = "<group>"; };
+		2C444702265D641300DF1DBC /* NCUserDefaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCUserDefaults.m; sourceTree = "<group>"; };
 		2C4987BB21E640E20060AC27 /* CallKitManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CallKitManager.h; sourceTree = "<group>"; };
 		2C4987BC21E640E20060AC27 /* CallKitManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CallKitManager.m; sourceTree = "<group>"; };
 		2C4D7D611F2F7C2C00FF4A0D /* ARDCaptureController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDCaptureController.h; sourceTree = "<group>"; };
@@ -940,6 +792,8 @@
 				2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */,
 				2C7F47AC20289B9600081CC7 /* Localizable.strings */,
 				2C330374255E6EBC00BDB4E4 /* InfoPlist.strings */,
+				2C4446EE265D454200DF1DBC /* NotificationCenterNotifications.h */,
+				2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */,
 			);
 			path = NextcloudTalk;
 			sourceTree = "<group>";
@@ -1006,6 +860,12 @@
 			children = (
 				2C40281322832EED0000DDFC /* NCDatabaseManager.h */,
 				2C40281422832EED0000DDFC /* NCDatabaseManager.m */,
+				2C4446D12658147900DF1DBC /* TalkAccount.h */,
+				2C4446D22658147900DF1DBC /* TalkAccount.m */,
+				2C4446D6265814D100DF1DBC /* ServerCapabilities.h */,
+				2C4446D7265814D100DF1DBC /* ServerCapabilities.m */,
+				2C4446DB2658158000DF1DBC /* NCChatBlock.h */,
+				2C4446DC2658158000DF1DBC /* NCChatBlock.m */,
 			);
 			name = Database;
 			sourceTree = "<group>";
@@ -1136,6 +996,7 @@
 				2C4987BC21E640E20060AC27 /* CallKitManager.m */,
 				2C4DE9F021F732B40096940D /* NCAudioController.h */,
 				2C4DE9F121F732B40096940D /* NCAudioController.m */,
+				2C4446FA265D5BEF00DF1DBC /* CallConstants.h */,
 			);
 			name = Calls;
 			sourceTree = "<group>";
@@ -1168,6 +1029,10 @@
 				2CF9CBF926025F64002246EF /* TextInputTableViewCell.h */,
 				2CF9CBFA26025F64002246EF /* TextInputTableViewCell.m */,
 				2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */,
+				2C4446EA265D25BA00DF1DBC /* NCKeyChainController.h */,
+				2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */,
+				2C444701265D641300DF1DBC /* NCUserDefaults.h */,
+				2C444702265D641300DF1DBC /* NCUserDefaults.m */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -1403,6 +1268,8 @@
 				2CBF82AD1FC888FC00636459 /* NCPushNotification.m */,
 				2C9B0B96217F6DBA00A4752C /* NCNotificationController.h */,
 				2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */,
+				2C4446F1265D51A600DF1DBC /* NCPushNotificationsUtils.h */,
+				2C4446F2265D51A600DF1DBC /* NCPushNotificationsUtils.m */,
 			);
 			name = Notifications;
 			sourceTree = "<group>";
@@ -1556,7 +1423,7 @@
 				2C62AF9F24C08845007E460A /* Sources */,
 				2C62AFA024C08845007E460A /* Frameworks */,
 				2C62AFA124C08845007E460A /* Resources */,
-				46C2B8CE823B269B819C0C97 /* [CP] Copy Pods Resources */,
+				95F4C6F5C8959694D2B7BA03 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1575,7 +1442,6 @@
 				2CC0014B24A1F0E900A20167 /* Sources */,
 				2CC0014C24A1F0E900A20167 /* Frameworks */,
 				2CC0014D24A1F0E900A20167 /* Resources */,
-				9B62A9AE088A26962648F117 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1690,9 +1556,9 @@
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
-				2C1ABD9525769F6900AEDFB6 /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
 				2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
+				2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
@@ -1705,17 +1571,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C3195BC24C599130066F221 /* PlaceholderView.xib in Resources */,
-				2CB6ACC126385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
 				2C1ABD8825769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2C7A245E24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2C3195C324C5E2100066F221 /* ShareTableViewCell.xib in Resources */,
 				2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */,
 				1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */,
 				2CB6ACEE2641954700D3D641 /* MapViewController.xib in Resources */,
-				2C3195BD24C5A3D90066F221 /* ContactsTableViewCell.xib in Resources */,
 				2C62AFB624C1A449007E460A /* Share.storyboard in Resources */,
-				2C36A041261342FF0026F04A /* AvatarHeaderView.xib in Resources */,
-				2CF9CC0126025F65002246EF /* TextInputTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1724,10 +1586,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */,
-				2CF9CC0026025F65002246EF /* TextInputTableViewCell.xib in Resources */,
-				2C36A040261342FF0026F04A /* AvatarHeaderView.xib in Resources */,
 				2CB6ACED2641954700D3D641 /* MapViewController.xib in Resources */,
-				2CB6ACC026385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1805,28 +1664,6 @@
 			shellPath = /bin/sh;
 			shellScript = "/usr/local/bin/carthage copy-frameworks\n";
 		};
-		46C2B8CE823B269B819C0C97 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ShareExtension/Pods-ShareExtension-resources.sh",
-				"${PODS_ROOT}/DateTools/DateTools/DateTools/DateTools.bundle",
-				"${PODS_ROOT}/MaterialComponents/components/ActivityIndicator/src/MaterialActivityIndicator.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/TOCropViewController/TOCropViewControllerBundle.bundle",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DateTools.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MaterialActivityIndicator.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/TOCropViewControllerBundle.bundle",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ShareExtension/Pods-ShareExtension-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		902A7A3EC0BDCC947AEF3EBF /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1845,26 +1682,22 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		9B62A9AE088A26962648F117 /* [CP] Copy Pods Resources */ = {
+		95F4C6F5C8959694D2B7BA03 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension-resources.sh",
-				"${PODS_ROOT}/DateTools/DateTools/DateTools/DateTools.bundle",
-				"${PODS_ROOT}/MaterialComponents/components/ActivityIndicator/src/MaterialActivityIndicator.bundle",
+				"${PODS_ROOT}/Target Support Files/Pods-ShareExtension/Pods-ShareExtension-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/TOCropViewController/TOCropViewControllerBundle.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DateTools.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MaterialActivityIndicator.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/TOCropViewControllerBundle.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ShareExtension/Pods-ShareExtension-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */ = {
@@ -1918,16 +1751,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C444703265D641300DF1DBC /* NCUserDefaults.m in Sources */,
 				2C7C106221AF199300461817 /* SettingsViewController.m in Sources */,
 				1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */,
 				1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
+				2C4446DD2658158000DF1DBC /* NCChatBlock.m in Sources */,
 				2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */,
 				2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */,
 				2CB6ACDA2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */,
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
-				2C1ABDA125769F8400AEDFB6 /* ShareItemController.m in Sources */,
 				2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */,
+				2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
 				C1292B8C237313590004C3B7 /* CCBKPasscode.m in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
@@ -1963,6 +1798,7 @@
 				2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */,
 				2C06330F2046CC8B0043481A /* NCUserInterfaceController.m in Sources */,
 				2CB304222264775E0053078A /* UIView+SLKAdditions.m in Sources */,
+				2C4446F0265D454200DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
@@ -1981,8 +1817,8 @@
 				2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */,
 				2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
-				2C1ABD8D25769F4E00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */,
 				2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */,
+				2C444706265E59B100DF1DBC /* ShareConfirmationCollectionViewCell.m in Sources */,
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
 				2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */,
 				2C8E2A1B232174C20022BFC9 /* MessageSeparatorTableViewCell.m in Sources */,
@@ -1996,6 +1832,7 @@
 				2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */,
 				2CA155562099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m in Sources */,
 				2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */,
+				2C4446D8265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */,
 				2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */,
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
@@ -2011,6 +1848,7 @@
 				2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
 				2C7A245B24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
+				2C4446D32658147900DF1DBC /* TalkAccount.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
 				2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */,
 				2C2026A42369F47400DFC89B /* AccountTableViewCell.m in Sources */,
@@ -2021,6 +1859,7 @@
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,
 				2C42ADB420B58E6300296DEA /* NCChatController.m in Sources */,
+				2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
 				2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */,
 				2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */,
 				2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */,
@@ -2028,6 +1867,7 @@
 				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
 				2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
+				2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
@@ -2042,118 +1882,39 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */,
-				2C62AFF824C1BDA5007E460A /* QuotedMessageView.m in Sources */,
 				2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */,
-				2CB6ACCC26401D5200D3D641 /* GeoLocationRichObject.m in Sources */,
-				2C62B00624C1BDB9007E460A /* LoginViewController.m in Sources */,
-				2C62AFEF24C1BD9F007E460A /* ChatMessageTableViewCell.m in Sources */,
-				2C62B02A24C1BDCF007E460A /* VideoResolutionsViewController.m in Sources */,
-				2C62AFBC24C1BD69007E460A /* FTPopOverMenu.m in Sources */,
-				2C62AFEA24C1BD99007E460A /* NCCallController.m in Sources */,
 				2C1ABD8625769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */,
-				1F3D3B24255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
-				2C62AFF324C1BD9F007E460A /* MessageSeparatorTableViewCell.m in Sources */,
-				2C62AFE724C1BD99007E460A /* CallParticipantViewCell.m in Sources */,
-				2C62AFE624C1BD91007E460A /* RTCSessionDescription+JSON.m in Sources */,
-				2C62B00224C1BDAA007E460A /* ResultMultiSelectionTableViewController.m in Sources */,
+				2C4446F7265D593300DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */,
+				2C444700265D5EB200DF1DBC /* NCPushProxySessionManager.m in Sources */,
 				2C62B02624C1BDCF007E460A /* NCUtils.m in Sources */,
-				2C62AFC424C1BD74007E460A /* UIResponder+SLKAdditions.m in Sources */,
-				2C62AFBD24C1BD6D007E460A /* SLKInputAccessoryView.m in Sources */,
 				2C62AFFD24C1BDA5007E460A /* NCMessageParameter.m in Sources */,
-				2C62B02524C1BDCF007E460A /* NCSettingsController.m in Sources */,
-				2C62AFE524C1BD91007E460A /* RTCIceCandidate+JSON.m in Sources */,
-				2C62AFEE24C1BD9F007E460A /* ChatTableViewCell.m in Sources */,
-				2C62AFF024C1BD9F007E460A /* FileMessageTableViewCell.m in Sources */,
 				2C62B00C24C1BDC1007E460A /* NCNotification.m in Sources */,
-				2C62B01B24C1BDC9007E460A /* CCBKPasscode.m in Sources */,
+				2C4446FC265D5C5800DF1DBC /* NCRoomParticipants.m in Sources */,
 				2CB6ACDC2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
-				2C62AFF524C1BDA5007E460A /* MessageBodyTextView.m in Sources */,
-				2C62B03024C1BDDC007E460A /* NCPeerConnection.m in Sources */,
-				2C62AFFB24C1BDA5007E460A /* NCChatController.m in Sources */,
 				2C62AFDF24C1BD8D007E460A /* UIImageView+Letters.m in Sources */,
-				2C62AFFE24C1BDAA007E460A /* ContactsTableViewCell.m in Sources */,
-				2C62AFE024C1BD91007E460A /* ARDCaptureController.m in Sources */,
-				2C62AFBE24C1BD74007E460A /* SLKTextInput+Implementation.m in Sources */,
 				2C1ABD8925769E7D00AEDFB6 /* ShareItem.m in Sources */,
-				2C1ABDE7257F883400AEDFB6 /* ABContact.m in Sources */,
-				2C62B01324C1BDC5007E460A /* NCRoomsManager.m in Sources */,
-				2C62AFF424C1BDA5007E460A /* DateHeaderView.m in Sources */,
-				2C62B00024C1BDAA007E460A /* SearchTableViewController.m in Sources */,
-				2C62AFC524C1BD74007E460A /* UIScrollView+SLKAdditions.m in Sources */,
-				2C62AFDE24C1BD8A007E460A /* OpenInFirefoxControllerObjC.m in Sources */,
-				2C62AFF924C1BDA5007E460A /* ReplyMessageView.m in Sources */,
 				2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */,
-				2C62AFED24C1BD99007E460A /* NCAudioController.m in Sources */,
-				2CB6ACD42640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
-				2C62AFF624C1BDA5007E460A /* NCChatTitleView.m in Sources */,
-				2C62B01624C1BDC5007E460A /* RoomNameTableViewCell.m in Sources */,
-				2C62B01824C1BDC5007E460A /* RoomInfoTableViewController.m in Sources */,
-				2C62B02C24C1BDD7007E460A /* NCUserInterfaceController.m in Sources */,
-				2C62AFC024C1BD74007E460A /* SLKTextView+SLKAdditions.m in Sources */,
-				2C62B01524C1BDC5007E460A /* RoomCreation2TableViewController.m in Sources */,
-				2C62B03324C1BDDC007E460A /* NCExternalSignalingController.m in Sources */,
 				2C62B01024C1BDC5007E460A /* NCRoom.m in Sources */,
-				2C62AFE224C1BD91007E460A /* ARDSettingsModel.m in Sources */,
-				2C62B01224C1BDC5007E460A /* RoomTableViewCell.m in Sources */,
-				2CF9CBFE26025F65002246EF /* TextInputTableViewCell.m in Sources */,
-				2C62B00324C1BDB5007E460A /* DirectoryTableViewCell.m in Sources */,
-				2C62AFFC24C1BDA5007E460A /* NCChatViewController.m in Sources */,
-				2C62B00E24C1BDC1007E460A /* NCNotificationController.m in Sources */,
-				2C78E9E52512136100E3D4CA /* NCUserStatus.m in Sources */,
-				2C36A03A261342220026F04A /* AvatarHeaderView.m in Sources */,
 				2C62B00D24C1BDC1007E460A /* NCPushNotification.m in Sources */,
-				1F5CDF662584E78900B0026E /* NCChatFileStatus.m in Sources */,
 				2C62B01C24C1BDC9007E460A /* CCCertificate.m in Sources */,
-				2C62B01424C1BDC5007E460A /* RoomCreationTableViewController.m in Sources */,
-				2C62AFE124C1BD91007E460A /* ARDSDPUtils.m in Sources */,
-				2C62B02D24C1BDD7007E460A /* HeaderWithButton.m in Sources */,
-				2C62B01724C1BDC5007E460A /* NewRoomTableViewController.m in Sources */,
-				2C62B03224C1BDDC007E460A /* NCSignalingMessage.m in Sources */,
-				2C62B02724C1BDCF007E460A /* SettingsViewController.m in Sources */,
-				2C62B00F24C1BDC5007E460A /* RoundedNumberView.m in Sources */,
-				2C62AFBF24C1BD74007E460A /* SLKTextInputbar.m in Sources */,
-				2CF9CBE32601F318002246EF /* UserProfileViewController.m in Sources */,
-				2C62AFE424C1BD91007E460A /* ARDUtilities.m in Sources */,
+				2C4446F9265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C1ABD8725769E7D00AEDFB6 /* ShareItemController.m in Sources */,
 				2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */,
-				2C62AFC124C1BD74007E460A /* SLKTextView.m in Sources */,
-				2C62AFEC24C1BD99007E460A /* CallKitManager.m in Sources */,
 				2C62B00724C1BDBD007E460A /* NCAPIController.m in Sources */,
-				2C62B02F24C1BDD7007E460A /* UIBarButtonItem+Badge.m in Sources */,
-				2C62AFF224C1BD9F007E460A /* SystemMessageTableViewCell.m in Sources */,
 				2C1ABDD0257E939600AEDFB6 /* NCContact.m in Sources */,
-				2C1ABDC8257A7CF100AEDFB6 /* NCContactsManager.m in Sources */,
-				2CB6ACEB2641954700D3D641 /* MapViewController.m in Sources */,
-				2C62B00524C1BDB9007E460A /* AuthenticationViewController.m in Sources */,
-				2C62B00124C1BDAA007E460A /* AddParticipantsTableViewController.m in Sources */,
+				2C4446FE265D5DFA00DF1DBC /* ABContact.m in Sources */,
 				2C62B00A24C1BDBD007E460A /* NCImageSessionManager.m in Sources */,
-				2CB6ACBE26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
-				2C62AFC624C1BD74007E460A /* UIView+SLKAdditions.m in Sources */,
-				2C62AFE924C1BD99007E460A /* NBMPeersFlowLayout.m in Sources */,
-				2C62B00B24C1BDBD007E460A /* NCPushProxySessionManager.m in Sources */,
 				2C7A245C24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
 				2C3195C224C5E2100066F221 /* ShareTableViewCell.m in Sources */,
-				2C62AFE324C1BD91007E460A /* ARDSettingsStore.m in Sources */,
-				2C62AFF124C1BD9F007E460A /* GroupedChatMessageTableViewCell.m in Sources */,
-				2C62B00424C1BDB5007E460A /* DirectoryTableViewController.m in Sources */,
-				2C62B02924C1BDCF007E460A /* UserSettingsTableViewCell.m in Sources */,
-				2C62B02824C1BDCF007E460A /* AccountTableViewCell.m in Sources */,
-				2C62AFE824C1BD99007E460A /* CallViewController.m in Sources */,
+				2C4446DA265814D100DF1DBC /* ServerCapabilities.m in Sources */,
+				2C444705265D641300DF1DBC /* NCUserDefaults.m in Sources */,
+				2C4446F5265D583200DF1DBC /* NCKeyChainController.m in Sources */,
 				2C62AFFA24C1BDA5007E460A /* NCChatMessage.m in Sources */,
-				2C62B00824C1BDBD007E460A /* NCConnectionController.m in Sources */,
-				2C62B02B24C1BDCF007E460A /* VideoSettingsViewController.m in Sources */,
+				2C4446D52658147900DF1DBC /* TalkAccount.m in Sources */,
 				2C1EF36D25505DCE007C9768 /* NCNavigationController.m in Sources */,
-				2C62B01924C1BDC6007E460A /* NCRoomParticipants.m in Sources */,
-				1FEDE3C8257D439500853F79 /* NCChatFileController.m in Sources */,
-				2C62B01A24C1BDC6007E460A /* RoomSearchTableViewController.m in Sources */,
-				2C62AFEB24C1BD99007E460A /* AvatarBackgroundImageView.m in Sources */,
-				2C36A04C261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
-				2C62AFC324C1BD74007E460A /* SLKTypingIndicatorView.m in Sources */,
-				2C62AFF724C1BDA5007E460A /* NCMessageTextView.m in Sources */,
 				1FEDE3D0257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				2C62AFB924C1A4E6007E460A /* ShareViewController.m in Sources */,
-				2C62B03124C1BDDC007E460A /* NCSignalingController.m in Sources */,
-				2C62AFC224C1BD74007E460A /* SLKTextViewController.m in Sources */,
+				2C4446DF2658158000DF1DBC /* NCChatBlock.m in Sources */,
 				2C62B00924C1BDBD007E460A /* NCAPISessionManager.m in Sources */,
 				2C62AFBB24C1B7B1007E460A /* NCDatabaseManager.m in Sources */,
 			);
@@ -2163,119 +1924,35 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CC001E724A37ADF00A20167 /* NCSignalingController.m in Sources */,
-				2CC001DA24A37AD000A20167 /* CCBKPasscode.m in Sources */,
 				2C1ABDCF257E939600AEDFB6 /* NCContact.m in Sources */,
 				2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */,
-				1FEDE3C7257D439500853F79 /* NCChatFileController.m in Sources */,
-				2CC0017024A3792800A20167 /* NCPushProxySessionManager.m in Sources */,
-				2C694D9525010C0100DD0008 /* ShareConfirmationViewController.m in Sources */,
-				2CC0018024A37A5500A20167 /* UIResponder+SLKAdditions.m in Sources */,
-				2CC001B024A37A9500A20167 /* MessageBodyTextView.m in Sources */,
+				2C4446D42658147900DF1DBC /* TalkAccount.m in Sources */,
 				2CC001DD24A37AD400A20167 /* NCUtils.m in Sources */,
-				2CB6ACD32640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
-				2CC0019B24A37A8100A20167 /* ARDCaptureController.m in Sources */,
-				2CC0017B24A37A4800A20167 /* SLKTextInputbar.m in Sources */,
+				2C4446FF265D5EB100DF1DBC /* NCPushProxySessionManager.m in Sources */,
 				2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */,
-				2CC0017D24A37A4D00A20167 /* SLKTextView.m in Sources */,
 				1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
-				2CC001AE24A37A8F00A20167 /* MessageSeparatorTableViewCell.m in Sources */,
-				2CC001D124A37ACA00A20167 /* NCRoomsManager.m in Sources */,
-				2CC001C324A37AC500A20167 /* NCNotificationController.m in Sources */,
-				2CC0017524A3797600A20167 /* NCExternalSignalingController.m in Sources */,
-				2CC0018124A37A5800A20167 /* UIScrollView+SLKAdditions.m in Sources */,
-				2C36A039261342220026F04A /* AvatarHeaderView.m in Sources */,
-				2CC0018224A37A5B00A20167 /* UIView+SLKAdditions.m in Sources */,
-				2CC001B324A37A9500A20167 /* QuotedMessageView.m in Sources */,
-				2CC001CD24A37ACA00A20167 /* RoundedNumberView.m in Sources */,
-				2CC001BE24A37ABD00A20167 /* LoginViewController.m in Sources */,
-				2CC001D624A37ACA00A20167 /* RoomInfoTableViewController.m in Sources */,
+				2C4446F6265D593200DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */,
+				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */,
-				2CC001B224A37A9500A20167 /* NCMessageTextView.m in Sources */,
-				2CC001A324A37A8B00A20167 /* CallViewController.m in Sources */,
-				2CC001AB24A37A8F00A20167 /* FileMessageTableViewCell.m in Sources */,
-				2CC001DE24A37AD400A20167 /* SettingsViewController.m in Sources */,
-				2CC0019D24A37A8100A20167 /* ARDSettingsModel.m in Sources */,
-				2CC0017824A37A3600A20167 /* FTPopOverMenu.m in Sources */,
-				2CC001D724A37ACA00A20167 /* NCRoomParticipants.m in Sources */,
-				2CC001A224A37A8B00A20167 /* CallParticipantViewCell.m in Sources */,
-				2CC0019C24A37A8100A20167 /* ARDSDPUtils.m in Sources */,
-				2CF9CBDF2601F317002246EF /* UserProfileViewController.m in Sources */,
-				2CC001D524A37ACA00A20167 /* NewRoomTableViewController.m in Sources */,
-				2CC001BB24A37AA700A20167 /* DirectoryTableViewCell.m in Sources */,
-				2CC001B124A37A9500A20167 /* NCChatTitleView.m in Sources */,
-				2C1EF36C25505DCE007C9768 /* NCNavigationController.m in Sources */,
+				2C4446DE2658158000DF1DBC /* NCChatBlock.m in Sources */,
+				2C4446D9265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */,
 				2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */,
-				2CC0019F24A37A8100A20167 /* ARDUtilities.m in Sources */,
-				2CC0019E24A37A8100A20167 /* ARDSettingsStore.m in Sources */,
-				2CC001E324A37ADB00A20167 /* HeaderWithButton.m in Sources */,
-				2C36A04B261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
-				2CC001AC24A37A8F00A20167 /* GroupedChatMessageTableViewCell.m in Sources */,
 				2CC001C124A37AC500A20167 /* NCNotification.m in Sources */,
-				2C1ABD9125769F4F00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */,
-				2CC001E124A37AD400A20167 /* VideoResolutionsViewController.m in Sources */,
-				2CC001AD24A37A8F00A20167 /* SystemMessageTableViewCell.m in Sources */,
-				2CC001E824A37ADF00A20167 /* NCSignalingMessage.m in Sources */,
-				2CC0019924A37A7700A20167 /* OpenInFirefoxControllerObjC.m in Sources */,
+				2C4446FD265D5DFA00DF1DBC /* ABContact.m in Sources */,
+				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2CB6ACDB2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
-				2CC001A624A37A8B00A20167 /* AvatarBackgroundImageView.m in Sources */,
-				2CC001B424A37A9500A20167 /* ReplyMessageView.m in Sources */,
-				2CC001D424A37ACA00A20167 /* RoomNameTableViewCell.m in Sources */,
-				2CC001D824A37ACA00A20167 /* RoomSearchTableViewController.m in Sources */,
-				2C1ABDC7257A7CF100AEDFB6 /* NCContactsManager.m in Sources */,
-				2CC001B624A37A9A00A20167 /* ContactsTableViewCell.m in Sources */,
-				2CC001A424A37A8B00A20167 /* NBMPeersFlowLayout.m in Sources */,
-				2CC0017C24A37A4B00A20167 /* SLKTextView+SLKAdditions.m in Sources */,
+				2C4446FB265D5C5700DF1DBC /* NCRoomParticipants.m in Sources */,
 				2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */,
-				2CC0016524A25B8900A20167 /* NCUserInterfaceController.m in Sources */,
-				2CC001A024A37A8100A20167 /* RTCIceCandidate+JSON.m in Sources */,
-				2CC001E624A37ADF00A20167 /* NCPeerConnection.m in Sources */,
-				2CC0017A24A37A4400A20167 /* SLKInputAccessoryView.m in Sources */,
-				2CC001A924A37A8F00A20167 /* ChatTableViewCell.m in Sources */,
-				2CC0017924A37A4200A20167 /* SLKTextInput+Implementation.m in Sources */,
-				2CC001A824A37A8B00A20167 /* NCAudioController.m in Sources */,
-				2C1ABD9D25769F7500AEDFB6 /* ShareItem.m in Sources */,
-				2CC001A524A37A8B00A20167 /* NCCallController.m in Sources */,
-				2C1ABDA525769F8600AEDFB6 /* ShareItemController.m in Sources */,
-				2CC001BD24A37ABD00A20167 /* AuthenticationViewController.m in Sources */,
 				2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */,
-				2CC001B524A37A9500A20167 /* NCChatViewController.m in Sources */,
-				2CC0017E24A37A5000A20167 /* SLKTextViewController.m in Sources */,
-				2CF9CBFD26025F64002246EF /* TextInputTableViewCell.m in Sources */,
 				1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */,
-				2CC001E224A37AD400A20167 /* VideoSettingsViewController.m in Sources */,
-				2CC001AA24A37A8F00A20167 /* ChatMessageTableViewCell.m in Sources */,
-				2C78E9E42512136000E3D4CA /* NCUserStatus.m in Sources */,
-				1F5CDF652584E78900B0026E /* NCChatFileStatus.m in Sources */,
-				2CC001BA24A37A9A00A20167 /* ResultMultiSelectionTableViewController.m in Sources */,
-				2CC001B824A37A9A00A20167 /* SearchTableViewController.m in Sources */,
-				2CC001D324A37ACA00A20167 /* RoomCreation2TableViewController.m in Sources */,
+				2C4446ED265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
 				2CC0016724A25BE100A20167 /* NCChatMessage.m in Sources */,
-				1F3D3B23255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
-				2CC001D024A37ACA00A20167 /* RoomTableViewCell.m in Sources */,
-				2CB6ACBD26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
-				2CB6ACCB26401D5200D3D641 /* GeoLocationRichObject.m in Sources */,
-				2CC0015D24A257B800A20167 /* NCSettingsController.m in Sources */,
 				2CC0017424A3796400A20167 /* NCAPISessionManager.m in Sources */,
 				2CC0016324A25B7400A20167 /* NCDatabaseManager.m in Sources */,
-				2CC001D224A37ACA00A20167 /* RoomCreationTableViewController.m in Sources */,
-				2CC001A724A37A8B00A20167 /* CallKitManager.m in Sources */,
-				2CC0016224A25B6B00A20167 /* NCConnectionController.m in Sources */,
-				2C1ABDE6257F883400AEDFB6 /* ABContact.m in Sources */,
-				2CC001B924A37A9A00A20167 /* AddParticipantsTableViewController.m in Sources */,
-				2CC001AF24A37A9500A20167 /* DateHeaderView.m in Sources */,
-				2CC0017F24A37A5200A20167 /* SLKTypingIndicatorView.m in Sources */,
 				2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */,
-				2CC001DF24A37AD400A20167 /* AccountTableViewCell.m in Sources */,
-				2CC001A124A37A8100A20167 /* RTCSessionDescription+JSON.m in Sources */,
-				2CC001E424A37ADB00A20167 /* PlaceholderView.m in Sources */,
+				2C444704265D641300DF1DBC /* NCUserDefaults.m in Sources */,
 				2CC001B724A37A9A00A20167 /* NCUser.m in Sources */,
-				2CC001BC24A37AA700A20167 /* DirectoryTableViewController.m in Sources */,
-				2CC0016624A25BD600A20167 /* NCChatController.m in Sources */,
-				2CC001E024A37AD400A20167 /* UserSettingsTableViewCell.m in Sources */,
-				2CB6ACEA2641954700D3D641 /* MapViewController.m in Sources */,
-				2CC001E524A37ADB00A20167 /* UIBarButtonItem+Badge.m in Sources */,
 				2CC0016124A25B5500A20167 /* NCAPIController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2554,7 +2231,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 584BF273DF09DE4D5EE0DA0F /* Pods-ShareExtension.debug.xcconfig */;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -2650,7 +2327,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 95D756208A81284B975853EC /* Pods-ShareExtension.release.xcconfig */;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -2744,7 +2421,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -2822,7 +2499,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;

@@ -22,40 +22,16 @@ end
 
 target "NotificationServiceExtension" do
 pod 'AFNetworking', "3.1.0"
-pod 'DateTools'
-pod 'GoogleWebRTC', "1.1.31999"
-pod 'JDStatusBarNotification'
-pod 'SocketRocket'
-pod 'DBImageColorPicker'
 pod 'UICKeyChainStore'
 pod 'Realm', '10.7.4'
-pod "AFViewShaker", "~> 0.0.5"
-pod 'BKPasscodeView', '~> 0.1.2'
-pod 'MaterialComponents/ActivityIndicator'
-pod 'Toast', '~> 4.0.0'
-pod "PulsingHalo"
-pod 'MBProgressHUD', '~> 1.2.0'
-pod 'TOCropViewController', '~> 2.6.0'
-pod 'libPhoneNumber-iOS'
 end
 
 target "ShareExtension" do
 pod 'AFNetworking', "3.1.0"
-pod 'DateTools'
-pod 'GoogleWebRTC', "1.1.31999"
-pod 'JDStatusBarNotification'
-pod 'SocketRocket'
-pod 'DBImageColorPicker'
 pod 'UICKeyChainStore'
 pod 'Realm', '10.7.4'
-pod "AFViewShaker", "~> 0.0.5"
-pod 'BKPasscodeView', '~> 0.1.2'
-pod 'MaterialComponents/ActivityIndicator'
-pod 'Toast', '~> 4.0.0'
-pod "PulsingHalo"
 pod 'MBProgressHUD', '~> 1.2.0'
 pod 'TOCropViewController', '~> 2.6.0'
-pod 'libPhoneNumber-iOS'
 end
 
 pre_install do |installer|
@@ -71,13 +47,5 @@ pre_install do |installer|
       end
     }
     puts 'end pre_install.'
-end
-
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'NO'
-    end
-  end
 end
 

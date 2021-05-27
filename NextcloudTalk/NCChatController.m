@@ -23,9 +23,9 @@
 #import "NCChatController.h"
 
 #import "NCAPIController.h"
+#import "NCChatBlock.h"
 #import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
-#import "NCSettingsController.h"
 
 NSString * const NCChatControllerDidReceiveInitialChatHistoryNotification           = @"NCChatControllerDidReceiveInitialChatHistoryNotification";
 NSString * const NCChatControllerDidReceiveInitialChatHistoryOfflineNotification    = @"NCChatControllerDidReceiveInitialChatHistoryOfflineNotification";
@@ -43,9 +43,6 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
 @property (nonatomic, strong) NSURLSessionTask *getHistoryTask;
 @property (nonatomic, strong) NSURLSessionTask *pullMessagesTask;
 
-@end
-
-@implementation NCChatBlock
 @end
 
 @implementation NCChatController
@@ -379,7 +376,7 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
     [userInfo setObject:_room.token forKey:@"room"];
     
     NSInteger lastReadMessageId = 0;
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
         lastReadMessageId = _room.lastReadMessage;
     }
     

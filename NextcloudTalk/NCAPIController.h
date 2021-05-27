@@ -25,8 +25,6 @@
 
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
-#import "NCCallController.h"
-#import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "NCUser.h"
 

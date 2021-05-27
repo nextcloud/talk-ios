@@ -22,9 +22,10 @@
 
 #import "NCSignalingController.h"
 
-#import "NCAPIController.h"
-#import "NCSettingsController.h"
 #import <WebRTC/RTCIceServer.h>
+
+#import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 
 @interface NCSignalingController()
 {

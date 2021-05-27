@@ -20,30 +20,13 @@
  *
  */
 
-#import "NCMessageTextView.h"
+#import "TalkAccount.h"
 
-#import "NCAppBranding.h"
+@implementation TalkAccount
 
-@implementation NCMessageTextView
-
-- (instancetype)init
++ (NSString *)primaryKey
 {
-    if (self = [super init]) {
-        // Do something
-    }
-    return self;
-}
-
-- (void)willMoveToSuperview:(UIView *)newSuperview
-{
-    [super willMoveToSuperview:newSuperview];
-    
-    self.keyboardType = UIKeyboardTypeDefault;
-    
-    self.backgroundColor = [NCAppBranding backgroundColor];
-    
-    self.placeholder = NSLocalizedString(@"Write message, @ to mention someone …", nil);
-    self.placeholderColor = [NCAppBranding placeholderColor];
+    return @"accountId";
 }
 
 @end

@@ -23,7 +23,6 @@
 #import "NCChatMessage.h"
 
 #import "NCAppBranding.h"
-#import "NCSettingsController.h"
 #import "NextcloudTalk-Swift.h"
 
 NSInteger const kChatMessageGroupTimeDifference = 30;
@@ -172,7 +171,7 @@ NSString * const kMessageTypeCommand        = @"command";
 - (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType
 {
     NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
-    BOOL canServerDeleteMessages = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityDeleteMessages forAccountId:account.accountId];
+    BOOL canServerDeleteMessages = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDeleteMessages forAccountId:account.accountId];
     if ([self.messageType isEqualToString:kMessageTypeComment] && !self.isDeleting && !self.file && self.timestamp >= sixHoursAgoTimestamp && canServerDeleteMessages &&
         (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:account.userId])) {
         return YES;

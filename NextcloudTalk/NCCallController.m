@@ -33,8 +33,11 @@
 #import <WebRTC/RTCCameraVideoCapturer.h>
 #import <WebRTC/RTCDefaultVideoEncoderFactory.h>
 #import <WebRTC/RTCDefaultVideoDecoderFactory.h>
+
+#import "CallConstants.h"
 #import "NCAPIController.h"
 #import "NCAudioController.h"
+#import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingController.h"
 #import "NCExternalSignalingController.h"

@@ -20,30 +20,14 @@
  *
  */
 
-#import "NCMessageTextView.h"
+#import <Foundation/Foundation.h>
 
-#import "NCAppBranding.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation NCMessageTextView
+extern NSString * const NCTalkNotInstalledNotification;
+extern NSString * const NCOutdatedTalkVersionNotification;
+extern NSString * const NCServerCapabilitiesUpdatedNotification;
+extern NSString * const NCUserProfileImageUpdatedNotification;
+extern NSString * const NCTokenRevokedResponseReceivedNotification;
 
-- (instancetype)init
-{
-    if (self = [super init]) {
-        // Do something
-    }
-    return self;
-}
-
-- (void)willMoveToSuperview:(UIView *)newSuperview
-{
-    [super willMoveToSuperview:newSuperview];
-    
-    self.keyboardType = UIKeyboardTypeDefault;
-    
-    self.backgroundColor = [NCAppBranding backgroundColor];
-    
-    self.placeholder = NSLocalizedString(@"Write message, @ to mention someone …", nil);
-    self.placeholderColor = [NCAppBranding placeholderColor];
-}
-
-@end
+NS_ASSUME_NONNULL_END

@@ -21,15 +21,16 @@
  */
 
 #import "NCNotificationController.h"
+
 #import <UserNotifications/UserNotifications.h>
 
+#import "CallKitManager.h"
 #import "NCAPIController.h"
-#import "NCConnectionController.h"
+#import "NCDatabaseManager.h"
 #import "NCNotification.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
-#import "CallKitManager.h"
 
 NSString * const NCNotificationControllerWillPresentNotification    = @"NCNotificationControllerWillPresentNotification";
 NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalNotificationJoinChatNotification";

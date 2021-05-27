@@ -22,8 +22,8 @@
 
 #import "NewRoomTableViewController.h"
 
-#import "RoomCreationTableViewController.h"
-#import "RoomCreation2TableViewController.h"
+#import "UIImageView+AFNetworking.h"
+
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCContact.h"
@@ -33,8 +33,9 @@
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
+#import "RoomCreationTableViewController.h"
+#import "RoomCreation2TableViewController.h"
 #import "SearchTableViewController.h"
-#import "UIImageView+AFNetworking.h"
 
 typedef enum HeaderSection {
     kHeaderSectionNewGroup = 0,
@@ -160,7 +161,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     self.navigationController.navigationBar.topItem.leftBarButtonItem.accessibilityHint = NSLocalizedString(@"Cancel conversation creation", nil);
     
-    if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
+    if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
         UIBarButtonItem *moreOptionButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"more-action"]
                                                                              style:UIBarButtonItemStylePlain
                                                                             target:self
@@ -189,7 +190,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         self.navigationItem.hidesSearchBarWhenScrolling = NO;
     }
     
-    if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
+    if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
         [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:NO];
         [self getAddressBookContacts];
     }

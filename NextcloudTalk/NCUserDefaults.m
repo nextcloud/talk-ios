@@ -1,3 +1,4 @@
+//
 /**
  * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
  *
@@ -20,30 +21,30 @@
  *
  */
 
-#import "NCMessageTextView.h"
+#import "NCUserDefaults.h"
 
-#import "NCAppBranding.h"
+#import "NCKeyChainController.h"
 
-@implementation NCMessageTextView
+@implementation NCUserDefaults
 
-- (instancetype)init
++ (void)setDefaultBrowser:(NSString *)defaultBrowser
 {
-    if (self = [super init]) {
-        // Do something
-    }
-    return self;
+    [[NSUserDefaults standardUserDefaults] setObject:defaultBrowser forKey:kNCUserDefaultBrowser];
 }
 
-- (void)willMoveToSuperview:(UIView *)newSuperview
++ (NSString *)defaultBrowser
 {
-    [super willMoveToSuperview:newSuperview];
-    
-    self.keyboardType = UIKeyboardTypeDefault;
-    
-    self.backgroundColor = [NCAppBranding backgroundColor];
-    
-    self.placeholder = NSLocalizedString(@"Write message, @ to mention someone …", nil);
-    self.placeholderColor = [NCAppBranding placeholderColor];
+    NSString *browser = [[NSUserDefaults standardUserDefaults] objectForKey:kNCUserDefaultBrowser];
+    if (!browser) {
+        browser = @"Safari";
+        // Legacy
+        NSString *oldDefaultBrowser = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserDefaultBrowser];
+        if (oldDefaultBrowser) {
+            browser = oldDefaultBrowser;
+        }
+        [[NSUserDefaults standardUserDefaults] setObject:browser forKey:kNCUserDefaultBrowser];
+    }
+    return browser;
 }
 
 @end

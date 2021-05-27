@@ -1,3 +1,4 @@
+//
 /**
  * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
  *
@@ -20,30 +21,16 @@
  *
  */
 
-#import "NCMessageTextView.h"
+#ifndef CallConstants_h
+#define CallConstants_h
 
-#import "NCAppBranding.h"
+typedef enum CallFlag {
+    CallFlagDisconnected = 0,
+    CallFlagInCall = 1,
+    CallFlagWithAudio = 2,
+    CallFlagWithVideo = 4,
+    CallFlagWithPhone = 8
+} CallFlag;
 
-@implementation NCMessageTextView
 
-- (instancetype)init
-{
-    if (self = [super init]) {
-        // Do something
-    }
-    return self;
-}
-
-- (void)willMoveToSuperview:(UIView *)newSuperview
-{
-    [super willMoveToSuperview:newSuperview];
-    
-    self.keyboardType = UIKeyboardTypeDefault;
-    
-    self.backgroundColor = [NCAppBranding backgroundColor];
-    
-    self.placeholder = NSLocalizedString(@"Write message, @ to mention someone …", nil);
-    self.placeholderColor = [NCAppBranding placeholderColor];
-}
-
-@end
+#endif /* CallConstants_h */

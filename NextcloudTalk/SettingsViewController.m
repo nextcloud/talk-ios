@@ -22,26 +22,28 @@
 
 #import "SettingsViewController.h"
 
-#import "NCSettingsController.h"
-#import "NCAPIController.h"
-#import "NCAppBranding.h"
-#import "NCContactsManager.h"
-#import "NCDatabaseManager.h"
-#import "AccountTableViewCell.h"
-#import "UserSettingsTableViewCell.h"
-#import "NCAPIController.h"
-#import "NCNavigationController.h"
-#import "NCUserStatus.h"
-#import "NCConnectionController.h"
+#import <SafariServices/SafariServices.h>
+
+#import "CCBKPasscode.h"
+#import "NBPhoneNumberUtil.h"
 #import "OpenInFirefoxControllerObjC.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
-#import "CCBKPasscode.h"
-#import "RoundedNumberView.h"
-#import "NBPhoneNumberUtil.h"
 #import "UIView+Toast.h"
+
+#import "AccountTableViewCell.h"
+#import "NCAPIController.h"
+#import "NCAppBranding.h"
+#import "NCConnectionController.h"
+#import "NCContactsManager.h"
+#import "NCDatabaseManager.h"
+#import "NCNavigationController.h"
+#import "NCSettingsController.h"
+#import "NCUserStatus.h"
+#import "NCUserDefaults.h"
+#import "RoundedNumberView.h"
 #import "UserProfileViewController.h"
-#import <SafariServices/SafariServices.h>
+#import "UserSettingsTableViewCell.h"
 
 typedef enum SettingsSection {
     kSettingsSectionUser = 0,
@@ -193,11 +195,11 @@ typedef enum AboutSection {
         [options addObject:[NSNumber numberWithInt:kConfigurationSectionOptionBrowser]];
     }
     // Read status privacy setting
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus]) {
         [options addObject:[NSNumber numberWithInt:kConfigurationSectionOptionReadStatus]];
     }
     // Contacts sync
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
         [options addObject:[NSNumber numberWithInt:kConfigurationSectionOptionContactsSync]];
     }
     
@@ -472,7 +474,7 @@ typedef enum AboutSection {
 {
     NSIndexPath *browserConfIndexPath = [self getIndexPathForConfigurationOption:kConfigurationSectionOptionBrowser];
     NSArray *supportedBrowsers = [[NCSettingsController sharedInstance] supportedBrowsers];
-    NSString *defaultBrowser = [[NCSettingsController sharedInstance] defaultBrowser];
+    NSString *defaultBrowser = [NCUserDefaults defaultBrowser];
     UIAlertController *optionsActionSheet =
     [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Open links in", nil)
                                         message:nil
@@ -483,10 +485,8 @@ typedef enum AboutSection {
         UIAlertAction *action = [UIAlertAction actionWithTitle:browser
                                                          style:UIAlertActionStyleDefault
                                                        handler:^void (UIAlertAction *action) {
-                                                           [NCSettingsController sharedInstance].defaultBrowser = browser;
-                                                           [self.tableView beginUpdates];
-                                                           [self.tableView reloadRowsAtIndexPaths:@[browserConfIndexPath] withRowAnimation:UITableViewRowAnimationNone];
-                                                           [self.tableView endUpdates];
+                                                            [NCUserDefaults setDefaultBrowser:browser];
+                                                            [self.tableView reloadData];
                                                        }];
         if (isDefaultBrowser) {
             [action setValue:[[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
@@ -777,7 +777,7 @@ typedef enum AboutSection {
                         cell.imageView.contentMode = UIViewContentModeCenter;
                         [cell.imageView setImage:[UIImage imageNamed:@"browser-settings"]];
                     }
-                    cell.detailTextLabel.text = [[NCSettingsController sharedInstance] defaultBrowser];
+                    cell.detailTextLabel.text = [NCUserDefaults defaultBrowser];
                 }
                     break;
                 case kConfigurationSectionOptionReadStatus:

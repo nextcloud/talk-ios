@@ -21,6 +21,7 @@
  */
 
 #import "BarButtonItemWithActivity.h"
+
 #import "NCAppBranding.h"
 
 @interface BarButtonItemWithActivity ()

@@ -26,22 +26,25 @@
 #import <WebRTC/RTCMediaStream.h>
 #import <WebRTC/RTCEAGLVideoView.h>
 #import <WebRTC/RTCVideoTrack.h>
+
 #import "ARDCaptureController.h"
-#import "CallParticipantViewCell.h"
 #import "DBImageColorPicker.h"
-#import "NCImageSessionManager.h"
+#import "PulsingHaloLayer.h"
+#import "UIImageView+AFNetworking.h"
+#import "UIView+Toast.h"
+
+#import "CallKitManager.h"
+#import "CallParticipantViewCell.h"
 #import "NBMPeersFlowLayout.h"
-#import "NCCallController.h"
 #import "NCAPIController.h"
 #import "NCAudioController.h"
+#import "NCCallController.h"
+#import "NCDatabaseManager.h"
+#import "NCImageSessionManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingMessage.h"
 #import "NCUtils.h"
-#import "UIImageView+AFNetworking.h"
-#import "CallKitManager.h"
-#import "UIView+Toast.h"
-#import "PulsingHaloLayer.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,

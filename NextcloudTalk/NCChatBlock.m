@@ -20,30 +20,8 @@
  *
  */
 
-#import "NCMessageTextView.h"
+#import "NCChatBlock.h"
 
-#import "NCAppBranding.h"
-
-@implementation NCMessageTextView
-
-- (instancetype)init
-{
-    if (self = [super init]) {
-        // Do something
-    }
-    return self;
-}
-
-- (void)willMoveToSuperview:(UIView *)newSuperview
-{
-    [super willMoveToSuperview:newSuperview];
-    
-    self.keyboardType = UIKeyboardTypeDefault;
-    
-    self.backgroundColor = [NCAppBranding backgroundColor];
-    
-    self.placeholder = NSLocalizedString(@"Write message, @ to mention someone …", nil);
-    self.placeholderColor = [NCAppBranding placeholderColor];
-}
+@implementation NCChatBlock
 
 @end

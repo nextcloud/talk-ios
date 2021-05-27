@@ -28,8 +28,6 @@
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"
-#import "NCRoomsManager.h"
-#import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "ShareConfirmationViewController.h"
@@ -266,7 +264,7 @@
         [self setProfileButtonForAccount:_shareAccount];
     }
     
-    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:_shareAccount.accountId witRealm:_realm];
+    NSArray *accountRooms = [self roomsForAccountId:_shareAccount.accountId];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", _shareAccount.accountId];
     ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsInRealm:_realm withPredicate:query].firstObject;
@@ -285,7 +283,7 @@
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
     NSMutableArray *allAccounts = [NSMutableArray new];
-    for (TalkAccount *managedAccount in [TalkAccount allObjects]) {
+    for (TalkAccount *managedAccount in [TalkAccount allObjectsInRealm:_realm]) {
         TalkAccount *account = [[TalkAccount alloc] initWithValue:managedAccount];
         [allAccounts addObject:account];
         
@@ -307,6 +305,38 @@
     optionsActionSheet.popoverPresentationController.barButtonItem = self.navigationItem.rightBarButtonItem;
     
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+#pragma mark - Rooms
+
+- (NSArray *)roomsForAccountId:(NSString *)accountId
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    RLMResults *managedRooms = [NCRoom objectsInRealm:_realm withPredicate:query];;
+    
+    // Create an unmanaged copy of the rooms
+    NSMutableArray *unmanagedRooms = [NSMutableArray new];
+    for (NCRoom *managedRoom in managedRooms) {
+        NCRoom *unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
+        [unmanagedRooms addObject:unmanagedRoom];
+    }
+    // Sort by favorites
+    NSSortDescriptor *favoriteSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+        NCRoom *first = (NCRoom*)obj1;
+        NCRoom *second = (NCRoom*)obj2;
+        BOOL favorite1 = first.isFavorite;
+        BOOL favorite2 = second.isFavorite;
+        if (favorite1 != favorite2) {
+            return favorite2 - favorite1;
+        }
+        return NSOrderedSame;
+    }];
+    // Sort by lastActivity
+    NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"lastActivity" ascending:NO];
+    NSArray *descriptors = [NSArray arrayWithObjects:favoriteSorting, valueDescriptor, nil];
+    [unmanagedRooms sortUsingDescriptors:descriptors];
+    
+    return unmanagedRooms;
 }
 
 #pragma mark - Shared items

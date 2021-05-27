@@ -23,6 +23,7 @@
 #import "CallKitManager.h"
 #import <CallKit/CXError.h>
 
+#import "CallConstants.h"
 #import "NCAudioController.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -255,7 +256,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 3.0;
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:call.accountId];
             [self updateCall:call withDisplayName:room.displayName];
             
-            if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityCallFlags forAccountId:call.accountId]) {
+            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityCallFlags forAccountId:call.accountId]) {
                 NSInteger callFlag = [[roomDict objectForKey:@"callFlag"] integerValue];
                 if (callFlag == CallFlagDisconnected) {
                     [self presentMissedCallNotificationForCall:call];

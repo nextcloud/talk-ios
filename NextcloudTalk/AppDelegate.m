@@ -38,11 +38,12 @@
 
 #import "NCAudioController.h"
 #import "NCAppBranding.h"
-#import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
+#import "NCKeyChainController.h"
 #import "NCNavigationController.h"
 #import "NCNotificationController.h"
 #import "NCPushNotification.h"
+#import "NCPushNotificationsUtils.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
@@ -213,9 +214,9 @@
     NSString *message = [userInfo objectForKey:@"subject"];
     for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
         TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
-        NSData *pushNotificationPrivateKey = [[NCSettingsController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
+        NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
         if (message && pushNotificationPrivateKey) {
-            NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+            NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
             if (decryptedMessage) {
                 NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
                 [[NCNotificationController sharedInstance] processBackgroundPushNotification:pushNotification];
@@ -244,9 +245,9 @@
     NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
     for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
         TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
-        NSData *pushNotificationPrivateKey = [[NCSettingsController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
+        NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
         if (message && pushNotificationPrivateKey) {
-            NSString *decryptedMessage = [[NCSettingsController sharedInstance] decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+            NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
             if (decryptedMessage) {
                 NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
                 if (pushNotification && pushNotification.type == NCPushNotificationTypeCall) {

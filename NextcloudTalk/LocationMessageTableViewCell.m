@@ -21,16 +21,16 @@
  */
 
 #import "LocationMessageTableViewCell.h"
-#import "SLKUIConstants.h"
+
 #import "MaterialActivityIndicator.h"
-#import "NCUtils.h"
+#import "SLKUIConstants.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 
 #import "NCAPIController.h"
-#import "NCDatabaseManager.h"
-#import "NCSettingsController.h"
 #import "NCAppBranding.h"
+#import "NCDatabaseManager.h"
+#import "NCUtils.h"
 
 @interface LocationMessageTableViewCell ()
 {
@@ -165,7 +165,7 @@
     [self createLocationPreview];
     
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    BOOL shouldShowDeliveryStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
+    BOOL shouldShowDeliveryStatus = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     BOOL shouldShowReadStatus = !serverCapabilities.readStatusPrivacy;
     if ([message.actorId isEqualToString:activeAccount.userId] && [message.actorType isEqualToString:@"users"] && shouldShowDeliveryStatus) {
         if (lastCommonRead >= message.messageId && shouldShowReadStatus) {

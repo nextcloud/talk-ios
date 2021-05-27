@@ -25,17 +25,19 @@
 #import <AVFoundation/AVFoundation.h>
 #import <TOCropViewController/TOCropViewController.h>
 
+#import "NBPhoneNumberUtil.h"
+
 #import "AvatarHeaderView.h"
 #import "DetailedOptionsSelectorTableViewController.h"
 #import "HeaderWithButton.h"
-#import "NBPhoneNumberUtil.h"
-#import "NCAppBranding.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCNavigationController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
+#import "NotificationCenterNotifications.h"
 #import "TextInputTableViewCell.h"
 
 #define k_name_textfield_tag        99
@@ -288,7 +290,7 @@ typedef enum SummaryRow {
     [headerView.scopeButton addTarget:self action:@selector(showScopeSelectionDialog:) forControlEvents:UIControlEventTouchUpInside];
     headerView.scopeButton.hidden = !(_isEditable && _showScopes);
     
-    headerView.editButton.hidden = !(_isEditable && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityTempUserAvatarAPI forAccountId:_account.accountId]);
+    headerView.editButton.hidden = !(_isEditable && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityTempUserAvatarAPI forAccountId:_account.accountId]);
     [headerView.editButton setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
     [headerView.editButton addTarget:self action:@selector(showAvatarOptions) forControlEvents:UIControlEventTouchUpInside];
     _editAvatarButton = headerView.editButton;

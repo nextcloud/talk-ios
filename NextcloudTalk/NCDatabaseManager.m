@@ -24,26 +24,35 @@
 
 #import "ABContact.h"
 #import "NCAppBranding.h"
-#import "NCChatController.h"
+#import "NCChatBlock.h"
 #import "NCChatMessage.h"
 #import "NCContact.h"
 #import "NCRoom.h"
 
-NSString *const kTalkDatabaseFolder         = @"Library/Application Support/Talk";
-NSString *const kTalkDatabaseFileName       = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion   = 22;
+NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
+NSString *const kTalkDatabaseFileName               = @"talk.realm";
+uint64_t const kTalkDatabaseSchemaVersion           = 22;
 
-@implementation TalkAccount
-+ (NSString *)primaryKey {
-    return @"accountId";
-}
-@end
+NSString * const kCapabilitySystemMessages          = @"system-messages";
+NSString * const kCapabilityNotificationLevels      = @"notification-levels";
+NSString * const kCapabilityInviteGroupsAndMails    = @"invite-groups-and-mails";
+NSString * const kCapabilityLockedOneToOneRooms     = @"locked-one-to-one-rooms";
+NSString * const kCapabilityWebinaryLobby           = @"webinary-lobby";
+NSString * const kCapabilityChatReadMarker          = @"chat-read-marker";
+NSString * const kCapabilityStartCallFlag           = @"start-call-flag";
+NSString * const kCapabilityCirclesSupport          = @"circles-support";
+NSString * const kCapabilityChatReferenceId         = @"chat-reference-id";
+NSString * const kCapabilityPhonebookSearch         = @"phonebook-search";
+NSString * const kCapabilityChatReadStatus          = @"chat-read-status";
+NSString * const kCapabilityDeleteMessages          = @"delete-messages";
+NSString * const kCapabilityCallFlags               = @"conversation-call-flags";
+NSString * const kCapabilityTempUserAvatarAPI       = @"temp-user-avatar-api";
+NSString * const kCapabilityLocationSharing         = @"geo-location-sharing";
+NSString * const kCapabilityConversationV4          = @"conversation-v4";
+NSString * const kCapabilitySIPSupport              = @"sip-support";
+NSString * const kCapabilityVoiceMessage            = @"voice-message-sharing";
 
-@implementation ServerCapabilities
-+ (NSString *)primaryKey {
-    return @"accountId";
-}
-@end
+NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
 @implementation NCDatabaseManager
 
@@ -315,6 +324,24 @@ uint64_t const kTalkDatabaseSchemaVersion   = 22;
     [realm transactionWithBlock:^{
         [realm addOrUpdateObject:capabilities];
     }];
+}
+
+- (BOOL)serverHasTalkCapability:(NSString *)capability
+{
+    TalkAccount *activeAccount = [self activeAccount];
+    return [self serverHasTalkCapability:capability forAccountId:activeAccount.accountId];
+}
+
+- (BOOL)serverHasTalkCapability:(NSString *)capability forAccountId:(NSString *)accountId
+{
+    ServerCapabilities *serverCapabilities  = [self serverCapabilitiesForAccountId:accountId];
+    if (serverCapabilities) {
+        NSArray *talkFeatures = [serverCapabilities.talkCapabilities valueForKey:@"self"];
+        if ([talkFeatures containsObject:capability]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 @end

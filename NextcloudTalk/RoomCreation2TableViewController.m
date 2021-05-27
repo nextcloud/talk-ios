@@ -22,12 +22,14 @@
 
 #import "RoomCreation2TableViewController.h"
 
+#import "UIImageView+AFNetworking.h"
+
 #import "ContactsTableViewCell.h"
-#import "RoomNameTableViewCell.h"
-#import "NCUser.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
-#import "UIImageView+AFNetworking.h"
+#import "NCDatabaseManager.h"
+#import "NCUser.h"
+#import "RoomNameTableViewCell.h"
 
 typedef enum CreationSection {
     kCreationSectionName = 0,

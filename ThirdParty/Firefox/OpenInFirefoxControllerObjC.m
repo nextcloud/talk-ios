@@ -32,8 +32,12 @@ static NSString *encodeByAddingPercentEscapes(NSString *string) {
 
 // Checks if Firefox is installed.
 - (BOOL)isFirefoxInstalled {
+    BOOL isInstalled = NO;
+#ifndef APP_EXTENSION
     NSURL *url = [NSURL URLWithString:firefoxScheme];
-    return [[UIApplication sharedApplication] canOpenURL:url];
+    isInstalled = [[UIApplication sharedApplication] canOpenURL:url];
+#endif
+    return isInstalled;
 }
 
 // Opens the URL in Firefox.
@@ -47,13 +51,16 @@ static NSString *encodeByAddingPercentEscapes(NSString *string) {
         return NO;
     }
 
+    // Open the URL with Firefox.
+    BOOL successfullyOpened = NO;
+#ifndef APP_EXTENSION
     NSString *urlString = [url absoluteString];
     NSMutableString *firefoxURLString = [NSMutableString string];
     [firefoxURLString appendFormat:@"%@//open-url?url=%@", firefoxScheme, encodeByAddingPercentEscapes(urlString)];
     NSURL *firefoxURL = [NSURL URLWithString: firefoxURLString];
-
-    // Open the URL with Firefox.
-    return [[UIApplication sharedApplication] openURL:firefoxURL];
+    successfullyOpened = [[UIApplication sharedApplication] openURL:firefoxURL];
+#endif
+    return successfullyOpened;
 }
 
 @end

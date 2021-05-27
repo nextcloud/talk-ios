@@ -21,11 +21,12 @@
  */
 
 #import "GroupedChatMessageTableViewCell.h"
+
 #import "MaterialActivityIndicator.h"
-#import "NCDatabaseManager.h"
-#import "NCSettingsController.h"
 #import "SLKUIConstants.h"
+
 #import "NCAppBranding.h"
+#import "NCDatabaseManager.h"
 
 @implementation GroupedChatMessageTableViewCell
 
@@ -85,7 +86,7 @@
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    BOOL shouldShowDeliveryStatus = [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
+    BOOL shouldShowDeliveryStatus = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     BOOL shouldShowReadStatus = !serverCapabilities.readStatusPrivacy;
     
     if (message.isDeleting) {

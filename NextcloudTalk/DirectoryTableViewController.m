@@ -24,13 +24,15 @@
 
 #import <NCCommunication/NCCommunication.h>
 
+#import "UIImageView+AFNetworking.h"
+
 #import "DirectoryTableViewCell.h"
 #import "NCAPIController.h"
+#import "NCDatabaseManager.h"
 #import "NCAppBranding.h"
 #import "NCSettingsController.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
-#import "UIImageView+AFNetworking.h"
 
 @interface DirectoryTableViewController ()
 {

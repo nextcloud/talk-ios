@@ -24,12 +24,15 @@
 
 #import <QuickLook/QuickLook.h>
 
+#import "UIImageView+AFNetworking.h"
+#import "UIImageView+Letters.h"
+
 #import "AddParticipantsTableViewController.h"
 #import "ContactsTableViewCell.h"
-#import "RoomNameTableViewCell.h"
 #import "HeaderWithButton.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCChatFileController.h"
 #import "NCDatabaseManager.h"
 #import "NCNavigationController.h"
 #import "NCRoomsManager.h"
@@ -37,9 +40,7 @@
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
-#import "UIImageView+Letters.h"
-#import "UIImageView+AFNetworking.h"
-#import "NCChatFileController.h"
+#import "RoomNameTableViewCell.h"
 
 typedef enum RoomInfoSection {
     kRoomInfoSectionName = 0,
@@ -246,7 +247,7 @@ typedef enum FileAction {
         // Public room section
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionPublic]];
         // Webinar section
-        if (_room.type != kNCRoomTypeOneToOne && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
+        if (_room.type != kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
             [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionWebinar]];
         }
     }
@@ -275,7 +276,7 @@ typedef enum FileAction {
     // Favorite action
     [actions addObject:[NSNumber numberWithInt:kRoomActionFavorite]];
     // Notification levels action
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         [actions addObject:[NSNumber numberWithInt:kRoomActionNotifications]];
     }
     // Public room actions

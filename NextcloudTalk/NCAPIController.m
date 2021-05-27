@@ -25,12 +25,11 @@
 #import "CCCertificate.h"
 #import "NCAPISessionManager.h"
 #import "NCAppBranding.h"
-#import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCImageSessionManager.h"
 #import "NCPushProxySessionManager.h"
-#import "NCSettingsController.h"
-#import "NCUserInterfaceController.h"
+#import "NCKeyChainController.h"
+#import "NotificationCenterNotifications.h"
 
 NSInteger const APIv1                       = 1;
 NSInteger const APIv2                       = 2;
@@ -98,7 +97,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account
 {
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
-    NSString *userToken = [[NCSettingsController sharedInstance] tokenForAccountId:account.accountId];
+    NSString *userToken = [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId];
     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
     [[NCCommunicationCommon shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken
                                              urlBase:account.server userAgent:userAgent webDav:serverCapabilities.webDAVRoot dav:nil
@@ -122,7 +121,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSString *)authHeaderForAccount:(TalkAccount *)account
 {
-    NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCSettingsController sharedInstance] tokenForAccountId:account.accountId]];
+    NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId]];
     NSData *data = [userTokenString dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
     
@@ -132,10 +131,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSInteger)conversationAPIVersionForAccount:(TalkAccount *)account
 {
     NSInteger conversationAPIVersion = APIv1;
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:account.accountId]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:account.accountId]) {
         conversationAPIVersion = APIv3;
     }
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityConversationV4 forAccountId:account.accountId]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityConversationV4 forAccountId:account.accountId]) {
         conversationAPIVersion = APIv4;
     }
     
@@ -155,7 +154,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account
 {
     NSInteger signalingAPIVersion = APIv1;
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilitySIPSupport forAccountId:account.accountId]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySIPSupport forAccountId:account.accountId]) {
         signalingAPIVersion = APIv2;
     }
     
@@ -197,10 +196,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block
 {
     NSMutableArray *shareTypes = [[NSMutableArray alloc] initWithObjects:@(NCShareTypeUser), nil];
-    if (groupRoom && [[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityInviteGroupsAndMails]) {
+    if (groupRoom && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityInviteGroupsAndMails]) {
         [shareTypes addObject:@(NCShareTypeGroup)];
         [shareTypes addObject:@(NCShareTypeEmail)];
-        if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityCirclesSupport]) {
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityCirclesSupport]) {
             [shareTypes addObject:@(NCShareTypeCircle)];
         }
     }
@@ -993,7 +992,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    // Work around: When sendChatMessage is called from Share Extension session managers are not initialized.
+    // Workaround: When sendChatMessage is called from Share Extension session managers are not initialized.
     if (!apiSessionManager) {
         [self initSessionManagers];
         apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
@@ -1221,7 +1220,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  };
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    // Work around: When sendChatMessage is called from Share Extension session managers are not initialized.
+    // Workaround: When shareFileOrFolderForAccount is called from Share Extension session managers are not initialized.
     if (!apiSessionManager) {
         [self initSessionManagers];
         apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
@@ -1595,6 +1594,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/notifications/%ld", account.server, (long)notificationId];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    // Workaround: Just in case session managers are not initialized when called from NotificationService extension.
+    if (!apiSessionManager) {
+        [self initSessionManagers];
+        apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    }
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *notification = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
@@ -1619,7 +1623,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/push", account.server];
     NSString *devicePublicKey = [[NSString alloc] initWithData:account.pushNotificationPublicKey encoding:NSUTF8StringEncoding];
 
-    NSDictionary *parameters = @{@"pushTokenHash" : [[NCSettingsController sharedInstance] pushTokenSHA512],
+    NSDictionary *parameters = @{@"pushTokenHash" : [[NCKeyChainController sharedInstance] pushTokenSHA512],
                                  @"devicePublicKey" : devicePublicKey,
                                  @"proxyServer" : pushNotificationServer
                                  };
@@ -1664,7 +1668,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account toPushServerWithCompletionBlock:(SubscribeToPushProxyCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/devices", pushNotificationServer];
-    NSDictionary *parameters = @{@"pushToken" : [[NCSettingsController sharedInstance] combinedPushToken],
+    NSDictionary *parameters = @{@"pushToken" : [[NCKeyChainController sharedInstance] combinedPushToken],
                                  @"deviceIdentifier" : account.deviceIdentifier,
                                  @"deviceIdentifierSignature" : account.deviceSignature,
                                  @"userPublicKey" : account.userPublicKey
@@ -1720,11 +1724,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 {
     // App token has been revoked
     if (statusCode == 401) {
-        [[NCSettingsController sharedInstance] logoutAccountWithAccountId:account.accountId withCompletionBlock:^(NSError *error) {
-            [[NCUserInterfaceController sharedInstance] presentConversationsList];
-            [[NCUserInterfaceController sharedInstance] presentLoggedOutInvalidCredentialsAlert];
-            [[NCConnectionController sharedInstance] checkAppState];
-        }];
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:account.accountId forKey:@"accountId"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCTokenRevokedResponseReceivedNotification
+                                                            object:self
+                                                          userInfo:userInfo];
     }
 }
 

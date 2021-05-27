@@ -21,9 +21,11 @@
  */
 
 #import "RoomTableViewCell.h"
-#import "RoundedNumberView.h"
+
 #import "UIImageView+AFNetworking.h"
+
 #import "NCAppBranding.h"
+#import "RoundedNumberView.h"
 
 #define kTitleOriginY       12
 #define kTitleOnlyOriginY   28

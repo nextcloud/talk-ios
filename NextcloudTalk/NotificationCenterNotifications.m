@@ -20,30 +20,11 @@
  *
  */
 
-#import "NCMessageTextView.h"
+#import "NotificationCenterNotifications.h"
 
-#import "NCAppBranding.h"
+NSString * const NCTalkNotInstalledNotification = @"NCTalkNotInstalledNotification";
+NSString * const NCOutdatedTalkVersionNotification = @"NCOutdatedTalkVersionNotification";
+NSString * const NCServerCapabilitiesUpdatedNotification = @"NCServerCapabilitiesUpdatedNotification";
+NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpdatedNotification";
+NSString * const NCTokenRevokedResponseReceivedNotification = @"NCTokenRevokedResponseReceivedNotification";
 
-@implementation NCMessageTextView
-
-- (instancetype)init
-{
-    if (self = [super init]) {
-        // Do something
-    }
-    return self;
-}
-
-- (void)willMoveToSuperview:(UIView *)newSuperview
-{
-    [super willMoveToSuperview:newSuperview];
-    
-    self.keyboardType = UIKeyboardTypeDefault;
-    
-    self.backgroundColor = [NCAppBranding backgroundColor];
-    
-    self.placeholder = NSLocalizedString(@"Write message, @ to mention someone …", nil);
-    self.placeholderColor = [NCAppBranding placeholderColor];
-}
-
-@end

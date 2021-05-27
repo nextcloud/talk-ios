@@ -22,14 +22,16 @@
 
 #import "RoomSearchTableViewController.h"
 
+#import "NSDate+DateTools.h"
+#import "UIImageView+AFNetworking.h"
+
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "NCSettingsController.h"
-#import "NSDate+DateTools.h"
 #import "PlaceholderView.h"
 #import "RoomTableViewCell.h"
-#import "UIImageView+AFNetworking.h"
 
 @interface RoomSearchTableViewController ()
 {

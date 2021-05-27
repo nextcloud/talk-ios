@@ -21,51 +21,57 @@
  */
 
 #import <AVFoundation/AVFoundation.h>
+#import <QuickLook/QuickLook.h>
+
+#import <NCCommunication/NCCommunication.h>
 
 #import "NCChatViewController.h"
 
 #import "AFImageDownloader.h"
+#import "FTPopOverMenu.h"
+#import "NSDate+DateTools.h"
+#import "UIImageView+AFNetworking.h"
+#import "UIImageView+Letters.h"
+#import "UIView+Toast.h"
+
+#import "BarButtonItemWithActivity.h"
 #import "CallKitManager.h"
 #import "ChatMessageTableViewCell.h"
+#import "DateHeaderView.h"
 #import "DirectoryTableViewController.h"
 #import "GroupedChatMessageTableViewCell.h"
 #import "FileMessageTableViewCell.h"
+#import "GeoLocationRichObject.h"
 #import "LocationMessageTableViewCell.h"
-#import "SystemMessageTableViewCell.h"
 #import "MapViewController.h"
 #import "MessageSeparatorTableViewCell.h"
-#import "DateHeaderView.h"
-#import "FTPopOverMenu.h"
 #import "PlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCChatController.h"
+#import "NCChatFileController.h"
 #import "NCChatMessage.h"
-#import "NCDatabaseManager.h"
-#import "NCMessageParameter.h"
 #import "NCChatTitleView.h"
+#import "NCDatabaseManager.h"
+#import "NCImageSessionManager.h"
+#import "NCMessageParameter.h"
 #import "NCMessageTextView.h"
 #import "NCNavigationController.h"
-#import "NCImageSessionManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
-#import "NSDate+DateTools.h"
-#import "ReplyMessageView.h"
 #import "QuotedMessageView.h"
+#import "ReplyMessageView.h"
 #import "RoomInfoTableViewController.h"
 #import "ShareConfirmationViewController.h"
-#import "UIImageView+AFNetworking.h"
-#import "UIImageView+Letters.h"
-#import "UIView+Toast.h"
-#import "BarButtonItemWithActivity.h"
 #import "ShareItem.h"
-#import "NCChatFileController.h"
+#import "SystemMessageTableViewCell.h"
 #import "ShareLocationViewController.h"
-#import "GeoLocationRichObject.h"
-#import <NCCommunication/NCCommunication.h>
-#import <QuickLook/QuickLook.h>
+
+
+#define k_send_message_button_tag   99
+#define k_voice_record_button_tag   98
 
 typedef enum NCChatMessageAction {
     kNCChatMessageActionReply = 1,
@@ -189,10 +195,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     self.shouldScrollToBottomAfterKeyboardShows = NO;
     self.inverted = NO;
     
-    [self.rightButton setTitle:@"" forState:UIControlStateNormal];
-    [self.rightButton setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
-    self.rightButton.accessibilityLabel = NSLocalizedString(@"Send message", nil);
-    self.rightButton.accessibilityHint = NSLocalizedString(@"Double tap to send message", nil);
+    [self showSendMessageButton];
     [self.leftButton setImage:[UIImage imageNamed:@"attachment"] forState:UIControlStateNormal];
     self.leftButton.accessibilityLabel = NSLocalizedString(@"Share a file from your Nextcloud", nil);
     self.leftButton.accessibilityHint = NSLocalizedString(@"Double tap to open file browser", nil);
@@ -581,6 +584,24 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 #pragma mark - User Interface
 
+- (void)showVoiceMessageRecordButton
+{
+    [self.rightButton setTitle:@"" forState:UIControlStateNormal];
+    [self.rightButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+    self.rightButton.tag = k_voice_record_button_tag;
+    self.rightButton.accessibilityLabel = NSLocalizedString(@"Record voice message", nil);
+    self.rightButton.accessibilityHint = NSLocalizedString(@"Tap and hold to record a voice message", nil);
+}
+
+- (void)showSendMessageButton
+{
+    [self.rightButton setTitle:@"" forState:UIControlStateNormal];
+    [self.rightButton setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
+    self.rightButton.tag = k_send_message_button_tag;
+    self.rightButton.accessibilityLabel = NSLocalizedString(@"Send message", nil);
+    self.rightButton.accessibilityHint = NSLocalizedString(@"Double tap to send message", nil);
+}
+
 - (void)disableRoomControls
 {
     _titleView.userInteractionEnabled = NO;
@@ -604,11 +625,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [_voiceCallButton setEnabled:YES];
         
         [self.leftButton setEnabled:YES];
+        [self.rightButton setEnabled:[self canPressRightButton]];
         self.textInputbar.userInteractionEnabled = YES;
-        
-        if ([self.textView.text length] > 0) {
-            [self.rightButton setEnabled:YES];
-        }
     }
     
     if (![_room userCanStartCall] && !_room.hasCall) {
@@ -688,7 +706,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (NSInteger)getLastReadMessage
 {
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
         return _lastReadMessage;
     }
     return 0;
@@ -902,7 +920,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     NSString *referenceId = nil;
     NCChatMessage *replyToMessage = (_replyMessageView.isVisible && fromInputField) ? _replyMessageView.message : nil;
     
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
         NCChatMessage *temporaryMessage = [self createTemporaryMessage:message replyToMessage:replyToMessage];
         referenceId = temporaryMessage.referenceId;
         [self appendTemporaryMessage:temporaryMessage];
@@ -914,14 +932,31 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId];
 }
 
+- (BOOL)canPressRightButton
+{
+    BOOL canPress = [super canPressRightButton];
+    
+    if (!canPress && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityVoiceMessage]) {
+        [self showVoiceMessageRecordButton];
+        return YES;
+    }
+    
+    [self showSendMessageButton];
+    
+    return canPress;
+}
+
 - (void)didPressRightButton:(id)sender
 {
-    [self sendChatMessage:self.textView.text fromInputField:YES];
-    [_replyMessageView dismiss];
-    [super didPressRightButton:sender];
-    
-    // Input field is empty after send -> this clears a previously saved pending message
-    [self savePendingMessage];
+    UIButton *button = sender;
+    if (button.tag == k_send_message_button_tag) {
+        [self sendChatMessage:self.textView.text fromInputField:YES];
+        [_replyMessageView dismiss];
+        [super didPressRightButton:sender];
+        
+        // Input field is empty after send -> this clears a previously saved pending message
+        [self savePendingMessage];
+    }
 }
 
 - (void)didPressLeftButton:(id)sender
@@ -976,7 +1011,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [optionsActionSheet addAction:cameraAction];
     }
     [optionsActionSheet addAction:photoLibraryAction];
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
         [optionsActionSheet addAction:shareLocationAction];
     }
     [optionsActionSheet addAction:filesAction];

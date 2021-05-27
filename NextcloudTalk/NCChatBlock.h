@@ -20,30 +20,19 @@
  *
  */
 
-#import "NCMessageTextView.h"
+#import <Foundation/Foundation.h>
+#import <Realm/Realm.h>
 
-#import "NCAppBranding.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation NCMessageTextView
+@interface NCChatBlock : RLMObject
 
-- (instancetype)init
-{
-    if (self = [super init]) {
-        // Do something
-    }
-    return self;
-}
-
-- (void)willMoveToSuperview:(UIView *)newSuperview
-{
-    [super willMoveToSuperview:newSuperview];
-    
-    self.keyboardType = UIKeyboardTypeDefault;
-    
-    self.backgroundColor = [NCAppBranding backgroundColor];
-    
-    self.placeholder = NSLocalizedString(@"Write message, @ to mention someone …", nil);
-    self.placeholderColor = [NCAppBranding placeholderColor];
-}
+@property (nonatomic, strong) NSString *internalId; // accountId@token (same as room internal id)
+@property (nonatomic, strong) NSString *accountId;
+@property (nonatomic, strong) NSString *token;
+@property (nonatomic, assign) NSInteger oldestMessageId;
+@property (nonatomic, assign) NSInteger newestMessageId;
+@property (nonatomic, assign) BOOL hasHistory;
 
 @end
+NS_ASSUME_NONNULL_END

@@ -25,30 +25,32 @@
 #import <Realm/Realm.h>
 
 #import "AFNetworking.h"
-#import "RoomTableViewCell.h"
+#import "AFImageDownloader.h"
+#import "NSDate+DateTools.h"
+#import "UIButton+AFNetworking.h"
+#import "UIImageView+AFNetworking.h"
+
 #import "CCCertificate.h"
 #import "FTPopOverMenu.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCChatViewController.h"
 #import "NCDatabaseManager.h"
 #import "NCImageSessionManager.h"
 #import "NCConnectionController.h"
 #import "NCNavigationController.h"
 #import "NCNotificationController.h"
+#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
-#import "NSDate+DateTools.h"
-#import "AFImageDownloader.h"
-#import "UIImageView+AFNetworking.h"
-#import "UIButton+AFNetworking.h"
-#import "NCChatViewController.h"
-#import "NCRoomsManager.h"
 #import "NewRoomTableViewController.h"
+#import "NotificationCenterNotifications.h"
+#import "PlaceholderView.h"
 #import "RoomInfoTableViewController.h"
 #import "RoomSearchTableViewController.h"
+#import "RoomTableViewCell.h"
 #import "SettingsViewController.h"
-#import "PlaceholderView.h"
 #import "UIBarButtonItem+Badge.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
@@ -772,7 +774,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [favoriteAction setValue:[[UIImage imageNamed:favImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     [optionsActionSheet addAction:favoriteAction];
     // Notification levels
-    if ([[NCSettingsController sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         UIAlertAction *notificationsAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Notifications: %@", nil), room.notificationLevelString]
                                                                       style:UIAlertActionStyleDefault
                                                                     handler:^void (UIAlertAction *action) {
