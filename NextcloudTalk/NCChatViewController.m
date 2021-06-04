@@ -962,6 +962,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         
         // Input field is empty after send -> this clears a previously saved pending message
         [self savePendingMessage];
+    } else if (button.tag == k_voice_record_button_tag) {
+        [self showVoiceMessageRecordHint];
     }
 }
 
@@ -1288,6 +1290,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 }
 
 #pragma mark - Voice messages recording
+
+- (void)showVoiceMessageRecordHint
+{
+    [self.view makeToast:NSLocalizedString(@"Tap and hold to record a voice message, release the button to send it.", nil) duration:3 position:CSToastPositionBottom];
+}
 
 - (void)setupAudioRecorder
 {
