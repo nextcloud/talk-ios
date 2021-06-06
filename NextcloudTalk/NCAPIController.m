@@ -1480,11 +1480,16 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)removeProfileImageForAccount:(TalkAccount *)account
 {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsPath = [paths objectAtIndex:0];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *documentsPath = [[fileManager containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] path];
     NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
     NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
     [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
+    // Legacy
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *oldDocumentsPath = [paths objectAtIndex:0];
+    NSString *oldPath = [oldDocumentsPath stringByAppendingPathComponent:fileName];
+    [[NSFileManager defaultManager] removeItemAtPath:oldPath error:nil];
 }
 
 - (UIImage *)imageWithImage:(UIImage *)image convertToSize:(CGSize)size
