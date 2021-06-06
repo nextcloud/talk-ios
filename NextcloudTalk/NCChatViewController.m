@@ -213,9 +213,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     self.textInputbar.contentInset = UIEdgeInsetsMake(8, 4, 8, 4);
     self.textView.textContainerInset = UIEdgeInsetsMake(8, 8, 8, 8);
     
-    UIColor *defaultToolbarColor = [UIColor colorWithRed:247.0/255.0 green:247.0/255.0 blue:247.0/255.0 alpha:1.0];
-    self.textInputbar.backgroundColor = defaultToolbarColor;
-    [self.view setBackgroundColor:defaultToolbarColor];
+    [self.view setBackgroundColor:[UIColor whiteColor]];
+    self.textInputbar.backgroundColor = [UIColor whiteColor];
     
     // Make sure we update the textView frame
     [self.textView layoutSubviews];
