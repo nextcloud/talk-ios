@@ -18,6 +18,7 @@ pod "PulsingHalo"
 pod 'MBProgressHUD', '~> 1.2.0'
 pod 'TOCropViewController', '~> 2.6.0'
 pod 'libPhoneNumber-iOS'
+pod 'MZTimerLabel'
 end
 
 target "NotificationServiceExtension" do
