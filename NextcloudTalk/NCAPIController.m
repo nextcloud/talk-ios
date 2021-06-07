@@ -1738,7 +1738,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - NCCommunicationCommon Delegate
 
-- (void)authenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
+- (void)authenticationChallenge:(NSURLSession *)session didReceive:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
 {
     // The pinnning check
     if ([[CCCertificate sharedManager] checkTrustedChallenge:challenge]) {
