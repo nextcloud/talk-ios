@@ -19,8 +19,13 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 
 ```
 $ pod install
+
 $ git submodule update --init
-$ carthage update --platform ios
+
+$ ./carthage.sh update --platform ios (XCode 12+)
+  OR
+$ carthage update --platform ios (XCode < 12)
+
 $ open NextcloudTalk.xcworkspace
 ```
 We are also available on [our public Talk team conversation](https://cloud.nextcloud.com/call/c7fz9qpr), if you want to join the discussion.
