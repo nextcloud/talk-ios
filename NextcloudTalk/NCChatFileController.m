@@ -188,10 +188,11 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
                 
                 return;
             }
-
-            [[NCCommunication shared] downloadWithServerUrlFileName:serverUrlFileName fileNameLocalPath:self->_fileStatus.fileLocalPath customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress *progress) {
+            [[NCCommunication shared] downloadWithServerUrlFileName:serverUrlFileName fileNameLocalPath:self->_fileStatus.fileLocalPath customUserAgent:nil addCustomHeaders:nil taskHandler:^(NSURLSessionTask *task) {
+                NSLog(@"Download task");
+            } progressHandler:^(NSProgress *progress) {
                 [self didChangeDownloadProgressNotification:progress.fractionCompleted];
-            } completionHandler:^(NSString *account, NSString *etag, NSDate *date, double length, NSDictionary *allHeaderFields, NSInteger errorCode, NSString * errorDescription) {
+            } completionHandler:^(NSString *account, NSString *etag, NSDate *date, int64_t length, NSDictionary *allHeaderFields, NSInteger errorCode, NSString *errorDescription) {
                 if (errorCode == 0) {
                     // Set modification date to invalidate our cache
                     [self setModificationDateOnFile:self->_fileStatus.fileLocalPath withModificationDate:file.date];

@@ -489,7 +489,9 @@
 
 - (void)uploadFileToServerURL:(NSString *)fileServerURL withFilePath:(NSString *)filePath withItem:(ShareItem *)item
 {
-    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:item.filePath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil progressHandler:^(NSProgress * progress) {
+    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:item.filePath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil taskHandler:^(NSURLSessionTask *task) {
+        NSLog(@"Upload task");
+    } progressHandler:^(NSProgress *progress) {
         item.uploadProgress = progress.fractionCompleted;
         [self updateHudProgress];
     } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSDictionary *allHeaderFields, NSInteger errorCode, NSString *errorDescription) {
@@ -919,7 +921,7 @@
 
 #pragma mark - NCCommunicationCommon Delegate
 
-- (void)authenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
+- (void)authenticationChallenge:(NSURLSession *)session didReceive:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
 {
     // The pinnning check
     if ([[CCCertificate sharedManager] checkTrustedChallenge:challenge]) {
