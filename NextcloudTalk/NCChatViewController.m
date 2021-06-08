@@ -945,7 +945,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     BOOL canPress = [super canPressRightButton];
     
-    if (!canPress && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityVoiceMessage]) {
+    if (!canPress && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySystemMessages]) {
         [self showVoiceMessageRecordButton];
         return YES;
     }
@@ -1371,10 +1371,57 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [_recorder prepareToRecord];
 }
 
+- (void)shareVoiceMessage
+{
+    NSString *audioFileName = [NSString stringWithFormat:@"audio-record-%.f.mp3", [[NSDate date] timeIntervalSince1970] * 1000];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:audioFileName originalName:YES forAccount:activeAccount withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription) {
+        if (fileServerURL && fileServerPath) {
+            [self uploadAudioFileAtPath:_recorder.url.path withFileServerURL:fileServerURL andFileServerPath:fileServerPath];
+        } else {
+            NSLog(@"Could not find unique name for voice message file.");
+        }
+    }];
+}
+
+- (void)uploadAudioFileAtPath:(NSString *)localPath withFileServerURL:(NSString *)fileServerURL andFileServerPath:(NSString *)fileServerPath
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] setupNCCommunicationForAccount:activeAccount];
+    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:localPath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil taskHandler:^(NSURLSessionTask *task) {
+        NSLog(@"Upload task");
+    } progressHandler:^(NSProgress *progress) {
+        NSLog(@"Progress:%f", progress.fractionCompleted);
+    } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSDictionary *allHeaderFields, NSInteger errorCode, NSString *errorDescription) {
+        NSLog(@"Upload completed with error code: %ld", (long)errorCode);
+
+        if (errorCode == 0) {
+            [[NCAPIController sharedInstance] shareFileOrFolderForAccount:activeAccount atPath:fileServerPath toRoom:self->_room.token withCompletionBlock:^(NSError *error) {
+                if (error) {
+                    NSLog(@"Failed to share voice message");
+                }
+            }];
+        } else if (errorCode == 404 || errorCode == 409) {
+            [[NCAPIController sharedInstance] checkOrCreateAttachmentFolderForAccount:activeAccount withCompletionBlock:^(BOOL created, NSInteger errorCode) {
+                if (created) {
+                    [self uploadAudioFileAtPath:localPath withFileServerURL:fileServerURL andFileServerPath:fileServerPath];
+                } else {
+                    NSLog(@"Failed to check or create attachment folder");
+                }
+            }];
+        } else {
+            NSLog(@"Failed upload voice message");
+        }
+    }];
+}
+
 #pragma mark - AVAudioRecorderDelegate
 
-- (void) audioRecorderDidFinishRecording:(AVAudioRecorder *)avrecorder successfully:(BOOL)flag{
-    NSLog(@"audioRecorderDidFinishRecording");
+- (void) audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag
+{
+    if (flag && recorder == _recorder) {
+        [self shareVoiceMessage];
+    }
 }
 
 #pragma mark - Gesture recognizer
