@@ -472,7 +472,7 @@
                 
                 dispatch_group_leave(self->_uploadGroup);
             }];
-        } else if (errorCode == 404) {
+        } else if (errorCode == 404 || errorCode == 409) {
             [[NCAPIController sharedInstance] checkOrCreateAttachmentFolderForAccount:self->_account withCompletionBlock:^(BOOL created, NSInteger errorCode) {
                 if (created) {
                     [self uploadFileToServerURL:fileServerURL withFilePath:filePath withItem:item];
