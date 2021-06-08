@@ -1297,6 +1297,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)uniqueNameForFileUploadWithName:(NSString *)fileName originalName:(BOOL)isOriginalName forAccount:(TalkAccount *)account withCompletionBlock:(GetFileUniqueNameCompletionBlock)block
 {
+    [self setupNCCommunicationForAccount:account];
+    
     NSString *fileServerPath = [self serverFilePathForFileName:fileName andAccountId:account.accountId];
     NSString *fileServerURL = [self serverFileURLForFilePath:fileServerPath andAccountId:account.accountId];
     
@@ -1321,6 +1323,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)checkOrCreateAttachmentFolderForAccount:(TalkAccount *)account withCompletionBlock:(CheckAttachmentFolderCompletionBlock)block
 {
+    [self setupNCCommunicationForAccount:account];
+    
     NSString *attachmentFolderServerURL = [self attachmentFolderServerURLForAccountId:account.accountId];
     [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
         // Attachment folder do not exist
