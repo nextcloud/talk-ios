@@ -1307,14 +1307,13 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     _voiceMessageRecordingView = [[VoiceMessageRecordingView alloc] init];
     _voiceMessageRecordingView.translatesAutoresizingMaskIntoConstraints = NO;
     
-    [self.view addSubview:_voiceMessageRecordingView];
-    [self.view bringSubviewToFront:_voiceMessageRecordingView];
+    [self.textInputbar addSubview:_voiceMessageRecordingView];
+    [self.textInputbar bringSubviewToFront:_voiceMessageRecordingView];
     
     NSDictionary *views = @{@"voiceMessageRecordingView": _voiceMessageRecordingView};
-    NSDictionary *metrics = @{@"buttonWidth": @(self.rightButton.frame.size.width),
-                              @"height" : @(self.textInputbar.frame.size.height)};
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[voiceMessageRecordingView(height)]-|" options:0 metrics:metrics views:views]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[voiceMessageRecordingView(>=0)]-(buttonWidth)-|" options:0 metrics:metrics views:views]];
+    NSDictionary *metrics = @{@"buttonWidth": @(self.rightButton.frame.size.width)};
+    [self.textInputbar addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[voiceMessageRecordingView]|" options:0 metrics:nil views:views]];
+    [self.textInputbar addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[voiceMessageRecordingView(>=0)]-(buttonWidth)-|" options:0 metrics:metrics views:views]];
 }
 
 - (void)hideVoiceMessageRecordingView
