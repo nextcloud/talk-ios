@@ -948,7 +948,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     BOOL canPress = [super canPressRightButton];
     
-    if (!canPress && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityVoiceMessage]) {
+    if (!canPress && !_presentedInCall && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityVoiceMessage]) {
         [self showVoiceMessageRecordButton];
         return YES;
     }
@@ -1465,7 +1465,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)handleLongPressInVoiceMessageRecordButton:(UILongPressGestureRecognizer *)gestureRecognizer
 {
-    if (_presentedInCall || self.rightButton.tag == k_send_message_button_tag) {
+    if (self.rightButton.tag != k_voice_record_button_tag) {
         return;
     }
     
