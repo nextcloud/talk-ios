@@ -1299,7 +1299,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)showVoiceMessageRecordHint
 {
-    [self.view makeToast:NSLocalizedString(@"Tap and hold to record a voice message, release the button to send it.", nil) duration:3 position:CSToastPositionBottom];
+    CGPoint toastPosition = CGPointMake(self.textInputbar.center.x, self.textInputbar.center.y - self.textInputbar.frame.size.height);
+    [self.view makeToast:NSLocalizedString(@"Tap and hold to record a voice message, release the button to send it.", nil) duration:3 position:@(toastPosition)];
 }
 
 - (void)showVoiceMessageRecordingView
