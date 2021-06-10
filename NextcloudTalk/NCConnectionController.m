@@ -103,7 +103,6 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
 - (void)checkAppState
 {
     TalkAccount *activeAccount                  = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities      = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigutations] objectForKey:activeAccount.accountId];
     
     if (!activeAccount.server || !activeAccount.user) {
@@ -118,29 +117,26 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
                 [self checkAppState];
             }
         }];
-    } else if (!serverCapabilities) {
+    } else if (!activeAccountSignalingConfig) {
         [self setAppState:kAppStateMissingServerCapabilities];
         [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
             if (error) {
                 [self notifyAppState];
             } else {
-                [self checkAppState];
-            }
-        }];
-    } else if (!activeAccountSignalingConfig) {
-        [self setAppState:kAppStateMissingSignalingConfiguration];
-        [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
-            if (error) {
-                [self notifyAppState];
-            } else {
-                // SetSignalingConfiguration should be called just once
-                TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-                [[NCSettingsController sharedInstance] setSignalingConfigurationForAccountId:account.accountId];
-                [self checkAppState];
+                [self setAppState:kAppStateMissingSignalingConfiguration];
+                [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
+                    if (error) {
+                        [self notifyAppState];
+                    } else {
+                        // SetSignalingConfiguration should be called just once
+                        TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+                        [[NCSettingsController sharedInstance] setSignalingConfigurationForAccountId:account.accountId];
+                        [self checkAppState];
+                    }
+                }];
             }
         }];
     } else {
-        [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:nil];
         [self setAppState:kAppStateReady];
     }
     
