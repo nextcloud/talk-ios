@@ -1692,6 +1692,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (BOOL)textView:(SLKTextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
+    // Do not allow to type while recording
+    if (_voiceMessageLongPressGesture.state != UIGestureRecognizerStatePossible) {
+        return NO;
+    }
+    
     if ([text isEqualToString:@""]) {
         UITextRange *selectedRange = [textView selectedTextRange];
         NSInteger cursorOffset = [textView offsetFromPosition:textView.beginningOfDocument toPosition:selectedRange.start];
