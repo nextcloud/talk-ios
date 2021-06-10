@@ -68,6 +68,7 @@
 #import "ShareItem.h"
 #import "SystemMessageTableViewCell.h"
 #import "ShareLocationViewController.h"
+#import "VoiceMessageRecordingView.h"
 
 
 #define k_send_message_button_tag   99
@@ -82,7 +83,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionOpenFileInNextcloud
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, AVAudioRecorderDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -117,6 +118,12 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) dispatch_group_t animationDispatchGroup;
 @property (nonatomic, strong) dispatch_queue_t animationDispatchQueue;
 @property (nonatomic, strong) UIView *inputbarBorderView;
+@property (nonatomic, strong) UILongPressGestureRecognizer *voiceMessageLongPressGesture;
+@property (nonatomic, strong) AVAudioRecorder *recorder;
+@property (nonatomic, strong) VoiceMessageRecordingView *voiceMessageRecordingView;
+@property (nonatomic, assign) CGPoint longPressStartingPoint;
+@property (nonatomic, assign) CGFloat cancelHintLabelInitialPositionX;
+@property (nonatomic, assign) BOOL recordCancelled;
 
 @end
 
@@ -263,11 +270,16 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
     [self.textInputbar addSubview:self.inputbarBorderView];
     
-    // Add long press gesture recognizer
+    // Add long press gesture recognizer for messages
     UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
     longPressGesture.delegate = self;
     [self.tableView addGestureRecognizer:longPressGesture];
     self.longPressGesture = longPressGesture;
+    
+    // Add long press gesture recognizer for voice message recording button
+    self.voiceMessageLongPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressInVoiceMessageRecordButton:)];
+    self.voiceMessageLongPressGesture.delegate = self;
+    [self.rightButton addGestureRecognizer:self.voiceMessageLongPressGesture];
     
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
@@ -935,7 +947,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     BOOL canPress = [super canPressRightButton];
     
-    if (!canPress && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityVoiceMessage]) {
+    if (!canPress && !_presentedInCall && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityVoiceMessage]) {
         [self showVoiceMessageRecordButton];
         return YES;
     }
@@ -955,6 +967,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         
         // Input field is empty after send -> this clears a previously saved pending message
         [self savePendingMessage];
+    } else if (button.tag == k_voice_record_button_tag) {
+        [self showVoiceMessageRecordHint];
     }
 }
 
@@ -1280,9 +1294,216 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [viewController dismissViewControllerAnimated:YES completion:nil];
 }
 
+#pragma mark - Voice messages recording
+
+- (void)showVoiceMessageRecordHint
+{
+    CGPoint toastPosition = CGPointMake(self.textInputbar.center.x, self.textInputbar.center.y - self.textInputbar.frame.size.height);
+    [self.view makeToast:NSLocalizedString(@"Tap and hold to record a voice message, release the button to send it.", nil) duration:3 position:@(toastPosition)];
+}
+
+- (void)showVoiceMessageRecordingView
+{
+    _voiceMessageRecordingView = [[VoiceMessageRecordingView alloc] init];
+    _voiceMessageRecordingView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    [self.textInputbar addSubview:_voiceMessageRecordingView];
+    [self.textInputbar bringSubviewToFront:_voiceMessageRecordingView];
+    
+    NSDictionary *views = @{@"voiceMessageRecordingView": _voiceMessageRecordingView};
+    NSDictionary *metrics = @{@"buttonWidth": @(self.rightButton.frame.size.width)};
+    [self.textInputbar addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[voiceMessageRecordingView]|" options:0 metrics:nil views:views]];
+    [self.textInputbar addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[voiceMessageRecordingView(>=0)]-(buttonWidth)-|" options:0 metrics:metrics views:views]];
+}
+
+- (void)hideVoiceMessageRecordingView
+{
+    _voiceMessageRecordingView.hidden = YES;
+}
+
+- (void)setupAudioRecorder
+{
+    // Set the audio file
+    NSArray *pathComponents = [NSArray arrayWithObjects:
+                               [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],
+                               @"voice-message-recording.m4a",
+                               nil];
+    NSURL *outputFileURL = [NSURL fileURLWithPathComponents:pathComponents];
+
+    // Setup audio session
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    [session setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+
+    // Define the recorder setting
+    NSMutableDictionary *recordSetting = [[NSMutableDictionary alloc] init];
+
+    [recordSetting setValue:[NSNumber numberWithInt:kAudioFormatMPEG4AAC] forKey:AVFormatIDKey];
+    [recordSetting setValue:[NSNumber numberWithFloat:44100.0] forKey:AVSampleRateKey];
+    [recordSetting setValue:[NSNumber numberWithInt:2] forKey:AVNumberOfChannelsKey];
+
+    // Initiate and prepare the recorder
+    _recorder = [[AVAudioRecorder alloc] initWithURL:outputFileURL settings:recordSetting error:nil];
+    _recorder.delegate = self;
+    _recorder.meteringEnabled = YES;
+    [_recorder prepareToRecord];
+}
+
+- (void)checkPermissionAndRecordVoiceMessage
+{
+    NSString *mediaType = AVMediaTypeAudio;
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
+    
+    if(authStatus == AVAuthorizationStatusAuthorized) {
+        [self startRecordingVoiceMessage];
+        return;
+    } else if(authStatus == AVAuthorizationStatusNotDetermined){
+        [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+            NSLog(@"Microphone permission granted: %@", granted ? @"YES" : @"NO");
+        }];
+        return;
+    }
+    
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Could not access microphone", nil)
+                                 message:NSLocalizedString(@"Microphone access is not allowed. Check your settings.", nil)
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+}
+
+- (void)startRecordingVoiceMessage
+{
+    [self setupAudioRecorder];
+    [self showVoiceMessageRecordingView];
+    if (!_recorder.recording) {
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        [session setActive:YES error:nil];
+        [_recorder record];
+    }
+}
+
+- (void)stopRecordingVoiceMessage
+{
+    [self hideVoiceMessageRecordingView];
+    if (_recorder.recording) {
+        [_recorder stop];
+        AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+        [audioSession setActive:NO error:nil];
+    }
+}
+
+- (void)shareVoiceMessage
+{
+    NSString *audioFileName = [NSString stringWithFormat:@"audio-record-%.f.mp3", [[NSDate date] timeIntervalSince1970] * 1000];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:audioFileName originalName:YES forAccount:activeAccount withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription) {
+        if (fileServerURL && fileServerPath) {
+            [self uploadAudioFileAtPath:_recorder.url.path withFileServerURL:fileServerURL andFileServerPath:fileServerPath];
+        } else {
+            NSLog(@"Could not find unique name for voice message file.");
+        }
+    }];
+}
+
+- (void)uploadAudioFileAtPath:(NSString *)localPath withFileServerURL:(NSString *)fileServerURL andFileServerPath:(NSString *)fileServerPath
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] setupNCCommunicationForAccount:activeAccount];
+    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:localPath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil taskHandler:^(NSURLSessionTask *task) {
+        NSLog(@"Upload task");
+    } progressHandler:^(NSProgress *progress) {
+        NSLog(@"Progress:%f", progress.fractionCompleted);
+    } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSDictionary *allHeaderFields, NSInteger errorCode, NSString *errorDescription) {
+        NSLog(@"Upload completed with error code: %ld", (long)errorCode);
+
+        if (errorCode == 0) {
+            NSDictionary *talkMetaData = @{@"messageType" : @"voice-message"};
+            [[NCAPIController sharedInstance] shareFileOrFolderForAccount:activeAccount atPath:fileServerPath toRoom:self->_room.token talkMetaData:talkMetaData withCompletionBlock:^(NSError *error) {
+                if (error) {
+                    NSLog(@"Failed to share voice message");
+                }
+            }];
+        } else if (errorCode == 404 || errorCode == 409) {
+            [[NCAPIController sharedInstance] checkOrCreateAttachmentFolderForAccount:activeAccount withCompletionBlock:^(BOOL created, NSInteger errorCode) {
+                if (created) {
+                    [self uploadAudioFileAtPath:localPath withFileServerURL:fileServerURL andFileServerPath:fileServerPath];
+                } else {
+                    NSLog(@"Failed to check or create attachment folder");
+                }
+            }];
+        } else {
+            NSLog(@"Failed upload voice message");
+        }
+    }];
+}
+
+#pragma mark - AVAudioRecorderDelegate
+
+- (void) audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag
+{
+    if (flag && recorder == _recorder && !_recordCancelled) {
+        [self shareVoiceMessage];
+    }
+}
+
 #pragma mark - Gesture recognizer
 
--(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    BOOL shouldBegin = [super gestureRecognizerShouldBegin:gestureRecognizer];
+    if (gestureRecognizer == self.voiceMessageLongPressGesture) {
+        return YES;
+    }
+    return shouldBegin;
+}
+
+- (void)handleLongPressInVoiceMessageRecordButton:(UILongPressGestureRecognizer *)gestureRecognizer
+{
+    if (self.rightButton.tag != k_voice_record_button_tag) {
+        return;
+    }
+    
+    CGPoint point = [gestureRecognizer locationInView:self.view];
+    
+    if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
+        NSLog(@"Start recording audio message");
+        [self checkPermissionAndRecordVoiceMessage];
+        _recordCancelled = NO;
+        _longPressStartingPoint = point;
+        _cancelHintLabelInitialPositionX = _voiceMessageRecordingView.slideToCancelHintLabel.frame.origin.x;
+    } else if ([gestureRecognizer state] == UIGestureRecognizerStateEnded) {
+        NSLog(@"Stop recording audio message");
+        [self stopRecordingVoiceMessage];
+    } else if ([gestureRecognizer state] == UIGestureRecognizerStateChanged) {
+        CGFloat slideX = _longPressStartingPoint.x - point.x;
+        // Only slide view to the left
+        if (slideX > 0) {
+            CGFloat maxSlideX = 100;
+            CGRect labelFrame = _voiceMessageRecordingView.slideToCancelHintLabel.frame;
+            labelFrame = CGRectMake(_cancelHintLabelInitialPositionX - slideX, labelFrame.origin.y, labelFrame.size.width, labelFrame.size.height);
+            _voiceMessageRecordingView.slideToCancelHintLabel.frame = labelFrame;
+            [_voiceMessageRecordingView.slideToCancelHintLabel setAlpha:(maxSlideX - slideX) / 100];
+            // Cancel recording if slided more than maxSlideX
+            if (slideX > maxSlideX && !_recordCancelled) {
+                NSLog(@"Cancel recording audio message");
+                _recordCancelled = YES;
+                [self stopRecordingVoiceMessage];
+            }
+        }
+    } else if ([gestureRecognizer state] == UIGestureRecognizerStateCancelled || [gestureRecognizer state] == UIGestureRecognizerStateFailed) {
+        NSLog(@"Gesture cancelled or failed -> Cancel recording audio message");
+        _recordCancelled = YES;
+        [self stopRecordingVoiceMessage];
+    }
+}
+
+- (void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
 {
     if (@available(iOS 13.0, *)) {
         // Use native contextmenus on iOS >= 13
@@ -1470,6 +1691,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (BOOL)textView:(SLKTextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
+    // Do not allow to type while recording
+    if (_voiceMessageLongPressGesture.state != UIGestureRecognizerStatePossible) {
+        return NO;
+    }
+    
     if ([text isEqualToString:@""]) {
         UITextRange *selectedRange = [textView selectedTextRange];
         NSInteger cursorOffset = [textView offsetFromPosition:textView.beginningOfDocument toPosition:selectedRange.start];

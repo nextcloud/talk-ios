@@ -186,6 +186,8 @@
 		2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */; };
 		2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */; };
 		2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
+		2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */; };
+		2CA52ACD2670D07900619610 /* VoiceMessageRecordingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */; };
 		2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */; };
 		2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */; };
 		2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A12264775E0053078A /* SLKTextInputbar.m */; };
@@ -605,6 +607,9 @@
 		2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContactsTableViewCell.xib; sourceTree = "<group>"; };
 		2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoomTableViewCell.h; sourceTree = "<group>"; };
 		2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoomTableViewCell.m; sourceTree = "<group>"; };
+		2CA52AC92670D02800619610 /* VoiceMessageRecordingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceMessageRecordingView.h; sourceTree = "<group>"; };
+		2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VoiceMessageRecordingView.m; sourceTree = "<group>"; };
+		2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VoiceMessageRecordingView.xib; sourceTree = "<group>"; };
 		2CA80EDB256C1249006BA449 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2CA80EDC256C1249006BA449 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2CA80EDD256C1296006BA449 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1118,6 +1123,9 @@
 				2C6E7448238C1A0800AE396C /* QuotedMessageView.m */,
 				2C6E74442386D33200AE396C /* ReplyMessageView.h */,
 				2C6E74452386D33200AE396C /* ReplyMessageView.m */,
+				2CA52AC92670D02800619610 /* VoiceMessageRecordingView.h */,
+				2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */,
+				2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -1543,6 +1551,7 @@
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
 				2C738158210613A200CDB8DB /* NCChatTitleView.xib in Resources */,
 				2C36A03F261342FF0026F04A /* AvatarHeaderView.xib in Resources */,
+				2CA52ACD2670D07900619610 /* VoiceMessageRecordingView.xib in Resources */,
 				2C8A2BCF221FEEFE00DE6D2C /* DirectoryTableViewCell.xib in Resources */,
 				2CC007C620D90AE50096D91F /* RoomNameTableViewCell.xib in Resources */,
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
@@ -1812,6 +1821,7 @@
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
 				2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
+				2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
 				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
 				2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */,

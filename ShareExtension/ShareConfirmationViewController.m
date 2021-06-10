@@ -412,7 +412,15 @@
         NSLog(@"Uploading %@", item.fileURL);
         
         dispatch_group_enter(_uploadGroup);
-        [self checkForUniqueNameAndUploadFileWithName:item.fileName withItem:item withOriginalName:YES];
+        [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:item.fileName originalName:YES forAccount:_account withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription) {
+            if (fileServerURL && fileServerPath) {
+                [self uploadFileToServerURL:fileServerURL withFilePath:fileServerPath withItem:item];
+            } else {
+                self->_uploadFailed = YES;
+                [self->_uploadErrors addObject:errorDescription];
+                dispatch_group_leave(self->_uploadGroup);
+            }
+        }];
     }
     
     dispatch_group_notify(_uploadGroup, dispatch_get_main_queue(),^{
@@ -443,50 +451,6 @@
     });
 }
 
-- (void)checkForUniqueNameAndUploadFileWithName:(NSString *)fileName withItem:(ShareItem *)item withOriginalName:(BOOL)isOriginalName
-{
-    NSString *fileServerPath = [self serverFilePathForFileName:fileName];
-    NSString *fileServerURL = [self serverFileURLForFilePath:fileServerPath];
-    
-    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:fileServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
-        // File already exists
-        if (errorCode == 0 && files.count == 1) {
-            NSString *alternativeName = [self alternativeNameForFileName:fileName original:isOriginalName];
-            [self checkForUniqueNameAndUploadFileWithName:alternativeName withItem:item withOriginalName:NO];
-        // File does not exist
-        } else if (errorCode == 404) {
-            [self uploadFileToServerURL:fileServerURL withFilePath:fileServerPath withItem:item];
-        } else {
-            NSLog(@"Error checking file name: %@", errorDescription);
-            
-            self->_uploadFailed = YES;
-            [self->_uploadErrors addObject:errorDescription];
-            dispatch_group_leave(self->_uploadGroup);
-        }
-    }];
-}
-
-- (void)checkAttachmentFolderAndUploadFileToServerURL:(NSString *)fileServerURL withFilePath:(NSString *)filePath withItem:(ShareItem *)item
-{
-    NSString *attachmentFolderServerURL = [self attachmentFolderServerURL];
-    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
-        // Attachment folder do not exist
-        if (errorCode == 404) {
-            [[NCCommunication shared] createFolder:attachmentFolderServerURL customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *account, NSString *nose, NSDate *date, NSInteger errorCode, NSString *errorDescription) {
-                if (errorCode == 0) {
-                    [self uploadFileToServerURL:fileServerURL withFilePath:filePath withItem:item];
-                }
-            }];
-        } else {
-            NSLog(@"Error checking attachment folder: %@", errorDescription);
-            
-            self->_uploadFailed = YES;
-            [self->_uploadErrors addObject:errorDescription];
-            dispatch_group_leave(self->_uploadGroup);
-        }
-    }];
-}
-
 - (void)uploadFileToServerURL:(NSString *)fileServerURL withFilePath:(NSString *)filePath withItem:(ShareItem *)item
 {
     [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:item.filePath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil taskHandler:^(NSURLSessionTask *task) {
@@ -498,7 +462,7 @@
         NSLog(@"Upload completed with error code: %ld", (long)errorCode);
 
         if (errorCode == 0) {
-            [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token withCompletionBlock:^(NSError *error) {
+            [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token talkMetaData:nil withCompletionBlock:^(NSError *error) {
                 if (error) {
                     NSLog(@"Failed to send shared file");
                     
@@ -508,59 +472,22 @@
                 
                 dispatch_group_leave(self->_uploadGroup);
             }];
-        } else if (errorCode == 404) {
-            [self checkAttachmentFolderAndUploadFileToServerURL:fileServerURL withFilePath:filePath withItem:item];
+        } else if (errorCode == 404 || errorCode == 409) {
+            [[NCAPIController sharedInstance] checkOrCreateAttachmentFolderForAccount:self->_account withCompletionBlock:^(BOOL created, NSInteger errorCode) {
+                if (created) {
+                    [self uploadFileToServerURL:fileServerURL withFilePath:filePath withItem:item];
+                } else {
+                    self->_uploadFailed = YES;
+                    [self->_uploadErrors addObject:errorDescription];
+                    dispatch_group_leave(self->_uploadGroup);
+                }
+            }];
         } else {
             self->_uploadFailed = YES;
             [self->_uploadErrors addObject:errorDescription];
             dispatch_group_leave(self->_uploadGroup);
         }
     }];
-}
-
-#pragma mark - Utils
-
-- (NSString *)serverFilePathForFileName:(NSString *)fileName
-{
-    NSString *attachmentsFolder = _serverCapabilities.attachmentsFolder ? _serverCapabilities.attachmentsFolder : @"";
-    return [NSString stringWithFormat:@"%@/%@", attachmentsFolder, fileName];
-}
-
-- (NSString *)attachmentFolderServerURL
-{
-    NSString *attachmentsFolder = _serverCapabilities.attachmentsFolder ? _serverCapabilities.attachmentsFolder : @"";
-    return [NSString stringWithFormat:@"%@/%@%@", _account.server, _serverCapabilities.webDAVRoot, attachmentsFolder];
-}
-
-- (NSString *)serverFileURLForFilePath:(NSString *)filePath
-{
-    return [NSString stringWithFormat:@"%@/%@%@", _account.server, _serverCapabilities.webDAVRoot, filePath];
-}
-
-- (NSString *)alternativeNameForFileName:(NSString *)fileName original:(BOOL)isOriginal
-{
-    NSString *extension = [fileName pathExtension];
-    NSString *nameWithoutExtension = [fileName stringByDeletingPathExtension];
-    NSString *alternativeName = nameWithoutExtension;
-    NSString *newSuffix = @" (1)";
-    
-    if (!isOriginal) {
-        // Check if the name ends with ` (n)`
-        NSError *error = nil;
-        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@" \\((\\d+)\\)$" options:NSRegularExpressionCaseInsensitive error:&error];
-        NSTextCheckingResult *match = [regex firstMatchInString:nameWithoutExtension options:0 range:NSMakeRange(0, nameWithoutExtension.length)];
-        if ([match numberOfRanges] > 1) {
-            NSRange suffixRange = [match rangeAtIndex: 0];
-            NSInteger suffixNumber = [[nameWithoutExtension substringWithRange:[match rangeAtIndex: 1]] intValue];
-            newSuffix = [NSString stringWithFormat:@" (%ld)", suffixNumber + 1];
-            alternativeName = [nameWithoutExtension stringByReplacingCharactersInRange:suffixRange withString:@""];
-        }
-    }
-    
-    alternativeName = [alternativeName stringByAppendingString:newSuffix];
-    alternativeName = [alternativeName stringByAppendingPathExtension:extension];
-    
-    return alternativeName;
 }
 
 #pragma mark - User Interface

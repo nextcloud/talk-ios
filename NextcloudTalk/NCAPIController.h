@@ -68,6 +68,8 @@ typedef void (^SetReadStatusPrivacySettingCompletionBlock)(NSError *error);
 typedef void (^ReadFolderCompletionBlock)(NSArray *items, NSError *error);
 typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
 typedef void (^GetFileByFileIdCompletionBlock)(NCCommunicationFile *file, NSInteger error, NSString *errorDescription);
+typedef void (^GetFileUniqueNameCompletionBlock)(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription);
+typedef void (^CheckAttachmentFolderCompletionBlock)(BOOL created, NSInteger errorCode);
 
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
 typedef void (^GetUserProfileEditableFieldsCompletionBlock)(NSArray *userProfileEditableFields, NSError *error);
@@ -161,9 +163,11 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 // WebDAV client
 - (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block;
-- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token withCompletionBlock:(ShareFileOrFolderCompletionBlock)block;
+- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token talkMetaData:(NSDictionary *)talkMetaData withCompletionBlock:(ShareFileOrFolderCompletionBlock)block;
 - (void)getFileByFileId:(TalkAccount *)account fileId:(NSString *)fileId
     withCompletionBlock:(GetFileByFileIdCompletionBlock)block;
+- (void)uniqueNameForFileUploadWithName:(NSString *)fileName originalName:(BOOL)isOriginalName forAccount:(TalkAccount *)account withCompletionBlock:(GetFileUniqueNameCompletionBlock)block;
+- (void)checkOrCreateAttachmentFolderForAccount:(TalkAccount *)account withCompletionBlock:(CheckAttachmentFolderCompletionBlock)block;
 
 // User avatars
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account;

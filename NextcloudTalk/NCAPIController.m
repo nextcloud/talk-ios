@@ -1211,13 +1211,26 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 }
 
-- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token withCompletionBlock:(ShareFileOrFolderCompletionBlock)block
+- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token talkMetaData:(NSDictionary *)talkMetaData withCompletionBlock:(ShareFileOrFolderCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/files_sharing/api/v1/shares", account.server];
-    NSDictionary *parameters = @{@"path" : path,
-                                 @"shareType" : @(10),
-                                 @"shareWith" : token
-                                 };
+    
+    NSMutableDictionary *parameters = [NSMutableDictionary new];
+    [parameters setObject:path forKey:@"path"];
+    [parameters setObject:@(10) forKey:@"shareType"];
+    [parameters setObject:token forKey:@"shareWith"];
+    
+    if (talkMetaData) {
+        NSError *error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:talkMetaData
+                                                           options:0
+                                                             error:&error];
+        if (error) {
+            NSLog(@"Error serializing JSON: %@", error);
+        } else {
+            [parameters setObject:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] forKey:@"talkMetaData"];
+        }
+    }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     // Workaround: When shareFileOrFolderForAccount is called from Share Extension session managers are not initialized.
@@ -1293,6 +1306,102 @@ NSInteger const kReceivedChatMessagesLimit = 100;
             }
         }
     }];
+}
+
+- (void)uniqueNameForFileUploadWithName:(NSString *)fileName originalName:(BOOL)isOriginalName forAccount:(TalkAccount *)account withCompletionBlock:(GetFileUniqueNameCompletionBlock)block
+{
+    [self setupNCCommunicationForAccount:account];
+    
+    NSString *fileServerPath = [self serverFilePathForFileName:fileName andAccountId:account.accountId];
+    NSString *fileServerURL = [self serverFileURLForFilePath:fileServerPath andAccountId:account.accountId];
+    
+    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:fileServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+        // File already exists
+        if (errorCode == 0 && files.count == 1) {
+            NSString *alternativeName = [self alternativeNameForFileName:fileName original:isOriginalName];
+            [self uniqueNameForFileUploadWithName:alternativeName originalName:NO forAccount:account withCompletionBlock:block];
+        // File does not exist
+        } else if (errorCode == 404) {
+            if (block) {
+                block(fileServerURL, fileServerPath, 0, nil);
+            }
+        } else {
+            NSLog(@"Error checking file name: %@", errorDescription);
+            if (block) {
+                block(nil, nil, errorCode, errorDescription);
+            }
+        }
+    }];
+}
+
+- (void)checkOrCreateAttachmentFolderForAccount:(TalkAccount *)account withCompletionBlock:(CheckAttachmentFolderCompletionBlock)block
+{
+    [self setupNCCommunicationForAccount:account];
+    
+    NSString *attachmentFolderServerURL = [self attachmentFolderServerURLForAccountId:account.accountId];
+    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+        // Attachment folder do not exist
+        if (errorCode == 404) {
+            [[NCCommunication shared] createFolder:attachmentFolderServerURL customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *account, NSString *ocId, NSDate *date, NSInteger errorCode, NSString *errorDescription) {
+                if (block) {
+                    block(errorCode == 0, errorCode);
+                }
+            }];
+        } else {
+            NSLog(@"Error checking attachment folder: %@", errorDescription);
+            if (block) {
+                block(NO, errorCode);
+            }
+        }
+    }];
+}
+
+- (NSString *)serverFilePathForFileName:(NSString *)fileName andAccountId:(NSString *)accountId;
+{
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:accountId];
+    NSString *attachmentsFolder = serverCapabilities.attachmentsFolder ? serverCapabilities.attachmentsFolder : @"";
+    return [NSString stringWithFormat:@"%@/%@", attachmentsFolder, fileName];
+}
+
+- (NSString *)attachmentFolderServerURLForAccountId:(NSString *)accountId;
+{
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:accountId];
+    NSString *attachmentsFolder = serverCapabilities.attachmentsFolder ? serverCapabilities.attachmentsFolder : @"";
+    return [NSString stringWithFormat:@"%@/%@%@", account.server, serverCapabilities.webDAVRoot, attachmentsFolder];
+}
+
+- (NSString *)serverFileURLForFilePath:(NSString *)filePath andAccountId:(NSString *)accountId;
+{
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:accountId];
+    return [NSString stringWithFormat:@"%@/%@%@", account.server, serverCapabilities.webDAVRoot, filePath];
+}
+
+- (NSString *)alternativeNameForFileName:(NSString *)fileName original:(BOOL)isOriginal
+{
+    NSString *extension = [fileName pathExtension];
+    NSString *nameWithoutExtension = [fileName stringByDeletingPathExtension];
+    NSString *alternativeName = nameWithoutExtension;
+    NSString *newSuffix = @" (1)";
+    
+    if (!isOriginal) {
+        // Check if the name ends with ` (n)`
+        NSError *error = nil;
+        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@" \\((\\d+)\\)$" options:NSRegularExpressionCaseInsensitive error:&error];
+        NSTextCheckingResult *match = [regex firstMatchInString:nameWithoutExtension options:0 range:NSMakeRange(0, nameWithoutExtension.length)];
+        if ([match numberOfRanges] > 1) {
+            NSRange suffixRange = [match rangeAtIndex: 0];
+            NSInteger suffixNumber = [[nameWithoutExtension substringWithRange:[match rangeAtIndex: 1]] intValue];
+            newSuffix = [NSString stringWithFormat:@" (%ld)", suffixNumber + 1];
+            alternativeName = [nameWithoutExtension stringByReplacingCharactersInRange:suffixRange withString:@""];
+        }
+    }
+    
+    alternativeName = [alternativeName stringByAppendingString:newSuffix];
+    alternativeName = [alternativeName stringByAppendingPathExtension:extension];
+    
+    return alternativeName;
 }
 
 #pragma mark - User avatars
