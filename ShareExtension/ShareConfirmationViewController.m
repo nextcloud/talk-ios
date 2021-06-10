@@ -462,7 +462,7 @@
         NSLog(@"Upload completed with error code: %ld", (long)errorCode);
 
         if (errorCode == 0) {
-            [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token withCompletionBlock:^(NSError *error) {
+            [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token talkMetaData:nil withCompletionBlock:^(NSError *error) {
                 if (error) {
                     NSLog(@"Failed to send shared file");
                     

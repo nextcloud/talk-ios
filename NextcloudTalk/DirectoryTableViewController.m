@@ -195,7 +195,7 @@
 - (void)shareFileWithPath:(NSString *)path
 {
     [self setSharingFileUI];
-    [[NCAPIController sharedInstance] shareFileOrFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:path toRoom:_token withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] shareFileOrFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:path toRoom:_token talkMetaData:nil withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self dismissViewControllerAnimated:YES completion:nil];
         } else {

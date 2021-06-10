@@ -1211,13 +1211,18 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 }
 
-- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token withCompletionBlock:(ShareFileOrFolderCompletionBlock)block
+- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token talkMetaData:(NSArray *)talkMetaData withCompletionBlock:(ShareFileOrFolderCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/files_sharing/api/v1/shares", account.server];
-    NSDictionary *parameters = @{@"path" : path,
-                                 @"shareType" : @(10),
-                                 @"shareWith" : token
-                                 };
+    
+    NSMutableDictionary *parameters = [NSMutableDictionary new];
+    [parameters setObject:path forKey:@"path"];
+    [parameters setObject:@(10) forKey:@"shareType"];
+    [parameters setObject:token forKey:@"shareWith"];
+    
+    if (talkMetaData) {
+        [parameters setObject:talkMetaData forKey:@"talkMetaData"];
+    }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     // Workaround: When shareFileOrFolderForAccount is called from Share Extension session managers are not initialized.
