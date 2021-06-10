@@ -1424,7 +1424,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         NSLog(@"Upload completed with error code: %ld", (long)errorCode);
 
         if (errorCode == 0) {
-            NSArray *talkMetaData = @[@{@"messageType" : @"voice-message"}];
+            NSDictionary *talkMetaData = @{@"messageType" : @"voice-message"};
             [[NCAPIController sharedInstance] shareFileOrFolderForAccount:activeAccount atPath:fileServerPath toRoom:self->_room.token talkMetaData:talkMetaData withCompletionBlock:^(NSError *error) {
                 if (error) {
                     NSLog(@"Failed to share voice message");

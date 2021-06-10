@@ -1211,7 +1211,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 }
 
-- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token talkMetaData:(NSArray *)talkMetaData withCompletionBlock:(ShareFileOrFolderCompletionBlock)block
+- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token talkMetaData:(NSDictionary *)talkMetaData withCompletionBlock:(ShareFileOrFolderCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/files_sharing/api/v1/shares", account.server];
     
@@ -1221,7 +1221,15 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     [parameters setObject:token forKey:@"shareWith"];
     
     if (talkMetaData) {
-        [parameters setObject:talkMetaData forKey:@"talkMetaData"];
+        NSError *error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:talkMetaData
+                                                           options:0
+                                                             error:&error];
+        if (error) {
+            NSLog(@"Error serializing JSON: %@", error);
+        } else {
+            [parameters setObject:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] forKey:@"talkMetaData"];
+        }
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
