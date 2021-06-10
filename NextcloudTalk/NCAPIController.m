@@ -157,6 +157,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySIPSupport forAccountId:account.accountId]) {
         signalingAPIVersion = APIv2;
     }
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySignalingV3 forAccountId:account.accountId]) {
+        signalingAPIVersion = APIv3;
+    }
     
     return signalingAPIVersion;
 }
