@@ -29,7 +29,6 @@
 
 #import "AFImageDownloader.h"
 #import "FTPopOverMenu.h"
-#import "MZTimerLabel.h"
 #import "NSDate+DateTools.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
