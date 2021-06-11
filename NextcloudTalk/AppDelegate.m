@@ -144,6 +144,26 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
+{
+    if (_shouldLockInterfaceOrientation) {
+        if (_lockedInterfaceOrientation == UIInterfaceOrientationPortrait) {
+            return UIInterfaceOrientationMaskPortrait;
+        } else if (_lockedInterfaceOrientation == UIInterfaceOrientationLandscapeLeft) {
+            return UIInterfaceOrientationMaskLandscapeLeft;
+        } else if (_lockedInterfaceOrientation == UIInterfaceOrientationLandscapeRight) {
+            return UIInterfaceOrientationMaskLandscapeRight;
+        }
+    }
+    return UIInterfaceOrientationMaskAllButUpsideDown;
+}
+
+- (void)setShouldLockInterfaceOrientation:(BOOL)shouldLockInterfaceOrientation
+{
+    _shouldLockInterfaceOrientation = shouldLockInterfaceOrientation;
+    _lockedInterfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+}
+
 #pragma mark - Push Notifications Registration
 
 - (void)checkForPushNotificationSubscription

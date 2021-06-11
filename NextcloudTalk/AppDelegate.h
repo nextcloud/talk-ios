@@ -32,6 +32,8 @@
     NSString *pushKitToken;
 }
 @property (strong, nonatomic) UIWindow *window;
+@property (assign, nonatomic) BOOL shouldLockInterfaceOrientation;
+@property (assign, nonatomic) UIInterfaceOrientation lockedInterfaceOrientation;
 
 
 @end

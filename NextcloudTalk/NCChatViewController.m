@@ -34,6 +34,7 @@
 #import "UIImageView+Letters.h"
 #import "UIView+Toast.h"
 
+#import "AppDelegate.h"
 #import "BarButtonItemWithActivity.h"
 #import "CallKitManager.h"
 #import "ChatMessageTableViewCell.h"
@@ -1474,11 +1475,13 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
         NSLog(@"Start recording audio message");
         [self checkPermissionAndRecordVoiceMessage];
+        [self shouldLockInterfaceOrientation:YES];
         _recordCancelled = NO;
         _longPressStartingPoint = point;
         _cancelHintLabelInitialPositionX = _voiceMessageRecordingView.slideToCancelHintLabel.frame.origin.x;
     } else if ([gestureRecognizer state] == UIGestureRecognizerStateEnded) {
         NSLog(@"Stop recording audio message");
+        [self shouldLockInterfaceOrientation:NO];
         [self stopRecordingVoiceMessage];
     } else if ([gestureRecognizer state] == UIGestureRecognizerStateChanged) {
         CGFloat slideX = _longPressStartingPoint.x - point.x;
@@ -1498,9 +1501,16 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         }
     } else if ([gestureRecognizer state] == UIGestureRecognizerStateCancelled || [gestureRecognizer state] == UIGestureRecognizerStateFailed) {
         NSLog(@"Gesture cancelled or failed -> Cancel recording audio message");
+        [self shouldLockInterfaceOrientation:NO];
         _recordCancelled = YES;
         [self stopRecordingVoiceMessage];
     }
+}
+
+- (void)shouldLockInterfaceOrientation:(BOOL)lock
+{
+    AppDelegate *appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
+    appDelegate.shouldLockInterfaceOrientation = lock;
 }
 
 - (void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
