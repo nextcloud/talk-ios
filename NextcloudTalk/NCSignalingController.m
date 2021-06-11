@@ -72,22 +72,34 @@
 - (NSArray *)getIceServers
 {
     NSMutableArray *servers = [[NSMutableArray alloc] init];
+    NSInteger signalingAPIVersion = [[NCAPIController sharedInstance] signalingAPIVersionForAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
     
     if (_signalingSettings) {
         NSArray *stunServers = [_signalingSettings objectForKey:@"stunservers"];
         for (NSDictionary *stunServer in stunServers) {
-            NSString *stunURL = [stunServer objectForKey:@"url"];
-            RTCIceServer *iceServer = [[RTCIceServer alloc] initWithURLStrings:@[stunURL]
+            NSArray *stunURLs = nil;
+            if (signalingAPIVersion >= APIv3) {
+                stunURLs = [stunServer objectForKey:@"urls"];
+            } else {
+                NSString *stunURL = [stunServer objectForKey:@"url"];
+                stunURLs = @[stunURL];
+            }
+            RTCIceServer *iceServer = [[RTCIceServer alloc] initWithURLStrings:stunURLs
                                                                      username:@""
                                                                    credential:@""];
             [servers addObject:iceServer];
         }
         NSArray *turnServers = [_signalingSettings objectForKey:@"turnservers"];
         for (NSDictionary *turnServer in turnServers) {
-            NSString *turnURL = [turnServer objectForKey:@"url"][0];
+            NSArray *turnURLs = nil;
+            if (signalingAPIVersion >= APIv3) {
+                turnURLs = [turnServer objectForKey:@"urls"];
+            } else {
+                turnURLs = [turnServer objectForKey:@"url"];
+            }
             NSString *turnUserName = [turnServer objectForKey:@"username"];
             NSString *turnCredential = [turnServer objectForKey:@"credential"];
-            RTCIceServer *iceServer = [[RTCIceServer alloc] initWithURLStrings:@[turnURL]
+            RTCIceServer *iceServer = [[RTCIceServer alloc] initWithURLStrings:turnURLs
                                                                       username:turnUserName
                                                                     credential:turnCredential];
             [servers addObject:iceServer];
