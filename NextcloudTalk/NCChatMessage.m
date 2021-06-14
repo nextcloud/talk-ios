@@ -31,6 +31,7 @@ NSString * const kMessageTypeComment        = @"comment";
 NSString * const kMessageTypeCommentDeleted = @"comment_deleted";
 NSString * const kMessageTypeSystem         = @"system";
 NSString * const kMessageTypeCommand        = @"command";
+NSString * const kMessageTypeVoiceMessage   = @"voice-message";
 
 @interface NCChatMessage ()
 {

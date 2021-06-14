@@ -42,6 +42,7 @@ extern NSString * const NCChatFileControllerDidChangeDownloadProgressNotificatio
 @interface NCChatFileController : NSObject
 
 @property (nonatomic, weak) id<NCChatFileControllerDelegate> delegate;
+@property (nonatomic, strong) NSString *messageType;
 
 - (void)downloadFileFromMessage:(NCMessageFileParameter *)fileParameter;
 - (void)downloadFileWithFileId:(NSString *)fileId;

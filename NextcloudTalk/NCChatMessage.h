@@ -35,6 +35,7 @@ extern NSString * const kMessageTypeComment;
 extern NSString * const kMessageTypeCommentDeleted;
 extern NSString * const kMessageTypeSystem;
 extern NSString * const kMessageTypeCommand;
+extern NSString * const kMessageTypeVoiceMessage;
 
 @interface NCChatMessage : RLMObject <NSCopying>
 

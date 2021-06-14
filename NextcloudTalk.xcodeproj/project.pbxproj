@@ -188,6 +188,7 @@
 		2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
 		2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */; };
 		2CA52ACD2670D07900619610 /* VoiceMessageRecordingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */; };
+		2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA52ACF267613CA00619610 /* VoiceMessageTableViewCell.m */; };
 		2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */; };
 		2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */; };
 		2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A12264775E0053078A /* SLKTextInputbar.m */; };
@@ -610,6 +611,8 @@
 		2CA52AC92670D02800619610 /* VoiceMessageRecordingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceMessageRecordingView.h; sourceTree = "<group>"; };
 		2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VoiceMessageRecordingView.m; sourceTree = "<group>"; };
 		2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VoiceMessageRecordingView.xib; sourceTree = "<group>"; };
+		2CA52ACE267613CA00619610 /* VoiceMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceMessageTableViewCell.h; sourceTree = "<group>"; };
+		2CA52ACF267613CA00619610 /* VoiceMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VoiceMessageTableViewCell.m; sourceTree = "<group>"; };
 		2CA80EDB256C1249006BA449 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2CA80EDC256C1249006BA449 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2CA80EDD256C1296006BA449 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1102,6 +1105,8 @@
 				2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */,
 				2C8E2A19232174C20022BFC9 /* MessageSeparatorTableViewCell.h */,
 				2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */,
+				2CA52ACE267613CA00619610 /* VoiceMessageTableViewCell.h */,
+				2CA52ACF267613CA00619610 /* VoiceMessageTableViewCell.m */,
 			);
 			name = "Chat cells";
 			sourceTree = "<group>";
@@ -1776,6 +1781,7 @@
 				C1292B8C237313590004C3B7 /* CCBKPasscode.m in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
+				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */,
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
