@@ -1407,7 +1407,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)shareVoiceMessage
 {
-    NSString *audioFileName = [NSString stringWithFormat:@"audio-record-%.f.mp3", [[NSDate date] timeIntervalSince1970] * 1000];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd HH-mm-ss"];
+    NSString *dateString = [dateFormatter stringFromDate:[NSDate date]];
+    NSString *audioFileName = [NSString stringWithFormat:@"Talk recording from %@ (%@).mp3", dateString, _room.displayName];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:audioFileName originalName:YES forAccount:activeAccount withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription) {
         if (fileServerURL && fileServerPath) {
