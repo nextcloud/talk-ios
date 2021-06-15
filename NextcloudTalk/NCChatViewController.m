@@ -70,6 +70,7 @@
 #import "SystemMessageTableViewCell.h"
 #import "ShareLocationViewController.h"
 #import "VoiceMessageRecordingView.h"
+#import "VoiceMessageTableViewCell.h"
 
 
 #define k_send_message_button_tag   99
@@ -84,7 +85,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionOpenFileInNextcloud
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, AVAudioRecorderDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -125,6 +126,9 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, assign) CGPoint longPressStartingPoint;
 @property (nonatomic, assign) CGFloat cancelHintLabelInitialPositionX;
 @property (nonatomic, assign) BOOL recordCancelled;
+@property (nonatomic, strong) AVAudioPlayer *voiceMessagesPlayer;
+@property (nonatomic, strong) NSTimer *playerProgressTimer;
+@property (nonatomic, strong) NCChatFileStatus *playerAudioFileStatus;
 
 @end
 
@@ -292,6 +296,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self.tableView registerClass:[LocationMessageTableViewCell class] forCellReuseIdentifier:GroupedLocationMessageCellIdentifier];
     [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:SystemMessageCellIdentifier];
     [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:InvisibleSystemMessageCellIdentifier];
+    [self.tableView registerClass:[VoiceMessageTableViewCell class] forCellReuseIdentifier:VoiceMessageCellIdentifier];
+    [self.tableView registerClass:[VoiceMessageTableViewCell class] forCellReuseIdentifier:GroupedVoiceMessageCellIdentifier];
     [self.tableView registerClass:[MessageSeparatorTableViewCell class] forCellReuseIdentifier:MessageSeparatorCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
@@ -420,6 +426,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [super viewWillDisappear:animated];
     
     [self savePendingMessage];
+    [self stopVoiceMessagePlayer];
     
     _isVisible = NO;
 }
@@ -1401,7 +1408,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)shareVoiceMessage
 {
-    NSString *audioFileName = [NSString stringWithFormat:@"audio-record-%.f.mp3", [[NSDate date] timeIntervalSince1970] * 1000];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd HH-mm-ss"];
+    NSString *dateString = [dateFormatter stringFromDate:[NSDate date]];
+    NSString *audioFileName = [NSString stringWithFormat:@"Talk recording from %@ (%@).mp3", dateString, _room.displayName];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:audioFileName originalName:YES forAccount:activeAccount withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription) {
         if (fileServerURL && fileServerPath) {
@@ -1446,11 +1456,82 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 #pragma mark - AVAudioRecorderDelegate
 
-- (void) audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag
+- (void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag
 {
     if (flag && recorder == _recorder && !_recordCancelled) {
         [self shareVoiceMessage];
     }
+}
+
+#pragma mark - Voice Messages Player
+
+- (void)setupVoiceMessagePlayerWithAudioFileStatus:(NCChatFileStatus *)fileStatus
+{
+    NSData *data = [NSData dataWithContentsOfFile:fileStatus.fileLocalPath];
+    NSError *error;
+    _voiceMessagesPlayer = [[AVAudioPlayer alloc] initWithData:data error:&error];
+    _voiceMessagesPlayer.delegate = self;
+    if (!error) {
+        _playerAudioFileStatus = fileStatus;
+        [self playVoiceMessagePlayer];
+    } else {
+        NSLog(@"Error: %@", error);
+    }
+}
+
+- (void)playVoiceMessagePlayer
+{
+    [self startVoiceMessagePlayerTimer];
+    [_voiceMessagesPlayer play];
+}
+
+- (void)pauseVoiceMessagePlayer
+{
+    [self stopVoiceMessagePlayerTimer];
+    [_voiceMessagesPlayer pause];
+    [self checkVisibleCellAudioPlayers];
+}
+
+- (void)stopVoiceMessagePlayer
+{
+    [self stopVoiceMessagePlayerTimer];
+    [_voiceMessagesPlayer stop];
+}
+
+- (void)checkVisibleCellAudioPlayers
+{
+    for (NSIndexPath *indexPath in self.tableView.indexPathsForVisibleRows) {
+        NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+        NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+        if ([message.messageType isEqualToString:kMessageTypeVoiceMessage]) {
+            VoiceMessageTableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+            if (message.file && [message.file.parameterId isEqualToString:_playerAudioFileStatus.fileId] && [message.file.path isEqualToString:_playerAudioFileStatus.filePath]) {
+                [cell setPlayerProgress:_voiceMessagesPlayer.currentTime isPlaying:_voiceMessagesPlayer.isPlaying maximumValue:_voiceMessagesPlayer.duration];
+                continue;
+            }
+            [cell resetPlayer];
+        }
+    }
+}
+
+- (void)startVoiceMessagePlayerTimer
+{
+    [self stopVoiceMessagePlayerTimer];
+    _playerProgressTimer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(checkVisibleCellAudioPlayers) userInfo:nil repeats:YES];
+}
+
+- (void)stopVoiceMessagePlayerTimer
+{
+    [_playerProgressTimer invalidate];
+    _playerProgressTimer = nil;
+}
+
+#pragma mark - AVAudioPlayerDelegate
+
+- (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
+{
+    [self stopVoiceMessagePlayerTimer];
+    [self checkVisibleCellAudioPlayers];
 }
 
 #pragma mark - Gesture recognizer
@@ -2579,6 +2660,18 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         return systemCell;
     }
     if (message.file) {
+        if ([message.messageType isEqualToString:kMessageTypeVoiceMessage]) {
+            NSString *voiceMessageCellIdentifier = (message.isGroupMessage) ? GroupedVoiceMessageCellIdentifier : VoiceMessageCellIdentifier;
+            VoiceMessageTableViewCell *voiceMessageCell = (VoiceMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:voiceMessageCellIdentifier];
+            voiceMessageCell.delegate = self;
+            [voiceMessageCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
+            if ([message.file.parameterId isEqualToString:_playerAudioFileStatus.fileId] && [message.file.path isEqualToString:_playerAudioFileStatus.filePath]) {
+                [voiceMessageCell setPlayerProgress:_voiceMessagesPlayer.currentTime isPlaying:_voiceMessagesPlayer.isPlaying maximumValue:_voiceMessagesPlayer.duration];
+            } else {
+                [voiceMessageCell resetPlayer];
+            }
+            return voiceMessageCell;
+        }
         NSString *fileCellIdentifier = (message.isGroupMessage) ? GroupedFileMessageCellIdentifier : FileMessageCellIdentifier;
         FileMessageTableViewCell *fileCell = (FileMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:fileCellIdentifier];
         fileCell.delegate = self;
@@ -2684,12 +2777,18 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         }
     }
     
+    // Voice message should be before message.file check since it contains a file
+    if ([message.messageType isEqualToString:kMessageTypeVoiceMessage]) {
+        height -= CGRectGetHeight(bodyBounds);
+        return height += kVoiceMessageCellPlayerHeight;
+    }
+    
     if (message.file) {
-        height += kFileMessageCellFilePreviewHeight + 15;
+        return height += kFileMessageCellFilePreviewHeight + 15;
     }
     
     if (message.geoLocation) {
-        height += kLocationMessageCellPreviewHeight + 15;
+        return height += kLocationMessageCellPreviewHeight + 15;
     }
     
     return height;
@@ -2871,6 +2970,42 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [downloader downloadFileFromMessage:fileParameter];
 }
 
+#pragma mark - VoiceMessageTableViewCellDelegate
+
+- (void)cellWantsToPlayAudioFile:(NCMessageFileParameter *)fileParameter
+{
+    if (fileParameter.fileStatus && fileParameter.fileStatus.isDownloading) {
+        NSLog(@"File already downloading -> skipping new download");
+        return;
+    }
+    
+    if (!_voiceMessagesPlayer.isPlaying && [fileParameter.parameterId isEqualToString:_playerAudioFileStatus.fileId] && [fileParameter.path isEqualToString:_playerAudioFileStatus.filePath]) {
+        [self playVoiceMessagePlayer];
+        return;
+    }
+    
+    NCChatFileController *downloader = [[NCChatFileController alloc] init];
+    downloader.delegate = self;
+    downloader.messageType = kMessageTypeVoiceMessage;
+    [downloader downloadFileFromMessage:fileParameter];
+}
+
+- (void)cellWantsToPauseAudioFile:(NCMessageFileParameter *)fileParameter
+{
+    if (_voiceMessagesPlayer.isPlaying && [fileParameter.parameterId isEqualToString:_playerAudioFileStatus.fileId] && [fileParameter.path isEqualToString:_playerAudioFileStatus.filePath]) {
+        [self pauseVoiceMessagePlayer];
+    }
+}
+
+- (void)cellWantsToChangeProgress:(CGFloat)progress fromAudioFile:(NCMessageFileParameter *)fileParameter
+{
+    if ([fileParameter.parameterId isEqualToString:_playerAudioFileStatus.fileId] && [fileParameter.path isEqualToString:_playerAudioFileStatus.filePath]) {
+        [self pauseVoiceMessagePlayer];
+        [_voiceMessagesPlayer setCurrentTime:progress];
+        [self checkVisibleCellAudioPlayers];
+    }
+}
+
 #pragma mark - LocationMessageTableViewCellDelegate
 
 - (void)cellWantsToOpenLocation:(GeoLocationRichObject *)geoLocationRichObject
@@ -2897,6 +3032,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)fileControllerDidLoadFile:(NCChatFileController *)fileController withFileStatus:(NCChatFileStatus *)fileStatus
 {
+    if ([fileController.messageType isEqualToString:kMessageTypeVoiceMessage]) {
+        [self setupVoiceMessagePlayerWithAudioFileStatus:fileStatus];
+        return;
+    }
+    
     if (_isPreviewControllerShown) {
         // We are showing a file already, no need to open another one
         return;
