@@ -188,7 +188,27 @@
     options.scale = [[UIScreen mainScreen] scale];
     MKMapSnapshotter *mapSnapshotter = [[MKMapSnapshotter alloc] initWithOptions:options];
     [mapSnapshotter startWithCompletionHandler:^(MKMapSnapshot * _Nullable snapshot, NSError * _Nullable error) {
-        [self.previewImageView setImage:snapshot.image];
+        MKPinAnnotationView *pin = [[MKPinAnnotationView alloc] initWithAnnotation:nil reuseIdentifier:nil];
+        UIImage *image = snapshot.image;
+        UIGraphicsBeginImageContextWithOptions(image.size, YES, image.scale);
+        {
+            [image drawAtPoint:CGPointMake(0.0f, 0.0f)];
+
+            CGRect rect = CGRectMake(0.0f, 0.0f, image.size.width, image.size.height);
+            MKPointAnnotation *annotation = [[MKPointAnnotation alloc] init];
+            annotation.coordinate = CLLocationCoordinate2DMake([self.geoLocationRichObject.latitude doubleValue], [self.geoLocationRichObject.longitude doubleValue]);
+            CGPoint point = [snapshot pointForCoordinate:annotation.coordinate];
+            if (CGRectContainsPoint(rect, point)) {
+                point.x = point.x + pin.centerOffset.x - (pin.bounds.size.width / 2.0f);
+                point.y = point.y + pin.centerOffset.y - (pin.bounds.size.height / 2.0f);
+                pin.pinTintColor = [NCAppBranding elementColor];
+                [pin.image drawAtPoint:point];
+            }
+
+            UIImage *compositeImage = UIGraphicsGetImageFromCurrentImageContext();
+            [self.previewImageView setImage:compositeImage];
+        }
+        UIGraphicsEndImageContext();
     }];
 }
 
