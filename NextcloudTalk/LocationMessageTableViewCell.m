@@ -35,6 +35,8 @@
 @interface LocationMessageTableViewCell ()
 {
     MDCActivityIndicator *_activityIndicator;
+    MKMapView *_mapView;
+    MKMapSnapshotter *_mapSnapshotter;
 }
 
 @end
@@ -134,9 +136,11 @@
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
     
-    [self.previewImageView cancelImageDownloadTask];
-    self.previewImageView.layer.borderWidth = 0.0f;
     self.previewImageView.image = nil;
+    
+    [_mapView removeAnnotations:_mapView.annotations];
+    _mapView = nil;
+    _mapSnapshotter = nil;
     
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
@@ -178,16 +182,16 @@
 
 - (void)createLocationPreview
 {
-    MKMapView *mapView = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, kLocationMessageCellPreviewWidth, kLocationMessageCellPreviewHeight)];
+    _mapView = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, kLocationMessageCellPreviewWidth, kLocationMessageCellPreviewHeight)];
     MKCoordinateRegion mapRegion;
     mapRegion.center = CLLocationCoordinate2DMake([self.geoLocationRichObject.latitude doubleValue], [self.geoLocationRichObject.longitude doubleValue]);
     mapRegion.span = MKCoordinateSpanMake(0.005, 0.005);
     MKMapSnapshotOptions *options = [[MKMapSnapshotOptions alloc] init];
     options.region = mapRegion;
-    options.size = mapView.frame.size;
+    options.size = _mapView.frame.size;
     options.scale = [[UIScreen mainScreen] scale];
-    MKMapSnapshotter *mapSnapshotter = [[MKMapSnapshotter alloc] initWithOptions:options];
-    [mapSnapshotter startWithCompletionHandler:^(MKMapSnapshot * _Nullable snapshot, NSError * _Nullable error) {
+    _mapSnapshotter = [[MKMapSnapshotter alloc] initWithOptions:options];
+    [_mapSnapshotter startWithCompletionHandler:^(MKMapSnapshot * _Nullable snapshot, NSError * _Nullable error) {
         MKPinAnnotationView *pin = [[MKPinAnnotationView alloc] initWithAnnotation:nil reuseIdentifier:nil];
         UIImage *image = snapshot.image;
         UIGraphicsBeginImageContextWithOptions(image.size, YES, image.scale);
