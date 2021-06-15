@@ -77,25 +77,35 @@
     [self setPlayButton];
     [self.contentView addSubview:self.playPauseButton];
     
-    self.progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0, 0, 200, 44)];
-    self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.contentView addSubview:self.progressView];
+    self.slider = [[UISlider alloc] initWithFrame:CGRectMake(0, 0, 200, 44)];
+    self.slider.translatesAutoresizingMaskIntoConstraints = NO;
+    UIImage *sliderThumb = [[UIImage imageNamed:@"circle"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [self.slider setThumbImage:sliderThumb forState:UIControlStateNormal];
+    [self.slider setEnabled:NO];
+    [self.slider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
+    [self.contentView addSubview:self.slider];
     
     _statusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
     _statusView.translatesAutoresizingMaskIntoConstraints = NO;
-//    [_statusView setBackgroundColor:[UIColor greenColor]];
     [self.contentView addSubview:_statusView];
     
     _fileStatusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
     _fileStatusView.translatesAutoresizingMaskIntoConstraints = NO;
-//    [_fileStatusView setBackgroundColor:[UIColor purpleColor]];
     [self.contentView addSubview:_fileStatusView];
+    
+    _durationLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
+    _durationLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    _durationLabel.font = [UIFont systemFontOfSize:12];
+    _durationLabel.adjustsFontSizeToFitWidth = YES;
+    _durationLabel.minimumScaleFactor = 0.5;
+    [self.contentView addSubview:_durationLabel];
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"statusView": self.statusView,
                             @"fileStatusView": self.fileStatusView,
+                            @"durationLabel": self.durationLabel,
                             @"playButton" : self.playPauseButton,
-                            @"progressView" : self.progressView,
+                            @"progressView" : self.slider,
                             @"titleLabel": self.titleLabel,
                             @"dateLabel": self.dateLabel,
                             @"bodyTextView": self.bodyTextView,
@@ -105,7 +115,7 @@
                               @"statusSize": @(kChatCellStatusViewHeight),
                               @"statusTopPadding": @17,
                               @"buttonHeight": @44,
-                              @"progressWidth": @200,
+                              @"progressWidth": @150,
                               @"progressTopPadding": @25,
                               @"progressBottomPadding": @30,
                               @"progressHeight": @4,
@@ -118,6 +128,7 @@
     if ([self.reuseIdentifier isEqualToString:VoiceMessageCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[playButton(buttonHeight)]-[progressView(progressWidth)]-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[playButton(buttonHeight)]-[progressView(progressWidth)]-[durationLabel(>=0)]-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[playButton(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-progressTopPadding-[progressView(progressHeight)]-progressBottomPadding-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
@@ -125,13 +136,16 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-statusTopPadding-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-statusTopPadding-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-statusTopPadding-[durationLabel(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:GroupedVoiceMessageCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[playButton(buttonHeight)]-[progressView(progressWidth)]-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[playButton(buttonHeight)]-[progressView(progressWidth)]-[durationLabel(>=0)]-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[playButton(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-progressTopPadding-[progressView(progressHeight)]-progressBottomPadding-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-statusTopPadding-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-statusTopPadding-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-statusTopPadding-[durationLabel(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeIsDownloading:) name:NCChatFileControllerDidChangeIsDownloadingNotification object:nil];
@@ -153,6 +167,8 @@
     
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
+    
+    [self resetPlayer];
     
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
     [self clearFileStatusView];
@@ -215,18 +231,25 @@
     }
 }
 
-- (void)setPlayerProgress:(CGFloat)progress isPlaying:(BOOL)playing
+- (void)setPlayerProgress:(CGFloat)progress isPlaying:(BOOL)playing maximumValue:(CGFloat)maxValue
 {
     [self setPauseButton];
     if (!playing) {
         [self setPlayButton];
     }
-    [self.progressView setProgress:progress];
+    [self.slider setEnabled:YES];
+    [self.slider setValue:progress];
+    [self.slider setMaximumValue:maxValue];
+    [self setDurationLabelWithProgress:progress andDuration:maxValue];
+    [self.slider setNeedsLayout];
 }
 - (void)resetPlayer
 {
     [self setPlayButton];
-    [self.progressView setProgress:0];
+    [self.slider setEnabled:NO];
+    [self.slider setValue:0];
+    [self.durationLabel setHidden:YES];
+    [self.slider setNeedsLayout];
 }
 
 - (void)setPlayButton
@@ -241,6 +264,41 @@
     UIImage *image = [[UIImage imageNamed:@"pause"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     [self.playPauseButton setImage:image forState:UIControlStateNormal];
     self.playPauseButton.tag = k_pause_button_tag;
+}
+
+- (void)sliderValueChanged:(id)sender
+{
+    if (self.delegate) {
+        [self.delegate cellWantsToChangeProgress:_slider.value fromAudioFile:_fileParameter];
+    }
+}
+
+- (void)setDurationLabelWithProgress:(CGFloat)progress andDuration:(CGFloat)duration
+{
+    NSDateComponentsFormatter *dateComponentsFormatter = [[NSDateComponentsFormatter alloc] init];
+    dateComponentsFormatter.allowedUnits = (NSCalendarUnitMinute | NSCalendarUnitSecond);
+    dateComponentsFormatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorNone;
+    NSString *progressTime = [dateComponentsFormatter stringFromTimeInterval:progress];
+    NSString *durationTime = [dateComponentsFormatter stringFromTimeInterval:duration];
+    
+    NSDictionary *attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:12],
+                                 NSForegroundColorAttributeName:[UIColor lightGrayColor]};
+    NSDictionary *subAttribute = @{NSFontAttributeName:[UIFont systemFontOfSize:12 weight:UIFontWeightMedium],
+                                   NSForegroundColorAttributeName:[UIColor darkGrayColor]};
+    
+    if (@available(iOS 13.0, *)) {
+        attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:12],
+                       NSForegroundColorAttributeName:[UIColor secondaryLabelColor]};
+        subAttribute = @{NSFontAttributeName:[UIFont systemFontOfSize:12 weight:UIFontWeightMedium],
+                         NSForegroundColorAttributeName:[UIColor labelColor]};
+    }
+    
+    NSString *playerTime = [NSString stringWithFormat:@"%@ / %@", progressTime, durationTime];
+    NSMutableAttributedString *playerTimeString = [[NSMutableAttributedString alloc] initWithString:playerTime attributes:attributes];
+    [playerTimeString addAttributes:subAttribute range:NSMakeRange(0, [progressTime length])];
+    
+    self.durationLabel.attributedText = playerTimeString;
+    [self.durationLabel setHidden:NO];
 }
 
 - (void)didChangeIsDownloading:(NSNotification *)notification

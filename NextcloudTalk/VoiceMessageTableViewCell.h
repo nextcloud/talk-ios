@@ -37,6 +37,7 @@ static NSString *GroupedVoiceMessageCellIdentifier   = @"GroupedVoiceMessageCell
 
 - (void)cellWantsToPlayAudioFile:(NCMessageFileParameter *)fileParameter;
 - (void)cellWantsToPauseAudioFile:(NCMessageFileParameter *)fileParameter;
+- (void)cellWantsToChangeProgress:(CGFloat)progress fromAudioFile:(NCMessageFileParameter *)fileParameter;
 
 @end
 
@@ -52,12 +53,13 @@ static NSString *GroupedVoiceMessageCellIdentifier   = @"GroupedVoiceMessageCell
 @property (nonatomic, strong) UIView *fileStatusView;
 @property (nonatomic, strong) NCMessageFileParameter *fileParameter;
 @property (nonatomic, strong) UIButton *playPauseButton;
-@property (nonatomic, strong) UIProgressView *progressView;
+@property (nonatomic, strong) UISlider *slider;
+@property (nonatomic, strong) UILabel *durationLabel;
 
 + (CGFloat)defaultFontSize;
 - (void)setGuestAvatar:(NSString *)displayName;
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
-- (void)setPlayerProgress:(CGFloat)progress isPlaying:(BOOL)playing;
+- (void)setPlayerProgress:(CGFloat)progress isPlaying:(BOOL)playing maximumValue:(CGFloat)maxValue;
 - (void)resetPlayer;
 
 @end
