@@ -426,6 +426,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [super viewWillDisappear:animated];
     
     [self savePendingMessage];
+    [self stopVoiceMessagePlayer];
     
     _isVisible = NO;
 }
@@ -1489,6 +1490,12 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [self stopVoiceMessagePlayerTimer];
     [_voiceMessagesPlayer pause];
     [self checkVisibleCellAudioPlayers];
+}
+
+- (void)stopVoiceMessagePlayer
+{
+    [self stopVoiceMessagePlayerTimer];
+    [_voiceMessagesPlayer stop];
 }
 
 - (void)checkVisibleCellAudioPlayers
