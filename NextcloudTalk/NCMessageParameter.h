@@ -21,6 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @interface NCMessageParameter : NSObject
 
@@ -29,8 +30,11 @@
 @property (nonatomic, strong) NSString *link;
 @property (nonatomic, strong) NSString *type;
 @property (nonatomic, assign) NSRange range;
+@property (nonatomic, strong) NSString *contactName;
+@property (nonatomic, strong) NSString *contactPhoto;
 
 - (instancetype)initWithDictionary:(NSDictionary *)parameterDict;
 - (BOOL)shouldBeHighlighted;
+- (UIImage *)contactPhotoImage;
 
 @end

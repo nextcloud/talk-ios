@@ -69,6 +69,7 @@ static NSString *const nextcloudScheme = @"nextcloud:";
         else if (UTTypeConformsTo(fileType, kUTTypeSpreadsheet)) previewImage = @"file-spreadsheet";
         else if (UTTypeConformsTo(fileType, kUTTypePresentation)) previewImage = @"file-presentation";
         else if (UTTypeConformsTo(fileType, kUTTypePDF)) previewImage = @"file-pdf";
+        else if (UTTypeConformsTo(fileType, kUTTypeVCard)) previewImage = @"file-vcard";
         else if (UTTypeConformsTo(fileType, kUTTypeText)) previewImage = @"file-text";
         else if ([(__bridge NSString *)fileType containsString:@"org.openxmlformats"] || [(__bridge NSString *)fileType containsString:@"org.oasis-open.opendocument"]) previewImage = @"file-document";
         else if (UTTypeConformsTo(fileType, kUTTypeZipArchive)) previewImage = @"file-zip";
