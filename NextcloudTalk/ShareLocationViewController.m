@@ -332,14 +332,14 @@ typedef enum ShareLocationSection {
     if (tableView == _resultTableViewController.tableView) {
         MKMapItem *searchedPlace = [_searchedPlaces objectAtIndex:indexPath.row];
         [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:searchedPlace.placemark.location.coordinate.latitude longitude:searchedPlace.placemark.location.coordinate.longitude andName:searchedPlace.name];
-    }
-    
+    } else {
     // Main view table view
-    if (indexPath.section == kShareLocationSectionCurrent) {
-        [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:_currentLocation.coordinate.latitude longitude:_currentLocation.coordinate.longitude andName:NSLocalizedString(@"My location", nil)];
-    } else if (indexPath.section == kShareLocationSectionNearby) {
-        MKMapItem *nearbyPlace = [_nearbyPlaces objectAtIndex:indexPath.row];
-        [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:nearbyPlace.placemark.location.coordinate.latitude longitude:nearbyPlace.placemark.location.coordinate.longitude andName:nearbyPlace.name];
+        if (indexPath.section == kShareLocationSectionCurrent) {
+            [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:_currentLocation.coordinate.latitude longitude:_currentLocation.coordinate.longitude andName:NSLocalizedString(@"My location", nil)];
+        } else if (indexPath.section == kShareLocationSectionNearby) {
+            MKMapItem *nearbyPlace = [_nearbyPlaces objectAtIndex:indexPath.row];
+            [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:nearbyPlace.placemark.location.coordinate.latitude longitude:nearbyPlace.placemark.location.coordinate.longitude andName:nearbyPlace.name];
+        }
     }
 }
 
