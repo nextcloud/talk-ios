@@ -31,6 +31,7 @@
 
 typedef enum ShareLocationSection {
     kShareLocationSectionCurrent = 0,
+    kShareLocationSectionDropPin,
     kShareLocationSectionNearby,
     kShareLocationSectionNumber
 } ShareLocationSection;
@@ -44,6 +45,9 @@ typedef enum ShareLocationSection {
     NSArray *_nearbyPlaces;
     NSArray *_searchedPlaces;
     BOOL _hasBeenCentered;
+    MKPointAnnotation *_dropPinAnnotation;
+    CLPlacemark *_dropPinPlacemark;
+    UIView *_dropPinGuideView;
 }
 
 @end
@@ -89,6 +93,7 @@ typedef enum ShareLocationSection {
         _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
         _searchController.delegate = self;
         _searchController.searchResultsUpdater = self;
+        _searchController.hidesNavigationBarDuringPresentation = NO;
         [_searchController.searchBar sizeToFit];
         
         UIColor *themeColor = [NCAppBranding themeColor];
@@ -124,9 +129,6 @@ typedef enum ShareLocationSection {
         
         // Place resultTableViewController correctly
         self.definesPresentationContext = YES;
-        
-        // Fix uisearchcontroller animation
-        self.extendedLayoutIncludesOpaqueBars = YES;
     }
 }
 
@@ -177,9 +179,51 @@ typedef enum ShareLocationSection {
     });
 }
 
+- (void)mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated
+{
+    [_mapView removeAnnotation:_dropPinAnnotation];
+    [self showDropPinGuideView];
+}
+
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
-    [self searchForNearbyPlaces];
+    [self hideDropPinGuideView];
+    _dropPinAnnotation = [[MKPointAnnotation alloc] init];
+    _dropPinAnnotation.coordinate = CLLocationCoordinate2DMake(_mapView.centerCoordinate.latitude, _mapView.centerCoordinate.longitude);
+    [_mapView addAnnotation:_dropPinAnnotation];
+    
+    CLLocation *location = [[CLLocation alloc] initWithLatitude:_dropPinAnnotation.coordinate.latitude longitude:_dropPinAnnotation.coordinate.longitude];
+    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
+    [geocoder reverseGeocodeLocation:location completionHandler:^(NSArray *placemarks, NSError *error) {
+        if (!error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                _dropPinPlacemark = placemarks[0];
+                [self.tableView reloadSections:[[NSIndexSet alloc] initWithIndex:kShareLocationSectionDropPin] withRowAnimation:UITableViewRowAnimationNone];
+            });
+        }
+    }];
+}
+
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
+{
+    // If the annotation is the user location, just return nil.
+    if ([annotation isKindOfClass:[MKUserLocation class]]) {
+        return nil;
+    }
+    
+    if (annotation == _dropPinAnnotation) {
+        MKPinAnnotationView *pinView = (MKPinAnnotationView*)[mapView dequeueReusableAnnotationViewWithIdentifier:@"SelectedLocationAnnotationView"];
+        if (!pinView) {
+            pinView = [[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"SelectedLocationAnnotationView"];
+            pinView.pinTintColor = [NCAppBranding elementColor];
+            pinView.animatesDrop = YES;
+            pinView.canShowCallout = YES;
+        } else {
+            pinView.annotation = annotation;
+        }
+        return pinView;
+    }
+    return nil;
 }
 
 #pragma mark - Actions
@@ -203,6 +247,26 @@ typedef enum ShareLocationSection {
     mapRegion.span = MKCoordinateSpanMake(0.01, 0.01);
     [self.mapView setRegion:mapRegion animated: YES];
 }
+
+- (void)showDropPinGuideView
+{
+    _dropPinGuideView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 8, 8)];
+    _dropPinGuideView.backgroundColor = [NCAppBranding placeholderColor];
+    _dropPinGuideView.layer.cornerRadius = 4;
+    _dropPinGuideView.clipsToBounds = YES;
+    
+    _dropPinGuideView.center = _mapView.center;
+        
+    [self.mapView addSubview:_dropPinGuideView];
+    [self.mapView bringSubviewToFront:_dropPinGuideView];
+}
+
+- (void)hideDropPinGuideView
+{
+    [_dropPinGuideView removeFromSuperview];
+    _dropPinAnnotation = nil;
+}
+
 
 #pragma mark - Search places
 
@@ -255,6 +319,8 @@ typedef enum ShareLocationSection {
     
     if (section == kShareLocationSectionCurrent) {
         return _currentLocation ? 1 : 0;
+    } else if (section == kShareLocationSectionDropPin) {
+        return 1;
     } else if (section == kShareLocationSectionNearby) {
         return _nearbyPlaces.count;
     }
@@ -306,9 +372,17 @@ typedef enum ShareLocationSection {
     // Main view table view
     if (indexPath.section == kShareLocationSectionCurrent) {
         UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"UserLocationCellIdentifier"];
-        [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        [cell.imageView setImage:[[UIImage imageNamed:@"my-location-fill"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         cell.textLabel.text = NSLocalizedString(@"Share current location", nil);
         cell.detailTextLabel.text = [NSString stringWithFormat:@"%@: %.0fm", NSLocalizedString(@"Accuracy", nil), _currentLocation.horizontalAccuracy];
+        return cell;
+    } else if (indexPath.section == kShareLocationSectionDropPin) {
+        UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"DropPinCellIdentifier"];
+        [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        cell.textLabel.text = NSLocalizedString(@"Share pin location", nil);
+        if (_dropPinPlacemark.thoroughfare && _dropPinPlacemark.subThoroughfare) {
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ %@", _dropPinPlacemark.thoroughfare, _dropPinPlacemark.subThoroughfare];
+        }
         return cell;
     } else if (indexPath.section == kShareLocationSectionNearby) {
         MKMapItem *nearbyPlace = [_nearbyPlaces objectAtIndex:indexPath.row];
@@ -332,14 +406,21 @@ typedef enum ShareLocationSection {
     if (tableView == _resultTableViewController.tableView) {
         MKMapItem *searchedPlace = [_searchedPlaces objectAtIndex:indexPath.row];
         [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:searchedPlace.placemark.location.coordinate.latitude longitude:searchedPlace.placemark.location.coordinate.longitude andName:searchedPlace.name];
-    }
-    
+        [self dismissViewControllerAnimated:YES completion:nil];
+    } else {
     // Main view table view
-    if (indexPath.section == kShareLocationSectionCurrent) {
-        [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:_currentLocation.coordinate.latitude longitude:_currentLocation.coordinate.longitude andName:NSLocalizedString(@"My location", nil)];
-    } else if (indexPath.section == kShareLocationSectionNearby) {
-        MKMapItem *nearbyPlace = [_nearbyPlaces objectAtIndex:indexPath.row];
-        [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:nearbyPlace.placemark.location.coordinate.latitude longitude:nearbyPlace.placemark.location.coordinate.longitude andName:nearbyPlace.name];
+        if (indexPath.section == kShareLocationSectionCurrent) {
+            [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:_currentLocation.coordinate.latitude longitude:_currentLocation.coordinate.longitude andName:NSLocalizedString(@"My location", nil)];
+        } else if (indexPath.section == kShareLocationSectionDropPin) {
+            NSString *locationName = NSLocalizedString(@"Shared location", nil);
+            if (_dropPinPlacemark.thoroughfare && _dropPinPlacemark.subThoroughfare) {
+                locationName = [NSString stringWithFormat:@"%@ %@", _dropPinPlacemark.thoroughfare, _dropPinPlacemark.subThoroughfare];
+            }
+            [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:_dropPinAnnotation.coordinate.latitude longitude:_dropPinAnnotation.coordinate.longitude andName:locationName];
+        } else if (indexPath.section == kShareLocationSectionNearby) {
+            MKMapItem *nearbyPlace = [_nearbyPlaces objectAtIndex:indexPath.row];
+            [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:nearbyPlace.placemark.location.coordinate.latitude longitude:nearbyPlace.placemark.location.coordinate.longitude andName:nearbyPlace.name];
+        }
     }
 }
 
