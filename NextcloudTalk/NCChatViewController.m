@@ -1014,7 +1014,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }];
     [shareLocationAction setValue:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
-    UIAlertAction *contactShareAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Contact", nil)
+    UIAlertAction *contactShareAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Contacts", nil)
                                                                  style:UIAlertActionStyleDefault
                                                                handler:^void (UIAlertAction *action) {
         [self presentShareContact];
