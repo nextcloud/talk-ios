@@ -45,6 +45,9 @@
         } else {
             self.parameterId = [parameterId stringValue];
         }
+        
+        self.contactName = [parameterDict objectForKey:@"contact-name"];
+        self.contactPhoto = [parameterDict objectForKey:@"contact-photo"];
     }
     
     return self;
@@ -56,6 +59,18 @@
     // Call mentions
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     return ([_type isEqualToString:@"user"] && [activeAccount.userId isEqualToString:_parameterId]) || [_type isEqualToString:@"call"];
+}
+
+- (UIImage *)contactPhotoImage
+{
+    if (self.contactPhoto) {
+        NSString *base64String = [NSString stringWithFormat:@"%@%@", @"data:image/png;base64,", self.contactPhoto];
+        NSURL *url = [NSURL URLWithString:base64String];
+        NSData *imageData = [NSData dataWithContentsOfURL:url];
+        return [UIImage imageWithData:imageData];
+    }
+    
+    return nil;
 }
 
 @end

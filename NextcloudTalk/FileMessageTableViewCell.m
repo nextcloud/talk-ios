@@ -198,6 +198,13 @@
     
     self.fileParameter = message.file;
     
+    if (message.file.contactName) {
+        self.bodyTextView.text = message.file.contactName;
+    }
+    if (message.file.contactPhotoImage) {
+        [self.previewImageView setImage:message.file.contactPhotoImage];
+    }
+    
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     BOOL shouldShowDeliveryStatus = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     BOOL shouldShowReadStatus = !serverCapabilities.readStatusPrivacy;
