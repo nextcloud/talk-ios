@@ -46,6 +46,7 @@ typedef enum ShareLocationSection {
     NSArray *_searchedPlaces;
     BOOL _hasBeenCentered;
     MKPointAnnotation *_dropPinAnnotation;
+    CLPlacemark *_dropPinPlacemark;
     UIView *_dropPinGuideView;
 }
 
@@ -190,6 +191,17 @@ typedef enum ShareLocationSection {
     _dropPinAnnotation = [[MKPointAnnotation alloc] init];
     _dropPinAnnotation.coordinate = CLLocationCoordinate2DMake(_mapView.centerCoordinate.latitude, _mapView.centerCoordinate.longitude);
     [_mapView addAnnotation:_dropPinAnnotation];
+    
+    CLLocation *location = [[CLLocation alloc] initWithLatitude:_dropPinAnnotation.coordinate.latitude longitude:_dropPinAnnotation.coordinate.longitude];
+    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
+    [geocoder reverseGeocodeLocation:location completionHandler:^(NSArray *placemarks, NSError *error) {
+        if (!error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                _dropPinPlacemark = placemarks[0];
+                [self.tableView reloadSections:[[NSIndexSet alloc] initWithIndex:kShareLocationSectionDropPin] withRowAnimation:UITableViewRowAnimationNone];
+            });
+        }
+    }];
 }
 
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
@@ -368,6 +380,9 @@ typedef enum ShareLocationSection {
         UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"DropPinCellIdentifier"];
         [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         cell.textLabel.text = NSLocalizedString(@"Share pin location", nil);
+        if (_dropPinPlacemark.thoroughfare && _dropPinPlacemark.subThoroughfare) {
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ %@", _dropPinPlacemark.thoroughfare, _dropPinPlacemark.subThoroughfare];
+        }
         return cell;
     } else if (indexPath.section == kShareLocationSectionNearby) {
         MKMapItem *nearbyPlace = [_nearbyPlaces objectAtIndex:indexPath.row];
@@ -391,12 +406,17 @@ typedef enum ShareLocationSection {
     if (tableView == _resultTableViewController.tableView) {
         MKMapItem *searchedPlace = [_searchedPlaces objectAtIndex:indexPath.row];
         [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:searchedPlace.placemark.location.coordinate.latitude longitude:searchedPlace.placemark.location.coordinate.longitude andName:searchedPlace.name];
+        [self dismissViewControllerAnimated:YES completion:nil];
     } else {
     // Main view table view
         if (indexPath.section == kShareLocationSectionCurrent) {
             [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:_currentLocation.coordinate.latitude longitude:_currentLocation.coordinate.longitude andName:NSLocalizedString(@"My location", nil)];
         } else if (indexPath.section == kShareLocationSectionDropPin) {
-            [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:_dropPinAnnotation.coordinate.latitude longitude:_dropPinAnnotation.coordinate.longitude andName:@""];
+            NSString *locationName = NSLocalizedString(@"Shared location", nil);
+            if (_dropPinPlacemark.thoroughfare && _dropPinPlacemark.subThoroughfare) {
+                locationName = [NSString stringWithFormat:@"%@ %@", _dropPinPlacemark.thoroughfare, _dropPinPlacemark.subThoroughfare];
+            }
+            [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:_dropPinAnnotation.coordinate.latitude longitude:_dropPinAnnotation.coordinate.longitude andName:locationName];
         } else if (indexPath.section == kShareLocationSectionNearby) {
             MKMapItem *nearbyPlace = [_nearbyPlaces objectAtIndex:indexPath.row];
             [self.delegate shareLocationViewController:self didSelectLocationWithLatitude:nearbyPlace.placemark.location.coordinate.latitude longitude:nearbyPlace.placemark.location.coordinate.longitude andName:nearbyPlace.name];
