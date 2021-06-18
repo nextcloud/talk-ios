@@ -21,6 +21,7 @@
  */
 
 #import <AVFoundation/AVFoundation.h>
+#import <ContactsUI/ContactsUI.h>
 #import <QuickLook/QuickLook.h>
 
 #import <NCCommunication/NCCommunication.h>
@@ -85,7 +86,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionOpenFileInNextcloud
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -1013,6 +1014,13 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     }];
     [shareLocationAction setValue:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
+    UIAlertAction *contactShareAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Contact", nil)
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^void (UIAlertAction *action) {
+        [self presentShareContact];
+    }];
+    [contactShareAction setValue:[[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    
     UIAlertAction *filesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Files", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^void (UIAlertAction *action) {
@@ -1035,6 +1043,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
         [optionsActionSheet addAction:shareLocationAction];
     }
+    [optionsActionSheet addAction:contactShareAction];
     [optionsActionSheet addAction:filesAction];
     [optionsActionSheet addAction:ncFilesAction];
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
@@ -1113,6 +1122,13 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     shareLocationVC.delegate = self;
     NCNavigationController *shareLocationNC = [[NCNavigationController alloc] initWithRootViewController:shareLocationVC];
     [self presentViewController:shareLocationNC animated:YES completion:nil];
+}
+
+- (void)presentShareContact
+{
+    CNContactPickerViewController *contactPicker = [[CNContactPickerViewController alloc] init];
+    contactPicker.delegate = self;
+    [self presentViewController:contactPicker animated:YES completion:nil];
 }
 
 - (void)presentDocumentPicker
@@ -1302,6 +1318,46 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [viewController dismissViewControllerAnimated:YES completion:nil];
 }
 
+#pragma mark - CNContactPickerViewController Delegate
+
+- (void)contactPicker:(CNContactPickerViewController *)picker didSelectContact:(CNContact *)contact
+{
+    [self shareContact:contact];
+}
+
+#pragma mark - Contact sharing
+
+- (void)shareContact:(CNContact *)contact
+{
+    NSError* error = nil;
+    NSData* vCardData = [CNContactVCardSerialization dataWithContacts:@[contact] error:&error];
+    NSString* vcString = [[NSString alloc] initWithData:vCardData encoding:NSUTF8StringEncoding];
+    
+    if (contact.imageData) {
+        NSString* base64Image = [contact.imageData base64EncodedStringWithOptions:0];
+        NSString* vcardImageString = [[@"PHOTO;TYPE=JPEG;ENCODING=BASE64:" stringByAppendingString:base64Image] stringByAppendingString:@"\n"];
+        vcString = [vcString stringByReplacingOccurrencesOfString:@"END:VCARD" withString:[vcardImageString stringByAppendingString:@"END:VCARD"]];
+    }
+    
+    vCardData = [vcString dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *folderPath = [paths objectAtIndex:0];
+    NSString *filePath = [folderPath stringByAppendingPathComponent:@"contact.vcf"];
+    [vcString writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    NSURL *url = [NSURL fileURLWithPath:filePath];
+    
+    NSString *contactFileName = [NSString stringWithFormat:@"%@.vcf", contact.identifier];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:contactFileName originalName:YES forAccount:activeAccount withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription) {
+        if (fileServerURL && fileServerPath) {
+            [self uploadFileAtPath:url.path withFileServerURL:fileServerURL andFileServerPath:fileServerPath withMetaData:nil];
+        } else {
+            NSLog(@"Could not find unique name for voice message file.");
+        }
+    }];
+}
+
 #pragma mark - Voice messages recording
 
 - (void)showVoiceMessageRecordHint
@@ -1415,14 +1471,15 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:audioFileName originalName:YES forAccount:activeAccount withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription) {
         if (fileServerURL && fileServerPath) {
-            [self uploadAudioFileAtPath:_recorder.url.path withFileServerURL:fileServerURL andFileServerPath:fileServerPath];
+            NSDictionary *talkMetaData = @{@"messageType" : @"voice-message"};
+            [self uploadFileAtPath:_recorder.url.path withFileServerURL:fileServerURL andFileServerPath:fileServerPath withMetaData:talkMetaData];
         } else {
             NSLog(@"Could not find unique name for voice message file.");
         }
     }];
 }
 
-- (void)uploadAudioFileAtPath:(NSString *)localPath withFileServerURL:(NSString *)fileServerURL andFileServerPath:(NSString *)fileServerPath
+- (void)uploadFileAtPath:(NSString *)localPath withFileServerURL:(NSString *)fileServerURL andFileServerPath:(NSString *)fileServerPath withMetaData:(NSDictionary *)talkMetaData
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] setupNCCommunicationForAccount:activeAccount];
@@ -1434,7 +1491,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         NSLog(@"Upload completed with error code: %ld", (long)errorCode);
 
         if (errorCode == 0) {
-            NSDictionary *talkMetaData = @{@"messageType" : @"voice-message"};
             [[NCAPIController sharedInstance] shareFileOrFolderForAccount:activeAccount atPath:fileServerPath toRoom:self->_room.token talkMetaData:talkMetaData withCompletionBlock:^(NSError *error) {
                 if (error) {
                     NSLog(@"Failed to share voice message");
@@ -1443,7 +1499,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         } else if (errorCode == 404 || errorCode == 409) {
             [[NCAPIController sharedInstance] checkOrCreateAttachmentFolderForAccount:activeAccount withCompletionBlock:^(BOOL created, NSInteger errorCode) {
                 if (created) {
-                    [self uploadAudioFileAtPath:localPath withFileServerURL:fileServerURL andFileServerPath:fileServerPath];
+                    [self uploadFileAtPath:localPath withFileServerURL:fileServerURL andFileServerPath:fileServerPath withMetaData:talkMetaData];
                 } else {
                     NSLog(@"Failed to check or create attachment folder");
                 }
