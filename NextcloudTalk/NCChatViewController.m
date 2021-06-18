@@ -1019,7 +1019,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                                                                handler:^void (UIAlertAction *action) {
         [self presentShareContact];
     }];
-    [contactShareAction setValue:[[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [contactShareAction setValue:[[UIImage imageNamed:@"contact"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
     UIAlertAction *filesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Files", nil)
                                                           style:UIAlertActionStyleDefault
