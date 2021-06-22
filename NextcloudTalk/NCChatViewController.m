@@ -2092,6 +2092,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             // Remove unread messages separator when user writes a message
             if (newMessagesContainUserMessage) {
                 [self removeUnreadMessagesSeparator];
+                indexPathUnreadMessageSeparator = nil;
                 // Update last message index path
                 lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
             }
