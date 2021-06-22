@@ -418,6 +418,18 @@
                                           }
                                       }];
             }
+            // Check if vcard
+            if ([itemProvider hasItemConformingToTypeIdentifier:(NSString *)kUTTypeVCard]) {
+                [itemProvider loadItemForTypeIdentifier:(NSString *)kUTTypeVCard
+                                                options:nil
+                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                                          if ([(NSObject *)item isKindOfClass:[NSData class]]) {
+                                              NSLog(@"Shared Contact = %@", item);
+                                              NSData *contactData = (NSData *)item;
+                                              [shareConfirmationVC.shareItemController addItemWithContactData:contactData];
+                                          }
+                                      }];
+            }
         }];
     }];
 }

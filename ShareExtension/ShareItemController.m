@@ -154,6 +154,27 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
     return image;
 }
 
+- (void)addItemWithContactData:(NSData *)data
+{
+    NSString *vCardFileName = [NSString stringWithFormat:@"Contact_%.f.vcf", [[NSDate date] timeIntervalSince1970] * 1000];
+    [self addItemWithContactDataAndName:data withName:vCardFileName];
+}
+
+- (void)addItemWithContactDataAndName:(NSData *)data withName:(NSString *)vCardFileName
+{
+    NSURL *fileLocalURL = [self getFileLocalURL:vCardFileName];
+    NSString* vcString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+    [vcString writeToFile:fileLocalURL.path atomically:YES encoding:NSUTF8StringEncoding error:nil];
+        
+    NSLog(@"Adding shareItem with contact: %@ %@", vCardFileName, fileLocalURL);
+    
+    ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:vCardFileName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:YES];
+
+    [self.shareItems addObject:item];
+    [self.delegate shareItemControllerItemsChanged:self];
+}
+
 - (void)updateItem:(ShareItem *)item withURL:(NSURL *)fileURL
 {
     // This is called when an item was edited in quicklook and we want to use the edited image
