@@ -31,11 +31,11 @@
                             SUBQUERY (
                                 $extensionItem.attachments,
                                 $attachment,
-                                ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.image&quot; ||
-                                ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.video&quot; ||
-                                ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.url&quot; ||
-                                ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.plain-text&quot; ||
-                                ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.vcard&quot;
+                                ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.image" ||
+                                ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.video" ||
+                                ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.url" ||
+                                ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.plain-text" ||
+                                ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.vcard"
                                 ).@count &lt;= 5
                             ).@count == 1</string>
 		</dict>
