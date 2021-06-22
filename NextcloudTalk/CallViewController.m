@@ -1073,7 +1073,9 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)toggleChatView
 {
     if (!_chatNavigationController) {
-        _chatViewController = [[NCChatViewController alloc] initForRoom:_room];
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:_room.token forAccountId:activeAccount.accountId];
+        _chatViewController = [[NCChatViewController alloc] initForRoom:room];
         _chatViewController.presentedInCall = YES;
         _chatNavigationController = [[UINavigationController alloc] initWithRootViewController:_chatViewController];
         [self addChildViewController:_chatNavigationController];

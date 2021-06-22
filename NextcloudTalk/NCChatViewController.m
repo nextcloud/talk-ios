@@ -427,6 +427,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     [super viewWillDisappear:animated];
     
     [self savePendingMessage];
+    [self saveLastReadMessage];
     [self stopVoiceMessagePlayer];
     
     _isVisible = NO;
@@ -2566,6 +2567,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     _room.pendingMessage = self.textView.text;
     [[NCRoomsManager sharedInstance] updatePendingMessage:_room.pendingMessage forRoom:_room];
+}
+
+- (void)saveLastReadMessage
+{
+    [[NCRoomsManager sharedInstance] updateLastReadMessage:_lastReadMessage forRoom:_room];
 }
 
 #pragma mark - Autocompletion
