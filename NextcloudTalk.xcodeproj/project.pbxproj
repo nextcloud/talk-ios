@@ -566,6 +566,8 @@
 		2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIBarButtonItem+Badge.m"; sourceTree = "<group>"; };
 		2C92195A1F58530B008AC1A3 /* UIImageView+Letters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+Letters.h"; sourceTree = "<group>"; };
 		2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+Letters.m"; sourceTree = "<group>"; };
+		2C928BD2268A06BB00729332 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
+		2C928BD3268A06BB00729332 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2C98F77721622445001A6A73 /* RoomSearchTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomSearchTableViewController.h; sourceTree = "<group>"; };
 		2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomSearchTableViewController.m; sourceTree = "<group>"; };
 		2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomTableViewCell.xib; sourceTree = "<group>"; };
@@ -1529,6 +1531,7 @@
 				el,
 				"zh-Hans",
 				gl,
+				cs,
 			);
 			mainGroup = 2C0574741EDD9E8E00D9E7F2;
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
@@ -2022,6 +2025,7 @@
 				2C604A3D25E4569F00F23615 /* el */,
 				2C604A4125E45A9400F23615 /* zh-Hans */,
 				2C604A4325E45BAE00F23615 /* gl */,
+				2C928BD3268A06BB00729332 /* cs */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -2043,6 +2047,7 @@
 				2C604A3C25E4569F00F23615 /* el */,
 				2C604A4025E45A9400F23615 /* zh-Hans */,
 				2C604A4225E45BAE00F23615 /* gl */,
+				2C928BD2268A06BB00729332 /* cs */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
