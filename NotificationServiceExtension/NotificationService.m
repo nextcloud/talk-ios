@@ -103,7 +103,7 @@
                     // Update unread notifications counter for push notification account
                     [realm beginWriteTransaction];
                     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
-                    TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+                    TalkAccount *managedAccount = [TalkAccount objectsInRealm:realm withPredicate:query].firstObject;
                     managedAccount.unreadBadgeNumber += 1;
                     managedAccount.unreadNotification = (managedAccount.active) ? NO : YES;
                     [realm commitWriteTransaction];
