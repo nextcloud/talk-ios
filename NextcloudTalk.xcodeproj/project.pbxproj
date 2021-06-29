@@ -575,7 +575,6 @@
 		2C928BD8268A0BC000729332 /* eu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = eu; path = eu.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2C928BD9268A0BC000729332 /* eu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = eu; path = eu.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2C928BDA268A103600729332 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
-		2C928BDB268A103600729332 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2C98F77721622445001A6A73 /* RoomSearchTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomSearchTableViewController.h; sourceTree = "<group>"; };
 		2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomSearchTableViewController.m; sourceTree = "<group>"; };
 		2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomTableViewCell.xib; sourceTree = "<group>"; };
