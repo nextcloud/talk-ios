@@ -654,11 +654,20 @@ typedef enum FileAction {
 
 - (void)resendInvitations
 {
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:kPublicActionResendInvitations inSection:kRoomInfoSectionPublic];
+    [self resendInvitationToParticipant:nil fromIndexPath:indexPath];
+}
+
+- (void)resendInvitationToParticipant:(NSString *)participant fromIndexPath:(NSIndexPath *)indexPath
+{
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] resendInvitationToParticipant:nil inRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] resendInvitationToParticipant:participant inRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
-            [self.view makeToast:NSLocalizedString(@"Invitations resent", nil) duration:1.5 position:CSToastPositionCenter];
+            NSString *toastText = participant ? NSLocalizedString(@"Invitation resent", nil) : NSLocalizedString(@"Invitations resent", nil);
+            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+            CGPoint toastPosition = CGPointMake(cell.center.x, cell.center.y);
+            [self.view makeToast:toastText duration:1.5 position:@(toastPosition)];
         } else {
             NSLog(@"Error resending email invitations: %@", error.description);
             [self.tableView reloadData];
@@ -940,6 +949,16 @@ typedef enum FileAction {
                                                                    }];
         [promoteToModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:promoteToModerator];
+    }
+    
+    if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
+        UIAlertAction *resendInvitation = [UIAlertAction actionWithTitle:NSLocalizedString(@"Resend invitation", nil)
+                                                                   style:UIAlertActionStyleDefault
+                                                                 handler:^void (UIAlertAction *action) {
+                                                                    [self resendInvitationToParticipant:[NSString stringWithFormat:@"%ld", (long)participant.attendeeId] fromIndexPath:indexPath];
+                                                                }];
+        [resendInvitation setValue:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [optionsActionSheet addAction:resendInvitation];
     }
     
     // Remove participant
@@ -1515,7 +1534,7 @@ typedef enum FileAction {
             cell.labelTitle.text = participant.displayName;
             
             // Avatar
-            if ([participant.actorType isEqualToString:@"emails"]) {
+            if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
                 [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
             } else if (participant.participantType == kNCParticipantTypeGuest) {
                 UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
