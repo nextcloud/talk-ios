@@ -30,6 +30,12 @@ typedef enum NCParticipantType {
     kNCParticipantTypeUserSelfJoined
 } NCParticipantType;
 
+extern NSString * const NCAttendeeTypeUser;
+extern NSString * const NCAttendeeTypeGroup;
+extern NSString * const NCAttendeeTypeCircle;
+extern NSString * const NCAttendeeTypeGuest;
+extern NSString * const NCAttendeeTypeEmail;
+
 @interface NCRoomParticipant : NSObject
 
 @property (nonatomic, assign) NSInteger attendeeId;

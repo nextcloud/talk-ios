@@ -24,6 +24,12 @@
 
 #import "CallConstants.h"
 
+NSString * const NCAttendeeTypeUser     = @"users";
+NSString * const NCAttendeeTypeGroup    = @"groups";
+NSString * const NCAttendeeTypeCircle   = @"circles";
+NSString * const NCAttendeeTypeGuest    = @"guests";
+NSString * const NCAttendeeTypeEmail    = @"emails";
+
 @implementation NCRoomParticipant
 
 + (instancetype)participantWithDictionary:(NSDictionary *)participantDict

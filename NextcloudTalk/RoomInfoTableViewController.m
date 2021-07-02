@@ -26,6 +26,7 @@
 
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
+#import "UIView+Toast.h"
 
 #import "AddParticipantsTableViewController.h"
 #import "ContactsTableViewCell.h"
@@ -60,7 +61,8 @@ typedef enum RoomAction {
 
 typedef enum PublicAction {
     kPublicActionPublicToggle = 0,
-    kPublicActionPassword
+    kPublicActionPassword,
+    kPublicActionResendInvitations
 } PublicAction;
 
 typedef enum WebinarAction {
@@ -79,6 +81,7 @@ typedef enum ModificationError {
     kModificationErrorNotifications,
     kModificationErrorShare,
     kModificationErrorPassword,
+    kModificationErrorResendInvitations,
     kModificationErrorLobby,
     kModificationErrorModeration,
     kModificationErrorRemove,
@@ -318,6 +321,10 @@ typedef enum FileAction {
     if (_room.isPublic) {
         [actions addObject:[NSNumber numberWithInt:kPublicActionPassword]];
     }
+    // Resend invitations
+    if (_room.isPublic && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySIPSupport]) {
+        [actions addObject:[NSNumber numberWithInt:kPublicActionResendInvitations]];
+    }
     return [NSArray arrayWithArray:actions];
 }
 
@@ -393,6 +400,10 @@ typedef enum FileAction {
             
         case kModificationErrorPassword:
             errorDescription = NSLocalizedString(@"Could not change password protection settings", nil);
+            break;
+            
+        case kModificationErrorResendInvitations:
+            errorDescription = NSLocalizedString(@"Could not resend email invitations", nil);
             break;
             
         case kModificationErrorLobby:
@@ -639,6 +650,30 @@ typedef enum FileAction {
     [passwordDialog addAction:cancelAction];
     
     [self presentViewController:passwordDialog animated:YES completion:nil];
+}
+
+- (void)resendInvitations
+{
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:kPublicActionResendInvitations inSection:kRoomInfoSectionPublic];
+    [self resendInvitationToParticipant:nil fromIndexPath:indexPath];
+}
+
+- (void)resendInvitationToParticipant:(NSString *)participant fromIndexPath:(NSIndexPath *)indexPath
+{
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] resendInvitationToParticipant:participant inRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            NSString *toastText = participant ? NSLocalizedString(@"Invitation resent", nil) : NSLocalizedString(@"Invitations resent", nil);
+            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+            CGPoint toastPosition = CGPointMake(cell.center.x, cell.center.y);
+            [self.view makeToast:toastText duration:1.5 position:@(toastPosition)];
+        } else {
+            NSLog(@"Error resending email invitations: %@", error.description);
+            [self.tableView reloadData];
+            [self showRoomModificationError:kModificationErrorResendInvitations];
+        }
+    }];
 }
 
 - (void)makeRoomPublic
@@ -914,6 +949,16 @@ typedef enum FileAction {
                                                                    }];
         [promoteToModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:promoteToModerator];
+    }
+    
+    if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
+        UIAlertAction *resendInvitation = [UIAlertAction actionWithTitle:NSLocalizedString(@"Resend invitation", nil)
+                                                                   style:UIAlertActionStyleDefault
+                                                                 handler:^void (UIAlertAction *action) {
+                                                                    [self resendInvitationToParticipant:[NSString stringWithFormat:@"%ld", (long)participant.attendeeId] fromIndexPath:indexPath];
+                                                                }];
+        [resendInvitation setValue:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [optionsActionSheet addAction:resendInvitation];
     }
     
     // Remove participant
@@ -1211,6 +1256,7 @@ typedef enum FileAction {
     static NSString *notificationLevelCellIdentifier = @"NotificationLevelCellIdentifier";
     static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
     static NSString *passwordCellIdentifier = @"PasswordCellIdentifier";
+    static NSString *resendInvitationsCellIdentifier = @"ResendInvitationsCellIdentifier";
     static NSString *sendLinkCellIdentifier = @"SendLinkCellIdentifier";
     static NSString *previewFileCellIdentifier = @"PreviewFileCellIdentifier";
     static NSString *openFileCellIdentifier = @"OpenFileCellIdentifier";
@@ -1413,6 +1459,23 @@ typedef enum FileAction {
                     return cell;
                 }
                     break;
+                    
+                case kPublicActionResendInvitations:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:resendInvitationsCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:resendInvitationsCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Resend invitations", nil);
+                    
+                    UIImage *nextcloudActionImage = [[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+                    [cell.imageView setImage:nextcloudActionImage];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    
+                    return cell;
+                }
+                    break;
             }
         }
             break;
@@ -1471,7 +1534,7 @@ typedef enum FileAction {
             cell.labelTitle.text = participant.displayName;
             
             // Avatar
-            if ([participant.actorType isEqualToString:@"emails"]) {
+            if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
                 [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
             } else if (participant.participantType == kNCParticipantTypeGuest) {
                 UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
@@ -1600,6 +1663,9 @@ typedef enum FileAction {
             switch (action) {
                 case kPublicActionPassword:
                     [self showPasswordOptions];
+                    break;
+                case kPublicActionResendInvitations:
+                    [self resendInvitations];
                     break;
                 default:
                     break;
