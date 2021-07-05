@@ -66,6 +66,11 @@ NSString * const NCAttendeeTypeEmail    = @"emails";
     return _participantType == kNCParticipantTypeOwner || _participantType == kNCParticipantTypeModerator || _participantType == kNCParticipantTypeGuestModerator;
 }
 
+- (BOOL)isGuest
+{
+    return _participantType == kNCParticipantTypeGuest || _participantType == kNCParticipantTypeGuestModerator;
+}
+
 - (BOOL)isOffline
 {
     return ([_sessionId isEqualToString:@"0"] || [_sessionId isEqualToString:@""] || !_sessionId) && _sessionIds.count == 0;
@@ -77,16 +82,23 @@ NSString * const NCAttendeeTypeEmail    = @"emails";
     if (_actorId) {
         return _actorId;
     }
-    return (_participantType == kNCParticipantTypeGuest) ? _sessionId : _userId;
+    return (self.isGuest) ? _sessionId : _userId;
 }
 
 - (NSString *)displayName
 {
+    NSString *displayNameString = _displayName;
+    // Moderator label
     if (self.canModerate) {
         NSString *moderatorString = NSLocalizedString(@"moderator", nil);
-        return [NSString stringWithFormat:@"%@ (%@)", _displayName, moderatorString];
+        displayNameString = [NSString stringWithFormat:@"%@ (%@)", displayNameString, moderatorString];
     }
-    return _displayName;
+    // Guest label
+    if (self.isGuest) {
+        NSString *guestString = NSLocalizedString(@"guest", nil);
+        displayNameString = [NSString stringWithFormat:@"%@ (%@)", displayNameString, guestString];
+    }
+    return displayNameString;
 }
 
 - (NSString *)callIconImageName

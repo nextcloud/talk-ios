@@ -656,8 +656,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                 return online2 - online1;
             }
             
-            BOOL guest1 = first.participantType == kNCParticipantTypeGuest;
-            BOOL guest2 = second.participantType == kNCParticipantTypeGuest;
+            BOOL guest1 = first.isGuest;
+            BOOL guest2 = second.isGuest;
             if (guest1 != guest2) {
                 return guest1 - guest2;
             }
