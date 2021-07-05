@@ -962,7 +962,8 @@ typedef enum FileAction {
     }
     
     // Remove participant
-    UIAlertAction *removeParticipant = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove participant", nil)
+    NSString *title = participant.isGroup ? NSLocalizedString(@"Remove group and members", nil) : NSLocalizedString(@"Remove participant", nil);
+    UIAlertAction *removeParticipant = [UIAlertAction actionWithTitle:title
                                                                 style:UIAlertActionStyleDestructive
                                                               handler:^void (UIAlertAction *action) {
                                                                   [self removeParticipant:participant];
@@ -1536,6 +1537,8 @@ typedef enum FileAction {
             // Avatar
             if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
                 [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
+            } else if (participant.isGroup) {
+                [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
             } else if (participant.isGuest) {
                 UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
                 NSString *avatarName = ([participant.displayName isEqualToString:@""]) ? @"?" : participant.displayName;

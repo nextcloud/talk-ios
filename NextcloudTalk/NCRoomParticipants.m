@@ -71,6 +71,11 @@ NSString * const NCAttendeeTypeEmail    = @"emails";
     return _participantType == kNCParticipantTypeGuest || _participantType == kNCParticipantTypeGuestModerator;
 }
 
+- (BOOL)isGroup
+{
+    return [_actorType isEqualToString:NCAttendeeTypeGroup];
+}
+
 - (BOOL)isOffline
 {
     return ([_sessionId isEqualToString:@"0"] || [_sessionId isEqualToString:@""] || !_sessionId) && _sessionIds.count == 0;
