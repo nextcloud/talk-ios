@@ -63,7 +63,7 @@ NSString * const NCAttendeeTypeEmail    = @"emails";
 
 - (BOOL)canModerate
 {
-    return _participantType == kNCParticipantTypeOwner || _participantType == kNCParticipantTypeModerator;
+    return _participantType == kNCParticipantTypeOwner || _participantType == kNCParticipantTypeModerator || _participantType == kNCParticipantTypeGuestModerator;
 }
 
 - (BOOL)isOffline

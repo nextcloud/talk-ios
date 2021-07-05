@@ -27,7 +27,8 @@ typedef enum NCParticipantType {
     kNCParticipantTypeModerator,
     kNCParticipantTypeUser,
     kNCParticipantTypeGuest,
-    kNCParticipantTypeUserSelfJoined
+    kNCParticipantTypeUserSelfJoined,
+    kNCParticipantTypeGuestModerator
 } NCParticipantType;
 
 extern NSString * const NCAttendeeTypeUser;
