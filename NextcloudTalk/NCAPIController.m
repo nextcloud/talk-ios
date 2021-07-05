@@ -635,19 +635,20 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         }
         
         // Sort participants by:
-        // - Moderators first
+        // - Participants before groups
         // - Online status
-        // - Users > Guests
+        // - In call
+        // - Type (moderators before normal participants)
         // - Alphabetic
         NSSortDescriptor *alphabeticSorting = [[NSSortDescriptor alloc] initWithKey:@"displayName" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
         NSSortDescriptor *customSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
             NCRoomParticipant *first = (NCRoomParticipant*)obj1;
             NCRoomParticipant *second = (NCRoomParticipant*)obj2;
             
-            BOOL moderator1 = first.canModerate;
-            BOOL moderator2 = second.canModerate;
-            if (moderator1 != moderator2) {
-                return moderator2 - moderator1;
+            BOOL group1 = first.isGroup;
+            BOOL group2 = second.isGroup;
+            if (group1 != group2) {
+                return group1 - group2;
             }
             
             BOOL online1 = !first.isOffline;
@@ -656,10 +657,16 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                 return online2 - online1;
             }
             
-            BOOL guest1 = first.participantType == kNCParticipantTypeGuest;
-            BOOL guest2 = second.participantType == kNCParticipantTypeGuest;
-            if (guest1 != guest2) {
-                return guest1 - guest2;
+            BOOL inCall1 = first.inCall > 0;
+            BOOL inCall2 = second.inCall > 0;
+            if (inCall1 != inCall2) {
+                return inCall2 - inCall1;
+            }
+            
+            BOOL moderator1 = first.canModerate;
+            BOOL moderator2 = second.canModerate;
+            if (moderator1 != moderator2) {
+                return moderator2 - moderator1;
             }
             
             return NSOrderedSame;

@@ -23,12 +23,15 @@
 #import "NCRoomParticipant.h"
 
 #import "CallConstants.h"
+#import "NCDatabaseManager.h"
 
 NSString * const NCAttendeeTypeUser     = @"users";
 NSString * const NCAttendeeTypeGroup    = @"groups";
 NSString * const NCAttendeeTypeCircle   = @"circles";
 NSString * const NCAttendeeTypeGuest    = @"guests";
 NSString * const NCAttendeeTypeEmail    = @"emails";
+
+NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
 
 @implementation NCRoomParticipant
 
@@ -63,7 +66,36 @@ NSString * const NCAttendeeTypeEmail    = @"emails";
 
 - (BOOL)canModerate
 {
-    return _participantType == kNCParticipantTypeOwner || _participantType == kNCParticipantTypeModerator;
+    return _participantType == kNCParticipantTypeOwner || _participantType == kNCParticipantTypeModerator || _participantType == kNCParticipantTypeGuestModerator;
+}
+
+- (BOOL)canBePromoted
+{
+    // In Talk 5 guest moderators were introduced
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityInviteGroupsAndMails]) {
+        return !self.canModerate && ! self.isGroup && !self.isBridgeBotUser;
+    }
+    return _participantType == kNCParticipantTypeUser;
+}
+
+- (BOOL)canBeDemoted
+{
+    return _participantType == kNCParticipantTypeModerator || _participantType == kNCParticipantTypeGuestModerator;
+}
+
+- (BOOL)isBridgeBotUser
+{
+    return [_actorType isEqualToString:NCAttendeeTypeUser] && [_actorId isEqualToString:NCAttendeeBridgeBotId];
+}
+
+- (BOOL)isGuest
+{
+    return _participantType == kNCParticipantTypeGuest || _participantType == kNCParticipantTypeGuestModerator;
+}
+
+- (BOOL)isGroup
+{
+    return [_actorType isEqualToString:NCAttendeeTypeGroup];
 }
 
 - (BOOL)isOffline
@@ -77,16 +109,35 @@ NSString * const NCAttendeeTypeEmail    = @"emails";
     if (_actorId) {
         return _actorId;
     }
-    return (_participantType == kNCParticipantTypeGuest) ? _sessionId : _userId;
+    return (self.isGuest) ? _sessionId : _userId;
 }
 
-- (NSString *)displayName
+- (NSString *)detailedName
 {
+    NSString *detailedNameString = _displayName;
+    if ([_displayName isEqualToString:@""]) {
+        if (self.isGuest) {
+            detailedNameString = NSLocalizedString(@"Guest", nil);
+        } else {
+            detailedNameString = NSLocalizedString(@"[Unknown username]", nil);
+        }
+    }
+    // Moderator label
     if (self.canModerate) {
         NSString *moderatorString = NSLocalizedString(@"moderator", nil);
-        return [NSString stringWithFormat:@"%@ (%@)", _displayName, moderatorString];
+        detailedNameString = [NSString stringWithFormat:@"%@ (%@)", detailedNameString, moderatorString];
     }
-    return _displayName;
+    // Bridge bot label
+    if (self.isBridgeBotUser) {
+        NSString *botString = NSLocalizedString(@"bot", nil);
+        detailedNameString = [NSString stringWithFormat:@"%@ (%@)", detailedNameString, botString];
+    }
+    // Guest label
+    if (self.isGuest) {
+        NSString *guestString = NSLocalizedString(@"guest", nil);
+        detailedNameString = [NSString stringWithFormat:@"%@ (%@)", detailedNameString, guestString];
+    }
+    return detailedNameString;
 }
 
 - (NSString *)callIconImageName

@@ -27,7 +27,8 @@ typedef enum NCParticipantType {
     kNCParticipantTypeModerator,
     kNCParticipantTypeUser,
     kNCParticipantTypeGuest,
-    kNCParticipantTypeUserSelfJoined
+    kNCParticipantTypeUserSelfJoined,
+    kNCParticipantTypeGuestModerator
 } NCParticipantType;
 
 extern NSString * const NCAttendeeTypeUser;
@@ -35,6 +36,8 @@ extern NSString * const NCAttendeeTypeGroup;
 extern NSString * const NCAttendeeTypeCircle;
 extern NSString * const NCAttendeeTypeGuest;
 extern NSString * const NCAttendeeTypeEmail;
+
+extern NSString * const NCAttendeeBridgeBotId;
 
 @interface NCRoomParticipant : NSObject
 
@@ -53,7 +56,13 @@ extern NSString * const NCAttendeeTypeEmail;
 
 + (instancetype)participantWithDictionary:(NSDictionary *)userDict;
 - (BOOL)canModerate;
+- (BOOL)canBePromoted;
+- (BOOL)canBeDemoted;
+- (BOOL)isBridgeBotUser;
+- (BOOL)isGuest;
+- (BOOL)isGroup;
 - (BOOL)isOffline;
+- (NSString *)detailedName;
 - (NSString *)participantId;
 
 @end

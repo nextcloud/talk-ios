@@ -929,11 +929,11 @@ typedef enum FileAction {
     NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
     
     UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:participant.displayName
+    [UIAlertController alertControllerWithTitle:participant.detailedName
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
-    if (participant.participantType == kNCParticipantTypeModerator) {
+    if (participant.canBeDemoted) {
         UIAlertAction *demoteFromModerator = [UIAlertAction actionWithTitle:NSLocalizedString(@"Demote from moderator", nil)
                                                                       style:UIAlertActionStyleDefault
                                                                     handler:^void (UIAlertAction *action) {
@@ -941,7 +941,7 @@ typedef enum FileAction {
                                                                     }];
         [demoteFromModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:demoteFromModerator];
-    } else if (participant.participantType == kNCParticipantTypeUser) {
+    } else if (participant.canBePromoted) {
         UIAlertAction *promoteToModerator = [UIAlertAction actionWithTitle:NSLocalizedString(@"Promote to moderator", nil)
                                                                      style:UIAlertActionStyleDefault
                                                                    handler:^void (UIAlertAction *action) {
@@ -962,7 +962,8 @@ typedef enum FileAction {
     }
     
     // Remove participant
-    UIAlertAction *removeParticipant = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove participant", nil)
+    NSString *title = participant.isGroup ? NSLocalizedString(@"Remove group and members", nil) : NSLocalizedString(@"Remove participant", nil);
+    UIAlertAction *removeParticipant = [UIAlertAction actionWithTitle:title
                                                                 style:UIAlertActionStyleDestructive
                                                               handler:^void (UIAlertAction *action) {
                                                                   [self removeParticipant:participant];
@@ -1031,7 +1032,7 @@ typedef enum FileAction {
             }
         }];
     } else {
-        if (participant.participantType == kNCParticipantTypeGuest) {
+        if (participant.isGuest) {
             [self setModifyingRoomUI];
             [[NCAPIController sharedInstance] removeGuest:participant.participantId fromRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
                 if (!error) {
@@ -1531,16 +1532,16 @@ typedef enum FileAction {
             }
             
             // Display name
-            cell.labelTitle.text = participant.displayName;
+            cell.labelTitle.text = participant.detailedName;
             
             // Avatar
             if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
                 [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
-            } else if (participant.participantType == kNCParticipantTypeGuest) {
+            } else if (participant.isGroup) {
+                [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
+            } else if (participant.isGuest) {
                 UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
                 NSString *avatarName = ([participant.displayName isEqualToString:@""]) ? @"?" : participant.displayName;
-                NSString *guestName = ([participant.displayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : participant.displayName;
-                cell.labelTitle.text = guestName;
                 [cell.contactImage setImageWithString:avatarName color:guestAvatarColor circular:true];
             } else {
                 [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.participantId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
