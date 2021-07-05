@@ -23,6 +23,7 @@
 #import "NCRoomParticipant.h"
 
 #import "CallConstants.h"
+#import "NCDatabaseManager.h"
 
 NSString * const NCAttendeeTypeUser     = @"users";
 NSString * const NCAttendeeTypeGroup    = @"groups";
@@ -64,6 +65,20 @@ NSString * const NCAttendeeTypeEmail    = @"emails";
 - (BOOL)canModerate
 {
     return _participantType == kNCParticipantTypeOwner || _participantType == kNCParticipantTypeModerator || _participantType == kNCParticipantTypeGuestModerator;
+}
+
+- (BOOL)canBePromoted
+{
+    // In Talk 5 guest moderators were introduced
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityInviteGroupsAndMails]) {
+        return !self.canModerate && ! self.isGroup;
+    }
+    return _participantType == kNCParticipantTypeUser;
+}
+
+- (BOOL)canBeDemoted
+{
+    return _participantType == kNCParticipantTypeModerator || _participantType == kNCParticipantTypeGuestModerator;
 }
 
 - (BOOL)isGuest

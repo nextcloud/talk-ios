@@ -54,6 +54,8 @@ extern NSString * const NCAttendeeTypeEmail;
 
 + (instancetype)participantWithDictionary:(NSDictionary *)userDict;
 - (BOOL)canModerate;
+- (BOOL)canBePromoted;
+- (BOOL)canBeDemoted;
 - (BOOL)isGuest;
 - (BOOL)isGroup;
 - (BOOL)isOffline;

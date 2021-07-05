@@ -933,7 +933,7 @@ typedef enum FileAction {
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
-    if (participant.participantType == kNCParticipantTypeModerator) {
+    if (participant.canBeDemoted) {
         UIAlertAction *demoteFromModerator = [UIAlertAction actionWithTitle:NSLocalizedString(@"Demote from moderator", nil)
                                                                       style:UIAlertActionStyleDefault
                                                                     handler:^void (UIAlertAction *action) {
@@ -941,7 +941,7 @@ typedef enum FileAction {
                                                                     }];
         [demoteFromModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
         [optionsActionSheet addAction:demoteFromModerator];
-    } else if (participant.participantType == kNCParticipantTypeUser) {
+    } else if (participant.canBePromoted) {
         UIAlertAction *promoteToModerator = [UIAlertAction actionWithTitle:NSLocalizedString(@"Promote to moderator", nil)
                                                                      style:UIAlertActionStyleDefault
                                                                    handler:^void (UIAlertAction *action) {
