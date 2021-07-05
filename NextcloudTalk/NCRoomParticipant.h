@@ -37,6 +37,8 @@ extern NSString * const NCAttendeeTypeCircle;
 extern NSString * const NCAttendeeTypeGuest;
 extern NSString * const NCAttendeeTypeEmail;
 
+extern NSString * const NCAttendeeBridgeBotId;
+
 @interface NCRoomParticipant : NSObject
 
 @property (nonatomic, assign) NSInteger attendeeId;
@@ -56,6 +58,7 @@ extern NSString * const NCAttendeeTypeEmail;
 - (BOOL)canModerate;
 - (BOOL)canBePromoted;
 - (BOOL)canBeDemoted;
+- (BOOL)isBridgeBotUser;
 - (BOOL)isGuest;
 - (BOOL)isGroup;
 - (BOOL)isOffline;

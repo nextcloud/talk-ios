@@ -31,6 +31,8 @@ NSString * const NCAttendeeTypeCircle   = @"circles";
 NSString * const NCAttendeeTypeGuest    = @"guests";
 NSString * const NCAttendeeTypeEmail    = @"emails";
 
+NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
+
 @implementation NCRoomParticipant
 
 + (instancetype)participantWithDictionary:(NSDictionary *)participantDict
@@ -71,7 +73,7 @@ NSString * const NCAttendeeTypeEmail    = @"emails";
 {
     // In Talk 5 guest moderators were introduced
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityInviteGroupsAndMails]) {
-        return !self.canModerate && ! self.isGroup;
+        return !self.canModerate && ! self.isGroup && !self.isBridgeBotUser;
     }
     return _participantType == kNCParticipantTypeUser;
 }
@@ -79,6 +81,11 @@ NSString * const NCAttendeeTypeEmail    = @"emails";
 - (BOOL)canBeDemoted
 {
     return _participantType == kNCParticipantTypeModerator || _participantType == kNCParticipantTypeGuestModerator;
+}
+
+- (BOOL)isBridgeBotUser
+{
+    return [_actorType isEqualToString:NCAttendeeTypeUser] && [_actorId isEqualToString:NCAttendeeBridgeBotId];
 }
 
 - (BOOL)isGuest
@@ -112,6 +119,11 @@ NSString * const NCAttendeeTypeEmail    = @"emails";
     if (self.canModerate) {
         NSString *moderatorString = NSLocalizedString(@"moderator", nil);
         displayNameString = [NSString stringWithFormat:@"%@ (%@)", displayNameString, moderatorString];
+    }
+    // Bridge bot label
+    if (self.isBridgeBotUser) {
+        NSString *botString = NSLocalizedString(@"bot", nil);
+        displayNameString = [NSString stringWithFormat:@"%@ (%@)", displayNameString, botString];
     }
     // Guest label
     if (self.isGuest) {
