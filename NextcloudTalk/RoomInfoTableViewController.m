@@ -929,7 +929,7 @@ typedef enum FileAction {
     NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
     
     UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:participant.displayName
+    [UIAlertController alertControllerWithTitle:participant.detailedName
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
@@ -1532,7 +1532,7 @@ typedef enum FileAction {
             }
             
             // Display name
-            cell.labelTitle.text = participant.displayName;
+            cell.labelTitle.text = participant.detailedName;
             
             // Avatar
             if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
@@ -1542,8 +1542,6 @@ typedef enum FileAction {
             } else if (participant.isGuest) {
                 UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
                 NSString *avatarName = ([participant.displayName isEqualToString:@""]) ? @"?" : participant.displayName;
-                NSString *guestName = ([participant.displayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : participant.displayName;
-                cell.labelTitle.text = guestName;
                 [cell.contactImage setImageWithString:avatarName color:guestAvatarColor circular:true];
             } else {
                 [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.participantId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]

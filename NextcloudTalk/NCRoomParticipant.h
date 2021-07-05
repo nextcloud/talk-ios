@@ -62,6 +62,7 @@ extern NSString * const NCAttendeeBridgeBotId;
 - (BOOL)isGuest;
 - (BOOL)isGroup;
 - (BOOL)isOffline;
+- (NSString *)detailedName;
 - (NSString *)participantId;
 
 @end

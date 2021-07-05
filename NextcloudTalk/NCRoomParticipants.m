@@ -112,25 +112,28 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
     return (self.isGuest) ? _sessionId : _userId;
 }
 
-- (NSString *)displayName
+- (NSString *)detailedName
 {
-    NSString *displayNameString = _displayName;
+    NSString *detailedNameString = _displayName;
+    if ([_displayName isEqualToString:@""] && self.isGuest) {
+        detailedNameString = NSLocalizedString(@"Guest", nil);
+    }
     // Moderator label
     if (self.canModerate) {
         NSString *moderatorString = NSLocalizedString(@"moderator", nil);
-        displayNameString = [NSString stringWithFormat:@"%@ (%@)", displayNameString, moderatorString];
+        detailedNameString = [NSString stringWithFormat:@"%@ (%@)", detailedNameString, moderatorString];
     }
     // Bridge bot label
     if (self.isBridgeBotUser) {
         NSString *botString = NSLocalizedString(@"bot", nil);
-        displayNameString = [NSString stringWithFormat:@"%@ (%@)", displayNameString, botString];
+        detailedNameString = [NSString stringWithFormat:@"%@ (%@)", detailedNameString, botString];
     }
     // Guest label
     if (self.isGuest) {
         NSString *guestString = NSLocalizedString(@"guest", nil);
-        displayNameString = [NSString stringWithFormat:@"%@ (%@)", displayNameString, guestString];
+        detailedNameString = [NSString stringWithFormat:@"%@ (%@)", detailedNameString, guestString];
     }
-    return displayNameString;
+    return detailedNameString;
 }
 
 - (NSString *)callIconImageName
