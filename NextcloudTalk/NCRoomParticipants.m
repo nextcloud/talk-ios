@@ -115,8 +115,12 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
 - (NSString *)detailedName
 {
     NSString *detailedNameString = _displayName;
-    if ([_displayName isEqualToString:@""] && self.isGuest) {
-        detailedNameString = NSLocalizedString(@"Guest", nil);
+    if ([_displayName isEqualToString:@""]) {
+        if (self.isGuest) {
+            detailedNameString = NSLocalizedString(@"Guest", nil);
+        } else {
+            detailedNameString = NSLocalizedString(@"[Unknown username]", nil);
+        }
     }
     // Moderator label
     if (self.canModerate) {
