@@ -67,7 +67,8 @@ typedef enum PublicAction {
 
 typedef enum WebinarAction {
     kWebinarActionLobby = 0,
-    kWebinarActionLobbyTimer
+    kWebinarActionLobbyTimer,
+    kWebinarActionSIP
 } WebinarAction;
 
 typedef enum DestructiveAction {
@@ -83,6 +84,7 @@ typedef enum ModificationError {
     kModificationErrorPassword,
     kModificationErrorResendInvitations,
     kModificationErrorLobby,
+    kModificationErrorSIP,
     kModificationErrorModeration,
     kModificationErrorRemove,
     kModificationErrorLeave,
@@ -106,6 +108,7 @@ typedef enum FileAction {
 @property (nonatomic, strong) UITextField *roomNameTextField;
 @property (nonatomic, strong) UISwitch *publicSwtich;
 @property (nonatomic, strong) UISwitch *lobbySwtich;
+@property (nonatomic, strong) UISwitch *sipSwtich;
 @property (nonatomic, strong) UIDatePicker *lobbyDatePicker;
 @property (nonatomic, strong) UITextField *lobbyDateTextField;
 @property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
@@ -162,6 +165,9 @@ typedef enum FileAction {
     
     _lobbySwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_lobbySwtich addTarget: self action: @selector(lobbyValueChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    _sipSwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_sipSwtich addTarget: self action: @selector(sipValueChanged:) forControlEvents:UIControlEventValueChanged];
     
     _lobbyDatePicker = [[UIDatePicker alloc] init];
     _lobbyDatePicker.datePickerMode = UIDatePickerModeDateAndTime;
@@ -337,6 +343,10 @@ typedef enum FileAction {
     if (_room.lobbyState == NCRoomLobbyStateModeratorsOnly) {
         [actions addObject:[NSNumber numberWithInt:kWebinarActionLobbyTimer]];
     }
+    // SIP toggle
+    if (_room.canEnableSIP) {
+        [actions addObject:[NSNumber numberWithInt:kWebinarActionSIP]];
+    }
     return [NSArray arrayWithArray:actions];
 }
 
@@ -408,6 +418,10 @@ typedef enum FileAction {
             
         case kModificationErrorLobby:
             errorDescription = NSLocalizedString(@"Could not change lobby state of the conversation", nil);
+            break;
+            
+        case kModificationErrorSIP:
+            errorDescription = NSLocalizedString(@"Could not change SIP state of the conversation", nil);
             break;
             
         case kModificationErrorModeration:
@@ -909,6 +923,21 @@ typedef enum FileAction {
     }
 }
 
+- (void)setSIPEnabled:(BOOL)enabled
+{
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] setSIPEnabled:enabled forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+        } else {
+            NSLog(@"Error changing SIP state in room: %@", error.description);
+            [self.tableView reloadData];
+            [self showRoomModificationError:kModificationErrorSIP];
+        }
+        self->_sipSwtich.enabled = YES;
+    }];
+}
+
 #pragma mark - Participant options
 
 - (void)addParticipantsButtonPressed
@@ -1078,6 +1107,18 @@ typedef enum FileAction {
         [self enableLobby];
     } else {
         [self disableLobby];
+    }
+}
+
+#pragma mark - SIP switch
+
+- (void)sipValueChanged:(id)sender
+{
+    _sipSwtich.enabled = NO;
+    if (_sipSwtich.on) {
+        [self setSIPEnabled:YES];
+    } else {
+        [self setSIPEnabled:NO];
     }
 }
 
@@ -1263,6 +1304,7 @@ typedef enum FileAction {
     static NSString *openFileCellIdentifier = @"OpenFileCellIdentifier";
     static NSString *lobbyCellIdentifier = @"LobbyCellIdentifier";
     static NSString *lobbyTimerCellIdentifier = @"LobbyTimerCellIdentifier";
+    static NSString *sipCellIdentifier = @"SIPCellIdentifier";
     static NSString *leaveRoomCellIdentifier = @"LeaveRoomCellIdentifier";
     static NSString *deleteRoomCellIdentifier = @"DeleteRoomCellIdentifier";
     
@@ -1516,6 +1558,23 @@ typedef enum FileAction {
                     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
                     _lobbyDateTextField.text = _room.lobbyTimer > 0 ? [NCUtils readableDateFromDate:date] : nil;
                     [cell.imageView setImage:[UIImage imageNamed:@"timer"]];
+                    
+                    return cell;
+                }
+                    break;
+                case kWebinarActionSIP:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sipCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sipCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"SIP dial-in", nil);
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _sipSwtich;
+                    _sipSwtich.on = _room.sipEnabled;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
                     return cell;
                 }
