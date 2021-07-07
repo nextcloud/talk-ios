@@ -590,6 +590,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"room/%@/webinary/lobby", encodedToken];
     NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
+    if (conversationAPIVersion >= APIv4) {
+        endpoint = [NSString stringWithFormat:@"room/%@/webinar/lobby", encodedToken];
+    }
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     NSMutableDictionary *parameters = [NSMutableDictionary new];
     [parameters setObject:@(state) forKey:@"state"];
