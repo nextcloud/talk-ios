@@ -48,6 +48,7 @@ typedef enum RoomInfoSection {
     kRoomInfoSectionActions,
     kRoomInfoSectionPublic,
     kRoomInfoSectionWebinar,
+    kRoomInfoSectionSIP,
     kRoomInfoSectionParticipants,
     kRoomInfoSectionDestructive,
     kRoomInfoSectionFile
@@ -67,8 +68,16 @@ typedef enum PublicAction {
 
 typedef enum WebinarAction {
     kWebinarActionLobby = 0,
-    kWebinarActionLobbyTimer
+    kWebinarActionLobbyTimer,
+    kWebinarActionSIP
 } WebinarAction;
+
+typedef enum SIPAction {
+    kSIPActionPhoneNumber = 0,
+    kSIPActionMeetingId,
+    kSIPActionPIN,
+    kSIPActionNumber
+} SIPAction;
 
 typedef enum DestructiveAction {
     kDestructiveActionLeave = 0,
@@ -83,6 +92,7 @@ typedef enum ModificationError {
     kModificationErrorPassword,
     kModificationErrorResendInvitations,
     kModificationErrorLobby,
+    kModificationErrorSIP,
     kModificationErrorModeration,
     kModificationErrorRemove,
     kModificationErrorLeave,
@@ -106,6 +116,7 @@ typedef enum FileAction {
 @property (nonatomic, strong) UITextField *roomNameTextField;
 @property (nonatomic, strong) UISwitch *publicSwtich;
 @property (nonatomic, strong) UISwitch *lobbySwtich;
+@property (nonatomic, strong) UISwitch *sipSwtich;
 @property (nonatomic, strong) UIDatePicker *lobbyDatePicker;
 @property (nonatomic, strong) UITextField *lobbyDateTextField;
 @property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
@@ -162,6 +173,9 @@ typedef enum FileAction {
     
     _lobbySwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_lobbySwtich addTarget: self action: @selector(lobbyValueChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    _sipSwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_sipSwtich addTarget: self action: @selector(sipValueChanged:) forControlEvents:UIControlEventValueChanged];
     
     _lobbyDatePicker = [[UIDatePicker alloc] init];
     _lobbyDatePicker.datePickerMode = UIDatePickerModeDateAndTime;
@@ -254,6 +268,10 @@ typedef enum FileAction {
             [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionWebinar]];
         }
     }
+    // SIP section
+    if (_room.sipEnabled) {
+        [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionSIP]];
+    }
     // Participants section
     [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionParticipants]];
     // Destructive actions section
@@ -337,6 +355,10 @@ typedef enum FileAction {
     if (_room.lobbyState == NCRoomLobbyStateModeratorsOnly) {
         [actions addObject:[NSNumber numberWithInt:kWebinarActionLobbyTimer]];
     }
+    // SIP toggle
+    if (_room.canEnableSIP) {
+        [actions addObject:[NSNumber numberWithInt:kWebinarActionSIP]];
+    }
     return [NSArray arrayWithArray:actions];
 }
 
@@ -408,6 +430,10 @@ typedef enum FileAction {
             
         case kModificationErrorLobby:
             errorDescription = NSLocalizedString(@"Could not change lobby state of the conversation", nil);
+            break;
+            
+        case kModificationErrorSIP:
+            errorDescription = NSLocalizedString(@"Could not change SIP state of the conversation", nil);
             break;
             
         case kModificationErrorModeration:
@@ -909,6 +935,21 @@ typedef enum FileAction {
     }
 }
 
+- (void)setSIPEnabled:(BOOL)enabled
+{
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] setSIPEnabled:enabled forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+        } else {
+            NSLog(@"Error changing SIP state in room: %@", error.description);
+            [self.tableView reloadData];
+            [self showRoomModificationError:kModificationErrorSIP];
+        }
+        self->_sipSwtich.enabled = YES;
+    }];
+}
+
 #pragma mark - Participant options
 
 - (void)addParticipantsButtonPressed
@@ -1081,6 +1122,18 @@ typedef enum FileAction {
     }
 }
 
+#pragma mark - SIP switch
+
+- (void)sipValueChanged:(id)sender
+{
+    _sipSwtich.enabled = NO;
+    if (_sipSwtich.on) {
+        [self setSIPEnabled:YES];
+    } else {
+        [self setSIPEnabled:NO];
+    }
+}
+
 #pragma mark - UIGestureRecognizer delegate
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
@@ -1157,6 +1210,10 @@ typedef enum FileAction {
             return [self getWebinarActions].count;
             break;
             
+        case kRoomInfoSectionSIP:
+            return kSIPActionNumber;
+            break;
+            
         case kRoomInfoSectionParticipants:
             return _roomParticipants.count;
             break;
@@ -1202,6 +1259,9 @@ typedef enum FileAction {
         case kRoomInfoSectionWebinar:
             return NSLocalizedString(@"Webinar", nil);
             break;
+        case kRoomInfoSectionSIP:
+            return NSLocalizedString(@"SIP dial-in", nil);
+            break;
         default:
             break;
     }
@@ -1241,6 +1301,7 @@ typedef enum FileAction {
         case kRoomInfoSectionFile:
         case kRoomInfoSectionPublic:
         case kRoomInfoSectionWebinar:
+        case kRoomInfoSectionSIP:
             return 36;
             break;
         case kRoomInfoSectionParticipants:
@@ -1263,6 +1324,10 @@ typedef enum FileAction {
     static NSString *openFileCellIdentifier = @"OpenFileCellIdentifier";
     static NSString *lobbyCellIdentifier = @"LobbyCellIdentifier";
     static NSString *lobbyTimerCellIdentifier = @"LobbyTimerCellIdentifier";
+    static NSString *sipCellIdentifier = @"SIPCellIdentifier";
+    static NSString *sipPhoneCellIdentifier = @"SIPPhoneCellIdentifier";
+    static NSString *sipMeetingIDCellIdentifier = @"SIPMeetingIDCellIdentifier";
+    static NSString *sipUserPINCellIdentifier = @"SIPUserPINCellIdentifier";
     static NSString *leaveRoomCellIdentifier = @"LeaveRoomCellIdentifier";
     static NSString *deleteRoomCellIdentifier = @"DeleteRoomCellIdentifier";
     
@@ -1520,6 +1585,74 @@ typedef enum FileAction {
                     return cell;
                 }
                     break;
+                case kWebinarActionSIP:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sipCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sipCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"SIP dial-in", nil);
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _sipSwtich;
+                    _sipSwtich.on = _room.sipEnabled;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    
+                    return cell;
+                }
+                    break;
+            }
+        }
+            break;
+        case kRoomInfoSectionSIP:
+        {
+            TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+            NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigutations] objectForKey:activeAccount.accountId];
+            switch (indexPath.row) {
+                case kSIPActionPhoneNumber:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sipPhoneCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:sipPhoneCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Phone number", nil);
+                    cell.detailTextLabel.text = [activeAccountSignalingConfig objectForKey:@"sipDialinInfo"];
+                    cell.detailTextLabel.adjustsFontSizeToFitWidth = YES;
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    
+                    return cell;
+                }
+                    break;
+                case kSIPActionMeetingId:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sipMeetingIDCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:sipMeetingIDCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Meeting ID", nil);
+                    cell.detailTextLabel.text = _room.token;
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    
+                    return cell;
+                }
+                    break;
+                case kSIPActionPIN:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sipUserPINCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:sipUserPINCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Your PIN", nil);
+                    cell.detailTextLabel.text = _room.attendeePin;
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    
+                    return cell;
+                }
+                    break;
             }
         }
             break;
@@ -1674,6 +1807,8 @@ typedef enum FileAction {
         }
             break;
         case kRoomInfoSectionWebinar:
+            break;
+        case kRoomInfoSectionSIP:
             break;
         case kRoomInfoSectionParticipants:
         {
