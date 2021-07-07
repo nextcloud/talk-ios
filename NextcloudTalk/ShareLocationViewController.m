@@ -379,7 +379,7 @@ typedef enum ShareLocationSection {
     } else if (indexPath.section == kShareLocationSectionDropPin) {
         UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"DropPinCellIdentifier"];
         [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-        cell.textLabel.text = NSLocalizedString(@"Share pin location", nil);
+        cell.textLabel.text = NSLocalizedString(@"Share pin location", @"Share the location of a pin that has been dropped in a map view");
         if (_dropPinPlacemark.thoroughfare && _dropPinPlacemark.subThoroughfare) {
             cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ %@", _dropPinPlacemark.thoroughfare, _dropPinPlacemark.subThoroughfare];
         }
