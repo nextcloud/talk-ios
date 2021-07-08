@@ -257,7 +257,7 @@ typedef enum FileAction {
     // Room name section
     [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionName]];
     // Room description section
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRoomDescription] && ![_room.roomDescription isEqualToString:@""]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRoomDescription] && _room.roomDescription && ![_room.roomDescription isEqualToString:@""]) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionDescription]];
     }
     // Room actions section
