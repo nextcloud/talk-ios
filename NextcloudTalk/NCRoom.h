@@ -61,6 +61,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, copy) NSString *token;
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *displayName;
+@property (nonatomic, copy) NSString *roomDescription;
 @property (nonatomic, assign) NCRoomType type;
 @property (nonatomic, assign) NSInteger count;
 @property (nonatomic, assign) BOOL hasPassword;
