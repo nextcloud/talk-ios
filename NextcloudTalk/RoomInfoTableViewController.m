@@ -41,10 +41,12 @@
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
+#import "RoomDescriptionTableViewCell.h"
 #import "RoomNameTableViewCell.h"
 
 typedef enum RoomInfoSection {
     kRoomInfoSectionName = 0,
+    kRoomInfoSectionDescription,
     kRoomInfoSectionActions,
     kRoomInfoSectionPublic,
     kRoomInfoSectionWebinar,
@@ -196,6 +198,7 @@ typedef enum FileAction {
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:kRoomNameTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomNameCellIdentifier];
+    [self.tableView registerNib:[UINib nibWithNibName:kRoomDescriptionTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomDescriptionCellIdentifier];
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
     tap.delegate = self;
@@ -253,6 +256,10 @@ typedef enum FileAction {
     NSMutableArray *sections = [[NSMutableArray alloc] init];
     // Room name section
     [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionName]];
+    // Room description section
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRoomDescription] && ![_room.roomDescription isEqualToString:@""]) {
+        [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionDescription]];
+    }
     // Room actions section
     [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionActions]];
     // File actions section
@@ -1236,6 +1243,9 @@ typedef enum FileAction {
         case kRoomInfoSectionName:
             return 80;
             break;
+        case kRoomInfoSectionDescription:
+            return [self heightForDescription];
+            break;
         case kRoomInfoSectionParticipants:
             return kContactsTableCellHeight;
             break;
@@ -1243,6 +1253,19 @@ typedef enum FileAction {
             break;
     }
     return 48;
+}
+
+- (CGFloat)heightForDescription
+{
+    CGFloat width = CGRectGetWidth(self.tableView.frame) - 32;
+    if (@available(iOS 11.0, *)) {
+        width -= self.tableView.safeAreaInsets.left + self.tableView.safeAreaInsets.right;
+    }
+
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:17]};
+    CGRect bodyBounds = [_room.roomDescription boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
+    
+    return bodyBounds.size.height + 22;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
@@ -1294,7 +1317,12 @@ typedef enum FileAction {
 
 - (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    switch (section) {
+    NSArray *sections = [self getRoomInfoSections];
+    RoomInfoSection infoSection = [[sections objectAtIndex:section] intValue];
+    switch (infoSection) {
+        case kRoomInfoSectionDescription:
+            return 2;
+            break;
         case kRoomInfoSectionActions:
             return 10;
             break;
@@ -1306,6 +1334,8 @@ typedef enum FileAction {
             break;
         case kRoomInfoSectionParticipants:
             return 40;
+            break;
+        default:
             break;
     }
     
@@ -1396,6 +1426,18 @@ typedef enum FileAction {
             
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
+            return cell;
+        }
+            break;
+        case kRoomInfoSectionDescription:
+        {
+            RoomDescriptionTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomDescriptionCellIdentifier];
+            if (!cell) {
+                cell = [[RoomDescriptionTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomDescriptionCellIdentifier];
+            }
+            
+            cell.textView.text = _room.roomDescription;
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
             return cell;
         }
             break;
