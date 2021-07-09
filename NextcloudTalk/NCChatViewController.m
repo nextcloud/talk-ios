@@ -171,8 +171,6 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDeletedMessage:) name:NCChatControllerDidReceiveDeletedMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
-                                                     name:@"UIDeviceProximityStateDidChangeNotification" object:nil];
     }
     
     return self;
@@ -1572,6 +1570,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)enableProximitySensor
 {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
+                                                 name:UIDeviceProximityStateDidChangeNotification object:nil];
     [[UIDevice currentDevice] setProximityMonitoringEnabled:YES];
 }
 
@@ -1581,6 +1581,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         // Only disable monitoring if proximity sensor state is not active.
         // If not proximity sensor state is cached as active and next time we enable monitoring
         // sensorStateChange won't be trigger until proximity sensor state changes to inactive.
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceProximityStateDidChangeNotification object:nil];
         [[UIDevice currentDevice] setProximityMonitoringEnabled:NO];
     }
 }
