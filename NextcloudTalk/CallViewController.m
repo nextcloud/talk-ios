@@ -139,9 +139,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     [super viewDidLoad];
     [self setCallState:CallStateJoining];
     
-    [[UIDevice currentDevice] setProximityMonitoringEnabled:YES];
-    [UIApplication sharedApplication].idleTimerDisabled = YES;
-    
     _tapGestureForDetailedView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showDetailedViewWithTimer)];
     [_tapGestureForDetailedView setNumberOfTapsRequired:1];
     
@@ -201,7 +198,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.localVideoView addGestureRecognizer:localVideoDragGesturure];
         
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
-                                                 name:@"UIDeviceProximityStateDidChangeNotification" object:nil];
+                                                 name:UIDeviceProximityStateDidChangeNotification object:nil];
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
@@ -259,6 +256,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     [super viewWillDisappear:animated];
     [[UIDevice currentDevice] setProximityMonitoringEnabled:NO];
     [UIApplication sharedApplication].idleTimerDisabled = NO;
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [[UIDevice currentDevice] setProximityMonitoringEnabled:YES];
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle
