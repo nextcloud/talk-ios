@@ -1603,6 +1603,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     if ([[UIDevice currentDevice] proximityState] == YES) {
         [self setVoiceChatAudioSession];
     } else {
+        [self pauseVoiceMessagePlayer];
         [self setSpeakerAudioSession];
     }
 }
