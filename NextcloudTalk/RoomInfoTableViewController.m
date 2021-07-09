@@ -75,7 +75,7 @@ typedef enum WebinarAction {
 } WebinarAction;
 
 typedef enum SIPAction {
-    kSIPActionPhoneNumber = 0,
+    kSIPActionSIPInfo = 0,
     kSIPActionMeetingId,
     kSIPActionPIN,
     kSIPActionNumber
@@ -1244,7 +1244,14 @@ typedef enum FileAction {
             return 80;
             break;
         case kRoomInfoSectionDescription:
-            return [self heightForDescription];
+            return [self heightForDescription:_room.roomDescription];
+            break;
+        case kRoomInfoSectionSIP:
+            if (indexPath.row == kSIPActionSIPInfo) {
+                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+                NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigutations] objectForKey:activeAccount.accountId];
+                return [self heightForDescription:[activeAccountSignalingConfig objectForKey:@"sipDialinInfo"]];
+            }
             break;
         case kRoomInfoSectionParticipants:
             return kContactsTableCellHeight;
@@ -1255,7 +1262,7 @@ typedef enum FileAction {
     return 48;
 }
 
-- (CGFloat)heightForDescription
+- (CGFloat)heightForDescription:(NSString *)description
 {
     CGFloat width = CGRectGetWidth(self.tableView.frame) - 32;
     if (@available(iOS 11.0, *)) {
@@ -1263,7 +1270,7 @@ typedef enum FileAction {
     }
 
     NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:17]};
-    CGRect bodyBounds = [_room.roomDescription boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
+    CGRect bodyBounds = [description boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
     
     return bodyBounds.size.height + 22;
 }
@@ -1355,7 +1362,6 @@ typedef enum FileAction {
     static NSString *lobbyCellIdentifier = @"LobbyCellIdentifier";
     static NSString *lobbyTimerCellIdentifier = @"LobbyTimerCellIdentifier";
     static NSString *sipCellIdentifier = @"SIPCellIdentifier";
-    static NSString *sipPhoneCellIdentifier = @"SIPPhoneCellIdentifier";
     static NSString *sipMeetingIDCellIdentifier = @"SIPMeetingIDCellIdentifier";
     static NSString *sipUserPINCellIdentifier = @"SIPUserPINCellIdentifier";
     static NSString *leaveRoomCellIdentifier = @"LeaveRoomCellIdentifier";
@@ -1649,19 +1655,16 @@ typedef enum FileAction {
             break;
         case kRoomInfoSectionSIP:
         {
-            TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-            NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigutations] objectForKey:activeAccount.accountId];
             switch (indexPath.row) {
-                case kSIPActionPhoneNumber:
+                case kSIPActionSIPInfo:
                 {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sipPhoneCellIdentifier];
+                    RoomDescriptionTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomDescriptionCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:sipPhoneCellIdentifier];
+                        cell = [[RoomDescriptionTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomDescriptionCellIdentifier];
                     }
-                    
-                    cell.textLabel.text = NSLocalizedString(@"Phone number", nil);
-                    cell.detailTextLabel.text = [activeAccountSignalingConfig objectForKey:@"sipDialinInfo"];
-                    cell.detailTextLabel.adjustsFontSizeToFitWidth = YES;
+                    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+                    NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigutations] objectForKey:activeAccount.accountId];
+                    cell.textView.text = [activeAccountSignalingConfig objectForKey:@"sipDialinInfo"];
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     
                     return cell;
@@ -1848,10 +1851,6 @@ typedef enum FileAction {
             }
         }
             break;
-        case kRoomInfoSectionWebinar:
-            break;
-        case kRoomInfoSectionSIP:
-            break;
         case kRoomInfoSectionParticipants:
         {
             NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
@@ -1866,6 +1865,8 @@ typedef enum FileAction {
             DestructiveAction action = [[actions objectAtIndex:indexPath.row] intValue];
             [self showConfirmationDialogForDestructiveAction:action];
         }
+            break;
+        default:
             break;
     }
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
