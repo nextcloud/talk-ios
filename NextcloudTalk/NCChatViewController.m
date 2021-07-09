@@ -171,6 +171,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDeletedMessage:) name:NCChatControllerDidReceiveDeletedMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
+                                                     name:@"UIDeviceProximityStateDidChangeNotification" object:nil];
     }
     
     return self;
@@ -1538,12 +1540,21 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)playVoiceMessagePlayer
 {
+    if (!_presentedInCall) {
+        [self setSpeakerAudioSession];
+        [self enableProximitySensor];
+    }
+    
     [self startVoiceMessagePlayerTimer];
     [_voiceMessagesPlayer play];
 }
 
 - (void)pauseVoiceMessagePlayer
 {
+    if (!_presentedInCall) {
+        [self disableProximitySensor];
+    }
+    
     [self stopVoiceMessagePlayerTimer];
     [_voiceMessagesPlayer pause];
     [self checkVisibleCellAudioPlayers];
@@ -1551,8 +1562,49 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)stopVoiceMessagePlayer
 {
+    if (!_presentedInCall) {
+        [self disableProximitySensor];
+    }
+    
     [self stopVoiceMessagePlayerTimer];
     [_voiceMessagesPlayer stop];
+}
+
+- (void)enableProximitySensor
+{
+    [[UIDevice currentDevice] setProximityMonitoringEnabled:YES];
+}
+
+- (void)disableProximitySensor
+{
+    [[UIDevice currentDevice] setProximityMonitoringEnabled:NO];
+}
+
+- (void)setSpeakerAudioSession
+{
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    [session setCategory:AVAudioSessionCategoryPlayback error:nil];
+    [session setActive:YES error:nil];
+}
+
+- (void)setVoiceChatAudioSession
+{
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    [session setCategory:AVAudioSessionCategoryPlayAndRecord mode:AVAudioSessionModeVoiceChat options:0 error:nil];
+    [session setActive:YES error:nil];
+}
+
+- (void)sensorStateChange:(NSNotificationCenter *)notification
+{
+    if (_presentedInCall) {
+        return;
+    }
+    
+    if ([[UIDevice currentDevice] proximityState] == YES) {
+        [self setVoiceChatAudioSession];
+    } else {
+        [self setSpeakerAudioSession];
+    }
 }
 
 - (void)checkVisibleCellAudioPlayers
@@ -1589,6 +1641,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 {
     [self stopVoiceMessagePlayerTimer];
     [self checkVisibleCellAudioPlayers];
+    [self disableProximitySensor];
 }
 
 #pragma mark - Gesture recognizer
