@@ -1577,7 +1577,12 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 
 - (void)disableProximitySensor
 {
-    [[UIDevice currentDevice] setProximityMonitoringEnabled:NO];
+    if ([[UIDevice currentDevice] proximityState] == NO) {
+        // Only disable monitoring if proximity sensor state is not active.
+        // If not proximity sensor state is cached as active and next time we enable monitoring
+        // sensorStateChange won't be trigger until proximity sensor state changes to inactive.
+        [[UIDevice currentDevice] setProximityMonitoringEnabled:NO];
+    }
 }
 
 - (void)setSpeakerAudioSession
@@ -1605,6 +1610,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     } else {
         [self pauseVoiceMessagePlayer];
         [self setSpeakerAudioSession];
+        [self disableProximitySensor];
     }
 }
 
