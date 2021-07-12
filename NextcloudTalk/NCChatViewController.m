@@ -1673,6 +1673,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     
     if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
         NSLog(@"Start recording audio message");
+        // 'Pop' feedback (strong boom)
+        AudioServicesPlaySystemSound(1520);
         [self checkPermissionAndRecordVoiceMessage];
         [self shouldLockInterfaceOrientation:YES];
         _recordCancelled = NO;
@@ -1694,6 +1696,8 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             // Cancel recording if slided more than maxSlideX
             if (slideX > maxSlideX && !_recordCancelled) {
                 NSLog(@"Cancel recording audio message");
+                // 'Cancelled' feedback (three sequential weak booms)
+                AudioServicesPlaySystemSound(1521);
                 _recordCancelled = YES;
                 [self stopRecordingVoiceMessage];
             }
