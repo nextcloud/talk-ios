@@ -21,9 +21,8 @@
  */
 
 #import "NotificationService.h"
-#import <Realm/Realm.h>
 
-#import "NCAPIController.h"
+#import "NCAPISessionManager.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCKeyChainController.h"
@@ -139,17 +138,29 @@
                         self.bestAttemptContent.body = body;
                     }
                     // Try to get the notification from the server
-                    [[NCAPIController sharedInstance] getServerNotification:pushNotification.notificationId forAccount:account withCompletionBlock:^(NSDictionary *notification, NSError *error, NSInteger statusCode) {
-                        if (!error) {
-                            NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
-                            if (serverNotification && serverNotification.notificationType == kNCNotificationTypeChat) {
-                                self.bestAttemptContent.title = serverNotification.chatMessageTitle;
-                                self.bestAttemptContent.body = serverNotification.message;
-                                if (@available(iOS 12.0, *)) {
-                                    self.bestAttemptContent.summaryArgument = serverNotification.chatMessageAuthor;
-                                }
+                    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/notifications/%ld", account.server, (long)pushNotification.notificationId];
+                    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+                    NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedCookieStorageForGroupContainerIdentifier:account.accountId];
+                    configuration.HTTPCookieStorage = cookieStorage;
+                    NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configuration];
+
+                    NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId]];
+                    NSData *data = [userTokenString dataUsingEncoding:NSUTF8StringEncoding];
+                    NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
+                    [apiSessionManager.requestSerializer setValue:[[NSString alloc]initWithFormat:@"Basic %@",base64Encoded] forHTTPHeaderField:@"Authorization"];
+
+                    [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                        NSDictionary *notification = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+                        NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
+                        if (serverNotification && serverNotification.notificationType == kNCNotificationTypeChat) {
+                            self.bestAttemptContent.title = serverNotification.chatMessageTitle;
+                            self.bestAttemptContent.body = serverNotification.message;
+                            if (@available(iOS 12.0, *)) {
+                                self.bestAttemptContent.summaryArgument = serverNotification.chatMessageAuthor;
                             }
+                            self.contentHandler(self.bestAttemptContent);
                         }
+                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                         self.contentHandler(self.bestAttemptContent);
                     }];
                 }
