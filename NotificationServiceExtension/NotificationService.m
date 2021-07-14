@@ -158,8 +158,8 @@
                             if (@available(iOS 12.0, *)) {
                                 self.bestAttemptContent.summaryArgument = serverNotification.chatMessageAuthor;
                             }
-                            self.contentHandler(self.bestAttemptContent);
                         }
+                        self.contentHandler(self.bestAttemptContent);
                     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                         self.contentHandler(self.bestAttemptContent);
                     }];
