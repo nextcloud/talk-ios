@@ -35,6 +35,7 @@ extern NSString * const NCChatControllerDidSendChatMessageNotification;
 extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
 extern NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification;
 extern NSString * const NCChatControllerDidReceiveDeletedMessageNotification;
+extern NSString * const NCChatControllerDidReceiveHistoryClearedNotification;
 
 @interface NCChatController : NSObject
 
@@ -47,11 +48,13 @@ extern NSString * const NCChatControllerDidReceiveDeletedMessageNotification;
 - (void)getInitialChatHistoryForOfflineMode;
 - (void)getHistoryBatchFromMessagesId:(NSInteger)messageId;
 - (void)getHistoryBatchOfflineFromMessagesId:(NSInteger)messageId;
+- (BOOL)hasOlderStoredMessagesThanMessageId:(NSInteger)messageId;
 - (void)checkForNewMessagesFromMessageId:(NSInteger)messageId;
 - (void)updateHistoryInBackgroundWithCompletionBlock:(UpdateHistoryInBackgroundCompletionBlock)block;
 - (void)startReceivingNewChatMessages;
 - (void)stopReceivingNewChatMessages;
 - (void)stopChatController;
+- (void)clearHistoryAndResetChatController;
 - (BOOL)hasHistoryFromMessageId:(NSInteger)messageId;
 - (void)storeMessages:(NSArray *)messages withRealm:(RLMRealm *)realm;
 
