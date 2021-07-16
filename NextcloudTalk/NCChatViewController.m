@@ -169,6 +169,7 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatBlocked:) name:NCChatControllerDidReceiveChatBlockedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveNewerCommonReadMessage:) name:NCChatControllerDidReceiveNewerCommonReadMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDeletedMessage:) name:NCChatControllerDidReceiveDeletedMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveHistoryCleared:) name:NCChatControllerDidReceiveHistoryClearedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     }
@@ -2254,6 +2255,21 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
     NCChatMessage *deleteMessage = message.parent;
     if (deleteMessage) {
         [self updateMessageWithReferenceId:deleteMessage.referenceId withMessage:deleteMessage];
+    }
+}
+
+- (void)didReceiveHistoryCleared:(NSNotification *)notification
+{
+    if (notification.object != _chatController) {
+        return;
+    }
+    
+    NCChatMessage *message = [notification.userInfo objectForKey:@"historyCleared"];
+    if ([_chatController hasOlderStoredMessagesThanMessageId:message.messageId]) {
+        [self cleanChat];
+        [_chatController clearHistoryAndResetChatController];
+        _hasRequestedInitialHistory = YES;
+        [_chatController getInitialChatHistory];
     }
 }
 

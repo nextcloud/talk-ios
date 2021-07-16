@@ -35,6 +35,7 @@ NSString * const NCChatControllerDidSendChatMessageNotification                 
 NSString * const NCChatControllerDidReceiveChatBlockedNotification                  = @"NCChatControllerDidReceiveChatBlockedNotification";
 NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification       = @"NCChatControllerDidReceiveNewerCommonReadMessageNotification";
 NSString * const NCChatControllerDidReceiveDeletedMessageNotification               = @"NCChatControllerDidReceiveDeletedMessageNotification";
+NSString * const NCChatControllerDidReceiveHistoryClearedNotification               = @"NCChatControllerDidReceiveHistoryClearedNotification";
 
 @interface NCChatController ()
 
@@ -145,6 +146,22 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         [self storeMessages:messages withRealm:realm];
+    }];
+}
+
+- (BOOL)hasOlderStoredMessagesThanMessageId:(NSInteger)messageId
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId < %ld", _account.accountId, _room.token, (long)messageId];
+    return [NCChatMessage objectsWithPredicate:query].count > 0;
+}
+
+- (void)removeAllStoredMessagesAndChatBlocks
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@", _account.accountId, _room.token];
+        [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
+        [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
     }];
 }
 
@@ -348,6 +365,14 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveDeletedMessageNotification
                                                                     object:self
                                                                   userInfo:userInfo];
+            }
+            // Notify if "history cleared" has been received
+            if ([message.systemMessage isEqualToString:@"history_cleared"]) {
+                [userInfo setObject:message forKey:@"historyCleared"];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveHistoryClearedNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
+                return;
             }
         }
         
@@ -576,6 +601,14 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
                                                                             object:self
                                                                           userInfo:userInfo];
                     }
+                    // Notify if "history cleared" has been received
+                    if ([message.systemMessage isEqualToString:@"history_cleared"]) {
+                        [userInfo setObject:message forKey:@"historyCleared"];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveHistoryClearedNotification
+                                                                            object:self
+                                                                          userInfo:userInfo];
+                        return;
+                    }
                 }
             }
         }
@@ -664,6 +697,13 @@ NSString * const NCChatControllerDidReceiveDeletedMessageNotification           
 {
     [self stopReceivingNewChatMessages];
     [self stopReceivingChatHistory];
+}
+
+- (void)clearHistoryAndResetChatController
+{
+    [_pullMessagesTask cancel];
+    [self removeAllStoredMessagesAndChatBlocks];
+    _room.lastReadMessage = 0;
 }
 
 - (BOOL)hasHistoryFromMessageId:(NSInteger)messageId
