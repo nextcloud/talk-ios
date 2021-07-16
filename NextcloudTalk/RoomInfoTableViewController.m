@@ -100,7 +100,8 @@ typedef enum ModificationError {
     kModificationErrorRemove,
     kModificationErrorLeave,
     kModificationErrorLeaveModeration,
-    kModificationErrorDelete
+    kModificationErrorDelete,
+    kModificationErrorClearHistory
 } ModificationError;
 
 typedef enum FileAction {
@@ -466,6 +467,10 @@ typedef enum FileAction {
             
         case kModificationErrorDelete:
             errorDescription = NSLocalizedString(@"Could not delete conversation", nil);
+            break;
+            
+        case kModificationErrorClearHistory:
+            errorDescription = NSLocalizedString(@"Could not clear chat history", nil);
             break;
             
         default:
@@ -853,7 +858,14 @@ typedef enum FileAction {
 
 - (void)clearHistory
 {
-    
+    [[NCAPIController sharedInstance] clearChatHistoryInRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *messageDict, NSError *error, NSInteger statusCode) {
+        if (!error) {
+            NSLog(@"Chat history cleared.");
+        } else {
+            NSLog(@"Error clearing chat history: %@", error.description);
+            [self showRoomModificationError:kModificationErrorClearHistory];
+        }
+    }];
 }
 
 - (void)leaveRoom
