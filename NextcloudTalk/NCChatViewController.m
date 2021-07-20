@@ -79,6 +79,7 @@
 
 typedef enum NCChatMessageAction {
     kNCChatMessageActionReply = 1,
+    kNCChatMessageActionForward,
     kNCChatMessageActionCopy,
     kNCChatMessageActionResend,
     kNCChatMessageActionDelete,
@@ -1168,6 +1169,10 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                                                       userInfo:userInfo];
 }
 
+- (void)didPressForward:(NCChatMessage *)message {
+    // Forward message
+}
+
 - (void)didPressResend:(NCChatMessage *)message {
     // Make sure there's no unread message separator, as the indexpath could be invalid after removing a message
     [self removeUnreadMessagesSeparator];
@@ -1764,6 +1769,13 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                     [menuArray addObject:replyPrivatModel];
                 }
             }
+            
+            // Forward option (only normal messages for now)
+            if (!message.file && !_offlineMode) {
+                NSDictionary *forwardInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionForward) forKey:@"action"];
+                FTPopOverMenuModel *forwardModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Forward", nil) image:[UIImage imageNamed:@"forward"] userInfo:forwardInfo];
+                [menuArray addObject:forwardModel];
+            }
 
             // Re-send option
             if (message.sendingFailed && !_offlineMode) {
@@ -1810,6 +1822,11 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
                     case kNCChatMessageActionReplyPrivately:
                     {
                         [weakSelf didPressReplyPrivately:message];
+                    }
+                        break;
+                    case kNCChatMessageActionForward:
+                    {
+                        [weakSelf didPressForward:message];
                     }
                         break;
                     case kNCChatMessageActionCopy:
@@ -3001,6 +3018,17 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
             
             [actions addObject:replyPrivateAction];
         }
+    }
+    
+    // Forward option (only normal messages for now)
+    if (!message.file && !_offlineMode) {
+        UIImage *forwardImage = [[UIImage imageNamed:@"forward"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *forwardAction = [UIAction actionWithTitle:NSLocalizedString(@"Forward", nil) image:forwardImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressForward:message];
+        }];
+        
+        [actions addObject:forwardAction];
     }
 
     // Re-send option
