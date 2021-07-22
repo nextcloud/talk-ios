@@ -1307,11 +1307,11 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
 
 - (void)shareConfirmationViewControllerDidFailed:(ShareConfirmationViewController *)viewController
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
-    
-    if (viewController.forwardingMessage) {
-        // Show error
-    }
+    [self dismissViewControllerAnimated:YES completion:^{
+        if (viewController.forwardingMessage) {
+            [self.view makeToast:NSLocalizedString(@"Failed to forward message", nil) duration:1.5 position:CSToastPositionCenter];
+        }
+    }];
 }
 
 - (void)shareConfirmationViewControllerDidFinish:(ShareConfirmationViewController *)viewController
