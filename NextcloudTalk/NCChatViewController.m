@@ -66,6 +66,7 @@
 #import "QuotedMessageView.h"
 #import "ReplyMessageView.h"
 #import "RoomInfoTableViewController.h"
+#import "ShareViewController.h"
 #import "ShareConfirmationViewController.h"
 #import "ShareItem.h"
 #import "SystemMessageTableViewCell.h"
@@ -137,6 +138,7 @@ typedef enum NCChatMessageAction {
 @implementation NCChatViewController
 
 NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewControllerReplyPrivatelyNotification";
+NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControllerForwardNotification";
 
 - (instancetype)initForRoom:(NCRoom *)room
 {
@@ -1170,7 +1172,9 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 }
 
 - (void)didPressForward:(NCChatMessage *)message {
-    // Forward message
+    ShareViewController *shareViewController = [[ShareViewController alloc] initToForwardMessage:message.parsedMessage.string fromChatViewController:self];
+    NCNavigationController *forwardMessageNC = [[NCNavigationController alloc] initWithRootViewController:shareViewController];
+    [self presentViewController:forwardMessageNC animated:YES completion:nil];
 }
 
 - (void)didPressResend:(NCChatMessage *)message {
@@ -1304,11 +1308,24 @@ NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewCo
 - (void)shareConfirmationViewControllerDidFailed:(ShareConfirmationViewController *)viewController
 {
     [self dismissViewControllerAnimated:YES completion:nil];
+    
+    if (viewController.forwardingMessage) {
+        // Show error
+    }
 }
 
 - (void)shareConfirmationViewControllerDidFinish:(ShareConfirmationViewController *)viewController
 {
     [self dismissViewControllerAnimated:YES completion:nil];
+    
+    if (viewController.forwardingMessage) {
+        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:viewController.room.token forKey:@"token"];
+        [userInfo setObject:viewController.account.accountId forKey:@"accountId"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerForwardNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+    }
 }
 
 #pragma mark - ShareLocationViewController Delegate

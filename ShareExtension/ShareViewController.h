@@ -26,6 +26,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ShareViewController : UITableViewController
 
+@property (strong, nonatomic) UIViewController *chatViewController;
+@property (strong, nonatomic) NSString *forwardMessage;
+
+- (id)initToForwardMessage:(NSString *)message fromChatViewController:(UIViewController *)chatViewController;
+
 @end
 
 NS_ASSUME_NONNULL_END
