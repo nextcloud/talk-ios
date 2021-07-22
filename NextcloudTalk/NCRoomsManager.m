@@ -89,6 +89,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startCallForRoom:) name:CallKitManagerDidStartCallNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkForCallUpgrades:) name:CallKitManagerDidEndCallNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChat:) name:NCChatViewControllerReplyPrivatelyNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChatOfForwardedMessage:) name:NCChatViewControllerForwardNotification object:nil];
     }
     
     return self;
@@ -702,6 +703,19 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
 }
 
+- (void)checkForAccountChange:(NSString *)accountId
+{
+    // Change account if notification is from another account
+    if (accountId && ![[[NCDatabaseManager sharedInstance] activeAccount].accountId isEqualToString:accountId]) {
+        // Leave chat before changing accounts
+        if ([[NCRoomsManager sharedInstance] chatViewController]) {
+            [[[NCRoomsManager sharedInstance] chatViewController] leaveChat];
+        }
+        // Set notification account active
+        [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:accountId];
+    }
+}
+
 - (void)acceptCallForRoom:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
@@ -727,18 +741,21 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 - (void)joinAudioCallAccepted:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
+    [self checkForAccountChange:pushNotification.accountId];
     [self joinCallWithCallToken:pushNotification.roomToken withVideo:NO];
 }
 
 - (void)joinVideoCallAccepted:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
+    [self checkForAccountChange:pushNotification.accountId];
     [self joinCallWithCallToken:pushNotification.roomToken withVideo:YES];
 }
 
 - (void)joinChat:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
+    [self checkForAccountChange:pushNotification.accountId];
     [self startChatWithRoomToken:pushNotification.roomToken];
 }
 
@@ -775,10 +792,20 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     
 }
 
+- (void)joinChatOfForwardedMessage:(NSNotification *)notification
+{
+    NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
+    NSString *token = [notification.userInfo objectForKey:@"token"];
+    [self checkForAccountChange:accountId];
+    [self startChatWithRoomToken:token];
+}
+
 - (void)joinChatWithLocalNotification:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
     if (roomToken) {
+        NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
+        [self checkForAccountChange:accountId];
         [self startChatWithRoomToken:roomToken];
         
         // In case this notification occurred because of a failed chat-sending event, make sure the text is not lost

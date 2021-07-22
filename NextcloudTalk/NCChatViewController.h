@@ -25,6 +25,7 @@
 #import "NCRoom.h"
 
 extern NSString * const NCChatViewControllerReplyPrivatelyNotification;
+extern NSString * const NCChatViewControllerForwardNotification;
 
 @interface NCChatViewController : SLKTextViewController
 

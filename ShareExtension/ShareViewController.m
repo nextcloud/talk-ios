@@ -51,6 +51,17 @@
 
 @implementation ShareViewController
 
+- (id)initToForwardMessage:(NSString *)message fromChatViewController:(UIViewController *)chatViewController
+{
+    self = [super init];
+    if (self) {
+        self.chatViewController = chatViewController;
+        self.forwardMessage = message;
+    }
+    
+    return self;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -122,7 +133,7 @@
     [_searchController.searchBar sizeToFit];
     
     // Configure navigation bar
-    self.navigationItem.title = NSLocalizedString(@"Share with", nil);
+    self.navigationItem.title = _forwardMessage ? NSLocalizedString(@"Forward to", nil) : NSLocalizedString(@"Share with", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
@@ -552,7 +563,13 @@
     
     ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:room account:_shareAccount serverCapabilities:_serverCapabilities];
     shareConfirmationVC.delegate = self;
-    [self setSharedItemToShareConfirmationViewController:shareConfirmationVC];
+    if (_forwardMessage) {
+        shareConfirmationVC.delegate = (id<ShareConfirmationViewControllerDelegate>)_chatViewController;
+        shareConfirmationVC.forwardingMessage = YES;
+        [shareConfirmationVC shareText:_forwardMessage];
+    } else {
+        [self setSharedItemToShareConfirmationViewController:shareConfirmationVC];
+    }
     [self.navigationController pushViewController:shareConfirmationVC animated:YES];
 }
 

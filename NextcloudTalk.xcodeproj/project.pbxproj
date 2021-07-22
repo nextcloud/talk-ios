@@ -101,6 +101,9 @@
 		2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4987BC21E640E20060AC27 /* CallKitManager.m */; };
 		2C4CDCCC269618240023F403 /* RoomDescriptionTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4CDCCA269618230023F403 /* RoomDescriptionTableViewCell.m */; };
 		2C4CDCCD269618240023F403 /* RoomDescriptionTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C4CDCCB269618230023F403 /* RoomDescriptionTableViewCell.xib */; };
+		2C4CDCD026A84AEA0023F403 /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C62AFB824C1A4E6007E460A /* ShareViewController.m */; };
+		2C4CDCD126A84E500023F403 /* ShareTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3195C024C5E2100066F221 /* ShareTableViewCell.m */; };
+		2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C3195C124C5E2100066F221 /* ShareTableViewCell.xib */; };
 		2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D621F2F7C2C00FF4A0D /* ARDCaptureController.m */; };
 		2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D651F2F7DBC00FF4A0D /* ARDSettingsModel.m */; };
 		2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D681F2F7DBC00FF4A0D /* ARDSettingsStore.m */; };
@@ -1598,6 +1601,7 @@
 				2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
+				2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 				2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */,
 			);
@@ -1825,6 +1829,7 @@
 				1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
+				2C4CDCD126A84E500023F403 /* ShareTableViewCell.m in Sources */,
 				2C8CDD0621C2EDE8004E2997 /* AvatarBackgroundImageView.m in Sources */,
 				2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */,
 				2C4CDCCC269618240023F403 /* RoomDescriptionTableViewCell.m in Sources */,
@@ -1899,6 +1904,7 @@
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,
 				2C42ADB420B58E6300296DEA /* NCChatController.m in Sources */,
+				2C4CDCD026A84AEA0023F403 /* ShareViewController.m in Sources */,
 				2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
 				2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */,
 				2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */,

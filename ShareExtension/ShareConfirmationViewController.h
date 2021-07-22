@@ -53,6 +53,7 @@ typedef enum ShareConfirmationType {
 @property (strong, nonatomic) ServerCapabilities *serverCapabilities;
 @property (assign, nonatomic) ShareConfirmationType type;
 @property (assign, nonatomic) BOOL isModal;
+@property (assign, nonatomic) BOOL forwardingMessage;
 @property (strong, nonatomic) ShareItemController *shareItemController;
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomSpacer;

@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "baseline_reply_black_24pt_1x.png",
+      "filename" : "forward.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "baseline_reply_black_24pt_2x.png",
+      "filename" : "forward@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "baseline_reply_black_24pt_3x.png",
+      "filename" : "forward@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

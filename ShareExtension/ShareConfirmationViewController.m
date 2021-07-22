@@ -61,6 +61,7 @@
         self.room = room;
         self.account = account;
         self.serverCapabilities = serverCapabilities;
+        self.type = ShareConfirmationTypeItem;
     }
     
     return self;
@@ -147,8 +148,6 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
-    
-    _type = ShareConfirmationTypeItem;
 }
 
 - (void)viewDidAppear:(BOOL)animated
