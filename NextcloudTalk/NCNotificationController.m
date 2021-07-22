@@ -254,16 +254,6 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
     
-    // Change account if notification is from another account
-    if (notificationAccountId && ![[[NCDatabaseManager sharedInstance] activeAccount].accountId isEqualToString:notificationAccountId]) {
-        // Leave chat before changing accounts
-        if ([[NCRoomsManager sharedInstance] chatViewController]) {
-            [[[NCRoomsManager sharedInstance] chatViewController] leaveChat];
-        }
-        // Set notification account active
-        [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:notificationAccountId];
-    }
-    
     // Handle notification response
     if (pushNotification) {
         if ([response isKindOfClass:[UNTextInputNotificationResponse class]]) {
