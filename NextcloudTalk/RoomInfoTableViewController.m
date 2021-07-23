@@ -389,6 +389,17 @@ typedef enum FileAction {
     return [NSArray arrayWithArray:actions];
 }
 
+- (NSIndexPath *)getIndexPathForDestructiveAction:(DestructiveAction)action
+{
+    NSInteger section = [self getSectionForRoomInfoSection:kRoomInfoSectionDestructive];
+    NSIndexPath *actionIndexPath = [NSIndexPath indexPathForRow:0 inSection:section];
+    NSInteger actionRow = [[self getRoomDestructiveActions] indexOfObject:[NSNumber numberWithInt:action]];
+    if(NSNotFound != actionRow) {
+        actionIndexPath = [NSIndexPath indexPathForRow:actionRow inSection:section];
+    }
+    return actionIndexPath;
+}
+
 - (BOOL)isAppUser:(NCRoomParticipant *)participant
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -861,6 +872,10 @@ typedef enum FileAction {
     [[NCAPIController sharedInstance] clearChatHistoryInRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *messageDict, NSError *error, NSInteger statusCode) {
         if (!error) {
             NSLog(@"Chat history cleared.");
+            NSIndexPath *indexPath = [self getIndexPathForDestructiveAction:kDestructiveActionClearHistory];
+            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+            CGPoint toastPosition = CGPointMake(cell.center.x, cell.center.y);
+            [self.view makeToast:NSLocalizedString(@"All messages were deleted", nil) duration:1.5 position:@(toastPosition)];
         } else {
             NSLog(@"Error clearing chat history: %@", error.description);
             [self showRoomModificationError:kModificationErrorClearHistory];
