@@ -82,8 +82,8 @@ typedef enum SIPAction {
 } SIPAction;
 
 typedef enum DestructiveAction {
-    kDestructiveActionClearHistory = 0,
-    kDestructiveActionLeave,
+    kDestructiveActionLeave = 0,
+    kDestructiveActionClearHistory,
     kDestructiveActionDelete
 } DestructiveAction;
 
@@ -374,13 +374,13 @@ typedef enum FileAction {
 - (NSArray *)getRoomDestructiveActions
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
-    // Clear history
-    if (_room.canModerate && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityClearHistory]) {
-        [actions addObject:[NSNumber numberWithInt:kDestructiveActionClearHistory]];
-    }
     // Leave room
     if (_room.isLeavable) {
         [actions addObject:[NSNumber numberWithInt:kDestructiveActionLeave]];
+    }
+    // Clear history
+    if (_room.canModerate && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityClearHistory]) {
+        [actions addObject:[NSNumber numberWithInt:kDestructiveActionClearHistory]];
     }
     // Delete room
     if (_room.canModerate) {
@@ -493,21 +493,21 @@ typedef enum FileAction {
     UIAlertAction *confirmAction = nil;
     
     switch (action) {
-        case kDestructiveActionClearHistory:
-        {
-            title = NSLocalizedString(@"Delete all messages", nil);
-            message = NSLocalizedString(@"Do you really want to delete all messages in this conversation?", nil);
-            confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete all", "Short version for confirmation button. Complete text is 'Delete all messages'.") style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-                [self clearHistory];
-            }];
-        }
-            break;
         case kDestructiveActionLeave:
         {
             title = NSLocalizedString(@"Leave conversation", nil);
             message = NSLocalizedString(@"Do you really want to leave this conversation?", nil);
             confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Leave", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
                 [self leaveRoom];
+            }];
+        }
+            break;
+        case kDestructiveActionClearHistory:
+        {
+            title = NSLocalizedString(@"Delete all messages", nil);
+            message = NSLocalizedString(@"Do you really want to delete all messages in this conversation?", nil);
+            confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete all", "Short version for confirmation button. Complete text is 'Delete all messages'.") style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+                [self clearHistory];
             }];
         }
             break;
@@ -1788,21 +1788,6 @@ typedef enum FileAction {
             NSArray *actions = [self getRoomDestructiveActions];
             DestructiveAction action = [[actions objectAtIndex:indexPath.row] intValue];
             switch (action) {
-                case kDestructiveActionClearHistory:
-                {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:clearHistoryCellIdentifier];
-                    if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:clearHistoryCellIdentifier];
-                    }
-                    
-                    cell.textLabel.text = NSLocalizedString(@"Delete all messages", nil);
-                    cell.textLabel.textColor = [UIColor systemRedColor];
-                    [cell.imageView setImage:[[UIImage imageNamed:@"delete-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-                    [cell.imageView setTintColor:[UIColor systemRedColor]];
-                    
-                    return cell;
-                }
-                    break;
                 case kDestructiveActionLeave:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:leaveRoomCellIdentifier];
@@ -1813,6 +1798,21 @@ typedef enum FileAction {
                     cell.textLabel.text = NSLocalizedString(@"Leave conversation", nil);
                     cell.textLabel.textColor = [UIColor systemRedColor];
                     [cell.imageView setImage:[[UIImage imageNamed:@"exit-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setTintColor:[UIColor systemRedColor]];
+                    
+                    return cell;
+                }
+                    break;
+                case kDestructiveActionClearHistory:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:clearHistoryCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:clearHistoryCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Delete all messages", nil);
+                    cell.textLabel.textColor = [UIColor systemRedColor];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"delete-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     [cell.imageView setTintColor:[UIColor systemRedColor]];
                     
                     return cell;
