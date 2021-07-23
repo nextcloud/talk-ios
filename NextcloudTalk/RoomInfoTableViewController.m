@@ -495,9 +495,9 @@ typedef enum FileAction {
     switch (action) {
         case kDestructiveActionClearHistory:
         {
-            title = NSLocalizedString(@"Clear chat history", nil);
-            message = NSLocalizedString(@"Do you really want to clear chat history?", nil);
-            confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Clear", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+            title = NSLocalizedString(@"Delete all messages", nil);
+            message = NSLocalizedString(@"Do you really want to delete all messages in this conversation?", nil);
+            confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete all", "Short version for confirmation button. Complete text is 'Delete all messages'.") style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
                 [self clearHistory];
             }];
         }
@@ -1795,7 +1795,7 @@ typedef enum FileAction {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:clearHistoryCellIdentifier];
                     }
                     
-                    cell.textLabel.text = NSLocalizedString(@"Clear history", nil);
+                    cell.textLabel.text = NSLocalizedString(@"Delete all messages", nil);
                     cell.textLabel.textColor = [UIColor systemRedColor];
                     [cell.imageView setImage:[[UIImage imageNamed:@"delete-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     [cell.imageView setTintColor:[UIColor systemRedColor]];
