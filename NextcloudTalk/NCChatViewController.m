@@ -232,6 +232,7 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     
     [self.view setBackgroundColor:[UIColor whiteColor]];
     self.textInputbar.backgroundColor = [UIColor whiteColor];
+    [self.textInputbar setSemanticContentAttribute:UISemanticContentAttributeForceLeftToRight];
     
     // Make sure we update the textView frame
     [self.textView layoutSubviews];
