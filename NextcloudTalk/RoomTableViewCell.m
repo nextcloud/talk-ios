@@ -53,6 +53,12 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     self.roomImage.backgroundColor = [NCAppBranding placeholderColor];
     self.roomImage.contentMode = UIViewContentModeCenter;
     self.favoriteImage.contentMode = UIViewContentModeCenter;
+    
+    if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:_dateLabel.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft) {
+        _dateLabel.textAlignment = NSTextAlignmentLeft;
+    } else {
+        _dateLabel.textAlignment = NSTextAlignmentRight;
+    }
 }
 
 - (void)layoutSubviews
@@ -63,8 +69,12 @@ CGFloat const kRoomTableCellHeight = 74.0f;
         _unreadMessagesBadge = [[RoundedNumberView alloc] init];
         _unreadMessagesBadge.important = _metioned;
         _unreadMessagesBadge.number = _unreadMessages;
-        _unreadMessagesBadge.frame = CGRectMake(self.unreadMessagesView.frame.size.width - _unreadMessagesBadge.frame.size.width,
-                                                _unreadMessagesBadge.frame.origin.y,
+        
+        CGFloat badgeXPosition = self.unreadMessagesView.frame.size.width - _unreadMessagesBadge.frame.size.width;
+        if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:_unreadMessagesView.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft) {
+            badgeXPosition = 0;
+        }
+        _unreadMessagesBadge.frame = CGRectMake(badgeXPosition, _unreadMessagesBadge.frame.origin.y,
                                                 _unreadMessagesBadge.frame.size.width, _unreadMessagesBadge.frame.size.height);
         
         [self.unreadMessagesView addSubview:_unreadMessagesBadge];
