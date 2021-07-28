@@ -191,11 +191,6 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
 {
     [super viewDidLoad];
     
-    self.titleView = [[NCChatTitleView alloc] init];
-    self.titleView.frame = CGRectMake(0, 0, 800, 30);
-    self.titleView.autoresizingMask=UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    [self.titleView.title addTarget:self action:@selector(titleButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    self.navigationItem.titleView = _titleView;
     [self setTitleView];
     [self configureActionItems];
     
@@ -451,6 +446,13 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     [_voiceCallButton hideActivityIndicator];
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    [coordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        [self setTitleView];
+    }];
+}
+
 - (void)stopChat
 {
     _hasStopped = YES;
@@ -540,6 +542,10 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
 
 - (void)setTitleView
 {
+    self.titleView = [[NCChatTitleView alloc] init];
+    self.titleView.frame = CGRectMake(0, 0, MAXFLOAT, 30);
+    [self.titleView.title addTarget:self action:@selector(titleButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    
     [_titleView.title setTitle:_room.displayName forState:UIControlStateNormal];
     
     // Set room image
@@ -576,6 +582,8 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     }
     
     _titleView.title.accessibilityHint = NSLocalizedString(@"Double tap to go to conversation information", nil);
+    
+    self.navigationItem.titleView = _titleView;
 }
 
 - (void)configureActionItems
