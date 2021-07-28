@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -16,24 +17,44 @@
                 <rect key="frame" x="0.0" y="0.0" width="320" height="72"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5eI-x8-VQH">
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="5eI-x8-VQH">
                         <rect key="frame" x="12" y="12" width="48" height="48"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" red="0.83529411760000005" green="0.83529411760000005" blue="0.83529411760000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="48" id="9HH-HQ-ST0"/>
+                            <constraint firstAttribute="width" constant="48" id="Ic4-Hj-oK9"/>
+                        </constraints>
                     </imageView>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="vfg-pq-jRm">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vfg-pq-jRm">
                         <rect key="frame" x="45" y="48" width="20" height="20"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="20" id="Bil-ZR-myw"/>
+                            <constraint firstAttribute="height" constant="20" id="b9y-Pf-33a"/>
+                        </constraints>
                     </imageView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="17" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nOA-bG-zXZ">
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="17" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nOA-bG-zXZ">
                         <rect key="frame" x="72" y="20" width="224" height="32"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="32" id="Lvz-gT-ihH"/>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" id="YMB-CV-F71"/>
+                        </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
                 </subviews>
+                <viewLayoutGuide key="safeArea" id="Pye-fe-c7r"/>
+                <constraints>
+                    <constraint firstItem="Pye-fe-c7r" firstAttribute="trailing" secondItem="nOA-bG-zXZ" secondAttribute="trailing" constant="24" id="CFX-Uj-TJ7"/>
+                    <constraint firstItem="5eI-x8-VQH" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="12" id="XyY-WJ-Sov"/>
+                    <constraint firstItem="5eI-x8-VQH" firstAttribute="leading" secondItem="Pye-fe-c7r" secondAttribute="leading" constant="12" id="fQR-A3-gQb"/>
+                    <constraint firstItem="vfg-pq-jRm" firstAttribute="leading" secondItem="Pye-fe-c7r" secondAttribute="leading" constant="45" id="hXM-ju-rXF"/>
+                    <constraint firstItem="nOA-bG-zXZ" firstAttribute="leading" secondItem="5eI-x8-VQH" secondAttribute="trailing" constant="12" id="lrf-nK-veH"/>
+                    <constraint firstItem="vfg-pq-jRm" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="48" id="xJ5-xb-XdK"/>
+                    <constraint firstItem="nOA-bG-zXZ" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="20" id="zRY-EC-HUg"/>
+                </constraints>
             </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="Hom-0H-2YQ"/>
             <connections>
                 <outlet property="contactImage" destination="5eI-x8-VQH" id="9Dl-Ae-9dw"/>
                 <outlet property="labelTitle" destination="nOA-bG-zXZ" id="0dX-jq-5N3"/>
