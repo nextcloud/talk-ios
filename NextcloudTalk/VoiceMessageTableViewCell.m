@@ -39,6 +39,7 @@
 @interface VoiceMessageTableViewCell ()
 {
     MDCActivityIndicator *_activityIndicator;
+    UIView *_audioPlayerView;
 }
 
 @end
@@ -64,18 +65,23 @@
     _avatarView.layer.cornerRadius = kVoiceMessageCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
     
+    _audioPlayerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 44)];
+    _audioPlayerView.translatesAutoresizingMaskIntoConstraints = NO;
+    [_audioPlayerView setSemanticContentAttribute:UISemanticContentAttributeForceLeftToRight];
+    
     if ([self.reuseIdentifier isEqualToString:VoiceMessageCellIdentifier]) {
         [self.contentView addSubview:_avatarView];
         [self.contentView addSubview:self.titleLabel];
         [self.contentView addSubview:self.dateLabel];
     }
     [self.contentView addSubview:self.bodyTextView];
+    [self.contentView addSubview:_audioPlayerView];
     
     self.playPauseButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.playPauseButton.translatesAutoresizingMaskIntoConstraints = NO;
     [self.playPauseButton addTarget:self action:@selector(playPauseButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self setPlayButton];
-    [self.contentView addSubview:self.playPauseButton];
+    [_audioPlayerView addSubview:self.playPauseButton];
     
     self.slider = [[UISlider alloc] initWithFrame:CGRectMake(0, 0, 200, 44)];
     self.slider.translatesAutoresizingMaskIntoConstraints = NO;
@@ -83,7 +89,8 @@
     [self.slider setThumbImage:sliderThumb forState:UIControlStateNormal];
     [self.slider setEnabled:NO];
     [self.slider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
-    [self.contentView addSubview:self.slider];
+    [self.slider setSemanticContentAttribute:UISemanticContentAttributeForceLeftToRight];
+    [_audioPlayerView addSubview:self.slider];
     
     _statusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
     _statusView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -91,14 +98,14 @@
     
     _fileStatusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
     _fileStatusView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.contentView addSubview:_fileStatusView];
+    [_audioPlayerView addSubview:_fileStatusView];
     
     _durationLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
     _durationLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _durationLabel.font = [UIFont systemFontOfSize:12];
     _durationLabel.adjustsFontSizeToFitWidth = YES;
     _durationLabel.minimumScaleFactor = 0.5;
-    [self.contentView addSubview:_durationLabel];
+    [_audioPlayerView addSubview:_durationLabel];
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"statusView": self.statusView,
@@ -109,6 +116,7 @@
                             @"titleLabel": self.titleLabel,
                             @"dateLabel": self.dateLabel,
                             @"bodyTextView": self.bodyTextView,
+                            @"audioPlayerView": _audioPlayerView,
                             };
     
     NSDictionary *metrics = @{@"avatarSize": @(kVoiceMessageCellAvatarHeight),
@@ -116,9 +124,9 @@
                               @"statusTopPadding": @17,
                               @"buttonHeight": @44,
                               @"progressWidth": @150,
-                              @"progressTopPadding": @25,
-                              @"progressBottomPadding": @30,
+                              @"progressPadding": @20,
                               @"progressHeight": @4,
+                              @"statusPadding": @12,
                               @"padding": @15,
                               @"avatarGap": @50,
                               @"right": @10,
@@ -127,26 +135,23 @@
     
     if ([self.reuseIdentifier isEqualToString:VoiceMessageCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[playButton(buttonHeight)]-[progressView(progressWidth)]-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[playButton(buttonHeight)]-[progressView(progressWidth)]-[durationLabel(>=0)]-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[playButton(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-progressTopPadding-[progressView(progressHeight)]-progressBottomPadding-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[playButton(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-statusTopPadding-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-statusTopPadding-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-statusTopPadding-[durationLabel(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:GroupedVoiceMessageCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[playButton(buttonHeight)]-[progressView(progressWidth)]-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[playButton(buttonHeight)]-[progressView(progressWidth)]-[durationLabel(>=0)]-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[playButton(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-progressTopPadding-[progressView(progressHeight)]-progressBottomPadding-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-statusTopPadding-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-statusTopPadding-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-statusTopPadding-[durationLabel(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     }
+    
+    [_audioPlayerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[playButton(buttonHeight)]-[progressView(progressWidth)]-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+    [_audioPlayerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[playButton(buttonHeight)]-[progressView(progressWidth)]-[durationLabel(>=0)]-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[audioPlayerView(>=0)]-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+    [_audioPlayerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[playButton(buttonHeight)]|" options:0 metrics:metrics views:views]];
+    [_audioPlayerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-progressPadding-[progressView(progressHeight)]-progressPadding-|" options:0 metrics:metrics views:views]];
+    [_audioPlayerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-statusPadding-[fileStatusView(statusSize)]-statusPadding-|" options:0 metrics:metrics views:views]];
+    [_audioPlayerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-statusPadding-[durationLabel(statusSize)]-statusPadding-|" options:0 metrics:metrics views:views]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeIsDownloading:) name:NCChatFileControllerDidChangeIsDownloadingNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeDownloadProgress:) name:NCChatFileControllerDidChangeDownloadProgressNotification object:nil];
