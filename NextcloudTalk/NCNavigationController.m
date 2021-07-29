@@ -24,19 +24,30 @@
 
 #import "NCAppBranding.h"
 
-@interface NCNavigationController ()
+@interface NCNavigationController () <UIGestureRecognizerDelegate>
 
 @end
 
 @implementation NCNavigationController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
+    
+    self.interactivePopGestureRecognizer.delegate = self;
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
     return [NCAppBranding statusBarStyleForThemeColor];
 }
+
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    // This allows to overwrite the pop gesture recognizer with another gesture recognizer
+    // (e.g. long press gesture to record voice message when interface is in RTL)
+    return YES;
+}
+
 
 @end

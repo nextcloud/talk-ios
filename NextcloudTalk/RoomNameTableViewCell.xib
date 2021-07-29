@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -17,22 +17,41 @@
                 <rect key="frame" x="0.0" y="0.0" width="320" height="80"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IiJ-Ao-EEL">
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="IiJ-Ao-EEL">
                         <rect key="frame" x="12" y="15" width="48" height="48"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" red="0.83529411760000005" green="0.83529411760000005" blue="0.83529411760000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="48" id="Qhu-i9-95A"/>
+                            <constraint firstAttribute="width" constant="48" id="Sbl-7k-erM"/>
+                        </constraints>
                     </imageView>
-                    <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Conversation name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="WkN-Ku-QtW">
+                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Conversation name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="WkN-Ku-QtW">
                         <rect key="frame" x="72" y="24" width="236" height="30"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="30" id="QFA-4P-uQ5"/>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" id="ptu-ZF-ASo"/>
+                        </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="19"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="yes" spellCheckingType="yes"/>
                     </textField>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="COX-Df-tcP">
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="COX-Df-tcP">
                         <rect key="frame" x="45" y="7" width="20" height="20"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="20" id="T3m-Fm-M9H"/>
+                            <constraint firstAttribute="height" constant="20" id="fdR-3i-Vbj"/>
+                        </constraints>
                     </imageView>
                 </subviews>
+                <viewLayoutGuide key="safeArea" id="TV0-VB-OWd"/>
+                <constraints>
+                    <constraint firstItem="WkN-Ku-QtW" firstAttribute="top" secondItem="TV0-VB-OWd" secondAttribute="top" constant="24" id="2LV-SW-L4n"/>
+                    <constraint firstItem="WkN-Ku-QtW" firstAttribute="leading" secondItem="IiJ-Ao-EEL" secondAttribute="trailing" constant="12" id="5jz-Cf-454"/>
+                    <constraint firstItem="IiJ-Ao-EEL" firstAttribute="leading" secondItem="TV0-VB-OWd" secondAttribute="leading" constant="12" id="BY5-Pv-9UU"/>
+                    <constraint firstItem="TV0-VB-OWd" firstAttribute="trailing" secondItem="WkN-Ku-QtW" secondAttribute="trailing" constant="12" id="HWQ-r4-cH2"/>
+                    <constraint firstItem="COX-Df-tcP" firstAttribute="leading" secondItem="TV0-VB-OWd" secondAttribute="leading" constant="45" id="fcB-Zg-Be6"/>
+                    <constraint firstItem="COX-Df-tcP" firstAttribute="top" secondItem="TV0-VB-OWd" secondAttribute="top" constant="7" id="maL-So-pcv"/>
+                    <constraint firstItem="IiJ-Ao-EEL" firstAttribute="top" secondItem="TV0-VB-OWd" secondAttribute="top" constant="15" id="uQR-UO-45J"/>
+                </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="aW0-zy-SZf"/>
             <connections>

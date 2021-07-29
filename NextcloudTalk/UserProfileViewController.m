@@ -480,13 +480,13 @@ typedef enum SummaryRow {
 - (UIImage *)imageForScope:(NSString *)scope
 {
     if ([scope isEqualToString:kUserProfileScopePrivate]) {
-        return [[UIImage imageNamed:@"mobile-phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        return [[UIImage imageNamed:@"mobile-phone-20"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     } else if ([scope isEqualToString:kUserProfileScopeLocal]) {
-        return [[UIImage imageNamed:@"password-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        return [[UIImage imageNamed:@"password-20"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     } else if ([scope isEqualToString:kUserProfileScopeFederated]) {
-        return [[UIImage imageNamed:@"group"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        return [[UIImage imageNamed:@"group-20"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     } else if ([scope isEqualToString:kUserProfileScopePublished]) {
-        return [[UIImage imageNamed:@"browser-settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        return [[UIImage imageNamed:@"browser-20"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     }
     
     return nil;
@@ -909,11 +909,6 @@ typedef enum SummaryRow {
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     HeaderWithButton *headerView = [[HeaderWithButton alloc] init];
-    CGSize imageSize = CGSizeMake(20, 20);
-    CGFloat topInset = (headerView.button.frame.size.height - imageSize.height) / 2;
-    CGFloat rightInset = 5;
-    CGFloat leftInset = (headerView.button.frame.size.width - imageSize.width - rightInset);
-    headerView.button.imageEdgeInsets = UIEdgeInsetsMake(topInset, leftInset, topInset, rightInset);
     [headerView.button addTarget:self action:@selector(showScopeSelectionDialog:) forControlEvents:UIControlEventTouchUpInside];
     
     ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:_account.accountId];
