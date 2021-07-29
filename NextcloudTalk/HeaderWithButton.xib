@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -23,19 +23,34 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SLd-XX-uUm">
                     <rect key="frame" x="0.0" y="0.0" width="347" height="40"/>
                     <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F5v-UF-pTC">
-                            <rect key="frame" x="16" y="9" width="203" height="30"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F5v-UF-pTC">
+                            <rect key="frame" x="16" y="9" width="153.5" height="30"/>
+                            <constraints>
+                                <constraint firstAttribute="width" relation="greaterThanOrEqual" id="3u7-0R-WT6"/>
+                                <constraint firstAttribute="height" constant="30" id="MCG-0T-ovj"/>
+                            </constraints>
                             <fontDescription key="fontDescription" type="system" pointSize="13"/>
                             <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ey1-Sp-bYJ">
-                            <rect key="frame" x="227" y="8" width="104" height="32"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ey1-Sp-bYJ">
+                            <rect key="frame" x="177.5" y="8" width="153.5" height="32"/>
+                            <constraints>
+                                <constraint firstAttribute="width" relation="greaterThanOrEqual" id="13L-5K-f7p"/>
+                                <constraint firstAttribute="height" constant="32" id="v8H-zT-Zmo"/>
+                            </constraints>
                             <fontDescription key="fontDescription" type="system" pointSize="16"/>
                         </button>
                     </subviews>
+                    <viewLayoutGuide key="safeArea" id="6Xt-zo-zLw"/>
+                    <constraints>
+                        <constraint firstItem="F5v-UF-pTC" firstAttribute="top" secondItem="6Xt-zo-zLw" secondAttribute="top" constant="9" id="8gT-26-N84"/>
+                        <constraint firstItem="F5v-UF-pTC" firstAttribute="width" secondItem="ey1-Sp-bYJ" secondAttribute="width" id="Edt-6a-hId"/>
+                        <constraint firstItem="F5v-UF-pTC" firstAttribute="leading" secondItem="6Xt-zo-zLw" secondAttribute="leading" constant="16" id="PIN-b3-gAD"/>
+                        <constraint firstItem="ey1-Sp-bYJ" firstAttribute="leading" secondItem="F5v-UF-pTC" secondAttribute="trailing" constant="8" id="VkR-g7-CkU"/>
+                        <constraint firstItem="6Xt-zo-zLw" firstAttribute="trailing" secondItem="ey1-Sp-bYJ" secondAttribute="trailing" constant="16" id="c9j-jb-GWe"/>
+                        <constraint firstItem="ey1-Sp-bYJ" firstAttribute="top" secondItem="6Xt-zo-zLw" secondAttribute="top" constant="8" id="dAa-PB-WE9"/>
+                    </constraints>
                 </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>

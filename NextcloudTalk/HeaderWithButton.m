@@ -44,6 +44,14 @@
         
         [self addSubview:self.contentView];
         
+        if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:_label.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft) {
+            _label.textAlignment = NSTextAlignmentRight;
+            _button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+        } else {
+            _label.textAlignment = NSTextAlignmentLeft;
+            _button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+        }
+        
         self.contentView.frame = self.bounds;
     }
     
