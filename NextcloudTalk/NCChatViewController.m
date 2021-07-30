@@ -1333,16 +1333,16 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
 
 - (void)shareConfirmationViewControllerDidFinish:(ShareConfirmationViewController *)viewController
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
-    
-    if (viewController.forwardingMessage) {
-        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:viewController.room.token forKey:@"token"];
-        [userInfo setObject:viewController.account.accountId forKey:@"accountId"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerForwardNotification
-                                                            object:self
-                                                          userInfo:userInfo];
-    }
+    [self dismissViewControllerAnimated:YES completion:^{
+        if (viewController.forwardingMessage) {
+            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:viewController.room.token forKey:@"token"];
+            [userInfo setObject:viewController.account.accountId forKey:@"accountId"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerForwardNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+        }
+    }];
 }
 
 #pragma mark - ShareLocationViewController Delegate
