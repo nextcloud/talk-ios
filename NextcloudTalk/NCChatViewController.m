@@ -88,7 +88,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionOpenFileInNextcloud
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -1182,6 +1182,7 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
 
 - (void)didPressForward:(NCChatMessage *)message {
     ShareViewController *shareViewController = [[ShareViewController alloc] initToForwardMessage:message.parsedMessage.string fromChatViewController:self];
+    shareViewController.delegate = self;
     NCNavigationController *forwardMessageNC = [[NCNavigationController alloc] initWithRootViewController:shareViewController];
     [self presentViewController:forwardMessageNC animated:YES completion:nil];
 }
@@ -1312,6 +1313,13 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     
 }
 
+#pragma mark - ShareViewController Delegate
+
+- (void)shareViewControllerDidCancel:(ShareViewController *)viewController
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 #pragma mark - ShareConfirmationViewController Delegate
 
 - (void)shareConfirmationViewControllerDidFailed:(ShareConfirmationViewController *)viewController
@@ -1325,16 +1333,16 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
 
 - (void)shareConfirmationViewControllerDidFinish:(ShareConfirmationViewController *)viewController
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
-    
-    if (viewController.forwardingMessage) {
-        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:viewController.room.token forKey:@"token"];
-        [userInfo setObject:viewController.account.accountId forKey:@"accountId"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerForwardNotification
-                                                            object:self
-                                                          userInfo:userInfo];
-    }
+    [self dismissViewControllerAnimated:YES completion:^{
+        if (viewController.forwardingMessage) {
+            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:viewController.room.token forKey:@"token"];
+            [userInfo setObject:viewController.account.accountId forKey:@"accountId"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerForwardNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+        }
+    }];
 }
 
 #pragma mark - ShareLocationViewController Delegate
