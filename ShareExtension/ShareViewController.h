@@ -24,7 +24,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class ShareViewController;
+@protocol ShareViewControllerDelegate <NSObject>
+
+- (void)shareViewControllerDidCancel:(ShareViewController *)viewController;
+
+@end
+
 @interface ShareViewController : UITableViewController
+
+@property (weak, nonatomic) id<ShareViewControllerDelegate> delegate;
 
 @property (strong, nonatomic) UIViewController *chatViewController;
 @property (strong, nonatomic) NSString *forwardMessage;

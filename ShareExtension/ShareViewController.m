@@ -218,6 +218,8 @@
 
 - (void)cancelButtonPressed
 {
+    [self.delegate shareViewControllerDidCancel:self];
+    
     NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
     [self.extensionContext cancelRequestWithError:error];
 }
