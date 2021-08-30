@@ -44,6 +44,7 @@
 #import "RoundedNumberView.h"
 #import "UserProfileViewController.h"
 #import "UserSettingsTableViewCell.h"
+#import "UserStatusTableViewController.h"
 
 typedef enum SettingsSection {
     kSettingsSectionUser = 0,
@@ -290,60 +291,8 @@ typedef enum AboutSection {
 
 - (void)presentUserStatusOptions
 {
-    UIAlertController *userStatusActionSheet =
-    [UIAlertController alertControllerWithTitle:nil
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    UIAlertAction *onlineAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusOnline]
-                                                     style:UIAlertActionStyleDefault
-                                                   handler:^void (UIAlertAction *action) {
-                                                        [self setActiveUserStatus:kUserStatusOnline];
-                                                   }];
-    [onlineAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusOnline ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [userStatusActionSheet addAction:onlineAction];
-    
-    UIAlertAction *awayAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusAway]
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^void (UIAlertAction *action) {
-                                                            [self setActiveUserStatus:kUserStatusAway];
-                                                        }];
-    [awayAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusAway ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [userStatusActionSheet addAction:awayAction];
-    
-    UIAlertAction *dndAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusDND]
-                                                        style:UIAlertActionStyleDefault
-                                                      handler:^void (UIAlertAction *action) {
-                                                        [self setActiveUserStatus:kUserStatusDND];
-                                                      }];
-    [dndAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusDND ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [userStatusActionSheet addAction:dndAction];
-    
-    UIAlertAction *invisibleAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusInvisible]
-                                                              style:UIAlertActionStyleDefault
-                                                            handler:^void (UIAlertAction *action) {
-                                                                [self setActiveUserStatus:kUserStatusInvisible];
-                                                            }];
-    [invisibleAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusInvisible ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [userStatusActionSheet addAction:invisibleAction];
-    
-    
-    
-    [userStatusActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    userStatusActionSheet.popoverPresentationController.sourceView = self.tableView;
-    userStatusActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self getSectionForSettingsSection:kSettingsSectionUserStatus]]];
-    
-    [self presentViewController:userStatusActionSheet animated:YES completion:nil];
-}
-
-- (void)setActiveUserStatus:(NSString *)userStatus
-{
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] setUserStatus:userStatus forAccount:activeAccount withCompletionBlock:^(NSError *error) {
-        [self getActiveUserStatus];
-    }];
+    UserStatusTableViewController *viewController = [[UserStatusTableViewController alloc] initWithUserStatus:_activeUserStatus];
+    [self.navigationController pushViewController:viewController animated:YES];
 }
 
 #pragma mark - User phone number
@@ -726,6 +675,7 @@ typedef enum AboutSection {
             } else {
                 cell.textLabel.text = NSLocalizedString(@"Fetching status …", nil);
             }
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
             break;
         case kSettingsSectionAccounts:
