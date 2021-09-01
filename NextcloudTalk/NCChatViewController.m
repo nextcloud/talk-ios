@@ -1508,7 +1508,19 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd HH-mm-ss"];
     NSString *dateString = [dateFormatter stringFromDate:[NSDate date]];
-    NSString *audioFileName = [NSString stringWithFormat:@"Talk recording from %@ (%@).mp3", dateString, _room.displayName];
+    // Replace chars that are not allowed on the filesystem
+    NSCharacterSet *notAllowedCharSet = [NSCharacterSet characterSetWithCharactersInString:@"\\/:%"];
+    NSString *roomString = [[_room.displayName componentsSeparatedByCharactersInSet: notAllowedCharSet] componentsJoinedByString: @" "];
+    // Replace multiple spaces with 1
+    NSError *error = nil;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"  +" options:NSRegularExpressionCaseInsensitive error:&error];
+    roomString = [regex stringByReplacingMatchesInString:roomString options:0 range:NSMakeRange(0, [roomString length]) withTemplate:@" "];
+    NSString *audioFileName = [NSString stringWithFormat:@"Talk recording from %@ (%@)", dateString, roomString];
+    // Trim the file name if too long
+    if ([audioFileName length] > 146) {
+        audioFileName = [audioFileName substringWithRange:NSMakeRange(0, 146)];
+    }
+    audioFileName = [audioFileName stringByAppendingString:@".mp3"];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:audioFileName originalName:YES forAccount:activeAccount withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription) {
         if (fileServerURL && fileServerPath) {
