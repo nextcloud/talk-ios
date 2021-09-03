@@ -26,7 +26,7 @@
 
 @property (weak, nonatomic) IBOutlet UIView *placeholderView;
 @property (weak, nonatomic) IBOutlet UIImageView *placeholderImage;
-@property (weak, nonatomic) IBOutlet UILabel *placeholderText;
+@property (weak, nonatomic) IBOutlet UITextView *placeholderTextView;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *loadingView;
 
 - (void)setImage:(UIImage *)image;

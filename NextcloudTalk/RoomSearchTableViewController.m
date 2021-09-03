@@ -51,7 +51,7 @@
     // Contacts placeholder view
     _roomSearchBackgroundView = [[PlaceholderView alloc] init];
     [_roomSearchBackgroundView setImage:[UIImage imageNamed:@"conversations-placeholder"]];
-    [_roomSearchBackgroundView.placeholderText setText:NSLocalizedString(@"No results found", nil)];
+    [_roomSearchBackgroundView.placeholderTextView setText:NSLocalizedString(@"No results found", nil)];
     [_roomSearchBackgroundView.placeholderView setHidden:YES];
     [_roomSearchBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _roomSearchBackgroundView;

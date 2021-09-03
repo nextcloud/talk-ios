@@ -689,13 +689,13 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
 - (void)checkLobbyState
 {
     if ([self shouldPresentLobbyView]) {
-        [_chatBackgroundView.placeholderText setText:NSLocalizedString(@"You are currently waiting in the lobby", nil)];
+        [_chatBackgroundView.placeholderTextView setText:NSLocalizedString(@"You are currently waiting in the lobby", nil)];
         [_chatBackgroundView setImage:[UIImage imageNamed:@"lobby-placeholder"]];
         if (_room.lobbyTimer > 0) {
             NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
             NSString *meetingStart = [NCUtils readableDateFromDate:date];
             NSString *placeHolderText = [NSString stringWithFormat:NSLocalizedString(@"You are currently waiting in the lobby.\nThis meeting is scheduled for\n%@", nil), meetingStart];
-            [_chatBackgroundView.placeholderText setText:placeHolderText];
+            [_chatBackgroundView.placeholderTextView setText:placeHolderText];
             [_chatBackgroundView setImage:[UIImage imageNamed:@"lobby-placeholder"]];
         }
         [_chatBackgroundView.placeholderView setHidden:NO];
@@ -704,7 +704,7 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
         // Clear current chat since chat history will be retrieve when lobby is disabled
         [self cleanChat];
     } else {
-        [_chatBackgroundView.placeholderText setText:NSLocalizedString(@"No messages yet, start the conversation!", nil)];
+        [_chatBackgroundView.placeholderTextView setText:NSLocalizedString(@"No messages yet, start the conversation!", nil)];
         [_chatBackgroundView setImage:[UIImage imageNamed:@"chat-placeholder"]];
         [_chatBackgroundView.placeholderView setHidden:YES];
         [_chatBackgroundView.loadingView startAnimating];

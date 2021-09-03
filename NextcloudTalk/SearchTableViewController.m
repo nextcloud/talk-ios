@@ -47,7 +47,7 @@
     // Contacts placeholder view
     _contactsBackgroundView = [[PlaceholderView alloc] init];
     [_contactsBackgroundView setImage:[UIImage imageNamed:@"contacts-placeholder"]];
-    [_contactsBackgroundView.placeholderText setText:NSLocalizedString(@"No results found", nil)];
+    [_contactsBackgroundView.placeholderTextView setText:NSLocalizedString(@"No results found", nil)];
     [self showSearchingUI];
     self.tableView.backgroundView = _contactsBackgroundView;
 }
