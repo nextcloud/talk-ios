@@ -42,6 +42,7 @@
                             <color key="textColor" systemColor="placeholderTextColor"/>
                             <fontDescription key="fontDescription" type="system" pointSize="16"/>
                             <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES" address="YES" calendarEvent="YES" shipmentTrackingNumber="YES" flightNumber="YES" lookupSuggestion="YES"/>
                         </textView>
                     </subviews>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
