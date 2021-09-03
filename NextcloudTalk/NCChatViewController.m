@@ -694,7 +694,11 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
         if (_room.lobbyTimer > 0) {
             NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
             NSString *meetingStart = [NCUtils readableDateFromDate:date];
-            NSString *placeHolderText = [NSString stringWithFormat:NSLocalizedString(@"You are currently waiting in the lobby.\nThis meeting is scheduled for\n%@", nil), meetingStart];
+            NSString *placeHolderText = [NSString stringWithFormat:NSLocalizedString(@"You are currently waiting in the lobby.\n\nThis meeting is scheduled for\n%@", nil), meetingStart];
+            // Room description section
+            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRoomDescription] && _room.roomDescription && ![_room.roomDescription isEqualToString:@""]) {
+                placeHolderText = [placeHolderText stringByAppendingString:[NSString stringWithFormat:NSLocalizedString(@"\n\n%@", nil), _room.roomDescription]];
+            }
             [_chatBackgroundView.placeholderTextView setText:placeHolderText];
             [_chatBackgroundView setImage:[UIImage imageNamed:@"lobby-placeholder"]];
         }
