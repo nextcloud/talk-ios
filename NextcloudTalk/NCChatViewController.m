@@ -689,19 +689,22 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
 - (void)checkLobbyState
 {
     if ([self shouldPresentLobbyView]) {
-        [_chatBackgroundView.placeholderTextView setText:NSLocalizedString(@"You are currently waiting in the lobby", nil)];
-        [_chatBackgroundView setImage:[UIImage imageNamed:@"lobby-placeholder"]];
+        NSString *placeHolderText = NSLocalizedString(@"You are currently waiting in the lobby", nil);
+        // Lobby timer
         if (_room.lobbyTimer > 0) {
             NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
             NSString *meetingStart = [NCUtils readableDateFromDate:date];
-            NSString *placeHolderText = [NSString stringWithFormat:NSLocalizedString(@"You are currently waiting in the lobby.\n\nThis meeting is scheduled for\n%@", nil), meetingStart];
-            // Room description section
-            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRoomDescription] && _room.roomDescription && ![_room.roomDescription isEqualToString:@""]) {
-                placeHolderText = [placeHolderText stringByAppendingString:[NSString stringWithFormat:NSLocalizedString(@"\n\n%@", nil), _room.roomDescription]];
-            }
-            [_chatBackgroundView.placeholderTextView setText:placeHolderText];
-            [_chatBackgroundView setImage:[UIImage imageNamed:@"lobby-placeholder"]];
+            placeHolderText = [placeHolderText stringByAppendingString:[NSString stringWithFormat:NSLocalizedString(@"\n\nThis meeting is scheduled for\n%@", nil), meetingStart]];
         }
+        // Room description
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRoomDescription] && _room.roomDescription && ![_room.roomDescription isEqualToString:@""]) {
+            placeHolderText = [placeHolderText stringByAppendingString:[NSString stringWithFormat:NSLocalizedString(@"\n\n%@", nil), _room.roomDescription]];
+        }
+        // Only set it when text changes to avoid flickering in links
+        if (![_chatBackgroundView.placeholderTextView.text isEqualToString:placeHolderText]) {
+            [_chatBackgroundView.placeholderTextView setText:placeHolderText];
+        }
+        [_chatBackgroundView setImage:[UIImage imageNamed:@"lobby-placeholder"]];
         [_chatBackgroundView.placeholderView setHidden:NO];
         [_chatBackgroundView.loadingView stopAnimating];
         [_chatBackgroundView.loadingView setHidden:YES];
