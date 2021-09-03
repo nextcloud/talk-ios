@@ -137,7 +137,7 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
     [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
-    
+    dateFormatter.doesRelativeDateFormatting = YES;
     return [dateFormatter stringFromDate:date];
 }
 

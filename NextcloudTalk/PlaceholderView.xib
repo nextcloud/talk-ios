@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -13,42 +14,64 @@
                 <outlet property="contentView" destination="iN0-l3-epB" id="OnQ-or-tGk"/>
                 <outlet property="loadingView" destination="FB3-Ig-rQB" id="gOr-Ol-aYj"/>
                 <outlet property="placeholderImage" destination="VTo-Dp-QXn" id="RiU-2M-0W8"/>
-                <outlet property="placeholderText" destination="gUX-lk-W7O" id="EJy-uk-Lyh"/>
+                <outlet property="placeholderTextView" destination="pmx-ec-gNw" id="YIT-Hn-RsI"/>
                 <outlet property="placeholderView" destination="Vla-vD-TGa" id="56h-KR-IJ3"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="iN0-l3-epB">
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
             <rect key="frame" x="0.0" y="0.0" width="350" height="350"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="FB3-Ig-rQB">
+                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="FB3-Ig-rQB">
                     <rect key="frame" x="165" y="165" width="20" height="20"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     <color key="color" systemColor="placeholderTextColor"/>
                 </activityIndicatorView>
-                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vla-vD-TGa">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vla-vD-TGa">
                     <rect key="frame" x="16" y="20" width="318" height="310"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     <subviews>
-                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="chat-placeholder" translatesAutoresizingMaskIntoConstraints="NO" id="VTo-Dp-QXn">
-                            <rect key="frame" x="94" y="37" width="128" height="128"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chat-placeholder" translatesAutoresizingMaskIntoConstraints="NO" id="VTo-Dp-QXn">
+                            <rect key="frame" x="95" y="27" width="128" height="128"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="128" id="HMf-1J-e5D"/>
+                                <constraint firstAttribute="width" constant="128" id="ert-mq-fmE"/>
+                            </constraints>
                         </imageView>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="No messages yet, start the conversation!" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gUX-lk-W7O">
-                            <rect key="frame" x="11" y="177" width="297" height="60"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="No messages yet, start the conversation!" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="pmx-ec-gNw">
+                            <rect key="frame" x="0.0" y="155" width="318" height="155"/>
                             <color key="textColor" systemColor="placeholderTextColor"/>
-                            <nil key="highlightedColor"/>
-                        </label>
+                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES" address="YES" calendarEvent="YES" shipmentTrackingNumber="YES" flightNumber="YES" lookupSuggestion="YES"/>
+                        </textView>
                     </subviews>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="pmx-ec-gNw" secondAttribute="bottom" id="8lK-bu-TwT"/>
+                        <constraint firstItem="VTo-Dp-QXn" firstAttribute="centerX" secondItem="Vla-vD-TGa" secondAttribute="centerX" id="HYF-RJ-y8q"/>
+                        <constraint firstItem="pmx-ec-gNw" firstAttribute="leading" secondItem="Vla-vD-TGa" secondAttribute="leading" id="KKv-DW-NOa"/>
+                        <constraint firstItem="VTo-Dp-QXn" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Vla-vD-TGa" secondAttribute="top" id="P2e-ge-Hoi"/>
+                        <constraint firstItem="pmx-ec-gNw" firstAttribute="height" secondItem="Vla-vD-TGa" secondAttribute="height" multiplier="0.5" id="gI8-Om-K0y"/>
+                        <constraint firstAttribute="trailing" secondItem="pmx-ec-gNw" secondAttribute="trailing" id="h8u-LI-cCf"/>
+                        <constraint firstItem="VTo-Dp-QXn" firstAttribute="bottom" secondItem="pmx-ec-gNw" secondAttribute="top" id="iKn-nx-5ef"/>
+                        <constraint firstItem="pmx-ec-gNw" firstAttribute="width" secondItem="Vla-vD-TGa" secondAttribute="width" id="wwW-vJ-RFD"/>
+                    </constraints>
                 </view>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="MQb-YF-lsB"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="FB3-Ig-rQB" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="JXb-4p-Q1n"/>
+                <constraint firstItem="Vla-vD-TGa" firstAttribute="leading" secondItem="MQb-YF-lsB" secondAttribute="leading" constant="16" id="O8w-gy-WDd"/>
+                <constraint firstItem="MQb-YF-lsB" firstAttribute="bottom" secondItem="Vla-vD-TGa" secondAttribute="bottom" constant="20" id="bOS-hV-MdP"/>
+                <constraint firstItem="Vla-vD-TGa" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="jWR-Hn-EeS"/>
+                <constraint firstItem="FB3-Ig-rQB" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="o9d-6d-Hew"/>
+                <constraint firstItem="MQb-YF-lsB" firstAttribute="trailing" secondItem="Vla-vD-TGa" secondAttribute="trailing" constant="16" id="ocj-LQ-CoL"/>
+                <constraint firstItem="Vla-vD-TGa" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="t8Q-1d-md6"/>
+                <constraint firstItem="Vla-vD-TGa" firstAttribute="top" secondItem="MQb-YF-lsB" secondAttribute="top" constant="20" id="ygl-nN-far"/>
+            </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="17" y="-236"/>
+            <point key="canvasLocation" x="16" y="-236.58170914542731"/>
         </view>
     </objects>
     <resources>

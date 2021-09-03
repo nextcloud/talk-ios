@@ -75,7 +75,7 @@
     // Directory placeholder view
     _directoryBackgroundView = [[PlaceholderView alloc] init];
     [_directoryBackgroundView setImage:[UIImage imageNamed:@"folder-placeholder"]];
-    [_directoryBackgroundView.placeholderText setText:NSLocalizedString(@"No files in here", nil)];
+    [_directoryBackgroundView.placeholderTextView setText:NSLocalizedString(@"No files in here", nil)];
     [_directoryBackgroundView.placeholderView setHidden:YES];
     [_directoryBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _directoryBackgroundView;

@@ -110,7 +110,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Rooms placeholder view
     _roomsBackgroundView = [[PlaceholderView alloc] init];
     [_roomsBackgroundView setImage:[UIImage imageNamed:@"conversations-placeholder"]];
-    [_roomsBackgroundView.placeholderText setText:NSLocalizedString(@"You are not part of any conversation. Press + to start a new one.", nil)];
+    [_roomsBackgroundView.placeholderTextView setText:NSLocalizedString(@"You are not part of any conversation. Press + to start a new one.", nil)];
     [_roomsBackgroundView.placeholderView setHidden:YES];
     [_roomsBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _roomsBackgroundView;
