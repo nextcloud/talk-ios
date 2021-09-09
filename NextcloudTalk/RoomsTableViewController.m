@@ -480,7 +480,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     _lastRoomWithMentionIndexPath = nil;
     for (int i = 0; i < _rooms.count; i++) {
         NCRoom *room = [_rooms objectAtIndex:i];
-        if (room.unreadMention) {
+        if (room.unreadMention || (room.type == kNCRoomTypeOneToOne && room.unreadMessages > 0)) {
             _lastRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:0];
         }
     }
