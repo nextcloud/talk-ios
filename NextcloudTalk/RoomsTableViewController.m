@@ -66,6 +66,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     PlaceholderView *_roomsBackgroundView;
     UIBarButtonItem *_settingsButton;
     NSTimer *_refreshRoomsTimer;
+    NSIndexPath *_lastRoomWithMentionIndexPath;
+    UIButton *_unreadMentionsBottomButton;
 }
 
 @end
@@ -114,6 +116,42 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [_roomsBackgroundView.placeholderView setHidden:YES];
     [_roomsBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _roomsBackgroundView;
+    
+    // Unread mentions bottom indicator
+    _unreadMentionsBottomButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 126, 28)];
+    _unreadMentionsBottomButton.backgroundColor = [NCAppBranding themeColor];
+    [_unreadMentionsBottomButton setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
+    _unreadMentionsBottomButton.titleLabel.font = [UIFont systemFontOfSize:14];
+    _unreadMentionsBottomButton.layer.cornerRadius = 14;
+    _unreadMentionsBottomButton.clipsToBounds = YES;
+    _unreadMentionsBottomButton.hidden = NO;
+    _unreadMentionsBottomButton.translatesAutoresizingMaskIntoConstraints = NO;
+    _unreadMentionsBottomButton.contentEdgeInsets = UIEdgeInsetsMake(0.0f, 12.0f, 0.0f, 12.0f);
+    _unreadMentionsBottomButton.titleLabel.minimumScaleFactor = 0.9f;
+    _unreadMentionsBottomButton.titleLabel.numberOfLines = 1;
+    _unreadMentionsBottomButton.titleLabel.adjustsFontSizeToFitWidth = YES;
+    
+    NSString *buttonText = NSLocalizedString(@"↓ More mentions", nil);
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:14]};
+    CGRect textSize = [buttonText boundingRectWithSize:CGSizeMake(300, 28) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
+    CGFloat buttonWidth = textSize.size.width + 20;
+
+    [_unreadMentionsBottomButton addTarget:self action:@selector(unreadMentionsBottomButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [_unreadMentionsBottomButton setTitle:buttonText forState:UIControlStateNormal];
+    
+    [self.view addSubview:_unreadMentionsBottomButton];
+    
+    NSDictionary *views = @{@"unreadMentionsButton": _unreadMentionsBottomButton};
+    NSDictionary *metrics = @{@"buttonWidth": @(buttonWidth)};
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[unreadMentionsButton(28)]-30-|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[unreadMentionsButton(buttonWidth)]-(>=0)-|" options:0 metrics:metrics views:views]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual
+                                                             toItem:_unreadMentionsBottomButton attribute:NSLayoutAttributeCenterX multiplier:1.f constant:0.f]];
+    if (@available(iOS 11.0, *)) {
+        [self.view addConstraint:[_unreadMentionsBottomButton.bottomAnchor constraintEqualToAnchor:self.tableView.safeAreaLayoutGuide.bottomAnchor constant:-20]];
+    } else {
+        [self.view addConstraint:[_unreadMentionsBottomButton.bottomAnchor constraintEqualToAnchor:self.tableView.layoutMarginsGuide.bottomAnchor constant:-20]];
+    }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
@@ -438,6 +476,15 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [_roomsBackgroundView.loadingView setHidden:YES];
     [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
     
+    // Calculate index of last room with mentions
+    _lastRoomWithMentionIndexPath = nil;
+    for (int i = 0; i < _rooms.count; i++) {
+        NCRoom *room = [_rooms objectAtIndex:i];
+        if (room.unreadMention) {
+            _lastRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:0];
+        }
+    }
+    
     // Reload search controller if active
     if (_searchController.isActive) {
         [self searchForRoomsWithString:_searchController.searchBar.text];
@@ -445,6 +492,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     // Reload room list
     [self.tableView reloadData];
+    
+    [self updateMentionsIndicator];
 }
 
 - (void)adaptInterfaceForAppState:(AppState)appState
@@ -505,6 +554,48 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     self.addButton.enabled = YES;
     [self setNavigationLogoButton];
+}
+
+#pragma mark - UIScrollViewDelegate Methods
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    if ([scrollView isEqual:self.tableView]) {
+        [self updateMentionsIndicator];
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    if ([scrollView isEqual:self.tableView]) {
+        [self updateMentionsIndicator];
+    }
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    if ([scrollView isEqual:self.tableView]) {
+        [self updateMentionsIndicator];
+    }
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+{
+    if ([scrollView isEqual:self.tableView]) {
+        [self updateMentionsIndicator];
+    }
+}
+
+#pragma mark - Mentions
+
+- (void)updateMentionsIndicator
+{
+    _unreadMentionsBottomButton.hidden = _lastRoomWithMentionIndexPath && [[self.tableView indexPathsForVisibleRows] containsObject:_lastRoomWithMentionIndexPath];;
+}
+
+- (void)unreadMentionsBottomButtonPressed:(id)sender
+{
+    [self.tableView scrollToRowAtIndexPath:_lastRoomWithMentionIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
 
 #pragma mark - User profile
