@@ -694,11 +694,11 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
         if (_room.lobbyTimer > 0) {
             NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
             NSString *meetingStart = [NCUtils readableDateFromDate:date];
-            placeHolderText = [placeHolderText stringByAppendingString:[NSString stringWithFormat:NSLocalizedString(@"\n\nThis meeting is scheduled for\n%@", nil), meetingStart]];
+            placeHolderText = [placeHolderText stringByAppendingString:[NSString stringWithFormat:@"\n\n%@\n%@", NSLocalizedString(@"This meeting is scheduled for", @"The meeting start time will be displayed after this text e.g (This meeting is scheduled for tomorrow at 10:00)"), meetingStart]];
         }
         // Room description
         if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRoomDescription] && _room.roomDescription && ![_room.roomDescription isEqualToString:@""]) {
-            placeHolderText = [placeHolderText stringByAppendingString:[NSString stringWithFormat:NSLocalizedString(@"\n\n%@", nil), _room.roomDescription]];
+            placeHolderText = [placeHolderText stringByAppendingString:[NSString stringWithFormat:@"\n\n%@", _room.roomDescription]];
         }
         // Only set it when text changes to avoid flickering in links
         if (![_chatBackgroundView.placeholderTextView.text isEqualToString:placeHolderText]) {
