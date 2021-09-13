@@ -715,6 +715,7 @@
 		2CC7159320C54D080045C789 /* ChatTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatTableViewCell.m; sourceTree = "<group>"; };
 		2CD5F3222142781A006B71BF /* NCExternalSignalingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCExternalSignalingController.h; sourceTree = "<group>"; };
 		2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCExternalSignalingController.m; sourceTree = "<group>"; };
+		2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header.h"; sourceTree = "<group>"; };
 		2CF9CBD926010835002246EF /* UserProfileViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UserProfileViewController.h; sourceTree = "<group>"; };
 		2CF9CBDA26010835002246EF /* UserProfileViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserProfileViewController.m; sourceTree = "<group>"; };
 		2CF9CBF926025F64002246EF /* TextInputTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextInputTableViewCell.h; sourceTree = "<group>"; };
@@ -826,6 +827,7 @@
 				2C330374255E6EBC00BDB4E4 /* InfoPlist.strings */,
 				2C4446EE265D454200DF1DBC /* NotificationCenterNotifications.h */,
 				2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */,
+				2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */,
 			);
 			path = NextcloudTalk;
 			sourceTree = "<group>";
@@ -2240,7 +2242,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "NextcloudTalk/NextcloudTalk-Bridging-Header.h";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "NextcloudTalk-Swift.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -2291,7 +2293,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "NextcloudTalk/NextcloudTalk-Bridging-Header.h";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "NextcloudTalk-Swift.h";
 				SWIFT_VERSION = 5.0;
 			};
