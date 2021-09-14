@@ -23,8 +23,10 @@
 
 #import "UserStatusTableViewController.h"
 
+#import "DetailedOptionsSelectorTableViewController.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCNavigationController.h"
 
 typedef enum UserStatusSection {
     kUserStatusSectionOnlineStatus = 0,
@@ -32,7 +34,7 @@ typedef enum UserStatusSection {
     kUserStatusSectionCount
 } UserStatusSection;
 
-@interface UserStatusTableViewController ()
+@interface UserStatusTableViewController () <DetailedOptionsSelectorTableViewControllerDelegate>
 {
     NCUserStatus *_userStatus;
 }
@@ -79,52 +81,43 @@ typedef enum UserStatusSection {
 
 - (void)presentUserStatusOptions
 {
-    UIAlertController *userStatusActionSheet =
-    [UIAlertController alertControllerWithTitle:nil
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    NSMutableArray *options = [NSMutableArray new];
     
-    UIAlertAction *onlineAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusOnline]
-                                                     style:UIAlertActionStyleDefault
-                                                   handler:^void (UIAlertAction *action) {
-                                                        [self setActiveUserStatus:kUserStatusOnline];
-                                                   }];
-    [onlineAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusOnline ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [userStatusActionSheet addAction:onlineAction];
+    DetailedOption *onlineOption = [[DetailedOption alloc] init];
+    onlineOption.identifier = kUserStatusOnline;
+    onlineOption.image = [[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusOnline ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    onlineOption.title = [NCUserStatus readableUserStatusFromUserStatus:kUserStatusOnline];
+    onlineOption.selected = [_userStatus.status isEqualToString:kUserStatusOnline];
     
-    UIAlertAction *awayAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusAway]
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^void (UIAlertAction *action) {
-                                                            [self setActiveUserStatus:kUserStatusAway];
-                                                        }];
-    [awayAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusAway ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [userStatusActionSheet addAction:awayAction];
+    DetailedOption *awayOption = [[DetailedOption alloc] init];
+    awayOption.identifier = kUserStatusAway;
+    awayOption.image = [[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusAway ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    awayOption.title = [NCUserStatus readableUserStatusFromUserStatus:kUserStatusAway];
+    awayOption.selected = [_userStatus.status isEqualToString:kUserStatusAway];
     
-    UIAlertAction *dndAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusDND]
-                                                        style:UIAlertActionStyleDefault
-                                                      handler:^void (UIAlertAction *action) {
-                                                        [self setActiveUserStatus:kUserStatusDND];
-                                                      }];
-    [dndAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusDND ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [userStatusActionSheet addAction:dndAction];
+    DetailedOption *dndOption = [[DetailedOption alloc] init];
+    dndOption.identifier = kUserStatusDND;
+    dndOption.image = [[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusDND ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    dndOption.title = [NCUserStatus readableUserStatusFromUserStatus:kUserStatusDND];
+    dndOption.subtitle = NSLocalizedString(@"Mute all notifications", nil);
+    dndOption.selected = [_userStatus.status isEqualToString:kUserStatusDND];
     
-    UIAlertAction *invisibleAction = [UIAlertAction actionWithTitle:[NCUserStatus readableUserStatusFromUserStatus:kUserStatusInvisible]
-                                                              style:UIAlertActionStyleDefault
-                                                            handler:^void (UIAlertAction *action) {
-                                                                [self setActiveUserStatus:kUserStatusInvisible];
-                                                            }];
-    [invisibleAction setValue:[[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusInvisible ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    [userStatusActionSheet addAction:invisibleAction];
+    DetailedOption *invisibleOption = [[DetailedOption alloc] init];
+    invisibleOption.identifier = kUserStatusInvisible;
+    invisibleOption.image = [[UIImage imageNamed:[NCUserStatus userStatusImageNameForStatus:kUserStatusInvisible ofSize:24]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    invisibleOption.title = [NCUserStatus readableUserStatusFromUserStatus:kUserStatusInvisible];
+    invisibleOption.subtitle = NSLocalizedString(@"Appear offline", nil);
+    invisibleOption.selected = [_userStatus.status isEqualToString:kUserStatusInvisible];
     
+    [options addObject:onlineOption];
+    [options addObject:awayOption];
+    [options addObject:dndOption];
+    [options addObject:invisibleOption];
     
-    
-    [userStatusActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    userStatusActionSheet.popoverPresentationController.sourceView = self.tableView;
-    userStatusActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kUserStatusSectionOnlineStatus]];
-    
-    [self presentViewController:userStatusActionSheet animated:YES completion:nil];
+    DetailedOptionsSelectorTableViewController *optionSelectorVC = [[DetailedOptionsSelectorTableViewController alloc] initWithOptions:options forSenderIdentifier:nil andTitle:NSLocalizedString(@"Online status", nil)];
+    optionSelectorVC.delegate = self;
+    NCNavigationController *optionSelectorNC = [[NCNavigationController alloc] initWithRootViewController:optionSelectorVC];
+    [self presentViewController:optionSelectorNC animated:YES completion:nil];
 }
 
 - (void)setActiveUserStatus:(NSString *)userStatus
@@ -144,6 +137,22 @@ typedef enum UserStatusSection {
             [self.tableView reloadData];
         }
     }];
+}
+
+#pragma mark - DetailedOptionSelector Delegate
+
+- (void)detailedOptionsSelector:(DetailedOptionsSelectorTableViewController *)viewController didSelectOptionWithIdentifier:(DetailedOption *)option
+{
+    [self dismissViewControllerAnimated:YES completion:^{
+        if (!option.selected) {
+            [self setActiveUserStatus:option.identifier];
+        }
+    }];
+}
+
+- (void)detailedOptionsSelectorWasCancelled:(DetailedOptionsSelectorTableViewController *)viewController
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - Table view data source
