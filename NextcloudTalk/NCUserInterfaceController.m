@@ -133,7 +133,7 @@
 {
     UIAlertController * alert = [UIAlertController
                                  alertControllerWithTitle:NSLocalizedString(@"Disconnected", nil)
-                                 message:NSLocalizedString(@"It seems that there is no Internet connection.", nil)
+                                 message:NSLocalizedString(@"It seems that there is no internet connection.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction* okButton = [UIAlertAction
