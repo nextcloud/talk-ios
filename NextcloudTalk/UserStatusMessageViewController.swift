@@ -83,6 +83,12 @@ class UserStatusMessageViewController: UIViewController {
         self.getStatus()
     }
     
+    @IBAction func clearStatusButtonPressed(_ sender: Any) {
+        NCCommunication.shared.clearMessage { account, errorCode, errorDescription in
+            self.dismiss(animated: true)
+        }
+    }
+    
     @objc func cancelButtonPressed() {
         self.dismiss(animated: true, completion: nil)
     }

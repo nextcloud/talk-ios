@@ -94,6 +94,9 @@
                     <state key="normal" title="Button">
                         <color key="titleColor" systemColor="labelColor"/>
                     </state>
+                    <connections>
+                        <action selector="clearStatusButtonPressed:" destination="-1" eventType="touchUpInside" id="qIt-gZ-o3C"/>
+                    </connections>
                 </button>
             </subviews>
             <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
