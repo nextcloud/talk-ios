@@ -27,6 +27,7 @@
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCNavigationController.h"
+#import "NextcloudTalk-Swift.h"
 
 typedef enum UserStatusSection {
     kUserStatusSectionOnlineStatus = 0,
@@ -118,6 +119,13 @@ typedef enum UserStatusSection {
     optionSelectorVC.delegate = self;
     NCNavigationController *optionSelectorNC = [[NCNavigationController alloc] initWithRootViewController:optionSelectorVC];
     [self presentViewController:optionSelectorNC animated:YES completion:nil];
+}
+
+- (void)presentUserStatusMessageOptions
+{
+    UserStatusMessageViewController *userStatusMessageVC = [[UserStatusMessageViewController alloc] initWithUserStatus:_userStatus];
+    NCNavigationController *userStatusMessageNC = [[NCNavigationController alloc] initWithRootViewController:userStatusMessageVC];
+    [self presentViewController:userStatusMessageNC animated:YES completion:nil];
 }
 
 - (void)setActiveUserStatus:(NSString *)userStatus
@@ -231,6 +239,9 @@ typedef enum UserStatusSection {
         }
             break;
         case kUserStatusSectionStatusMessage:
+        {
+            [self presentUserStatusMessageOptions];
+        }
             break;
     }
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];

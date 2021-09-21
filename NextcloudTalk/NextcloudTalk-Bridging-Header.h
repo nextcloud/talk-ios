@@ -24,6 +24,9 @@
 #define NextcloudTalk_Bridging_Header_h
 
 #import "NCAppBranding.h"
+#import "NCAPIController.h"
+#import "NCDatabaseManager.h"
+#import "NCUserStatus.h"
 
 
 #endif /* NextcloudTalk_Bridging_Header_h */

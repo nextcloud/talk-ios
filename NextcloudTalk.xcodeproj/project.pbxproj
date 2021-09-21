@@ -256,6 +256,9 @@
 		2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
 		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
 		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
+		2CEDA88926F10BB20044552B /* UserStatusMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88726F10BB20044552B /* UserStatusMessageViewController.swift */; };
+		2CEDA88A26F10BB20044552B /* UserStatusMessageViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */; };
+		2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */; };
 		2CF9CBDB26010835002246EF /* UserProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBDA26010835002246EF /* UserProfileViewController.m */; };
 		2CF9CBFC26025F64002246EF /* TextInputTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFA26025F64002246EF /* TextInputTableViewCell.m */; };
 		2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
@@ -716,6 +719,9 @@
 		2CD5F3222142781A006B71BF /* NCExternalSignalingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCExternalSignalingController.h; sourceTree = "<group>"; };
 		2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCExternalSignalingController.m; sourceTree = "<group>"; };
 		2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header.h"; sourceTree = "<group>"; };
+		2CEDA88726F10BB20044552B /* UserStatusMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusMessageViewController.swift; sourceTree = "<group>"; };
+		2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserStatusMessageViewController.xib; sourceTree = "<group>"; };
+		2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+Extensions.swift"; sourceTree = "<group>"; };
 		2CF9CBD926010835002246EF /* UserProfileViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UserProfileViewController.h; sourceTree = "<group>"; };
 		2CF9CBDA26010835002246EF /* UserProfileViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserProfileViewController.m; sourceTree = "<group>"; };
 		2CF9CBF926025F64002246EF /* TextInputTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextInputTableViewCell.h; sourceTree = "<group>"; };
@@ -875,6 +881,7 @@
 				2C36A03E261342FF0026F04A /* AvatarHeaderView.xib */,
 				2C36A048261487BC0026F04A /* DetailedOptionsSelectorTableViewController.h */,
 				2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */,
+				2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -1073,6 +1080,8 @@
 				2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */,
 				2C444701265D641300DF1DBC /* NCUserDefaults.h */,
 				2C444702265D641300DF1DBC /* NCUserDefaults.m */,
+				2CEDA88726F10BB20044552B /* UserStatusMessageViewController.swift */,
+				2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -1594,6 +1603,7 @@
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
 				2C738158210613A200CDB8DB /* NCChatTitleView.xib in Resources */,
 				2C36A03F261342FF0026F04A /* AvatarHeaderView.xib in Resources */,
+				2CEDA88A26F10BB20044552B /* UserStatusMessageViewController.xib in Resources */,
 				2CA52ACD2670D07900619610 /* VoiceMessageRecordingView.xib in Resources */,
 				2C8A2BCF221FEEFE00DE6D2C /* DirectoryTableViewCell.xib in Resources */,
 				2CC007C620D90AE50096D91F /* RoomNameTableViewCell.xib in Resources */,
@@ -1844,6 +1854,7 @@
 				1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
+				2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */,
 				2C4CDCD126A84E500023F403 /* ShareTableViewCell.m in Sources */,
 				2C8CDD0621C2EDE8004E2997 /* AvatarBackgroundImageView.m in Sources */,
 				2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */,
@@ -1897,6 +1908,7 @@
 				2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */,
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
 				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,
+				2CEDA88926F10BB20044552B /* UserStatusMessageViewController.swift in Sources */,
 				2C7A1236200E0A5700864818 /* UserSettingsTableViewCell.m in Sources */,
 				2C2026A0236832D300DFC89B /* FTPopOverMenu.m in Sources */,
 				2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */,
