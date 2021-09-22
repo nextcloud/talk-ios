@@ -124,12 +124,12 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     @objc func clearAtLabelPressed() {
         let alert = UIAlertController(title: NSLocalizedString("Clear status message after", comment: ""), message: nil, preferredStyle: .actionSheet)
         
-        alert.addAction(UIAlertAction(title: NSLocalizedString("Don't clear", comment: ""), style: .default, handler: nil))
-        alert.addAction(UIAlertAction(title: NSLocalizedString("30 minutes", comment: ""), style: .default, handler: nil))
-        alert.addAction(UIAlertAction(title: NSLocalizedString("1 hour", comment: ""), style: .default, handler: nil))
-        alert.addAction(UIAlertAction(title: NSLocalizedString("4 hours", comment: ""), style: .default, handler: nil))
-        alert.addAction(UIAlertAction(title: NSLocalizedString("Today", comment: ""), style: .default, handler: nil))
-        alert.addAction(UIAlertAction(title: NSLocalizedString("This week", comment: ""), style: .default, handler: nil))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Don't clear", comment: ""), style: .default, handler: {(alert: UIAlertAction!) in self.setClearAt(clearAt: NSLocalizedString("Don't clear", comment: ""))}))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("30 minutes", comment: ""), style: .default, handler: {(alert: UIAlertAction!) in self.setClearAt(clearAt: NSLocalizedString("30 minutes", comment: ""))}))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("1 hour", comment: ""), style: .default, handler: {(alert: UIAlertAction!) in self.setClearAt(clearAt: NSLocalizedString("1 hour", comment: ""))}))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("4 hours", comment: ""), style: .default, handler: {(alert: UIAlertAction!) in self.setClearAt(clearAt: NSLocalizedString("4 hours", comment: ""))}))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Today", comment: ""), style: .default, handler: {(alert: UIAlertAction!) in self.setClearAt(clearAt: NSLocalizedString("Today", comment: ""))}))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("This week", comment: ""), style: .default, handler: {(alert: UIAlertAction!) in self.setClearAt(clearAt: NSLocalizedString("This week", comment: ""))}))
         
         alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
 
@@ -152,6 +152,11 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
             setStatusButton.backgroundColor = NCAppBranding.themeColor()
             setStatusButton.isEnabled = true
         }
+    }
+    
+    func setClearAt(clearAt:String)
+    {
+        self.clearAtLabel.text = clearAt
     }
     
     func setCustomStatusInView(icon: String?, message: String?, clearAt: NSDate?) {
