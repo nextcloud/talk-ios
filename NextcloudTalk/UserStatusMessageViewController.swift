@@ -24,7 +24,7 @@ import UIKit
 
 import NCCommunication
 
-class UserStatusMessageViewController: UIViewController {
+class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var statusEmojiLabel: UILabel!
     @IBOutlet weak var statusMessageTextField: UITextField!
@@ -35,6 +35,8 @@ class UserStatusMessageViewController: UIViewController {
     @IBOutlet weak var setStatusButton: UIButton!
     
     public var userStatus: NCUserStatus?
+    
+    private var predefinedStatusSelected: NCCommunicationUserStatus?
     private var statusPredefinedStatuses: [NCCommunicationUserStatus] = []
     
     @objc init(userStatus:NCUserStatus) {
@@ -60,19 +62,27 @@ class UserStatusMessageViewController: UIViewController {
         statusTableView.delegate = self
         statusTableView.register(UITableViewCell.self, forCellReuseIdentifier: "PredefinedStatusCellIdentifier")
         statusTableView.contentInset = UIEdgeInsets.init(top: 0, left: -10, bottom: 0, right: 0)
+        
         statusEmojiLabel.layer.cornerRadius = 4.0
         statusEmojiLabel.layer.masksToBounds = true
+        
         statusMessageTextField.placeholder = NSLocalizedString("What's your status?", comment: "")
+        statusMessageTextField.returnKeyType = .done
+        statusMessageTextField.delegate = self
+        
         clearStatusLabel.text = NSLocalizedString("Clear status message after", comment: "")
+        
         clearAtLabel.text = NSLocalizedString("Don't clear", comment: "")
         clearAtLabel.layer.cornerRadius = 4.0
         clearAtLabel.layer.masksToBounds = true
         let tap = UITapGestureRecognizer(target: self, action: #selector(self.clearAtLabelPressed))
         clearAtLabel.isUserInteractionEnabled = true
         clearAtLabel.addGestureRecognizer(tap)
+        
         clearStatusButton.setTitle(NSLocalizedString("Clear status message", comment: ""), for: .normal)
         clearStatusButton.layer.cornerRadius = 20.0
         clearStatusButton.layer.masksToBounds = true
+        
         setStatusButton.setTitle(NSLocalizedString("Set status message", comment: ""), for: .normal)
         setStatusButton.backgroundColor = NCAppBranding.themeColor()
         setStatusButton.setTitleColor(NCAppBranding.themeTextColor(), for: .normal)
@@ -80,12 +90,30 @@ class UserStatusMessageViewController: UIViewController {
         setStatusButton.layer.cornerRadius = 20.0
         setStatusButton.layer.masksToBounds = true
         
+        let clearAtDate = NSDate(timeIntervalSince1970: Double(self.userStatus!.clearAt))
+        self.setCustomStatusInView(icon: self.userStatus?.icon, message: self.userStatus?.message, clearAt: clearAtDate)
+                
         self.getStatus()
     }
     
     @IBAction func clearStatusButtonPressed(_ sender: Any) {
         NCCommunication.shared.clearMessage { account, errorCode, errorDescription in
             self.dismiss(animated: true)
+        }
+    }
+    
+    @IBAction func setStatusButtonPressed(_ sender: Any) {
+        guard let message = statusMessageTextField.text else { return }
+        let cleatAt = self.getClearAt(self.clearAtLabel.text!)
+        
+        if predefinedStatusSelected != nil && predefinedStatusSelected?.message == message {
+            NCCommunication.shared.setCustomMessagePredefined(messageId: predefinedStatusSelected!.id!, clearAt:cleatAt) { account, errorCode, errorDescription in
+                self.dismiss(animated: true)
+            }
+        } else {
+            NCCommunication.shared.setCustomMessageUserDefined(statusIcon: statusEmojiLabel.text, message: message, clearAt: cleatAt) { account, errorCode, errorDescription in
+                self.dismiss(animated: true)
+            }
         }
     }
     
@@ -108,37 +136,58 @@ class UserStatusMessageViewController: UIViewController {
         self.present(alert, animated: true)
     }
     
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        statusMessageTextField.resignFirstResponder()
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        self.checkSetUserStatusButtonState()
+    }
+    
+    func checkSetUserStatusButtonState() {
+        if statusMessageTextField.text!.isEmpty == true {
+            setStatusButton.backgroundColor = NCAppBranding.themeColor().withAlphaComponent(0.5)
+            setStatusButton.isEnabled = false
+        } else {
+            setStatusButton.backgroundColor = NCAppBranding.themeColor()
+            setStatusButton.isEnabled = true
+        }
+    }
+    
+    func setCustomStatusInView(icon: String?, message: String?, clearAt: NSDate?) {
+        let clearAtString = self.getPredefinedClearStatusText(clearAt: clearAt, clearAtTime: nil, clearAtType: nil)
+        self.setStatusInView(icon: icon, message: message, clearAt: clearAtString)
+    }
+    
+    func setPredefinedStatusInView(predefinedStatus: NCCommunicationUserStatus?) {
+        predefinedStatusSelected = predefinedStatus
+        let clearAtString = self.getPredefinedClearStatusText(clearAt: predefinedStatus?.clearAt, clearAtTime: predefinedStatus?.clearAtTime, clearAtType: predefinedStatus?.clearAtType)
+        self.setStatusInView(icon: predefinedStatus?.icon, message: predefinedStatus?.message, clearAt: clearAtString)
+    }
+    
+    func setStatusInView(icon: String?, message: String?, clearAt: String?) {
+        self.statusEmojiLabel.text = icon ?? "😀"
+        self.statusMessageTextField.text = message
+        self.clearAtLabel.text = clearAt
+        self.checkSetUserStatusButtonState()
+    }
+    
     func getStatus() {
         NCAPIController.sharedInstance().setupNCCommunication(for: NCDatabaseManager.sharedInstance().activeAccount())
         NCCommunication.shared.getUserStatus { account, clearAt, icon, message, messageId, messageIsPredefined, status, statusIsUserDefined, userId, errorCode, errorDescription in
-            if icon != nil {
-                self.statusEmojiLabel.text = icon
+            if errorCode == 0 {
+                self.setCustomStatusInView(icon: icon, message: message, clearAt: clearAt)
             }
-            
-            if message != nil {
-                self.statusMessageTextField.text = message
-            }
-            
-            if clearAt != nil {
-                self.clearAtLabel.text = self.getPredefinedClearStatusText(clearAt: clearAt, clearAtTime: nil, clearAtType: nil)
-            }
-            
-            NCCommunication.shared.getUserStatusPredefinedStatuses { account, userStatuses, errorCode, errorDescription in
-                
-                if errorCode == 0 {
-
-                    if let userStatuses = userStatuses {
-                        self.statusPredefinedStatuses = userStatuses
-                    }
-
-                    self.statusTableView.reloadData()
-                }
+        }
+        NCCommunication.shared.getUserStatusPredefinedStatuses { account, userStatuses, errorCode, errorDescription in
+            if errorCode == 0 {
+                self.statusPredefinedStatuses = userStatuses!
+                self.statusTableView.reloadData()
             }
         }
     }
     
     func getClearAt(_ clearAtString: String) -> Double {
-        
         let now = Date()
         let calendar = Calendar.current
         let gregorian = Calendar(identifier: .gregorian)
@@ -170,10 +219,8 @@ class UserStatusMessageViewController: UIViewController {
     }
     
     func getPredefinedClearStatusText(clearAt: NSDate?, clearAtTime: String?, clearAtType: String?) -> String {
-             
         // Date
         if clearAt != nil {
-            
             let from = Date()
             let to = clearAt! as Date
             
@@ -201,7 +248,6 @@ class UserStatusMessageViewController: UIViewController {
         
         // Period
         if clearAtTime != nil && clearAtType == "period" {
-            
             switch clearAtTime {
             case "3600":
                 return NSLocalizedString("an hour", comment: "")
@@ -214,7 +260,6 @@ class UserStatusMessageViewController: UIViewController {
         
         // End of
         if clearAtTime != nil && clearAtType == "end-of" {
-            
             switch clearAtTime {
             case "day":
                 return NSLocalizedString("Today", comment: "")
@@ -237,26 +282,12 @@ extension UserStatusMessageViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
         guard let cell = tableView.cellForRow(at: indexPath) else { return }
         let status = statusPredefinedStatuses[indexPath.row]
         
+        self.setPredefinedStatusInView(predefinedStatus: status)
+        
         cell.setSelected(false, animated: true)
-
-        if let messageId = status.id {
-            
-            let clearAtTimestampString = self.getPredefinedClearStatusText(clearAt: status.clearAt, clearAtTime: status.clearAtTime, clearAtType: status.clearAtType)
-            let cleatAt = self.getClearAt(clearAtTimestampString)
-            
-            NCCommunication.shared.setCustomMessagePredefined(messageId: messageId, clearAt:cleatAt) { account, errorCode, errorDescription in
-
-                if errorCode == 0 {
-                    self.statusEmojiLabel.text = status.icon
-                    self.statusMessageTextField.text = status.message
-                    self.clearAtLabel.text = clearAtTimestampString
-                }
-            }
-        }
     }
 }
 
@@ -267,7 +298,6 @@ extension UserStatusMessageViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
         let cell = tableView.dequeueReusableCell(withIdentifier: "PredefinedStatusCellIdentifier", for: indexPath)
         let status = statusPredefinedStatuses[indexPath.row]
         var timeString = getPredefinedClearStatusText(clearAt: status.clearAt, clearAtTime: status.clearAtTime, clearAtType: status.clearAtType)
