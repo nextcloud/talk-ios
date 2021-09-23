@@ -24,6 +24,11 @@ import UIKit
 
 import NCCommunication
 
+@objc protocol UserStatusMessageViewControllerDelegate {
+    func didClearStatusMessage()
+    func didSetStatusMessage(icon:String?, message:String?, clearAt:NSDate?)
+}
+
 class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var statusEmojiLabel: UILabel!
@@ -35,6 +40,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var setStatusButton: UIButton!
     
     public var userStatus: NCUserStatus?
+    @objc public var delegate: UserStatusMessageViewControllerDelegate?
     
     private var predefinedStatusSelected: NCCommunicationUserStatus?
     private var clearAtSelected: Double = 0
@@ -99,6 +105,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func clearStatusButtonPressed(_ sender: Any) {
         NCCommunication.shared.clearMessage { account, errorCode, errorDescription in
+            self.delegate?.didClearStatusMessage()
             self.dismiss(animated: true)
         }
     }
@@ -108,10 +115,14 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         
         if predefinedStatusSelected != nil && predefinedStatusSelected?.message == message {
             NCCommunication.shared.setCustomMessagePredefined(messageId: predefinedStatusSelected!.id!, clearAt:clearAtSelected) { account, errorCode, errorDescription in
+                let clearAtDate = NSDate(timeIntervalSince1970: self.clearAtSelected)
+                self.delegate?.didSetStatusMessage(icon: self.predefinedStatusSelected?.icon, message: self.predefinedStatusSelected?.message, clearAt: clearAtDate)
                 self.dismiss(animated: true)
             }
         } else {
             NCCommunication.shared.setCustomMessageUserDefined(statusIcon: statusEmojiLabel.text, message: message, clearAt: clearAtSelected) { account, errorCode, errorDescription in
+                let clearAtDate = NSDate(timeIntervalSince1970: self.clearAtSelected)
+                self.delegate?.didSetStatusMessage(icon: self.statusEmojiLabel.text, message: message, clearAt: clearAtDate)
                 self.dismiss(animated: true)
             }
         }

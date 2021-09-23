@@ -35,7 +35,7 @@ typedef enum UserStatusSection {
     kUserStatusSectionCount
 } UserStatusSection;
 
-@interface UserStatusTableViewController () <DetailedOptionsSelectorTableViewControllerDelegate>
+@interface UserStatusTableViewController () <DetailedOptionsSelectorTableViewControllerDelegate, UserStatusMessageViewControllerDelegate>
 {
     NCUserStatus *_userStatus;
 }
@@ -124,6 +124,7 @@ typedef enum UserStatusSection {
 - (void)presentUserStatusMessageOptions
 {
     UserStatusMessageViewController *userStatusMessageVC = [[UserStatusMessageViewController alloc] initWithUserStatus:_userStatus];
+    userStatusMessageVC.delegate = self;
     NCNavigationController *userStatusMessageNC = [[NCNavigationController alloc] initWithRootViewController:userStatusMessageVC];
     [self presentViewController:userStatusMessageNC animated:YES completion:nil];
 }
@@ -161,6 +162,24 @@ typedef enum UserStatusSection {
 - (void)detailedOptionsSelectorWasCancelled:(DetailedOptionsSelectorTableViewController *)viewController
 {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - UserStatusMessageViewController Delegate
+
+- (void)didClearStatusMessage
+{
+    _userStatus.icon = @"";
+    _userStatus.message = @"";
+    _userStatus.clearAt = 0;
+    [self.tableView reloadData];
+}
+
+- (void)didSetStatusMessageWithIcon:(NSString *)icon message:(NSString *)message clearAt:(NSDate *)clearAt
+{
+    _userStatus.icon = icon;
+    _userStatus.message = message;
+    _userStatus.clearAt = clearAt.timeIntervalSince1970;
+    [self.tableView reloadData];
 }
 
 #pragma mark - Table view data source
