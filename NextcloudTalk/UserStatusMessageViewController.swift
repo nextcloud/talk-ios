@@ -105,8 +105,12 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func clearStatusButtonPressed(_ sender: Any) {
         NCCommunication.shared.clearMessage { account, errorCode, errorDescription in
-            self.delegate?.didClearStatusMessage()
-            self.dismiss(animated: true)
+            if errorCode == 0 {
+                self.delegate?.didClearStatusMessage()
+                self.dismiss(animated: true)
+            } else {
+                self.showErrorDialog(title: NSLocalizedString("Could not clear status message", comment: ""), message: NSLocalizedString("An error occurred while clearing status message", comment: ""))
+            }
         }
     }
     
@@ -115,15 +119,23 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         
         if predefinedStatusSelected != nil && predefinedStatusSelected?.message == message {
             NCCommunication.shared.setCustomMessagePredefined(messageId: predefinedStatusSelected!.id!, clearAt:clearAtSelected) { account, errorCode, errorDescription in
-                let clearAtDate = NSDate(timeIntervalSince1970: self.clearAtSelected)
-                self.delegate?.didSetStatusMessage(icon: self.predefinedStatusSelected?.icon, message: self.predefinedStatusSelected?.message, clearAt: clearAtDate)
-                self.dismiss(animated: true)
+                if errorCode == 0 {
+                    let clearAtDate = NSDate(timeIntervalSince1970: self.clearAtSelected)
+                    self.delegate?.didSetStatusMessage(icon: self.predefinedStatusSelected?.icon, message: self.predefinedStatusSelected?.message, clearAt: clearAtDate)
+                    self.dismiss(animated: true)
+                } else {
+                    self.showErrorDialog(title: NSLocalizedString("Could not set status message", comment: ""), message: NSLocalizedString("An error occurred while setting status message", comment: ""))
+                }
             }
         } else {
             NCCommunication.shared.setCustomMessageUserDefined(statusIcon: statusEmojiLabel.text, message: message, clearAt: clearAtSelected) { account, errorCode, errorDescription in
-                let clearAtDate = NSDate(timeIntervalSince1970: self.clearAtSelected)
-                self.delegate?.didSetStatusMessage(icon: self.statusEmojiLabel.text, message: message, clearAt: clearAtDate)
-                self.dismiss(animated: true)
+                if errorCode == 0 {
+                    let clearAtDate = NSDate(timeIntervalSince1970: self.clearAtSelected)
+                    self.delegate?.didSetStatusMessage(icon: self.statusEmojiLabel.text, message: message, clearAt: clearAtDate)
+                    self.dismiss(animated: true)
+                } else {
+                    self.showErrorDialog(title: NSLocalizedString("Could not set status message", comment: ""), message: NSLocalizedString("An error occurred while setting status message", comment: ""))
+                }
             }
         }
     }
@@ -188,6 +200,12 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         self.statusMessageTextField.text = message
         self.clearAtLabel.text = clearAt
         self.checkSetUserStatusButtonState()
+    }
+    
+    func showErrorDialog(title: String? ,message: String?) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
+        self.present(alert, animated: true)
     }
     
     func getStatus() {
