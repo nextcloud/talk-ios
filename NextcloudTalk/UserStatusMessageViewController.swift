@@ -37,6 +37,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     public var userStatus: NCUserStatus?
     
     private var predefinedStatusSelected: NCCommunicationUserStatus?
+    private var clearAtSelected: Double = 0
     private var statusPredefinedStatuses: [NCCommunicationUserStatus] = []
     
     @objc init(userStatus:NCUserStatus) {
@@ -104,14 +105,13 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func setStatusButtonPressed(_ sender: Any) {
         guard let message = statusMessageTextField.text else { return }
-        let cleatAt = self.getClearAt(self.clearAtLabel.text!)
         
         if predefinedStatusSelected != nil && predefinedStatusSelected?.message == message {
-            NCCommunication.shared.setCustomMessagePredefined(messageId: predefinedStatusSelected!.id!, clearAt:cleatAt) { account, errorCode, errorDescription in
+            NCCommunication.shared.setCustomMessagePredefined(messageId: predefinedStatusSelected!.id!, clearAt:clearAtSelected) { account, errorCode, errorDescription in
                 self.dismiss(animated: true)
             }
         } else {
-            NCCommunication.shared.setCustomMessageUserDefined(statusIcon: statusEmojiLabel.text, message: message, clearAt: cleatAt) { account, errorCode, errorDescription in
+            NCCommunication.shared.setCustomMessageUserDefined(statusIcon: statusEmojiLabel.text, message: message, clearAt: clearAtSelected) { account, errorCode, errorDescription in
                 self.dismiss(animated: true)
             }
         }
@@ -154,12 +154,13 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    func setClearAt(clearAt:String)
-    {
+    func setClearAt(clearAt:String) {
+        self.clearAtSelected = self.getClearAt(clearAt)
         self.clearAtLabel.text = clearAt
     }
     
     func setCustomStatusInView(icon: String?, message: String?, clearAt: NSDate?) {
+        clearAtSelected = clearAt?.timeIntervalSince1970 ?? 0
         let clearAtString = self.getPredefinedClearStatusText(clearAt: clearAt, clearAtTime: nil, clearAtType: nil)
         self.setStatusInView(icon: icon, message: message, clearAt: clearAtString)
     }
@@ -167,6 +168,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     func setPredefinedStatusInView(predefinedStatus: NCCommunicationUserStatus?) {
         predefinedStatusSelected = predefinedStatus
         let clearAtString = self.getPredefinedClearStatusText(clearAt: predefinedStatus?.clearAt, clearAtTime: predefinedStatus?.clearAtTime, clearAtType: predefinedStatus?.clearAtType)
+        clearAtSelected = self.getClearAt(clearAtString)
         self.setStatusInView(icon: predefinedStatus?.icon, message: predefinedStatus?.message, clearAt: clearAtString)
     }
     
