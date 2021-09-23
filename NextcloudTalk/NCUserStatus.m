@@ -109,6 +109,20 @@ NSString * const kUserStatusOffline     = @"offline";
     return [NCUserStatus readableUserStatusFromUserStatus:_status];
 }
 
+- (NSString *)readableUserStatusMessage
+{
+    NSString *userStatusMessage = nil;
+    
+    if (_icon && ![_icon isEqualToString:@""]) {
+        userStatusMessage = _icon;
+    }
+    if (_message && ![_message isEqualToString:@""]) {
+        userStatusMessage = [NSString stringWithFormat:@"%@  %@", userStatusMessage, _message];
+    }
+    
+    return userStatusMessage;
+}
+
 - (NSString *)userStatusImageNameOfSize:(NSInteger)size
 {
     return [NCUserStatus userStatusImageNameForStatus:_status ofSize:size];

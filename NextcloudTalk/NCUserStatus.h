@@ -45,6 +45,7 @@ extern NSString * const kUserStatusOffline;
 + (NSString *)readableUserStatusFromUserStatus:(NSString *)userStatus;
 + (NSString *)userStatusImageNameForStatus:(NSString *)userStatus ofSize:(NSInteger)size;
 - (NSString *)readableUserStatus;
+- (NSString *)readableUserStatusMessage;
 - (NSString *)userStatusImageNameOfSize:(NSInteger)size;
 
 @end

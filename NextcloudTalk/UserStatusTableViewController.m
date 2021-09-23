@@ -223,7 +223,12 @@ typedef enum UserStatusSection {
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kStatusMessageCellIdentifier];
             }
             
-            cell.textLabel.text = NSLocalizedString(@"What's your status?", nil);
+            NSString *statusMessge = [_userStatus readableUserStatusMessage];
+            if (statusMessge) {
+                cell.textLabel.text = statusMessge;
+            } else {
+                cell.textLabel.text = NSLocalizedString(@"What's your status?", nil);
+            }
         }
             break;
     }

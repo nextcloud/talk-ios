@@ -666,6 +666,10 @@ typedef enum AboutSection {
             }
             if (_activeUserStatus) {
                 cell.textLabel.text = [_activeUserStatus readableUserStatus];
+                NSString *statusMessge = [_activeUserStatus readableUserStatusMessage];
+                if (statusMessge) {
+                    cell.textLabel.text = statusMessge;
+                }
                 NSString *statusImage = [_activeUserStatus userStatusImageNameOfSize:24];
                 if (statusImage) {
                     [cell.imageView setImage:[UIImage imageNamed:statusImage]];
