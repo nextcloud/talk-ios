@@ -71,12 +71,12 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nh0-iY-Iz4">
-                    <rect key="frame" x="113" y="518" width="94" height="40"/>
+                    <rect key="frame" x="112" y="518" width="96" height="40"/>
                     <constraints>
                         <constraint firstAttribute="width" relation="greaterThanOrEqual" id="4rX-uI-iIj"/>
                         <constraint firstAttribute="height" constant="40" id="y41-nG-5ng"/>
                     </constraints>
-                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                     <inset key="contentEdgeInsets" minX="24" minY="0.0" maxX="24" maxY="0.0"/>
                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                     <state key="normal" title="Button"/>
@@ -85,13 +85,13 @@
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JBD-4r-MQ9">
-                    <rect key="frame" x="113" y="458" width="94" height="40"/>
+                    <rect key="frame" x="112" y="458" width="96" height="40"/>
                     <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                     <constraints>
                         <constraint firstAttribute="width" relation="greaterThanOrEqual" id="J0b-me-Meq"/>
                         <constraint firstAttribute="height" constant="40" id="pn7-f2-CaS"/>
                     </constraints>
-                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                     <inset key="contentEdgeInsets" minX="24" minY="0.0" maxX="24" maxY="0.0"/>
                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                     <state key="normal" title="Button">
