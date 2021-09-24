@@ -480,7 +480,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     _lastRoomWithMentionIndexPath = nil;
     for (int i = 0; i < _rooms.count; i++) {
         NCRoom *room = [_rooms objectAtIndex:i];
-        if (room.unreadMention || (room.type == kNCRoomTypeOneToOne && room.unreadMessages > 0)) {
+        if (room.unreadMention || room.unreadMentionDirect || (room.type == kNCRoomTypeOneToOne && room.unreadMessages > 0)) {
             _lastRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:0];
         }
     }
@@ -1084,8 +1084,14 @@ API_AVAILABLE(ios(11.0)){
     cell.dateLabel.text = [self getDateLabelStringForDate:date];
     
     // Set unread messages
-    BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne;
-    [cell setUnreadMessages:room.unreadMessages mentioned:mentioned];
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag]) {
+        BOOL mentioned = room.unreadMentionDirect || room.type == kNCRoomTypeOneToOne;
+        BOOL groupMentioned = room.unreadMention && !room.unreadMentionDirect;
+        [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:groupMentioned];
+    } else {
+        BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne;
+        [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
+    }
     
     // Set room image
     switch (room.type) {

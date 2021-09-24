@@ -72,6 +72,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, assign) NSInteger numGuests;
 @property (nonatomic, assign) NSInteger unreadMessages;
 @property (nonatomic, assign) BOOL unreadMention;
+@property (nonatomic, assign) BOOL unreadMentionDirect;
 @property (nonatomic, copy) NSString *guestList;
 @property (nonatomic, strong) RLMArray<RLMString> *participants;
 @property (nonatomic, assign) NSInteger lastActivity;

@@ -127,8 +127,14 @@
     cell.dateLabel.text = [self getDateLabelStringForDate:date];
     
     // Set unread messages
-    BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne;
-    [cell setUnreadMessages:room.unreadMessages mentioned:mentioned];
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag]) {
+        BOOL mentioned = room.unreadMentionDirect || room.type == kNCRoomTypeOneToOne;
+        BOOL groupMentioned = room.unreadMention && !room.unreadMentionDirect;
+        [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:groupMentioned];
+    } else {
+        BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne;
+        [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
+    }
     
     // Set room image
     switch (room.type) {

@@ -39,7 +39,7 @@ CGFloat const kRoomTableCellHeight = 74.0f;
 {
     RoundedNumberView *_unreadMessagesBadge;
     NSInteger _unreadMessages;
-    BOOL _metioned;
+    HighlightType _highlightType;
 }
 @end
 
@@ -67,7 +67,7 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     
     if (!_unreadMessagesBadge) {
         _unreadMessagesBadge = [[RoundedNumberView alloc] init];
-        _unreadMessagesBadge.important = _metioned;
+        _unreadMessagesBadge.highlightType = _highlightType;
         _unreadMessagesBadge.number = _unreadMessages;
         
         CGFloat badgeXPosition = self.unreadMessagesView.frame.size.width - _unreadMessagesBadge.frame.size.width;
@@ -118,10 +118,10 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     self.titleLabel.frame = frame;
 }
 
-- (void)setUnreadMessages:(NSInteger)number mentioned:(BOOL)mentioned
+- (void)setUnreadMessages:(NSInteger)number mentioned:(BOOL)mentioned groupMentioned:(BOOL)groupMentioned
 {
     _unreadMessages = number;
-    _metioned = mentioned;
+    
     if (number > 0) {
         _titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightBold];
         _subtitleLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightBold];
@@ -132,6 +132,14 @@ CGFloat const kRoomTableCellHeight = 74.0f;
         _subtitleLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightRegular];
         _dateLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
         _unreadMessagesView.hidden = YES;
+    }
+    
+    _highlightType = kHighlightTypeNone;
+    if (groupMentioned) {
+        _highlightType = kHighlightTypeBorder;
+    }
+    if (mentioned) {
+        _highlightType = kHighlightTypeImportant;
     }
 }
 

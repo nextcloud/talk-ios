@@ -475,6 +475,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             
             if (noUnreadMessages) {
                 managedRoom.unreadMention = NO;
+                managedRoom.unreadMentionDirect = NO;
                 managedRoom.unreadMessages = 0;
             }
         }

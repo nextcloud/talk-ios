@@ -22,10 +22,16 @@
 
 #import <UIKit/UIKit.h>
 
+typedef enum HighlightType {
+    kHighlightTypeNone = 0,
+    kHighlightTypeBorder,
+    kHighlightTypeImportant
+} HighlightType;
+
 @interface RoundedNumberView : UIView
 
 @property (nonatomic, assign) NSInteger number;
 @property (nonatomic, strong) UIColor *numberColor;
-@property (nonatomic, assign) BOOL important;
+@property (nonatomic, assign) HighlightType highlightType;
 
 @end

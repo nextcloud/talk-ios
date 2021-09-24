@@ -119,11 +119,31 @@
     }
 }
 
-- (void)setImportant:(BOOL)important
+- (void)setHighlightType:(HighlightType)highlightType
 {
-    _important = important;
-    self.backgroundColor = _important ? [NCAppBranding themeColor] : [NCAppBranding placeholderColor];
-    _numberColor = _important ? [NCAppBranding themeTextColor] : nil;
+    _highlightType = highlightType;
+    
+    self.layer.borderWidth = 0;
+    
+    switch (highlightType) {
+        case kHighlightTypeNone:
+            self.backgroundColor = [NCAppBranding placeholderColor];
+            _numberColor = nil;
+            break;
+        case kHighlightTypeBorder:
+            self.backgroundColor = [UIColor whiteColor];
+            if (@available(iOS 13.0, *)) {
+                self.backgroundColor = [UIColor systemBackgroundColor];
+            }
+            _numberColor = [NCAppBranding elementColor];
+            self.layer.borderWidth = 2;
+            self.layer.borderColor = [NCAppBranding elementColor].CGColor;
+            break;
+        case kHighlightTypeImportant:
+            self.backgroundColor = [NCAppBranding themeColor];
+            _numberColor = [NCAppBranding themeTextColor];
+            break;
+    }
 }
 
 @end
