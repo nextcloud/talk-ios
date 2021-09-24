@@ -39,7 +39,7 @@ extern CGFloat const kRoomTableCellHeight;
 
 @property (nonatomic, assign) BOOL titleOnly;
 
-- (void)setUnreadMessages:(NSInteger)number mentioned:(BOOL)mentioned;
+- (void)setUnreadMessages:(NSInteger)number mentioned:(BOOL)mentioned groupMentioned:(BOOL)groupMentioned;
 - (void)setUserStatus:(NSString *)userStatus;
 
 @end
