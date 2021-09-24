@@ -40,10 +40,22 @@ NSString * const kUserStatusOffline     = @"offline";
     userStatus.userId = [userStatusDict objectForKey:@"userId"];
     userStatus.status = [userStatusDict objectForKey:@"status"];
     userStatus.statusIsUserDefined = [[userStatusDict objectForKey:@"statusIsUserDefined"] boolValue];
-    userStatus.message = [userStatusDict objectForKey:@"message"];
     userStatus.messageId = [userStatusDict objectForKey:@"messageId"];
     userStatus.messageIsPredefined = [[userStatusDict objectForKey:@"messageIsPredefined"] boolValue];
-    userStatus.icon = [userStatusDict objectForKey:@"icon"];
+    
+    id message = [userStatusDict objectForKey:@"message"];
+    if ([message isKindOfClass:[NSNull class]]) {
+        userStatus.message = @"";
+    } else {
+        userStatus.message = [userStatusDict objectForKey:@"message"];
+    }
+    
+    id icon = [userStatusDict objectForKey:@"icon"];
+    if ([icon isKindOfClass:[NSNull class]]) {
+        userStatus.icon = @"";
+    } else {
+        userStatus.icon = [userStatusDict objectForKey:@"icon"];
+    }
     
     id clearAt = [userStatusDict objectForKey:@"clearAt"];
     if ([clearAt isKindOfClass:[NSNull class]]) {
@@ -95,6 +107,20 @@ NSString * const kUserStatusOffline     = @"offline";
 - (NSString *)readableUserStatus
 {
     return [NCUserStatus readableUserStatusFromUserStatus:_status];
+}
+
+- (NSString *)readableUserStatusMessage
+{
+    NSString *userStatusMessage = nil;
+    
+    if (_icon && ![_icon isEqualToString:@""]) {
+        userStatusMessage = _icon;
+    }
+    if (_message && ![_message isEqualToString:@""]) {
+        userStatusMessage = [NSString stringWithFormat:@"%@  %@", userStatusMessage, _message];
+    }
+    
+    return userStatusMessage;
 }
 
 - (NSString *)userStatusImageNameOfSize:(NSInteger)size
