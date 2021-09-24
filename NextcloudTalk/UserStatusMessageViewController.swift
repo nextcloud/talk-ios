@@ -154,7 +154,10 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         alert.addAction(UIAlertAction(title: NSLocalizedString("This week", comment: ""), style: .default, handler: {(alert: UIAlertAction!) in self.setClearAt(clearAt: NSLocalizedString("This week", comment: ""))}))
         
         alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
-
+        
+        // Presentation on iPads
+        alert.popoverPresentationController?.sourceView = clearAtLabel
+        
         self.present(alert, animated: true)
     }
     
