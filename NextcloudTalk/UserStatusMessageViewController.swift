@@ -31,7 +31,7 @@ import NCCommunication
 
 class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
 
-    @IBOutlet weak var statusEmojiLabel: UILabel!
+    @IBOutlet weak var statusEmojiTextField: EmojiTextField!
     @IBOutlet weak var statusMessageTextField: UITextField!
     @IBOutlet weak var statusTableView: UITableView!
     @IBOutlet weak var clearStatusLabel: UILabel!
@@ -70,8 +70,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         statusTableView.register(UITableViewCell.self, forCellReuseIdentifier: "PredefinedStatusCellIdentifier")
         statusTableView.contentInset = UIEdgeInsets.init(top: 0, left: -10, bottom: 0, right: 0)
         
-        statusEmojiLabel.layer.cornerRadius = 4.0
-        statusEmojiLabel.layer.masksToBounds = true
+        statusEmojiTextField.delegate = self
         
         statusMessageTextField.placeholder = NSLocalizedString("What's your status?", comment: "")
         statusMessageTextField.returnKeyType = .done
@@ -117,7 +116,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     @IBAction func setStatusButtonPressed(_ sender: Any) {
         guard let message = statusMessageTextField.text else { return }
         
-        if predefinedStatusSelected != nil && predefinedStatusSelected?.message == message {
+        if predefinedStatusSelected != nil && predefinedStatusSelected?.message == message && predefinedStatusSelected?.icon == statusEmojiTextField.text {
             NCCommunication.shared.setCustomMessagePredefined(messageId: predefinedStatusSelected!.id!, clearAt:clearAtSelected) { account, errorCode, errorDescription in
                 if errorCode == 0 {
                     let clearAtDate = NSDate(timeIntervalSince1970: self.clearAtSelected)
@@ -128,10 +127,10 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
                 }
             }
         } else {
-            NCCommunication.shared.setCustomMessageUserDefined(statusIcon: statusEmojiLabel.text, message: message, clearAt: clearAtSelected) { account, errorCode, errorDescription in
+            NCCommunication.shared.setCustomMessageUserDefined(statusIcon: statusEmojiTextField.text, message: message, clearAt: clearAtSelected) { account, errorCode, errorDescription in
                 if errorCode == 0 {
                     let clearAtDate = NSDate(timeIntervalSince1970: self.clearAtSelected)
-                    self.delegate?.didSetStatusMessage(icon: self.statusEmojiLabel.text, message: message, clearAt: clearAtDate)
+                    self.delegate?.didSetStatusMessage(icon: self.statusEmojiTextField.text, message: message, clearAt: clearAtDate)
                     self.dismiss(animated: true)
                 } else {
                     self.showErrorDialog(title: NSLocalizedString("Could not set status message", comment: ""), message: NSLocalizedString("An error occurred while setting status message", comment: ""))
@@ -167,6 +166,24 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         self.checkSetUserStatusButtonState()
     }
     
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField is EmojiTextField {
+            if #available(iOS 10.2, *) {
+                if string.isSingleEmoji == false {
+                    textField.text = "😀"
+                } else {
+                    textField.text = string
+                }
+            } else {
+                textField.text = "😀"
+            }
+            textField.endEditing(true)
+            return false
+        }
+        
+        return true
+    }
+    
     func checkSetUserStatusButtonState() {
         if statusMessageTextField.text!.isEmpty == true {
             setStatusButton.backgroundColor = NCAppBranding.themeColor().withAlphaComponent(0.5)
@@ -196,7 +213,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     }
     
     func setStatusInView(icon: String?, message: String?, clearAt: String?) {
-        self.statusEmojiLabel.text = icon ?? "😀"
+        self.statusEmojiTextField.text = icon ?? "😀"
         self.statusMessageTextField.text = message
         self.clearAtLabel.text = clearAt
         self.checkSetUserStatusButtonState()
@@ -347,5 +364,20 @@ extension UserStatusMessageViewController: UITableViewDataSource {
         }
 
         return cell
+    }
+}
+
+class EmojiTextField: UITextField {
+
+    // required for iOS 13
+    override var textInputContextIdentifier: String? { "" } // return non-nil to show the Emoji keyboard ¯\_(ツ)_/¯
+
+    override var textInputMode: UITextInputMode? {
+        for mode in UITextInputMode.activeInputModes {
+            if mode.primaryLanguage == "emoji" {
+                return mode
+            }
+        }
+        return nil
     }
 }

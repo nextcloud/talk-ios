@@ -15,7 +15,7 @@
                 <outlet property="clearStatusButton" destination="JBD-4r-MQ9" id="qxE-om-lhi"/>
                 <outlet property="clearStatusLabel" destination="BiR-wf-VS3" id="axm-9g-svp"/>
                 <outlet property="setStatusButton" destination="Nh0-iY-Iz4" id="vtl-Fp-fvH"/>
-                <outlet property="statusEmojiLabel" destination="zTq-eE-AxR" id="Ckv-rb-O2m"/>
+                <outlet property="statusEmojiTextField" destination="zTq-eE-AxR" id="z5u-4X-FgD"/>
                 <outlet property="statusMessageTextField" destination="wPx-Jy-OXj" id="5vt-yP-zay"/>
                 <outlet property="statusTableView" destination="ekq-ux-4M0" id="qhi-3s-7gh"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
@@ -27,7 +27,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="wPx-Jy-OXj">
-                    <rect key="frame" x="62" y="73" width="238" height="34"/>
+                    <rect key="frame" x="64" y="73" width="236" height="34"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <textInputTraits key="textInputTraits"/>
                 </textField>
@@ -50,17 +50,14 @@
                     </constraints>
                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                 </label>
-                <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="😄" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zTq-eE-AxR">
-                    <rect key="frame" x="20" y="73" width="34" height="34"/>
-                    <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
+                <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="zTq-eE-AxR" customClass="EmojiTextField" customModule="NextcloudTalk" customModuleProvider="target">
+                    <rect key="frame" x="20" y="73" width="36" height="34"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="34" id="2Sa-3q-Kev"/>
-                        <constraint firstAttribute="height" constant="34" id="RN5-i5-vpx"/>
+                        <constraint firstAttribute="width" constant="36" id="80w-h1-cVB"/>
                     </constraints>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                    <nil key="textColor"/>
-                    <nil key="highlightedColor"/>
-                </label>
+                    <textInputTraits key="textInputTraits"/>
+                </textField>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Clear status message after" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="BiR-wf-VS3">
                     <rect key="frame" x="24" y="394" width="178.5" height="34"/>
                     <constraints>
@@ -111,8 +108,10 @@
                 <constraint firstItem="JBD-4r-MQ9" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="CUY-aC-JlA"/>
                 <constraint firstItem="JBD-4r-MQ9" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="20" id="ELA-6W-Vhe"/>
                 <constraint firstItem="wPx-Jy-OXj" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" constant="29" id="Fa7-vU-rMS"/>
+                <constraint firstItem="zTq-eE-AxR" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="20" id="GiU-dz-07d"/>
                 <constraint firstItem="Nh0-iY-Iz4" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="20" id="Gpq-Lp-cWX"/>
                 <constraint firstItem="BiR-wf-VS3" firstAttribute="width" secondItem="lwj-4t-2fR" secondAttribute="width" multiplier="2" id="Ugc-3f-Wjn"/>
+                <constraint firstItem="wPx-Jy-OXj" firstAttribute="leading" secondItem="zTq-eE-AxR" secondAttribute="trailing" constant="8" symbolic="YES" id="UuV-ZT-ctM"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="ekq-ux-4M0" secondAttribute="trailing" constant="20" id="WwC-ei-YMg"/>
                 <constraint firstItem="lwj-4t-2fR" firstAttribute="leading" secondItem="BiR-wf-VS3" secondAttribute="trailing" constant="8" symbolic="YES" id="X8b-Gw-TPp"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="Nh0-iY-Iz4" secondAttribute="bottom" constant="10" id="XgD-7E-yRz"/>
@@ -120,12 +119,10 @@
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="lwj-4t-2fR" secondAttribute="trailing" constant="20" id="bKS-Dj-2RP"/>
                 <constraint firstItem="BiR-wf-VS3" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="24" id="cxl-dP-PAa"/>
                 <constraint firstItem="BiR-wf-VS3" firstAttribute="top" secondItem="ekq-ux-4M0" secondAttribute="bottom" constant="20" id="d07-Zh-7hw"/>
-                <constraint firstItem="zTq-eE-AxR" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="20" id="fdX-Ob-p8u"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Nh0-iY-Iz4" secondAttribute="trailing" constant="20" id="gYc-6o-OWG"/>
                 <constraint firstItem="ekq-ux-4M0" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" constant="90" id="gZe-tl-aQc"/>
                 <constraint firstItem="Nh0-iY-Iz4" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="qhu-oQ-1jg"/>
                 <constraint firstItem="ekq-ux-4M0" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="20" id="weE-ix-RNL"/>
-                <constraint firstItem="wPx-Jy-OXj" firstAttribute="leading" secondItem="zTq-eE-AxR" secondAttribute="trailing" constant="8" symbolic="YES" id="wjt-RJ-r5h"/>
                 <constraint firstItem="zTq-eE-AxR" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" constant="29" id="zLQ-am-F7D"/>
                 <constraint firstItem="Nh0-iY-Iz4" firstAttribute="top" secondItem="JBD-4r-MQ9" secondAttribute="bottom" constant="20" id="zUm-IO-aZ0"/>
             </constraints>
