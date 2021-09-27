@@ -592,7 +592,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NSArray *visibleRows = [self.tableView indexPathsForVisibleRows];
     NSIndexPath *lastVisibleRowIndexPath = visibleRows.lastObject;
-    _unreadMentionsBottomButton.hidden = _lastRoomWithMentionIndexPath && ([visibleRows containsObject:_lastRoomWithMentionIndexPath] || lastVisibleRowIndexPath.row > _lastRoomWithMentionIndexPath.row);
+    _unreadMentionsBottomButton.hidden = YES;
+    if (_lastRoomWithMentionIndexPath) {
+        _unreadMentionsBottomButton.hidden = [visibleRows containsObject:_lastRoomWithMentionIndexPath] || lastVisibleRowIndexPath.row > _lastRoomWithMentionIndexPath.row;
+    }
 }
 
 - (void)unreadMentionsBottomButtonPressed:(id)sender
