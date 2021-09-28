@@ -313,6 +313,8 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     _chatBackgroundView = [[PlaceholderView alloc] init];
     [_chatBackgroundView.placeholderView setHidden:YES];
     [_chatBackgroundView.loadingView startAnimating];
+    [_chatBackgroundView.placeholderTextView setText:NSLocalizedString(@"No messages yet, start the conversation!", nil)];
+    [_chatBackgroundView setImage:[UIImage imageNamed:@"chat-placeholder"]];
     self.tableView.backgroundView = _chatBackgroundView;
     
     // Unread messages indicator
