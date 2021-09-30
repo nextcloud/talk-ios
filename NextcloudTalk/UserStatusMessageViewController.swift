@@ -43,6 +43,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     @objc public var delegate: UserStatusMessageViewControllerDelegate?
     
     private var predefinedStatusSelected: NCCommunicationUserStatus?
+    private var iconSelected: String?
     private var clearAtSelected: Double = 0
     private var statusPredefinedStatuses: [NCCommunicationUserStatus] = []
     
@@ -137,10 +138,10 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
                 }
             }
         } else {
-            NCCommunication.shared.setCustomMessageUserDefined(statusIcon: statusEmojiTextField.text, message: message, clearAt: clearAtSelected) { account, errorCode, errorDescription in
+            NCCommunication.shared.setCustomMessageUserDefined(statusIcon: iconSelected, message: message, clearAt: clearAtSelected) { account, errorCode, errorDescription in
                 if errorCode == 0 {
                     let clearAtDate = NSDate(timeIntervalSince1970: self.clearAtSelected)
-                    self.delegate?.didSetStatusMessage(icon: self.statusEmojiTextField.text, message: message, clearAt: clearAtDate)
+                    self.delegate?.didSetStatusMessage(icon: self.iconSelected, message: message, clearAt: clearAtDate)
                     self.dismiss(animated: true)
                 } else {
                     self.showErrorDialog(title: NSLocalizedString("Could not set status message", comment: ""), message: NSLocalizedString("An error occurred while setting status message", comment: ""))
@@ -183,12 +184,12 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         if textField is EmojiTextField {
             if #available(iOS 10.2, *) {
                 if string.isSingleEmoji == false {
-                    textField.text = "😀"
+                    self.setStatusIconInView(icon: nil)
                 } else {
-                    textField.text = string
+                    self.setStatusIconInView(icon: string)
                 }
             } else {
-                textField.text = "😀"
+                self.setStatusIconInView(icon: nil)
             }
             textField.endEditing(true)
             return false
@@ -226,10 +227,22 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     }
     
     func setStatusInView(icon: String?, message: String?, clearAt: String?) {
-        self.statusEmojiTextField.text = icon ?? "😀"
+        self.setStatusIconInView(icon: icon)
         self.statusMessageTextField.text = message
         self.clearAtLabel.text = clearAt
         self.checkSetUserStatusButtonState()
+    }
+    
+    func setStatusIconInView(icon: String?) {
+        if icon == nil || icon?.isEmpty == true {
+            iconSelected = nil
+            statusEmojiTextField.text = "😀"
+            statusEmojiTextField.alpha = 0.5
+        } else {
+            iconSelected = icon
+            statusEmojiTextField.text = icon
+            statusEmojiTextField.alpha = 1
+        }
     }
     
     func showErrorDialog(title: String? ,message: String?) {

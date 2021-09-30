@@ -44,17 +44,13 @@ NSString * const kUserStatusOffline     = @"offline";
     userStatus.messageIsPredefined = [[userStatusDict objectForKey:@"messageIsPredefined"] boolValue];
     
     id message = [userStatusDict objectForKey:@"message"];
-    if ([message isKindOfClass:[NSNull class]]) {
-        userStatus.message = @"";
-    } else {
-        userStatus.message = [userStatusDict objectForKey:@"message"];
+    if ([message isKindOfClass:[NSString class]]) {
+        userStatus.message = message;
     }
     
     id icon = [userStatusDict objectForKey:@"icon"];
-    if ([icon isKindOfClass:[NSNull class]]) {
-        userStatus.icon = @"";
-    } else {
-        userStatus.icon = [userStatusDict objectForKey:@"icon"];
+    if ([icon isKindOfClass:[NSString class]]) {
+        userStatus.icon = icon;
     }
     
     id clearAt = [userStatusDict objectForKey:@"clearAt"];
