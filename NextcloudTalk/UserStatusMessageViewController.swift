@@ -107,7 +107,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         setStatusButton.layer.cornerRadius = 20.0
         setStatusButton.layer.masksToBounds = true
         
-        let clearAtDate = NSDate(timeIntervalSince1970: Double(self.userStatus!.clearAt))
+        let clearAtDate = NSDate(timeIntervalSince1970: Double(self.userStatus?.clearAt ?? 0))
         self.setCustomStatusInView(icon: self.userStatus?.icon, message: self.userStatus?.message, clearAt: clearAtDate)
                 
         self.getStatus()
