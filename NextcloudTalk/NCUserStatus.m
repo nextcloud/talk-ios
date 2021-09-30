@@ -44,17 +44,13 @@ NSString * const kUserStatusOffline     = @"offline";
     userStatus.messageIsPredefined = [[userStatusDict objectForKey:@"messageIsPredefined"] boolValue];
     
     id message = [userStatusDict objectForKey:@"message"];
-    if ([message isKindOfClass:[NSNull class]]) {
-        userStatus.message = @"";
-    } else {
-        userStatus.message = [userStatusDict objectForKey:@"message"];
+    if ([message isKindOfClass:[NSString class]]) {
+        userStatus.message = message;
     }
     
     id icon = [userStatusDict objectForKey:@"icon"];
-    if ([icon isKindOfClass:[NSNull class]]) {
-        userStatus.icon = @"";
-    } else {
-        userStatus.icon = [userStatusDict objectForKey:@"icon"];
+    if ([icon isKindOfClass:[NSString class]]) {
+        userStatus.icon = icon;
     }
     
     id clearAt = [userStatusDict objectForKey:@"clearAt"];
@@ -111,16 +107,17 @@ NSString * const kUserStatusOffline     = @"offline";
 
 - (NSString *)readableUserStatusMessage
 {
-    NSString *userStatusMessage = nil;
-    
+    NSString *userStatusIcon = nil;
     if (_icon && ![_icon isEqualToString:@""]) {
-        userStatusMessage = _icon;
-    }
-    if (_message && ![_message isEqualToString:@""]) {
-        userStatusMessage = [NSString stringWithFormat:@"%@  %@", userStatusMessage, _message];
+        userStatusIcon = _icon;
     }
     
-    return userStatusMessage;
+    NSString *userStatusMessage = nil;
+    if (_message && ![_message isEqualToString:@""]) {
+        userStatusMessage = _message;
+    }
+    
+    return userStatusIcon ? [NSString stringWithFormat:@"%@  %@", userStatusIcon, _message] : userStatusMessage;
 }
 
 - (NSString *)userStatusImageNameOfSize:(NSInteger)size
