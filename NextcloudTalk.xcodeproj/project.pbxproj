@@ -617,7 +617,6 @@
 		2C9E071626D934F500F65D41 /* UserStatusTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserStatusTableViewController.xib; sourceTree = "<group>"; };
 		2C9E6CCC1F6F34F000399B7A /* ARDSDPUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSDPUtils.h; sourceTree = "<group>"; };
 		2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDSDPUtils.m; sourceTree = "<group>"; };
-		2CA0C8EA24D1D3BF005702AC /* NCCommunication.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NCCommunication.framework; path = Carthage/Build/iOS/NCCommunication.framework; sourceTree = "<group>"; };
 		2CA1553F208E350300CE8EF0 /* NCChatMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatMessage.h; sourceTree = "<group>"; };
 		2CA15540208E350300CE8EF0 /* NCChatMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatMessage.m; sourceTree = "<group>"; };
 		2CA15543208E41B500CE8EF0 /* NCChatViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatViewController.h; sourceTree = "<group>"; };
@@ -1307,7 +1306,6 @@
 			isa = PBXGroup;
 			children = (
 				1F785DC72707385300AC4B40 /* NCCommunication.xcframework */,
-				2CA0C8EA24D1D3BF005702AC /* NCCommunication.framework */,
 				2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */,
 				2CA1CC961F016117002FE6A2 /* Security.framework */,
 				2C90E5CE1EDF23A00093D85A /* WebKit.framework */,
