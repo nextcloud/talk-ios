@@ -257,6 +257,7 @@ NSTimeInterval const kNCPeerConnectionCheckVideoPausedStateWhilePausedEverySecon
                 }
                                 
                 self.videoBytesReceivedByPeer = bytesReceived;
+                return;
             }
         }
     }];
