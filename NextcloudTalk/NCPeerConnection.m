@@ -30,16 +30,20 @@
 #import <WebRTC/RTCMediaStream.h>
 #import <WebRTC/RTCDefaultVideoEncoderFactory.h>
 #import <WebRTC/RTCDefaultVideoDecoderFactory.h>
+#import <WebRTC/RTCLegacyStatsReport.h>
 
 #import "ARDSDPUtils.h"
 
 #import "NCSignalingMessage.h"
 
+NSTimeInterval const kNCPeerConnectionCheckVideoPausedStateEverySeconds  = 3.0;
+NSTimeInterval const kNCPeerConnectionCheckVideoPausedStateWhilePausedEverySeconds  = 1.0;
 
 @interface NCPeerConnection () <RTCPeerConnectionDelegate, RTCDataChannelDelegate>
 
 @property (nonatomic, strong) RTCPeerConnectionFactory *peerConnectionFactory;
 @property (nonatomic, strong) NSMutableArray *queuedRemoteCandidates;
+@property (nonatomic, assign) NSInteger videoBytesReceivedByPeer;
 
 @end
 
@@ -68,6 +72,8 @@
         _peerConnection = peerConnection;
         _peerId = sessionId;
         _isAudioOnly = audioOnly;
+        
+        [self scheduleVideoPausedStateTimer];
     }
     
     return self;
@@ -201,6 +207,61 @@
     self.peerConnection = nil;
 }
 
+#pragma mark - VideoPaused Timer
+
+- (void)scheduleVideoPausedStateTimer
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSTimeInterval timerInterval = kNCPeerConnectionCheckVideoPausedStateEverySeconds;
+        
+        if (self.isRemoteVideoPaused) {
+            // Check video state quicker, when already in paused state
+            timerInterval = kNCPeerConnectionCheckVideoPausedStateWhilePausedEverySeconds;
+        }
+        
+        [NSTimer scheduledTimerWithTimeInterval:timerInterval
+                                         target:self
+                                       selector:@selector(checkVideoPausedState)
+                                       userInfo:nil
+                                        repeats:NO];
+    });
+}
+
+- (void)checkVideoPausedState
+{
+    [self scheduleVideoPausedStateTimer];
+    
+    if (!self.remoteStream || self.isRemoteVideoDisabled) {
+        return;
+    }
+    
+    // See: https://stackoverflow.com/questions/66444301/how-to-getstats-in-webrtc-ios-sdk-in-swift
+    [self.peerConnection statsForTrack:nil statsOutputLevel:RTCStatsOutputLevelStandard completionHandler:^(NSArray<RTCLegacyStatsReport *> * _Nonnull stats)
+     {
+        for (RTCLegacyStatsReport *stat in stats) {
+            if ([stat.type isEqualToString:@"ssrc"] && [[stat.values objectForKey:@"mediaType"] isEqualToString:@"video"]) {
+                NSInteger bytesReceived = [[stat.values objectForKey:@"bytesReceived"] integerValue];
+                
+                if (self.videoBytesReceivedByPeer > 0) {
+                    if (self.videoBytesReceivedByPeer == bytesReceived && !self.isRemoteVideoPaused) {
+                        NSLog(@"Video paused for peer %@", self.peerId);
+                        
+                        self.isRemoteVideoPaused = YES;
+                        [self.delegate peerConnection:self didChangeRemoteVideoPaused:YES];
+                    } else if (self.videoBytesReceivedByPeer != bytesReceived && self.isRemoteVideoPaused) {
+                        NSLog(@"Video un-paused for peer %@", self.peerId);
+                        
+                        self.isRemoteVideoPaused = NO;
+                        [self.delegate peerConnection:self didChangeRemoteVideoPaused:NO];
+                    }
+                }
+                                
+                self.videoBytesReceivedByPeer = bytesReceived;
+            }
+        }
+    }];
+}
+
 #pragma mark - RTCPeerConnectionDelegate
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didChangeSignalingState:(RTCSignalingState)stateChanged
@@ -218,7 +279,6 @@
         
         self.remoteStream = stream;
         [self.delegate peerConnection:self didAddStream:stream];
-        
     });
 }
 

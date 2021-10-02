@@ -46,6 +46,7 @@
 - (void)callController:(NCCallController *)callController didReceiveNick:(NSString *)nick fromPeer:(NCPeerConnection *)peer;
 - (void)callController:(NCCallController *)callController didReceiveUnshareScreenFromPeer:(NCPeerConnection *)peer;
 - (void)callController:(NCCallController *)callController didReceiveForceMuteActionForPeerId:(NSString *)peerId;
+- (void)callController:(NCCallController *)callController didChangeRemoteVideoPaused:(BOOL)isPaused ofPeer:(NCPeerConnection *)peer;
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController;
 
 @end

@@ -1204,6 +1204,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
     [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
     [cell setVideoDisabled: (_isAudioOnly) ? YES : peerConnection.isRemoteVideoDisabled];
+    [cell setVideoPaused:peerConnection.isRemoteVideoPaused];
     [cell.peerNameLabel setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
     [cell.buttonsContainerView setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
     
@@ -1229,6 +1230,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [participantCell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
     [participantCell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
     [participantCell setVideoDisabled: (_isAudioOnly) ? YES : peerConnection.isRemoteVideoDisabled];
+    [participantCell setVideoPaused:peerConnection.isRemoteVideoPaused];
     [participantCell.peerNameLabel setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
     [participantCell.buttonsContainerView setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
 }
@@ -1378,6 +1380,13 @@ typedef NS_ENUM(NSInteger, CallState) {
     } else {
         NSLog(@"Peer was force muted: %@", peerId);
     }
+}
+
+- (void)callController:(NCCallController *)callController didChangeRemoteVideoPaused:(BOOL)isPaused ofPeer:(NCPeerConnection *)peer
+{
+    [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+        [cell setVideoPaused:isPaused];
+    }];
 }
 
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController

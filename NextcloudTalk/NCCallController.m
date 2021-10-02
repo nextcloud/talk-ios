@@ -848,5 +848,9 @@ static NSString * const kNCVideoTrackKind = @"video";
     [self.delegate callController:self didReceiveNick:nick fromPeer:peerConnection];
 }
 
+- (void)peerConnection:(NCPeerConnection *)peerConnection didChangeRemoteVideoPaused:(BOOL)isPaused
+{
+    [self.delegate callController:self didChangeRemoteVideoPaused:isPaused ofPeer:peerConnection];
+}
 
 @end

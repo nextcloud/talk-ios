@@ -52,6 +52,9 @@
 /** Called when a peer connection creates session description */
 - (void)peerConnection:(NCPeerConnection *)peerConnection needsToSendSessionDescription:(RTCSessionDescription *)sessionDescription;
 
+/** Called when a peer with enabled video did not send new video frames for a few seconds */
+- (void)peerConnection:(NCPeerConnection *)peerConnection didChangeRemoteVideoPaused:(BOOL)isPaused;
+
 @end
 
 @interface NCPeerConnection : NSObject
@@ -69,6 +72,7 @@
 @property (nonatomic, assign) BOOL isRemoteAudioDisabled;
 @property (nonatomic, assign) BOOL isRemoteVideoDisabled;
 @property (nonatomic, assign) BOOL isPeerSpeaking;
+@property (nonatomic, assign) BOOL isRemoteVideoPaused;
 @property (nonatomic, strong, readonly) NSMutableArray *queuedRemoteCandidates;
 @property (nonatomic, strong) RTCMediaStream *remoteStream;
 

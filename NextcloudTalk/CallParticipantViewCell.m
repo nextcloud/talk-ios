@@ -42,6 +42,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     BOOL _showOriginalSize;
     AvatarBackgroundImageView *_backgroundImageView;
     NSTimer *_disconnectedTimer;
+    UIVisualEffectView *_blurEffectView;
 }
 
 @end
@@ -79,6 +80,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     _videoView = nil;
     _showOriginalSize = NO;
     self.layer.borderWidth = 0.0f;
+    [self removeVideoPausedBlurEffect];
 }
 
 - (void)toggleZoom
@@ -233,6 +235,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     if (videoDisabled) {
         [_videoView setHidden:YES];
         [_peerAvatarImageView setHidden:NO];
+        [self removeVideoPausedBlurEffect];
     } else {
         [_peerAvatarImageView setHidden:YES];
         [_videoView setHidden:NO];
@@ -246,6 +249,44 @@ CGFloat const kCallParticipantCellMinHeight = 128;
         self.layer.borderWidth = 2.0f;
     } else {
         self.layer.borderWidth = 0.0f;
+    }
+}
+
+- (void)addVideoPausedBlurEffect
+{
+    [self removeVideoPausedBlurEffect];
+    
+    UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    _blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    _blurEffectView.frame = self.contentView.bounds;
+    _blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    UILabel *pausedLabel = [[UILabel alloc] initWithFrame:_blurEffectView.frame];
+    pausedLabel.textAlignment = NSTextAlignmentCenter;
+    pausedLabel.textColor = UIColor.whiteColor;
+    pausedLabel.text = NSLocalizedString(@"Paused", @"TRANSLATORS this is used when a video is paused eg. blurred");
+    pausedLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    [_blurEffectView.contentView addSubview:pausedLabel];
+    [self.contentView addSubview:_blurEffectView];
+}
+
+- (void)removeVideoPausedBlurEffect
+{
+    if (_blurEffectView) {
+        [_blurEffectView removeFromSuperview];
+        _blurEffectView = nil;
+    }
+}
+
+- (void)setVideoPaused:(BOOL)videoPaused
+{
+    _videoPaused = videoPaused;
+    
+    if (videoPaused && !self.videoDisabled) {
+        [self addVideoPausedBlurEffect];
+    } else {
+        [self removeVideoPausedBlurEffect];
     }
 }
 
