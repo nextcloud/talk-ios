@@ -45,6 +45,7 @@ NSString *const kUserSettingsTableCellNibName = @"UserSettingsTableViewCell";
 {
     [super prepareForReuse];
     
+    self.userImageView.image = nil;
     self.userStatusImageView.image = nil;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];
 }
