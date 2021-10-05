@@ -755,7 +755,7 @@ typedef enum AboutSection {
                 {
                     cell = [tableView dequeueReusableCellWithIdentifier:contactsSyncCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:browserConfigurationCellIdentifier];
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:contactsSyncCellIdentifier];
                         cell.textLabel.text = NSLocalizedString(@"Phone number integration", nil);
                         cell.detailTextLabel.text = NSLocalizedString(@"Match system contacts", nil);
                         cell.selectionStyle = UITableViewCellSelectionStyleNone;
