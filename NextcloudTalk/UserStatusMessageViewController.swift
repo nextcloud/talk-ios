@@ -83,7 +83,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         
         statusEmojiTextField.delegate = self
         
-        statusMessageTextField.placeholder = NSLocalizedString("What's your status?", comment: "")
+        statusMessageTextField.placeholder = NSLocalizedString("What is your status?", comment: "")
         statusMessageTextField.returnKeyType = .done
         statusMessageTextField.delegate = self
         

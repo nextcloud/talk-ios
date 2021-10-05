@@ -246,7 +246,7 @@ typedef enum UserStatusSection {
             if (statusMessge) {
                 cell.textLabel.text = statusMessge;
             } else {
-                cell.textLabel.text = NSLocalizedString(@"What's your status?", nil);
+                cell.textLabel.text = NSLocalizedString(@"What is your status?", nil);
             }
         }
             break;
