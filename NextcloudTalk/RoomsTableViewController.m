@@ -481,7 +481,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     _lastRoomWithMentionIndexPath = nil;
     for (int i = 0; i < _rooms.count; i++) {
         NCRoom *room = [_rooms objectAtIndex:i];
-        if (room.unreadMention || room.unreadMentionDirect || (room.type == kNCRoomTypeOneToOne && room.unreadMessages > 0)) {
+        if (room.hasUnreadMention) {
             _lastRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:0];
         }
     }
@@ -601,7 +601,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     if (_lastRoomWithMentionIndexPath) {
         for (int i = (int)lastVisibleRowIndexPath.row; i <= (int)_lastRoomWithMentionIndexPath.row; i++) {
             NCRoom *room = [_rooms objectAtIndex:i];
-            if (room.unreadMention || room.unreadMentionDirect || (room.type == kNCRoomTypeOneToOne && room.unreadMessages > 0)) {
+            if (room.hasUnreadMention) {
                 _nextRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:0];
                 break;
             }

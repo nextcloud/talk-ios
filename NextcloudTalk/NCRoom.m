@@ -176,6 +176,11 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return YES;
 }
 
+- (BOOL)hasUnreadMention
+{
+    return self.unreadMention || self.unreadMentionDirect || (self.type == kNCRoomTypeOneToOne && self.unreadMessages > 0);
+}
+
 - (BOOL)isLeavable
 {
     // Allow users to leave when there are no moderators in the room
