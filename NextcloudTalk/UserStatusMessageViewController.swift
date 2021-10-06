@@ -328,12 +328,14 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         // Period
         if clearAtTime != nil && clearAtType == "period" {
             switch clearAtTime {
+            case "14400":
+                return NSLocalizedString("4 hours", comment: "")
             case "3600":
                 return NSLocalizedString("an hour", comment: "")
             case "1800":
                 return NSLocalizedString("30 minutes", comment: "")
             default:
-                return NSLocalizedString("Don't clear", comment: "")
+                return clearAtTime!
             }
         }
         
@@ -345,7 +347,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
             case "week":
                 return NSLocalizedString("This week", comment: "")
             default:
-                return NSLocalizedString(clearAtTime!, comment: "")
+                return clearAtTime!
             }
         }
         
