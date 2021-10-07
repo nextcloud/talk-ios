@@ -618,7 +618,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)unreadMentionsBottomButtonPressed:(id)sender
 {
     if (_nextRoomWithMentionIndexPath) {
-        [self.tableView scrollToRowAtIndexPath:_nextRoomWithMentionIndexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
+        [self.tableView scrollToRowAtIndexPath:_nextRoomWithMentionIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
     }
 }
 
