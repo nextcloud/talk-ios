@@ -1046,6 +1046,9 @@
 "Unknown error occurred" = "Unknown error occurred";
 
 /* No comment provided by engineer. */
+"Unread mentions" = "Unread mentions";
+
+/* No comment provided by engineer. */
 "Unread messages" = "Unread messages";
 
 /* No comment provided by engineer. */
@@ -1140,9 +1143,6 @@
 
 /* No comment provided by engineer. */
 "Your postal address" = "Your postal address";
-
-/* No comment provided by engineer. */
-"↓ More mentions" = "↓ More mentions";
 
 /* No comment provided by engineer. */
 "↓ New messages" = "↓ New messages";
