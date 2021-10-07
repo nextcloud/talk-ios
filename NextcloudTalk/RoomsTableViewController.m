@@ -132,7 +132,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     _unreadMentionsBottomButton.titleLabel.numberOfLines = 1;
     _unreadMentionsBottomButton.titleLabel.adjustsFontSizeToFitWidth = YES;
     
-    NSString *buttonText = NSLocalizedString(@"↓ More mentions", nil);
+    NSString *unreadMentionsString = NSLocalizedString(@"Unread mentions", nil);
+    NSString *buttonText = [NSString stringWithFormat:@"↓ %@", unreadMentionsString];
     NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:14]};
     CGRect textSize = [buttonText boundingRectWithSize:CGSizeMake(300, 28) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
     CGFloat buttonWidth = textSize.size.width + 20;
