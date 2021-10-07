@@ -66,6 +66,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     PlaceholderView *_roomsBackgroundView;
     UIBarButtonItem *_settingsButton;
     NSTimer *_refreshRoomsTimer;
+    NSIndexPath *_nextRoomWithMentionIndexPath;
     NSIndexPath *_lastRoomWithMentionIndexPath;
     UIButton *_unreadMentionsBottomButton;
 }
@@ -131,7 +132,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     _unreadMentionsBottomButton.titleLabel.numberOfLines = 1;
     _unreadMentionsBottomButton.titleLabel.adjustsFontSizeToFitWidth = YES;
     
-    NSString *buttonText = NSLocalizedString(@"↓ More mentions", nil);
+    NSString *unreadMentionsString = NSLocalizedString(@"Unread mentions", nil);
+    NSString *buttonText = [NSString stringWithFormat:@"↓ %@", unreadMentionsString];
     NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:14]};
     CGRect textSize = [buttonText boundingRectWithSize:CGSizeMake(300, 28) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
     CGFloat buttonWidth = textSize.size.width + 20;
@@ -476,11 +478,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [_roomsBackgroundView.loadingView setHidden:YES];
     [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
     
-    // Calculate index of last room with mentions
+    // Calculate index of last room with a mention
     _lastRoomWithMentionIndexPath = nil;
     for (int i = 0; i < _rooms.count; i++) {
         NCRoom *room = [_rooms objectAtIndex:i];
-        if (room.unreadMention || room.unreadMentionDirect || (room.type == kNCRoomTypeOneToOne && room.unreadMessages > 0)) {
+        if (room.hasUnreadMention) {
             _lastRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:0];
         }
     }
@@ -493,6 +495,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Reload room list
     [self.tableView reloadData];
     
+    // Update unread mentions indicator
     [self updateMentionsIndicator];
 }
 
@@ -593,6 +596,20 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NSArray *visibleRows = [self.tableView indexPathsForVisibleRows];
     NSIndexPath *lastVisibleRowIndexPath = visibleRows.lastObject;
     _unreadMentionsBottomButton.hidden = YES;
+    
+    // Calculate index of first room with a mention outside visible cells
+    _nextRoomWithMentionIndexPath = nil;
+    if (_lastRoomWithMentionIndexPath) {
+        for (int i = (int)lastVisibleRowIndexPath.row; i <= (int)_lastRoomWithMentionIndexPath.row; i++) {
+            NCRoom *room = [_rooms objectAtIndex:i];
+            if (room.hasUnreadMention) {
+                _nextRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:0];
+                break;
+            }
+        }
+    }
+    
+    // Update unread mentions indicator visibility
     if (_lastRoomWithMentionIndexPath) {
         _unreadMentionsBottomButton.hidden = [visibleRows containsObject:_lastRoomWithMentionIndexPath] || lastVisibleRowIndexPath.row > _lastRoomWithMentionIndexPath.row;
     }
@@ -600,7 +617,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)unreadMentionsBottomButtonPressed:(id)sender
 {
-    [self.tableView scrollToRowAtIndexPath:_lastRoomWithMentionIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+    if (_nextRoomWithMentionIndexPath) {
+        [self.tableView scrollToRowAtIndexPath:_nextRoomWithMentionIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
+    }
 }
 
 #pragma mark - User profile

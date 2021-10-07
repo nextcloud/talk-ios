@@ -104,6 +104,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 - (BOOL)isNameEditable;
 - (BOOL)isLeavable;
 - (BOOL)userCanStartCall;
+- (BOOL)hasUnreadMention;
 - (NSString *)deletionMessage;
 - (NSString *)notificationLevelString;
 - (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level;
