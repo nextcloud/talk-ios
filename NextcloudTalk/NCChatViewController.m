@@ -73,6 +73,7 @@
 #import "ShareLocationViewController.h"
 #import "VoiceMessageRecordingView.h"
 #import "VoiceMessageTableViewCell.h"
+#import "NextcloudTalk-Swift.h"
 
 
 #define k_send_message_button_tag   99
@@ -2819,6 +2820,8 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     headerView.dateLabel.layer.cornerRadius = 12;
     headerView.dateLabel.clipsToBounds = YES;
     
+    DateLabelCustom *headerLabel = (DateLabelCustom*)headerView.dateLabel;
+    headerLabel.tableView = self.tableView;
     return headerView;
 }
 
