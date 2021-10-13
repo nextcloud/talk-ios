@@ -22,8 +22,6 @@
 
 #import "ShareViewController.h"
 
-#import <NCCommunication/NCCommunication.h>
-
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"

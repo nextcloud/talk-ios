@@ -21,12 +21,13 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <NCCommunication/NCCommunication.h>
 
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
 #import "NCRoom.h"
 #import "NCUser.h"
+
+@class NCCommunicationFile;
 
 typedef void (^GetContactsCompletionBlock)(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error);
 typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contacts, NSError *error);

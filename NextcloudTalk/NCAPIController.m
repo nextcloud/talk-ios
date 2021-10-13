@@ -22,6 +22,8 @@
 
 #import "NCAPIController.h"
 
+@import NCCommunication;
+
 #import "CCCertificate.h"
 #import "NCAPISessionManager.h"
 #import "NCAppBranding.h"

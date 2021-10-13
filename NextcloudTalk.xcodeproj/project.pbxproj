@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -251,6 +251,9 @@
 		2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C820E125C20096D91F /* NewRoomTableViewController.m */; };
 		2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */; };
 		2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
+		2CC5F0982716FF1900DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F0972716FF1900DE1775 /* NCCommunication */; };
+		2CC5F09A2717028B00DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F0992717028B00DE1775 /* NCCommunication */; };
+		2CC5F09C2717198500DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F09B2717198500DE1775 /* NCCommunication */; };
 		2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* PlaceholderView.xib */; };
 		2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
 		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
@@ -753,6 +756,7 @@
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
+				2CC5F0982716FF1900DE1775 /* NCCommunication in Frameworks */,
 				9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -763,6 +767,7 @@
 			files = (
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
 				2C3195B924C1C30D0066F221 /* libcrypto.a in Frameworks */,
+				2CC5F09A2717028B00DE1775 /* NCCommunication in Frameworks */,
 				2C3195BA24C1C30D0066F221 /* libssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -773,6 +778,7 @@
 			files = (
 				2CC0015E24A25A8000A20167 /* libcrypto.a in Frameworks */,
 				2CC0015F24A25A8000A20167 /* libssl.a in Frameworks */,
+				2CC5F09C2717198500DE1775 /* NCCommunication in Frameworks */,
 				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1463,6 +1469,9 @@
 				2C62AFAD24C08845007E460A /* PBXTargetDependency */,
 			);
 			name = NextcloudTalk;
+			packageProductDependencies = (
+				2CC5F0972716FF1900DE1775 /* NCCommunication */,
+			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
 			productType = "com.apple.product-type.application";
@@ -1482,6 +1491,9 @@
 			dependencies = (
 			);
 			name = ShareExtension;
+			packageProductDependencies = (
+				2CC5F0992717028B00DE1775 /* NCCommunication */,
+			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -1500,6 +1512,9 @@
 			dependencies = (
 			);
 			name = NotificationServiceExtension;
+			packageProductDependencies = (
+				2CC5F09B2717198500DE1775 /* NCCommunication */,
+			);
 			productName = NotificationServiceExtension;
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -1576,6 +1591,9 @@
 				ar,
 			);
 			mainGroup = 2C0574741EDD9E8E00D9E7F2;
+			packageReferences = (
+				2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */,
+			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -2223,7 +2241,10 @@
 				);
 				INFOPLIST_FILE = NextcloudTalk/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
@@ -2271,7 +2292,10 @@
 				);
 				INFOPLIST_FILE = NextcloudTalk/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
@@ -2342,7 +2366,11 @@
 				);
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AFNetworking\"",
@@ -2434,7 +2462,11 @@
 				);
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/AFNetworking\"",
@@ -2523,7 +2555,11 @@
 				);
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
@@ -2597,7 +2633,11 @@
 				);
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
@@ -2654,6 +2694,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nextcloud/ios-communication-library";
+			requirement = {
+				kind = exactVersion;
+				version = 0.98.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2CC5F0972716FF1900DE1775 /* NCCommunication */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */;
+			productName = NCCommunication;
+		};
+		2CC5F0992717028B00DE1775 /* NCCommunication */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */;
+			productName = NCCommunication;
+		};
+		2CC5F09B2717198500DE1775 /* NCCommunication */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */;
+			productName = NCCommunication;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
 }

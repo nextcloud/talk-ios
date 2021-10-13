@@ -22,6 +22,8 @@
 
 #import "RoomInfoTableViewController.h"
 
+@import NCCommunication;
+
 #import <QuickLook/QuickLook.h>
 
 #import "UIImageView+AFNetworking.h"
