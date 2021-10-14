@@ -53,6 +53,7 @@ extern NSString * const kCapabilityVoiceMessage;
 extern NSString * const kCapabilitySignalingV3;
 extern NSString * const kCapabilityClearHistory;
 extern NSString * const kCapabilityDirectMentionFlag;
+extern NSString * const kCapabilityNotificationCalls;
 
 extern NSString * const kMinimumRequiredTalkCapability;
 

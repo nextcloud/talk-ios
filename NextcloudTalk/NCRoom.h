@@ -79,6 +79,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, copy) NSString *lastMessageId;
 @property (nonatomic, assign) BOOL isFavorite;
 @property (nonatomic, assign) NCRoomNotificationLevel notificationLevel;
+@property (nonatomic, assign) BOOL notificationCalls;
 @property (nonatomic, copy) NSString *objectType;
 @property (nonatomic, copy) NSString *objectId;
 @property (nonatomic, assign) NCRoomReadOnlyState readOnlyState;
