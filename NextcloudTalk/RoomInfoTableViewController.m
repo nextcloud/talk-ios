@@ -58,7 +58,8 @@ typedef enum RoomInfoSection {
 
 typedef enum RoomAction {
     kRoomActionFavorite = 0,
-    kRoomActionNotifications,
+    kRoomActionChatNotifications,
+    kRoomActionCallNotifications,
     kRoomActionSendLink
 } RoomAction;
 
@@ -91,6 +92,7 @@ typedef enum ModificationError {
     kModificationErrorRename = 0,
     kModificationErrorFavorite,
     kModificationErrorNotifications,
+    kModificationErrorCallNotifications,
     kModificationErrorShare,
     kModificationErrorPassword,
     kModificationErrorResendInvitations,
@@ -121,6 +123,7 @@ typedef enum FileAction {
 @property (nonatomic, strong) UISwitch *publicSwtich;
 @property (nonatomic, strong) UISwitch *lobbySwtich;
 @property (nonatomic, strong) UISwitch *sipSwtich;
+@property (nonatomic, strong) UISwitch *callNotificationSwtich;
 @property (nonatomic, strong) UIDatePicker *lobbyDatePicker;
 @property (nonatomic, strong) UITextField *lobbyDateTextField;
 @property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
@@ -180,6 +183,9 @@ typedef enum FileAction {
     
     _sipSwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_sipSwtich addTarget: self action: @selector(sipValueChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    _callNotificationSwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_callNotificationSwtich addTarget: self action: @selector(callNotificationValueChanged:) forControlEvents:UIControlEventValueChanged];
     
     _lobbyDatePicker = [[UIDatePicker alloc] init];
     _lobbyDatePicker.datePickerMode = UIDatePickerModeDateAndTime;
@@ -305,9 +311,13 @@ typedef enum FileAction {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     // Favorite action
     [actions addObject:[NSNumber numberWithInt:kRoomActionFavorite]];
-    // Notification levels action
+    // Chat notifications levels action
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
-        [actions addObject:[NSNumber numberWithInt:kRoomActionNotifications]];
+        [actions addObject:[NSNumber numberWithInt:kRoomActionChatNotifications]];
+    }
+    // Call notifications action
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationCalls]) {
+        [actions addObject:[NSNumber numberWithInt:kRoomActionCallNotifications]];
     }
     // Public room actions
     if (_room.isPublic) {
@@ -440,6 +450,10 @@ typedef enum FileAction {
             errorDescription = NSLocalizedString(@"Could not change notifications setting", nil);
             break;
             
+        case kModificationErrorCallNotifications:
+            errorDescription = NSLocalizedString(@"Could not change call notifications setting", nil);
+            break;
+            
         case kModificationErrorShare:
             errorDescription = NSLocalizedString(@"Could not change sharing permissions of the conversation", nil);
             break;
@@ -556,7 +570,7 @@ typedef enum FileAction {
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
-    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[self getIndexPathForRoomAction:kRoomActionNotifications]];
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[self getIndexPathForRoomAction:kRoomActionChatNotifications]];
     
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
@@ -656,6 +670,21 @@ typedef enum FileAction {
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorNotifications];
         }
+    }];
+}
+
+- (void)setCallNotificationEnabled:(BOOL)enabled
+{
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] setCallNotificationEnabled:enabled forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+        } else {
+            NSLog(@"Error setting room call notification: %@", error.description);
+            [self.tableView reloadData];
+            [self showRoomModificationError:kModificationErrorCallNotifications];
+        }
+        self->_callNotificationSwtich.enabled = YES;
     }];
 }
 
@@ -1187,6 +1216,18 @@ typedef enum FileAction {
     }
 }
 
+#pragma mark - Call notifications switch
+
+- (void)callNotificationValueChanged:(id)sender
+{
+    _callNotificationSwtich.enabled = NO;
+    if (_callNotificationSwtich.on) {
+        [self setCallNotificationEnabled:YES];
+    } else {
+        [self setCallNotificationEnabled:NO];
+    }
+}
+
 #pragma mark - UIGestureRecognizer delegate
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
@@ -1512,16 +1553,33 @@ typedef enum FileAction {
                     return cell;
                 }
                     break;
-                case kRoomActionNotifications:
+                case kRoomActionChatNotifications:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:notificationLevelCellIdentifier];
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:notificationLevelCellIdentifier];
                     }
                     
-                    cell.textLabel.text = NSLocalizedString(@"Notifications", nil);
+                    cell.textLabel.text = NSLocalizedString(@"Chat notifications", nil);
                     cell.detailTextLabel.text = _room.notificationLevelString;
                     [cell.imageView setImage:[UIImage imageNamed:@"notifications-settings"]];
+                    
+                    return cell;
+                }
+                    break;
+                case kRoomActionCallNotifications:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:notificationLevelCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:notificationLevelCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Call notifications", nil);
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _callNotificationSwtich;
+                    _callNotificationSwtich.on = _room.notificationCalls;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
                     return cell;
                 }
@@ -1874,11 +1932,13 @@ typedef enum FileAction {
                         [self addRoomToFavorites];
                     }
                     break;
-                case kRoomActionNotifications:
+                case kRoomActionChatNotifications:
                     [self presentNotificationLevelSelector];
                     break;
                 case kRoomActionSendLink:
                     [self shareRoomLinkFromIndexPath:indexPath];
+                    break;
+                default:
                     break;
             }
         }
