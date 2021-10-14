@@ -170,6 +170,9 @@
 "bot" = "bot";
 
 /* No comment provided by engineer. */
+"Call notifications" = "Call notifications";
+
+/* No comment provided by engineer. */
 "Camera" = "Camera";
 
 /* No comment provided by engineer. */
@@ -198,6 +201,9 @@
 
 /* No comment provided by engineer. */
 "Chat" = "Chat";
+
+/* No comment provided by engineer. */
+"Chat notifications" = "Chat notifications";
 
 /* No comment provided by engineer. */
 "Clear status message" = "Clear status message";
@@ -249,6 +255,9 @@
 
 /* No comment provided by engineer. */
 "Could not add participant" = "Could not add participant";
+
+/* No comment provided by engineer. */
+"Could not change call notifications setting" = "Could not change call notifications setting";
 
 /* No comment provided by engineer. */
 "Could not change favorite setting" = "Could not change favorite setting";
