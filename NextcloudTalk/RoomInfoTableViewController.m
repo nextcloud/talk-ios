@@ -1439,7 +1439,8 @@ typedef enum FileAction {
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
     static NSString *favoriteRoomCellIdentifier = @"FavoriteRoomCellIdentifier";
-    static NSString *notificationLevelCellIdentifier = @"NotificationLevelCellIdentifier";
+    static NSString *chatnotificationLevelCellIdentifier = @"ChatNotificationLevelCellIdentifier";
+    static NSString *callnotificationCellIdentifier = @"CallNotificationCellIdentifier";
     static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
     static NSString *passwordCellIdentifier = @"PasswordCellIdentifier";
     static NSString *resendInvitationsCellIdentifier = @"ResendInvitationsCellIdentifier";
@@ -1555,9 +1556,9 @@ typedef enum FileAction {
                     break;
                 case kRoomActionChatNotifications:
                 {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:notificationLevelCellIdentifier];
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:chatnotificationLevelCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:notificationLevelCellIdentifier];
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:chatnotificationLevelCellIdentifier];
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Chat notifications", nil);
@@ -1569,9 +1570,9 @@ typedef enum FileAction {
                     break;
                 case kRoomActionCallNotifications:
                 {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:notificationLevelCellIdentifier];
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:callnotificationCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:notificationLevelCellIdentifier];
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:callnotificationCellIdentifier];
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Call notifications", nil);
