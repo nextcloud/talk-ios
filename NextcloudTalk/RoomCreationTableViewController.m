@@ -394,7 +394,7 @@
     NSString *index = nil;
     NSArray *participants = nil;
     
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.contacts.count > 0) {
         index = [_resultTableViewController.indexes objectAtIndex:indexPath.section];
         participants = [_resultTableViewController.contacts objectForKey:index];
     } else {

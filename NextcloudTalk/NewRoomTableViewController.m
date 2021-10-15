@@ -456,7 +456,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         NSString *index = nil;
         NSArray *contacts = nil;
         
-        if (_searchController.active) {
+        if (_searchController.active && _resultTableViewController.contacts.count > 0) {
             index = [_resultTableViewController.indexes objectAtIndex:indexPath.section];
             contacts = [_resultTableViewController.contacts objectForKey:index];
         } else {

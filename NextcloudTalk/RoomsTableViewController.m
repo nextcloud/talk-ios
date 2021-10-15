@@ -688,7 +688,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)setNotificationLevelForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
@@ -732,7 +732,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)shareLinkFromRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
@@ -768,7 +768,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)addRoomToFavoritesAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
@@ -783,7 +783,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)removeRoomFromFavoritesAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
@@ -798,7 +798,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)presentRoomInfoForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
@@ -810,7 +810,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)leaveRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
@@ -839,7 +839,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)deleteRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
@@ -866,7 +866,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)presentMoreActionsForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
@@ -931,7 +931,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
@@ -1002,7 +1002,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
@@ -1017,7 +1017,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-        if (_searchController.active) {
+        if (_searchController.active && _resultTableViewController.rooms.count > 0) {
             room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
         }
         
@@ -1046,7 +1046,7 @@ API_AVAILABLE(ios(11.0)){
     deleteAction.image = [UIImage imageNamed:@"delete"];
     
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     
@@ -1065,7 +1065,7 @@ API_AVAILABLE(ios(11.0)){
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
 API_AVAILABLE(ios(11.0)){
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active) {
+    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
         room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
     }
     UIContextualAction *favoriteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
