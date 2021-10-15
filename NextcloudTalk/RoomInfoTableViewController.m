@@ -91,7 +91,7 @@ typedef enum DestructiveAction {
 typedef enum ModificationError {
     kModificationErrorRename = 0,
     kModificationErrorFavorite,
-    kModificationErrorNotifications,
+    kModificationErrorChatNotifications,
     kModificationErrorCallNotifications,
     kModificationErrorShare,
     kModificationErrorPassword,
@@ -446,7 +446,7 @@ typedef enum FileAction {
             errorDescription = NSLocalizedString(@"Could not change favorite setting", nil);
             break;
             
-        case kModificationErrorNotifications:
+        case kModificationErrorChatNotifications:
             errorDescription = NSLocalizedString(@"Could not change notifications setting", nil);
             break;
             
@@ -668,7 +668,7 @@ typedef enum FileAction {
         } else {
             NSLog(@"Error setting room notification level: %@", error.description);
             [self.tableView reloadData];
-            [self showRoomModificationError:kModificationErrorNotifications];
+            [self showRoomModificationError:kModificationErrorChatNotifications];
         }
     }];
 }
