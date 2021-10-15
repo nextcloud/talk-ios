@@ -120,10 +120,10 @@ typedef enum FileAction {
 @property (nonatomic, strong) NSString *roomName;
 @property (nonatomic, strong) NSMutableArray *roomParticipants;
 @property (nonatomic, strong) UITextField *roomNameTextField;
-@property (nonatomic, strong) UISwitch *publicSwtich;
-@property (nonatomic, strong) UISwitch *lobbySwtich;
-@property (nonatomic, strong) UISwitch *sipSwtich;
-@property (nonatomic, strong) UISwitch *callNotificationSwtich;
+@property (nonatomic, strong) UISwitch *publicSwitch;
+@property (nonatomic, strong) UISwitch *lobbySwitch;
+@property (nonatomic, strong) UISwitch *sipSwitch;
+@property (nonatomic, strong) UISwitch *callNotificationSwitch;
 @property (nonatomic, strong) UIDatePicker *lobbyDatePicker;
 @property (nonatomic, strong) UITextField *lobbyDateTextField;
 @property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
@@ -175,17 +175,17 @@ typedef enum FileAction {
     
     _roomParticipants = [[NSMutableArray alloc] init];
     
-    _publicSwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
-    [_publicSwtich addTarget: self action: @selector(publicValueChanged:) forControlEvents:UIControlEventValueChanged];
+    _publicSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_publicSwitch addTarget: self action: @selector(publicValueChanged:) forControlEvents:UIControlEventValueChanged];
     
-    _lobbySwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
-    [_lobbySwtich addTarget: self action: @selector(lobbyValueChanged:) forControlEvents:UIControlEventValueChanged];
+    _lobbySwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_lobbySwitch addTarget: self action: @selector(lobbyValueChanged:) forControlEvents:UIControlEventValueChanged];
     
-    _sipSwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
-    [_sipSwtich addTarget: self action: @selector(sipValueChanged:) forControlEvents:UIControlEventValueChanged];
+    _sipSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_sipSwitch addTarget: self action: @selector(sipValueChanged:) forControlEvents:UIControlEventValueChanged];
     
-    _callNotificationSwtich = [[UISwitch alloc] initWithFrame:CGRectZero];
-    [_callNotificationSwtich addTarget: self action: @selector(callNotificationValueChanged:) forControlEvents:UIControlEventValueChanged];
+    _callNotificationSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_callNotificationSwitch addTarget: self action: @selector(callNotificationValueChanged:) forControlEvents:UIControlEventValueChanged];
     
     _lobbyDatePicker = [[UIDatePicker alloc] init];
     _lobbyDatePicker.datePickerMode = UIDatePickerModeDateAndTime;
@@ -684,7 +684,7 @@ typedef enum FileAction {
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorCallNotifications];
         }
-        self->_callNotificationSwtich.enabled = YES;
+        self->_callNotificationSwitch.enabled = YES;
     }];
 }
 
@@ -781,7 +781,7 @@ typedef enum FileAction {
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorShare];
         }
-        self->_publicSwtich.enabled = YES;
+        self->_publicSwitch.enabled = YES;
     }];
 }
 
@@ -796,7 +796,7 @@ typedef enum FileAction {
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorShare];
         }
-        self->_publicSwtich.enabled = YES;
+        self->_publicSwitch.enabled = YES;
     }];
 }
 
@@ -967,7 +967,7 @@ typedef enum FileAction {
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorLobby];
         }
-        self->_lobbySwtich.enabled = YES;
+        self->_lobbySwitch.enabled = YES;
     }];
 }
 
@@ -1028,7 +1028,7 @@ typedef enum FileAction {
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorSIP];
         }
-        self->_sipSwtich.enabled = YES;
+        self->_sipSwitch.enabled = YES;
     }];
 }
 
@@ -1184,8 +1184,8 @@ typedef enum FileAction {
 
 - (void)publicValueChanged:(id)sender
 {
-    _publicSwtich.enabled = NO;
-    if (_publicSwtich.on) {
+    _publicSwitch.enabled = NO;
+    if (_publicSwitch.on) {
         [self makeRoomPublic];
     } else {
         [self makeRoomPrivate];
@@ -1196,8 +1196,8 @@ typedef enum FileAction {
 
 - (void)lobbyValueChanged:(id)sender
 {
-    _lobbySwtich.enabled = NO;
-    if (_lobbySwtich.on) {
+    _lobbySwitch.enabled = NO;
+    if (_lobbySwitch.on) {
         [self enableLobby];
     } else {
         [self disableLobby];
@@ -1208,8 +1208,8 @@ typedef enum FileAction {
 
 - (void)sipValueChanged:(id)sender
 {
-    _sipSwtich.enabled = NO;
-    if (_sipSwtich.on) {
+    _sipSwitch.enabled = NO;
+    if (_sipSwitch.on) {
         [self setSIPEnabled:YES];
     } else {
         [self setSIPEnabled:NO];
@@ -1220,8 +1220,8 @@ typedef enum FileAction {
 
 - (void)callNotificationValueChanged:(id)sender
 {
-    _callNotificationSwtich.enabled = NO;
-    if (_callNotificationSwtich.on) {
+    _callNotificationSwitch.enabled = NO;
+    if (_callNotificationSwitch.on) {
         [self setCallNotificationEnabled:YES];
     } else {
         [self setCallNotificationEnabled:NO];
@@ -1577,8 +1577,8 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Call notifications", nil);
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                    cell.accessoryView = _callNotificationSwtich;
-                    _callNotificationSwtich.on = _room.notificationCalls;
+                    cell.accessoryView = _callNotificationSwitch;
+                    _callNotificationSwitch.on = _room.notificationCalls;
                     [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
@@ -1658,8 +1658,8 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Share link", nil);
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                    cell.accessoryView = _publicSwtich;
-                    _publicSwtich.on = (_room.type == kNCRoomTypePublic) ? YES : NO;
+                    cell.accessoryView = _publicSwitch;
+                    _publicSwitch.on = (_room.type == kNCRoomTypePublic) ? YES : NO;
                     [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
                     
                     return cell;
@@ -1713,8 +1713,8 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Lobby", nil);
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                    cell.accessoryView = _lobbySwtich;
-                    _lobbySwtich.on = (_room.lobbyState == NCRoomLobbyStateModeratorsOnly) ? YES : NO;
+                    cell.accessoryView = _lobbySwitch;
+                    _lobbySwitch.on = (_room.lobbyState == NCRoomLobbyStateModeratorsOnly) ? YES : NO;
                     [cell.imageView setImage:[UIImage imageNamed:@"lobby"]];
                     
                     return cell;
@@ -1748,8 +1748,8 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"SIP dial-in", nil);
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                    cell.accessoryView = _sipSwtich;
-                    _sipSwtich.on = _room.sipEnabled;
+                    cell.accessoryView = _sipSwitch;
+                    _sipSwitch.on = _room.sipEnabled;
                     [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
