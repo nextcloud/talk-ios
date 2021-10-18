@@ -47,27 +47,26 @@
 typedef enum RoomInfoSection {
     kRoomInfoSectionName = 0,
     kRoomInfoSectionDescription,
-    kRoomInfoSectionActions,
-    kRoomInfoSectionPublic,
+    kRoomInfoSectionFile,
+    kRoomInfoSectionNotifications,
+    kRoomInfoSectionGuests,
     kRoomInfoSectionWebinar,
     kRoomInfoSectionSIP,
     kRoomInfoSectionParticipants,
-    kRoomInfoSectionDestructive,
-    kRoomInfoSectionFile
+    kRoomInfoSectionDestructive
 } RoomInfoSection;
 
-typedef enum RoomAction {
-    kRoomActionFavorite = 0,
-    kRoomActionChatNotifications,
-    kRoomActionCallNotifications,
-    kRoomActionSendLink
-} RoomAction;
+typedef enum NotificationAction {
+    kNotificationActionChatNotifications = 0,
+    kNotificationActionCallNotifications
+} NotificationAction;
 
-typedef enum PublicAction {
-    kPublicActionPublicToggle = 0,
-    kPublicActionPassword,
-    kPublicActionResendInvitations
-} PublicAction;
+typedef enum GuestAction {
+    kGuestActionPublicToggle = 0,
+    kGuestActionPassword,
+    kGuestActionShareLink,
+    kGuestActionResendInvitations
+} GuestAction;
 
 typedef enum WebinarAction {
     kWebinarActionLobby = 0,
@@ -268,16 +267,18 @@ typedef enum FileAction {
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRoomDescription] && _room.roomDescription && ![_room.roomDescription isEqualToString:@""]) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionDescription]];
     }
-    // Room actions section
-    [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionActions]];
     // File actions section
     if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionFile]];
     }
+    // Notifications section
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+        [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionNotifications]];
+    }
     // Moderator sections
     if (_room.canModerate) {
-        // Public room section
-        [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionPublic]];
+        // Guests section
+        [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionGuests]];
         // Webinar section
         if (_room.type != kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
             [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionWebinar]];
@@ -306,32 +307,26 @@ typedef enum FileAction {
     return 0;
 }
 
-- (NSArray *)getRoomActions
+- (NSArray *)getNotificationsActions
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
-    // Favorite action
-    [actions addObject:[NSNumber numberWithInt:kRoomActionFavorite]];
     // Chat notifications levels action
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
-        [actions addObject:[NSNumber numberWithInt:kRoomActionChatNotifications]];
+        [actions addObject:[NSNumber numberWithInt:kNotificationActionChatNotifications]];
     }
     // Call notifications action
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationCalls]) {
-        [actions addObject:[NSNumber numberWithInt:kRoomActionCallNotifications]];
-    }
-    // Public room actions
-    if (_room.isPublic) {
-        [actions addObject:[NSNumber numberWithInt:kRoomActionSendLink]];
+        [actions addObject:[NSNumber numberWithInt:kNotificationActionCallNotifications]];
     }
     
     return [NSArray arrayWithArray:actions];
 }
 
-- (NSIndexPath *)getIndexPathForRoomAction:(RoomAction)action
+- (NSIndexPath *)getIndexPathForNotificationAction:(NotificationAction)action
 {
-    NSInteger section = [self getSectionForRoomInfoSection:kRoomInfoSectionActions];
+    NSInteger section = [self getSectionForRoomInfoSection:kRoomInfoSectionNotifications];
     NSIndexPath *actionIndexPath = [NSIndexPath indexPathForRow:0 inSection:section];
-    NSInteger actionRow = [[self getRoomActions] indexOfObject:[NSNumber numberWithInt:action]];
+    NSInteger actionRow = [[self getNotificationsActions] indexOfObject:[NSNumber numberWithInt:action]];
     if(NSNotFound != actionRow) {
         actionIndexPath = [NSIndexPath indexPathForRow:actionRow inSection:section];
     }
@@ -349,20 +344,32 @@ typedef enum FileAction {
     return [NSArray arrayWithArray:actions];
 }
 
-- (NSArray *)getPublicActions
+- (NSArray *)getGuestsActions
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     // Public room toggle
-    [actions addObject:[NSNumber numberWithInt:kPublicActionPublicToggle]];
-    // Password protection
+    [actions addObject:[NSNumber numberWithInt:kGuestActionPublicToggle]];
+    // Password protection & Share link
     if (_room.isPublic) {
-        [actions addObject:[NSNumber numberWithInt:kPublicActionPassword]];
+        [actions addObject:[NSNumber numberWithInt:kGuestActionPassword]];
+        [actions addObject:[NSNumber numberWithInt:kGuestActionShareLink]];
     }
     // Resend invitations
     if (_room.isPublic && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySIPSupport]) {
-        [actions addObject:[NSNumber numberWithInt:kPublicActionResendInvitations]];
+        [actions addObject:[NSNumber numberWithInt:kGuestActionResendInvitations]];
     }
     return [NSArray arrayWithArray:actions];
+}
+
+- (NSIndexPath *)getIndexPathForGuestAction:(GuestAction)action
+{
+    NSInteger section = [self getSectionForRoomInfoSection:kRoomInfoSectionGuests];
+    NSIndexPath *actionIndexPath = [NSIndexPath indexPathForRow:0 inSection:section];
+    NSInteger actionRow = [[self getGuestsActions] indexOfObject:[NSNumber numberWithInt:action]];
+    if(NSNotFound != actionRow) {
+        actionIndexPath = [NSIndexPath indexPathForRow:actionRow inSection:section];
+    }
+    return actionIndexPath;
 }
 
 - (NSArray *)getWebinarActions
@@ -570,7 +577,7 @@ typedef enum FileAction {
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
-    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[self getIndexPathForRoomAction:kRoomActionChatNotifications]];
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[self getIndexPathForNotificationAction:kNotificationActionChatNotifications]];
     
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
@@ -624,34 +631,6 @@ typedef enum FileAction {
             NSLog(@"Error renaming the room: %@", error.description);
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorRename];
-        }
-    }];
-}
-
-- (void)addRoomToFavorites
-{
-    [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] addRoomToFavorites:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
-        if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
-        } else {
-            NSLog(@"Error adding the room to favorites: %@", error.description);
-            [self.tableView reloadData];
-            [self showRoomModificationError:kModificationErrorFavorite];
-        }
-    }];
-}
-
-- (void)removeRoomFromFavorites
-{
-    [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] removeRoomFromFavorites:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
-        if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
-        } else {
-            NSLog(@"Error removing the room from favorites: %@", error.description);
-            [self.tableView reloadData];
-            [self showRoomModificationError:kModificationErrorFavorite];
         }
     }];
 }
@@ -746,7 +725,7 @@ typedef enum FileAction {
 
 - (void)resendInvitations
 {
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:kPublicActionResendInvitations inSection:kRoomInfoSectionPublic];
+    NSIndexPath *indexPath = [self getIndexPathForGuestAction:kGuestActionResendInvitations];
     [self resendInvitationToParticipant:nil fromIndexPath:indexPath];
 }
 
@@ -773,7 +752,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] makeRoomPublic:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:kPublicActionPublicToggle inSection:[self getSectionForRoomInfoSection:kRoomInfoSectionPublic]];
+            NSIndexPath *indexPath = [self getIndexPathForGuestAction:kGuestActionPublicToggle];
             [self shareRoomLinkFromIndexPath:indexPath];
             [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
         } else {
@@ -1288,16 +1267,16 @@ typedef enum FileAction {
     NSArray *sections = [self getRoomInfoSections];
     RoomInfoSection infoSection = [[sections objectAtIndex:section] intValue];
     switch (infoSection) {
-        case kRoomInfoSectionActions:
-            return [self getRoomActions].count;
+        case kRoomInfoSectionNotifications:
+            return [self getNotificationsActions].count;
             break;
             
         case kRoomInfoSectionFile:
             return [self getFileActions].count;
             break;
             
-        case kRoomInfoSectionPublic:
-            return [self getPublicActions].count;
+        case kRoomInfoSectionGuests:
+            return [self getGuestsActions].count;
             break;
             
         case kRoomInfoSectionWebinar:
@@ -1370,11 +1349,14 @@ typedef enum FileAction {
         case kRoomInfoSectionFile:
             return NSLocalizedString(@"Linked file", nil);
             break;
-        case kRoomInfoSectionPublic:
-            return NSLocalizedString(@"Guests", nil);
+        case kRoomInfoSectionNotifications:
+            return NSLocalizedString(@"Notifications", nil);
+            break;
+        case kRoomInfoSectionGuests:
+            return NSLocalizedString(@"Guests access", nil);
             break;
         case kRoomInfoSectionWebinar:
-            return NSLocalizedString(@"Webinar", nil);
+            return NSLocalizedString(@"Meeting settings", nil);
             break;
         case kRoomInfoSectionSIP:
             return NSLocalizedString(@"SIP dial-in", nil);
@@ -1417,11 +1399,9 @@ typedef enum FileAction {
         case kRoomInfoSectionDescription:
             return 2;
             break;
-        case kRoomInfoSectionActions:
-            return 10;
-            break;
+        case kRoomInfoSectionNotifications:
         case kRoomInfoSectionFile:
-        case kRoomInfoSectionPublic:
+        case kRoomInfoSectionGuests:
         case kRoomInfoSectionWebinar:
         case kRoomInfoSectionSIP:
             return 36;
@@ -1536,64 +1516,38 @@ typedef enum FileAction {
             return cell;
         }
             break;
-        case kRoomInfoSectionActions:
+        case kRoomInfoSectionNotifications:
         {
-            NSArray *actions = [self getRoomActions];
-            RoomAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            NSArray *actions = [self getNotificationsActions];
+            NotificationAction action = [[actions objectAtIndex:indexPath.row] intValue];
             switch (action) {
-                case kRoomActionFavorite:
-                {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:favoriteRoomCellIdentifier];
-                    if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:favoriteRoomCellIdentifier];
-                    }
-                    
-                    cell.textLabel.text = (_room.isFavorite) ? NSLocalizedString(@"Remove from favorites", nil) : NSLocalizedString(@"Add to favorites", nil);
-                    [cell.imageView setImage:(_room.isFavorite) ? [UIImage imageNamed:@"fav-off-setting"] : [UIImage imageNamed:@"fav-setting"]];
-                    
-                    return cell;
-                }
-                    break;
-                case kRoomActionChatNotifications:
+                case kNotificationActionChatNotifications:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:chatnotificationLevelCellIdentifier];
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:chatnotificationLevelCellIdentifier];
                     }
                     
-                    cell.textLabel.text = NSLocalizedString(@"Chat notifications", nil);
+                    cell.textLabel.text = NSLocalizedString(@"Chat messages", nil);
                     cell.detailTextLabel.text = _room.notificationLevelString;
                     [cell.imageView setImage:[UIImage imageNamed:@"notifications-settings"]];
                     
                     return cell;
                 }
                     break;
-                case kRoomActionCallNotifications:
+                case kNotificationActionCallNotifications:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:callnotificationCellIdentifier];
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:callnotificationCellIdentifier];
                     }
                     
-                    cell.textLabel.text = NSLocalizedString(@"Call notifications", nil);
+                    cell.textLabel.text = NSLocalizedString(@"Calls", nil);
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _callNotificationSwitch;
                     _callNotificationSwitch.on = _room.notificationCalls;
                     [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
-                    
-                    return cell;
-                }
-                    break;
-                case kRoomActionSendLink:
-                {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
-                    if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
-                    }
-                    
-                    cell.textLabel.text = NSLocalizedString(@"Send conversation link", nil);
-                    [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
                     
                     return cell;
                 }
@@ -1644,19 +1598,19 @@ typedef enum FileAction {
             }
         }
             break;
-        case kRoomInfoSectionPublic:
+        case kRoomInfoSectionGuests:
         {
-            NSArray *actions = [self getPublicActions];
-            PublicAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            NSArray *actions = [self getGuestsActions];
+            GuestAction action = [[actions objectAtIndex:indexPath.row] intValue];
             switch (action) {
-                case kPublicActionPublicToggle:
+                case kGuestActionPublicToggle:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
                     if (!cell) {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
                     }
                     
-                    cell.textLabel.text = NSLocalizedString(@"Share link", nil);
+                    cell.textLabel.text = NSLocalizedString(@"Allow guests", nil);
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _publicSwitch;
                     _publicSwitch.on = (_room.type == kNCRoomTypePublic) ? YES : NO;
@@ -1666,7 +1620,7 @@ typedef enum FileAction {
                 }
                     break;
                     
-                case kPublicActionPassword:
+                case kGuestActionPassword:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:passwordCellIdentifier];
                     if (!cell) {
@@ -1680,7 +1634,21 @@ typedef enum FileAction {
                 }
                     break;
                     
-                case kPublicActionResendInvitations:
+                case kGuestActionShareLink:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Share conversation link", nil);
+                    [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
+                    
+                    return cell;
+                }
+                    break;
+                    
+                case kGuestActionResendInvitations:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:resendInvitationsCellIdentifier];
                     if (!cell) {
@@ -1921,29 +1889,6 @@ typedef enum FileAction {
     switch (section) {
         case kRoomInfoSectionName:
             break;
-        case kRoomInfoSectionActions:
-        {
-            NSArray *actions = [self getRoomActions];
-            RoomAction action = [[actions objectAtIndex:indexPath.row] intValue];
-            switch (action) {
-                case kRoomActionFavorite:
-                    if (_room.isFavorite) {
-                        [self removeRoomFromFavorites];
-                    } else {
-                        [self addRoomToFavorites];
-                    }
-                    break;
-                case kRoomActionChatNotifications:
-                    [self presentNotificationLevelSelector];
-                    break;
-                case kRoomActionSendLink:
-                    [self shareRoomLinkFromIndexPath:indexPath];
-                    break;
-                default:
-                    break;
-            }
-        }
-            break;
         case kRoomInfoSectionFile:
         {
             NSArray *actions = [self getFileActions];
@@ -1958,15 +1903,31 @@ typedef enum FileAction {
             }
         }
             break;
-        case kRoomInfoSectionPublic:
+        case kRoomInfoSectionNotifications:
         {
-            NSArray *actions = [self getPublicActions];
-            PublicAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            NSArray *actions = [self getNotificationsActions];
+            NotificationAction action = [[actions objectAtIndex:indexPath.row] intValue];
             switch (action) {
-                case kPublicActionPassword:
+                case kNotificationActionChatNotifications:
+                    [self presentNotificationLevelSelector];
+                    break;
+                default:
+                    break;
+            }
+        }
+            break;
+        case kRoomInfoSectionGuests:
+        {
+            NSArray *actions = [self getGuestsActions];
+            GuestAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kGuestActionPassword:
                     [self showPasswordOptions];
                     break;
-                case kPublicActionResendInvitations:
+                case kGuestActionShareLink:
+                    [self shareRoomLinkFromIndexPath:indexPath];
+                    break;
+                case kGuestActionResendInvitations:
                     [self resendInvitations];
                     break;
                 default:
