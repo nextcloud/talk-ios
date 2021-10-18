@@ -92,6 +92,9 @@
 "All notifications are muted" = "All notifications are muted";
 
 /* No comment provided by engineer. */
+"Allow guests" = "Allow guests";
+
+/* No comment provided by engineer. */
 "Alphabetical order" = "Alphabetical order";
 
 /* No comment provided by engineer. */
@@ -170,7 +173,7 @@
 "bot" = "bot";
 
 /* No comment provided by engineer. */
-"Call notifications" = "Call notifications";
+"Calls" = "Calls";
 
 /* No comment provided by engineer. */
 "Camera" = "Camera";
@@ -203,7 +206,7 @@
 "Chat" = "Chat";
 
 /* No comment provided by engineer. */
-"Chat notifications" = "Chat notifications";
+"Chat messages" = "Chat messages";
 
 /* No comment provided by engineer. */
 "Clear status message" = "Clear status message";
@@ -536,7 +539,7 @@
 "guest" = "guest";
 
 /* No comment provided by engineer. */
-"Guests" = "Guests";
+"Guests access" = "Guests access";
 
 /* No comment provided by engineer. */
 "Hang up" = "Hang up";
@@ -645,6 +648,9 @@
 
 /* No comment provided by engineer. */
 "Meeting ID" = "Meeting ID";
+
+/* No comment provided by engineer. */
+"Meeting settings" = "Meeting settings";
 
 /* No comment provided by engineer. */
 "Message copied" = "Message copied";
@@ -908,9 +914,6 @@
 "Send" = "Send";
 
 /* No comment provided by engineer. */
-"Send conversation link" = "Send conversation link";
-
-/* No comment provided by engineer. */
 "Send message" = "Send message";
 
 /* No comment provided by engineer. */
@@ -951,9 +954,6 @@
 
 /* No comment provided by engineer. */
 "Share current location" = "Share current location";
-
-/* No comment provided by engineer. */
-"Share link" = "Share link";
 
 /* No comment provided by engineer. */
 "Share location" = "Share location";
@@ -1095,9 +1095,6 @@
 
 /* No comment provided by engineer. */
 "Waiting for others to join call …" = "Waiting for others to join call …";
-
-/* No comment provided by engineer. */
-"Webinar" = "Webinar";
 
 /* No comment provided by engineer. */
 "Website" = "Website";
