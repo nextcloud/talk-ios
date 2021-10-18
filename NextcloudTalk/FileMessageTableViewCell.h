@@ -41,7 +41,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @protocol FileMessageTableViewCellDelegate <NSObject>
 
 - (void)cellWantsToDownloadFile:(NCMessageFileParameter *)fileParameter;
-
+- (void)cellHasDownloadedPreviewImage:(UIImage *)loadedImage fromMessage:(NCChatMessage *)message;
 @end
 
 @interface FileMessageTableViewCell : ChatTableViewCell
@@ -56,6 +56,14 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) UIView *fileStatusView;
 @property (nonatomic, strong) NCMessageFileParameter *fileParameter;
+
+@property (atomic) int imageh;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vPreviewSize;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *hPreviewSize;
+
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vGroupedPreviewSize;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *hGroupedPreviewSize;
+
 
 + (CGFloat)defaultFontSize;
 - (void)setGuestAvatar:(NSString *)displayName;

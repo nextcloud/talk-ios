@@ -180,6 +180,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 // File previews
 - (NSURLRequest *)createPreviewRequestForFile:(NSString *)fileId width:(NSInteger)width height:(NSInteger)height usingAccount:(TalkAccount *)account;
+- (NSURLRequest *)createPreviewRequestForFile:(NSString *)fileId withMaxHeight:(NSInteger) height usingAccount:(TalkAccount *)account;
 
 // User Profile
 - (NSURLSessionDataTask *)getUserProfileForAccount:(TalkAccount *)account withCompletionBlock:(GetUserProfileCompletionBlock)block;

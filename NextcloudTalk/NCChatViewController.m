@@ -2943,6 +2943,10 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
             width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right;
         }
         
+        if(message.file) {
+            return message.file.image_height + 120;
+        }
+        
         return [self getCellHeightForMessage:message withWidth:width];
     }
     else {
@@ -3002,7 +3006,7 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
         height -= CGRectGetHeight(bodyBounds);
         return height += kVoiceMessageCellPlayerHeight;
     }
-    
+        
     if (message.file) {
         return height += kFileMessageCellFilePreviewHeight + 15;
     }
@@ -3201,6 +3205,14 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     [downloader downloadFileFromMessage:fileParameter];
 }
 
+- (void)cellHasDownloadedPreviewImage:(UIImage *)loadedImage fromMessage:(NCChatMessage *)message
+{
+    message.file.image_height = loadedImage.size.height;
+    [self.tableView beginUpdates];
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
+    [self.tableView endUpdates];
+}
 #pragma mark - VoiceMessageTableViewCellDelegate
 
 - (void)cellWantsToPlayAudioFile:(NCMessageFileParameter *)fileParameter

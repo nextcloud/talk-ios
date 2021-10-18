@@ -1533,10 +1533,19 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 }
 
 #pragma mark - File previews
-
 - (NSURLRequest *)createPreviewRequestForFile:(NSString *)fileId width:(NSInteger)width height:(NSInteger)height usingAccount:(TalkAccount *)account
 {
-    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=%ld&y=%ld&forceIcon=1", account.server, fileId, (long)width, (long)height];
+    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=%ld&y=%ld&a=1&forceIcon=1", account.server, fileId, (long)width, (long)height];
+    NSMutableURLRequest *previewRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
+    [previewRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
+    return previewRequest;
+}
+
+// /core/preview?fileId={fileId}&x=-1&y={height}&a=1
+- (NSURLRequest *)createPreviewRequestForFile:(NSString *)fileId withMaxHeight:(NSInteger) height usingAccount:(TalkAccount *)account
+{
+    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=-1&y=%ld&a=1&forceIcon=1", account.server, fileId, (long)height];
+    
     NSMutableURLRequest *previewRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
     [previewRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
     return previewRequest;
