@@ -24,7 +24,7 @@
 #import <ContactsUI/ContactsUI.h>
 #import <QuickLook/QuickLook.h>
 
-#import <NCCommunication/NCCommunication.h>
+@import NCCommunication;
 
 #import "NCChatViewController.h"
 

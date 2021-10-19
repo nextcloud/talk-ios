@@ -22,6 +22,8 @@
 
 #import "NCChatFileController.h"
 
+@import NCCommunication;
+
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 

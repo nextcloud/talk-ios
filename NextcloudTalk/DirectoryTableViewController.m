@@ -22,7 +22,7 @@
 
 #import "DirectoryTableViewController.h"
 
-#import <NCCommunication/NCCommunication.h>
+@import NCCommunication;
 
 #import "UIImageView+AFNetworking.h"
 

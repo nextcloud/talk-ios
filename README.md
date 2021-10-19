@@ -13,7 +13,6 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 - [Nextcloud server](https://github.com/nextcloud/server) version 14 or higher (that fulfills [ATS requirements](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW57)).
 - [Nextcloud Talk](https://github.com/nextcloud/spreed) version 4.0 or higher.
 - [CocoaPods](https://cocoapods.org/)
-- [Carthage](https://github.com/Carthage/Carthage#installing-carthage)
 
 ## Development setup
 
@@ -21,10 +20,6 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 $ pod install
 
 $ git submodule update --init
-
-$ ./carthage.sh update --platform ios (XCode 12+)
-  OR
-$ carthage update --platform ios (XCode < 12)
 
 $ open NextcloudTalk.xcworkspace
 ```

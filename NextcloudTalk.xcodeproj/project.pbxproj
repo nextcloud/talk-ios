@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -174,7 +174,6 @@
 		2C9E071726D934F500F65D41 /* UserStatusTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E071526D934F500F65D41 /* UserStatusTableViewController.m */; };
 		2C9E071826D934F500F65D41 /* UserStatusTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C9E071626D934F500F65D41 /* UserStatusTableViewController.xib */; };
 		2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */; };
-		2CA0C8EB24D1D3BF005702AC /* NCCommunication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA0C8EA24D1D3BF005702AC /* NCCommunication.framework */; };
 		2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
 		2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15544208E41B500CE8EF0 /* NCChatViewController.m */; };
 		2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */; };
@@ -252,6 +251,9 @@
 		2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C820E125C20096D91F /* NewRoomTableViewController.m */; };
 		2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */; };
 		2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
+		2CC5F0982716FF1900DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F0972716FF1900DE1775 /* NCCommunication */; };
+		2CC5F09A2717028B00DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F0992717028B00DE1775 /* NCCommunication */; };
+		2CC5F09C2717198500DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F09B2717198500DE1775 /* NCCommunication */; };
 		2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* PlaceholderView.xib */; };
 		2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
 		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
@@ -603,7 +605,6 @@
 		2C9E071626D934F500F65D41 /* UserStatusTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserStatusTableViewController.xib; sourceTree = "<group>"; };
 		2C9E6CCC1F6F34F000399B7A /* ARDSDPUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSDPUtils.h; sourceTree = "<group>"; };
 		2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDSDPUtils.m; sourceTree = "<group>"; };
-		2CA0C8EA24D1D3BF005702AC /* NCCommunication.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NCCommunication.framework; path = Carthage/Build/iOS/NCCommunication.framework; sourceTree = "<group>"; };
 		2CA1553F208E350300CE8EF0 /* NCChatMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatMessage.h; sourceTree = "<group>"; };
 		2CA15540208E350300CE8EF0 /* NCChatMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatMessage.m; sourceTree = "<group>"; };
 		2CA15543208E41B500CE8EF0 /* NCChatViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatViewController.h; sourceTree = "<group>"; };
@@ -749,13 +750,13 @@
 			files = (
 				2CB5D0541FB4D20B00D7A5B7 /* libcrypto.a in Frameworks */,
 				2CB5D0531FB4D1FD00D7A5B7 /* libssl.a in Frameworks */,
-				2CA0C8EB24D1D3BF005702AC /* NCCommunication.framework in Frameworks */,
 				2CA1CCCA1F17C503002FE6A2 /* AudioToolbox.framework in Frameworks */,
 				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
+				2CC5F0982716FF1900DE1775 /* NCCommunication in Frameworks */,
 				9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -766,6 +767,7 @@
 			files = (
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
 				2C3195B924C1C30D0066F221 /* libcrypto.a in Frameworks */,
+				2CC5F09A2717028B00DE1775 /* NCCommunication in Frameworks */,
 				2C3195BA24C1C30D0066F221 /* libssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -776,6 +778,7 @@
 			files = (
 				2CC0015E24A25A8000A20167 /* libcrypto.a in Frameworks */,
 				2CC0015F24A25A8000A20167 /* libssl.a in Frameworks */,
+				2CC5F09C2717198500DE1775 /* NCCommunication in Frameworks */,
 				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1292,7 +1295,6 @@
 		2C90E5621EDDE0FB0093D85A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2CA0C8EA24D1D3BF005702AC /* NCCommunication.framework */,
 				2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */,
 				2CA1CC961F016117002FE6A2 /* Security.framework */,
 				2C90E5CE1EDF23A00093D85A /* WebKit.framework */,
@@ -1459,7 +1461,6 @@
 				A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */,
 				2C8035721F950BA800501B5C /* ShellScript */,
 				2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */,
-				2CA0C8EE24D1D40B005702AC /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1468,6 +1469,9 @@
 				2C62AFAD24C08845007E460A /* PBXTargetDependency */,
 			);
 			name = NextcloudTalk;
+			packageProductDependencies = (
+				2CC5F0972716FF1900DE1775 /* NCCommunication */,
+			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
 			productType = "com.apple.product-type.application";
@@ -1487,6 +1491,9 @@
 			dependencies = (
 			);
 			name = ShareExtension;
+			packageProductDependencies = (
+				2CC5F0992717028B00DE1775 /* NCCommunication */,
+			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -1505,6 +1512,9 @@
 			dependencies = (
 			);
 			name = NotificationServiceExtension;
+			packageProductDependencies = (
+				2CC5F09B2717198500DE1775 /* NCCommunication */,
+			);
 			productName = NotificationServiceExtension;
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -1581,6 +1591,9 @@
 				ar,
 			);
 			mainGroup = 2C0574741EDD9E8E00D9E7F2;
+			packageReferences = (
+				2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */,
+			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1713,24 +1726,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "APP_PATH=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\n\n# This script loops through the frameworks embedded in the application and\n# removes unused architectures.\nfind \"$APP_PATH\" -name '*.framework' -type d | while read -r FRAMEWORK\ndo\nFRAMEWORK_EXECUTABLE_NAME=$(defaults read \"$FRAMEWORK/Info.plist\" CFBundleExecutable)\nFRAMEWORK_EXECUTABLE_PATH=\"$FRAMEWORK/$FRAMEWORK_EXECUTABLE_NAME\"\necho \"Executable is $FRAMEWORK_EXECUTABLE_PATH\"\n\nEXTRACTED_ARCHS=()\n\nfor ARCH in $ARCHS\ndo\necho \"Extracting $ARCH from $FRAMEWORK_EXECUTABLE_NAME\"\nlipo -extract \"$ARCH\" \"$FRAMEWORK_EXECUTABLE_PATH\" -o \"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\"\nEXTRACTED_ARCHS+=(\"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\")\ndone\n\necho \"Merging extracted architectures: ${ARCHS}\"\nlipo -o \"$FRAMEWORK_EXECUTABLE_PATH-merged\" -create \"${EXTRACTED_ARCHS[@]}\"\nrm \"${EXTRACTED_ARCHS[@]}\"\n\necho \"Replacing original executable with thinned version\"\nrm \"$FRAMEWORK_EXECUTABLE_PATH\"\nmv \"$FRAMEWORK_EXECUTABLE_PATH-merged\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n\ndone\n";
-		};
-		2CA0C8EE24D1D40B005702AC /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"$(SRCROOT)/input.xcfilelist",
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "/usr/local/bin/carthage copy-frameworks\n";
 		};
 		902A7A3EC0BDCC947AEF3EBF /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2229,10 +2224,7 @@
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
@@ -2280,10 +2272,7 @@
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
@@ -2340,10 +2329,7 @@
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2436,10 +2422,7 @@
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2529,10 +2512,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2607,10 +2587,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2699,6 +2676,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nextcloud/ios-communication-library";
+			requirement = {
+				kind = exactVersion;
+				version = 0.98.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2CC5F0972716FF1900DE1775 /* NCCommunication */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */;
+			productName = NCCommunication;
+		};
+		2CC5F0992717028B00DE1775 /* NCCommunication */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */;
+			productName = NCCommunication;
+		};
+		2CC5F09B2717198500DE1775 /* NCCommunication */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */;
+			productName = NCCommunication;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
 }

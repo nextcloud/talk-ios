@@ -23,8 +23,9 @@
 #import "ShareConfirmationViewController.h"
 #import "ShareConfirmationCollectionViewCell.h"
 
+@import NCCommunication;
+
 #import <AVFoundation/AVFoundation.h>
-#import <NCCommunication/NCCommunication.h>
 #import <QuickLook/QuickLook.h>
 #import <QuickLookThumbnailing/QuickLookThumbnailing.h>
 #import <TOCropViewController/TOCropViewController.h>
