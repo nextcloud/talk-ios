@@ -93,7 +93,7 @@
     _fileStatusView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.contentView addSubview:_fileStatusView];
     
-    _previewImageView.contentMode = UIViewContentModeScaleAspectFill;
+    _previewImageView.contentMode = UIViewContentModeScaleAspectFit;
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"statusView": self.statusView,
@@ -202,7 +202,7 @@
                                                  if (@available(iOS 13.0, *)) {
                                                      weakPreviewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
                                                  }
-                                            weakPreviewImageView.layer.borderWidth = 1.0f;
+                                           // weakPreviewImageView.layer.borderWidth = 1.0f;
                     
                                         if (self.delegate) {
                                             [self.delegate cellHasDownloadedPreviewImage:image fromMessage:message];
@@ -211,8 +211,8 @@
         
                                             dispatch_async(dispatch_get_main_queue(), ^(void){
                                                 self.vPreviewSize[3].constant = image.size.height + 40;
-                                                self.hPreviewSize[3].constant = image.size.width + 30;
-                                                self.hGroupedPreviewSize[1].constant = image.size.width + 50;
+                                                self.hPreviewSize[3].constant = (image.size.width > 230) ? 230 : image.size.width + 30;
+                                                self.hPreviewSize[3].constant = (image.size.width > 230) ? 230 : image.size.width + 30;
                                                 self.vGroupedPreviewSize[1].constant = image.size.height + 78 ;
                                                 
                                                 [weakPreviewImageView setImage:image];
