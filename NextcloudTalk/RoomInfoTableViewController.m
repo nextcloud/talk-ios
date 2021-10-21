@@ -1070,7 +1070,7 @@ typedef enum FileAction {
                                                               handler:^void (UIAlertAction *action) {
                                                                   [self removeParticipant:participant];
                                                               }];
-    [removeParticipant setValue:[[UIImage imageNamed:@"delete-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [removeParticipant setValue:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     [optionsActionSheet addAction:removeParticipant];
     
     
@@ -1853,7 +1853,7 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Delete all messages", nil);
                     cell.textLabel.textColor = [UIColor systemRedColor];
-                    [cell.imageView setImage:[[UIImage imageNamed:@"delete-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     [cell.imageView setTintColor:[UIColor systemRedColor]];
                     
                     return cell;
@@ -1868,7 +1868,7 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Delete conversation", nil);
                     cell.textLabel.textColor = [UIColor systemRedColor];
-                    [cell.imageView setImage:[[UIImage imageNamed:@"delete-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"delete-forever"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     [cell.imageView setTintColor:[UIColor systemRedColor]];
                     
                     return cell;
