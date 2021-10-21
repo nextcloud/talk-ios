@@ -89,7 +89,6 @@ typedef enum DestructiveAction {
 
 typedef enum ModificationError {
     kModificationErrorRename = 0,
-    kModificationErrorFavorite,
     kModificationErrorChatNotifications,
     kModificationErrorCallNotifications,
     kModificationErrorShare,
@@ -447,10 +446,6 @@ typedef enum FileAction {
     switch (error) {
         case kModificationErrorRename:
             errorDescription = NSLocalizedString(@"Could not rename the conversation", nil);
-            break;
-            
-        case kModificationErrorFavorite:
-            errorDescription = NSLocalizedString(@"Could not change favorite setting", nil);
             break;
             
         case kModificationErrorChatNotifications:
