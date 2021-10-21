@@ -1418,13 +1418,12 @@ typedef enum FileAction {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
-    static NSString *favoriteRoomCellIdentifier = @"FavoriteRoomCellIdentifier";
     static NSString *chatnotificationLevelCellIdentifier = @"ChatNotificationLevelCellIdentifier";
     static NSString *callnotificationCellIdentifier = @"CallNotificationCellIdentifier";
-    static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
+    static NSString *allowGuestsCellIdentifier = @"AllowGuestsCellIdentifier";
     static NSString *passwordCellIdentifier = @"PasswordCellIdentifier";
+    static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
     static NSString *resendInvitationsCellIdentifier = @"ResendInvitationsCellIdentifier";
-    static NSString *sendLinkCellIdentifier = @"SendLinkCellIdentifier";
     static NSString *previewFileCellIdentifier = @"PreviewFileCellIdentifier";
     static NSString *openFileCellIdentifier = @"OpenFileCellIdentifier";
     static NSString *lobbyCellIdentifier = @"LobbyCellIdentifier";
@@ -1605,9 +1604,9 @@ typedef enum FileAction {
             switch (action) {
                 case kGuestActionPublicToggle:
                 {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:allowGuestsCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:allowGuestsCellIdentifier];
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Allow guests", nil);
@@ -1636,9 +1635,9 @@ typedef enum FileAction {
                     
                 case kGuestActionShareLink:
                 {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sendLinkCellIdentifier];
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sendLinkCellIdentifier];
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Share conversation link", nil);
