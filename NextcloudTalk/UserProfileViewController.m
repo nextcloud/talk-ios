@@ -1135,7 +1135,7 @@ typedef enum SummaryRow {
         {
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:removeAccountCellIdentifier];
             NSString *actionTitle = (multiAccountEnabled) ? NSLocalizedString(@"Remove account", nil) : NSLocalizedString(@"Log out", nil);
-            UIImage *actionImage = (multiAccountEnabled) ? [UIImage imageNamed:@"delete-action"] : [UIImage imageNamed:@"logout"];
+            UIImage *actionImage = (multiAccountEnabled) ? [UIImage imageNamed:@"delete"] : [UIImage imageNamed:@"logout"];
             cell.textLabel.text = actionTitle;
             cell.textLabel.textColor = [UIColor systemRedColor];
             [cell.imageView setImage:[actionImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];

@@ -92,6 +92,9 @@
 "All notifications are muted" = "All notifications are muted";
 
 /* No comment provided by engineer. */
+"Allow guests" = "Allow guests";
+
+/* No comment provided by engineer. */
 "Alphabetical order" = "Alphabetical order";
 
 /* No comment provided by engineer. */
@@ -170,7 +173,7 @@
 "bot" = "bot";
 
 /* No comment provided by engineer. */
-"Call notifications" = "Call notifications";
+"Calls" = "Calls";
 
 /* No comment provided by engineer. */
 "Camera" = "Camera";
@@ -203,7 +206,7 @@
 "Chat" = "Chat";
 
 /* No comment provided by engineer. */
-"Chat notifications" = "Chat notifications";
+"Chat messages" = "Chat messages";
 
 /* No comment provided by engineer. */
 "Clear status message" = "Clear status message";
@@ -258,9 +261,6 @@
 
 /* No comment provided by engineer. */
 "Could not change call notifications setting" = "Could not change call notifications setting";
-
-/* No comment provided by engineer. */
-"Could not change favorite setting" = "Could not change favorite setting";
 
 /* No comment provided by engineer. */
 "Could not change lobby state of the conversation" = "Could not change lobby state of the conversation";
@@ -384,9 +384,6 @@
 
 /* No comment provided by engineer. */
 "Do you really want to delete this conversation?" = "Do you really want to delete this conversation?";
-
-/* No comment provided by engineer. */
-"Do you really want to leave this conversation?" = "Do you really want to leave this conversation?";
 
 /* No comment provided by engineer. */
 "Do you really want to log out from this account?" = "Do you really want to log out from this account?";
@@ -536,7 +533,7 @@
 "guest" = "guest";
 
 /* No comment provided by engineer. */
-"Guests" = "Guests";
+"Guests access" = "Guests access";
 
 /* No comment provided by engineer. */
 "Hang up" = "Hang up";
@@ -645,6 +642,9 @@
 
 /* No comment provided by engineer. */
 "Meeting ID" = "Meeting ID";
+
+/* No comment provided by engineer. */
+"Meeting settings" = "Meeting settings";
 
 /* No comment provided by engineer. */
 "Message copied" = "Message copied";
@@ -756,6 +756,9 @@
 
 /* TRANSLATORS this is for a On/Off setting switch */
 "On" = "On";
+
+/* No comment provided by engineer. */
+"Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time." = "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.";
 
 /* No comment provided by engineer. */
 "Online" = "Online";
@@ -908,9 +911,6 @@
 "Send" = "Send";
 
 /* No comment provided by engineer. */
-"Send conversation link" = "Send conversation link";
-
-/* No comment provided by engineer. */
 "Send message" = "Send message";
 
 /* No comment provided by engineer. */
@@ -951,9 +951,6 @@
 
 /* No comment provided by engineer. */
 "Share current location" = "Share current location";
-
-/* No comment provided by engineer. */
-"Share link" = "Share link";
 
 /* No comment provided by engineer. */
 "Share location" = "Share location";
@@ -1095,9 +1092,6 @@
 
 /* No comment provided by engineer. */
 "Waiting for others to join call …" = "Waiting for others to join call …";
-
-/* No comment provided by engineer. */
-"Webinar" = "Webinar";
 
 /* No comment provided by engineer. */
 "Website" = "Website";

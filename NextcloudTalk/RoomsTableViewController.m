@@ -816,7 +816,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     UIAlertController *confirmDialog =
     [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Leave conversation", nil)
-                                        message:NSLocalizedString(@"Do you really want to leave this conversation?", nil)
+                                        message:NSLocalizedString(@"Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Leave", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [_rooms removeObjectAtIndex:indexPath.row];

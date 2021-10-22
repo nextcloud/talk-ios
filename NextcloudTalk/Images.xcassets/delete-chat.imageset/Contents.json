@@ -1,23 +1,23 @@
 {
   "images" : [
     {
+      "filename" : "delete-chat.png",
       "idiom" : "universal",
-      "filename" : "delete-action.png",
       "scale" : "1x"
     },
     {
+      "filename" : "delete-chat@2x.png",
       "idiom" : "universal",
-      "filename" : "delete-action@2x.png",
       "scale" : "2x"
     },
     {
+      "filename" : "delete-chat@3x.png",
       "idiom" : "universal",
-      "filename" : "delete-action@3x.png",
       "scale" : "3x"
     }
   ],
   "info" : {
-    "version" : 1,
-    "author" : "xcode"
+    "author" : "xcode",
+    "version" : 1
   }
 }
