@@ -523,7 +523,7 @@ typedef enum FileAction {
         case kDestructiveActionLeave:
         {
             title = NSLocalizedString(@"Leave conversation", nil);
-            message = NSLocalizedString(@"Do you really want to leave this conversation?", nil);
+            message = NSLocalizedString(@"Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.", nil);
             confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Leave", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
                 [self leaveRoom];
             }];

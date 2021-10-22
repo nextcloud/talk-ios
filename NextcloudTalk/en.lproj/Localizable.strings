@@ -386,9 +386,6 @@
 "Do you really want to delete this conversation?" = "Do you really want to delete this conversation?";
 
 /* No comment provided by engineer. */
-"Do you really want to leave this conversation?" = "Do you really want to leave this conversation?";
-
-/* No comment provided by engineer. */
 "Do you really want to log out from this account?" = "Do you really want to log out from this account?";
 
 /* No comment provided by engineer. */
@@ -759,6 +756,9 @@
 
 /* TRANSLATORS this is for a On/Off setting switch */
 "On" = "On";
+
+/* No comment provided by engineer. */
+"Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time." = "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.";
 
 /* No comment provided by engineer. */
 "Online" = "Online";
