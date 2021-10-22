@@ -1813,7 +1813,7 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
             // Reply option
             if (message.isReplyable && !message.isDeleting && !_offlineMode) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
-                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyInfo];
+                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply", nil) image:[[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
                 
                 // Reply-privately option (only to other users and not in one-to-one)
@@ -1821,7 +1821,7 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
                 if (_room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId] )
                 {
                     NSDictionary *replyPrivatInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReplyPrivately) forKey:@"action"];
-                    FTPopOverMenuModel *replyPrivatModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply Privately", nil) image:[UIImage imageNamed:@"reply"] userInfo:replyPrivatInfo];
+                    FTPopOverMenuModel *replyPrivatModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply Privately", nil) image:[[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyPrivatInfo];
                     [menuArray addObject:replyPrivatModel];
                 }
             }
@@ -1829,20 +1829,20 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
             // Forward option (only normal messages for now)
             if (!message.file && !_offlineMode) {
                 NSDictionary *forwardInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionForward) forKey:@"action"];
-                FTPopOverMenuModel *forwardModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Forward", nil) image:[UIImage imageNamed:@"forward"] userInfo:forwardInfo];
+                FTPopOverMenuModel *forwardModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Forward", nil) image:[[UIImage imageNamed:@"forward"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:forwardInfo];
                 [menuArray addObject:forwardModel];
             }
 
             // Re-send option
             if (message.sendingFailed && !_offlineMode) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionResend) forKey:@"action"];
-                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Resend", nil) image:[UIImage imageNamed:@"refresh"] userInfo:replyInfo];
+                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Resend", nil) image:[[UIImage imageNamed:@"refresh"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
             }
             
             // Copy option
             NSDictionary *copyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionCopy) forKey:@"action"];
-            FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Copy", nil) image:[UIImage imageNamed:@"copy"] userInfo:copyInfo];
+            FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Copy", nil) image:[[UIImage imageNamed:@"copy"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:copyInfo];
             [menuArray addObject:copyModel];
             
             // Open in nextcloud option
@@ -1856,7 +1856,7 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
             // Delete option
             if (message.sendingFailed || [message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType]) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionDelete) forKey:@"action"];
-                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Delete", nil) image:[UIImage imageNamed:@"delete"] userInfo:replyInfo];
+                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Delete", nil) image:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
             }
             
