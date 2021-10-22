@@ -1842,7 +1842,7 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
             
             // Copy option
             NSDictionary *copyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionCopy) forKey:@"action"];
-            FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Copy", nil) image:[UIImage imageNamed:@"clippy"] userInfo:copyInfo];
+            FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Copy", nil) image:[UIImage imageNamed:@"copy"] userInfo:copyInfo];
             [menuArray addObject:copyModel];
             
             // Open in nextcloud option
@@ -3101,7 +3101,7 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     }
     
     // Copy option
-    UIImage *copyImage = [[UIImage imageNamed:@"clippy"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIImage *copyImage = [[UIImage imageNamed:@"copy"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     UIAction *copyAction = [UIAction actionWithTitle:NSLocalizedString(@"Copy", nil) image:copyImage identifier:nil handler:^(UIAction *action){
         
         [self didPressCopy:message];
