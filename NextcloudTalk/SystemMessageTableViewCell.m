@@ -117,6 +117,8 @@
 {
     self.bodyTextView.attributedText = message.systemMessageFormat;
     self.messageId = message.messageId;
+    self.message = message;
+    
     if (!message.isGroupMessage) {
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
         self.dateLabel.text = [NCUtils getTimeFromDate:date];

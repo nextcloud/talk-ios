@@ -1254,6 +1254,11 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     }
 }
 
+- (void)presentOptionsForMessageActor:(NCChatMessage *)message
+{
+    
+}
+
 #pragma mark - UIImagePickerController Delegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
@@ -2924,6 +2929,8 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
         return groupedCell;
     } else {
         ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
+        normalCell.delegate = self;
+        
         [normalCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
         
         return normalCell;
@@ -3256,6 +3263,13 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
         });
+    }
+}
+
+- (void)cellWantsToDisplayOptionsForMessageActor:(NCChatMessage *)message {
+    NSIndexPath *indexPath = [self indexPathForMessage:message];
+    if (indexPath) {
+        [self presentOptionsForMessageActor:message];
     }
 }
 

@@ -60,10 +60,12 @@
 {
     _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kVoiceMessageCellAvatarHeight, kVoiceMessageCellAvatarHeight)];
     _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
-    _avatarView.userInteractionEnabled = NO;
+    _avatarView.userInteractionEnabled = YES;
     _avatarView.backgroundColor = [NCAppBranding placeholderColor];
     _avatarView.layer.cornerRadius = kVoiceMessageCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
+    UITapGestureRecognizer *avatarTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarTapped:)];
+    [_avatarView addGestureRecognizer:avatarTap];
     
     _audioPlayerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 44)];
     _audioPlayerView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -183,6 +185,7 @@
 {
     self.titleLabel.text = message.actorDisplayName;
     self.messageId = message.messageId;
+    self.message = message;
     
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
@@ -364,6 +367,15 @@
     
     [_activityIndicator startAnimating];
     [self.fileStatusView addSubview:_activityIndicator];
+}
+
+#pragma mark - Gesture recognizers
+
+- (void)avatarTapped:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (self.delegate && self.message) {
+        [self.delegate cellWantsToDisplayOptionsForMessageActor:self.message];
+    }
 }
 
 

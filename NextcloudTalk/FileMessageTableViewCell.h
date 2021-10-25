@@ -38,7 +38,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 
 @class FileMessageTableViewCell;
 
-@protocol FileMessageTableViewCellDelegate <NSObject>
+@protocol FileMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 
 - (void)cellWantsToDownloadFile:(NCMessageFileParameter *)fileParameter;
 

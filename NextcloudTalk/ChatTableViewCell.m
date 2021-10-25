@@ -39,6 +39,7 @@
 {
     [super prepareForReuse];
     self.messageId = -1;
+    self.message = nil;
 }
 
 @end
