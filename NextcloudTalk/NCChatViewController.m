@@ -1269,16 +1269,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                     NSString *appId = [action objectForKey:@"appId"];
                     NSString *title = [action objectForKey:@"title"];
                     NSString *link = [action objectForKey:@"hyperlink"];
-                    if ([appId isEqualToString:@"profile"]) {
-                        UIAlertAction *profileAction = [UIAlertAction actionWithTitle:title
-                                                                                style:UIAlertActionStyleDefault
-                                                                              handler:^void (UIAlertAction *action) {
-                            NSURL *actionURL = [NSURL URLWithString:[link stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
-                            [[UIApplication sharedApplication] openURL:actionURL options:@{} completionHandler:nil];
-                        }];
-                        [profileAction setValue:[[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-                        [optionsActionSheet addAction:profileAction];
-                    } else if ([appId isEqualToString:@"spreed"]) {
+                    
+                    // Talk to user action
+                    if ([appId isEqualToString:@"spreed"]) {
                         UIAlertAction *talkAction = [UIAlertAction actionWithTitle:title
                                                                              style:UIAlertActionStyleDefault
                                                                            handler:^void (UIAlertAction *action) {
@@ -1291,16 +1284,24 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                         }];
                         [talkAction setValue:[[UIImage imageNamed:@"navigationLogo"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
                         [optionsActionSheet addAction:talkAction];
-                    } else if ([appId isEqualToString:@"email"]) {
-                        UIAlertAction *emailAction = [UIAlertAction actionWithTitle:title
-                                                                              style:UIAlertActionStyleDefault
-                                                                            handler:^void (UIAlertAction *action) {
-                            NSURL *actionURL = [NSURL URLWithString:[link stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
-                            [[UIApplication sharedApplication] openURL:actionURL options:@{} completionHandler:nil];
-                        }];
-                        [emailAction setValue:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-                        [optionsActionSheet addAction:emailAction];
+                        continue;
                     }
+                    
+                    // Other user actions
+                    UIAlertAction *action = [UIAlertAction actionWithTitle:title
+                                                                     style:UIAlertActionStyleDefault
+                                                                   handler:^void (UIAlertAction *action) {
+                        NSURL *actionURL = [NSURL URLWithString:[link stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+                        [[UIApplication sharedApplication] openURL:actionURL options:@{} completionHandler:nil];
+                    }];
+                    
+                    if ([appId isEqualToString:@"profile"]) {
+                        [action setValue:[[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+                    } else if ([appId isEqualToString:@"email"]) {
+                        [action setValue:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+                    }
+                    
+                    [optionsActionSheet addAction:action];
                 }
                 
                 [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
