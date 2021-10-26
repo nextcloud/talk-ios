@@ -26,6 +26,7 @@
 
 extern NSString * const NCChatViewControllerReplyPrivatelyNotification;
 extern NSString * const NCChatViewControllerForwardNotification;
+extern NSString * const NCChatViewControllerTalkToUserNotification;
 
 @interface NCChatViewController : SLKTextViewController
 

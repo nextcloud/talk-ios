@@ -1534,6 +1534,31 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return avatarRequest;
 }
 
+#pragma mark - User actions
+
+- (NSURLSessionDataTask *)getUserActionsForUser:(NSString *)userId usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserActionsCompletionBlock)block
+{
+    NSString *encodedUser = [userId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/hovercard/v1/%@", account.server, encodedUser];
+    NSDictionary *parameters = @{@"format" : @"json"};
+    
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *actions = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            block(actions, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(nil, error);
+        }
+    }];
+    
+    return task;
+}
+
 #pragma mark - File previews
 
 - (NSURLRequest *)createPreviewRequestForFile:(NSString *)fileId width:(NSInteger)width height:(NSInteger)height usingAccount:(TalkAccount *)account
