@@ -29,6 +29,7 @@
 static CGFloat kFileMessageCellMinimumHeight        = 50.0;
 static CGFloat kFileMessageCellAvatarHeight         = 30.0;
 static CGFloat kFileMessageCellFilePreviewHeight    = 120.0;
+static CGFloat maxPreviewImageWidth                 = 230.0;
 
 static NSString *FileMessageCellIdentifier          = @"FileMessageCellIdentifier";
 static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellIdentifier";
@@ -57,7 +58,6 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) UIView *fileStatusView;
 @property (nonatomic, strong) NCMessageFileParameter *fileParameter;
 
-@property (atomic) int imageh;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vPreviewSize;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *hPreviewSize;
 

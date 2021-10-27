@@ -2943,10 +2943,6 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
             width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right;
         }
         
-        if(message.file) {
-            return message.file.image_height + 120;
-        }
-        
         return [self getCellHeightForMessage:message withWidth:width];
     }
     else {
@@ -3008,7 +3004,12 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     }
         
     if (message.file) {
-        return height += kFileMessageCellFilePreviewHeight + 15;
+        if(message.file.previewImageHeight > 0) {
+             return height +=  message.file.previewImageHeight ;
+       }
+        else {
+            return height += kFileMessageCellFilePreviewHeight + 15;
+        }
     }
     
     if (message.geoLocation) {
@@ -3207,11 +3208,9 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
 
 - (void)cellHasDownloadedPreviewImage:(UIImage *)loadedImage fromMessage:(NCChatMessage *)message
 {
-    message.file.image_height = loadedImage.size.height;
-    [self.tableView beginUpdates];
-    [self.view setNeedsLayout];
-    [self.view layoutIfNeeded];
-    [self.tableView endUpdates];
+    message.file.previewImageHeight = loadedImage.size.height;
+    NSIndexPath *indexPath = [self indexPathForMessage:message];
+    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
 }
 #pragma mark - VoiceMessageTableViewCellDelegate
 
