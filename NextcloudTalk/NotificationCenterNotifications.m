@@ -27,4 +27,5 @@ NSString * const NCOutdatedTalkVersionNotification = @"NCOutdatedTalkVersionNoti
 NSString * const NCServerCapabilitiesUpdatedNotification = @"NCServerCapabilitiesUpdatedNotification";
 NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpdatedNotification";
 NSString * const NCTokenRevokedResponseReceivedNotification = @"NCTokenRevokedResponseReceivedNotification";
+NSString * const NCURLWantsToOpenConversationNotification = @"NCURLWantsToOpenConversationNotification";
 

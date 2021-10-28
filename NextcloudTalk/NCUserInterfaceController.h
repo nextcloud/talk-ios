@@ -44,5 +44,6 @@
 - (void)presentChatViewController:(NCChatViewController *)chatViewController;
 - (void)presentCallViewController:(CallViewController *)callViewController;
 - (void)presentCallKitCallInRoom:(NSString *)token withVideoEnabled:(BOOL)video;
+- (void)presentChatForURL:(NSURLComponents *)urlComponents;
 
 @end
