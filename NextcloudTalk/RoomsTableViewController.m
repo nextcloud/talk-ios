@@ -915,7 +915,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                            handler:^void (UIAlertAction *action) {
                                                                [self presentRoomInfoForRoomAtIndexPath:indexPath];
                                                            }];
-    [roomInfoAction setValue:[[UIImage imageNamed:@"room-info-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [roomInfoAction setValue:[[UIImage imageNamed:@"info"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     [optionsActionSheet addAction:roomInfoAction];
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
