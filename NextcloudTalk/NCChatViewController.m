@@ -3002,14 +3002,9 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
         height -= CGRectGetHeight(bodyBounds);
         return height += kVoiceMessageCellPlayerHeight;
     }
-        
+    
     if (message.file) {
-        if(message.file.previewImageHeight > 0) {
-             return height +=  message.file.previewImageHeight ;
-       }
-        else {
-            return height += kFileMessageCellFilePreviewHeight + 15;
-        }
+        return height += message.file.previewImageHeight == 0 ? kFileMessageCellFilePreviewHeight : message.file.previewImageHeight;
     }
     
     if (message.geoLocation) {
