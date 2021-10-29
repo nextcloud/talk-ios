@@ -32,6 +32,7 @@
 #import "NCChatFileController.h"
 #import "NCDatabaseManager.h"
 #import "NCUtils.h"
+#import "NCChatViewController.h"
 
 @implementation FilePreviewImageView : UIImageView
 
@@ -92,6 +93,8 @@
     _fileStatusView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.contentView addSubview:_fileStatusView];
     
+    _previewImageView.contentMode = UIViewContentModeScaleAspectFit;
+    
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"statusView": self.statusView,
                             @"fileStatusView": self.fileStatusView,
@@ -112,21 +115,25 @@
     
     if ([self.reuseIdentifier isEqualToString:FileMessageCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        self.hPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views];
+        [self.contentView addConstraints:self.hPreviewSize];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[fileStatusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(28)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        self.vPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views];
+        [self.contentView addConstraints:self.vPreviewSize];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[fileStatusView(previewSize)]-right-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(28)]-left-[fileStatusView(previewSize)]-(>=0)-[statusView(statusSize)]-left-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:GroupedFileMessageCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        self.hGroupedPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views];
+        [self.contentView addConstraints:self.hGroupedPreviewSize];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[fileStatusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[fileStatusView(previewSize)]-right-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        self.vGroupedPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views];
+        [self.contentView addConstraints:self.vGroupedPreviewSize];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[fileStatusView(previewSize)]-(>=0)-[statusView(statusSize)]-left-|" options:0 metrics:metrics views:views]];
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeIsDownloading:) name:NCChatFileControllerDidChangeIsDownloadingNotification object:nil];
@@ -153,6 +160,11 @@
     self.previewImageView.layer.borderWidth = 0.0f;
     self.previewImageView.image = nil;
     
+    self.vPreviewSize[3].constant = kFileMessageCellFilePreviewHeight;
+    self.hPreviewSize[3].constant = kFileMessageCellFilePreviewHeight;
+    self.vGroupedPreviewSize[1].constant = kFileMessageCellFilePreviewHeight;
+    self.hGroupedPreviewSize[1].constant = kFileMessageCellFilePreviewHeight;
+    
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
     [self clearFileStatusView];
 }
@@ -169,20 +181,34 @@
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [self.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:activeAccount]
                                placeholderImage:nil success:nil failure:nil];
-   
+    
     NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
     UIImage *filePreviewImage = [UIImage imageNamed:imageName];
-    __weak FilePreviewImageView *weakPreviewImageView = self.previewImageView;
-    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId width:120 height:120 usingAccount:activeAccount]
+    __weak typeof(self) weakSelf = self;
+    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:200 usingAccount:activeAccount]
                                      placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
-                                         [weakPreviewImageView setImage:image];
-                                         //TODO: How to adjust for dark mode?
-                                         weakPreviewImageView.layer.borderColor = [[UIColor colorWithWhite:0.9 alpha:1.0] CGColor];
-                                         if (@available(iOS 13.0, *)) {
-                                             weakPreviewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
-                                         }
-                                         weakPreviewImageView.layer.borderWidth = 1.0f;
-                                     } failure:nil];
+        
+                                       //TODO: How to adjust for dark mode?
+                                       weakSelf.previewImageView.layer.borderColor = [[UIColor colorWithWhite:0.9 alpha:1.0] CGColor];
+                                       if (@available(iOS 13.0, *)) {
+                                           weakSelf.previewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
+                                       }
+                                       weakSelf.previewImageView.layer.borderWidth = 1.0f;
+                    
+                                       dispatch_async(dispatch_get_main_queue(), ^(void){
+                                           weakSelf.vPreviewSize[3].constant = image.size.height ;
+                                           weakSelf.hPreviewSize[3].constant = (image.size.width > maxPreviewImageWidth) ? maxPreviewImageWidth : image.size.width ;
+                                           weakSelf.hGroupedPreviewSize[1].constant = (image.size.width > maxPreviewImageWidth) ? maxPreviewImageWidth : image.size.width;
+                                           weakSelf.vGroupedPreviewSize[1].constant = image.size.height ;
+                                           [weakSelf.previewImageView setImage:image];
+                                           [weakSelf setNeedsLayout];
+                                           [weakSelf layoutIfNeeded];
+                                            
+                                           if (weakSelf.delegate) {
+                                               [weakSelf.delegate cellHasDownloadedPreviewImage:image fromMessage:message];
+                                           }
+                                       });
+    } failure:nil];
     
     if (message.sendingFailed) {
         UIImageView *errorView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];

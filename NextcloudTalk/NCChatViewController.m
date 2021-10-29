@@ -3004,7 +3004,7 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     }
     
     if (message.file) {
-        return height += kFileMessageCellFilePreviewHeight + 15;
+        return height += message.file.previewImageHeight == 0 ? kFileMessageCellFilePreviewHeight : message.file.previewImageHeight;
     }
     
     if (message.geoLocation) {
@@ -3201,6 +3201,12 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     [downloader downloadFileFromMessage:fileParameter];
 }
 
+- (void)cellHasDownloadedPreviewImage:(UIImage *)loadedImage fromMessage:(NCChatMessage *)message
+{
+    message.file.previewImageHeight = loadedImage.size.height;
+    [self.tableView beginUpdates];
+    [self.tableView endUpdates];
+}
 #pragma mark - VoiceMessageTableViewCellDelegate
 
 - (void)cellWantsToPlayAudioFile:(NCMessageFileParameter *)fileParameter
