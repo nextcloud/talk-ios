@@ -1639,7 +1639,8 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Share conversation link", nil);
-                    [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"share"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
                     return cell;
                 }

@@ -906,7 +906,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                 handler:^void (UIAlertAction *action) {
                                                                     [self shareLinkFromRoomAtIndexPath:indexPath];
                                                                 }];
-        [shareLinkAction setValue:[[UIImage imageNamed:@"share-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [shareLinkAction setValue:[[UIImage imageNamed:@"share"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:shareLinkAction];
     }
     // Room info
