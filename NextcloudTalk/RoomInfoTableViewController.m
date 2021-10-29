@@ -1038,7 +1038,7 @@ typedef enum FileAction {
                                                                     handler:^void (UIAlertAction *action) {
                                                                         [self demoteFromModerator:participant];
                                                                     }];
-        [demoteFromModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [demoteFromModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:demoteFromModerator];
     } else if (participant.canBePromoted) {
         UIAlertAction *promoteToModerator = [UIAlertAction actionWithTitle:NSLocalizedString(@"Promote to moderator", nil)
@@ -1046,7 +1046,7 @@ typedef enum FileAction {
                                                                    handler:^void (UIAlertAction *action) {
                                                                        [self promoteToModerator:participant];
                                                                    }];
-        [promoteToModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [promoteToModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:promoteToModerator];
     }
     
@@ -1067,7 +1067,7 @@ typedef enum FileAction {
                                                               handler:^void (UIAlertAction *action) {
                                                                   [self removeParticipant:participant];
                                                               }];
-    [removeParticipant setValue:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [removeParticipant setValue:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     [optionsActionSheet addAction:removeParticipant];
     
     
