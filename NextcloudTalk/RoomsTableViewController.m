@@ -895,7 +895,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                     handler:^void (UIAlertAction *action) {
                                                                         [self setNotificationLevelForRoomAtIndexPath:indexPath];
                                                                     }];
-        [notificationsAction setValue:[[UIImage imageNamed:@"notifications-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [notificationsAction setValue:[[UIImage imageNamed:@"notifications"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:notificationsAction];
     }
     // Share link

@@ -1526,7 +1526,8 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Chat messages", nil);
                     cell.detailTextLabel.text = _room.notificationLevelString;
-                    [cell.imageView setImage:[UIImage imageNamed:@"notifications-settings"]];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"notifications"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
                     return cell;
                 }
