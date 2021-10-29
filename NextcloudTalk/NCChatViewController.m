@@ -3209,8 +3209,8 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
 - (void)cellHasDownloadedPreviewImage:(UIImage *)loadedImage fromMessage:(NCChatMessage *)message
 {
     message.file.previewImageHeight = loadedImage.size.height;
-    NSIndexPath *indexPath = [self indexPathForMessage:message];
-    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+    [self.tableView beginUpdates];
+    [self.tableView endUpdates];
 }
 #pragma mark - VoiceMessageTableViewCellDelegate
 

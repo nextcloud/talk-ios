@@ -170,6 +170,11 @@
     self.previewImageView.layer.borderWidth = 0.0f;
     self.previewImageView.image = nil;
     
+    self.vPreviewSize[3].constant = kFileMessageCellFilePreviewHeight;
+    self.hPreviewSize[3].constant = kFileMessageCellFilePreviewHeight;
+    self.vGroupedPreviewSize[1].constant = kFileMessageCellFilePreviewHeight;
+    self.hGroupedPreviewSize[1].constant = kFileMessageCellFilePreviewHeight;
+    
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
     [self clearFileStatusView];
 }
@@ -200,9 +205,6 @@
                                                  }
                                         weakSelf.previewImageView.layer.borderWidth = 1.0f;
                     
-                                        if (weakSelf.delegate) {
-                                            [weakSelf.delegate cellHasDownloadedPreviewImage:image fromMessage:message];
-                                        }
         
                                         dispatch_async(dispatch_get_main_queue(), ^(void){
                                                 weakSelf.vPreviewSize[3].constant = image.size.height ;
@@ -211,6 +213,13 @@
                                                 weakSelf.vGroupedPreviewSize[1].constant = image.size.height ;
                                                 
                                                 [weakSelf.previewImageView setImage:image];
+                                            
+                                                [weakSelf setNeedsLayout];
+                                                [weakSelf layoutIfNeeded];
+                                            
+                                            if (weakSelf.delegate) {
+                                                [weakSelf.delegate cellHasDownloadedPreviewImage:image fromMessage:message];
+                                            }
                                            });
                                         } failure:nil];
     
