@@ -61,10 +61,12 @@
 {
     _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellAvatarHeight, kFileMessageCellAvatarHeight)];
     _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
-    _avatarView.userInteractionEnabled = NO;
+    _avatarView.userInteractionEnabled = YES;
     _avatarView.backgroundColor = [NCAppBranding placeholderColor];
     _avatarView.layer.cornerRadius = kFileMessageCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
+    UITapGestureRecognizer *avatarTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarTapped:)];
+    [_avatarView addGestureRecognizer:avatarTap];
     
     _previewImageView = [[FilePreviewImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellFilePreviewHeight, kFileMessageCellFilePreviewHeight)];
     _previewImageView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -174,6 +176,7 @@
     self.titleLabel.text = message.actorDisplayName;
     self.bodyTextView.attributedText = message.parsedMessage;
     self.messageId = message.messageId;
+    self.message = message;
     
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
@@ -322,6 +325,26 @@
     [self.fileStatusView addSubview:_activityIndicator];
 }
 
+#pragma mark - Gesture recognizers
+
+- (void)avatarTapped:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (self.delegate && self.message) {
+        [self.delegate cellWantsToDisplayOptionsForMessageActor:self.message];
+    }
+}
+
+- (void)previewTapped:(UITapGestureRecognizer *)recognizer
+{
+    if (!self.fileParameter || !self.fileParameter.path || !self.fileParameter.link) {
+        return;
+    }
+    
+    if (self.delegate) {
+        [self.delegate cellWantsToDownloadFile:self.fileParameter];
+    }
+}
+
 
 #pragma mark - Getters
 
@@ -370,17 +393,6 @@
         _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
     }
     return _bodyTextView;
-}
-
-- (void)previewTapped:(UITapGestureRecognizer *)recognizer
-{
-    if (!self.fileParameter || !self.fileParameter.path || !self.fileParameter.link) {
-        return;
-    }
-    
-    if (self.delegate) {
-        [self.delegate cellWantsToDownloadFile:self.fileParameter];
-    }
 }
 
 - (void)setGuestAvatar:(NSString *)displayName

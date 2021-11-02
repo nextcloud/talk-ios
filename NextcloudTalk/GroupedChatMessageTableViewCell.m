@@ -83,6 +83,7 @@
 {
     self.bodyTextView.attributedText = message.parsedMessage;
     self.messageId = message.messageId;
+    self.message = message;
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];

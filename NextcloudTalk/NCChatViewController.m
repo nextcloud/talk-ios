@@ -140,6 +140,7 @@ typedef enum NCChatMessageAction {
 
 NSString * const NCChatViewControllerReplyPrivatelyNotification = @"NCChatViewControllerReplyPrivatelyNotification";
 NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControllerForwardNotification";
+NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewControllerTalkToUserNotification";
 
 - (instancetype)initForRoom:(NCRoom *)room
 {
@@ -1252,6 +1253,70 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
     if (message.file) {
         [NCUtils openFileInNextcloudAppOrBrowser:message.file.path withFileLink:message.file.link];
     }
+}
+
+- (void)presentOptionsForMessageActor:(NCChatMessage *)message fromIndexPath:(NSIndexPath *)indexPath
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getUserActionsForUser:message.actorId usingAccount:activeAccount withCompletionBlock:^(NSDictionary *userActions, NSError *error) {
+        if (!error) {
+            NSArray *actions = [userActions objectForKey:@"actions"];
+            if ([actions isKindOfClass:[NSArray class]]) {
+                UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:message.actorDisplayName
+                                                                                            message:nil
+                                                                                     preferredStyle:UIAlertControllerStyleActionSheet];
+                for (NSDictionary *action in actions) {
+                    NSString *appId = [action objectForKey:@"appId"];
+                    NSString *title = [action objectForKey:@"title"];
+                    NSString *link = [action objectForKey:@"hyperlink"];
+                    
+                    // Talk to user action
+                    if ([appId isEqualToString:@"spreed"]) {
+                        UIAlertAction *talkAction = [UIAlertAction actionWithTitle:title
+                                                                             style:UIAlertActionStyleDefault
+                                                                           handler:^void (UIAlertAction *action) {
+                            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+                            NSString *userId = [userActions objectForKey:@"userId"];
+                            [userInfo setObject:userId forKey:@"actorId"];
+                            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerTalkToUserNotification
+                                                                                object:self
+                                                                              userInfo:userInfo];
+                        }];
+                        [talkAction setValue:[[UIImage imageNamed:@"navigationLogo"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+                        [optionsActionSheet addAction:talkAction];
+                        continue;
+                    }
+                    
+                    // Other user actions
+                    UIAlertAction *action = [UIAlertAction actionWithTitle:title
+                                                                     style:UIAlertActionStyleDefault
+                                                                   handler:^void (UIAlertAction *action) {
+                        NSURL *actionURL = [NSURL URLWithString:[link stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+                        [[UIApplication sharedApplication] openURL:actionURL options:@{} completionHandler:nil];
+                    }];
+                    
+                    if ([appId isEqualToString:@"profile"]) {
+                        [action setValue:[[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+                    } else if ([appId isEqualToString:@"email"]) {
+                        [action setValue:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+                    }
+                    
+                    [optionsActionSheet addAction:action];
+                }
+                
+                [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+                
+                // Presentation on iPads
+                optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
+                CGRect cellRect = [self.tableView rectForRowAtIndexPath:indexPath];
+                CGFloat avatarSize = kChatMessageCellAvatarHeight + 10;
+                CGRect avatarRect = CGRectMake(cellRect.origin.x, cellRect.origin.y, avatarSize, avatarSize);
+                optionsActionSheet.popoverPresentationController.sourceRect = avatarRect;
+                
+                [self presentViewController:optionsActionSheet animated:YES completion:nil];
+            }
+        }
+    }];
 }
 
 #pragma mark - UIImagePickerController Delegate
@@ -2924,6 +2989,8 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
         return groupedCell;
     } else {
         ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
+        normalCell.delegate = self;
+        
         [normalCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
         
         return normalCell;
@@ -3262,6 +3329,14 @@ NSString * const NCChatViewControllerForwardNotification = @"NCChatViewControlle
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
         });
+    }
+}
+
+- (void)cellWantsToDisplayOptionsForMessageActor:(NCChatMessage *)message {
+    NSIndexPath *indexPath = [self indexPathForMessage:message];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if (indexPath && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId]) {
+        [self presentOptionsForMessageActor:message fromIndexPath:indexPath];
     }
 }
 

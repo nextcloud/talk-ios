@@ -37,7 +37,7 @@ static NSString *GroupedLocationMessageCellIdentifier   = @"GroupedLocationMessa
 
 @class LocationMessageTableViewCell;
 
-@protocol LocationMessageTableViewCellDelegate <NSObject>
+@protocol LocationMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 
 - (void)cellWantsToOpenLocation:(GeoLocationRichObject *)geoLocationRichObject;
 

@@ -57,10 +57,12 @@
 {
     _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kLocationMessageCellAvatarHeight, kLocationMessageCellAvatarHeight)];
     _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
-    _avatarView.userInteractionEnabled = NO;
+    _avatarView.userInteractionEnabled = YES;
     _avatarView.backgroundColor = [NCAppBranding placeholderColor];
     _avatarView.layer.cornerRadius = kLocationMessageCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
+    UITapGestureRecognizer *avatarTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarTapped:)];
+    [_avatarView addGestureRecognizer:avatarTap];
     
     _previewImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kLocationMessageCellPreviewWidth, kLocationMessageCellPreviewHeight)];
     _previewImageView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -150,6 +152,7 @@
     self.titleLabel.text = message.actorDisplayName;
     self.bodyTextView.attributedText = message.parsedMessage;
     self.messageId = message.messageId;
+    self.message = message;
     
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
@@ -235,6 +238,26 @@
     }
 }
 
+#pragma mark - Gesture recognizers
+
+- (void)avatarTapped:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (self.delegate && self.message) {
+        [self.delegate cellWantsToDisplayOptionsForMessageActor:self.message];
+    }
+}
+
+- (void)previewTapped:(UITapGestureRecognizer *)recognizer
+{
+    if (!self.geoLocationRichObject) {
+        return;
+    }
+    
+    if (self.delegate) {
+        [self.delegate cellWantsToOpenLocation:self.geoLocationRichObject];
+    }
+}
+
 #pragma mark - Getters
 
 - (UILabel *)titleLabel
@@ -282,17 +305,6 @@
         _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
     }
     return _bodyTextView;
-}
-
-- (void)previewTapped:(UITapGestureRecognizer *)recognizer
-{
-    if (!self.geoLocationRichObject) {
-        return;
-    }
-    
-    if (self.delegate) {
-        [self.delegate cellWantsToOpenLocation:self.geoLocationRichObject];
-    }
 }
 
 - (void)setGuestAvatar:(NSString *)displayName

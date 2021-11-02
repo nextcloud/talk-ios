@@ -33,7 +33,7 @@ static CGFloat kVoiceMessageCellPlayerHeight         = 44.0;
 static NSString *VoiceMessageCellIdentifier          = @"VoiceMessageCellIdentifier";
 static NSString *GroupedVoiceMessageCellIdentifier   = @"GroupedVoiceMessageCellIdentifier";
 
-@protocol VoiceMessageTableViewCellDelegate <NSObject>
+@protocol VoiceMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 
 - (void)cellWantsToPlayAudioFile:(NCMessageFileParameter *)fileParameter;
 - (void)cellWantsToPauseAudioFile:(NCMessageFileParameter *)fileParameter;

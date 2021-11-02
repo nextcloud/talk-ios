@@ -36,7 +36,7 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 
 @class ChatMessageTableViewCell;
 
-@protocol ChatMessageTableViewCellDelegate <NSObject>
+@protocol ChatMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 
 - (void)cellWantsToScrollToMessage:(NCChatMessage *)message;
 

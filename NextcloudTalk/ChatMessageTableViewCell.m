@@ -35,7 +35,6 @@
 
 @interface ChatMessageTableViewCell ()
 @property (nonatomic, strong) UIView *quoteContainerView;
-@property (nonatomic, strong) NCChatMessage *message;
 @end
 
 @implementation ChatMessageTableViewCell
@@ -54,11 +53,13 @@
 {
     _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kChatMessageCellAvatarHeight, kChatMessageCellAvatarHeight)];
     _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
-    _avatarView.userInteractionEnabled = NO;
+    _avatarView.userInteractionEnabled = YES;
     _avatarView.backgroundColor = [NCAppBranding placeholderColor];
     _avatarView.layer.cornerRadius = kChatMessageCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
     _avatarView.contentMode = UIViewContentModeScaleToFill;
+    UITapGestureRecognizer *avatarTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarTapped:)];
+    [_avatarView addGestureRecognizer:avatarTap];
     [self.contentView addSubview:_avatarView];
     
     _statusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
@@ -78,8 +79,8 @@
         [self.contentView addSubview:self.quoteContainerView];
         [_quoteContainerView addSubview:self.quotedMessageView];
         
-        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(quoteTapped:)];
-        [self.quoteContainerView addGestureRecognizer:tapRecognizer];
+        UITapGestureRecognizer *quoteTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(quoteTapped:)];
+        [self.quoteContainerView addGestureRecognizer:quoteTap];
     }
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
@@ -162,6 +163,22 @@
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 
+#pragma mark - Gesture recognizers
+
+- (void)avatarTapped:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (self.delegate && self.message) {
+        [self.delegate cellWantsToDisplayOptionsForMessageActor:self.message];
+    }
+}
+
+- (void)quoteTapped:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (self.delegate && self.message && self.message.parent) {
+        [self.delegate cellWantsToScrollToMessage:self.message.parent];
+    }
+}
+
 #pragma mark - Getters
 
 - (UILabel *)titleLabel
@@ -234,6 +251,7 @@
     self.titleLabel.text = message.actorDisplayName;
     self.bodyTextView.attributedText = message.parsedMessage;
     self.messageId = message.messageId;
+    self.message = message;
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -286,8 +304,6 @@
             self.bodyTextView.textColor = [UIColor tertiaryLabelColor];
         }
     }
-    
-    self.message = message;
 }
 
 - (void)setGuestAvatar:(NSString *)displayName
@@ -359,12 +375,6 @@
             // In this class, even when no background color is set, the background configuration is nil.
             _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
         }
-    }
-}
-
-- (void)quoteTapped:(UIGestureRecognizer *)gestureRecognizer {
-    if (self.delegate && self.message && self.message.parent) {
-        [self.delegate cellWantsToScrollToMessage:self.message.parent];
     }
 }
 
