@@ -1038,7 +1038,7 @@ typedef enum FileAction {
                                                                     handler:^void (UIAlertAction *action) {
                                                                         [self demoteFromModerator:participant];
                                                                     }];
-        [demoteFromModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [demoteFromModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:demoteFromModerator];
     } else if (participant.canBePromoted) {
         UIAlertAction *promoteToModerator = [UIAlertAction actionWithTitle:NSLocalizedString(@"Promote to moderator", nil)
@@ -1046,7 +1046,7 @@ typedef enum FileAction {
                                                                    handler:^void (UIAlertAction *action) {
                                                                        [self promoteToModerator:participant];
                                                                    }];
-        [promoteToModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [promoteToModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:promoteToModerator];
     }
     
@@ -1067,7 +1067,7 @@ typedef enum FileAction {
                                                               handler:^void (UIAlertAction *action) {
                                                                   [self removeParticipant:participant];
                                                               }];
-    [removeParticipant setValue:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [removeParticipant setValue:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     [optionsActionSheet addAction:removeParticipant];
     
     
@@ -1526,7 +1526,8 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Chat messages", nil);
                     cell.detailTextLabel.text = _room.notificationLevelString;
-                    [cell.imageView setImage:[UIImage imageNamed:@"notifications-settings"]];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"notifications"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
                     return cell;
                 }
@@ -1638,7 +1639,8 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Share conversation link", nil);
-                    [cell.imageView setImage:[UIImage imageNamed:@"share-settings"]];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"share"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
                     return cell;
                 }

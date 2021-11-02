@@ -895,7 +895,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                     handler:^void (UIAlertAction *action) {
                                                                         [self setNotificationLevelForRoomAtIndexPath:indexPath];
                                                                     }];
-        [notificationsAction setValue:[[UIImage imageNamed:@"notifications-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [notificationsAction setValue:[[UIImage imageNamed:@"notifications"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:notificationsAction];
     }
     // Share link
@@ -906,7 +906,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                 handler:^void (UIAlertAction *action) {
                                                                     [self shareLinkFromRoomAtIndexPath:indexPath];
                                                                 }];
-        [shareLinkAction setValue:[[UIImage imageNamed:@"share-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [shareLinkAction setValue:[[UIImage imageNamed:@"share"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:shareLinkAction];
     }
     // Room info
@@ -915,7 +915,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                            handler:^void (UIAlertAction *action) {
                                                                [self presentRoomInfoForRoomAtIndexPath:indexPath];
                                                            }];
-    [roomInfoAction setValue:[[UIImage imageNamed:@"room-info-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    [roomInfoAction setValue:[[UIImage imageNamed:@"info"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     [optionsActionSheet addAction:roomInfoAction];
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
