@@ -328,6 +328,19 @@
         [[NSNotificationCenter defaultCenter] postNotificationName:NCURLWantsToOpenConversationNotification
                                                             object:self
                                                           userInfo:userInfo];
+    } else {
+        UIAlertController * alert = [UIAlertController
+                                     alertControllerWithTitle:NSLocalizedString(@"Account not configured", nil)
+                                     message:[NSString stringWithFormat:NSLocalizedString(@"There is no account for user %@ in server %@ configured in this app.", nil), user, server]
+                                     preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction* okButton = [UIAlertAction
+                                   actionWithTitle:NSLocalizedString(@"OK", nil)
+                                   style:UIAlertActionStyleDefault
+                                   handler:nil];
+        
+        [alert addAction:okButton];
+        [self presentAlertViewController:alert];
     }
 }
 
