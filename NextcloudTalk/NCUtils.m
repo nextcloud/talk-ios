@@ -220,4 +220,12 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return indexPath.section < tableView.numberOfSections && indexPath.row < [tableView numberOfRowsInSection:indexPath.section];
 }
 
+
++ (NSString *)valueForKey:(NSString *)key fromQueryItems:(NSArray *)queryItems
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name=%@", key];
+    NSURLQueryItem *queryItem = [[queryItems filteredArrayUsingPredicate:predicate] firstObject];
+    return queryItem.value;
+}
+
 @end

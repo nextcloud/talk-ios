@@ -33,6 +33,7 @@
 #import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
+#import "NCUtils.h"
 #import "NotificationCenterNotifications.h"
 
 @interface NCUserInterfaceController () <LoginViewControllerDelegate, AuthenticationViewControllerDelegate>
@@ -42,6 +43,7 @@
     NCPushNotification *_pendingPushNotification;
     NSMutableDictionary *_pendingCallKitCall;
     NSDictionary *_pendingLocalNotification;
+    NSURLComponents *_pendingURL;
     BOOL _waitingForServerCapabilities;
 }
 
@@ -307,6 +309,41 @@
     [[NCRoomsManager sharedInstance] joinCallWithCallToken:roomToken withVideo:video];
 }
 
+- (void)presentChatForURL:(NSURLComponents *)urlComponents
+{
+    if ([NCConnectionController sharedInstance].appState != kAppStateReady) {
+        _waitingForServerCapabilities = YES;
+        _pendingURL = urlComponents;
+        return;
+    }
+    
+    NSArray *queryItems = urlComponents.queryItems;
+    NSString *server = [NCUtils valueForKey:@"server" fromQueryItems:queryItems];
+    NSString *user = [NCUtils valueForKey:@"user" fromQueryItems:queryItems];
+    
+    NSString *accountId = [[NCDatabaseManager sharedInstance] accountIdForUser:user inServer:server];
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
+    if (account) {
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:urlComponents forKey:@"url"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCURLWantsToOpenConversationNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+    } else {
+        UIAlertController * alert = [UIAlertController
+                                     alertControllerWithTitle:NSLocalizedString(@"Account not configured", nil)
+                                     message:[NSString stringWithFormat:NSLocalizedString(@"There is no account for user %@ in server %@ configured in this app.", nil), user, server]
+                                     preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction* okButton = [UIAlertAction
+                                   actionWithTitle:NSLocalizedString(@"OK", nil)
+                                   style:UIAlertActionStyleDefault
+                                   handler:nil];
+        
+        [alert addAction:okButton];
+        [self presentAlertViewController:alert];
+    }
+}
+
 #pragma mark - Notifications
 
 - (void)appStateHasChanged:(NSNotification *)notification
@@ -322,6 +359,8 @@
             }
         } else if (_pendingCallKitCall) {
             [self startCallKitCall:_pendingCallKitCall];
+        } else if (_pendingURL) {
+            [self presentChatForURL:_pendingURL];
         }
     }
 }

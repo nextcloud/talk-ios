@@ -51,6 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isValidIndexPath:(NSIndexPath *)indexPath forTableView:(UITableView *)tableView;
 
++ (NSString *)valueForKey:(NSString *)key fromQueryItems:(NSArray *)queryItems;
+
 @end
 
 NS_ASSUME_NONNULL_END
