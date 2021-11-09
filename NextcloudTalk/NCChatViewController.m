@@ -1068,7 +1068,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
         [optionsActionSheet addAction:shareLocationAction];
     }
-//    [optionsActionSheet addAction:contactShareAction];
+    [optionsActionSheet addAction:contactShareAction];
     [optionsActionSheet addAction:filesAction];
     [optionsActionSheet addAction:ncFilesAction];
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
