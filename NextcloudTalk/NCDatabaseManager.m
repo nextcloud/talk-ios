@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 26;
+uint64_t const kTalkDatabaseSchemaVersion           = 27;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -89,6 +89,11 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
         configuration.schemaVersion = kTalkDatabaseSchemaVersion;
         configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
             // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
+            if (oldSchemaVersion < kTalkDatabaseSchemaVersion) {
+                   // Nothing to do!
+                   // Realm will automatically detect new properties and removed properties
+                   // And will update the schema on disk automatically
+               }
         };
         
         // Tell Realm to use this new configuration object for the default Realm
