@@ -23,6 +23,13 @@ $ git submodule update --init
 
 $ open NextcloudTalk.xcworkspace
 ```
+
+## TestFlight
+
+Do you want to try the latest version in development of Nextcloud Talk iOS? Simple, follow this simple step
+
+[Apple TestFlight](https://testflight.apple.com/join/cxzyr1eO)
+
 We are also available on [our public Talk team conversation](https://cloud.nextcloud.com/call/c7fz9qpr), if you want to join the discussion.
 
 **License:** [GPLv3](https://github.com/nextcloud/spreed-ios/blob/master/LICENSE) with [Apple app store exception](https://github.com/nextcloud/spreed-ios/blob/master/COPYING.iOS).
