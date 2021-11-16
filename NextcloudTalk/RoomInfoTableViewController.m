@@ -618,6 +618,15 @@ typedef enum FileAction {
     }
     if ([newRoomName isEqualToString:@""]) {
         _roomNameTextField.text = _room.name;
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Warning"
+                                       message:@"Room name cannot be empty."
+                                       preferredStyle:UIAlertControllerStyleAlert];
+
+        UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+           handler:^(UIAlertAction * action) {}];
+
+        [alert addAction:defaultAction];
+        [self presentViewController:alert animated:YES completion:nil];
         return;
     }
     [self setModifyingRoomUI];
