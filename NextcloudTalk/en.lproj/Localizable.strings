@@ -53,6 +53,9 @@
 "About" = "About";
 
 /* No comment provided by engineer. */
+"Account not configured" = "Account not configured";
+
+/* No comment provided by engineer. */
 "Accounts" = "Accounts";
 
 /* No comment provided by engineer. */
@@ -239,6 +242,9 @@
 "Conversation name" = "Conversation name";
 
 /* No comment provided by engineer. */
+"Conversation name cannot be empty" = "Conversation name cannot be empty";
+
+/* No comment provided by engineer. */
 "Conversation not found" = "Conversation not found";
 
 /* No comment provided by engineer. */
@@ -318,6 +324,9 @@
 
 /* No comment provided by engineer. */
 "Could not send the message" = "Could not send the message";
+
+/* No comment provided by engineer. */
+"Could not set conversation name" = "Could not set conversation name";
 
 /* No comment provided by engineer. */
 "Could not set phone number" = "Could not set phone number";
@@ -1014,6 +1023,9 @@
 
 /* No comment provided by engineer. */
 "The password is wrong" = "The password is wrong";
+
+/* No comment provided by engineer. */
+"There is no account for user %@ in server %@ configured in this app." = "There is no account for user %1$@ in server %2$@ configured in this app.";
 
 /* No comment provided by engineer. */
 "This conversation is read-only" = "This conversation is read-only";
