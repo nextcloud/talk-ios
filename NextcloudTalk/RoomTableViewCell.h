@@ -42,5 +42,5 @@ extern CGFloat const kRoomTableCellHeight;
 
 - (void)setUnreadMessages:(NSInteger)number mentioned:(BOOL)mentioned groupMentioned:(BOOL)groupMentioned;
 - (void)setUserStatus:(NSString *)userStatus;
--(void)setUserStatusIcon:(NSString *)userStatusIcon;
+- (void)setUserStatusIcon:(NSString *)userStatusIcon;
 @end
