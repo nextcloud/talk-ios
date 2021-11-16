@@ -618,8 +618,8 @@ typedef enum FileAction {
     }
     if ([newRoomName isEqualToString:@""]) {
         _roomNameTextField.text = _room.name;
-        UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Warning"
-                                       message:@"Room name cannot be empty."
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Could not set conversation name", nil)
+                                       message:NSLocalizedString(@"Conversation name cannot be empty", nil)
                                        preferredStyle:UIAlertControllerStyleAlert];
 
         UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
