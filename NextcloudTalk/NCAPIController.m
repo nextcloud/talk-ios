@@ -253,7 +253,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     NSDictionary *parameters = @{@"noStatusUpdate" : @(!updateStatus)};
-    
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
+    if (serverCapabilities.userStatus) {
+        URLString = [URLString stringByAppendingString:@"?includeStatus=true"];
+    }
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];

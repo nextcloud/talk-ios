@@ -103,6 +103,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     self.userStatusImageView.image = nil;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];
     
+    [self.userStatusLabel setHidden:YES];
+    
     _unreadMessagesBadge = nil;
     for (UIView *subview in [self.unreadMessagesView subviews]) {
         [subview removeFromSuperview];
@@ -141,6 +143,11 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     if (mentioned) {
         _highlightType = kHighlightTypeImportant;
     }
+}
+
+-(void)setUserStatusIcon:(NSString *)userStatusIcon {
+    _userStatusLabel.text = userStatusIcon;
+    [_userStatusLabel setHidden:NO];
 }
 
 - (void)setUserStatus:(NSString *)userStatus

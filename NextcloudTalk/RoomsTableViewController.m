@@ -1139,6 +1139,15 @@ API_AVAILABLE(ios(11.0)){
         default:
             break;
     }
+
+    //Show User Status
+    if (room.type == kNCRoomTypeOneToOne && [room.status length] != 0) {
+        if (![room.status isEqual:@"dnd"] && [room.statusIcon length] != 0) {
+            [cell setUserStatusIcon:room.statusIcon];
+        } else {
+            [cell setUserStatus:room.status];
+        }
+    }
     
     // Set objectType image
     if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {

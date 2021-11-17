@@ -95,6 +95,9 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, copy) NSString *pendingMessage;
 @property (nonatomic, assign) BOOL canLeaveConversation;
 @property (nonatomic, assign) BOOL canDeleteConversation;
+@property (nonatomic, copy) NSString *status;
+@property (nonatomic, copy) NSString *statusIcon;
+@property (nonatomic, copy) NSString *statusMessage;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;

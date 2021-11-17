@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -77,6 +77,17 @@
                             <constraint firstAttribute="width" constant="20" id="iwo-ml-eCL"/>
                         </constraints>
                     </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IAW-Df-Q2p">
+                        <rect key="frame" x="45" y="48" width="20" height="20"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="20" id="9H9-OY-FwF"/>
+                            <constraint firstAttribute="width" constant="20" id="E1R-qY-JVY"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="hTO-u0-vdH"/>
                 <constraints>
@@ -87,9 +98,11 @@
                     <constraint firstItem="eUE-Vb-afX" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="45" id="H1a-CQ-Rs2"/>
                     <constraint firstItem="Tc2-b5-oRl" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="40" id="J8O-Vc-Fdv"/>
                     <constraint firstItem="Xb6-vq-E0C" firstAttribute="leading" secondItem="Tc2-b5-oRl" secondAttribute="trailing" constant="2" id="PwU-4t-4q5"/>
+                    <constraint firstItem="IAW-Df-Q2p" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="48" id="UTs-bM-4rK"/>
                     <constraint firstItem="j70-Qd-IKC" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="12" id="VLJ-ka-a3c"/>
                     <constraint firstItem="Xb6-vq-E0C" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="35" id="Vbn-nE-8gk"/>
                     <constraint firstItem="mxr-4b-6AO" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="45" id="Vn7-Zn-ft5"/>
+                    <constraint firstItem="IAW-Df-Q2p" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="45" id="YhT-4g-4nL"/>
                     <constraint firstItem="4oj-Ge-nSq" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="72" id="k3r-2g-iB6"/>
                     <constraint firstItem="4oj-Ge-nSq" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="12" id="mha-g7-USc"/>
                     <constraint firstItem="j70-Qd-IKC" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="12" id="s9G-jv-sKe"/>
@@ -106,6 +119,7 @@
                 <outlet property="titleLabel" destination="4oj-Ge-nSq" id="SPq-KL-y2z"/>
                 <outlet property="unreadMessagesView" destination="Xb6-vq-E0C" id="wXP-Vy-8sF"/>
                 <outlet property="userStatusImageView" destination="mxr-4b-6AO" id="MJo-C9-yUh"/>
+                <outlet property="userStatusLabel" destination="IAW-Df-Q2p" id="z9s-DV-2UV"/>
             </connections>
             <point key="canvasLocation" x="-71.200000000000003" y="-44.07796101949026"/>
         </tableViewCell>
