@@ -1817,6 +1817,17 @@ typedef enum FileAction {
                 cell.labelTitle.alpha = 1;
             }
             
+            //Show User Status
+            if (![participant.status isEqual:@"dnd"] && [participant.statusIcon length] != 0) {
+                [cell setUserStatusIcon:participant.statusIcon];
+            }
+            else {
+                [cell setUserStatus:participant.status];
+            }
+            
+            //Show User Status Message
+            [cell setUSerStatusMessage:participant.statusMessage];
+            
             // Call status
             if (participant.callIconImageName) {
                 cell.accessoryView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:participant.callIconImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];

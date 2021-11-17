@@ -61,6 +61,12 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
     self.userStatusImageView.image = nil;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];
     
+    self.userStatusIconLabel.text = @"";
+    [self.userStatusIconLabel setHidden:YES];
+    
+    self.userStatusMessageLabel.text = @"";
+    self.userStatusMessageLabel.hidden = YES;
+    
     self.labelTitle.text = @"";
     self.labelTitle.textColor = [UIColor darkTextColor];
     
@@ -94,5 +100,22 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
         }
     }
 }
+
+- (void)setUserStatusIcon:(NSString *)userStatusIcon {
+    self.userStatusIconLabel.text = userStatusIcon;
+    [self.userStatusIconLabel setHidden:NO];
+    [self.userStatusImageView setHidden:YES];
+}
+
+- (void)setUSerStatusMessage:(NSString *)userStatusMessage {
+    if (![userStatusMessage isEqual:@""]) {
+        self.userStatusMessageLabel.text = userStatusMessage;
+        self.userStatusMessageLabel.hidden = NO;
+    }
+    else {
+        self.userStatusMessageLabel.hidden = YES;
+    }
+}
+
 
 @end
