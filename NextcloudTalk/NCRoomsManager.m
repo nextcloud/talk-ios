@@ -806,13 +806,19 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     NSArray *queryItems = urlComponents.queryItems;
     NSString *server = [NCUtils valueForKey:@"server" fromQueryItems:queryItems];
     NSString *user = [NCUtils valueForKey:@"user" fromQueryItems:queryItems];
-    NSString *withUser = [NCUtils valueForKey:@"withUser" fromQueryItems:queryItems];
     NSString *accountId = [[NCDatabaseManager sharedInstance] accountIdForUser:user inServer:server];
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
-    
+
     [self checkForAccountChange:accountId];
-    
-    [self joinOrCreateChatWithUser:withUser usingAccountId:account.accountId];
+
+    NSString *withUser = [NCUtils valueForKey:@"withUser" fromQueryItems:queryItems];
+    NSString *roomToken = [NCUtils valueForKey:@"withRoomToken" fromQueryItems:queryItems];
+
+    if (withUser != nil) {
+        [self joinOrCreateChatWithUser:withUser usingAccountId:account.accountId];
+    } else if (roomToken != nil) {
+        [self startChatWithRoomToken:roomToken];
+    } // else: no chat specified, only change account
 }
 
 - (void)joinChatOfForwardedMessage:(NSNotification *)notification
