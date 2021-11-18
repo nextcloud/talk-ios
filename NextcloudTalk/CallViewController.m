@@ -1385,6 +1385,13 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self setCallState:CallStateReconnecting];
 }
 
+- (void)callControllerWantsToHangUpCall:(NCCallController *)callController
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self hangup];
+    });
+}
+
 #pragma mark - Screensharing
 
 - (void)showScreenOfPeerId:(NSString *)peerId

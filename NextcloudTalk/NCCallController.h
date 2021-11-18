@@ -47,6 +47,7 @@
 - (void)callController:(NCCallController *)callController didReceiveUnshareScreenFromPeer:(NCPeerConnection *)peer;
 - (void)callController:(NCCallController *)callController didReceiveForceMuteActionForPeerId:(NSString *)peerId;
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController;
+- (void)callControllerWantsToHangUpCall:(NCCallController *)callController;
 
 @end
 
