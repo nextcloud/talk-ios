@@ -1822,16 +1822,13 @@ typedef enum FileAction {
             if ([participant.status isEqualToString: kUserStatusDND] && [participant.statusMessage isEqualToString:@""]) {
                 [cell setUserStatus:participant.status];
                 [cell setUSerStatusMessage:NSLocalizedString(@"Do not disturb", nil)withIcon:participant.statusIcon];
-            }
-            else if ([participant.status isEqualToString:kUserStatusAway] && [participant.statusMessage isEqualToString:@""]) {
+            } else if ([participant.status isEqualToString:kUserStatusAway] && [participant.statusMessage isEqualToString:@""]) {
                 [cell setUserStatus:participant.status];
                 [cell setUSerStatusMessage: NSLocalizedString(@"Away", nil)withIcon:participant.statusIcon];
-            }
-            else if (([participant.status isEqual: kUserStatusDND] && ![participant.statusMessage isEqualToString:@""]) || ([participant.status isEqualToString: kUserStatusAway] && ![participant.statusMessage isEqual:@""])){
+            } else if (([participant.status isEqual: kUserStatusDND] && ![participant.statusMessage isEqualToString:@""]) || ([participant.status isEqualToString: kUserStatusAway] && ![participant.statusMessage isEqual:@""])){
                 [cell setUserStatus:participant.status];
                 [cell setUSerStatusMessage:participant.statusMessage withIcon:participant.statusIcon];
-            }
-            else {
+            } else {
                 [cell setUserStatus:participant.status];
                 [cell setUSerStatusMessage:participant.statusMessage withIcon:participant.statusIcon];
             }

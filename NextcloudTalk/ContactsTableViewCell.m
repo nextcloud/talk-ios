@@ -103,8 +103,7 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
         NSString *statusMessage = [NSString stringWithFormat:@"%@%@", userStatusIcon, userStatusMessage];
         self.userStatusMessageLabel.text = statusMessage;
         self.userStatusMessageLabel.hidden = NO;
-    }
-    else {
+    } else {
         self.userStatusMessageLabel.hidden = YES;
     }
 }
