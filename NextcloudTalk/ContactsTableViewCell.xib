@@ -68,6 +68,7 @@
                     <constraint firstItem="Pye-fe-c7r" firstAttribute="trailing" secondItem="ifa-Ff-Eac" secondAttribute="trailing" constant="15" id="ZFF-EU-3yR"/>
                     <constraint firstItem="5eI-x8-VQH" firstAttribute="leading" secondItem="Pye-fe-c7r" secondAttribute="leading" constant="12" id="fQR-A3-gQb"/>
                     <constraint firstItem="vfg-pq-jRm" firstAttribute="leading" secondItem="Pye-fe-c7r" secondAttribute="leading" constant="45" id="hXM-ju-rXF"/>
+                    <constraint firstItem="ifa-Ff-Eac" firstAttribute="leading" secondItem="vfg-pq-jRm" secondAttribute="trailing" constant="10" id="sVo-dR-gTF"/>
                     <constraint firstItem="vfg-pq-jRm" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="48" id="xJ5-xb-XdK"/>
                 </constraints>
             </tableViewCellContentView>

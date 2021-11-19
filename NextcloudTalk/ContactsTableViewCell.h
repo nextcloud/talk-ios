@@ -37,4 +37,5 @@ extern CGFloat const kContactsTableCellTitleFontSize;
 
 - (void)setUserStatus:(NSString *)userStatus;
 - (void)setUSerStatusMessage:(NSString *)userStatusMessage withIcon:(NSString*)userStatusIcon;
+
 @end
