@@ -66,6 +66,7 @@ extern NSString * const kMinimumRequiredTalkCapability;
 - (NSArray *)allAccounts;
 - (NSArray *)inactiveAccounts;
 - (TalkAccount *)talkAccountForAccountId:(NSString *)accountId;
+- (TalkAccount *)talkAccountForUserId:(NSString *)userId inServer:(NSString *)server;
 - (void)setActiveAccountWithAccountId:(NSString *)accountId;
 - (NSString *)accountIdForUser:(NSString *)user inServer:(NSString *)server;
 - (void)createAccountForUser:(NSString *)user inServer:(NSString *)server;

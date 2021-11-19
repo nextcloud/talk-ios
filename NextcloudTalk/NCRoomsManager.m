@@ -801,18 +801,11 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 }
 
 - (void)joinOrCreateChatWithURL:(NSNotification *)notification
-{
-    NSURLComponents *urlComponents = [notification.userInfo objectForKey:@"url"];
-    NSArray *queryItems = urlComponents.queryItems;
-    NSString *server = [NCUtils valueForKey:@"server" fromQueryItems:queryItems];
-    NSString *user = [NCUtils valueForKey:@"user" fromQueryItems:queryItems];
-    NSString *withUser = [NCUtils valueForKey:@"withUser" fromQueryItems:queryItems];
-    NSString *accountId = [[NCDatabaseManager sharedInstance] accountIdForUser:user inServer:server];
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
-    
+{    
+    NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
+    NSString *withUser = [notification.userInfo objectForKey:@"withUser"];
     [self checkForAccountChange:accountId];
-    
-    [self joinOrCreateChatWithUser:withUser usingAccountId:account.accountId];
+    [self joinOrCreateChatWithUser:withUser usingAccountId:accountId];
 }
 
 - (void)joinChatOfForwardedMessage:(NSNotification *)notification
