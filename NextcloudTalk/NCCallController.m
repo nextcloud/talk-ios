@@ -704,6 +704,13 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     // Close old peer connections for sessions that left the call
     for (NSString *sessionId in leftSessions) {
+        // Hang up call if user sessionId is no longer in the call
+        // Could be because a moderator "ended the call for everyone"
+        if ([_userSessionId isEqualToString:sessionId]) {
+            NSLog(@"User sessionId is no longer in the call -> hang up call");
+            [self.delegate callControllerWantsToHangUpCall:self];
+            return;
+        }
         [self cleanPeerConnectionsForSessionId:sessionId];
     }
 }
