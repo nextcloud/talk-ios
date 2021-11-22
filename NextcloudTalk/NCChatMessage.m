@@ -242,7 +242,8 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     if (!self.message) {
         return nil;
     }
-    NSString *originalMessage = self.message;
+    
+    NSString *originalMessage = self.file.contactName ? self.file.contactName : self.message;
     NSString *parsedMessage = originalMessage;
     NSError *error = nil;
     
