@@ -186,6 +186,23 @@
     [_mainNavigationController presentViewController:alert animated:YES completion:nil];
 }
 
+- (void)presentAccountNotConfiguredAlertForUser:(NSString *)user inServer:(NSString *)server
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Account not configured", nil)
+                                 message:[NSString stringWithFormat:NSLocalizedString(@"There is no account for user %@ in server %@ configured in this app.", nil), user, server]
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    
+    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+}
+
 - (void)logOutCurrentUser
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -320,27 +337,20 @@
     NSArray *queryItems = urlComponents.queryItems;
     NSString *server = [NCUtils valueForKey:@"server" fromQueryItems:queryItems];
     NSString *user = [NCUtils valueForKey:@"user" fromQueryItems:queryItems];
+    NSString *withUser = [NCUtils valueForKey:@"withUser" fromQueryItems:queryItems];
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForUserId:user inServer:server];
     
-    NSString *accountId = [[NCDatabaseManager sharedInstance] accountIdForUser:user inServer:server];
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
-    if (account) {
-        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:urlComponents forKey:@"url"];
+    if (!account) {
+        [self presentAccountNotConfiguredAlertForUser:user inServer:server];
+        return;
+    }
+    
+    if (withUser) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:account.accountId forKey:@"accountId"];
+        [userInfo setValue:withUser forKey:@"withUser"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCURLWantsToOpenConversationNotification
                                                             object:self
                                                           userInfo:userInfo];
-    } else {
-        UIAlertController * alert = [UIAlertController
-                                     alertControllerWithTitle:NSLocalizedString(@"Account not configured", nil)
-                                     message:[NSString stringWithFormat:NSLocalizedString(@"There is no account for user %@ in server %@ configured in this app.", nil), user, server]
-                                     preferredStyle:UIAlertControllerStyleAlert];
-        
-        UIAlertAction* okButton = [UIAlertAction
-                                   actionWithTitle:NSLocalizedString(@"OK", nil)
-                                   style:UIAlertActionStyleDefault
-                                   handler:nil];
-        
-        [alert addAction:okButton];
-        [self presentAlertViewController:alert];
     }
 }
 

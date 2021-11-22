@@ -156,6 +156,16 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     return nil;
 }
 
+- (TalkAccount *)talkAccountForUserId:(NSString *)userId inServer:(NSString *)server
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"userId = %@ AND server = %@", userId, server];
+    TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+    if (managedAccount) {
+        return [[TalkAccount alloc] initWithValue:managedAccount];
+    }
+    return nil;
+}
+
 - (void)setActiveAccountWithAccountId:(NSString *)accountId
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
