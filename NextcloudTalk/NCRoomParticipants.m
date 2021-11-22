@@ -52,7 +52,7 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
     participant.sessionId = [participantDict objectForKey:@"sessionId"];
     participant.sessionIds = [participantDict objectForKey:@"sessionIds"];
     participant.userId = [participantDict objectForKey:@"userId"];
-    participant.status = [participantDict objectForKey:@"status"];
+    participant.status = ([participantDict objectForKey:@"status"] != [NSNull null]) ? [[participantDict objectForKey:@"status"] stringValue] : @"";
     participant.statusIcon = ([participantDict objectForKey:@"statusIcon"] != [NSNull null]) ? [[participantDict objectForKey:@"statusIcon"] stringValue] : @"";
     participant.statusMessage = ([participantDict objectForKey:@"statusMessage"] != [NSNull null]) ? [[participantDict objectForKey:@"statusMessage"] stringValue] : @"";
     
