@@ -1817,14 +1817,17 @@ typedef enum FileAction {
                 cell.contactImage.alpha = 1;
                 cell.labelTitle.alpha = 1;
             }
-
-            //Show user status and status message
+            
+            // User status
+            [cell setUserStatus:participant.status];
+            
+            //User status message
             if (participant.statusMessage && ![participant.statusMessage isEqualToString:@""]) {
-                [cell setUSerStatusMessage:participant.statusMessage withIcon:participant.statusIcon];
+                [cell setUserStatusMessage:participant.statusMessage withIcon:participant.statusIcon];
             } else if ([participant.status isEqualToString: kUserStatusDND]) {
-                [cell setUSerStatusMessage:NSLocalizedString(@"Do not disturb", nil) withIcon:nil];
+                [cell setUserStatusMessage:NSLocalizedString(@"Do not disturb", nil) withIcon:nil];
             } else if ([participant.status isEqualToString:kUserStatusAway]) {
-                [cell setUSerStatusMessage: NSLocalizedString(@"Away", nil) withIcon:nil];
+                [cell setUserStatusMessage: NSLocalizedString(@"Away", nil) withIcon:nil];
             }
             
             // Call status
@@ -1836,8 +1839,6 @@ typedef enum FileAction {
             }
             
             cell.layoutMargins = UIEdgeInsetsMake(0, 72, 0, 0);
-            
-            [cell setUserStatus:participant.status];
             
             return cell;
         }

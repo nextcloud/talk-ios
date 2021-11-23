@@ -98,8 +98,9 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
     }
 }
 
-- (void)setUSerStatusMessage:(NSString *)userStatusMessage withIcon:(NSString*)userStatusIcon {
-    if ((userStatusMessage && ![userStatusMessage isEqualToString:@""])) {
+- (void)setUserStatusMessage:(NSString *)userStatusMessage withIcon:(NSString*)userStatusIcon
+{
+    if (userStatusMessage && ![userStatusMessage isEqualToString:@""]) {
         self.userStatusMessageLabel.text = userStatusMessage;
         if (userStatusIcon && ![userStatusIcon isEqualToString:@""]) {
             self.userStatusMessageLabel.text = [NSString stringWithFormat:@"%@ %@", userStatusIcon, userStatusMessage];
