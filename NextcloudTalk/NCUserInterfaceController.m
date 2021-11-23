@@ -338,6 +338,7 @@
     NSString *server = [NCUtils valueForKey:@"server" fromQueryItems:queryItems];
     NSString *user = [NCUtils valueForKey:@"user" fromQueryItems:queryItems];
     NSString *withUser = [NCUtils valueForKey:@"withUser" fromQueryItems:queryItems];
+    NSString *withRoomToken = [NCUtils valueForKey:@"withRoomToken" fromQueryItems:queryItems];
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForUserId:user inServer:server];
     
     if (!account) {
@@ -345,9 +346,12 @@
         return;
     }
     
-    if (withUser) {
-        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:account.accountId forKey:@"accountId"];
-        [userInfo setValue:withUser forKey:@"withUser"];
+    if (withUser || withRoomToken) {
+        NSDictionary *userInfo = @{
+            @"accountId": account.accountId,
+            @"withUser": withUser,
+            @"withRoomToken": withRoomToken
+        };
         [[NSNotificationCenter defaultCenter] postNotificationName:NCURLWantsToOpenConversationNotification
                                                             object:self
                                                           userInfo:userInfo];
