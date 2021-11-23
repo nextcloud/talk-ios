@@ -1824,12 +1824,14 @@ typedef enum FileAction {
             [cell setUserStatus:participant.status];
             
             //User status message
-            if (participant.statusMessage && ![participant.statusMessage isEqualToString:@""]) {
-                [cell setUserStatusMessage:participant.statusMessage withIcon:participant.statusIcon];
-            } else if ([participant.status isEqualToString: kUserStatusDND]) {
-                [cell setUserStatusMessage:NSLocalizedString(@"Do not disturb", nil) withIcon:nil];
-            } else if ([participant.status isEqualToString:kUserStatusAway]) {
-                [cell setUserStatusMessage: NSLocalizedString(@"Away", nil) withIcon:nil];
+            [cell setUserStatusMessage:participant.statusMessage withIcon:participant.statusIcon];
+            
+            if (!participant.statusMessage || [participant.statusMessage isEqualToString:@""]) {
+                if ([participant.status isEqualToString: kUserStatusDND]) {
+                    [cell setUserStatusMessage:NSLocalizedString(@"Do not disturb", nil) withIcon:nil];
+                } else if ([participant.status isEqualToString:kUserStatusAway]) {
+                    [cell setUserStatusMessage: NSLocalizedString(@"Away", nil) withIcon:nil];
+                }
             }
             
             // Call status
