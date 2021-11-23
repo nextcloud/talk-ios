@@ -1813,9 +1813,11 @@ typedef enum FileAction {
             if (participant.isOffline) {
                 cell.contactImage.alpha = 0.5;
                 cell.labelTitle.alpha = 0.5;
+                cell.userStatusMessageLabel.alpha = 0.5;
             } else {
                 cell.contactImage.alpha = 1;
                 cell.labelTitle.alpha = 1;
+                cell.userStatusMessageLabel.alpha = 1;
             }
             
             // User status
