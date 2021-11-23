@@ -33,7 +33,9 @@ extern CGFloat const kContactsTableCellTitleFontSize;
 @property(nonatomic, weak) IBOutlet UIImageView *contactImage;
 @property(nonatomic, weak) IBOutlet UILabel *labelTitle;
 @property (weak, nonatomic) IBOutlet UIImageView *userStatusImageView;
+@property (weak, nonatomic) IBOutlet UILabel *userStatusMessageLabel;
 
 - (void)setUserStatus:(NSString *)userStatus;
+- (void)setUserStatusMessage:(NSString *)userStatusMessage withIcon:(NSString*)userStatusIcon;
 
 @end

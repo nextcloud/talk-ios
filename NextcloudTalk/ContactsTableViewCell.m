@@ -61,6 +61,9 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
     self.userStatusImageView.image = nil;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];
     
+    self.userStatusMessageLabel.text = @"";
+    self.userStatusMessageLabel.hidden = YES;
+    
     self.labelTitle.text = @"";
     self.labelTitle.textColor = [UIColor darkTextColor];
     
@@ -92,6 +95,19 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
             // When a background color is set directly to the cell it seems that there is no background configuration.
             _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
         }
+    }
+}
+
+- (void)setUserStatusMessage:(NSString *)userStatusMessage withIcon:(NSString*)userStatusIcon
+{
+    if (userStatusMessage && ![userStatusMessage isEqualToString:@""]) {
+        self.userStatusMessageLabel.text = userStatusMessage;
+        if (userStatusIcon && ![userStatusIcon isEqualToString:@""]) {
+            self.userStatusMessageLabel.text = [NSString stringWithFormat:@"%@ %@", userStatusIcon, userStatusMessage];
+        }
+        self.userStatusMessageLabel.hidden = NO;
+    } else {
+        self.userStatusMessageLabel.hidden = YES;
     }
 }
 

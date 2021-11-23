@@ -52,6 +52,8 @@ extern NSString * const NCAttendeeBridgeBotId;
 @property (nonatomic, copy) NSArray *sessionIds;
 @property (nonatomic, copy) NSString *userId; // Deprecated in Conversations APIv3
 @property (nonatomic, copy) NSString *status;
+@property (nonatomic, copy) NSString *statusIcon;
+@property (nonatomic, copy) NSString *statusMessage;
 @property (nonatomic, copy) NSString *callIconImageName;
 
 + (instancetype)participantWithDictionary:(NSDictionary *)userDict;

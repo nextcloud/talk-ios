@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -32,26 +33,37 @@
                             <constraint firstAttribute="height" constant="20" id="b9y-Pf-33a"/>
                         </constraints>
                     </imageView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="17" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nOA-bG-zXZ">
-                        <rect key="frame" x="72" y="20" width="224" height="32"/>
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="ifa-Ff-Eac">
+                        <rect key="frame" x="75" y="12" width="230" height="48"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="17" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nOA-bG-zXZ">
+                                <rect key="frame" x="0.0" y="0.0" width="230" height="14"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="13" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="27H-pY-tFT">
+                                <rect key="frame" x="0.0" y="14" width="230" height="34"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <color key="textColor" systemColor="secondaryLabelColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
                         <constraints>
-                            <constraint firstAttribute="height" constant="32" id="Lvz-gT-ihH"/>
-                            <constraint firstAttribute="width" relation="greaterThanOrEqual" id="YMB-CV-F71"/>
+                            <constraint firstAttribute="height" constant="48" id="ADo-md-pcR"/>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="230" id="jaj-pL-S4K"/>
                         </constraints>
-                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                        <nil key="textColor"/>
-                        <nil key="highlightedColor"/>
-                    </label>
+                    </stackView>
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="Pye-fe-c7r"/>
                 <constraints>
-                    <constraint firstItem="Pye-fe-c7r" firstAttribute="trailing" secondItem="nOA-bG-zXZ" secondAttribute="trailing" constant="24" id="CFX-Uj-TJ7"/>
+                    <constraint firstItem="ifa-Ff-Eac" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="12" id="W2o-1a-DHQ"/>
                     <constraint firstItem="5eI-x8-VQH" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="12" id="XyY-WJ-Sov"/>
+                    <constraint firstItem="Pye-fe-c7r" firstAttribute="trailing" secondItem="ifa-Ff-Eac" secondAttribute="trailing" constant="15" id="ZFF-EU-3yR"/>
                     <constraint firstItem="5eI-x8-VQH" firstAttribute="leading" secondItem="Pye-fe-c7r" secondAttribute="leading" constant="12" id="fQR-A3-gQb"/>
                     <constraint firstItem="vfg-pq-jRm" firstAttribute="leading" secondItem="Pye-fe-c7r" secondAttribute="leading" constant="45" id="hXM-ju-rXF"/>
-                    <constraint firstItem="nOA-bG-zXZ" firstAttribute="leading" secondItem="5eI-x8-VQH" secondAttribute="trailing" constant="12" id="lrf-nK-veH"/>
+                    <constraint firstItem="ifa-Ff-Eac" firstAttribute="leading" secondItem="vfg-pq-jRm" secondAttribute="trailing" constant="10" id="sVo-dR-gTF"/>
                     <constraint firstItem="vfg-pq-jRm" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="48" id="xJ5-xb-XdK"/>
-                    <constraint firstItem="nOA-bG-zXZ" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="20" id="zRY-EC-HUg"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="Hom-0H-2YQ"/>
@@ -59,8 +71,14 @@
                 <outlet property="contactImage" destination="5eI-x8-VQH" id="9Dl-Ae-9dw"/>
                 <outlet property="labelTitle" destination="nOA-bG-zXZ" id="0dX-jq-5N3"/>
                 <outlet property="userStatusImageView" destination="vfg-pq-jRm" id="mS5-WO-e7h"/>
+                <outlet property="userStatusMessageLabel" destination="27H-pY-tFT" id="kAG-y7-hW7"/>
             </connections>
             <point key="canvasLocation" x="33.600000000000001" y="45.877061469265371"/>
         </tableViewCell>
     </objects>
+    <resources>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
 </document>

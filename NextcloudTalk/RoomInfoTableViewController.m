@@ -45,6 +45,7 @@
 #import "NCUtils.h"
 #import "RoomDescriptionTableViewCell.h"
 #import "RoomNameTableViewCell.h"
+#import "NCUserStatus.h"
 
 typedef enum RoomInfoSection {
     kRoomInfoSectionName = 0,
@@ -1812,9 +1813,25 @@ typedef enum FileAction {
             if (participant.isOffline) {
                 cell.contactImage.alpha = 0.5;
                 cell.labelTitle.alpha = 0.5;
+                cell.userStatusMessageLabel.alpha = 0.5;
             } else {
                 cell.contactImage.alpha = 1;
                 cell.labelTitle.alpha = 1;
+                cell.userStatusMessageLabel.alpha = 1;
+            }
+            
+            // User status
+            [cell setUserStatus:participant.status];
+            
+            //User status message
+            [cell setUserStatusMessage:participant.statusMessage withIcon:participant.statusIcon];
+            
+            if (!participant.statusMessage || [participant.statusMessage isEqualToString:@""]) {
+                if ([participant.status isEqualToString: kUserStatusDND]) {
+                    [cell setUserStatusMessage:NSLocalizedString(@"Do not disturb", nil) withIcon:nil];
+                } else if ([participant.status isEqualToString:kUserStatusAway]) {
+                    [cell setUserStatusMessage: NSLocalizedString(@"Away", nil) withIcon:nil];
+                }
             }
             
             // Call status
@@ -1826,8 +1843,6 @@ typedef enum FileAction {
             }
             
             cell.layoutMargins = UIEdgeInsetsMake(0, 72, 0, 0);
-            
-            [cell setUserStatus:participant.status];
             
             return cell;
         }
