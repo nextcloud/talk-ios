@@ -99,7 +99,7 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
 }
 
 - (void)setUSerStatusMessage:(NSString *)userStatusMessage withIcon:(NSString*)userStatusIcon {
-    if ((userStatusMessage && ![userStatusMessage isEqualToString:@""] && userStatusMessage != NULL)) {
+    if (userStatusMessage && ![userStatusMessage isEqualToString:@""]) {
         if (userStatusIcon && ![userStatusIcon isEqualToString:@""] && userStatusIcon != NULL) {
             NSString *statusMessage = [NSString stringWithFormat:@"%@ %@", userStatusIcon, userStatusMessage];
             self.userStatusMessageLabel.text = statusMessage;

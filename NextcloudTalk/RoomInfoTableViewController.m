@@ -1823,8 +1823,7 @@ typedef enum FileAction {
                 [cell setUSerStatusMessage:NSLocalizedString(@"Do not disturb", nil)withIcon:participant.statusIcon];
             } else if ([participant.status isEqualToString:kUserStatusAway]) {
                 [cell setUSerStatusMessage: NSLocalizedString(@"Away", nil)withIcon:participant.statusIcon];
-            }
-            else {
+            } else {
                 [cell setUSerStatusMessage:participant.statusMessage withIcon:participant.statusIcon];
             }
             
