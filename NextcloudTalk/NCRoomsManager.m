@@ -801,11 +801,17 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 }
 
 - (void)joinOrCreateChatWithURL:(NSNotification *)notification
-{    
+{
     NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
     NSString *withUser = [notification.userInfo objectForKey:@"withUser"];
+    NSString *roomToken = [notification.userInfo objectForKey:@"withRoomToken"];
     [self checkForAccountChange:accountId];
-    [self joinOrCreateChatWithUser:withUser usingAccountId:accountId];
+
+    if (withUser) {
+        [self joinOrCreateChatWithUser:withUser usingAccountId:accountId];
+    } else if (roomToken) {
+        [self startChatWithRoomToken:roomToken];
+    } // else: no chat specified, only change account
 }
 
 - (void)joinChatOfForwardedMessage:(NSNotification *)notification

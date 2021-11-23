@@ -338,20 +338,24 @@
     NSString *server = [NCUtils valueForKey:@"server" fromQueryItems:queryItems];
     NSString *user = [NCUtils valueForKey:@"user" fromQueryItems:queryItems];
     NSString *withUser = [NCUtils valueForKey:@"withUser" fromQueryItems:queryItems];
+    NSString *withRoomToken = [NCUtils valueForKey:@"withRoomToken" fromQueryItems:queryItems];
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForUserId:user inServer:server];
     
     if (!account) {
         [self presentAccountNotConfiguredAlertForUser:user inServer:server];
         return;
     }
-    
+
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:account.accountId forKey:@"accountId"];
     if (withUser) {
-        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:account.accountId forKey:@"accountId"];
         [userInfo setValue:withUser forKey:@"withUser"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCURLWantsToOpenConversationNotification
-                                                            object:self
-                                                          userInfo:userInfo];
-    }
+    } else if (withRoomToken) {
+        [userInfo setValue:withRoomToken forKey:@"withRoomToken"];
+    } else { return; }
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCURLWantsToOpenConversationNotification
+                                                        object:self
+                                                      userInfo:userInfo];
 }
 
 #pragma mark - Notifications
