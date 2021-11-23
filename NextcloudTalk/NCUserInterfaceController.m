@@ -345,17 +345,17 @@
         [self presentAccountNotConfiguredAlertForUser:user inServer:server];
         return;
     }
-    
-    if (withUser || withRoomToken) {
-        NSDictionary *userInfo = @{
-            @"accountId": account.accountId,
-            @"withUser": withUser,
-            @"withRoomToken": withRoomToken
-        };
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCURLWantsToOpenConversationNotification
-                                                            object:self
-                                                          userInfo:userInfo];
-    }
+
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:account.accountId forKey:@"accountId"];
+    if (withUser) {
+        [userInfo setValue:withUser forKey:@"withUser"];
+    } else if (withRoomToken) {
+        [userInfo setValue:withRoomToken forKey:@"withRoomToken"];
+    } else { return; }
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCURLWantsToOpenConversationNotification
+                                                        object:self
+                                                      userInfo:userInfo];
 }
 
 #pragma mark - Notifications
