@@ -3266,7 +3266,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             [self didPressReply:message];
             completionHandler(true);
         }];
-        replyAction.image = [UIImage imageNamed:@"reply"];
+        replyAction.image = [UIImage imageNamed:@"reply-settings"];
         replyAction.backgroundColor = self.tableView.backgroundColor;
         return [UISwipeActionsConfiguration configurationWithActions:@[replyAction]];
     } else {
