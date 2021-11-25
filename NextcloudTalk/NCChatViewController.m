@@ -3259,6 +3259,23 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     return previewController;
 }
 
+//Swipe to reply option
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(nonnull NSIndexPath *)indexPath API_AVAILABLE(ios(11.0)){
+    NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+    NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+    if (message.isReplyable && !message.isDeleting && !_offlineMode) {
+        UIContextualAction *replyAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+            [self didPressReply:message];
+            completionHandler(true);
+        }];
+        replyAction.image = [UIImage imageNamed:@"reply-settings"];
+        replyAction.backgroundColor = self.tableView.backgroundColor;
+        return [UISwipeActionsConfiguration configurationWithActions:@[replyAction]];
+    } else {
+        return nil;
+    }
+}
+
 #pragma mark - FileMessageTableViewCellDelegate
 
 - (void)cellWantsToDownloadFile:(NCMessageFileParameter *)fileParameter
