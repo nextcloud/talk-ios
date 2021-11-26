@@ -58,11 +58,11 @@
 
 - (void)configureSubviews
 {
-    _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kVoiceMessageCellAvatarHeight, kVoiceMessageCellAvatarHeight)];
+    _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kChatCellAvatarHeight, kChatCellAvatarHeight)];
     _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
     _avatarView.userInteractionEnabled = YES;
     _avatarView.backgroundColor = [NCAppBranding placeholderColor];
-    _avatarView.layer.cornerRadius = kVoiceMessageCellAvatarHeight/2.0;
+    _avatarView.layer.cornerRadius = kChatCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
     UITapGestureRecognizer *avatarTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarTapped:)];
     [_avatarView addGestureRecognizer:avatarTap];
@@ -121,7 +121,8 @@
                             @"audioPlayerView": _audioPlayerView,
                             };
     
-    NSDictionary *metrics = @{@"avatarSize": @(kVoiceMessageCellAvatarHeight),
+    NSDictionary *metrics = @{@"avatarSize": @(kChatCellAvatarHeight),
+                              @"dateLabelWidth": @(kChatCellDateLabelWidth),
                               @"statusSize": @(kChatCellStatusViewHeight),
                               @"statusTopPadding": @17,
                               @"buttonHeight": @44,
@@ -136,7 +137,7 @@
                               };
     
     if ([self.reuseIdentifier isEqualToString:VoiceMessageCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-statusTopPadding-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];

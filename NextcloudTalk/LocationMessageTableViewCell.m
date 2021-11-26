@@ -55,11 +55,11 @@
 
 - (void)configureSubviews
 {
-    _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kLocationMessageCellAvatarHeight, kLocationMessageCellAvatarHeight)];
+    _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kChatCellAvatarHeight, kChatCellAvatarHeight)];
     _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
     _avatarView.userInteractionEnabled = YES;
     _avatarView.backgroundColor = [NCAppBranding placeholderColor];
-    _avatarView.layer.cornerRadius = kLocationMessageCellAvatarHeight/2.0;
+    _avatarView.layer.cornerRadius = kChatCellAvatarHeight/2.0;
     _avatarView.layer.masksToBounds = YES;
     UITapGestureRecognizer *avatarTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarTapped:)];
     [_avatarView addGestureRecognizer:avatarTap];
@@ -94,7 +94,8 @@
                             @"bodyTextView": self.bodyTextView,
                             };
     
-    NSDictionary *metrics = @{@"avatarSize": @(kLocationMessageCellAvatarHeight),
+    NSDictionary *metrics = @{@"avatarSize": @(kChatCellAvatarHeight),
+                              @"dateLabelWidth": @(kChatCellDateLabelWidth),
                               @"previewWidth": @(kLocationMessageCellPreviewWidth),
                               @"previewHeight": @(kLocationMessageCellPreviewHeight),
                               @"statusSize": @(kChatCellStatusViewHeight),
@@ -105,7 +106,7 @@
                               };
     
     if ([self.reuseIdentifier isEqualToString:LocationMessageCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[previewImageView(previewWidth)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];

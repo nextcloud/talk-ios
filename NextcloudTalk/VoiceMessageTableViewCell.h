@@ -27,7 +27,6 @@
 #import "NCChatMessage.h"
 
 static CGFloat kVoiceMessageCellMinimumHeight        = 50.0;
-static CGFloat kVoiceMessageCellAvatarHeight         = 30.0;
 static CGFloat kVoiceMessageCellPlayerHeight         = 44.0;
 
 static NSString *VoiceMessageCellIdentifier          = @"VoiceMessageCellIdentifier";

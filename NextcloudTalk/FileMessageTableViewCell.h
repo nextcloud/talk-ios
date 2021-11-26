@@ -27,7 +27,6 @@
 #import "NCChatMessage.h"
 
 static CGFloat kFileMessageCellMinimumHeight        = 50.0;
-static CGFloat kFileMessageCellAvatarHeight         = 30.0;
 static CGFloat kFileMessageCellFilePreviewHeight    = 120.0;
 static CGFloat maxPreviewImageWidth                 = 230.0;
 

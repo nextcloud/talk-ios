@@ -1314,7 +1314,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 // Presentation on iPads
                 optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
                 CGRect cellRect = [self.tableView rectForRowAtIndexPath:indexPath];
-                CGFloat avatarSize = kChatMessageCellAvatarHeight + 10;
+                CGFloat avatarSize = kChatCellAvatarHeight + 10;
                 CGRect avatarRect = CGRectMake(cellRect.origin.x, cellRect.origin.y, avatarSize, avatarSize);
                 optionsActionSheet.popoverPresentationController.sourceRect = avatarRect;
                 
@@ -3010,7 +3010,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
         NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
         
-        CGFloat width = CGRectGetWidth(tableView.frame) - kChatMessageCellAvatarHeight;
+        CGFloat width = CGRectGetWidth(tableView.frame) - kChatCellAvatarHeight;
         if (@available(iOS 11.0, *)) {
             width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right;
         }
@@ -3039,7 +3039,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     width -= (message.isSystemMessage)? 80.0 : 30.0; // 4*right(10) + dateLabel(40) : 3*right(10)
     CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
     
-    CGFloat height = kChatMessageCellAvatarHeight;
+    CGFloat height = kChatCellAvatarHeight;
     height += CGRectGetHeight(bodyBounds);
     height += 20.0; // right(10) + 2*left(5)
     
@@ -3229,7 +3229,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     UITableViewCell *previewView = [self getCellForMessage:message];
-    CGFloat maxTextWidth = maxPreviewWidth - kChatMessageCellAvatarHeight;
+    CGFloat maxTextWidth = maxPreviewWidth - kChatCellAvatarHeight;
     CGFloat cellHeight = [self getCellHeightForMessage:message withWidth:maxTextWidth];
     
     // Cut the height if bigger than max height
