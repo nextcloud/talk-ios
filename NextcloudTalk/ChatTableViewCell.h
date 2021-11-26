@@ -24,7 +24,9 @@
 
 #import "NCChatMessage.h"
 
-static CGFloat kChatCellStatusViewHeight     = 20.0;
+static CGFloat kChatCellStatusViewHeight    = 20.0;
+static CGFloat kChatCellDateLabelWidth      = 40.0;
+static CGFloat kChatCellAvatarHeight        = 30.0;
 
 typedef enum ChatMessageDeliveryState {
     ChatMessageDeliveryStateSent = 0,

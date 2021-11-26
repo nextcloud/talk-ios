@@ -26,7 +26,6 @@
 #import "MessageBodyTextView.h"
 
 static CGFloat kChatMessageCellMinimumHeight    = 50.0;
-static CGFloat kChatMessageCellAvatarHeight     = 30.0;
 
 static NSString *ChatMessageCellIdentifier      = @"ChatMessageCellIdentifier";
 static NSString *ReplyMessageCellIdentifier     = @"ReplyMessageCellIdentifier";

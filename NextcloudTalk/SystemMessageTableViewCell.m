@@ -52,12 +52,13 @@
                             @"bodyTextView": self.bodyTextView,
                             };
     
-    NSDictionary *metrics = @{@"avatar": @50,
+    NSDictionary *metrics = @{@"dateLabelWidth": @(kChatCellDateLabelWidth),
+                              @"avatarGap": @50,
                               @"right": @10,
                               @"left": @5
                               };
     
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatar-[bodyTextView]-[dateLabel(40)]-right-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[bodyTextView]-[dateLabel(dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[dateLabel(20)]-(>=0)-|" options:0 metrics:metrics views:views]];
 }

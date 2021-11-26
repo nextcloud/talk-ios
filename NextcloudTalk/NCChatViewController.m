@@ -1314,7 +1314,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 // Presentation on iPads
                 optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
                 CGRect cellRect = [self.tableView rectForRowAtIndexPath:indexPath];
-                CGFloat avatarSize = kChatMessageCellAvatarHeight + 10;
+                CGFloat avatarSize = kChatCellAvatarHeight + 10;
                 CGRect avatarRect = CGRectMake(cellRect.origin.x, cellRect.origin.y, avatarSize, avatarSize);
                 optionsActionSheet.popoverPresentationController.sourceRect = avatarRect;
                 
@@ -3010,7 +3010,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
         NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
         
-        CGFloat width = CGRectGetWidth(tableView.frame) - kChatMessageCellAvatarHeight;
+        CGFloat width = CGRectGetWidth(tableView.frame) - kChatCellAvatarHeight;
         if (@available(iOS 11.0, *)) {
             width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right;
         }
@@ -3024,45 +3024,36 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (CGFloat)getCellHeightForMessage:(NCChatMessage *)message withWidth:(CGFloat)width
 {
-    NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
-    paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-    paragraphStyle.alignment = NSTextAlignmentLeft;
-    
+    // Chat separators
     if (message.messageId == kUnreadMessagesSeparatorIdentifier ||
         message.messageId == kChatBlockSeparatorIdentifier) {
         return kMessageSeparatorCellHeight;
     }
     
-    CGFloat pointSize = [ChatMessageTableViewCell defaultFontSize];
-    
-    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:pointSize],
-                                 NSParagraphStyleAttributeName: paragraphStyle};
-    
-    
-    width -= (message.isSystemMessage)? 80.0 : 30.0; // 4*right(10) + dateLabel(40) : 3*right(10)
-    
-    CGRect titleBounds = [message.actorDisplayName boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
-    CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
-    
+    // Message deleted (the ones that notify about a deleted message, they should not be displayed)
     if (message.message.length == 0 || [message.systemMessage isEqualToString:@"message_deleted"]) {
         return 0.0;
     }
     
-    CGFloat height = CGRectGetHeight(titleBounds);
+    // Chat messages
+    width -= (message.isSystemMessage)? 80.0 : 30.0; // 4*right(10) + dateLabel(40) : 3*right(10)
+    CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
+    
+    CGFloat height = kChatCellAvatarHeight;
     height += CGRectGetHeight(bodyBounds);
-    height += 40.0;
+    height += 20.0; // right(10) + 2*left(5)
     
     if (height < kChatMessageCellMinimumHeight) {
         height = kChatMessageCellMinimumHeight;
     }
     
     if (message.parent) {
-        height += 60;
+        height += 55; // left(5) + quoteView(50)
         return height;
     }
     
     if (message.isGroupMessage || message.isSystemMessage) {
-        height = CGRectGetHeight(bodyBounds) + 20;
+        height = CGRectGetHeight(bodyBounds) + 10; // 2*left(5)
         
         if (height < kGroupedChatMessageCellMinimumHeight) {
             height = kGroupedChatMessageCellMinimumHeight;
@@ -3076,11 +3067,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     if (message.file) {
-        return height += message.file.previewImageHeight == 0 ? kFileMessageCellFilePreviewHeight : message.file.previewImageHeight;
+        return height += message.file.previewImageHeight == 0 ? kFileMessageCellFilePreviewHeight + 10 : message.file.previewImageHeight + 10; // right(10)
     }
     
     if (message.geoLocation) {
-        return height += kLocationMessageCellPreviewHeight + 15;
+        return height += kLocationMessageCellPreviewHeight + 10; // right(10)
     }
     
     return height;
@@ -3238,7 +3229,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     UITableViewCell *previewView = [self getCellForMessage:message];
-    CGFloat maxTextWidth = maxPreviewWidth - kChatMessageCellAvatarHeight;
+    CGFloat maxTextWidth = maxPreviewWidth - kChatCellAvatarHeight;
     CGFloat cellHeight = [self getCellHeightForMessage:message withWidth:maxTextWidth];
     
     // Cut the height if bigger than max height

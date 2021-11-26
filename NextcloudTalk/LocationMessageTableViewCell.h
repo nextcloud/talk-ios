@@ -28,7 +28,6 @@
 #import "NCChatMessage.h"
 
 static CGFloat kLocationMessageCellMinimumHeight    = 50.0;
-static CGFloat kLocationMessageCellAvatarHeight     = 30.0;
 static CGFloat kLocationMessageCellPreviewWidth     = 240.0;
 static CGFloat kLocationMessageCellPreviewHeight    = 120.0;
 
