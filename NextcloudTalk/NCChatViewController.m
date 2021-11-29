@@ -3281,9 +3281,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [downloader downloadFileFromMessage:fileParameter];
 }
 
-- (void)cellHasDownloadedPreviewImage:(UIImage *)loadedImage fromMessage:(NCChatMessage *)message
+- (void)cellHasDownloadedImagePreviewWithHeight:(CGFloat)height forMessage:(NCChatMessage *)message
 {
-    message.file.previewImageHeight = loadedImage.size.height;
+    message.file.previewImageHeight = height;
     [self.tableView beginUpdates];
     [self.tableView endUpdates];
 }

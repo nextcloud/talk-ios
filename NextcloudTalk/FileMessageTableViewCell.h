@@ -41,7 +41,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @protocol FileMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 
 - (void)cellWantsToDownloadFile:(NCMessageFileParameter *)fileParameter;
-- (void)cellHasDownloadedPreviewImage:(UIImage *)loadedImage fromMessage:(NCChatMessage *)message;
+- (void)cellHasDownloadedImagePreviewWithHeight:(CGFloat)height forMessage:(NCChatMessage *)message;
 
 @end
 

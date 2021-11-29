@@ -189,7 +189,7 @@
     NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
     UIImage *filePreviewImage = [UIImage imageNamed:imageName];
     __weak typeof(self) weakSelf = self;
-    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:200 usingAccount:activeAccount]
+    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:kFileMessageCellFilePreviewHeight usingAccount:activeAccount]
                                      placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
         
                                        //TODO: How to adjust for dark mode?
@@ -200,16 +200,28 @@
                                        weakSelf.previewImageView.layer.borderWidth = 1.0f;
                     
                                        dispatch_async(dispatch_get_main_queue(), ^(void){
-                                           weakSelf.vPreviewSize[3].constant = image.size.height ;
-                                           weakSelf.hPreviewSize[3].constant = (image.size.width > maxPreviewImageWidth) ? maxPreviewImageWidth : image.size.width ;
-                                           weakSelf.hGroupedPreviewSize[1].constant = (image.size.width > maxPreviewImageWidth) ? maxPreviewImageWidth : image.size.width;
-                                           weakSelf.vGroupedPreviewSize[1].constant = image.size.height ;
+                                           CGFloat width = image.size.width * image.scale;
+                                           CGFloat height = image.size.height * image.scale;
+                                           if (height > kFileMessageCellFilePreviewHeight) {
+                                               CGFloat ratio = kFileMessageCellFilePreviewHeight / height;
+                                               width = width * ratio;
+                                               height = kFileMessageCellFilePreviewHeight;
+                                           }
+                                           if (width > maxPreviewImageWidth) {
+                                               CGFloat ratio = maxPreviewImageWidth / width;
+                                               width = maxPreviewImageWidth;
+                                               height = height * ratio;
+                                           }
+                                           weakSelf.vPreviewSize[3].constant = height;
+                                           weakSelf.hPreviewSize[3].constant = width;
+                                           weakSelf.vGroupedPreviewSize[1].constant = height;
+                                           weakSelf.hGroupedPreviewSize[1].constant = width;
                                            [weakSelf.previewImageView setImage:image];
                                            [weakSelf setNeedsLayout];
                                            [weakSelf layoutIfNeeded];
                                             
                                            if (weakSelf.delegate) {
-                                               [weakSelf.delegate cellHasDownloadedPreviewImage:image fromMessage:message];
+                                               [weakSelf.delegate cellHasDownloadedImagePreviewWithHeight:height forMessage:message];
                                            }
                                        });
     } failure:nil];
