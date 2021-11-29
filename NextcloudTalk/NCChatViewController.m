@@ -3063,7 +3063,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     // Voice message should be before message.file check since it contains a file
     if ([message.messageType isEqualToString:kMessageTypeVoiceMessage]) {
         height -= CGRectGetHeight(bodyBounds);
-        return height += kVoiceMessageCellPlayerHeight;
+        return height += kVoiceMessageCellPlayerHeight + 10; // right(10)
     }
     
     if (message.file) {
