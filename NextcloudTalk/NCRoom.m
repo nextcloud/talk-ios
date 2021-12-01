@@ -68,9 +68,6 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.hasCall = [[roomDict objectForKey:@"hasCall"] boolValue];
     room.canLeaveConversation = [[roomDict objectForKey:@"canLeaveConversation"] boolValue];
     room.canDeleteConversation = [[roomDict objectForKey:@"canDeleteConversation"] boolValue];
-    room.status = ([roomDict objectForKey:@"status"] != [NSNull null]) ? [[roomDict objectForKey:@"status"] stringValue] : @"";
-    room.statusIcon = ([roomDict objectForKey:@"statusIcon"] != [NSNull null]) ? [[roomDict objectForKey:@"statusIcon"] stringValue] : @"";
-    room.statusMessage = ([roomDict objectForKey:@"statusMessage"] != [NSNull null]) ? [[roomDict objectForKey:@"statusMessage"] stringValue] : @"";
     
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
@@ -94,6 +91,24 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     id participants = [roomDict objectForKey:@"participants"];
     if ([participants isKindOfClass:[NSDictionary class]]) {
         room.participants = (RLMArray<RLMString> *)[participants allKeys];
+    }
+    
+    // Optional attribute
+    id status = [roomDict objectForKey:@"status"];
+    if ([status isKindOfClass:[NSString class]]) {
+        room.status = status;
+    }
+    
+    // Optional attribute
+    id statusIcon = [roomDict objectForKey:@"statusIcon"];
+    if ([statusIcon isKindOfClass:[NSString class]]) {
+        room.statusIcon = statusIcon;
+    }
+    
+    // Optional attribute
+    id statusMessage = [roomDict objectForKey:@"statusMessage"];
+    if ([statusMessage isKindOfClass:[NSString class]]) {
+        room.statusMessage = statusMessage;
     }
     
     return room;

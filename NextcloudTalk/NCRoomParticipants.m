@@ -52,15 +52,30 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
     participant.sessionId = [participantDict objectForKey:@"sessionId"];
     participant.sessionIds = [participantDict objectForKey:@"sessionIds"];
     participant.userId = [participantDict objectForKey:@"userId"];
-    participant.status = ([participantDict objectForKey:@"status"] != [NSNull null]) ? [[participantDict objectForKey:@"status"] stringValue] : @"";
-    participant.statusIcon = ([participantDict objectForKey:@"statusIcon"] != [NSNull null]) ? [[participantDict objectForKey:@"statusIcon"] stringValue] : @"";
-    participant.statusMessage = ([participantDict objectForKey:@"statusMessage"] != [NSNull null]) ? [[participantDict objectForKey:@"statusMessage"] stringValue] : @"";
     
     id displayName = [participantDict objectForKey:@"displayName"];
     if ([displayName isKindOfClass:[NSString class]]) {
         participant.displayName = displayName;
     } else {
         participant.displayName = [displayName stringValue];
+    }
+    
+    // Optional attribute
+    id status = [participantDict objectForKey:@"status"];
+    if ([status isKindOfClass:[NSString class]]) {
+        participant.status = status;
+    }
+    
+    // Optional attribute
+    id statusIcon = [participantDict objectForKey:@"statusIcon"];
+    if ([statusIcon isKindOfClass:[NSString class]]) {
+        participant.statusIcon = statusIcon;
+    }
+    
+    // Optional attribute
+    id statusMessage = [participantDict objectForKey:@"statusMessage"];
+    if ([statusMessage isKindOfClass:[NSString class]]) {
+        participant.statusMessage = statusMessage;
     }
     
     return participant;
