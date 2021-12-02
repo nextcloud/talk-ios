@@ -69,6 +69,7 @@
 @property (nonatomic, assign) BOOL isRemoteAudioDisabled;
 @property (nonatomic, assign) BOOL isRemoteVideoDisabled;
 @property (nonatomic, assign) BOOL isPeerSpeaking;
+@property (nonatomic, assign) BOOL showRemoteVideoInOriginalSize;
 @property (nonatomic, strong, readonly) NSMutableArray *queuedRemoteCandidates;
 @property (nonatomic, strong) RTCMediaStream *remoteStream;
 

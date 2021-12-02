@@ -39,7 +39,6 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 {
     UIView<RTCVideoRenderer> *_videoView;
     CGSize _remoteVideoSize;
-    BOOL _showOriginalSize;
     AvatarBackgroundImageView *_backgroundImageView;
     NSTimer *_disconnectedTimer;
 }
@@ -84,6 +83,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 - (void)toggleZoom
 {
     _showOriginalSize = !_showOriginalSize;
+    [self.actionsDelegate cellWantsToChangeZoom:self showOriginalSize:_showOriginalSize];
     [self resizeRemoteVideoView];
 }
 
