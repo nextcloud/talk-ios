@@ -30,6 +30,7 @@ extern CGFloat const kCallParticipantCellMinHeight;
 @class CallParticipantViewCell;
 @protocol CallParticipantViewCellDelegate <NSObject>
 - (void)cellWantsToPresentScreenSharing:(CallParticipantViewCell *)participantCell;
+- (void)cellWantsToChangeZoom:(CallParticipantViewCell *)participantCell showOriginalSize:(BOOL)showOriginalSize;
 @end
 
 @interface CallParticipantViewCell : UICollectionViewCell
@@ -41,6 +42,7 @@ extern CGFloat const kCallParticipantCellMinHeight;
 @property (nonatomic, assign)  BOOL audioDisabled;
 @property (nonatomic, assign)  BOOL videoDisabled;
 @property (nonatomic, assign)  BOOL screenShared;
+@property (nonatomic, assign)  BOOL showOriginalSize;
 @property (nonatomic, assign)  RTCIceConnectionState connectionState;
 
 @property (nonatomic, weak) IBOutlet UIView *peerVideoView;
