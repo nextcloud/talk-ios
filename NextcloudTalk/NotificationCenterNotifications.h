@@ -30,5 +30,6 @@ extern NSString * const NCServerCapabilitiesUpdatedNotification;
 extern NSString * const NCUserProfileImageUpdatedNotification;
 extern NSString * const NCTokenRevokedResponseReceivedNotification;
 extern NSString * const NCURLWantsToOpenConversationNotification;
+extern NSString * const NCServerMaintenanceModeNotification;
 
 NS_ASSUME_NONNULL_END

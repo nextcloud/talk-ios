@@ -70,6 +70,7 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(presentTalkNotInstalledWarningAlert) name:NCTalkNotInstalledNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(presentTalkOutdatedWarningAlert) name:NCOutdatedTalkVersionNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(presentServerMaintenanceModeWarning:) name:NCServerMaintenanceModeNotification object:nil];
     }
     return self;
 }
@@ -201,6 +202,16 @@
     [alert addAction:okButton];
     
     [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)presentServerMaintenanceModeWarning:(NSNotification *)notification
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
+    
+    if (accountId && [activeAccount.accountId isEqualToString:accountId]) {
+        [JDStatusBarNotification showWithStatus:@"Server is currently in maintenance mode" dismissAfter:4.0f styleName:JDStatusBarStyleError];
+    }
 }
 
 - (void)logOutCurrentUser
