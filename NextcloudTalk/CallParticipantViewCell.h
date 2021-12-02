@@ -56,6 +56,7 @@ extern CGFloat const kCallParticipantCellMinHeight;
 - (void)setVideoView:(RTCEAGLVideoView *)videoView;
 - (void)setSpeaking:(BOOL)speaking;
 - (void)setUserAvatar:(NSString *)userId;
+- (void)setRemoteVideoSize:(CGSize)size;
 - (void)resizeRemoteVideoView;
 
 @end
