@@ -536,10 +536,10 @@
 "Group conversation" = "Group conversation";
 
 /* No comment provided by engineer. */
-"Guest" = "Guest";
+"guest" = "guest";
 
 /* No comment provided by engineer. */
-"guest" = "guest";
+"Guest" = "Guest";
 
 /* No comment provided by engineer. */
 "Guests access" = "Guests access";
@@ -708,6 +708,12 @@
 
 /* No comment provided by engineer. */
 "Nearby places" = "Nearby places";
+
+/* No comment provided by engineer. */
+"Network available" = "Network available";
+
+/* No comment provided by engineer. */
+"Network not available" = "Network not available";
 
 /* No comment provided by engineer. */
 "New conversation" = "New conversation";
@@ -927,6 +933,9 @@
 
 /* No comment provided by engineer. */
 "Server address https://…" = "Server address https://…";
+
+/* No comment provided by engineer. */
+"Server is currently in maintenance mode" = "Server is currently in maintenance mode";
 
 /* No comment provided by engineer. */
 "Set" = "Set";
