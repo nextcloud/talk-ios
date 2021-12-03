@@ -471,6 +471,20 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     return userId;
 }
 
+- (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId
+{
+    NSString *displayName = nil;
+    NSDictionary *user = [_participantsMap objectForKey:sessionId];
+    if (user) {
+        NSDictionary *userSubKey = [user objectForKey:@"user"];
+        
+        if (userSubKey) {
+            displayName = [userSubKey objectForKey:@"displayname"];
+        }
+    }
+    return displayName;
+}
+
 - (NSDictionary *)getWebSocketMessageFromJSONData:(NSData *)jsonData
 {
     NSError *error;
