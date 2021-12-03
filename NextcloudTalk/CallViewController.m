@@ -1200,6 +1200,25 @@ typedef NS_ENUM(NSInteger, CallState) {
     return [_peersInCall count];
 }
 
+- (void)updateParticipantCell:(CallParticipantViewCell *)cell withPeerConnection:(NCPeerConnection *)peerConnection
+{
+    BOOL isVideoDisabled = peerConnection.isRemoteVideoDisabled;
+    
+    if (_isAudioOnly || peerConnection.remoteStream == nil) {
+        isVideoDisabled = YES;
+    }
+    
+    [cell setVideoView:[_videoRenderersDict objectForKey:peerConnection.peerId]];
+    [cell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
+    [cell setDisplayName:peerConnection.peerName];
+    [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
+    [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
+    [cell setVideoDisabled: isVideoDisabled];
+    [cell setShowOriginalSize:peerConnection.showRemoteVideoInOriginalSize];
+    [cell.peerNameLabel setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
+    [cell.buttonsContainerView setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
+}
+
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     CallParticipantViewCell *cell = (CallParticipantViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCallParticipantCellIdentifier forIndexPath:indexPath];
@@ -1207,15 +1226,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     cell.peerId = peerConnection.peerId;
     cell.actionsDelegate = self;
-    [cell setVideoView:[_videoRenderersDict objectForKey:peerConnection.peerId]];
-    [cell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
-    [cell setDisplayName:peerConnection.peerName];
-    [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
-    [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
-    [cell setVideoDisabled: (_isAudioOnly) ? YES : peerConnection.isRemoteVideoDisabled];
-    [cell setShowOriginalSize:peerConnection.showRemoteVideoInOriginalSize];
-    [cell.peerNameLabel setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
-    [cell.buttonsContainerView setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
+    [self updateParticipantCell:cell withPeerConnection:peerConnection];
     
     return cell;
 }
@@ -1233,15 +1244,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallParticipantViewCell *participantCell = (CallParticipantViewCell *)cell;
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
     
-    [participantCell setVideoView:[_videoRenderersDict objectForKey:peerConnection.peerId]];
-    [participantCell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
-    [participantCell setDisplayName:peerConnection.peerName];
-    [participantCell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
-    [participantCell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
-    [participantCell setVideoDisabled: (_isAudioOnly) ? YES : peerConnection.isRemoteVideoDisabled];
-    [participantCell setShowOriginalSize:peerConnection.showRemoteVideoInOriginalSize];
-    [participantCell.peerNameLabel setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
-    [participantCell.buttonsContainerView setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
+    [self updateParticipantCell:participantCell withPeerConnection:peerConnection];
 }
 
 #pragma mark - Call Controller delegate
@@ -1263,7 +1266,15 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callController:(NCCallController *)callController peerJoined:(NCPeerConnection *)peer
 {
-    // Start adding cell for that peer and wait until add
+    // Always add a joined peer, even if the peer doesn't publish any streams (yet)
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (![self->_peersInCall containsObject:peer]) {
+            [self->_peersInCall addObject:peer];
+        }
+    
+        [self.collectionView reloadData];
+    });
+    
 }
 
 - (void)callController:(NCCallController *)callController peerLeft:(NCPeerConnection *)peer
@@ -1309,7 +1320,10 @@ typedef NS_ENUM(NSInteger, CallState) {
         
         if ([remotePeer.roomType isEqualToString:kRoomTypeVideo]) {
             [self->_videoRenderersDict setObject:renderView forKey:remotePeer.peerId];
-            [self->_peersInCall addObject:remotePeer];
+            
+            if (![self->_peersInCall containsObject:remotePeer]) {
+                [self->_peersInCall addObject:remotePeer];
+            }
         } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
             [self->_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
             [self showScreenOfPeerId:remotePeer.peerId];
