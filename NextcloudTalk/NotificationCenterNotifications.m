@@ -28,4 +28,5 @@ NSString * const NCServerCapabilitiesUpdatedNotification = @"NCServerCapabilitie
 NSString * const NCUserProfileImageUpdatedNotification = @"NCUserProfileImageUpdatedNotification";
 NSString * const NCTokenRevokedResponseReceivedNotification = @"NCTokenRevokedResponseReceivedNotification";
 NSString * const NCURLWantsToOpenConversationNotification = @"NCURLWantsToOpenConversationNotification";
+NSString * const NCServerMaintenanceModeNotification = @"NCServerMaintenanceModeNotification";
 

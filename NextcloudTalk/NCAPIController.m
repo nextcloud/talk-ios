@@ -1987,10 +1987,16 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)checkResponseStatusCode:(NSInteger)statusCode forAccount:(TalkAccount *)account
 {
-    // App token has been revoked
     if (statusCode == 401) {
+        // App token has been revoked
         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:account.accountId forKey:@"accountId"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCTokenRevokedResponseReceivedNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+    } else if (statusCode == 503) {
+        // Server is in maintenance mode
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:account.accountId forKey:@"accountId"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCServerMaintenanceModeNotification
                                                             object:self
                                                           userInfo:userInfo];
     }

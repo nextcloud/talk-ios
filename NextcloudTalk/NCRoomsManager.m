@@ -185,6 +185,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             // Currently not triggered, needs to be enabled in API with sending force=false
             errorReason = NSLocalizedString(@"Duplicate session", nil);
             break;
+            
+        case 503:
+            errorReason = NSLocalizedString(@"Server is currently in maintenance mode", nil);
+            break;
     }
     
     return errorReason;
