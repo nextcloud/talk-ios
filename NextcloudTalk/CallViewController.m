@@ -32,6 +32,7 @@
 #import "PulsingHaloLayer.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIView+Toast.h"
+#import "NextcloudTalk-Swift.h"
 
 #import "CallKitManager.h"
 #import "CallParticipantViewCell.h"
@@ -94,6 +95,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 @end
 
 @implementation CallViewController
+
+CGFloat collectionViewHeaderHeight = 80.0;
 
 @synthesize delegate = _delegate;
 
@@ -189,6 +192,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     [self.collectionView registerNib:[UINib nibWithNibName:kCallParticipantCellNibName bundle:nil] forCellWithReuseIdentifier:kCallParticipantCellIdentifier];
+    
+    [self.collectionView registerClass:CustomHeaderView.self forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderCollectionReusableView"];
+    
+    UICollectionViewFlowLayout *layout = self.collectionView.collectionViewLayout;
+    layout.sectionHeadersPinToVisibleBounds = YES;
     
     if (@available(iOS 11.0, *)) {
         [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
@@ -1245,6 +1253,28 @@ typedef NS_ENUM(NSInteger, CallState) {
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
     
     [self updateParticipantCell:participantCell withPeerConnection:peerConnection];
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section
+{
+    if (_room.type == kNCRoomTypeGroup || _room.type == kNCRoomTypePublic) {
+        return CGSizeMake(self.collectionView.frame.size.width, collectionViewHeaderHeight);
+    } else {
+        return CGSizeMake(0, 0);
+    }
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    UICollectionReusableView *reusableview = nil;
+    
+    if (kind == UICollectionElementKindSectionHeader) {
+        CustomHeaderView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderCollectionReusableView" forIndexPath:indexPath];
+        [headerView configure];
+        headerView.backgroundColor = UIColor.blackColor;
+        [headerView setConversationNameWithName:_room.displayName];
+        reusableview = headerView;
+    }
+    return reusableview;
 }
 
 #pragma mark - Call Controller delegate
