@@ -384,11 +384,11 @@
     ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
     switch (connectionState) {
         case kConnectionStateDisconnected:
-            [JDStatusBarNotification showWithStatus:@"Network not available" dismissAfter:4.0f styleName:JDStatusBarStyleError];
+            [JDStatusBarNotification showWithStatus:NSLocalizedString(@"Network not available", nil) dismissAfter:4.0f styleName:JDStatusBarStyleError];
             break;
             
         case kConnectionStateConnected:
-            [JDStatusBarNotification showWithStatus:@"Network available" dismissAfter:4.0f styleName:JDStatusBarStyleSuccess];
+            [JDStatusBarNotification showWithStatus:NSLocalizedString(@"Network available", nil) dismissAfter:4.0f styleName:JDStatusBarStyleSuccess];
             break;
             
         default:
