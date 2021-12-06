@@ -269,6 +269,8 @@
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
 		C1292B8C237313590004C3B7 /* CCBKPasscode.m in Sources */ = {isa = PBXBuildFile; fileRef = C1292B8B237313590004C3B7 /* CCBKPasscode.m */; };
 		DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */; };
+		DAD59BFF275E18200080D0A3 /* CustomHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD59BFE275E181F0080D0A3 /* CustomHeaderView.swift */; };
+		DAD59C01275E18BD0080D0A3 /* CustomHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = DAD59C00275E18BD0080D0A3 /* CustomHeaderView.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -741,6 +743,8 @@
 		D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateLabelCustom.swift; sourceTree = "<group>"; };
+		DAD59BFE275E181F0080D0A3 /* CustomHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomHeaderView.swift; sourceTree = "<group>"; };
+		DAD59C00275E18BD0080D0A3 /* CustomHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CustomHeaderView.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1035,6 +1039,8 @@
 				2C78EF9D1F828C41008AFA74 /* CallViewController.h */,
 				2C78EF9E1F828C41008AFA74 /* CallViewController.m */,
 				2C78EF9F1F828C41008AFA74 /* CallViewController.xib */,
+				DAD59BFE275E181F0080D0A3 /* CustomHeaderView.swift */,
+				DAD59C00275E18BD0080D0A3 /* CustomHeaderView.xib */,
 				2C78EFA71F87EF39008AFA74 /* NBMPeersFlowLayout.h */,
 				2C78EFA81F87EF39008AFA74 /* NBMPeersFlowLayout.m */,
 				2C78EF9A1F826B22008AFA74 /* NCCallController.h */,
@@ -1630,6 +1636,7 @@
 				2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */,
 				2C440D1220EA4A770005F9BB /* RoomInfoTableViewController.xib in Resources */,
 				2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */,
+				DAD59C01275E18BD0080D0A3 /* CustomHeaderView.xib in Resources */,
 				2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */,
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
@@ -1913,6 +1920,7 @@
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */,
 				2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */,
+				DAD59BFF275E18200080D0A3 /* CustomHeaderView.swift in Sources */,
 				2CF9CBDB26010835002246EF /* UserProfileViewController.m in Sources */,
 				2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,

@@ -160,8 +160,8 @@
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 </imageView>
-                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Waiting for others to the call..." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="11" translatesAutoresizingMaskIntoConstraints="NO" id="ihe-9I-8ts">
-                    <rect key="frame" x="67" y="324" width="240" height="20"/>
+                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Waiting for others to the call..." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" minimumFontSize="11" translatesAutoresizingMaskIntoConstraints="NO" id="ihe-9I-8ts">
+                    <rect key="frame" x="10" y="323.5" width="355" height="20.5"/>
                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <nil key="highlightedColor"/>
@@ -170,7 +170,9 @@
             <viewLayoutGuide key="safeArea" id="ikW-9Y-8vD"/>
             <constraints>
                 <constraint firstItem="ihe-9I-8ts" firstAttribute="centerX" secondItem="BF4-kz-lxP" secondAttribute="centerX" id="4BQ-Ef-phL"/>
+                <constraint firstItem="ikW-9Y-8vD" firstAttribute="trailing" secondItem="ihe-9I-8ts" secondAttribute="trailing" constant="10" id="LXi-MI-vLX"/>
                 <constraint firstItem="ihe-9I-8ts" firstAttribute="centerY" secondItem="BF4-kz-lxP" secondAttribute="centerY" id="bdL-rM-gsx"/>
+                <constraint firstItem="ihe-9I-8ts" firstAttribute="leading" secondItem="ikW-9Y-8vD" secondAttribute="leading" constant="10" id="tVs-Mn-VHC"/>
             </constraints>
             <point key="canvasLocation" x="757.60000000000002" y="52.623688155922046"/>
         </view>
