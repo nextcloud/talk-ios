@@ -16,6 +16,7 @@
                 <outlet property="closeScreensharingButton" destination="N0N-Ny-Aeg" id="NrD-JV-Hec"/>
                 <outlet property="collectionView" destination="aUh-Z0-hO6" id="jmc-BV-dTa"/>
                 <outlet property="conversationName" destination="NJl-IJ-38W" id="VCT-5U-Dvq"/>
+                <outlet property="conversationType" destination="SJt-Ur-nPH" id="IH4-SM-ajS"/>
                 <outlet property="hangUpButton" destination="Rl8-bS-FJ5" id="jNg-Ly-6wz"/>
                 <outlet property="localVideoView" destination="TXj-7E-NAa" id="nXn-uK-PDD"/>
                 <outlet property="screensharingView" destination="Zzc-Pq-hMC" id="kaT-G4-IxS"/>
@@ -73,12 +74,23 @@
                         <constraint firstItem="N0N-Ny-Aeg" firstAttribute="top" secondItem="j53-tu-e0T" secondAttribute="top" constant="16" id="pDR-Pt-2K8"/>
                     </constraints>
                 </view>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NJl-IJ-38W">
-                    <rect key="frame" x="37" y="19" width="278" height="0.0"/>
-                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <nil key="highlightedColor"/>
-                </label>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="RRT-Dc-9nZ">
+                    <rect key="frame" x="15" y="19" width="345" height="43.5"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SJt-Ur-nPH">
+                            <rect key="frame" x="154" y="0.0" width="37.5" height="18"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NJl-IJ-38W">
+                            <rect key="frame" x="150.5" y="23" width="44.5" height="20.5"/>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                </stackView>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TXj-7E-NAa" userLabel="localVideo" customClass="RTCCameraPreviewView">
                     <rect key="frame" x="16" y="80" width="90" height="120"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
@@ -158,9 +170,9 @@
             <viewLayoutGuide key="safeArea" id="bbs-K4-b33"/>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstItem="NJl-IJ-38W" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" constant="19" id="Csc-Ua-Vf8"/>
-                <constraint firstItem="NJl-IJ-38W" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" constant="37" id="DVk-6G-Zaz"/>
-                <constraint firstItem="N0N-Ny-Aeg" firstAttribute="leading" secondItem="NJl-IJ-38W" secondAttribute="trailing" constant="12" id="hSL-1J-uqc"/>
+                <constraint firstItem="RRT-Dc-9nZ" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" constant="19" id="8mC-Yk-31i"/>
+                <constraint firstItem="RRT-Dc-9nZ" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" constant="15" id="YAy-R0-YPr"/>
+                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="RRT-Dc-9nZ" secondAttribute="trailing" constant="15" id="p12-Lq-xFy"/>
             </constraints>
             <point key="canvasLocation" x="34.399999999999999" y="52.623688155922046"/>
         </view>

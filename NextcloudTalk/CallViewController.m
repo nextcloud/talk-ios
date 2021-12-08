@@ -46,6 +46,7 @@
 #import "NCSettingsController.h"
 #import "NCSignalingMessage.h"
 #import "NCUtils.h"
+#import "NCAppBranding.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
@@ -193,9 +194,9 @@ CGFloat collectionViewHeaderHeight = 80.0;
     
     [self.collectionView registerNib:[UINib nibWithNibName:kCallParticipantCellNibName bundle:nil] forCellWithReuseIdentifier:kCallParticipantCellIdentifier];
     
-    if (_room.type == kNCRoomTypeGroup || _room.type == kNCRoomTypePublic) {
-        self.conversationName.text = _room.displayName;
-    }
+    self.conversationName.text = _room.displayName;
+    NSString *convType = _isAudioOnly ?  NSLocalizedString(@"Voice call", nil) : NSLocalizedString(@"Video call", nil);
+    self.conversationType.text = [NSString stringWithFormat: @"%@ %@", talkAppName, [convType lowercaseString]];
     
     if (@available(iOS 11.0, *)) {
         [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
@@ -1219,8 +1220,6 @@ CGFloat collectionViewHeaderHeight = 80.0;
     [cell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
     if (_room.type != kNCRoomTypeOneToOne) {
         [cell setDisplayName:peerConnection.peerName];
-    } else {
-        self.conversationName.text = peerConnection.peerName;
     }
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
     [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
@@ -1391,7 +1390,9 @@ CGFloat collectionViewHeaderHeight = 80.0;
 - (void)callController:(NCCallController *)callController didReceiveNick:(NSString *)nick fromPeer:(NCPeerConnection *)peer
 {
     [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
-        [cell setDisplayName:nick];
+        if (_room.type != kNCRoomTypeOneToOne) {
+            [cell setDisplayName:nick];
+        }
     }];
 }
 

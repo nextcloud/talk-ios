@@ -49,6 +49,7 @@
 @property (nonatomic, strong) IBOutlet AvatarBackgroundImageView *avatarBackgroundImageView;
 @property (nonatomic, strong) IBOutlet UILabel *waitingLabel;
 @property (nonatomic, strong) IBOutlet UILabel *conversationName;
+@property (nonatomic, strong) IBOutlet UILabel *conversationType;
 
 - (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly;
 
