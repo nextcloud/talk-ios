@@ -695,18 +695,18 @@ static NSString * const kNCVideoTrackKind = @"video";
     for (NSString *sessionId in newSessions) {
         NSString *peerKey = [sessionId stringByAppendingString:kRoomTypeVideo];
         if (![_connectionsDict objectForKey:peerKey] && ![_userSessionId isEqualToString:sessionId]) {
+            // Always create a peer connection, so the peer is added to the call view.
+            // When using a MCU we request an offer, but in case there are no streams published, we won't get an offer.
+            // When using internal signaling if we and the other participant are not publishing any stream,
+            // we won't receive or send any offer.
+            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId ofType:kRoomTypeVideo];
             if ([_externalSignalingController hasMCU]) {
-                // We request an offer to the MCU, but in case there are no streams published, we won't get an offer
-                // Make sure we still add the peer connection, otherwise the participant will be invisible
-                [self getPeerConnectionWrapperForSessionId:sessionId ofType:kRoomTypeVideo];
-                
                 NSLog(@"Requesting offer to the MCU for session: %@", sessionId);
                 [_externalSignalingController requestOfferForSessionId:sessionId andRoomType:kRoomTypeVideo];
             } else {
                 NSComparisonResult result = [sessionId compare:_userSessionId];
                 if (result == NSOrderedAscending) {
                     NSLog(@"Creating offer...");
-                    NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId ofType:kRoomTypeVideo];
                     [peerConnectionWrapper sendOffer];
                 } else {
                     NSLog(@"Waiting for offer...");
