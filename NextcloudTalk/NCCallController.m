@@ -61,6 +61,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) NSTimer *sendNickTimer;
 @property (nonatomic, strong) NSArray *pendingUsersInRoom;
 @property (nonatomic, strong) NSArray *usersInRoom;
+@property (nonatomic, strong) NSArray *sessionsInCall;
 @property (nonatomic, strong) NSArray *peersInCall;
 @property (nonatomic, strong) NCPeerConnection *ownPeerConnection;
 @property (nonatomic, strong) NSMutableDictionary *connectionsDict;
@@ -94,6 +95,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         _connectionsDict = [[NSMutableDictionary alloc] init];
         _pendingOffersDict = [[NSMutableDictionary alloc] init];
         _usersInRoom = [[NSArray alloc] init];
+        _sessionsInCall = [[NSArray alloc] init];
         _peersInCall = [[NSArray alloc] init];
         
         _signalingController = [[NCSignalingController alloc] initForRoom:room];
@@ -320,6 +322,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     _connectionsDict = [[NSMutableDictionary alloc] init];
     _pendingOffersDict = [[NSMutableDictionary alloc] init];
     _usersInRoom = [[NSArray alloc] init];
+    _sessionsInCall = [[NSArray alloc] init];
 }
 
 - (void)cleanPeerConnectionsForSessionId:(NSString *)sessionId
@@ -672,11 +675,13 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)processUsersInRoom:(NSArray *)users
 {
+    _usersInRoom = users;
+    
     NSMutableArray *newSessions = [self getInCallSessionsFromUsersInRoom:users];
-    NSMutableArray *oldSessions = [NSMutableArray arrayWithArray:_usersInRoom];
+    NSMutableArray *oldSessions = [NSMutableArray arrayWithArray:_sessionsInCall];
     
     //Save current sessions in call
-    _usersInRoom = [NSArray arrayWithArray:newSessions];
+    _sessionsInCall = [NSArray arrayWithArray:newSessions];
     
     // Calculate sessions that left the call
     NSMutableArray *leftSessions = [NSMutableArray arrayWithArray:oldSessions];
