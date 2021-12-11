@@ -74,23 +74,6 @@
                         <constraint firstItem="N0N-Ny-Aeg" firstAttribute="top" secondItem="j53-tu-e0T" secondAttribute="top" constant="16" id="pDR-Pt-2K8"/>
                     </constraints>
                 </view>
-                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="RRT-Dc-9nZ">
-                    <rect key="frame" x="15" y="19" width="345" height="43.5"/>
-                    <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SJt-Ur-nPH">
-                            <rect key="frame" x="154" y="0.0" width="37.5" height="18"/>
-                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                            <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <nil key="highlightedColor"/>
-                        </label>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NJl-IJ-38W">
-                            <rect key="frame" x="150.5" y="23" width="44.5" height="20.5"/>
-                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <nil key="highlightedColor"/>
-                        </label>
-                    </subviews>
-                </stackView>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TXj-7E-NAa" userLabel="localVideo" customClass="RTCCameraPreviewView">
                     <rect key="frame" x="16" y="80" width="90" height="120"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
@@ -114,6 +97,23 @@
                         <action selector="toggleChatButtonPressed:" destination="-1" eventType="touchUpInside" id="zJP-fn-GWH"/>
                     </connections>
                 </button>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="RRT-Dc-9nZ">
+                    <rect key="frame" x="165.5" y="10" width="44.5" height="43.5"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SJt-Ur-nPH">
+                            <rect key="frame" x="3.5" y="0.0" width="37.5" height="18"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NJl-IJ-38W">
+                            <rect key="frame" x="0.0" y="23" width="44.5" height="20.5"/>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                </stackView>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-7q-HlR">
                     <rect key="frame" x="27" y="571" width="320" height="80"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -170,9 +170,8 @@
             <viewLayoutGuide key="safeArea" id="bbs-K4-b33"/>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstItem="RRT-Dc-9nZ" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" constant="19" id="8mC-Yk-31i"/>
-                <constraint firstItem="RRT-Dc-9nZ" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" constant="15" id="YAy-R0-YPr"/>
-                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="RRT-Dc-9nZ" secondAttribute="trailing" constant="15" id="p12-Lq-xFy"/>
+                <constraint firstItem="RRT-Dc-9nZ" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="E5h-hp-9Ee"/>
+                <constraint firstItem="RRT-Dc-9nZ" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" constant="10" id="Ly3-Wt-XLO"/>
             </constraints>
             <point key="canvasLocation" x="34.399999999999999" y="52.623688155922046"/>
         </view>

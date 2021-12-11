@@ -129,8 +129,6 @@ CGFloat const kCallParticipantCellMinHeight = 128;
         UIColor *guestAvatarColor = [UIColor colorWithRed:0.73 green:0.73 blue:0.73 alpha:1.0]; /*#b9b9b9*/
         [self.peerAvatarImageView setImageWithString:@"?" color:guestAvatarColor circular:true];
     }
-    _peerNameLabel.frame = CGRectMake(20, _peerAvatarImageView.frame.size.height + _peerAvatarImageView.frame.origin.y + 30, _peerNameLabel.frame.size.width, _peerNameLabel.frame.size.height);
-    _buttonsContainerView.frame = CGRectMake(_peerNameLabel.frame.origin.x - 20, _peerNameLabel.frame.origin.y - 30, _buttonsContainerView.frame.size.width, _buttonsContainerView.frame.size.height);
 }
 
 - (void)setDisplayName:(NSString *)displayName
@@ -221,8 +219,8 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     CGRect audioDisabledFrame = _audioOffIndicator.frame;
     CGRect screenSharedFrame = _screensharingIndicator.frame;
     
-    audioDisabledFrame.origin.x = (_screenShared) ? 0 : 26;
-    screenSharedFrame.origin.x = (_audioDisabled) ? 52 : 26;
+//    audioDisabledFrame.origin.x = (_screenShared) ? 0 : 26;
+//    screenSharedFrame.origin.x = (_audioDisabled) ? 52 : 26;
     
     self.audioOffIndicator.frame = audioDisabledFrame;
     self.screensharingIndicator.frame = screenSharedFrame;
