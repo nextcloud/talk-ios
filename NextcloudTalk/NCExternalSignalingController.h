@@ -51,6 +51,7 @@
 - (void)sendCallMessage:(NCSignalingMessage *)message;
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
+- (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId;
 - (void)disconnect;
 - (void)forceReconnect;
 

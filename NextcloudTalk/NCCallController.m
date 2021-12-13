@@ -457,7 +457,14 @@ static NSString * const kNCVideoTrackKind = @"video";
         peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:screensharingPeer ? NO : _isAudioOnly];
         peerConnectionWrapper.roomType = roomType;
         peerConnectionWrapper.delegate = self;
-        // TODO: Try to get display name here
+        
+        // Try to get displayName early
+        NSString *displayName = [self getDisplayNameFromSessionId:sessionId];
+        
+        if (displayName) {
+            [peerConnectionWrapper setPeerName:displayName];
+        }
+        
         if (![_externalSignalingController hasMCU] || !screensharingPeer) {
             [peerConnectionWrapper.peerConnection addStream:_localStream];
         }
@@ -752,6 +759,21 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
     }
     return userId;
+}
+
+- (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId
+{    
+    if ([_externalSignalingController isEnabled]) {
+        return [_externalSignalingController getDisplayNameFromSessionId:sessionId];
+    }
+    for (NSMutableDictionary *user in _peersInCall) {
+        NSString *userSessionId = [user objectForKey:@"sessionId"];
+        if ([userSessionId isEqualToString:sessionId]) {
+            return [user objectForKey:@"displayName"];
+        }
+    }
+    
+    return nil;
 }
 
 #pragma mark - NCPeerConnectionDelegate
