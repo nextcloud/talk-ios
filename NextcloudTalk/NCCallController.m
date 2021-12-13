@@ -461,13 +461,6 @@ static NSString * const kNCVideoTrackKind = @"video";
         
         if (displayName) {
             [peerConnectionWrapper setPeerName:displayName];
-        } else {
-            // Fallback to userId, when displayName can't be resolved
-            NSString *userId = [self getUserIdFromSessionId:sessionId];
-            
-            if (userId) {
-                [peerConnectionWrapper setPeerName:userId];
-            }
         }
         
         if (![_externalSignalingController hasMCU] || !screensharingPeer) {
