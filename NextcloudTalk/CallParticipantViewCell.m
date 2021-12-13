@@ -47,8 +47,10 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 
 @implementation CallParticipantViewCell
 
-- (void)awakeFromNib {
+- (void)awakeFromNib
+{
     [super awakeFromNib];
+    
     self.audioOffIndicator.hidden = YES;
     self.screensharingIndicator.hidden = YES;
     
@@ -78,6 +80,13 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     _videoView = nil;
     _showOriginalSize = NO;
     self.layer.borderWidth = 0.0f;
+}
+
+- (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
+{
+    [super applyLayoutAttributes:layoutAttributes];
+    
+    [self resizeRemoteVideoView];
 }
 
 - (void)toggleZoom
@@ -255,14 +264,20 @@ CGFloat const kCallParticipantCellMinHeight = 128;
         [self->_videoView removeFromSuperview];
         self->_videoView = nil;
         self->_videoView = videoView;
-        self->_remoteVideoSize = videoView.frame.size;
         [self->_peerVideoView addSubview:self->_videoView];
         [self->_videoView setHidden:self->_videoDisabled];
         [self resizeRemoteVideoView];
     });
 }
 
-- (void)resizeRemoteVideoView {
+- (void)setRemoteVideoSize:(CGSize)size
+{
+    self->_remoteVideoSize = size;
+    [self resizeRemoteVideoView];
+}
+
+- (void)resizeRemoteVideoView
+{
     CGRect bounds = self.bounds;
     CGSize videoSize = _remoteVideoSize;
     

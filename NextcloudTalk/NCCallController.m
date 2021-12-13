@@ -308,7 +308,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)cleanCurrentPeerConnections
 {
     for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
-        [self.delegate callController:self peerLeft:peerConnectionWrapper];
+        if (!peerConnectionWrapper.isMCUPublisherPeer) {
+            [self.delegate callController:self peerLeft:peerConnectionWrapper];
+        }
         peerConnectionWrapper.delegate = nil;
         [peerConnectionWrapper close];
     }
@@ -763,7 +765,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didRemoveStream:(RTCMediaStream *)stream
 {
-    [self.delegate callController:self didRemoveStream:stream ofPeer:peerConnection];
+    if (!peerConnection.isMCUPublisherPeer) {
+        [self.delegate callController:self didRemoveStream:stream ofPeer:peerConnection];
+    }
 }
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didChangeIceConnectionState:(RTCIceConnectionState)newState
@@ -788,7 +792,10 @@ static NSString * const kNCVideoTrackKind = @"video";
             [_pendingOffersDict setObject:pendingOfferTimer forKey:peerConnection.peerId];
         }
     }
-    [self.delegate callController:self iceStatusChanged:newState ofPeer:peerConnection];
+    
+    if (!peerConnection.isMCUPublisherPeer) {
+        [self.delegate callController:self iceStatusChanged:newState ofPeer:peerConnection];
+    }
 }
 
 - (void)peerConnectionDidOpenStatusDataChannel:(NCPeerConnection *)peerConnection

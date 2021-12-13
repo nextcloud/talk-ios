@@ -207,10 +207,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     [_halo setHidden:YES];
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         [self setLocalVideoRect];
-        for (UICollectionViewCell *cell in self->_collectionView.visibleCells) {
-            CallParticipantViewCell * participantCell = (CallParticipantViewCell *) cell;
-            [participantCell resizeRemoteVideoView];
-        }
         [self resizeScreensharingView];
     } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         [self setHaloToToggleChatButton];
@@ -1223,9 +1219,9 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     CallParticipantViewCell *cell = (CallParticipantViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCallParticipantCellIdentifier forIndexPath:indexPath];
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
-    
     cell.peerId = peerConnection.peerId;
     cell.actionsDelegate = self;
+    
     [self updateParticipantCell:cell withPeerConnection:peerConnection];
     
     return cell;
@@ -1268,11 +1264,12 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     // Always add a joined peer, even if the peer doesn't publish any streams (yet)
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (![self->_peersInCall containsObject:peer]) {
+        NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
+        if (!indexPath) {
             [self->_peersInCall addObject:peer];
+            NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:_peersInCall.count - 1 inSection:0];
+            [self.collectionView insertItemsAtIndexPaths:@[insertionIndexPath]];
         }
-    
-        [self.collectionView reloadData];
     });
     
 }
@@ -1289,9 +1286,11 @@ typedef NS_ENUM(NSInteger, CallState) {
         [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
         [self->_screenRenderersDict removeObjectForKey:peer.peerId];
         
-        [self->_peersInCall removeObject:peer];
-    
-        [self.collectionView reloadData];
+        NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
+        if (indexPath) {
+            [self->_peersInCall removeObjectAtIndex:indexPath.row];
+            [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+        }
     });
 }
 
@@ -1320,16 +1319,18 @@ typedef NS_ENUM(NSInteger, CallState) {
         
         if ([remotePeer.roomType isEqualToString:kRoomTypeVideo]) {
             [self->_videoRenderersDict setObject:renderView forKey:remotePeer.peerId];
-            
-            if (![self->_peersInCall containsObject:remotePeer]) {
+            NSIndexPath *indexPath = [self indexPathForPeerId:remotePeer.peerId];
+            if (!indexPath) {
                 [self->_peersInCall addObject:remotePeer];
+                NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:_peersInCall.count - 1 inSection:0];
+                [self.collectionView insertItemsAtIndexPaths:@[insertionIndexPath]];
+            } else {
+                [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
             }
         } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
             [self->_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
             [self showScreenOfPeerId:remotePeer.peerId];
         }
-        
-        [self.collectionView reloadData];
     });
 }
 
@@ -1342,8 +1343,11 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     if (state == RTCIceConnectionStateClosed) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_peersInCall removeObject:peer];
-            [self.collectionView reloadData];
+            NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
+            if (indexPath) {
+                [self->_peersInCall removeObjectAtIndex:indexPath.row];
+                [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+            }
         });
     } else {
         [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
@@ -1486,6 +1490,14 @@ typedef NS_ENUM(NSInteger, CallState) {
         for (RTCEAGLVideoView *rendererView in [self->_videoRenderersDict allValues]) {
             if ([videoView isEqual:rendererView]) {
                 rendererView.frame = CGRectMake(0, 0, size.width, size.height);
+                NSArray *keys = [_videoRenderersDict allKeysForObject:videoView];
+                if (keys.count) {
+                    NSIndexPath *indexPath = [self indexPathForPeerId:keys[0]];
+                    if (indexPath) {
+                        CallParticipantViewCell *participantCell = (CallParticipantViewCell *) [self.collectionView cellForItemAtIndexPath:indexPath];
+                        [participantCell setRemoteVideoSize:size];
+                    }
+                }
             }
         }
         for (RTCEAGLVideoView *rendererView in [self->_screenRenderersDict allValues]) {
@@ -1497,24 +1509,32 @@ typedef NS_ENUM(NSInteger, CallState) {
                 }
             }
         }
-        [self.collectionView reloadData];
     });
 }
 
 #pragma mark - Cell updates
 
-- (NSIndexPath *)indexPathOfPeer:(NCPeerConnection *)peer {
-    NSUInteger idx = [_peersInCall indexOfObject:peer];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+- (NSIndexPath *)indexPathForPeerId:(NSString *)peerId
+{
+    NSIndexPath *indexPath = nil;
+    for (int i = 0; i < _peersInCall.count; i ++) {
+        NCPeerConnection *peer = [_peersInCall objectAtIndex:i];
+        if ([peer.peerId isEqualToString:peerId]) {
+            indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+        }
+    }
     
     return indexPath;
 }
 
-- (void)updatePeer:(NCPeerConnection *)peer block:(void(^)(CallParticipantViewCell* cell))block {
+- (void)updatePeer:(NCPeerConnection *)peer block:(void(^)(CallParticipantViewCell* cell))block
+{
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSIndexPath *indexPath = [self indexPathOfPeer:peer];
-        CallParticipantViewCell *cell = (id)[self.collectionView cellForItemAtIndexPath:indexPath];
-        block(cell);
+        NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
+        if (indexPath) {
+            CallParticipantViewCell *cell = (id)[self.collectionView cellForItemAtIndexPath:indexPath];
+            block(cell);
+        }
     });
 }
 
@@ -1556,6 +1576,4 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
-- (IBAction)toggleChatButton:(id)sender {
-}
 @end
