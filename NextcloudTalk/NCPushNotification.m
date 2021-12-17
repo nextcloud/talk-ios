@@ -24,17 +24,18 @@
 
 @implementation NCPushNotification
 
-NSString * const kNCPNAppKey            = @"app";
-NSString * const kNCPNAppIdKey          = @"spreed";
-NSString * const kNCPNTypeKey           = @"type";
-NSString * const kNCPNSubjectKey        = @"subject";
-NSString * const kNCPNIdKey             = @"id";
-NSString * const kNCPNNotifIdKey        = @"nid";
-NSString * const kNCPNTypeCallKey       = @"call";
-NSString * const kNCPNTypeRoomKey       = @"room";
-NSString * const kNCPNTypeChatKey       = @"chat";
-NSString * const kNCPNTypeDeleteKey     = @"delete";
-NSString * const kNCPNTypeDeleteAllKey  = @"delete-all";
+NSString * const kNCPNAppKey                    = @"app";
+NSString * const kNCPNAppIdKey                  = @"spreed";
+NSString * const kNCPNTypeKey                   = @"type";
+NSString * const kNCPNSubjectKey                = @"subject";
+NSString * const kNCPNIdKey                     = @"id";
+NSString * const kNCPNNotifIdKey                = @"nid";
+NSString * const kNCPNTypeCallKey               = @"call";
+NSString * const kNCPNTypeRoomKey               = @"room";
+NSString * const kNCPNTypeChatKey               = @"chat";
+NSString * const kNCPNTypeDeleteKey             = @"delete";
+NSString * const kNCPNTypeDeleteAllKey          = @"delete-all";
+NSString * const kNCPNAppIdAdminNotificationKey = @"admin_notification_talk";
 
 NSString * const NCPushNotificationJoinChatNotification                 = @"NCPushNotificationJoinChatNotification";
 NSString * const NCPushNotificationJoinAudioCallAcceptedNotification    = @"NCPushNotificationJoinAudioCallAcceptedNotification";
@@ -87,8 +88,17 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
     } else if ([jsonNotification objectForKey:kNCPNTypeDeleteAllKey]) {
         pushNotification.type = NCPushNotificationTypeDeleteAll;
     } else {
-        return nil;
+        NSString *app = [jsonNotification objectForKey:kNCPNAppKey];
+        
+        if (![app isEqualToString:kNCPNAppIdAdminNotificationKey]) {
+            return nil;
+        }
+    
+        pushNotification.subject = [jsonNotification objectForKey:kNCPNSubjectKey];
+        pushNotification.notificationId = [[jsonNotification objectForKey:kNCPNNotifIdKey] integerValue];
+        pushNotification.type = NCPushNotificationTypeAdminNotification;
     }
+    
     pushNotification.accountId = accountId;
     return pushNotification;
 }

@@ -99,6 +99,15 @@
                 if (decryptedMessage) {
                     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
                     
+                    if (pushNotification.type == NCPushNotificationTypeAdminNotification) {
+                        // Test notification send through "occ notification:test-push --talk <userid>"
+                        // No need to increase the badge or query the server about it
+                        
+                        self.bestAttemptContent.body = pushNotification.subject;
+                        self.contentHandler(self.bestAttemptContent);
+                        return;
+                    }
+                    
                     // Update unread notifications counter for push notification account
                     [realm beginWriteTransaction];
                     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
