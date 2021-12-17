@@ -109,7 +109,11 @@
         // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
     };
     NSError *error = nil;
+    
+    // Set the default configuration to make sure we always use the correct realm-file
+    [RLMRealmConfiguration setDefaultConfiguration:configuration];
     _realm = [RLMRealm realmWithConfiguration:configuration error:&error];
+    
     [self setupShareViewForAccount:nil];
     
     // Configure table views
