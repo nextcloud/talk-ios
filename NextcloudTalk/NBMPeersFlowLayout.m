@@ -115,7 +115,7 @@
     BOOL isPortrait = contentSize.width < contentSize.height;
     NSUInteger columns = [NBMPeersFlowLayout columnsWithWithNumberOfItems:numberOfItems
                                                  isPortrait:isPortrait];
-    NSUInteger border = 0;
+    NSUInteger border = 1;
     
     NSUInteger rows = ceil((float)numberOfItems / (float)columns);
     

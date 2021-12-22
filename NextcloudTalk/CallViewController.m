@@ -1236,9 +1236,15 @@ CGFloat collectionViewHeaderHeight = 80.0;
     
     cell.peerId = peerConnection.peerId;
     cell.actionsDelegate = self;
+    cell.layer.masksToBounds = YES;
+    cell.layer.cornerRadius = 10;
     [self updateParticipantCell:cell withPeerConnection:peerConnection];
     
     return cell;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+    return 2.0;
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
