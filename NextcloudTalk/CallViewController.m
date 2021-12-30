@@ -207,6 +207,19 @@ CGFloat collectionViewHeaderHeight = 80.0;
         
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
                                                  name:UIDeviceProximityStateDidChangeNotification object:nil];
+    
+    NSLayoutConstraint *bottomAudio = [NSLayoutConstraint constraintWithItem:_collectionView
+                         attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual
+                         toItem:_buttonsContainerView attribute:NSLayoutAttributeTop multiplier:1.0f constant:0.f];
+    
+    if (_isAudioOnly) {
+        [self.view addConstraint: bottomAudio];
+        [_collectionView layoutIfNeeded];
+    } else {
+        _collectionView.translatesAutoresizingMaskIntoConstraints = NO;
+        [_collectionView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:-20.0].active = YES;
+        [_collectionView layoutIfNeeded];
+    }
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator

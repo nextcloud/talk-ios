@@ -35,9 +35,8 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="aUh-Z0-hO6">
-                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="aUh-Z0-hO6">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="563"/>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="iSf-tu-VMU">
                         <size key="itemSize" width="50" height="50"/>
@@ -45,14 +44,18 @@
                         <size key="footerReferenceSize" width="0.0" height="0.0"/>
                         <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                     </collectionViewFlowLayout>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="5"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
                     <connections>
                         <outlet property="dataSource" destination="-1" id="tQD-40-kmq"/>
                         <outlet property="delegate" destination="-1" id="rTW-Ir-7cH"/>
                     </connections>
                 </collectionView>
-                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zzc-Pq-hMC">
-                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zzc-Pq-hMC">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="563"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N0N-Ny-Aeg">
                             <rect key="frame" x="327" y="16" width="32" height="32"/>
@@ -88,10 +91,13 @@
                         </button>
                     </subviews>
                 </view>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vBI-Mz-P4p">
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vBI-Mz-P4p">
                     <rect key="frame" x="299" y="60" width="60" height="60"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="60" id="abN-FX-AM6"/>
+                        <constraint firstAttribute="width" constant="60" id="zpc-eG-KWe"/>
+                    </constraints>
                     <state key="normal" image="chat"/>
                     <connections>
                         <action selector="toggleChatButtonPressed:" destination="-1" eventType="touchUpInside" id="zJP-fn-GWH"/>
@@ -114,9 +120,8 @@
                         </label>
                     </subviews>
                 </stackView>
-                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-7q-HlR">
-                    <rect key="frame" x="27" y="571" width="320" height="80"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-7q-HlR">
+                    <rect key="frame" x="27" y="571" width="321" height="80"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kDR-Ds-I7B">
                             <rect key="frame" x="10" y="10" width="60" height="60"/>
@@ -165,14 +170,35 @@
                             </connections>
                         </button>
                     </subviews>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="321" id="8ZJ-X2-no3"/>
+                        <constraint firstAttribute="height" constant="80" id="LT4-fy-ZAT"/>
+                    </constraints>
                 </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="bbs-K4-b33"/>
-            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
+                <constraint firstItem="ybF-7q-HlR" firstAttribute="top" secondItem="Zzc-Pq-hMC" secondAttribute="bottom" constant="8" symbolic="YES" id="7l9-6L-eCr"/>
+                <constraint firstItem="vBI-Mz-P4p" firstAttribute="top" secondItem="N0N-Ny-Aeg" secondAttribute="bottom" constant="12" id="Bhf-Bc-3VT"/>
                 <constraint firstItem="RRT-Dc-9nZ" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="E5h-hp-9Ee"/>
+                <constraint firstItem="Zzc-Pq-hMC" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" id="HZo-8w-KO1"/>
                 <constraint firstItem="RRT-Dc-9nZ" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" constant="10" id="Ly3-Wt-XLO"/>
+                <constraint firstItem="ybF-7q-HlR" firstAttribute="centerX" secondItem="Zzc-Pq-hMC" secondAttribute="centerX" id="Qcl-RA-eE7"/>
+                <constraint firstItem="aUh-Z0-hO6" firstAttribute="bottom" secondItem="Zzc-Pq-hMC" secondAttribute="bottom" id="SbR-BT-BnT"/>
+                <constraint firstItem="aUh-Z0-hO6" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" id="dNv-nc-Hxk"/>
+                <constraint firstItem="bbs-K4-b33" firstAttribute="bottom" secondItem="ybF-7q-HlR" secondAttribute="bottom" constant="16" id="efC-n5-kms"/>
+                <constraint firstItem="aUh-Z0-hO6" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" id="eg1-mU-xWg"/>
+                <constraint firstItem="aUh-Z0-hO6" firstAttribute="trailing" secondItem="bbs-K4-b33" secondAttribute="trailing" id="fQh-oS-IYk"/>
+                <constraint firstItem="Zzc-Pq-hMC" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" id="oEO-Ar-GWs"/>
+                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="vBI-Mz-P4p" secondAttribute="trailing" constant="16" id="oJE-gl-ErY"/>
+                <constraint firstItem="Zzc-Pq-hMC" firstAttribute="trailing" secondItem="bbs-K4-b33" secondAttribute="trailing" id="svG-f0-dvk"/>
             </constraints>
+            <variation key="default">
+                <mask key="constraints">
+                    <exclude reference="7l9-6L-eCr"/>
+                </mask>
+            </variation>
             <point key="canvasLocation" x="34.399999999999999" y="52.623688155922046"/>
         </view>
         <view contentMode="scaleToFill" id="BF4-kz-lxP">
