@@ -153,6 +153,10 @@
     NSArray *messagesArray = [NSArray arrayWithObjects:[message messageDict], nil];
     NSString *JSONSerializedMessages = [self messagesJSONSerialization:messagesArray];
     
+    if (!JSONSerializedMessages) {
+        return;
+    }
+    
     [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             //TODO: Error handling
@@ -169,9 +173,8 @@
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:messages
                                                        options:0
                                                          error:&error];
-    
-    if (! jsonData) {
-        NSLog(@"Got an error: %@", error);
+    if (!jsonData) {
+        NSLog(@"Error serializing signaling message: %@", error);
     } else {
         jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
