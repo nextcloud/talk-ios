@@ -706,8 +706,11 @@ static NSString * const kNCVideoTrackKind = @"video";
             // we won't receive or send any offer.
             NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId ofType:kRoomTypeVideo];
             if ([_externalSignalingController hasMCU]) {
-                NSLog(@"Requesting offer to the MCU for session: %@", sessionId);
-                [_externalSignalingController requestOfferForSessionId:sessionId andRoomType:kRoomTypeVideo];
+                // Only request offer if user is sharing audio or video streams
+                if ([self userHasStreams:sessionId]) {
+                    NSLog(@"Requesting offer to the MCU for session: %@", sessionId);
+                    [_externalSignalingController requestOfferForSessionId:sessionId andRoomType:kRoomTypeVideo];
+                }
             } else {
                 NSComparisonResult result = [sessionId compare:_userSessionId];
                 if (result == NSOrderedAscending) {
@@ -731,6 +734,20 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
         [self cleanPeerConnectionsForSessionId:sessionId];
     }
+}
+
+- (BOOL)userHasStreams:(NSString *)sessionId
+{
+    for (NSMutableDictionary *user in _usersInRoom) {
+        NSString *userSession = [user objectForKey:@"sessionId"];
+        if ([userSession isEqualToString:sessionId]) {
+            NSInteger userCallFlags = [[user objectForKey:@"inCall"] integerValue];
+            NSInteger requiredFlags = CallFlagWithAudio | CallFlagWithVideo;
+            return (userCallFlags & requiredFlags) != 0;
+        }
+    }
+    
+    return NO;
 }
 
 - (NSMutableArray *)getInCallSessionsFromUsersInRoom:(NSArray *)users
