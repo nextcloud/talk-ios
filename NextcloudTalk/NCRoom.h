@@ -50,6 +50,17 @@ typedef enum NCRoomLobbyState {
     NCRoomLobbyStateModeratorsOnly
 } NCRoomLobbyState;
 
+typedef enum NCPermission {
+    NCPermissionDefaultPermissions = 0,
+    NCPermissionCustomPermissions = 1,
+    NCPermissionStartCall = 2,
+    NCPermissionJoinCall = 4,
+    NCPermissionCanIgnoreLobby = 8,
+    NCPermissionCanPublishAudio = 16,
+    NCPermissionCanPublishVideo = 32,
+    NCPermissionCanPublishScreen = 64,
+} NCPermission;
+
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;
 
@@ -98,6 +109,10 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, copy) NSString *status;
 @property (nonatomic, copy) NSString *statusIcon;
 @property (nonatomic, copy) NSString *statusMessage;
+@property (nonatomic, assign) NSInteger permissions;
+@property (nonatomic, assign) NSInteger attendeePermissions;
+@property (nonatomic, assign) NSInteger callPermissions;
+@property (nonatomic, assign) NSInteger defaultPermissions;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;

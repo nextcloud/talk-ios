@@ -68,6 +68,10 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.hasCall = [[roomDict objectForKey:@"hasCall"] boolValue];
     room.canLeaveConversation = [[roomDict objectForKey:@"canLeaveConversation"] boolValue];
     room.canDeleteConversation = [[roomDict objectForKey:@"canDeleteConversation"] boolValue];
+    room.permissions = [[roomDict objectForKey:@"permissions"] integerValue];
+    room.attendeePermissions = [[roomDict objectForKey:@"attendeePermissions"] integerValue];
+    room.callPermissions = [[roomDict objectForKey:@"callPermissions"] integerValue];
+    room.defaultPermissions = [[roomDict objectForKey:@"defaultPermissions"] integerValue];
     
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
@@ -165,6 +169,10 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     managedRoom.status = room.status;
     managedRoom.statusIcon = room.statusIcon;
     managedRoom.statusMessage = room.statusMessage;
+    managedRoom.permissions = room.permissions;
+    managedRoom.attendeePermissions = room.attendeePermissions;
+    managedRoom.callPermissions = room.callPermissions;
+    managedRoom.defaultPermissions = room.defaultPermissions;
 }
 
 + (NSString *)primaryKey {
