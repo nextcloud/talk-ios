@@ -54,6 +54,7 @@
 #import "NCChatFileController.h"
 #import "NCChatMessage.h"
 #import "NCChatTitleView.h"
+#import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCImageSessionManager.h"
 #import "NCMessageParameter.h"
@@ -104,7 +105,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, assign) BOOL isVisible;
 @property (nonatomic, assign) BOOL hasJoinedRoom;
-@property (nonatomic, assign) BOOL leftChatWithVisibleChatVC;
+@property (nonatomic, assign) BOOL startReceivingMessagesAfterJoin;
 @property (nonatomic, assign) BOOL offlineMode;
 @property (nonatomic, assign) BOOL hasStoredHistory;
 @property (nonatomic, assign) BOOL hasStopped;
@@ -177,6 +178,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveHistoryCleared:) name:NCChatControllerDidReceiveHistoryClearedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
     }
     
     return self;
@@ -529,7 +531,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 -(void)appWillResignActive:(NSNotification*)notification
 {
     _hasReceiveNewMessages = NO;
-    _leftChatWithVisibleChatVC = YES;
+    _startReceivingMessagesAfterJoin = YES;
     [self removeUnreadMessagesSeparator];
     [_chatController stopChatController];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
@@ -544,6 +546,27 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             [self.textView setTintColor:[UIColor colorWithCGColor:[UIColor systemBlueColor].CGColor]];
             [self updateToolbar:YES];
         }
+    }
+}
+
+#pragma mark - Connection Controller notifications
+
+- (void)connectionStateHasChanged:(NSNotification *)notification
+{
+    ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
+    switch (connectionState) {
+        case kConnectionStateConnected:
+            if (_offlineMode) {
+                _offlineMode = NO;
+                _startReceivingMessagesAfterJoin = YES;
+                
+                [self removeOfflineFooterView];
+                [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+            }
+            break;
+            
+        default:
+            break;
     }
 }
 
@@ -738,6 +761,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)setOfflineFooterView
 {
+    BOOL isAtBottom = [self shouldScrollOnNewMessages];
+    
     UILabel *footerLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 350, 24)];
     footerLabel.textAlignment = NSTextAlignmentCenter;
     footerLabel.textColor = [UIColor lightGrayColor];
@@ -750,6 +775,24 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         footerLabel.textColor = [UIColor secondaryLabelColor];
         self.tableView.tableFooterView.backgroundColor = [UIColor secondarySystemBackgroundColor];
     }
+    
+    if (isAtBottom) {
+        [self.tableView slk_scrollToBottomAnimated:YES];
+    }
+}
+
+- (void)removeOfflineFooterView
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.tableView.tableFooterView) {
+            [self.tableView.tableFooterView removeFromSuperview];
+            self.tableView.tableFooterView = nil;
+            
+            // Scrolling after removing the tableFooterView won't scroll all the way to the bottom
+            // therefore just keep the current position
+            //[self.tableView slk_scrollToBottomAnimated:YES];
+        }
+    });
 }
 
 #pragma mark - Utils
@@ -2113,8 +2156,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return;
     }
     
-    if (_leftChatWithVisibleChatVC && _hasReceiveInitialHistory) {
-        _leftChatWithVisibleChatVC = NO;
+    if (_startReceivingMessagesAfterJoin && _hasReceiveInitialHistory) {
+        _startReceivingMessagesAfterJoin = NO;
         [_chatController startReceivingNewChatMessages];
     } else if (!_hasReceiveInitialHistory && !_hasRequestedInitialHistory) {
         _hasRequestedInitialHistory = YES;
