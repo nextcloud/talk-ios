@@ -38,6 +38,7 @@ NSString * const CallKitManagerDidEndCallNotification           = @"CallKitManag
 NSString * const CallKitManagerDidStartCallNotification         = @"CallKitManagerDidStartCallNotification";
 NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManagerDidChangeAudioMuteNotification";
 NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManagerWantsToUpgradeToVideoCall";
+NSString * const CallKitManagerDidFailRequestingCallTransaction = @"CallKitManagerDidFailRequestingCallTransaction";
 
 NSTimeInterval const kCallKitManagerMaxRingingTimeSeconds       = 45.0;
 NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 3.0;
@@ -400,6 +401,10 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 3.0;
                 [weakSelf.calls setObject:call forKey:callUUID];
             } else {
                 NSLog(@"%@", error.localizedDescription);
+                NSDictionary *userInfo = [NSDictionary dictionaryWithObject:token forKey:@"roomToken"];
+                [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidFailRequestingCallTransaction
+                                                                    object:self
+                                                                  userInfo:userInfo];
             }
         }];
     // Send notification for video call upgrade.

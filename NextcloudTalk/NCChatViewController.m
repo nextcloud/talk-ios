@@ -179,6 +179,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didFailRequestingCallTransaction:) name:CallKitManagerDidFailRequestingCallTransaction object:nil];
     }
     
     return self;
@@ -2168,6 +2169,18 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)didLeaveRoom:(NSNotification *)notification
 {
     [self disableRoomControls];
+}
+
+#pragma mark - CallKit Manager notifications
+
+- (void)didFailRequestingCallTransaction:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    if (![roomToken isEqualToString:_room.token]) {
+        return;
+    }
+    
+    [self configureActionItems];
 }
 
 #pragma mark - Chat Controller notifications
