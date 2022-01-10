@@ -666,6 +666,29 @@ static NSString * const kNCVideoTrackKind = @"video";
                 }
                 break;
             }
+            case kNCSignalingMessageTypeMute:
+            case kNCSignalingMessageTypeUnmute:
+            {
+                NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+                NSString *name = [signalingMessage.payload objectForKey:@"name"];
+                if ([name isEqualToString:@"audio"]) {
+                    NSString *messageType = (signalingMessage.messageType == kNCSignalingMessageTypeMute) ? @"audioOff" : @"audioOn";
+                    [peerConnectionWrapper setStatusForDataChannelMessageType:messageType withPayload:nil];
+                } else if ([name isEqualToString:@"video"]) {
+                    NSString *messageType = (signalingMessage.messageType == kNCSignalingMessageTypeMute) ? @"videoOff" : @"videoOn";
+                    [peerConnectionWrapper setStatusForDataChannelMessageType:messageType withPayload:nil];
+                }
+                break;
+            }
+            case kNCSignalingMessageTypeNickChanged:
+            {
+                NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+                NSString *name = [signalingMessage.payload objectForKey:@"name"];
+                if (name.length > 0) {
+                    [peerConnectionWrapper setStatusForDataChannelMessageType:@"nickChanged" withPayload:name];
+                }
+                break;
+            }
             case kNCSignalingMessageTypeUknown:
                 NSLog(@"Received an unknown signaling message: %@", signalingMessage);
                 break;

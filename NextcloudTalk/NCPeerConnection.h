@@ -80,6 +80,7 @@
 - (void)sendPublishOfferToMCU;
 - (void)sendOffer;
 - (void)sendDataChannelMessageOfType:(NSString *)type withPayload:(id)payload;
+- (void)setStatusForDataChannelMessageType:(NSString *)type withPayload:(id)payload;
 - (void)drainRemoteCandidates;
 - (void)removeRemoteCandidates;
 - (void)close;

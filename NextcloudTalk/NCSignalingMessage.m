@@ -56,6 +56,9 @@ static NSString * const kNCSignalingMessageTypeUnshareScreenKey = @"unshareScree
 static NSString * const kNCSignalingMessageTypeRemoveCandidatesKey = @"remove-candidates";
 static NSString * const kNCSignalingMessageTypeControlKey = @"control";
 static NSString * const kNCSignalingMessageTypeForceMuteKey = @"forceMute";
+static NSString * const kNCSignalingMessageTypeMuteKey = @"mute";
+static NSString * const kNCSignalingMessageTypeUnmuteKey = @"unmute";
+static NSString * const kNCSignalingMessageTypeNickChangedKey = @"nickChanged";
 
 static NSString * const kNCSignalingMessageSdpKey = @"sdp";
 
@@ -116,6 +119,12 @@ NSString *const kRoomTypeScreen = @"screen";
         message = [[NCUnshareScreenMessage alloc] initWithValues:jsonDict];
     } else if ([typeString isEqualToString:kNCSignalingMessageTypeControlKey]) {
         message = [[NCControlMessage alloc] initWithValues:jsonDict];
+    } else if ([typeString isEqualToString:kNCSignalingMessageTypeMuteKey]) {
+        message = [[NCMuteMessage alloc] initWithValues:jsonDict];
+    } else if ([typeString isEqualToString:kNCSignalingMessageTypeUnmuteKey]) {
+        message = [[NCUnmuteMessage alloc] initWithValues:jsonDict];
+    } else if ([typeString isEqualToString:kNCSignalingMessageTypeNickChangedKey]) {
+        message = [[NCNickChangedMessage alloc] initWithValues:jsonDict];
     } else {
         NSLog(@"Unexpected type: %@", typeString);
     }
@@ -129,6 +138,12 @@ NSString *const kRoomTypeScreen = @"screen";
     NSString *dataType = [data objectForKey:kNCSignalingMessageTypeKey];
     if ([dataType isEqualToString:kNCSignalingMessageTypeUnshareScreenKey]) {
         return [[NCUnshareScreenMessage alloc] initWithValues:jsonDict];
+    } else if ([dataType isEqualToString:kNCSignalingMessageTypeMuteKey]) {
+        return [[NCMuteMessage alloc] initWithValues:jsonDict];
+    } else if ([dataType isEqualToString:kNCSignalingMessageTypeUnmuteKey]) {
+        return [[NCUnmuteMessage alloc] initWithValues:jsonDict];
+    } else if ([dataType isEqualToString:kNCSignalingMessageTypeNickChangedKey]) {
+        return [[NCNickChangedMessage alloc] initWithValues:jsonDict];
     }
     
     NSString *dataAction = [data objectForKey:kNCSignalingMessageActionKey];
@@ -453,6 +468,87 @@ NSString *const kRoomTypeScreen = @"screen";
 
 - (NCSignalingMessageType)messageType {
     return kNCSignalingMessageTypeControl;
+}
+
+@end
+
+@implementation NCMuteMessage
+
+- (instancetype)initWithValues:(NSDictionary *)values {
+    NSDictionary *dataDict = [[NSDictionary alloc] initWithDictionary:values];
+    NSDictionary *payload = [dataDict objectForKey:kNCSignalingMessagePayloadKey];
+    NSString *from = [values objectForKey:kNCSignalingMessageFromKey];
+    // Get 'from' value from 'sender' using External Signaling
+    NSDictionary *sender = [values objectForKey:kNCExternalSignalingMessageSenderKey];
+    if (sender) {
+        from = [sender objectForKey:kNCExternalSignalingMessageSessionIdKey];
+        dataDict = [values objectForKey:kNCExternalSignalingMessageDataKey];
+        payload = [dataDict objectForKey:kNCSignalingMessagePayloadKey];
+    }
+    return [super initWithFrom:from
+                            to:[dataDict objectForKey:kNCSignalingMessageToKey]
+                           sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
+                          type:kNCSignalingMessageTypeMuteKey
+                       payload:payload
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+}
+
+- (NCSignalingMessageType)messageType {
+    return kNCSignalingMessageTypeMute;
+}
+
+@end
+
+@implementation NCUnmuteMessage
+
+- (instancetype)initWithValues:(NSDictionary *)values {
+    NSDictionary *dataDict = [[NSDictionary alloc] initWithDictionary:values];
+    NSDictionary *payload = [dataDict objectForKey:kNCSignalingMessagePayloadKey];
+    NSString *from = [values objectForKey:kNCSignalingMessageFromKey];
+    // Get 'from' value from 'sender' using External Signaling
+    NSDictionary *sender = [values objectForKey:kNCExternalSignalingMessageSenderKey];
+    if (sender) {
+        from = [sender objectForKey:kNCExternalSignalingMessageSessionIdKey];
+        dataDict = [values objectForKey:kNCExternalSignalingMessageDataKey];
+        payload = [dataDict objectForKey:kNCSignalingMessagePayloadKey];
+    }
+    return [super initWithFrom:from
+                            to:[dataDict objectForKey:kNCSignalingMessageToKey]
+                           sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
+                          type:kNCSignalingMessageTypeUnmuteKey
+                       payload:payload
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+}
+
+- (NCSignalingMessageType)messageType {
+    return kNCSignalingMessageTypeUnmute;
+}
+
+@end
+
+@implementation NCNickChangedMessage
+
+- (instancetype)initWithValues:(NSDictionary *)values {
+    NSDictionary *dataDict = [[NSDictionary alloc] initWithDictionary:values];
+    NSDictionary *payload = [dataDict objectForKey:kNCSignalingMessagePayloadKey];
+    NSString *from = [values objectForKey:kNCSignalingMessageFromKey];
+    // Get 'from' value from 'sender' using External Signaling
+    NSDictionary *sender = [values objectForKey:kNCExternalSignalingMessageSenderKey];
+    if (sender) {
+        from = [sender objectForKey:kNCExternalSignalingMessageSessionIdKey];
+        dataDict = [values objectForKey:kNCExternalSignalingMessageDataKey];
+        payload = [dataDict objectForKey:kNCSignalingMessagePayloadKey];
+    }
+    return [super initWithFrom:from
+                            to:[dataDict objectForKey:kNCSignalingMessageToKey]
+                           sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
+                          type:kNCSignalingMessageTypeNickChangedKey
+                       payload:payload
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+}
+
+- (NCSignalingMessageType)messageType {
+    return kNCSignalingMessageTypeNickChanged;
 }
 
 @end
