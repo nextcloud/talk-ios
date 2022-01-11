@@ -28,6 +28,7 @@ extern NSString * const CallKitManagerDidEndCallNotification;
 extern NSString * const CallKitManagerDidStartCallNotification;
 extern NSString * const CallKitManagerDidChangeAudioMuteNotification;
 extern NSString * const CallKitManagerWantsToUpgradeToVideoCall;
+extern NSString * const CallKitManagerDidFailRequestingCallTransaction;
 
 @interface CallKitCall : NSObject
 
