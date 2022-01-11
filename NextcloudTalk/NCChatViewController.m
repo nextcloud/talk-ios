@@ -2180,7 +2180,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return;
     }
     
-    [self configureActionItems];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self configureActionItems];
+    });
 }
 
 #pragma mark - Chat Controller notifications
