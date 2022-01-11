@@ -49,6 +49,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 3.0;
 @property (nonatomic, strong) CXCallController *callController;
 @property (nonatomic, strong) NSMutableDictionary *hangUpTimers; // uuid -> hangUpTimer
 @property (nonatomic, strong) NSMutableDictionary *callStateTimers; // uuid -> callStateTimer
+@property (nonatomic, assign) BOOL startCallRetried;
 
 @end
 
@@ -396,17 +397,26 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 3.0;
         [transaction addAction:startCallAction];
         
         __weak CallKitManager *weakSelf = self;
-        [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
-            if (!error) {
-                [weakSelf.calls setObject:call forKey:callUUID];
-            } else {
-                NSLog(@"%@", error.localizedDescription);
-                NSDictionary *userInfo = [NSDictionary dictionaryWithObject:token forKey:@"roomToken"];
-                [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidFailRequestingCallTransaction
-                                                                    object:self
-                                                                  userInfo:userInfo];
-            }
-        }];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
+            [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
+                if (!error) {
+                    _startCallRetried = NO;
+                    [weakSelf.calls setObject:call forKey:callUUID];
+                } else {
+                    if (_startCallRetried) {
+                        NSLog(@"%@", error.localizedDescription);
+                        _startCallRetried = NO;
+                        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:token forKey:@"roomToken"];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidFailRequestingCallTransaction
+                                                                            object:self
+                                                                          userInfo:userInfo];
+                    } else {
+                        _startCallRetried = YES;
+                        [self startCall:token withVideoEnabled:videoEnabled andDisplayName:displayName withAccountId:accountId];
+                    }
+                }
+            }];
+        });
     // Send notification for video call upgrade.
     // Since we send the token in the notification, it will only ask
     // for an upgrade if there is an ongoing (audioOnly) call in that room.
