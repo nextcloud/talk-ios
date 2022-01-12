@@ -3098,7 +3098,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
     
     CGFloat height = kChatCellAvatarHeight;
-    height += CGRectGetHeight(bodyBounds);
+    height += ceil(CGRectGetHeight(bodyBounds));
     height += 20.0; // right(10) + 2*left(5)
     
     if (height < kChatMessageCellMinimumHeight) {
