@@ -58,6 +58,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) AVAudioRecorder *recorder;
 @property (nonatomic, strong) NSTimer *micAudioLevelTimer;
 @property (nonatomic, assign) BOOL speaking;
+@property (nonatomic, assign) NSInteger userPermissions;
 @property (nonatomic, strong) NSTimer *sendNickTimer;
 @property (nonatomic, strong) NSArray *pendingUsersInRoom;
 @property (nonatomic, strong) NSArray *usersInRoom;
@@ -87,6 +88,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     if (self) {
         _delegate = delegate;
         _room = room;
+        _userPermissions = _room.permissions;
         _isAudioOnly = audioOnly;
         _userSessionId = sessionId;
         RTCDefaultVideoEncoderFactory *encoderFactory = [[RTCDefaultVideoEncoderFactory alloc] init];
@@ -123,10 +125,24 @@ static NSString * const kNCVideoTrackKind = @"video";
     [self joinCall];
 }
 
+- (NSInteger)joinCallFlags
+{
+    NSInteger flags = CallFlagInCall;
+    
+    if ((_userPermissions & NCPermissionCanPublishAudio) != 0) {
+        flags += CallFlagWithAudio;
+    }
+    
+    if (!_isAudioOnly && (_userPermissions & NCPermissionCanPublishVideo) != 0) {
+        flags += CallFlagWithVideo;
+    }
+    
+    return flags;
+}
+
 - (void)joinCall
 {
-    NSInteger flags = (_isAudioOnly) ? CallFlagInCall + CallFlagWithAudio : CallFlagInCall + CallFlagWithAudio + CallFlagWithVideo;
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:flags forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
             [self getPeersForCall];
@@ -189,8 +205,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     _userSessionId = [_externalSignalingController sessionId];
     
-    NSInteger flags = (_isAudioOnly) ? CallFlagInCall + CallFlagWithAudio : CallFlagInCall + CallFlagWithAudio + CallFlagWithVideo;
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:flags forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
             NSLog(@"Rejoined call");
@@ -438,8 +453,12 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     RTCMediaStream *localMediaStream = [_peerConnectionFactory mediaStreamWithStreamId:kNCMediaStreamId];
     self.localStream = localMediaStream;
-    [self createLocalAudioTrack];
-    if (!_isAudioOnly) {
+    
+    if ((_userPermissions & NCPermissionCanPublishAudio) != 0) {
+        [self createLocalAudioTrack];
+    }
+    
+    if (!_isAudioOnly && (_userPermissions & NCPermissionCanPublishVideo) != 0) {
         [self createLocalVideoTrack];
     }
 }
