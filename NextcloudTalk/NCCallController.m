@@ -738,6 +738,8 @@ static NSString * const kNCVideoTrackKind = @"video";
         [self getPeersForCall];
     }
     
+    [self checkUserPermissionsChange];
+    
     // Create new peer connections for new sessions in call
     for (NSString *sessionId in newSessions) {
         NSString *peerKey = [sessionId stringByAppendingString:kRoomTypeVideo];
@@ -790,6 +792,23 @@ static NSString * const kNCVideoTrackKind = @"video";
     }
     
     return NO;
+}
+
+- (void)checkUserPermissionsChange
+{
+    for (NSMutableDictionary *user in _usersInRoom) {
+        NSString *userSession = [user objectForKey:@"sessionId"];
+        id userPermissionValue = [user objectForKey:@"participantPermissions"];
+        if ([userSession isEqualToString:_userSessionId] && [userPermissionValue isKindOfClass:[NSNumber class]]) {
+            NSInteger userPermissions = [userPermissionValue integerValue];
+            NSInteger changedPermissions = userPermissions ^ _userPermissions;
+            if ((changedPermissions & NCPermissionCanPublishAudio) || (changedPermissions & NCPermissionCanPublishVideo)) {
+                _userPermissions = userPermissions;
+                [self createLocalMedia];
+                [self forceReconnect];
+            }
+        }
+    }
 }
 
 - (NSMutableArray *)getInCallSessionsFromUsersInRoom:(NSArray *)users
