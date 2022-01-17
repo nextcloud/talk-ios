@@ -24,9 +24,9 @@ import UIKit
 
 @objcMembers public class DateLabelCustom: UILabel {
 
-   @objc weak var tableView: UITableView?
-    
-    @objc func labelTapped(recognizer: UIGestureRecognizer) {
+    weak var tableView: UITableView?
+
+    func labelTapped(recognizer: UIGestureRecognizer) {
         let locationOfTouch = recognizer.location(in: self.tableView)
         if let location = self.tableView!.indexPathForRow(at: locationOfTouch) {
             DispatchQueue.main.async {
@@ -35,8 +35,8 @@ import UIKit
             }
         }
     }
-    
-   @objc required init?(coder: NSCoder) {
+
+   required init?(coder: NSCoder) {
         super.init(coder: coder)
         let gesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
         self.addGestureRecognizer(gesture)
