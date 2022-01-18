@@ -575,14 +575,14 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             let option = options[indexPath.row]
             switch option {
             case ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue:
-                cell = UITableViewCell(style: .default, reuseIdentifier: videoConfigurationCellIdentifier)
+                cell = UITableViewCell(style: .value1, reuseIdentifier: videoConfigurationCellIdentifier)
                 cell.textLabel!.text = NSLocalizedString("Video quality", comment: "")
                 cell.imageView!.image = UIImage(named: "video")!.withRenderingMode(.alwaysTemplate)
                 cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
                 let resolution = NCSettingsController.sharedInstance().videoSettingsModel.currentVideoResolutionSettingFromStore()
                 cell.detailTextLabel?.text = NCSettingsController.sharedInstance().videoSettingsModel.readableResolution(resolution)
             case ConfigurationSectionOption.kConfigurationSectionOptionBrowser.rawValue:
-                cell = UITableViewCell(style: .default, reuseIdentifier: browserConfigurationCellIdentifier)
+                cell = UITableViewCell(style: .value1, reuseIdentifier: browserConfigurationCellIdentifier)
                 cell.textLabel!.text = NSLocalizedString("Open links in", comment: "")
                 cell.imageView!.contentMode = .center
                 cell.imageView!.image = UIImage(named: "browser-settings")
