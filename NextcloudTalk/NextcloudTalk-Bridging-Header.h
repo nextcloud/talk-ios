@@ -30,7 +30,6 @@
 #import "NCSettingsController.h"
 #import "NBPhoneNumberUtil.h"
 #import "NCConnectionController.h"
-#import <Foundation/Foundation.h>
 #import "UserProfileViewController.h"
 #import "UserStatusTableViewController.h"
 #import "RoundedNumberView.h"

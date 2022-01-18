@@ -302,7 +302,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
         do {
             let alertTitle = NSLocalizedString("Could not set phone number", comment: "")
-            let alertMessage = (NSLocalizedString("An error occurred while setting \(failedPhoneNumber) as phone number", comment: ""))
+            let alertMessage = (NSLocalizedString("An error occurred while setting \(failedPhoneNumber ?? NBPhoneNumber()) as phone number", comment: ""))
             failedPhoneNumberDialog = UIAlertController(
                    title: alertTitle,
                    message: alertMessage + "\(try phoneUtil!.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL))",
@@ -463,7 +463,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let sections = getSettingsSections()
-        let settingsSection = (sections[section] as? Int)!
+        let settingsSection = sections[section]
 
         switch settingsSection {
         case SettingsSection.kSettingsSectionUserStatus.rawValue:
@@ -482,7 +482,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let sections = getSettingsSections()
-        let currentSection = (sections[indexPath.section] as? Int)!
+        let currentSection = sections[indexPath.section]
         if currentSection == SettingsSection.kSettingsSectionUser.rawValue {
             return 100
         }
@@ -491,7 +491,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         let sections = getSettingsSections()
-        let settignsSection = (sections[section] as? Int)!
+        let settignsSection = sections[section]
 
         switch settignsSection {
         case SettingsSection.kSettingsSectionUserStatus.rawValue:
@@ -510,8 +510,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         let sections = getSettingsSections()
-        let settignsSection = (sections[section] as? Int)!
-
+        let settignsSection = sections[section]
         if settignsSection == SettingsSection.kSettingsSectionAbout.rawValue {
             let appName = (Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)!
             let appVersion = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String)!
@@ -532,7 +531,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         let userStatusCellIdentifier = "UserStatusCellIdentifier"
 
         let sections = getSettingsSections()
-        let settingsSection = (sections[indexPath.section] as? Int)!
+        let settingsSection = sections[indexPath.section]
 
         switch settingsSection {
         case SettingsSection.kSettingsSectionUser.rawValue:
@@ -633,7 +632,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let sections = getSettingsSections()
-        let settingsSection = (sections[indexPath.section] as? Int)!
+        let settingsSection = sections[indexPath.section]
         switch settingsSection {
         case SettingsSection.kSettingsSectionUser.rawValue:
             self.userProfilePressed()
