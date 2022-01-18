@@ -41,7 +41,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 NSString * const CallKitManagerDidFailRequestingCallTransaction = @"CallKitManagerDidFailRequestingCallTransaction";
 
 NSTimeInterval const kCallKitManagerMaxRingingTimeSeconds       = 45.0;
-NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 3.0;
+NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 
 @interface CallKitManager () <CXProviderDelegate>
 
