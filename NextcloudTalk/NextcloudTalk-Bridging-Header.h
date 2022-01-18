@@ -35,6 +35,7 @@
 #import "NCUserDefaults.h"
 #import "NCUserStatus.h"
 #import "RoundedNumberView.h"
+#import "UIView+Toast.h"
 #import "UserProfileViewController.h"
 #import "UserStatusTableViewController.h"
 

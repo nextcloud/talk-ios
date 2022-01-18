@@ -196,7 +196,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     @objc func appStateHasChanged(notification: NSNotification) {
         let appState = notification.userInfo!["appState"]
-        self.adaptInterfaceForAppState(appState: appState as? AppState ?? kAppStateReady)
+        if let appState = appState as? AppState {
+            self.adaptInterfaceForAppState(appState: appState)
+        }
     }
 
     @objc func contactsHaveBeenUpdated(notification: NSNotification) {
@@ -227,14 +229,14 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     func userProfilePressed() {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let userProfileVC = UserProfileViewController(account: activeAccount)
-        self.navigationController!.pushViewController(userProfileVC, animated: true)
+        self.navigationController?.pushViewController(userProfileVC, animated: true)
     }
 
     // MARK: User Status
 
     func presetnUserStatusOptions() {
         let viewController = UserStatusTableViewController(userStatus: activeUserStatus!)
-        self.navigationController!.pushViewController(viewController, animated: true)
+        self.navigationController?.pushViewController(viewController, animated: true)
     }
 
     // MARK: User phone number
@@ -255,12 +257,12 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
         setPhoneNumberDialog.addTextField { [self] textField in
             let location = NSLocale.current.regionCode
-            textField.text = "+\(self.phoneUtil?.getCountryCode(forRegion: location) ?? 0)"
-            do {
-                let exampleNumber: NBPhoneNumber =  try phoneUtil!.getExampleNumber(location)
-                textField.placeholder = try phoneUtil?.format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
-            } catch {
-                print("Error with phone number format...")
+            let countryCode = self.phoneUtil?.getCountryCode(forRegion: location)
+            if let countryCode = countryCode {
+                textField.text = "+\(countryCode)"
+            }
+            if let exampleNumber = try? phoneUtil?.getExampleNumber(location) {
+                textField.placeholder = try? phoneUtil?.format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
             }
             textField.keyboardType = .phonePad
             textField.delegate = self
@@ -274,8 +276,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                     self.presentPhoneNumberErrorDialog(phoneNumber: phoneNumber!)
                     print("Error setting phone number ", error ?? "")
                 } else {
-                    let alert = UIAlertController(title: NSLocalizedString("Phone number set successfully", comment: ""), message: "", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.view.makeToast(NSLocalizedString("Phone number set successfully", comment: ""), duration: 3, position: CSToastPositionCenter)
                 }
                 self.refreshUserProfile()
             }
@@ -294,27 +295,20 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     func presentPhoneNumberErrorDialog(phoneNumber: String) {
         var failedPhoneNumberDialog: UIAlertController?
         var failedPhoneNumber: NBPhoneNumber?
-        do {
-            failedPhoneNumber = try phoneUtil!.parse(phoneNumber, defaultRegion: nil)
-        } catch {
-            print("Error...")
-        }
 
-        do {
-            let alertTitle = NSLocalizedString("Could not set phone number", comment: "")
-            let alertMessage = (NSLocalizedString("An error occurred while setting \(failedPhoneNumber ?? NBPhoneNumber()) as phone number", comment: ""))
+        failedPhoneNumber = try? phoneUtil?.parse(phoneNumber, defaultRegion: nil)
+
+        let alertTitle = NSLocalizedString("Could not set phone number", comment: "")
+        var alertMessage = ""
+        if let failedPhoneNumber = failedPhoneNumber {
+            alertMessage = (NSLocalizedString("An error occurred while setting \(failedPhoneNumber) as phone number", comment: ""))
+        }
+        if let failedNumberFormated = try? phoneUtil?.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
             failedPhoneNumberDialog = UIAlertController(
-                   title: alertTitle,
-                   message: alertMessage + "\(try phoneUtil!.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL))",
-                   preferredStyle: .alert)
-            let retryAction = UIAlertAction(title: NSLocalizedString("Retry", comment: ""), style: .default, handler: { [self] _ in presentSetPhoneNumberDialog()
-            })
-            failedPhoneNumberDialog!.addAction(retryAction)
-
-        } catch {
-            print("Error...")
+                       title: alertTitle,
+                       message: alertMessage + "\(failedNumberFormated)",
+                       preferredStyle: .alert)
         }
-
         let retryAction = UIAlertAction(title: NSLocalizedString("Retry", comment: ""), style: .default) { _ in
             self.presentSetPhoneNumberDialog()
         }
@@ -333,10 +327,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         if textField.tag == kPhoneTextFieldTag {
             let inputPhoneNumber = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
             var phoneNumber: NBPhoneNumber?
-            do {
-                phoneNumber = try phoneUtil!.parse(inputPhoneNumber, defaultRegion: nil)
-            } catch {
-            }
+            phoneNumber = try? phoneUtil?.parse(inputPhoneNumber, defaultRegion: nil)
             setPhoneAction!.isEnabled = phoneUtil!.isValidNumber(phoneNumber)
         }
         return true
@@ -491,9 +482,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         let sections = getSettingsSections()
-        let settignsSection = sections[section]
+        let settingsSection = sections[section]
 
-        switch settignsSection {
+        switch settingsSection {
         case SettingsSection.kSettingsSectionUserStatus.rawValue:
             return NSLocalizedString("Status", comment: "")
         case SettingsSection.kSettingsSectionAccounts.rawValue:
@@ -510,8 +501,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         let sections = getSettingsSections()
-        let settignsSection = sections[section]
-        if settignsSection == SettingsSection.kSettingsSectionAbout.rawValue {
+        let settingsSection = sections[section]
+        if settingsSection == SettingsSection.kSettingsSectionAbout.rawValue {
             let appName = (Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)!
             let appVersion = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String)!
             return appName + appVersion + copyright
@@ -650,10 +641,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                 self.presentVideoResoultionsSelector()
             case ConfigurationSectionOption.kConfigurationSectionOptionBrowser.rawValue:
                 self.presentBrowserSelector()
-            case ConfigurationSectionOption.kConfigurationSectionOptionReadStatus.rawValue:
-                break
-            case ConfigurationSectionOption.kConfigurationSectionOptionContactsSync.rawValue:
-                break
             default:
                 break
             }
