@@ -112,26 +112,26 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     }
 
     func getSettingsSections() -> [Int] {
-        let sections = NSMutableArray()
+        var sections = [Int]()
 
         // Active user sections
-        sections.add(NSNumber(value: SettingsSection.kSettingsSectionUser.rawValue))
+        sections.append(SettingsSection.kSettingsSectionUser.rawValue)
         // User Status section
         let activeAccount: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
 
         if serverCapabilities.userStatus {
-            sections.add(NSNumber(value: SettingsSection.kSettingsSectionUserStatus.rawValue))
+            sections.append(SettingsSection.kSettingsSectionUserStatus.rawValue)
         }
         // Accounts section
         if !NCDatabaseManager.sharedInstance().inactiveAccounts().isEmpty {
-            sections.add(NSNumber(value: SettingsSection.kSettingsSectionAccounts.rawValue))
+            sections.append(SettingsSection.kSettingsSectionAccounts.rawValue)
         }
         // Configuration section
-        sections.add(NSNumber(value: SettingsSection.kSettingsSectionConfiguration.rawValue))
+        sections.append(SettingsSection.kSettingsSectionConfiguration.rawValue)
         // About section
-        sections.add(NSNumber(value: SettingsSection.kSettingsSectionAbout.rawValue))
-        return sections as? [Int] ?? []
+        sections.append(SettingsSection.kSettingsSectionAbout.rawValue)
+        return sections
     }
 
     func getConfigurationSectionOptions() -> [Int] {
