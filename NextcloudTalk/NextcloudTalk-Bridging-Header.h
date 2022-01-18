@@ -23,20 +23,20 @@
 #ifndef NextcloudTalk_Bridging_Header_h
 #define NextcloudTalk_Bridging_Header_h
 
-#import "NCAppBranding.h"
-#import "NCAPIController.h"
-#import "NCDatabaseManager.h"
-#import "NCUserStatus.h"
-#import "NCSettingsController.h"
-#import "NBPhoneNumberUtil.h"
-#import "NCConnectionController.h"
-#import "UserProfileViewController.h"
-#import "UserStatusTableViewController.h"
-#import "RoundedNumberView.h"
-#import "NCUserDefaults.h"
-#import "NCContactsManager.h"
 #import "NBPhoneNumber.h"
 #import "NBPhoneNumberDefines.h"
+#import "NBPhoneNumberUtil.h"
+#import "NCAPIController.h"
+#import "NCAppBranding.h"
+#import "NCConnectionController.h"
+#import "NCContactsManager.h"
+#import "NCDatabaseManager.h"
+#import "NCSettingsController.h"
+#import "NCUserDefaults.h"
+#import "NCUserStatus.h"
+#import "RoundedNumberView.h"
+#import "UserProfileViewController.h"
+#import "UserStatusTableViewController.h"
 
 
 #endif /* NextcloudTalk_Bridging_Header_h */
