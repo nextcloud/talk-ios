@@ -35,20 +35,9 @@
 #import "UserStatusTableViewController.h"
 #import "RoundedNumberView.h"
 #import "NCUserDefaults.h"
-#import "CCBKPasscode.h"
 #import "NCContactsManager.h"
-#import "NCConnectionController.h"
-#import "NBPhoneNumberUtil.h"
 #import "NBPhoneNumber.h"
 #import "NBPhoneNumberDefines.h"
-#import "NBPhoneNumberUtil.h"
-#import <math.h>
-#import "NBMetadataHelper.h"
-#import "NBNumberFormat.h"
-#import "NBPhoneMetaData.h"
-#import "NBPhoneNumber.h"
-#import "NBPhoneNumberDefines.h"
-#import "NBPhoneNumberDesc.h"
 
 
 #endif /* NextcloudTalk_Bridging_Header_h */
