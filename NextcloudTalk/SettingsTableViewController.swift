@@ -111,9 +111,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         self.dismiss(animated: true, completion: nil)
     }
 
-    func getSettingsSections() -> [AnyHashable] {
-        let sectionsArr = [AnyHashable]()
-        let sections = NSMutableArray(array: sectionsArr)
+    func getSettingsSections() -> [Int] {
+        let sections = NSMutableArray()
 
         // Active user sections
         sections.add(NSNumber(value: SettingsSection.kSettingsSectionUser.rawValue))
@@ -132,7 +131,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         sections.add(NSNumber(value: SettingsSection.kSettingsSectionConfiguration.rawValue))
         // About section
         sections.add(NSNumber(value: SettingsSection.kSettingsSectionAbout.rawValue))
-        return AnyHashable(sections) as? [AnyHashable] ?? []
+        return sections as? [Int] ?? []
     }
 
     func getConfigurationSectionOptions() -> [Int] {
