@@ -331,35 +331,35 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 3.0;
 
     __weak CallKitManager *weakSelf = self;
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:call.accountId];
-    [[NCAPIController sharedInstance] getParticipantsFromRoom:call.token forAccount:account withCompletionBlock:^(NSMutableArray *participants, NSError *error) {
+    [[NCAPIController sharedInstance] getPeersForCall:call.token forAccount:account withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
         // Make sure call is still ringing at this point to avoid a race-condition between answering the call on this device and the API callback
         if (!call.isRinging) {
             return;
         }
         
-        BOOL isAnyoneInCall = NO;
-        for (NCRoomParticipant *participant in participants) {
-            if ([account.userId isEqualToString:participant.participantId] && participant.inCall) {
-                // Account is already in a call (answered the call on a different device) -> no need to keep ringing
-                [self endCallWithUUID:call.uuid];
-                return;
-            }
-            if (participant.inCall) {
-                isAnyoneInCall = YES;
-            }
-        }
-        
-        if (!isAnyoneInCall) {
+        if (!error && peers.count == 0) {
             // No one is in the call, we can hang up and show missed call notification
             [self presentMissedCallNotificationForCall:call];
             [self endCallWithUUID:call.uuid];
             return;
         }
         
+        NSInteger callAPIVersion = [[NCAPIController sharedInstance] callAPIVersionForAccount:account];
+        for (NSMutableDictionary *user in peers) {
+            NSString *userId = [user objectForKey:@"userId"];
+            if (callAPIVersion >= APIv3) {
+                userId = [user objectForKey:@"actorId"];
+            }
+            if ([account.userId isEqualToString:userId]) {
+                // Account is already in a call (answered the call on a different device) -> no need to keep ringing
+                [self endCallWithUUID:call.uuid];
+                return;
+            }
+        }
+        
         // Reschedule next check
         NSTimer *callStateTimer = [NSTimer scheduledTimerWithTimeInterval:kCallKitManagerCheckCallStateEverySeconds target:self selector:@selector(checkCallStateForCall:) userInfo:call repeats:NO];
         [weakSelf.callStateTimers setObject:callStateTimer forKey:call.uuid];
-        
     }];
 }
 
