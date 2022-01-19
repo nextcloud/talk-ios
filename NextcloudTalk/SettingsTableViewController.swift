@@ -402,20 +402,20 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     }
 
     @objc func contactSyncValueChanged(_ sender: Any?) {
-        NCSettingsController.sharedInstance().setContactSync(contactSyncSwitch!.isOn)
         if let contactSyncSwitch = contactSyncSwitch {
-            if contactSyncSwitch.isOn {
-                if !NCContactsManager.sharedInstance().isContactAccessDetermined() {
-                    NCContactsManager.sharedInstance().requestContactsAccess()
-                } else if NCContactsManager.sharedInstance().isContactAccessAuthorized() {
-                    self.checkUserPhoneNumber()
-                    NCContactsManager.sharedInstance().searchInServer(forAddressBookContacts: true)
+            NCSettingsController.sharedInstance().setContactSync(contactSyncSwitch.isOn)
+                if contactSyncSwitch.isOn {
+                    if !NCContactsManager.sharedInstance().isContactAccessDetermined() {
+                        NCContactsManager.sharedInstance().requestContactsAccess()
+                    } else if NCContactsManager.sharedInstance().isContactAccessAuthorized() {
+                        self.checkUserPhoneNumber()
+                        NCContactsManager.sharedInstance().searchInServer(forAddressBookContacts: true)
+                    }
+                } else {
+                    NCContactsManager.sharedInstance().removeStoredContacts()
                 }
-            } else {
-                NCContactsManager.sharedInstance().removeStoredContacts()
-            }
-            // Reload to update configuration section footer
-            self.tableView.reloadData()
+                // Reload to update configuration section footer
+                self.tableView.reloadData()
         }
     }
 
