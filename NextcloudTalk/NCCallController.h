@@ -65,6 +65,7 @@
 - (void)leaveCall;
 - (BOOL)isVideoEnabled;
 - (BOOL)isAudioEnabled;
+- (void)switchCamera;
 - (void)enableVideo:(BOOL)enable;
 - (void)enableAudio:(BOOL)enable;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;

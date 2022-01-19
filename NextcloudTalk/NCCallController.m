@@ -34,6 +34,8 @@
 #import <WebRTC/RTCDefaultVideoEncoderFactory.h>
 #import <WebRTC/RTCDefaultVideoDecoderFactory.h>
 
+#import "ARDCaptureController.h"
+
 #import "CallConstants.h"
 #import "NCAPIController.h"
 #import "NCAudioController.h"
@@ -70,6 +72,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) RTCMediaStream *localStream;
 @property (nonatomic, strong) RTCAudioTrack *localAudioTrack;
 @property (nonatomic, strong) RTCVideoTrack *localVideoTrack;
+@property (nonatomic, strong) RTCCameraVideoCapturer *localVideoCapturer;
+@property (nonatomic, strong) ARDCaptureController *localVideoCaptureController;
 @property (nonatomic, strong) RTCPeerConnectionFactory *peerConnectionFactory;
 @property (nonatomic, strong) NCSignalingController *signalingController;
 @property (nonatomic, strong) NCExternalSignalingController *externalSignalingController;
@@ -254,6 +258,8 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     [self cleanCurrentPeerConnections];
     
+    [_localVideoCapturer stopCapture];
+    _localVideoCapturer = nil;
     [_localStream removeAudioTrack:_localAudioTrack];
     [_localStream removeVideoTrack:_localVideoTrack];
     _localStream = nil;
@@ -302,8 +308,19 @@ static NSString * const kNCVideoTrackKind = @"video";
     return audioTrack ? audioTrack.isEnabled : NO;
 }
 
+- (void)switchCamera
+{
+    [_localVideoCaptureController switchCamera];
+}
+
 - (void)enableVideo:(BOOL)enable
 {
+    if (enable) {
+        [_localVideoCaptureController startCapture];
+    } else {
+        [_localVideoCaptureController stopCapture];
+    }
+    
     RTCVideoTrack *videoTrack = [_localStream.videoTracks firstObject];
     [videoTrack setIsEnabled:enable];
     [self sendDataChannelMessageToAllOfType:enable ? @"videoOn" : @"videoOff" withPayload:nil];
@@ -439,9 +456,11 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
 #if !TARGET_IPHONE_SIMULATOR
     RTCVideoSource *source = [_peerConnectionFactory videoSource];
-    RTCCameraVideoCapturer *capturer = [[RTCCameraVideoCapturer alloc] initWithDelegate:source];
+    _localVideoCapturer = [[RTCCameraVideoCapturer alloc] initWithDelegate:source];
+    _localVideoCaptureController = [[ARDCaptureController alloc] initWithCapturer:_localVideoCapturer settings:[[NCSettingsController sharedInstance] videoSettingsModel]];
+    [_localVideoCaptureController startCapture];
     
-    [self.delegate callController:self didCreateLocalVideoCapturer:capturer];
+    [self.delegate callController:self didCreateLocalVideoCapturer:_localVideoCapturer];
     
     _localVideoTrack = [_peerConnectionFactory videoTrackWithSource:source trackId:kNCVideoTrackId];
     [_localVideoTrack setIsEnabled:!_disableVideoAtStart];

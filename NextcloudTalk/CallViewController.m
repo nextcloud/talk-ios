@@ -27,7 +27,6 @@
 #import <WebRTC/RTCEAGLVideoView.h>
 #import <WebRTC/RTCVideoTrack.h>
 
-#import "ARDCaptureController.h"
 #import "DBImageColorPicker.h"
 #import "PulsingHaloLayer.h"
 #import "UIImageView+AFNetworking.h"
@@ -62,7 +61,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     NCCallController *_callController;
     NCChatViewController *_chatViewController;
     UINavigationController *_chatNavigationController;
-    ARDCaptureController *_captureController;
     UIView <RTCVideoRenderer> *_screenView;
     CGSize _screensharingSize;
     UITapGestureRecognizer *_tapGestureForDetailedView;
@@ -929,7 +927,6 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)disableLocalVideo
 {
     [_callController enableVideo:NO];
-    [_captureController stopCapture];
     [_localVideoView setHidden:YES];
     [_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
     NSString *cameraDisabledString = NSLocalizedString(@"Camera disabled", nil);
@@ -942,7 +939,6 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)enableLocalVideo
 {
     [_callController enableVideo:YES];
-    [_captureController startCapture];
     [_localVideoView setHidden:NO];
     [_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
     _videoDisableButton.accessibilityValue = NSLocalizedString(@"Camera enabled", nil);
@@ -955,7 +951,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)switchCamera
 {
-    [_captureController switchCamera];
+    [_callController switchCamera];
     [self flipLocalVideoView];
 }
 
@@ -1014,8 +1010,6 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_localVideoView.captureSession stopRunning];
         _localVideoView.captureSession = nil;
         [_localVideoView setHidden:YES];
-        [_captureController stopCapture];
-        _captureController = nil;
         
         dispatch_async(dispatch_get_main_queue(), ^{
             for (NCPeerConnection *peerConnection in self->_peersInCall) {
@@ -1297,8 +1291,6 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callController:(NCCallController *)callController didCreateLocalVideoCapturer:(RTCCameraVideoCapturer *)videoCapturer
 {
     _localVideoView.captureSession = videoCapturer.captureSession;
-    _captureController = [[ARDCaptureController alloc] initWithCapturer:videoCapturer settings:[[NCSettingsController sharedInstance] videoSettingsModel]];
-    [_captureController startCapture];
 }
 
 - (void)callController:(NCCallController *)callController didAddLocalStream:(RTCMediaStream *)localStream
