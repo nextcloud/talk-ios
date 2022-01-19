@@ -72,6 +72,19 @@ NSString * const NCContactsManagerContactsAccessUpdatedNotification = @"NCContac
     }];
 }
 
+- (void)requestContactsAccess:(void (^)(BOOL result))completionHandler
+{
+    [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        if (granted) {
+            [self searchInServerForAddressBookContacts:YES];
+            completionHandler(YES);
+        }
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCContactsManagerContactsAccessUpdatedNotification
+                                                            object:self
+                                                          userInfo:nil];
+    }];
+}
+
 - (BOOL)isContactAccessDetermined
 {
     return [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts] != CNAuthorizationStatusNotDetermined;

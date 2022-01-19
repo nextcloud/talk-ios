@@ -29,6 +29,7 @@ extern NSString * const NCContactsManagerContactsAccessUpdatedNotification;
 
 + (instancetype)sharedInstance;
 - (void)requestContactsAccess;
+- (void)requestContactsAccess:(void (^)(BOOL result))completionHandler;
 - (BOOL)isContactAccessDetermined;
 - (BOOL)isContactAccessAuthorized;
 - (void)searchInServerForAddressBookContacts:(BOOL)forceSync;

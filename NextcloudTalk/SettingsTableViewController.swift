@@ -406,7 +406,12 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             NCSettingsController.sharedInstance().setContactSync(contactSyncSwitch.isOn)
                 if contactSyncSwitch.isOn {
                     if !NCContactsManager.sharedInstance().isContactAccessDetermined() {
-                        NCContactsManager.sharedInstance().requestContactsAccess()
+                        NCContactsManager.sharedInstance().requestContactsAccess { result in
+                            if result {
+                                self.checkUserPhoneNumber()
+                                NCContactsManager.sharedInstance().searchInServer(forAddressBookContacts: true)
+                            }
+                        }
                     } else if NCContactsManager.sharedInstance().isContactAccessAuthorized() {
                         self.checkUserPhoneNumber()
                         NCContactsManager.sharedInstance().searchInServer(forAddressBookContacts: true)
