@@ -257,12 +257,14 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
         setPhoneNumberDialog.addTextField { [self] textField in
             let location = NSLocale.current.regionCode
-            let countryCode = self.phoneUtil?.getCountryCode(forRegion: location)
-            if let countryCode = countryCode {
-                textField.text = "+\(countryCode)"
-            }
-            if let exampleNumber = try? phoneUtil?.getExampleNumber(location) {
-                textField.placeholder = try? phoneUtil?.format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
+            if let phoneUtil = self.phoneUtil {
+                let countryCode = phoneUtil.getCountryCode(forRegion: location)
+                if let countryCode = countryCode {
+                    textField.text = "+\(countryCode)"
+                }
+                if let exampleNumber = try? phoneUtil.getExampleNumber(location) {
+                    textField.placeholder = try? phoneUtil.format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
+                }
             }
             textField.keyboardType = .phonePad
             textField.delegate = self
@@ -281,10 +283,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                 self.refreshUserProfile()
             }
         })
-
-        setPhoneAction!.isEnabled = false
-        setPhoneNumberDialog.addAction(setPhoneAction!)
-
+        if let setPhoneAction = setPhoneAction {
+            setPhoneAction.isEnabled = false
+            setPhoneNumberDialog.addAction(setPhoneAction)
+        }
         let cancelAction = UIAlertAction(title: NSLocalizedString("Skip", comment: ""), style: .default) { _ in
             self.refreshUserProfile()
         }
@@ -401,36 +403,39 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     @objc func contactSyncValueChanged(_ sender: Any?) {
         NCSettingsController.sharedInstance().setContactSync(contactSyncSwitch!.isOn)
-
-        if contactSyncSwitch!.isOn {
-            if !NCContactsManager.sharedInstance().isContactAccessDetermined() {
-                NCContactsManager.sharedInstance().requestContactsAccess()
-            } else if NCContactsManager.sharedInstance().isContactAccessAuthorized() {
-                self.checkUserPhoneNumber()
-                NCContactsManager.sharedInstance().searchInServer(forAddressBookContacts: true)
+        if let contactSyncSwitch = contactSyncSwitch {
+            if contactSyncSwitch.isOn {
+                if !NCContactsManager.sharedInstance().isContactAccessDetermined() {
+                    NCContactsManager.sharedInstance().requestContactsAccess()
+                } else if NCContactsManager.sharedInstance().isContactAccessAuthorized() {
+                    self.checkUserPhoneNumber()
+                    NCContactsManager.sharedInstance().searchInServer(forAddressBookContacts: true)
+                }
+            } else {
+                NCContactsManager.sharedInstance().removeStoredContacts()
             }
-        } else {
-            NCContactsManager.sharedInstance().removeStoredContacts()
+            // Reload to update configuration section footer
+            self.tableView.reloadData()
         }
-        // Reload to update configuration section footer
-        self.tableView.reloadData()
     }
 
     @objc func readStatusValueChanged(_ sender: Any?) {
-        readStatusSwitch!.isEnabled = false
+        if let readStatusSwitch = readStatusSwitch {
+            readStatusSwitch.isEnabled = false
 
-        NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(!readStatusSwitch!.isOn, for: NCDatabaseManager.sharedInstance().activeAccount()) { error in
-            if error == nil {
-                NCSettingsController.sharedInstance().getCapabilitiesWithCompletionBlock { error in
-                    if error == nil {
-                        self.readStatusSwitch?.isEnabled = true
-                        self.tableView.reloadData()
-                    } else {
-                        self.showReadStatusModificationError()
+            NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(!readStatusSwitch.isOn, for: NCDatabaseManager.sharedInstance().activeAccount()) { error in
+                if error == nil {
+                    NCSettingsController.sharedInstance().getCapabilitiesWithCompletionBlock { error in
+                        if error == nil {
+                            self.readStatusSwitch?.isEnabled = true
+                            self.tableView.reloadData()
+                        } else {
+                            self.showReadStatusModificationError()
+                        }
                     }
+                } else {
+                    self.showReadStatusModificationError()
                 }
-            } else {
-                self.showReadStatusModificationError()
             }
         }
     }
@@ -506,6 +511,32 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             let appName = (Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)!
             let appVersion = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String)!
             return appName + appVersion + copyright
+        }
+        if let activeUserStatus = activeUserStatus {
+            if settingsSection == SettingsSection.kSettingsSectionUserStatus.rawValue && activeUserStatus.status == kUserStatusDND {
+                return NSLocalizedString("All notifications are muted", comment: "")
+            }
+        }
+        if let contactSyncSwitch = contactSyncSwitch {
+            if settingsSection == SettingsSection.kSettingsSectionConfiguration.rawValue && contactSyncSwitch.isOn {
+                if NCContactsManager.sharedInstance().isContactAccessDetermined() && NCContactsManager.sharedInstance().isContactAccessAuthorized() {
+                    return NSLocalizedString("Contact access has been denied", comment: "")
+                }
+                if NCDatabaseManager.sharedInstance().activeAccount().lastContactSync > 0 {
+                    let lastUpdate = Date(timeIntervalSince1970: TimeInterval(NCDatabaseManager.sharedInstance().activeAccount().lastContactSync))
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.dateStyle = .medium
+                    dateFormatter.timeStyle = .short
+                    return NSLocalizedString("Last sync: ", comment: "") + dateFormatter.string(from: lastUpdate)
+                }
+            }
+            if settingsSection == SettingsSection.kSettingsSectionUser.rawValue && contactSyncSwitch.isOn {
+                let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+                if activeAccount.phone.isEmpty {
+                    let missingPhoneString = NSLocalizedString("Missing phone number information", comment: "")
+                    return "⚠ " + missingPhoneString
+                }
+            }
         }
         return nil
     }
