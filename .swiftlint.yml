@@ -16,6 +16,10 @@ line_length:
 type_body_length:
   # error: 350
   error: 500
+  
+function_body_length:
+  error: 200
+
 
 identifier_name:
   min_length: 0

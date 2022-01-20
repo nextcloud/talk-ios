@@ -574,6 +574,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             cell = UITableViewCell(style: .default, reuseIdentifier: userStatusCellIdentifier)
             if activeUserStatus != nil {
                 cell.textLabel?.text = activeUserStatus!.readableUserStatus()
+                let statusMessage = activeUserStatus!.readableUserStatusMessage()
+                if !statusMessage.isEmpty {
+                    cell.textLabel?.text = statusMessage
+                }
                 let statusImage = activeUserStatus!.userStatusImageName(ofSize: 24)
                 cell.imageView?.image = UIImage(named: statusImage)
             } else {
@@ -591,6 +595,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             cell.accessoryView = nil
             if account.unreadBadgeNumber > 0 {
                 let badgeView = RoundedNumberView()
+                badgeView.highlightType = kHighlightTypeImportant
                 badgeView.number = account.unreadBadgeNumber
                 cell.accessoryView = badgeView
             }
@@ -613,7 +618,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                 cell.imageView?.image = UIImage(named: "browser-settings")
                 cell.detailTextLabel?.text = NCUserDefaults.defaultBrowser()
             case ConfigurationSectionOption.kConfigurationSectionOptionReadStatus.rawValue:
-                cell = UITableViewCell(style: .default, reuseIdentifier: readStatusCellIdentifier)
+                cell = UITableViewCell(style: .subtitle, reuseIdentifier: readStatusCellIdentifier)
                 cell.textLabel?.text = NSLocalizedString("Read status", comment: "")
                 cell.selectionStyle = .none
                 cell.imageView?.contentMode = .scaleAspectFit
@@ -667,8 +672,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             self.presetnUserStatusOptions()
         case SettingsSection.kSettingsSectionAccounts.rawValue:
             let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
-            let account = (inactiveAccounts[indexPath.row] as? TalkAccount)!
-            NCSettingsController.sharedInstance().setActiveAccountWithAccountId(account.accountId)
+            if let account = inactiveAccounts[indexPath.row] as? TalkAccount {
+                NCSettingsController.sharedInstance().setActiveAccountWithAccountId(account.accountId)
+            }
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
             let options = getConfigurationSectionOptions()
             let option = options[indexPath.row]
