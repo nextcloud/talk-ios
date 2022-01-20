@@ -524,7 +524,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         }
         if let contactSyncSwitch = contactSyncSwitch {
             if settingsSection == SettingsSection.kSettingsSectionConfiguration.rawValue && contactSyncSwitch.isOn {
-                if NCContactsManager.sharedInstance().isContactAccessDetermined() && NCContactsManager.sharedInstance().isContactAccessAuthorized() {
+                if NCContactsManager.sharedInstance().isContactAccessDetermined() && !NCContactsManager.sharedInstance().isContactAccessAuthorized() {
                     return NSLocalizedString("Contact access has been denied", comment: "")
                 }
                 if NCDatabaseManager.sharedInstance().activeAccount().lastContactSync > 0 {
