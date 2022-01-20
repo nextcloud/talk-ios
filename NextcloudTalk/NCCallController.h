@@ -26,6 +26,8 @@
 #import "NCRoom.h"
 
 @class NCCallController;
+@class RTCAudioTrack;
+@class RTCVideoTrack;
 @class RTCCameraVideoCapturer;
 
 @protocol NCCallControllerDelegate<NSObject>
@@ -35,9 +37,10 @@
 - (void)callControllerDidEndCall:(NCCallController *)callController;
 - (void)callController:(NCCallController *)callController peerJoined:(NCPeerConnection *)peer;
 - (void)callController:(NCCallController *)callController peerLeft:(NCPeerConnection *)peer;
+- (void)callController:(NCCallController *)callController didCreateLocalAudioTrack:(RTCAudioTrack *)audioTrack;
+- (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack *)videoTrack;
 - (void)callController:(NCCallController *)callController didCreateLocalVideoCapturer:(RTCCameraVideoCapturer *)videoCapturer;
-- (void)callController:(NCCallController *)callController didAddLocalStream:(RTCMediaStream *)localStream;
-- (void)callController:(NCCallController *)callController didRemoveLocalStream:(RTCMediaStream *)localStream;
+- (void)callController:(NCCallController *)callController userPermissionsChanged:(NSInteger)permissions;
 - (void)callController:(NCCallController *)callController didAddStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer;
 - (void)callController:(NCCallController *)callController didRemoveStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer;
 - (void)callController:(NCCallController *)callController iceStatusChanged:(RTCIceConnectionState)state ofPeer:(NCPeerConnection *)peer;

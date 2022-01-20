@@ -208,7 +208,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)shouldRejoinCall
 {
     _userSessionId = [_externalSignalingController sessionId];
-    
+    [self createLocalMedia];
     _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         if (!error) {
             [self.delegate callControllerDidJoinCall:self];
@@ -450,6 +450,8 @@ static NSString * const kNCVideoTrackKind = @"video";
     RTCAudioSource *source = [_peerConnectionFactory audioSourceWithConstraints:nil];
     _localAudioTrack = [_peerConnectionFactory audioTrackWithSource:source trackId:kNCAudioTrackId];
     [_localStream addAudioTrack:_localAudioTrack];
+    
+    [self.delegate callController:self didCreateLocalAudioTrack:_localAudioTrack];
 }
 
 - (void)createLocalVideoTrack
@@ -465,6 +467,8 @@ static NSString * const kNCVideoTrackKind = @"video";
     _localVideoTrack = [_peerConnectionFactory videoTrackWithSource:source trackId:kNCVideoTrackId];
     [_localVideoTrack setIsEnabled:!_disableVideoAtStart];
     [_localStream addVideoTrack:_localVideoTrack];
+    
+    [self.delegate callController:self didCreateLocalVideoTrack:_localVideoTrack];
 #endif
 }
 
@@ -472,13 +476,19 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     RTCMediaStream *localMediaStream = [_peerConnectionFactory mediaStreamWithStreamId:kNCMediaStreamId];
     self.localStream = localMediaStream;
+    [_localVideoCapturer stopCapture];
+    _localVideoCapturer = nil;
     
     if ((_userPermissions & NCPermissionCanPublishAudio) != 0) {
         [self createLocalAudioTrack];
+    } else {
+        [self.delegate callController:self didCreateLocalAudioTrack:nil];
     }
     
     if (!_isAudioOnly && (_userPermissions & NCPermissionCanPublishVideo) != 0) {
         [self createLocalVideoTrack];
+    } else {
+        [self.delegate callController:self didCreateLocalVideoTrack:nil];
     }
 }
 
@@ -823,6 +833,7 @@ static NSString * const kNCVideoTrackKind = @"video";
             NSInteger changedPermissions = userPermissions ^ _userPermissions;
             if ((changedPermissions & NCPermissionCanPublishAudio) || (changedPermissions & NCPermissionCanPublishVideo)) {
                 _userPermissions = userPermissions;
+                [self.delegate callController:self userPermissionsChanged:_userPermissions];
                 [self createLocalMedia];
                 [self forceReconnect];
             }
