@@ -166,6 +166,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                 [self->_signalingController startPullingSignalingMessages];
             }
             self->_joinedCallOnce = YES;
+            _joinCallAttempts = 0;
             [self setInCall:YES];
         } else {
             if (self->_joinCallAttempts < 3) {
@@ -224,8 +225,16 @@ static NSString * const kNCVideoTrackKind = @"video";
                 self->_pendingUsersInRoom = nil;
                 [self processUsersInRoom:usersInRoom];
             }
+            _joinCallAttempts = 0;
             [self setInCall:YES];
         } else {
+            if (self->_joinCallAttempts < 3) {
+                NSLog(@"Could not rejoin call, retrying. %ld", (long)self->_joinCallAttempts);
+                self->_joinCallAttempts += 1;
+                [self shouldRejoinCall];
+                return;
+            }
+            [self.delegate callControllerDidFailedJoiningCall:self statusCode:@(statusCode) errorReason:[self getJoinCallErrorReason:statusCode]];
             NSLog(@"Could not rejoin call. Error: %@", error.description);
         }
     }];
