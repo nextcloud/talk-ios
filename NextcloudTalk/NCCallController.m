@@ -256,6 +256,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     [self setInCall:NO];
     [self cleanCurrentPeerConnections];
     [self.delegate callControllerIsReconnectingCall:self];
+    
+    // Remember current audio and video status before rejoin the call
+    _disableAudioAtStart = ![self isAudioEnabled];
+    _disableVideoAtStart = ![self isVideoEnabled];
+    
     if ([_externalSignalingController isEnabled]) {
         [_externalSignalingController forceReconnect];
     } else {
@@ -473,6 +478,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 {    
     RTCAudioSource *source = [_peerConnectionFactory audioSourceWithConstraints:nil];
     _localAudioTrack = [_peerConnectionFactory audioTrackWithSource:source trackId:kNCAudioTrackId];
+    [_localAudioTrack setIsEnabled:!_disableAudioAtStart];
     [_localStream addAudioTrack:_localAudioTrack];
     
     [self.delegate callController:self didCreateLocalAudioTrack:_localAudioTrack];

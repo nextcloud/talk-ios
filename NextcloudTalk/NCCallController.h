@@ -60,6 +60,7 @@
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, copy) NSString *userSessionId;
 @property (nonatomic, copy) NSString *userDisplayName;
+@property (nonatomic, assign) BOOL disableAudioAtStart;
 @property (nonatomic, assign) BOOL disableVideoAtStart;
 
 
