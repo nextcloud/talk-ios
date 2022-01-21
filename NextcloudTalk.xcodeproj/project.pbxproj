@@ -272,6 +272,7 @@
 		DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */; };
 		DA755811278EF3EF00A48A1B /* SettingsUserTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA755810278EF3EF00A48A1B /* SettingsUserTableViewCell.swift */; };
 		DA7558132790D65700A48A1B /* UserAccountTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558122790D65700A48A1B /* UserAccountTableViewCell.swift */; };
+		DA7558C0279ADC8900A48A1B /* StatusUserTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558BF279ADC8900A48A1B /* StatusUserTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -747,6 +748,7 @@
 		DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 		DA755810278EF3EF00A48A1B /* SettingsUserTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUserTableViewCell.swift; sourceTree = "<group>"; };
 		DA7558122790D65700A48A1B /* UserAccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountTableViewCell.swift; sourceTree = "<group>"; };
+		DA7558BF279ADC8900A48A1B /* StatusUserTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusUserTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1084,6 +1086,7 @@
 				2C78E9E225120DE500E3D4CA /* NCUserStatus.m */,
 				2C9E071426D934F500F65D41 /* UserStatusTableViewController.h */,
 				2C9E071526D934F500F65D41 /* UserStatusTableViewController.m */,
+				DA7558BF279ADC8900A48A1B /* StatusUserTableViewController.swift */,
 				2C9E071626D934F500F65D41 /* UserStatusTableViewController.xib */,
 				2CF9CBD926010835002246EF /* UserProfileViewController.h */,
 				2CF9CBDA26010835002246EF /* UserProfileViewController.m */,
@@ -1945,6 +1948,7 @@
 				2CF9CBDB26010835002246EF /* UserProfileViewController.m in Sources */,
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
 				2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
+				DA7558C0279ADC8900A48A1B /* StatusUserTableViewController.swift in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
 				2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,

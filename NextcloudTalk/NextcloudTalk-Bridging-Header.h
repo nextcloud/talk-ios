@@ -23,6 +23,7 @@
 #ifndef NextcloudTalk_Bridging_Header_h
 #define NextcloudTalk_Bridging_Header_h
 
+#import "DetailedOptionsSelectorTableViewController.h"
 #import "NBPhoneNumber.h"
 #import "NBPhoneNumberDefines.h"
 #import "NBPhoneNumberUtil.h"
@@ -31,6 +32,7 @@
 #import "NCConnectionController.h"
 #import "NCContactsManager.h"
 #import "NCDatabaseManager.h"
+#import "NCNavigationController.h"
 #import "NCSettingsController.h"
 #import "NCUserDefaults.h"
 #import "NCUserStatus.h"
