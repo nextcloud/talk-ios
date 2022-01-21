@@ -207,7 +207,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)shouldRejoinCall
 {
-    _userSessionId = [_externalSignalingController sessionId];
+    if ([_externalSignalingController isEnabled]) {
+        _userSessionId = [_externalSignalingController sessionId];
+    }
     [self createLocalMedia];
     _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         if (!error) {
@@ -245,7 +247,20 @@ static NSString * const kNCVideoTrackKind = @"video";
     [self setInCall:NO];
     [self cleanCurrentPeerConnections];
     [self.delegate callControllerIsReconnectingCall:self];
-    [_externalSignalingController forceReconnect];
+    if ([_externalSignalingController isEnabled]) {
+        [_externalSignalingController forceReconnect];
+    } else {
+        [self rejoinCall];
+    }
+}
+
+- (void)rejoinCall
+{
+    [[NCAPIController sharedInstance] leaveCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [self shouldRejoinCall];
+        }
+    }];
 }
 
 - (void)leaveCall
@@ -834,7 +849,6 @@ static NSString * const kNCVideoTrackKind = @"video";
             if ((changedPermissions & NCPermissionCanPublishAudio) || (changedPermissions & NCPermissionCanPublishVideo)) {
                 _userPermissions = userPermissions;
                 [self.delegate callController:self userPermissionsChanged:_userPermissions];
-                [self createLocalMedia];
                 [self forceReconnect];
             }
         }
