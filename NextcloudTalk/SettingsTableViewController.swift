@@ -234,7 +234,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     // MARK: User Status
 
-    func presetnUserStatusOptions() {
+    func presentUserStatusOptions() {
         let viewController = UserStatusTableViewController(userStatus: activeUserStatus!)
         self.navigationController?.pushViewController(viewController, animated: true)
     }
@@ -669,7 +669,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         case SettingsSection.kSettingsSectionUser.rawValue:
             self.userProfilePressed()
         case SettingsSection.kSettingsSectionUserStatus.rawValue:
-            self.presetnUserStatusOptions()
+            self.presentUserStatusOptions()
         case SettingsSection.kSettingsSectionAccounts.rawValue:
             let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
             if let account = inactiveAccounts[indexPath.row] as? TalkAccount {
