@@ -23,8 +23,6 @@
 import UIKit
 import NCCommunication
 
-let kUserSettingsCellIdentifier = "UserSettingsCellIdentifier"
-let kUserSettingsTableCellNibName = "UserSettingsTableViewCell"
 
 class SettingsUserTableViewCell: UITableViewCell {
 

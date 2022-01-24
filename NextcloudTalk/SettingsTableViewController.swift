@@ -45,15 +45,16 @@ enum AboutSection: Int {
     case kAboutSectionNumber
 }
 
-let kPhoneTextFieldTag = 99
-
 class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
+    let kPhoneTextFieldTag = 99
+    let kUserSettingsCellIdentifier = "UserSettingsCellIdentifier"
+    let kUserSettingsTableCellNibName = "UserSettingsTableViewCell"
 
     var activeUserStatus: NCUserStatus?
-    var readStatusSwitch: UISwitch?
-    var contactSyncSwitch: UISwitch?
+    var readStatusSwitch = UISwitch()
+    var contactSyncSwitch = UISwitch()
     var setPhoneAction: UIAlertAction?
-    var phoneUtil: NBPhoneNumberUtil?
+    var phoneUtil = NBPhoneNumberUtil()
 
     @IBOutlet weak var cancelButton: UIBarButtonItem!
 
@@ -68,11 +69,11 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
         phoneUtil = NBPhoneNumberUtil()
 
-        contactSyncSwitch = UISwitch(frame: .zero)
-        contactSyncSwitch?.addTarget(self, action: #selector(contactSyncValueChanged(_:)), for: .valueChanged)
+        contactSyncSwitch.frame = .zero
+        contactSyncSwitch.addTarget(self, action: #selector(contactSyncValueChanged(_:)), for: .valueChanged)
 
-        readStatusSwitch = UISwitch(frame: .zero)
-        readStatusSwitch?.addTarget(self, action: #selector(readStatusValueChanged(_:)), for: .valueChanged)
+        readStatusSwitch.frame = .zero
+        readStatusSwitch.addTarget(self, action: #selector(readStatusValueChanged(_:)), for: .valueChanged)
 
         if #available(iOS 13.0, *) {
             let themeColor: UIColor = NCAppBranding.themeColor()
@@ -155,10 +156,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     func getSectionForSettingsSection(section: SettingsSection) -> Int {
         let sectionNumber = getSettingsSections().firstIndex(of: section.rawValue)
-        if NSNotFound != sectionNumber {
-            return sectionNumber!
-        }
-        return 0
+        return sectionNumber ?? 0
     }
 
     func getIndexPathForConfigurationOption(option: ConfigurationSectionOption) -> IndexPath {
@@ -185,8 +183,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     func getActiveUserStatus() {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCAPIController.sharedInstance().getUserStatus(for: activeAccount) { userStatus, error in
-            if error == nil && userStatus != nil {
-                self.activeUserStatus = NCUserStatus(dictionary: userStatus!)
+            if let userStatus = userStatus, error == nil {
+                self.activeUserStatus = NCUserStatus(dictionary: userStatus)
                 self.tableView.reloadData()
             }
         }
@@ -195,7 +193,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     // MARK: Notifications
 
     @objc func appStateHasChanged(notification: NSNotification) {
-        let appState = notification.userInfo!["appState"]
+        let appState = notification.userInfo?["appState"]
         if let appState = appState as? AppState {
             self.adaptInterfaceForAppState(appState: appState)
         }
@@ -257,14 +255,12 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
         setPhoneNumberDialog.addTextField { [self] textField in
             let location = NSLocale.current.regionCode
-            if let phoneUtil = self.phoneUtil {
-                let countryCode = phoneUtil.getCountryCode(forRegion: location)
-                if let countryCode = countryCode {
-                    textField.text = "+\(countryCode)"
-                }
-                if let exampleNumber = try? phoneUtil.getExampleNumber(location) {
-                    textField.placeholder = try? phoneUtil.format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
-                }
+            let countryCode = phoneUtil.getCountryCode(forRegion: location)
+            if let countryCode = countryCode {
+                textField.text = "+\(countryCode)"
+            }
+            if let exampleNumber = try? phoneUtil.getExampleNumber(location) {
+                textField.placeholder = try? phoneUtil.format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
             }
             textField.keyboardType = .phonePad
             textField.delegate = self
@@ -275,7 +271,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
             NCAPIController.sharedInstance().setUserProfileField(kUserProfilePhone, withValue: phoneNumber, for: NCDatabaseManager.sharedInstance().activeAccount()) { error, _ in
                 if error != nil {
-                    self.presentPhoneNumberErrorDialog(phoneNumber: phoneNumber!)
+                    if let phoneNumber = phoneNumber {
+                        self.presentPhoneNumberErrorDialog(phoneNumber: phoneNumber)
+                    }
                     print("Error setting phone number ", error ?? "")
                 } else {
                     self.view.makeToast(NSLocalizedString("Phone number set successfully", comment: ""), duration: 3, position: CSToastPositionCenter)
@@ -298,14 +296,14 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         var failedPhoneNumberDialog: UIAlertController?
         var failedPhoneNumber: NBPhoneNumber?
 
-        failedPhoneNumber = try? phoneUtil?.parse(phoneNumber, defaultRegion: nil)
+        failedPhoneNumber = try? phoneUtil.parse(phoneNumber, defaultRegion: nil)
 
         let alertTitle = NSLocalizedString("Could not set phone number", comment: "")
         var alertMessage = ""
         if let failedPhoneNumber = failedPhoneNumber {
             alertMessage = (NSLocalizedString("An error occurred while setting \(failedPhoneNumber) as phone number", comment: ""))
         }
-        if let failedNumberFormated = try? phoneUtil?.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
+        if let failedNumberFormated = try? phoneUtil.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
             failedPhoneNumberDialog = UIAlertController(
                        title: alertTitle,
                        message: alertMessage + "\(failedNumberFormated)",
@@ -329,8 +327,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         if textField.tag == kPhoneTextFieldTag {
             let inputPhoneNumber = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
             var phoneNumber: NBPhoneNumber?
-            phoneNumber = try? phoneUtil?.parse(inputPhoneNumber, defaultRegion: nil)
-            setPhoneAction!.isEnabled = phoneUtil!.isValidNumber(phoneNumber)
+            phoneNumber = try? phoneUtil.parse(inputPhoneNumber, defaultRegion: nil)
+            setPhoneAction!.isEnabled = phoneUtil.isValidNumber(phoneNumber)
         }
         return true
     }
@@ -382,15 +380,15 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             var isDefaultBrowser = false
             if let browser = browser as? String {
                 isDefaultBrowser = browser == defaultBrowser
+                let action = UIAlertAction(title: browser, style: .default) { _ in
+                    NCUserDefaults.setDefaultBrowser(browser)
+                    self.tableView.reloadData()
+                }
+                if isDefaultBrowser {
+                    action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_:.alwaysOriginal), forKey: "image")
+                }
+                optionsActionSheet.addAction(action)
             }
-            let action = UIAlertAction(title: browser as? String, style: .default) { _ in
-                NCUserDefaults.setDefaultBrowser((browser as? String)!)
-                self.tableView.reloadData()
-            }
-            if isDefaultBrowser {
-                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_:.alwaysOriginal), forKey: "image")
-            }
-            optionsActionSheet.addAction(action)
         }
         optionsActionSheet.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
 
@@ -402,51 +400,46 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     }
 
     @objc func contactSyncValueChanged(_ sender: Any?) {
-        if let contactSyncSwitch = contactSyncSwitch {
-            NCSettingsController.sharedInstance().setContactSync(contactSyncSwitch.isOn)
-                if contactSyncSwitch.isOn {
-                    if !NCContactsManager.sharedInstance().isContactAccessDetermined() {
-                        NCContactsManager.sharedInstance().requestContactsAccess { result in
-                            if result {
-                                self.checkUserPhoneNumber()
-                                NCContactsManager.sharedInstance().searchInServer(forAddressBookContacts: true)
-                            }
-                        }
-                    } else if NCContactsManager.sharedInstance().isContactAccessAuthorized() {
+        NCSettingsController.sharedInstance().setContactSync(contactSyncSwitch.isOn)
+        if contactSyncSwitch.isOn {
+            if !NCContactsManager.sharedInstance().isContactAccessDetermined() {
+                NCContactsManager.sharedInstance().requestContactsAccess { result in
+                    if result {
                         self.checkUserPhoneNumber()
                         NCContactsManager.sharedInstance().searchInServer(forAddressBookContacts: true)
                     }
-                } else {
-                    NCContactsManager.sharedInstance().removeStoredContacts()
                 }
-                // Reload to update configuration section footer
-                self.tableView.reloadData()
+            } else if NCContactsManager.sharedInstance().isContactAccessAuthorized() {
+                self.checkUserPhoneNumber()
+                NCContactsManager.sharedInstance().searchInServer(forAddressBookContacts: true)
+            }
+        } else {
+            NCContactsManager.sharedInstance().removeStoredContacts()
         }
+        // Reload to update configuration section footer
+        self.tableView.reloadData()
     }
 
     @objc func readStatusValueChanged(_ sender: Any?) {
-        if let readStatusSwitch = readStatusSwitch {
-            readStatusSwitch.isEnabled = false
-
-            NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(!readStatusSwitch.isOn, for: NCDatabaseManager.sharedInstance().activeAccount()) { error in
-                if error == nil {
-                    NCSettingsController.sharedInstance().getCapabilitiesWithCompletionBlock { error in
-                        if error == nil {
-                            self.readStatusSwitch?.isEnabled = true
-                            self.tableView.reloadData()
-                        } else {
-                            self.showReadStatusModificationError()
-                        }
+        readStatusSwitch.isEnabled = false
+        NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(!readStatusSwitch.isOn, for: NCDatabaseManager.sharedInstance().activeAccount()) { error in
+            if error == nil {
+                NCSettingsController.sharedInstance().getCapabilitiesWithCompletionBlock { error in
+                    if error == nil {
+                        self.readStatusSwitch.isEnabled = true
+                        self.tableView.reloadData()
+                    } else {
+                        self.showReadStatusModificationError()
                     }
-                } else {
-                    self.showReadStatusModificationError()
                 }
+            } else {
+                self.showReadStatusModificationError()
             }
         }
     }
 
     func showReadStatusModificationError() {
-        readStatusSwitch?.isOn = true
+        readStatusSwitch.isOn = true
         let errorDialog = UIAlertController(
             title: NSLocalizedString("An error occurred changing read status setting", comment: ""),
             message: nil,
@@ -522,25 +515,23 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                 return NSLocalizedString("All notifications are muted", comment: "")
             }
         }
-        if let contactSyncSwitch = contactSyncSwitch {
-            if settingsSection == SettingsSection.kSettingsSectionConfiguration.rawValue && contactSyncSwitch.isOn {
-                if NCContactsManager.sharedInstance().isContactAccessDetermined() && !NCContactsManager.sharedInstance().isContactAccessAuthorized() {
-                    return NSLocalizedString("Contact access has been denied", comment: "")
-                }
-                if NCDatabaseManager.sharedInstance().activeAccount().lastContactSync > 0 {
-                    let lastUpdate = Date(timeIntervalSince1970: TimeInterval(NCDatabaseManager.sharedInstance().activeAccount().lastContactSync))
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.dateStyle = .medium
-                    dateFormatter.timeStyle = .short
-                    return NSLocalizedString("Last sync: ", comment: "") + dateFormatter.string(from: lastUpdate)
-                }
+        if settingsSection == SettingsSection.kSettingsSectionConfiguration.rawValue && contactSyncSwitch.isOn {
+            if NCContactsManager.sharedInstance().isContactAccessDetermined() && !NCContactsManager.sharedInstance().isContactAccessAuthorized() {
+                return NSLocalizedString("Contact access has been denied", comment: "")
             }
-            if settingsSection == SettingsSection.kSettingsSectionUser.rawValue && contactSyncSwitch.isOn {
-                let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-                if activeAccount.phone.isEmpty {
-                    let missingPhoneString = NSLocalizedString("Missing phone number information", comment: "")
-                    return "⚠ " + missingPhoneString
-                }
+            if NCDatabaseManager.sharedInstance().activeAccount().lastContactSync > 0 {
+                let lastUpdate = Date(timeIntervalSince1970: TimeInterval(NCDatabaseManager.sharedInstance().activeAccount().lastContactSync))
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateStyle = .medium
+                dateFormatter.timeStyle = .short
+                return NSLocalizedString("Last sync: ", comment: "") + dateFormatter.string(from: lastUpdate)
+            }
+        }
+        if settingsSection == SettingsSection.kSettingsSectionUser.rawValue && contactSyncSwitch.isOn {
+            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+            if activeAccount.phone.isEmpty {
+                let missingPhoneString = NSLocalizedString("Missing phone number information", comment: "")
+                return "⚠ " + missingPhoneString
             }
         }
         return nil
@@ -627,7 +618,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                 cell.accessoryView = readStatusSwitch
                 let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
                 let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
-                readStatusSwitch?.isOn = !serverCapabilities.readStatusPrivacy
+                readStatusSwitch.isOn = !serverCapabilities.readStatusPrivacy
             case ConfigurationSectionOption.kConfigurationSectionOptionContactsSync.rawValue:
                 cell = UITableViewCell(style: .subtitle, reuseIdentifier: contactsSyncCellIdentifier)
                 cell.textLabel?.text = NSLocalizedString("Phone number", comment: "")
@@ -637,7 +628,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                 cell.imageView?.image = UIImage(named: "mobile-phone")?.withRenderingMode(.alwaysTemplate)
                 cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
                 cell.accessoryView = contactSyncSwitch
-                contactSyncSwitch?.isOn = NCSettingsController.sharedInstance().isContactSyncEnabled()
+                contactSyncSwitch.isOn = NCSettingsController.sharedInstance().isContactSyncEnabled()
             default:
                 break
             }
