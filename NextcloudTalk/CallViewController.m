@@ -1366,13 +1366,17 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     if (state == RTCIceConnectionStateClosed) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
-            if (indexPath) {
-                [self->_peersInCall removeObjectAtIndex:indexPath.row];
-                [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+            if ([peer.roomType isEqualToString:kRoomTypeVideo]) {
+                NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
+                if (indexPath) {
+                    [self->_peersInCall removeObjectAtIndex:indexPath.row];
+                    [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+                }
+            } else if ([peer.roomType isEqualToString:kRoomTypeScreen]) {
+                [self removeScreensharingOfPeer:peer];
             }
         });
-    } else {
+    } else if ([peer.roomType isEqualToString:kRoomTypeVideo]) {
         [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
             [cell setConnectionState:state];
         }];
@@ -1413,14 +1417,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callController:(NCCallController *)callController didReceiveUnshareScreenFromPeer:(NCPeerConnection *)peer
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        RTCEAGLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerId];
-        [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
-        [self->_screenRenderersDict removeObjectForKey:peer.peerId];
-        [self closeScreensharingButtonPressed:self];
-    
-        [self.collectionView reloadData];
-    });
+    [self removeScreensharingOfPeer:peer];
 }
 
 - (void)callController:(NCCallController *)callController didReceiveForceMuteActionForPeerId:(NSString *)peerId
@@ -1468,6 +1465,21 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self addTapGestureForDetailedView];
         [self showDetailedViewWithTimer];
     }
+}
+
+- (void)removeScreensharingOfPeer:(NCPeerConnection *)peer
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        RTCEAGLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerId];
+        [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
+        [self->_screenRenderersDict removeObjectForKey:peer.peerId];
+        [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+            [cell setScreenShared:NO];
+        }];
+        if (self->_screenView == screenRenderer) {
+            [self closeScreensharingButtonPressed:self];
+        }
+    });
 }
 
 - (void)resizeScreensharingView {
