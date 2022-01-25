@@ -1295,9 +1295,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         [[peer.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
         [self->_videoRenderersDict removeObjectForKey:peer.peerId];
         // Screen renderers
-        RTCEAGLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerId];
-        [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
-        [self->_screenRenderersDict removeObjectForKey:peer.peerId];
+        [self removeScreensharingOfPeer:peer];
         
         NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
         if (indexPath) {

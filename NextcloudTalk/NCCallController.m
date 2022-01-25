@@ -387,25 +387,28 @@ static NSString * const kNCVideoTrackKind = @"video";
     _sessionsInCall = [[NSArray alloc] init];
 }
 
-- (void)cleanPeerConnectionsForSessionId:(NSString *)sessionId
+- (void)cleanPeerConnectionForSessionId:(NSString *)sessionId ofType:(NSString *)roomType
 {
-    NSString *peerKey = [sessionId stringByAppendingString:kRoomTypeVideo];
+    NSString *peerKey = [sessionId stringByAppendingString:roomType];
     NCPeerConnection *removedPeerConnection = [_connectionsDict objectForKey:peerKey];
     if (removedPeerConnection) {
-        NSLog(@"Removing peer connection: %@", sessionId);
-        [self.delegate callController:self peerLeft:removedPeerConnection];
+        if ([roomType isEqualToString:kRoomTypeVideo]) {
+            NSLog(@"Removing peer from call: %@", sessionId);
+            [self.delegate callController:self peerLeft:removedPeerConnection];
+        } else if ([roomType isEqualToString:kRoomTypeScreen]) {
+            NSLog(@"Removing screensharing from peer: %@", sessionId);
+            [self.delegate callController:self didReceiveUnshareScreenFromPeer:removedPeerConnection];
+        }
         removedPeerConnection.delegate = nil;
         [removedPeerConnection close];
         [_connectionsDict removeObjectForKey:peerKey];
     }
-    // Close possible screen peers
-    peerKey = [sessionId stringByAppendingString:kRoomTypeScreen];
-    removedPeerConnection = [_connectionsDict objectForKey:peerKey];
-    if (removedPeerConnection) {
-        removedPeerConnection.delegate = nil;
-        [removedPeerConnection close];
-        [_connectionsDict removeObjectForKey:peerKey];
-    }
+}
+
+- (void)cleanAllPeerConnectionsForSessionId:(NSString *)sessionId
+{
+    [self cleanPeerConnectionForSessionId:sessionId ofType:kRoomTypeVideo];
+    [self cleanPeerConnectionForSessionId:sessionId ofType:kRoomTypeScreen];
 }
 
 #pragma mark - Microphone audio level
@@ -858,7 +861,8 @@ static NSString * const kNCVideoTrackKind = @"video";
             [self.delegate callControllerWantsToHangUpCall:self];
             return;
         }
-        [self cleanPeerConnectionsForSessionId:sessionId];
+        // Remove all peer connections for that user
+        [self cleanAllPeerConnectionsForSessionId:sessionId];
     }
 }
 
@@ -971,7 +975,7 @@ static NSString * const kNCVideoTrackKind = @"video";
             [userInfo setObject:sessionId forKey:@"sessionId"];
             [userInfo setObject:roomType forKey:@"roomType"];
             // Close failed peer connection
-            [self cleanPeerConnectionsForSessionId:peerConnection.peerId];
+            [self cleanPeerConnectionForSessionId:peerConnection.peerId ofType:peerConnection.roomType];
             // Request new offer
             [_externalSignalingController requestOfferForSessionId:peerConnection.peerId andRoomType:peerConnection.roomType];
             // Set timeout to request new offer
