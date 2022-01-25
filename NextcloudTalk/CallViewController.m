@@ -186,8 +186,11 @@ typedef NS_ENUM(NSInteger, CallState) {
         [self disableLocalVideo];
     }
     
-    [self setAudioMuteButtonEnabled:(_room.permissions & NCPermissionCanPublishAudio)];
-    [self setVideoDisableButtonEnabled:(_room.permissions & NCPermissionCanPublishVideo)];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions forAccountId:activeAccount.accountId]) {
+        [self setAudioMuteButtonEnabled:(_room.permissions & NCPermissionCanPublishAudio)];
+        [self setVideoDisableButtonEnabled:(_room.permissions & NCPermissionCanPublishVideo)];
+    }
     
     [self.collectionView registerNib:[UINib nibWithNibName:kCallParticipantCellNibName bundle:nil] forCellWithReuseIdentifier:kCallParticipantCellIdentifier];
     

@@ -132,12 +132,13 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (NSInteger)joinCallFlags
 {
     NSInteger flags = CallFlagInCall;
+    BOOL serverSupportsPermissions = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions forAccountId:_account.accountId];
     
-    if ((_userPermissions & NCPermissionCanPublishAudio) != 0) {
+    if ((_userPermissions & NCPermissionCanPublishAudio) != 0 || !serverSupportsPermissions) {
         flags += CallFlagWithAudio;
     }
     
-    if (!_isAudioOnly && (_userPermissions & NCPermissionCanPublishVideo) != 0) {
+    if (!_isAudioOnly && ((_userPermissions & NCPermissionCanPublishVideo) != 0 || !serverSupportsPermissions)) {
         flags += CallFlagWithVideo;
     }
     
@@ -509,13 +510,15 @@ static NSString * const kNCVideoTrackKind = @"video";
     [_localVideoCapturer stopCapture];
     _localVideoCapturer = nil;
     
-    if ((_userPermissions & NCPermissionCanPublishAudio) != 0) {
+    BOOL serverSupportsPermissions = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions forAccountId:_account.accountId];
+    
+    if ((_userPermissions & NCPermissionCanPublishAudio) != 0 || !serverSupportsPermissions) {
         [self createLocalAudioTrack];
     } else {
         [self.delegate callController:self didCreateLocalAudioTrack:nil];
     }
     
-    if (!_isAudioOnly && (_userPermissions & NCPermissionCanPublishVideo) != 0) {
+    if (!_isAudioOnly && ((_userPermissions & NCPermissionCanPublishVideo) != 0 || !serverSupportsPermissions)) {
         [self createLocalVideoTrack];
     } else {
         [self.delegate callController:self didCreateLocalVideoTrack:nil];
@@ -797,7 +800,9 @@ static NSString * const kNCVideoTrackKind = @"video";
         [self getPeersForCall];
     }
     
-    [self checkUserPermissionsChange];
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions forAccountId:_account.accountId]) {
+        [self checkUserPermissionsChange];
+    }
     
     // Create new peer connections for new sessions in call
     for (NSString *sessionId in newSessions) {

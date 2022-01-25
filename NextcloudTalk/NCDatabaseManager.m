@@ -53,6 +53,7 @@ NSString * const kCapabilityConversationV4          = @"conversation-v4";
 NSString * const kCapabilitySIPSupport              = @"sip-support";
 NSString * const kCapabilityVoiceMessage            = @"voice-message-sharing";
 NSString * const kCapabilitySignalingV3             = @"signaling-v3";
+NSString * const kCapabilityPublishingPermissions   = @"publishing-permissions";
 NSString * const kCapabilityClearHistory            = @"clear-history";
 NSString * const kCapabilityDirectMentionFlag       = @"direct-mention-flag";
 NSString * const kCapabilityNotificationCalls       = @"notification-calls";
