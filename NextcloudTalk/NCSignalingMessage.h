@@ -35,6 +35,9 @@ typedef enum {
     kNCSignalingMessageTypeAnswer,
     kNCSignalingMessageTypeUnshareScreen,
     kNCSignalingMessageTypeControl,
+    kNCSignalingMessageTypeMute,
+    kNCSignalingMessageTypeUnmute,
+    kNCSignalingMessageTypeNickChanged
 } NCSignalingMessageType;
 
 
@@ -93,6 +96,24 @@ typedef enum {
 @end
 
 @interface NCControlMessage : NCSignalingMessage
+
+- (instancetype)initWithValues:(NSDictionary *)values;
+
+@end
+
+@interface NCMuteMessage : NCSignalingMessage
+
+- (instancetype)initWithValues:(NSDictionary *)values;
+
+@end
+
+@interface NCUnmuteMessage : NCSignalingMessage
+
+- (instancetype)initWithValues:(NSDictionary *)values;
+
+@end
+
+@interface NCNickChangedMessage : NCSignalingMessage
 
 - (instancetype)initWithValues:(NSDictionary *)values;
 

@@ -187,6 +187,37 @@
     }];
 }
 
+- (void)setStatusForDataChannelMessageType:(NSString *)type withPayload:(id)payload
+{
+    if ([type isEqualToString:@"nickChanged"]) {
+        NSString *nick = @"";
+        if ([payload isKindOfClass:[NSString class]]) {
+            nick = payload;
+        } else if ([payload isKindOfClass:[NSDictionary class]]) {
+            nick = [payload objectForKey:@"name"];
+        }
+        _peerName = nick;
+        [self.delegate peerConnection:self didReceivePeerNick:nick];
+    } else {
+        // Check remote audio/video status
+        if ([type isEqualToString:@"audioOn"]) {
+            _isRemoteAudioDisabled = NO;
+        } else if ([type isEqualToString:@"audioOff"]) {
+            _isRemoteAudioDisabled = YES;
+        } else if ([type isEqualToString:@"videoOn"]) {
+            _isRemoteVideoDisabled = NO;
+        } else if ([type isEqualToString:@"videoOff"]) {
+            _isRemoteVideoDisabled = YES;
+        } else if ([type isEqualToString:@"speaking"]) {
+            _isPeerSpeaking = YES;
+        } else if ([type isEqualToString:@"stoppedSpeaking"]) {
+            _isPeerSpeaking = NO;
+        }
+        
+        [self.delegate peerConnection:self didReceiveStatusDataChannelMessage:type];
+    }
+}
+
 - (void)close
 {
     RTCMediaStream *localStream = [self.peerConnection.localStreams firstObject];
@@ -285,36 +316,10 @@
 - (void)dataChannel:(RTCDataChannel *)dataChannel didReceiveMessageWithBuffer:(RTCDataBuffer *)buffer
 {
     NSDictionary *message = [self getDataChannelMessageFromJSONData:buffer.data];
-    NSString *messageType =[message objectForKey:@"type"];
+    NSString *messageType = [message objectForKey:@"type"];
+    id messagePayload = [message objectForKey:@"payload"];
     
-    if ([messageType isEqualToString:@"nickChanged"]) {
-        id messagePayload = [message objectForKey:@"payload"];
-        NSString *nick = @"";
-        if ([messagePayload isKindOfClass:[NSString class]]) {
-            nick = messagePayload;
-        } else if ([messagePayload isKindOfClass:[NSDictionary class]]) {
-            nick = [messagePayload objectForKey:@"name"];
-        }
-        _peerName = nick;
-        [self.delegate peerConnection:self didReceivePeerNick:nick];
-    } else {
-        // Check remote audio/video status
-        if ([messageType isEqualToString:@"audioOn"]) {
-            _isRemoteAudioDisabled = NO;
-        } else if ([messageType isEqualToString:@"audioOff"]) {
-            _isRemoteAudioDisabled = YES;
-        } else if ([messageType isEqualToString:@"videoOn"]) {
-            _isRemoteVideoDisabled = NO;
-        } else if ([messageType isEqualToString:@"videoOff"]) {
-            _isRemoteVideoDisabled = YES;
-        } else if ([messageType isEqualToString:@"speaking"]) {
-            _isPeerSpeaking = YES;
-        } else if ([messageType isEqualToString:@"stoppedSpeaking"]) {
-            _isPeerSpeaking = NO;
-        }
-        
-        [self.delegate peerConnection:self didReceiveStatusDataChannelMessage:messageType];
-    }
+    [self setStatusForDataChannelMessageType:messageType withPayload:messagePayload];
 }
 
 - (NSDictionary *)getDataChannelMessageFromJSONData:(NSData *)jsonData

@@ -27,7 +27,6 @@
 #import <WebRTC/RTCEAGLVideoView.h>
 #import <WebRTC/RTCVideoTrack.h>
 
-#import "ARDCaptureController.h"
 #import "DBImageColorPicker.h"
 #import "PulsingHaloLayer.h"
 #import "UIImageView+AFNetworking.h"
@@ -62,7 +61,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     NCCallController *_callController;
     NCChatViewController *_chatViewController;
     UINavigationController *_chatNavigationController;
-    ARDCaptureController *_captureController;
     UIView <RTCVideoRenderer> *_screenView;
     CGSize _screensharingSize;
     UITapGestureRecognizer *_tapGestureForDetailedView;
@@ -186,6 +184,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (_videoDisabledAtStart) {
         _userDisabledVideo = YES;
         [self disableLocalVideo];
+    }
+    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions forAccountId:activeAccount.accountId]) {
+        [self setAudioMuteButtonEnabled:(_room.permissions & NCPermissionCanPublishAudio)];
+        [self setVideoDisableButtonEnabled:(_room.permissions & NCPermissionCanPublishVideo)];
     }
     
     [self.collectionView registerNib:[UINib nibWithNibName:kCallParticipantCellNibName bundle:nil] forCellWithReuseIdentifier:kCallParticipantCellIdentifier];
@@ -581,23 +585,68 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self invalidateDetailedViewTimer];
 }
 
-- (void)hideAudioMuteButton
+- (void)showInfoToastWithTitle:(NSString *)title andMessage:(NSString *)message withDuration:(CGFloat)duration
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [UIView animateWithDuration:0.3f animations:^{
-            [self.audioMuteButton setAlpha:0.0f];
-            [self.view layoutIfNeeded];
-        }];
+        UIView *toast = [self.view toastViewForMessage:message title:title image:nil style:nil];
+        [self.view showToast:toast duration:duration position:CSToastPositionCenter completion:nil];
     });
 }
 
-- (void)showAudioMuteButton
+- (void)setAudioMuteButtonActive:(BOOL)active showInfoToast:(BOOL)showToast
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [UIView animateWithDuration:0.3f animations:^{
-            [self.audioMuteButton setAlpha:1.0f];
-            [self.view layoutIfNeeded];
-        }];
+        NSString *micStatusString = nil;
+        if (active) {
+            micStatusString = NSLocalizedString(@"Microphone enabled", nil);
+            [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+        } else {
+            micStatusString = NSLocalizedString(@"Microphone disabled", nil);
+            [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+        }
+        self->_audioMuteButton.accessibilityValue = micStatusString;
+        if (showToast) {
+            [self.view makeToast:micStatusString duration:1.5 position:CSToastPositionCenter];
+        }
+    });
+}
+
+- (void)setAudioMuteButtonEnabled:(BOOL)enabled
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_audioMuteButton.enabled = enabled;
+    });
+}
+
+- (void)setVideoDisableButtonActive:(BOOL)active showInfoToast:(BOOL)showToast
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *cameraStatusString = nil;
+        if (active) {
+            cameraStatusString = NSLocalizedString(@"Camera enabled", nil);
+            [self->_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
+        } else {
+            cameraStatusString = NSLocalizedString(@"Camera disabled", nil);
+            [self->_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
+        }
+        self->_videoDisableButton.accessibilityValue = cameraStatusString;
+        if (showToast) {
+            [self.view makeToast:cameraStatusString duration:1.5 position:CSToastPositionCenter];
+        }
+    });
+}
+
+- (void)setVideoDisableButtonEnabled:(BOOL)enabled
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_videoDisableButton.enabled = enabled;
+    });
+}
+
+- (void)setLocalVideoViewHidden:(BOOL)hidden
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_localVideoView setHidden:hidden];
     });
 }
 
@@ -857,11 +906,6 @@ typedef NS_ENUM(NSInteger, CallState) {
         } else {
             [self unmuteAudio];
         }
-        
-        if ((!_isAudioOnly && _callState == CallStateInCall) || _screenView) {
-            // Audio was disabled -> make sure the permanent visible audio button is hidden again
-            [self showDetailedViewWithTimer];
-        }
     }
 }
 
@@ -874,26 +918,11 @@ typedef NS_ENUM(NSInteger, CallState) {
 -(void)muteAudioWithReason:(NSString*)reason
 {
     [_callController enableAudio:NO];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
-        [self showAudioMuteButton];
-        
+    [self setAudioMuteButtonActive:NO showInfoToast:!reason];
+    if (reason) {
         NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
-        NSTimeInterval duration = 1.5;
-        UIView *toast;
-        
-        if (reason) {
-            // Nextcloud uses a default timeout of 7s for toasts
-            duration = 7.0;
-
-            toast = [self.view toastViewForMessage:reason title:micDisabledString image:nil style:nil];
-        } else {
-            toast = [self.view toastViewForMessage:micDisabledString title:nil image:nil style:nil];
-        }
-        
-        [self.view showToast:toast duration:duration position:CSToastPositionCenter completion:nil];
-    });
+        [self showInfoToastWithTitle:micDisabledString andMessage:reason withDuration:7.0];
+    }
 }
 
 - (void)muteAudio
@@ -904,13 +933,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)unmuteAudio
 {
     [_callController enableAudio:YES];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-        NSString *micEnabledString = NSLocalizedString(@"Microphone enabled", nil);
-        self->_audioMuteButton.accessibilityValue = micEnabledString;
-        [self.view makeToast:micEnabledString duration:1.5 position:CSToastPositionCenter];
-    });
+    [self setAudioMuteButtonActive:YES showInfoToast:YES];
 }
 
 - (IBAction)videoButtonPressed:(id)sender
@@ -929,23 +952,15 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)disableLocalVideo
 {
     [_callController enableVideo:NO];
-    [_captureController stopCapture];
-    [_localVideoView setHidden:YES];
-    [_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
-    NSString *cameraDisabledString = NSLocalizedString(@"Camera disabled", nil);
-    _videoDisableButton.accessibilityValue = cameraDisabledString;
-    if (!_isAudioOnly) {
-        [self.view makeToast:cameraDisabledString duration:1.5 position:CSToastPositionCenter];
-    }
+    [self setLocalVideoViewHidden:YES];
+    [self setVideoDisableButtonActive:NO showInfoToast:!_isAudioOnly];
 }
 
 - (void)enableLocalVideo
 {
     [_callController enableVideo:YES];
-    [_captureController startCapture];
-    [_localVideoView setHidden:NO];
-    [_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
-    _videoDisableButton.accessibilityValue = NSLocalizedString(@"Camera enabled", nil);
+    [self setLocalVideoViewHidden:NO];
+    [self setVideoDisableButtonActive:YES showInfoToast:NO];
 }
 
 - (IBAction)switchCameraButtonPressed:(id)sender
@@ -955,7 +970,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)switchCamera
 {
-    [_captureController switchCamera];
+    [_callController switchCamera];
     [self flipLocalVideoView];
 }
 
@@ -1014,8 +1029,6 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_localVideoView.captureSession stopRunning];
         _localVideoView.captureSession = nil;
         [_localVideoView setHidden:YES];
-        [_captureController stopCapture];
-        _captureController = nil;
         
         dispatch_async(dispatch_get_main_queue(), ^{
             for (NCPeerConnection *peerConnection in self->_peersInCall) {
@@ -1297,16 +1310,23 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callController:(NCCallController *)callController didCreateLocalVideoCapturer:(RTCCameraVideoCapturer *)videoCapturer
 {
     _localVideoView.captureSession = videoCapturer.captureSession;
-    _captureController = [[ARDCaptureController alloc] initWithCapturer:videoCapturer settings:[[NCSettingsController sharedInstance] videoSettingsModel]];
-    [_captureController startCapture];
 }
 
-- (void)callController:(NCCallController *)callController didAddLocalStream:(RTCMediaStream *)localStream
+- (void)callController:(NCCallController *)callController userPermissionsChanged:(NSInteger)permissions
 {
+    [self setAudioMuteButtonEnabled:(permissions & NCPermissionCanPublishAudio)];
+    [self setVideoDisableButtonEnabled:(permissions & NCPermissionCanPublishVideo)];
 }
 
-- (void)callController:(NCCallController *)callController didRemoveLocalStream:(RTCMediaStream *)localStream
+- (void)callController:(NCCallController *)callController didCreateLocalAudioTrack:(RTCAudioTrack *)audioTrack
 {
+    [self setAudioMuteButtonActive:audioTrack.isEnabled showInfoToast:NO];
+}
+
+- (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack *)videoTrack
+{
+    [self setLocalVideoViewHidden:!videoTrack.isEnabled];
+    [self setVideoDisableButtonActive:videoTrack.isEnabled showInfoToast:NO];
 }
 
 - (void)callController:(NCCallController *)callController didAddStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
