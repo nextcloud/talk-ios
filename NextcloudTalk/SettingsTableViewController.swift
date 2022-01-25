@@ -49,6 +49,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     let kPhoneTextFieldTag = 99
     let kUserSettingsCellIdentifier = "UserSettingsCellIdentifier"
     let kUserSettingsTableCellNibName = "UserSettingsTableViewCell"
+    let kAccountCellIdentifier: String = "AccountCellIdentifier"
+    let kAccountTableViewCellNibName: String = "AccountTableViewCell"
 
     var activeUserStatus: NCUserStatus?
     var readStatusSwitch = UISwitch()
@@ -66,9 +68,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeColor()
         self.tabBarController?.tabBar.tintColor = NCAppBranding.themeColor()
         self.cancelButton.tintColor = NCAppBranding.themeTextColor()
-
-        phoneUtil = NBPhoneNumberUtil()
-
         contactSyncSwitch.frame = .zero
         contactSyncSwitch.addTarget(self, action: #selector(contactSyncValueChanged(_:)), for: .valueChanged)
 
@@ -165,8 +164,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
         let optionRow = getConfigurationSectionOptions().firstIndex(of: option.rawValue)
 
-        if NSNotFound != optionRow {
-            optionIndexPath = IndexPath(row: optionRow!, section: section)
+        if let optionRow = optionRow {
+            optionIndexPath = IndexPath(row: optionRow, section: section)
         }
         return optionIndexPath
     }
@@ -304,21 +303,21 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             alertMessage = (NSLocalizedString("An error occurred while setting \(failedPhoneNumber) as phone number", comment: ""))
         }
         if let failedNumberFormated = try? phoneUtil.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
-            failedPhoneNumberDialog = UIAlertController(
-                       title: alertTitle,
-                       message: alertMessage + "\(failedNumberFormated)",
-                       preferredStyle: .alert)
+            alertMessage += failedNumberFormated
         }
+        failedPhoneNumberDialog = UIAlertController(
+                   title: alertTitle,
+                   message: alertMessage,
+                   preferredStyle: .alert)
         let retryAction = UIAlertAction(title: NSLocalizedString("Retry", comment: ""), style: .default) { _ in
             self.presentSetPhoneNumberDialog()
         }
-        failedPhoneNumberDialog!.addAction(retryAction)
-
         let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .default, handler: nil)
-        failedPhoneNumberDialog!.addAction(cancelAction)
-
-        self.present(failedPhoneNumberDialog!, animated: true, completion: nil)
-
+        if let failedPhoneNumberDialog = failedPhoneNumberDialog {
+            failedPhoneNumberDialog.addAction(retryAction)
+            failedPhoneNumberDialog.addAction(cancelAction)
+            self.present(failedPhoneNumberDialog, animated: true, completion: nil)
+        }
     }
 
     // MARK: UITextField delegate
@@ -328,7 +327,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             let inputPhoneNumber = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
             var phoneNumber: NBPhoneNumber?
             phoneNumber = try? phoneUtil.parse(inputPhoneNumber, defaultRegion: nil)
-            setPhoneAction!.isEnabled = phoneUtil.isValidNumber(phoneNumber)
+            setPhoneAction?.isEnabled = phoneUtil.isValidNumber(phoneNumber)
         }
         return true
     }
@@ -511,7 +510,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             return appName + appVersion + copyright
         }
         if let activeUserStatus = activeUserStatus {
-            if settingsSection == SettingsSection.kSettingsSectionUserStatus.rawValue && activeUserStatus.status == kUserStatusDND {
+            if settingsSection == SettingsSection.kSettingsSectionUserStatus.rawValue, activeUserStatus.status == kUserStatusDND {
                 return NSLocalizedString("All notifications are muted", comment: "")
             }
         }
@@ -536,123 +535,27 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         }
         return nil
     }
-
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
         var cell = UITableViewCell()
-        let videoConfigurationCellIdentifier = "VideoConfigurationCellIdentifier"
-        let browserConfigurationCellIdentifier = "BrowserConfigurationCellIdentifier"
-        let readStatusCellIdentifier = "ReadStatusCellIdentifier"
-        let contactsSyncCellIdentifier = "ContactsSyncCellIdentifier"
-        let privacyCellIdentifier = "PrivacyCellIdentifier"
-        let sourceCodeCellIdentifier = "SourceCodeCellIdentifier"
-        let userStatusCellIdentifier = "UserStatusCellIdentifier"
-
         let sections = getSettingsSections()
         let settingsSection = sections[indexPath.section]
 
         switch settingsSection {
         case SettingsSection.kSettingsSectionUser.rawValue:
-            let cell = (tableView.dequeueReusableCell(withIdentifier: kUserSettingsCellIdentifier, for: indexPath) as? SettingsUserTableViewCell)!
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            cell.userDisplayNameLabel.text = activeAccount.userDisplayName
-            let accountServer = activeAccount.server
-            cell.serverAddressLabel.text = accountServer.replacingOccurrences(of: "https://", with: "")
-            cell.userImageView.image = NCAPIController.sharedInstance().userProfileImage(for: activeAccount, with: CGSize(width: 160, height: 160))
-            cell.accessoryType = .disclosureIndicator
-            return cell
+           cell = userSettingsCell(for: indexPath)
         case SettingsSection.kSettingsSectionUserStatus.rawValue:
-            cell = UITableViewCell(style: .default, reuseIdentifier: userStatusCellIdentifier)
-            if activeUserStatus != nil {
-                cell.textLabel?.text = activeUserStatus!.readableUserStatus()
-                let statusMessage = activeUserStatus!.readableUserStatusMessage()
-                if !statusMessage.isEmpty {
-                    cell.textLabel?.text = statusMessage
-                }
-                let statusImage = activeUserStatus!.userStatusImageName(ofSize: 24)
-                cell.imageView?.image = UIImage(named: statusImage)
-            } else {
-                cell.textLabel?.text = NSLocalizedString("Fetching status ...", comment: "")
-            }
-            cell.accessoryType = .disclosureIndicator
+            cell = userStatusCell(for: indexPath)
         case SettingsSection.kSettingsSectionAccounts.rawValue:
-            let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
-            let account = (inactiveAccounts[indexPath.row] as? TalkAccount)!
-            let cell = UserAccountTableViewCell(style: .default, reuseIdentifier: kAccountCellIdentifier)
-            cell.accountNameLabel.text = account.userDisplayName
-            let accountServer = account.server.replacingOccurrences(of: "https://", with: "")
-            cell.accountServerLabel.text = accountServer
-            cell.accountImageView.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: CGSize(width: 90, height: 90))
-            cell.accessoryView = nil
-            if account.unreadBadgeNumber > 0 {
-                let badgeView = RoundedNumberView()
-                badgeView.highlightType = kHighlightTypeImportant
-                badgeView.number = account.unreadBadgeNumber
-                cell.accessoryView = badgeView
-            }
-            return cell
+            cell = userAccountsCell(for: indexPath)
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
-            let options = getConfigurationSectionOptions()
-            let option = options[indexPath.row]
-            switch option {
-            case ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue:
-                cell = UITableViewCell(style: .value1, reuseIdentifier: videoConfigurationCellIdentifier)
-                cell.textLabel?.text = NSLocalizedString("Video quality", comment: "")
-                cell.imageView?.image = UIImage(named: "video")?.withRenderingMode(.alwaysTemplate)
-                cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
-                let resolution = NCSettingsController.sharedInstance().videoSettingsModel.currentVideoResolutionSettingFromStore()
-                cell.detailTextLabel?.text = NCSettingsController.sharedInstance().videoSettingsModel.readableResolution(resolution)
-            case ConfigurationSectionOption.kConfigurationSectionOptionBrowser.rawValue:
-                cell = UITableViewCell(style: .value1, reuseIdentifier: browserConfigurationCellIdentifier)
-                cell.textLabel?.text = NSLocalizedString("Open links in", comment: "")
-                cell.imageView?.contentMode = .center
-                cell.imageView?.image = UIImage(named: "browser-settings")
-                cell.detailTextLabel?.text = NCUserDefaults.defaultBrowser()
-            case ConfigurationSectionOption.kConfigurationSectionOptionReadStatus.rawValue:
-                cell = UITableViewCell(style: .subtitle, reuseIdentifier: readStatusCellIdentifier)
-                cell.textLabel?.text = NSLocalizedString("Read status", comment: "")
-                cell.selectionStyle = .none
-                cell.imageView?.contentMode = .scaleAspectFit
-                cell.imageView?.image = UIImage(named: "check-all")?.withRenderingMode(.alwaysTemplate)
-                cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
-                cell.accessoryView = readStatusSwitch
-                let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-                let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
-                readStatusSwitch.isOn = !serverCapabilities.readStatusPrivacy
-            case ConfigurationSectionOption.kConfigurationSectionOptionContactsSync.rawValue:
-                cell = UITableViewCell(style: .subtitle, reuseIdentifier: contactsSyncCellIdentifier)
-                cell.textLabel?.text = NSLocalizedString("Phone number", comment: "")
-                cell.detailTextLabel?.text = NSLocalizedString("Match system contacts", comment: "")
-                cell.selectionStyle = .none
-                cell.imageView?.contentMode = .scaleAspectFit
-                cell.imageView?.image = UIImage(named: "mobile-phone")?.withRenderingMode(.alwaysTemplate)
-                cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
-                cell.accessoryView = contactSyncSwitch
-                contactSyncSwitch.isOn = NCSettingsController.sharedInstance().isContactSyncEnabled()
-            default:
-                break
-            }
+            cell = sectionConfigurationCell(for: indexPath)
         case SettingsSection.kSettingsSectionAbout.rawValue:
-            switch indexPath.row {
-            case AboutSection.kAboutSectionPrivacy.rawValue:
-                cell =
-                UITableViewCell(style: .default, reuseIdentifier: privacyCellIdentifier)
-                cell.textLabel?.text = NSLocalizedString("Privacy", comment: "")
-                cell.imageView?.image = UIImage(named: "privacy")
-            case AboutSection.kAboutSectionSourceCode.rawValue:
-                cell =
-                UITableViewCell(style: .default, reuseIdentifier: sourceCodeCellIdentifier)
-                cell.textLabel?.text = NSLocalizedString("Get source code", comment: "")
-                cell.imageView?.image = UIImage(named: "github")
-            default:
-                break
-            }
+            cell = sectionAboutCell(for: indexPath)
         default:
             break
         }
         return cell
     }
-
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let sections = getSettingsSections()
         let settingsSection = sections[indexPath.section]
@@ -692,5 +595,120 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             break
         }
         self.tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+extension SettingsTableViewController {
+    // Cell configuration for every section
+    func userSettingsCell(for indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: kUserSettingsCellIdentifier, for: indexPath) as? SettingsUserTableViewCell else { return UITableViewCell() }
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        cell.userDisplayNameLabel.text = activeAccount.userDisplayName
+        let accountServer = activeAccount.server
+        cell.serverAddressLabel.text = accountServer.replacingOccurrences(of: "https://", with: "")
+        cell.userImageView.image = NCAPIController.sharedInstance().userProfileImage(for: activeAccount, with: CGSize(width: 160, height: 160))
+        cell.accessoryType = .disclosureIndicator
+        return cell
+    }
+    func userStatusCell(for indexPath: IndexPath) -> UITableViewCell {
+        let userStatusCellIdentifier = "UserStatusCellIdentifier"
+        let cell = UITableViewCell(style: .default, reuseIdentifier: userStatusCellIdentifier)
+        if activeUserStatus != nil {
+            cell.textLabel?.text = activeUserStatus!.readableUserStatus()
+            let statusMessage = activeUserStatus!.readableUserStatusMessage()
+            if !statusMessage.isEmpty {
+                cell.textLabel?.text = statusMessage
+            }
+            let statusImage = activeUserStatus!.userStatusImageName(ofSize: 24)
+            cell.imageView?.image = UIImage(named: statusImage)
+        } else {
+            cell.textLabel?.text = NSLocalizedString("Fetching status ...", comment: "")
+        }
+        cell.accessoryType = .disclosureIndicator
+        return cell
+    }
+    func userAccountsCell(for indexPath: IndexPath) -> UITableViewCell {
+        let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
+        let account = (inactiveAccounts[indexPath.row] as? TalkAccount)!
+        let cell = UserAccountTableViewCell(style: .default, reuseIdentifier: kAccountCellIdentifier)
+        cell.accountNameLabel.text = account.userDisplayName
+        let accountServer = account.server.replacingOccurrences(of: "https://", with: "")
+        cell.accountServerLabel.text = accountServer
+        cell.accountImageView.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: CGSize(width: 90, height: 90))
+        cell.accessoryView = nil
+        if account.unreadBadgeNumber > 0 {
+            let badgeView = RoundedNumberView()
+            badgeView.highlightType = kHighlightTypeImportant
+            badgeView.number = account.unreadBadgeNumber
+            cell.accessoryView = badgeView
+        }
+        return cell
+    }
+    func sectionConfigurationCell(for indexPath: IndexPath) -> UITableViewCell {
+        let videoConfigurationCellIdentifier = "VideoConfigurationCellIdentifier"
+        let browserConfigurationCellIdentifier = "BrowserConfigurationCellIdentifier"
+        let readStatusCellIdentifier = "ReadStatusCellIdentifier"
+        let contactsSyncCellIdentifier = "ContactsSyncCellIdentifier"
+        let options = getConfigurationSectionOptions()
+        let option = options[indexPath.row]
+        var cell = UITableViewCell()
+        switch option {
+        case ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue:
+            cell = UITableViewCell(style: .value1, reuseIdentifier: videoConfigurationCellIdentifier)
+            cell.textLabel?.text = NSLocalizedString("Video quality", comment: "")
+            cell.imageView?.image = UIImage(named: "video")?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
+            let resolution = NCSettingsController.sharedInstance().videoSettingsModel.currentVideoResolutionSettingFromStore()
+            cell.detailTextLabel?.text = NCSettingsController.sharedInstance().videoSettingsModel.readableResolution(resolution)
+        case ConfigurationSectionOption.kConfigurationSectionOptionBrowser.rawValue:
+            cell = UITableViewCell(style: .value1, reuseIdentifier: browserConfigurationCellIdentifier)
+            cell.textLabel?.text = NSLocalizedString("Open links in", comment: "")
+            cell.imageView?.contentMode = .center
+            cell.imageView?.image = UIImage(named: "browser-settings")
+            cell.detailTextLabel?.text = NCUserDefaults.defaultBrowser()
+        case ConfigurationSectionOption.kConfigurationSectionOptionReadStatus.rawValue:
+            cell = UITableViewCell(style: .subtitle, reuseIdentifier: readStatusCellIdentifier)
+            cell.textLabel?.text = NSLocalizedString("Read status", comment: "")
+            cell.selectionStyle = .none
+            cell.imageView?.contentMode = .scaleAspectFit
+            cell.imageView?.image = UIImage(named: "check-all")?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
+            cell.accessoryView = readStatusSwitch
+            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+            let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
+            readStatusSwitch.isOn = !serverCapabilities.readStatusPrivacy
+        case ConfigurationSectionOption.kConfigurationSectionOptionContactsSync.rawValue:
+            cell = UITableViewCell(style: .subtitle, reuseIdentifier: contactsSyncCellIdentifier)
+            cell.textLabel?.text = NSLocalizedString("Phone number", comment: "")
+            cell.detailTextLabel?.text = NSLocalizedString("Match system contacts", comment: "")
+            cell.selectionStyle = .none
+            cell.imageView?.contentMode = .scaleAspectFit
+            cell.imageView?.image = UIImage(named: "mobile-phone")?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
+            cell.accessoryView = contactSyncSwitch
+            contactSyncSwitch.isOn = NCSettingsController.sharedInstance().isContactSyncEnabled()
+        default:
+            break
+        }
+        return cell
+    }
+    func sectionAboutCell(for indexPath: IndexPath) -> UITableViewCell {
+        let privacyCellIdentifier = "PrivacyCellIdentifier"
+        let sourceCodeCellIdentifier = "SourceCodeCellIdentifier"
+        var cell = UITableViewCell()
+        switch indexPath.row {
+        case AboutSection.kAboutSectionPrivacy.rawValue:
+            cell =
+            UITableViewCell(style: .default, reuseIdentifier: privacyCellIdentifier)
+            cell.textLabel?.text = NSLocalizedString("Privacy", comment: "")
+            cell.imageView?.image = UIImage(named: "privacy")
+        case AboutSection.kAboutSectionSourceCode.rawValue:
+            cell =
+            UITableViewCell(style: .default, reuseIdentifier: sourceCodeCellIdentifier)
+            cell.textLabel?.text = NSLocalizedString("Get source code", comment: "")
+            cell.imageView?.image = UIImage(named: "github")
+        default:
+            break
+        }
+        return cell
     }
 }

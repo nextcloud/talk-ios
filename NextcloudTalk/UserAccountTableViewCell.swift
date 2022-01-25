@@ -22,9 +22,6 @@
 
 import UIKit
 
-let kAccountCellIdentifier: String = "AccountCellIdentifier"
-let kAccountTableViewCellNibName: String = "AccountTableViewCell"
-
 class UserAccountTableViewCell: UITableViewCell {
 
     @IBOutlet weak var accountImageView: UIImageView!
