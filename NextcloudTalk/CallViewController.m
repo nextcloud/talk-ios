@@ -1350,6 +1350,9 @@ typedef NS_ENUM(NSInteger, CallState) {
         } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
             [self->_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
             [self showScreenOfPeerId:remotePeer.peerId];
+            [self updatePeer:remotePeer block:^(CallParticipantViewCell *cell) {
+                [cell setScreenShared:YES];
+            }];
         }
     });
 }
