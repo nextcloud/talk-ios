@@ -409,6 +409,18 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     [self cleanPeerConnectionForSessionId:sessionId ofType:kRoomTypeVideo];
     [self cleanPeerConnectionForSessionId:sessionId ofType:kRoomTypeScreen];
+    
+    // Invalidate possible request timers
+    NSString *peerVideoKey = [sessionId stringByAppendingString:kRoomTypeVideo];
+    NSTimer *pendingVideoRequestTimer = [_pendingOffersDict objectForKey:peerVideoKey];
+    if (pendingVideoRequestTimer) {
+        [pendingVideoRequestTimer invalidate];
+    }
+    NSString *peerScreenKey = [sessionId stringByAppendingString:kRoomTypeVideo];
+    NSTimer *pendingScreenRequestTimer = [_pendingOffersDict objectForKey:peerScreenKey];
+    if (pendingScreenRequestTimer) {
+        [pendingScreenRequestTimer invalidate];
+    }
 }
 
 #pragma mark - Microphone audio level
@@ -650,12 +662,19 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     NSString *sessionId = [timer.userInfo objectForKey:@"sessionId"];
     NSString *roomType = [timer.userInfo objectForKey:@"roomType"];
-    [_externalSignalingController requestOfferForSessionId:sessionId andRoomType:roomType];
+    NSInteger timeout = [[timer.userInfo objectForKey:@"timeout"] integerValue];
+    
+    if ([[NSDate date] timeIntervalSince1970] < timeout) {
+        [_externalSignalingController requestOfferForSessionId:sessionId andRoomType:roomType];
+    } else {
+        [timer invalidate];
+    }
 }
 
 - (void)checkIfPendingOffer:(NCSignalingMessage *)signalingMessage
 {
-    NSTimer *pendingRequestTimer = [_pendingOffersDict objectForKey:signalingMessage.from];
+    NSString *peerKey = [signalingMessage.from stringByAppendingString:signalingMessage.roomType];
+    NSTimer *pendingRequestTimer = [_pendingOffersDict objectForKey:peerKey];
     if (pendingRequestTimer && signalingMessage.messageType == kNCSignalingMessageTypeOffer) {
         NSLog(@"Pending requested offer arrived. Removing timer.");
         [pendingRequestTimer invalidate];
@@ -971,16 +990,21 @@ static NSString * const kNCVideoTrackKind = @"video";
         } else if ([_externalSignalingController hasMCU]) {
             NSString *sessionId = [peerConnection.peerId copy];
             NSString *roomType = [peerConnection.roomType copy];
+            NSNumber *timeout = [NSNumber numberWithInt:[[NSDate date] timeIntervalSince1970] + 60];
             NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
             [userInfo setObject:sessionId forKey:@"sessionId"];
             [userInfo setObject:roomType forKey:@"roomType"];
+            [userInfo setValue:timeout forKey:@"timeout"];
+            
             // Close failed peer connection
             [self cleanPeerConnectionForSessionId:peerConnection.peerId ofType:peerConnection.roomType];
             // Request new offer
             [_externalSignalingController requestOfferForSessionId:peerConnection.peerId andRoomType:peerConnection.roomType];
             // Set timeout to request new offer
             NSTimer *pendingOfferTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(requestNewOffer:) userInfo:userInfo repeats:YES];
-            [_pendingOffersDict setObject:pendingOfferTimer forKey:peerConnection.peerId];
+            
+            NSString *peerKey = [peerConnection.peerId stringByAppendingString:peerConnection.roomType];
+            [_pendingOffersDict setObject:pendingOfferTimer forKey:peerKey];
         }
     }
     
