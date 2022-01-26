@@ -371,30 +371,25 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     func presentBrowserSelector() {
         let browserConfIndexPath = self.getIndexPathForConfigurationOption(option: ConfigurationSectionOption.kConfigurationSectionOptionBrowser)
         let supportedBrowsers = NCSettingsController.sharedInstance().supportedBrowsers!
+        let supportedBrowsersUnwapped: [String] = supportedBrowsers.compactMap({$0 as? String})
         let defaultBrowser = NCUserDefaults.defaultBrowser()
-
         let optionsActionSheet = UIAlertController(title: NSLocalizedString("Open links in", comment: ""), message: nil, preferredStyle: .actionSheet)
-
-        for browser in supportedBrowsers {
+        for browser in supportedBrowsersUnwapped {
             var isDefaultBrowser = false
-            if let browser = browser as? String {
-                isDefaultBrowser = browser == defaultBrowser
-                let action = UIAlertAction(title: browser, style: .default) { _ in
-                    NCUserDefaults.setDefaultBrowser(browser)
-                    self.tableView.reloadData()
-                }
-                if isDefaultBrowser {
-                    action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_:.alwaysOriginal), forKey: "image")
-                }
-                optionsActionSheet.addAction(action)
+            isDefaultBrowser = browser == defaultBrowser
+            let action = UIAlertAction(title: browser, style: .default) { _ in
+                NCUserDefaults.setDefaultBrowser(browser)
+                self.tableView.reloadData()
             }
+            if isDefaultBrowser {
+                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_:.alwaysOriginal), forKey: "image")
+            }
+            optionsActionSheet.addAction(action)
         }
         optionsActionSheet.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
-
         // Presentation on iPads
         optionsActionSheet.popoverPresentationController?.sourceView = self.tableView
         optionsActionSheet.popoverPresentationController?.sourceRect = self.tableView.rectForRow(at: browserConfIndexPath)
-
         self.present(optionsActionSheet, animated: true, completion: nil)
     }
 
