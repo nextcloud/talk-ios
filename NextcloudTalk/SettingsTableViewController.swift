@@ -371,10 +371,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     func presentBrowserSelector() {
         let browserConfIndexPath = self.getIndexPathForConfigurationOption(option: ConfigurationSectionOption.kConfigurationSectionOptionBrowser)
         let supportedBrowsers = NCSettingsController.sharedInstance().supportedBrowsers!
-        let supportedBrowsersUnwapped: [String] = supportedBrowsers.compactMap({$0 as? String})
+        let supportedBrowsersUnwrapped: [String] = supportedBrowsers.compactMap({$0 as? String})
         let defaultBrowser = NCUserDefaults.defaultBrowser()
         let optionsActionSheet = UIAlertController(title: NSLocalizedString("Open links in", comment: ""), message: nil, preferredStyle: .actionSheet)
-        for browser in supportedBrowsersUnwapped {
+        for browser in supportedBrowsersUnwrapped {
             var isDefaultBrowser = false
             isDefaultBrowser = browser == defaultBrowser
             let action = UIAlertAction(title: browser, style: .default) { _ in
