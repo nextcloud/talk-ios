@@ -1325,6 +1325,11 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [self setLocalVideoViewHidden:!videoTrack.isEnabled];
     [self setVideoDisableButtonActive:videoTrack.isEnabled showInfoToast:NO];
+    
+    // We set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
+    if (!videoTrack.isEnabled) {
+        _userDisabledVideo = YES;
+    }
 }
 
 - (void)callController:(NCCallController *)callController didAddStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
