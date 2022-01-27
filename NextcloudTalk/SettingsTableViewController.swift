@@ -217,7 +217,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     func userProfilePressed() {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let userProfileVC = UserProfileViewController(account: activeAccount)
+        let userProfileVC = UserProfileTableViewController(withAccount: activeAccount)
         self.navigationController?.pushViewController(userProfileVC, animated: true)
     }
 

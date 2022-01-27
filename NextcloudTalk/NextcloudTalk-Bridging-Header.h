@@ -23,7 +23,9 @@
 #ifndef NextcloudTalk_Bridging_Header_h
 #define NextcloudTalk_Bridging_Header_h
 
+#import "AvatarHeaderView.h"
 #import "DetailedOptionsSelectorTableViewController.h"
+#import "HeaderWithButton.h"
 #import "NBPhoneNumber.h"
 #import "NBPhoneNumberDefines.h"
 #import "NBPhoneNumberUtil.h"
@@ -35,10 +37,15 @@
 #import "NCNavigationController.h"
 #import "NCSettingsController.h"
 #import "NCUserDefaults.h"
+#import "NCUserInterfaceController.h"
 #import "NCUserStatus.h"
+#import "NotificationCenterNotifications.h"
 #import "RoundedNumberView.h"
 #import "UIView+Toast.h"
-#import "UserProfileViewController.h"
-
+#import "TOCroppedImageAttributes.h"
+#import "TOCropViewController.h"
+#import "TOCropViewControllerTransitioning.h"
+#import "TOActivityCroppedImageProvider.h"
+#import "UIImage+CropRotate.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */
