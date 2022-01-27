@@ -232,8 +232,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     // MARK: User Status
 
     func presentUserStatusOptions() {
-        let viewController = UserStatusTableViewController(userStatus: activeUserStatus!)
-        self.navigationController?.pushViewController(viewController, animated: true)
+        if let activeUserStatus = activeUserStatus {
+            let viewController = UserStatusTableViewController(userStatus: activeUserStatus)
+            self.navigationController?.pushViewController(viewController, animated: true)
+        }
     }
 
     // MARK: User phone number
