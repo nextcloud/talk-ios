@@ -293,17 +293,15 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     func presentPhoneNumberErrorDialog(phoneNumber: String) {
         var failedPhoneNumberDialog: UIAlertController?
-        var failedPhoneNumber: NBPhoneNumber?
 
-        failedPhoneNumber = try? phoneUtil.parse(phoneNumber, defaultRegion: nil)
+        let failedPhoneNumber = try? phoneUtil.parse(phoneNumber, defaultRegion: nil)
 
         let alertTitle = NSLocalizedString("Could not set phone number", comment: "")
         var alertMessage = ""
         if let failedPhoneNumber = failedPhoneNumber {
-            alertMessage = (NSLocalizedString("An error occurred while setting \(failedPhoneNumber) as phone number", comment: ""))
-        }
-        if let failedNumberFormated = try? phoneUtil.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
-            alertMessage += failedNumberFormated
+            if let failedNumberFormated = try? phoneUtil.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
+                alertMessage = (NSLocalizedString("An error occurred while setting \(failedNumberFormated) as phone number", comment: ""))
+            }
         }
         failedPhoneNumberDialog = UIAlertController(
                    title: alertTitle,
