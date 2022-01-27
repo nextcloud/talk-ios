@@ -113,13 +113,11 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     func getSettingsSections() -> [Int] {
         var sections = [Int]()
-
         // Active user sections
         sections.append(SettingsSection.kSettingsSectionUser.rawValue)
         // User Status section
         let activeAccount: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
-
         if serverCapabilities.userStatus {
             sections.append(SettingsSection.kSettingsSectionUserStatus.rawValue)
         }
@@ -154,20 +152,14 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     }
 
     func getSectionForSettingsSection(section: SettingsSection) -> Int {
-        let sectionNumber = getSettingsSections().firstIndex(of: section.rawValue)
-        return sectionNumber ?? 0
+        let section = getSettingsSections().firstIndex(of: section.rawValue)
+        return section ?? 0
     }
 
     func getIndexPathForConfigurationOption(option: ConfigurationSectionOption) -> IndexPath {
-        let section: Int = getSectionForSettingsSection(section: SettingsSection.kSettingsSectionConfiguration)
-        var optionIndexPath: IndexPath = IndexPath(row: 0, section: section)
-
-        let optionRow = getConfigurationSectionOptions().firstIndex(of: option.rawValue)
-
-        if let optionRow = optionRow {
-            optionIndexPath = IndexPath(row: optionRow, section: section)
-        }
-        return optionIndexPath
+        let section = getSectionForSettingsSection(section: SettingsSection.kSettingsSectionConfiguration)
+        let row = getConfigurationSectionOptions().firstIndex(of: option.rawValue)
+        return IndexPath(row: row ?? 0, section: section)
     }
 
     // MARK: User Profile
@@ -294,30 +286,27 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     }
 
     func presentPhoneNumberErrorDialog(phoneNumber: String) {
-        var failedPhoneNumberDialog: UIAlertController?
-
-        let failedPhoneNumber = try? phoneUtil.parse(phoneNumber, defaultRegion: nil)
-
         let alertTitle = NSLocalizedString("Could not set phone number", comment: "")
-        var alertMessage = ""
-        if let failedPhoneNumber = failedPhoneNumber {
-            if let failedNumberFormated = try? phoneUtil.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
-                alertMessage = (NSLocalizedString("An error occurred while setting \(failedNumberFormated) as phone number", comment: ""))
-            }
+        var alertMessage = NSLocalizedString("An error occurred while setting phone number", comment: "")
+        let failedPhoneNumber = try? phoneUtil.parse(phoneNumber, defaultRegion: nil)
+        if let failedNumberFormated = try? phoneUtil.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
+            alertMessage = NSLocalizedString("An error occurred while setting \(failedNumberFormated) as phone number", comment: "")
         }
-        failedPhoneNumberDialog = UIAlertController(
-                   title: alertTitle,
-                   message: alertMessage,
-                   preferredStyle: .alert)
+
+        let failedPhoneNumberDialog = UIAlertController(
+            title: alertTitle,
+            message: alertMessage,
+            preferredStyle: .alert)
+
         let retryAction = UIAlertAction(title: NSLocalizedString("Retry", comment: ""), style: .default) { _ in
             self.presentSetPhoneNumberDialog()
         }
+        failedPhoneNumberDialog.addAction(retryAction)
+
         let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .default, handler: nil)
-        if let failedPhoneNumberDialog = failedPhoneNumberDialog {
-            failedPhoneNumberDialog.addAction(retryAction)
-            failedPhoneNumberDialog.addAction(cancelAction)
-            self.present(failedPhoneNumberDialog, animated: true, completion: nil)
-        }
+        failedPhoneNumberDialog.addAction(cancelAction)
+
+        self.present(failedPhoneNumberDialog, animated: true, completion: nil)
     }
 
     // MARK: UITextField delegate
@@ -325,8 +314,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField.tag == kPhoneTextFieldTag {
             let inputPhoneNumber = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
-            var phoneNumber: NBPhoneNumber?
-            phoneNumber = try? phoneUtil.parse(inputPhoneNumber, defaultRegion: nil)
+            let phoneNumber = try? phoneUtil.parse(inputPhoneNumber, defaultRegion: nil)
             setPhoneAction?.isEnabled = phoneUtil.isValidNumber(phoneNumber)
         }
         return true
@@ -347,9 +335,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             let action = UIAlertAction(title: readableResolution, style: .default) { _ in
                 NCSettingsController.sharedInstance().videoSettingsModel.storeVideoResolutionSetting(resolution)
                 self.tableView.beginUpdates()
-
                 self.tableView.reloadRows(at: [videoConfIndexPath], with: .none)
-
                 self.tableView.endUpdates()
             }
 
@@ -369,19 +355,17 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     }
 
     func presentBrowserSelector() {
+        guard let supportedBrowsers = NCSettingsController.sharedInstance().supportedBrowsers else {return}
         let browserConfIndexPath = self.getIndexPathForConfigurationOption(option: ConfigurationSectionOption.kConfigurationSectionOptionBrowser)
-        let supportedBrowsers = NCSettingsController.sharedInstance().supportedBrowsers!
         let supportedBrowsersUnwrapped: [String] = supportedBrowsers.compactMap({$0 as? String})
         let defaultBrowser = NCUserDefaults.defaultBrowser()
         let optionsActionSheet = UIAlertController(title: NSLocalizedString("Open links in", comment: ""), message: nil, preferredStyle: .actionSheet)
-        for browser in supportedBrowsersUnwrapped {
-            var isDefaultBrowser = false
-            isDefaultBrowser = browser == defaultBrowser
+        supportedBrowsersUnwrapped.forEach { browser in
             let action = UIAlertAction(title: browser, style: .default) { _ in
                 NCUserDefaults.setDefaultBrowser(browser)
                 self.tableView.reloadData()
             }
-            if isDefaultBrowser {
+            if browser == defaultBrowser {
                 action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_:.alwaysOriginal), forKey: "image")
             }
             optionsActionSheet.addAction(action)
@@ -530,6 +514,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         }
         return nil
     }
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell = UITableViewCell()
         let sections = getSettingsSections()
@@ -551,6 +536,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         }
         return cell
     }
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let sections = getSettingsSections()
         let settingsSection = sections[indexPath.section]
@@ -592,8 +578,11 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         self.tableView.deselectRow(at: indexPath, animated: true)
     }
 }
+
 extension SettingsTableViewController {
+
     // Cell configuration for every section
+
     func userSettingsCell(for indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: kUserSettingsCellIdentifier, for: indexPath) as? SettingsUserTableViewCell else { return UITableViewCell() }
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
@@ -604,6 +593,7 @@ extension SettingsTableViewController {
         cell.accessoryType = .disclosureIndicator
         return cell
     }
+
     func userStatusCell(for indexPath: IndexPath) -> UITableViewCell {
         let userStatusCellIdentifier = "UserStatusCellIdentifier"
         let cell = UITableViewCell(style: .default, reuseIdentifier: userStatusCellIdentifier)
@@ -621,6 +611,7 @@ extension SettingsTableViewController {
         cell.accessoryType = .disclosureIndicator
         return cell
     }
+
     func userAccountsCell(for indexPath: IndexPath) -> UITableViewCell {
         let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
         let account = inactiveAccounts[indexPath.row] as? TalkAccount
@@ -646,6 +637,7 @@ extension SettingsTableViewController {
         }
         return UITableViewCell()
     }
+
     func sectionConfigurationCell(for indexPath: IndexPath) -> UITableViewCell {
         let videoConfigurationCellIdentifier = "VideoConfigurationCellIdentifier"
         let browserConfigurationCellIdentifier = "BrowserConfigurationCellIdentifier"
@@ -694,6 +686,7 @@ extension SettingsTableViewController {
         }
         return cell
     }
+
     func sectionAboutCell(for indexPath: IndexPath) -> UITableViewCell {
         let privacyCellIdentifier = "PrivacyCellIdentifier"
         let sourceCodeCellIdentifier = "SourceCodeCellIdentifier"
