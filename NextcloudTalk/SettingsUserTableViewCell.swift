@@ -23,7 +23,6 @@
 import UIKit
 import NCCommunication
 
-
 class SettingsUserTableViewCell: UITableViewCell {
 
     @IBOutlet weak var userImageView: UIImageView!

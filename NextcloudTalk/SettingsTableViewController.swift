@@ -610,27 +610,21 @@ extension SettingsTableViewController {
     func userAccountsCell(for indexPath: IndexPath) -> UITableViewCell {
         let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
         let account = inactiveAccounts[indexPath.row] as? TalkAccount
-        var cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier) as? UserAccountTableViewCell
-        if cell == nil {
-            cell = UserAccountTableViewCell(style: .default, reuseIdentifier: kAccountCellIdentifier)
-        }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier, for: indexPath) as? UserAccountTableViewCell else { return UITableViewCell() }
         if let account = account {
-            cell?.accountNameLabel.text = account.userDisplayName
+            cell.accountNameLabel.text = account.userDisplayName
             let accountServer = account.server.replacingOccurrences(of: "https://", with: "")
-            cell?.accountServerLabel.text = accountServer
-            cell?.accountImageView.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: CGSize(width: 90, height: 90))
-            cell?.accessoryView = nil
+            cell.accountServerLabel.text = accountServer
+            cell.accountImageView.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: CGSize(width: 90, height: 90))
+            cell.accessoryView = nil
             if account.unreadBadgeNumber > 0 {
                 let badgeView = RoundedNumberView()
                 badgeView.highlightType = kHighlightTypeImportant
                 badgeView.number = account.unreadBadgeNumber
-                cell?.accessoryView = badgeView
+                cell.accessoryView = badgeView
             }
         }
-        if let cell = cell {
-            return cell
-        }
-        return UITableViewCell()
+        return cell
     }
     func sectionConfigurationCell(for indexPath: IndexPath) -> UITableViewCell {
         let videoConfigurationCellIdentifier = "VideoConfigurationCellIdentifier"
