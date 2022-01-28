@@ -153,7 +153,6 @@
 		2C7A245C24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A245924FE7B5300921A21 /* ShareConfirmationViewController.m */; };
 		2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A245A24FE7B5300921A21 /* ShareConfirmationViewController.xib */; };
 		2C7A245E24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A245A24FE7B5300921A21 /* ShareConfirmationViewController.xib */; };
-		2C7C106221AF199300461817 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7C106021AF199300461817 /* SettingsViewController.m */; };
 		2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */; };
 		2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */; };
@@ -490,8 +489,6 @@
 		2C7A245824FE7B5300921A21 /* ShareConfirmationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareConfirmationViewController.h; sourceTree = "<group>"; };
 		2C7A245924FE7B5300921A21 /* ShareConfirmationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareConfirmationViewController.m; sourceTree = "<group>"; };
 		2C7A245A24FE7B5300921A21 /* ShareConfirmationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShareConfirmationViewController.xib; sourceTree = "<group>"; };
-		2C7C105F21AF199300461817 /* SettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
-		2C7C106021AF199300461817 /* SettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
 		2C7F47AB20289B9600081CC7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2C8A2BC7221F094F00DE6D2C /* DirectoryTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirectoryTableViewController.h; sourceTree = "<group>"; };
 		2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DirectoryTableViewController.m; sourceTree = "<group>"; };
@@ -1065,8 +1062,6 @@
 				2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */,
 				2C5E957C227097E0009CA9BE /* NCUtils.h */,
 				2C5E957B227097E0009CA9BE /* NCUtils.m */,
-				2C7C105F21AF199300461817 /* SettingsViewController.h */,
-				2C7C106021AF199300461817 /* SettingsViewController.m */,
 				DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */,
 				2C2026A12369F47400DFC89B /* AccountTableViewCell.h */,
 				2C2026A22369F47400DFC89B /* AccountTableViewCell.m */,
@@ -1842,7 +1837,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C444703265D641300DF1DBC /* NCUserDefaults.m in Sources */,
-				2C7C106221AF199300461817 /* SettingsViewController.m in Sources */,
 				1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */,
 				1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				2C4446DD2658158000DF1DBC /* NCChatBlock.m in Sources */,
