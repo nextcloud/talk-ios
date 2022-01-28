@@ -110,8 +110,10 @@
     };
     NSError *error = nil;
     
-    // Set the default configuration to make sure we always use the correct realm-file
-    [RLMRealmConfiguration setDefaultConfiguration:configuration];
+    // When running as an extension, set the default configuration to make sure we always use the correct realm-file
+    if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]) {
+        [RLMRealmConfiguration setDefaultConfiguration:configuration];
+    }
     _realm = [RLMRealm realmWithConfiguration:configuration error:&error];
     
     [self setupShareViewForAccount:nil];
