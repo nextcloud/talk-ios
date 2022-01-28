@@ -615,6 +615,7 @@ extension SettingsTableViewController {
     func userAccountsCell(for indexPath: IndexPath) -> UITableViewCell {
         let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
         let account = inactiveAccounts[indexPath.row] as? TalkAccount
+        
         var cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier) as? UserAccountTableViewCell
         if cell == nil {
             cell = UserAccountTableViewCell(style: .default, reuseIdentifier: kAccountCellIdentifier)
