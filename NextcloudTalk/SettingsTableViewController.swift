@@ -621,20 +621,28 @@ extension SettingsTableViewController {
     }
     func userAccountsCell(for indexPath: IndexPath) -> UITableViewCell {
         let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
-        let account = (inactiveAccounts[indexPath.row] as? TalkAccount)!
-        let cell = UserAccountTableViewCell(style: .default, reuseIdentifier: kAccountCellIdentifier)
-        cell.accountNameLabel.text = account.userDisplayName
-        let accountServer = account.server.replacingOccurrences(of: "https://", with: "")
-        cell.accountServerLabel.text = accountServer
-        cell.accountImageView.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: CGSize(width: 90, height: 90))
-        cell.accessoryView = nil
-        if account.unreadBadgeNumber > 0 {
-            let badgeView = RoundedNumberView()
-            badgeView.highlightType = kHighlightTypeImportant
-            badgeView.number = account.unreadBadgeNumber
-            cell.accessoryView = badgeView
+        let account = inactiveAccounts[indexPath.row] as? TalkAccount
+        var cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier) as? UserAccountTableViewCell
+        if cell == nil {
+            cell = UserAccountTableViewCell(style: .default, reuseIdentifier: kAccountCellIdentifier)
         }
-        return cell
+        if let account = account {
+            cell?.accountNameLabel.text = account.userDisplayName
+            let accountServer = account.server.replacingOccurrences(of: "https://", with: "")
+            cell?.accountServerLabel.text = accountServer
+            cell?.accountImageView.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: CGSize(width: 90, height: 90))
+            cell?.accessoryView = nil
+            if account.unreadBadgeNumber > 0 {
+                let badgeView = RoundedNumberView()
+                badgeView.highlightType = kHighlightTypeImportant
+                badgeView.number = account.unreadBadgeNumber
+                cell?.accessoryView = badgeView
+            }
+        }
+        if let cell = cell {
+            return cell
+        }
+        return UITableViewCell()
     }
     func sectionConfigurationCell(for indexPath: IndexPath) -> UITableViewCell {
         let videoConfigurationCellIdentifier = "VideoConfigurationCellIdentifier"
