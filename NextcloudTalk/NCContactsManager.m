@@ -60,25 +60,10 @@ NSString * const NCContactsManagerContactsAccessUpdatedNotification = @"NCContac
     return self;
 }
 
-- (void)requestContactsAccess
+- (void)requestContactsAccess:(void (^)(BOOL granted))completionHandler
 {
     [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
-        if (granted) {
-            [self searchInServerForAddressBookContacts:YES];
-        }
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCContactsManagerContactsAccessUpdatedNotification
-                                                            object:self
-                                                          userInfo:nil];
-    }];
-}
-
-- (void)requestContactsAccess:(void (^)(BOOL result))completionHandler
-{
-    [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
-        if (granted) {
-            [self searchInServerForAddressBookContacts:YES];
-            completionHandler(YES);
-        }
+        completionHandler(granted);
         [[NSNotificationCenter defaultCenter] postNotificationName:NCContactsManagerContactsAccessUpdatedNotification
                                                             object:self
                                                           userInfo:nil];
@@ -135,7 +120,11 @@ NSString * const NCContactsManagerContactsAccessUpdatedNotification = @"NCContac
         [self updateAddressBookCopyWithContacts:contacts andTimestamp:updateTimestamp];
         [self searchForPhoneNumbers:phoneNumbersDict forAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
     } else if (![self isContactAccessDetermined]) {
-        [self requestContactsAccess];
+        [self requestContactsAccess:^(BOOL granted) {
+            if (granted) {
+                [self searchInServerForAddressBookContacts:YES];
+            }
+        }];
     }
 }
 
