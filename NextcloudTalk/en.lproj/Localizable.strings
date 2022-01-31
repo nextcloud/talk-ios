@@ -62,9 +62,6 @@
 "Accuracy" = "Accuracy";
 
 /* No comment provided by engineer. */
-"Activating lock screen" = "Activating lock screen";
-
-/* No comment provided by engineer. */
 "Add" = "Add";
 
 /* No comment provided by engineer. */
@@ -149,7 +146,10 @@
 "An error occurred while sending the message" = "An error occurred while sending the message";
 
 /* No comment provided by engineer. */
-"An error occurred while setting %@ as phone number" = "An error occurred while setting %@ as phone number";
+"An error occurred while setting \(formattedPhoneNumber) as phone number" = "An error occurred while setting \(formattedPhoneNumber) as phone number";
+
+/* No comment provided by engineer. */
+"An error occurred while setting phone number" = "An error occurred while setting phone number";
 
 /* No comment provided by engineer. */
 "An error occurred while setting status message" = "An error occurred while setting status message";
@@ -201,9 +201,6 @@
 
 /* No comment provided by engineer. */
 "Change password" = "Change password";
-
-/* No comment provided by engineer. */
-"Change password type" = "Change password type";
 
 /* No comment provided by engineer. */
 "Chat" = "Chat";
@@ -536,10 +533,10 @@
 "Group conversation" = "Group conversation";
 
 /* No comment provided by engineer. */
-"guest" = "guest";
+"Guest" = "Guest";
 
 /* No comment provided by engineer. */
-"Guest" = "Guest";
+"guest" = "guest";
 
 /* No comment provided by engineer. */
 "Guests access" = "Guests access";
@@ -596,7 +593,7 @@
 "Join the conversation at" = "Join the conversation at";
 
 /* No comment provided by engineer. */
-"Last sync: %@" = "Last sync: %@";
+"Last sync" = "Last sync";
 
 /* No comment provided by engineer. */
 "Leave" = "Leave";
@@ -627,12 +624,6 @@
 
 /* No comment provided by engineer. */
 "Location service has been denied. Check your settings." = "Location service has been denied. Check your settings.";
-
-/* No comment provided by engineer. */
-"Lock" = "Lock";
-
-/* No comment provided by engineer. */
-"Lock screen" = "Lock screen";
 
 /* No comment provided by engineer. */
 "Log in" = "Log in";
@@ -757,7 +748,7 @@
 /* No comment provided by engineer. */
 "Notifications: %@" = "Notifications: %@";
 
-/* TRANSLATORS this is for a On/Off setting switch */
+/* No comment provided by engineer. */
 "Off" = "Off";
 
 /* No comment provided by engineer. */
@@ -768,9 +759,6 @@
 
 /* No comment provided by engineer. */
 "OK" = "OK";
-
-/* TRANSLATORS this is for a On/Off setting switch */
-"On" = "On";
 
 /* No comment provided by engineer. */
 "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time." = "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.";
@@ -804,9 +792,6 @@
 
 /* No comment provided by engineer. */
 "Password field for public conversation" = "Password field for public conversation";
-
-/* No comment provided by engineer. */
-"Password type" = "Password type";
 
 /* No comment provided by engineer. */
 "Phone number" = "Phone number";
@@ -887,9 +872,6 @@
 "Remove password" = "Remove password";
 
 /* No comment provided by engineer. */
-"Removing lock screen" = "Removing lock screen";
-
-/* No comment provided by engineer. */
 "Reply" = "Reply";
 
 /* No comment provided by engineer. */
@@ -912,9 +894,6 @@
 
 /* No comment provided by engineer. */
 "Save" = "Save";
-
-/* No comment provided by engineer. */
-"Scan fingerprint to authenticate" = "Scan fingerprint to authenticate";
 
 /* No comment provided by engineer. */
 "Search" = "Search";
@@ -983,9 +962,6 @@
 "Shared location" = "Shared location";
 
 /* No comment provided by engineer. */
-"Simple" = "Simple";
-
-/* No comment provided by engineer. */
 "SIP dial-in" = "SIP dial-in";
 
 /* No comment provided by engineer. */
@@ -1014,9 +990,6 @@
 
 /* No comment provided by engineer. */
 "Status message" = "Status message";
-
-/* No comment provided by engineer. */
-"Strong" = "Strong";
 
 /* No comment provided by engineer. */
 "Sync contacts" = "Sync contacts";
