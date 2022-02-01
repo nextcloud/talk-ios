@@ -29,14 +29,18 @@ enum UserStatusSection: Int {
 }
 
 class StatusUserTableViewController: UITableViewController, DetailedOptionsSelectorTableViewControllerDelegate, UserStatusMessageViewControllerDelegate {
+
     var userStatus: NCUserStatus?
-    @objc init(userStatus: NCUserStatus?) {
+
+    init(userStatus: NCUserStatus?) {
         super.init(style: .grouped)
         self.userStatus = userStatus
     }
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isTranslucent = false
@@ -56,9 +60,12 @@ class StatusUserTableViewController: UITableViewController, DetailedOptionsSelec
             self.navigationItem.scrollEdgeAppearance = appearance
         }
     }
+
     // MARK: User Status
+
     func presentUserStatusOptions() {
         var options = [DetailedOption]()
+
         let onlineOption = DetailedOption()
         onlineOption.identifier = kUserStatusOnline
         onlineOption.image = UIImage(named: NCUserStatus.userStatusImageName(forStatus: kUserStatusOnline, ofSize: 24))?.withRenderingMode(.alwaysOriginal)
@@ -66,6 +73,7 @@ class StatusUserTableViewController: UITableViewController, DetailedOptionsSelec
         if let userStatus = userStatus {
             onlineOption.selected = userStatus.status == kUserStatusOnline
         }
+
         let awayOption = DetailedOption()
         awayOption.identifier = kUserStatusAway
         awayOption.image = UIImage(named: NCUserStatus.userStatusImageName(forStatus: kUserStatusAway, ofSize: 24))?.withRenderingMode(.alwaysOriginal)
@@ -73,6 +81,7 @@ class StatusUserTableViewController: UITableViewController, DetailedOptionsSelec
         if let userStatus = userStatus {
             awayOption.selected = userStatus.status == kUserStatusAway
         }
+
         let dndOption = DetailedOption()
         dndOption.identifier = kUserStatusDND
         dndOption.image = UIImage(named: NCUserStatus.userStatusImageName(forStatus: kUserStatusDND, ofSize: 24))?.withRenderingMode(.alwaysOriginal)
@@ -81,6 +90,7 @@ class StatusUserTableViewController: UITableViewController, DetailedOptionsSelec
         if let userStatus = userStatus {
             dndOption.selected = userStatus.status == kUserStatusDND
         }
+
         let invisibleOption = DetailedOption()
         invisibleOption.identifier = kUserStatusInvisible
         invisibleOption.image = UIImage(named: NCUserStatus.userStatusImageName(forStatus: kUserStatusInvisible, ofSize: 24))?.withRenderingMode(.alwaysOriginal)
@@ -89,17 +99,20 @@ class StatusUserTableViewController: UITableViewController, DetailedOptionsSelec
         if let userStatus = userStatus {
             invisibleOption.selected = userStatus.status == kUserStatusInvisible
         }
+
         options.append(onlineOption)
         options.append(awayOption)
         options.append(dndOption)
         options.append(invisibleOption)
-        let optionSelectorVC = DetailedOptionsSelectorTableViewController(options: options, forSenderIdentifier: nil, andTitle: NSLocalizedString(("Online status"), comment: ""))
+
+        let optionSelectorVC = DetailedOptionsSelectorTableViewController(options: options, forSenderIdentifier: nil, andTitle: NSLocalizedString("Online status", comment: ""))
         if let optionSelectorVC = optionSelectorVC {
             optionSelectorVC.delegate = self
             let optionSelectorNC = NCNavigationController(rootViewController: optionSelectorVC)
             self.present(optionSelectorNC, animated: true, completion: nil)
         }
     }
+
     func presentUserStatusMessageOptions() {
         if let userStatus = userStatus {
             let userStatusMessageVC = UserStatusMessageViewController(userStatus: userStatus)
@@ -108,12 +121,14 @@ class StatusUserTableViewController: UITableViewController, DetailedOptionsSelec
             self.present(userStatusMessageNC, animated: true, completion: nil)
         }
     }
+
     func setActiveUserStatus(userStatus: String) {
         let activeAcoount: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCAPIController.sharedInstance().setUserStatus(userStatus, for: activeAcoount) { _ in
             self.getActiveUserStatus()
         }
     }
+
     func getActiveUserStatus() {
         let activeAccount: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCAPIController.sharedInstance().getUserStatus(for: activeAccount) { [self] userStatusDict, error in
@@ -123,7 +138,9 @@ class StatusUserTableViewController: UITableViewController, DetailedOptionsSelec
             }
         }
     }
+
     // MARK: DetailedOptionSelector Delegate
+
     func detailedOptionsSelector(_ viewController: DetailedOptionsSelectorTableViewController?, didSelectOptionWithIdentifier option: DetailedOption?) {
         self.dismiss(animated: true) {
             if let option = option {
@@ -133,10 +150,13 @@ class StatusUserTableViewController: UITableViewController, DetailedOptionsSelec
             }
         }
     }
+
     func detailedOptionsSelectorWasCancelled(_ viewController: DetailedOptionsSelectorTableViewController?) {
         self.dismiss(animated: true, completion: nil)
     }
-// MARK: UserStatusMessageViewController Delegate
+
+    // MARK: UserStatusMessageViewController Delegate
+
     func didClearStatusMessage() {
         if let userStatus = userStatus {
             userStatus.icon = ""
@@ -159,13 +179,17 @@ class StatusUserTableViewController: UITableViewController, DetailedOptionsSelec
             self.tableView.reloadData()
         }
     }
+
     // MARK: Table view data source
+
     override func numberOfSections(in tableView: UITableView) -> Int {
         return UserStatusSection.kUserStatusSectionCount.rawValue
     }
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
+
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch section {
         case UserStatusSection.kUserStatusSectionOnlineStatus.rawValue:
@@ -176,6 +200,7 @@ class StatusUserTableViewController: UITableViewController, DetailedOptionsSelec
             return nil
         }
     }
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell = UITableViewCell()
         let kOnlineStatusCellIdentifier = "OnlineStatusCellIdentifier"
@@ -209,6 +234,7 @@ class StatusUserTableViewController: UITableViewController, DetailedOptionsSelec
         }
         return cell
     }
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.section {
         case UserStatusSection.kUserStatusSectionOnlineStatus.rawValue:
