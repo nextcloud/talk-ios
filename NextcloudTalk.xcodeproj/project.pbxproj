@@ -166,7 +166,6 @@
 		2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */; };
 		2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */; };
 		2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
-		2C9E071826D934F500F65D41 /* UserStatusTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C9E071626D934F500F65D41 /* UserStatusTableViewController.xib */; };
 		2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */; };
 		2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
 		2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15544208E41B500CE8EF0 /* NCChatViewController.m */; };
@@ -265,7 +264,7 @@
 		DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */; };
 		DA755811278EF3EF00A48A1B /* SettingsUserTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA755810278EF3EF00A48A1B /* SettingsUserTableViewCell.swift */; };
 		DA7558132790D65700A48A1B /* UserAccountTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558122790D65700A48A1B /* UserAccountTableViewCell.swift */; };
-		DA7558C6279AE67F00A48A1B /* StatusUserTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558C5279AE67F00A48A1B /* StatusUserTableViewController.swift */; };
+		DA7558C6279AE67F00A48A1B /* UserStatusTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558C5279AE67F00A48A1B /* UserStatusTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -587,7 +586,6 @@
 		2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNotificationController.m; sourceTree = "<group>"; };
 		2C9B0B9A217F756B00A4752C /* NCNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCNotification.h; sourceTree = "<group>"; };
 		2C9B0B9B217F756B00A4752C /* NCNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNotification.m; sourceTree = "<group>"; };
-		2C9E071626D934F500F65D41 /* UserStatusTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserStatusTableViewController.xib; sourceTree = "<group>"; };
 		2C9E6CCC1F6F34F000399B7A /* ARDSDPUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSDPUtils.h; sourceTree = "<group>"; };
 		2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDSDPUtils.m; sourceTree = "<group>"; };
 		2CA1553F208E350300CE8EF0 /* NCChatMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatMessage.h; sourceTree = "<group>"; };
@@ -727,7 +725,7 @@
 		DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 		DA755810278EF3EF00A48A1B /* SettingsUserTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUserTableViewCell.swift; sourceTree = "<group>"; };
 		DA7558122790D65700A48A1B /* UserAccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountTableViewCell.swift; sourceTree = "<group>"; };
-		DA7558C5279AE67F00A48A1B /* StatusUserTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusUserTableViewController.swift; sourceTree = "<group>"; };
+		DA7558C5279AE67F00A48A1B /* UserStatusTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1053,8 +1051,7 @@
 				DA755810278EF3EF00A48A1B /* SettingsUserTableViewCell.swift */,
 				2C78E9E125120DE500E3D4CA /* NCUserStatus.h */,
 				2C78E9E225120DE500E3D4CA /* NCUserStatus.m */,
-				2C9E071626D934F500F65D41 /* UserStatusTableViewController.xib */,
-				DA7558C5279AE67F00A48A1B /* StatusUserTableViewController.swift */,
+				DA7558C5279AE67F00A48A1B /* UserStatusTableViewController.swift */,
 				2CF9CBD926010835002246EF /* UserProfileViewController.h */,
 				2CF9CBDA26010835002246EF /* UserProfileViewController.m */,
 				2CF9CBF926025F64002246EF /* TextInputTableViewCell.h */,
@@ -1617,7 +1614,6 @@
 				2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
-				2C9E071826D934F500F65D41 /* UserStatusTableViewController.xib in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
 				2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
@@ -1826,7 +1822,7 @@
 				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				DA755811278EF3EF00A48A1B /* SettingsUserTableViewCell.swift in Sources */,
-				DA7558C6279AE67F00A48A1B /* StatusUserTableViewController.swift in Sources */,
+				DA7558C6279AE67F00A48A1B /* UserStatusTableViewController.swift in Sources */,
 				2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */,
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
 				2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */,
