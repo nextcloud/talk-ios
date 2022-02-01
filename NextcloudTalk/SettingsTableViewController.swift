@@ -610,7 +610,7 @@ extension SettingsTableViewController {
     func userAccountsCell(for indexPath: IndexPath) -> UITableViewCell {
         let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
         let account = inactiveAccounts[indexPath.row] as? TalkAccount
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier, for: indexPath) as? UserAccountTableViewCell else { return UITableViewCell() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier, for: indexPath) as? AccountTableViewCell else { return UITableViewCell() }
         if let account = account {
             cell.accountNameLabel.text = account.userDisplayName
             let accountServer = account.server.replacingOccurrences(of: "https://", with: "")

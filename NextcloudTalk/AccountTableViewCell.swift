@@ -22,7 +22,7 @@
 
 import UIKit
 
-class UserAccountTableViewCell: UITableViewCell {
+class AccountTableViewCell: UITableViewCell {
 
     @IBOutlet weak var accountImageView: UIImageView!
     @IBOutlet weak var accountNameLabel: UILabel!
@@ -33,11 +33,6 @@ class UserAccountTableViewCell: UITableViewCell {
         self.accountImageView.layer.cornerRadius = 15.0
         self.accountImageView.layer.masksToBounds = true
         self.separatorInset = UIEdgeInsets(top: 0, left: 54, bottom: 0, right: 0)
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
     }
 
     override func prepareForReuse() {
