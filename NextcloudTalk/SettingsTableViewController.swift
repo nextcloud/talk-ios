@@ -289,8 +289,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         let alertTitle = NSLocalizedString("Could not set phone number", comment: "")
         var alertMessage = NSLocalizedString("An error occurred while setting phone number", comment: "")
         let failedPhoneNumber = try? phoneUtil.parse(phoneNumber, defaultRegion: nil)
-        if let failedNumberFormated = try? phoneUtil.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
-            alertMessage = NSLocalizedString("An error occurred while setting \(failedNumberFormated) as phone number", comment: "")
+        if let formattedPhoneNumber = try? phoneUtil.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
+            alertMessage = NSLocalizedString("An error occurred while setting \(formattedPhoneNumber) as phone number", comment: "")
         }
 
         let failedPhoneNumberDialog = UIAlertController(
@@ -502,7 +502,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateStyle = .medium
                 dateFormatter.timeStyle = .short
-                return NSLocalizedString("Last sync: ", comment: "") + dateFormatter.string(from: lastUpdate)
+                return NSLocalizedString("Last sync", comment: "") + ": " + dateFormatter.string(from: lastUpdate)
             }
         }
         if settingsSection == SettingsSection.kSettingsSectionUser.rawValue && contactSyncSwitch.isOn {
@@ -602,7 +602,7 @@ extension SettingsTableViewController {
             let statusImage = activeUserStatus!.userStatusImageName(ofSize: 24)
             cell.imageView?.image = UIImage(named: statusImage)
         } else {
-            cell.textLabel?.text = NSLocalizedString("Fetching status ...", comment: "")
+            cell.textLabel?.text = NSLocalizedString("Fetching status …", comment: "")
         }
         cell.accessoryType = .disclosureIndicator
         return cell
@@ -661,7 +661,7 @@ extension SettingsTableViewController {
             readStatusSwitch.isOn = !serverCapabilities.readStatusPrivacy
         case ConfigurationSectionOption.kConfigurationSectionOptionContactsSync.rawValue:
             cell = UITableViewCell(style: .subtitle, reuseIdentifier: contactsSyncCellIdentifier)
-            cell.textLabel?.text = NSLocalizedString("Phone number", comment: "")
+            cell.textLabel?.text = NSLocalizedString("Phone number integration", comment: "")
             cell.detailTextLabel?.text = NSLocalizedString("Match system contacts", comment: "")
             cell.selectionStyle = .none
             cell.imageView?.contentMode = .scaleAspectFit
