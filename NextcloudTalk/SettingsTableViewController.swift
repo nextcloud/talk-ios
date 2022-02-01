@@ -581,7 +581,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 extension SettingsTableViewController {
     // Cell configuration for every section
     func userSettingsCell(for indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: kUserSettingsCellIdentifier, for: indexPath) as? SettingsUserTableViewCell else { return UITableViewCell() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: kUserSettingsCellIdentifier, for: indexPath) as? UserSettingsTableViewCell else { return UITableViewCell() }
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         cell.userDisplayNameLabel.text = activeAccount.userDisplayName
         let accountServer = activeAccount.server

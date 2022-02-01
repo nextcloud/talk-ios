@@ -23,7 +23,7 @@
 import UIKit
 import NCCommunication
 
-class SettingsUserTableViewCell: UITableViewCell {
+class UserSettingsTableViewCell: UITableViewCell {
 
     @IBOutlet weak var userImageView: UIImageView!
     @IBOutlet weak var userDisplayNameLabel: UILabel!
@@ -32,15 +32,8 @@ class SettingsUserTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
         self.userImageView.layer.cornerRadius = 40.0
         self.userImageView.layer.masksToBounds = true
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
     }
 
 }
