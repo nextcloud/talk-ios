@@ -80,12 +80,6 @@
     
     //Init rooms manager to start receiving NSNotificationCenter notifications
     [NCRoomsManager sharedInstance];
-
-    [[BKPasscodeLockScreenManager sharedManager] setDelegate:self];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[BKPasscodeLockScreenManager sharedManager] showLockScreen:NO];
-    });
     
     [self registerBackgroundFetchTask];
     
@@ -117,8 +111,6 @@
 {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-    // show passcode view controller when enter background. Screen will be obscured from here.
-    [[BKPasscodeLockScreenManager sharedManager] showLockScreen:NO];
     
     if (@available(iOS 13.0, *)) {
         [self scheduleAppRefresh];
@@ -303,58 +295,6 @@
     }
     
     return [token copy];
-}
-
-
-#pragma mark - Lock screen
-
-- (void)passcodeViewController:(CCBKPasscode *)aViewController didFinishWithPasscode:(NSString *)aPasscode
-{
-    [aViewController dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (void)passcodeViewController:(CCBKPasscode *)aViewController authenticatePasscode:(NSString *)aPasscode resultHandler:(void (^)(BOOL))aResultHandler
-{
-    if ([aPasscode isEqualToString:[NCSettingsController sharedInstance].lockScreenPasscode]) {
-        aResultHandler(YES);
-    } else {
-        aResultHandler(NO);
-    }
-}
-
-- (BOOL)lockScreenManagerShouldShowLockScreen:(BKPasscodeLockScreenManager *)aManager
-{
-    BOOL shouldShowLockScreen = [[NCSettingsController sharedInstance].lockScreenPasscode length] != 0;
-    // Do not show lock screen if there are no accounts configured
-    if ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) {
-        shouldShowLockScreen = NO;
-    }
-    
-    return shouldShowLockScreen;
-}
-
-- (UIViewController *)lockScreenManagerPasscodeViewController:(BKPasscodeLockScreenManager *)aManager
-{
-    CCBKPasscode *viewController = [[CCBKPasscode alloc] initWithNibName:nil bundle:nil];
-    viewController.type = BKPasscodeViewControllerCheckPasscodeType;
-    viewController.delegate = self;
-    viewController.title = talkAppName;
-    viewController.fromType = CCBKPasscodeFromLockScreen;
-
-    if ([NCSettingsController sharedInstance].lockScreenPasscodeType == NCPasscodeTypeSimple) {
-        viewController.passcodeStyle = BKPasscodeInputViewNumericPasscodeStyle;
-        viewController.passcodeInputView.maximumLength = 6;
-    } else {
-        viewController.passcodeStyle = BKPasscodeInputViewNormalPasscodeStyle;
-        viewController.passcodeInputView.maximumLength = 64;
-    }
-    
-    viewController.touchIDManager = [[BKTouchIDManager alloc] initWithKeychainServiceName:bundleIdentifier];
-    viewController.touchIDManager.promptText = @"Scan fingerprint to authenticate";
-
-    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:viewController];
-    navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
-    return navigationController;
 }
 
 #pragma mark - BackgroundFetch / AppRefresh

@@ -10,8 +10,6 @@ pod 'SocketRocket'
 pod 'DBImageColorPicker'
 pod 'UICKeyChainStore'
 pod 'Realm', '10.18.0'
-pod "AFViewShaker", "~> 0.0.5"
-pod 'BKPasscodeView', '~> 0.1.2'
 pod 'MaterialComponents/ActivityIndicator'
 pod 'Toast', '~> 4.0.0'
 pod "PulsingHalo"

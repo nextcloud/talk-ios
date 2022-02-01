@@ -44,13 +44,6 @@
 #import "NCChatFileController.h"
 #import "NotificationCenterNotifications.h"
 
-@interface NCSettingsController ()
-{
-    NSString *_lockScreenPasscode;
-    NCPasscodeType _lockScreenPasscodeType;
-}
-
-@end
 
 @implementation NCSettingsController
 
@@ -365,7 +358,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
 - (void)configureAppSettings
 {
     [self configureDefaultBrowser];
-    [self configureLockScreen];
 }
 
 #pragma mark - Default browser
@@ -382,35 +374,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     if (![supportedBrowsers containsObject:[NCUserDefaults defaultBrowser]]) {
         [NCUserDefaults setDefaultBrowser:@"Safari"];
     }
-}
-
-#pragma mark - Lock screen
-
-- (void)configureLockScreen
-{
-    _lockScreenPasscode = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCLockScreenPasscode];
-}
-
-- (void)setLockScreenPasscode:(NSString *)lockScreenPasscode
-{
-    _lockScreenPasscode = lockScreenPasscode;
-    [[NCKeyChainController sharedInstance].keychain setString:lockScreenPasscode forKey:kNCLockScreenPasscode];
-}
-
-- (NCPasscodeType)lockScreenPasscodeType
-{
-    NCPasscodeType passcodeType = (NCPasscodeType)[[[NSUserDefaults standardUserDefaults] objectForKey:kNCLockScreenPasscodeType] integerValue];
-    if (!passcodeType) {
-        passcodeType = NCPasscodeTypeSimple;
-        [[NSUserDefaults standardUserDefaults] setObject:@(passcodeType) forKey:kNCLockScreenPasscodeType];
-    }
-    return passcodeType;
-}
-
-- (void)setLockScreenPasscodeType:(NCPasscodeType)lockScreenPasscodeType
-{
-    _lockScreenPasscodeType = lockScreenPasscodeType;
-    [[NSUserDefaults standardUserDefaults] setObject:@(lockScreenPasscodeType) forKey:kNCLockScreenPasscodeType];
 }
 
 #pragma mark - Signaling Configuration

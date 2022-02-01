@@ -40,8 +40,6 @@ extern NSString * const kNCDeviceIdentifier;
 extern NSString * const kNCDeviceSignature;
 extern NSString * const kNCUserPublicKey;
 extern NSString * const kNCUserDefaultBrowser;
-extern NSString * const kNCLockScreenPasscode;
-extern NSString * const kNCLockScreenPasscodeType;
 
 @interface NCKeyChainController : NSObject
 
