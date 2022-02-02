@@ -55,11 +55,6 @@ typedef enum NCPreferredFileSorting {
     NCModificationDateSorting
 } NCPreferredFileSorting;
 
-typedef enum NCPasscodeType {
-    NCPasscodeTypeSimple = 1,
-    NCPasscodeTypeStrong
-} NCPasscodeType;
-
 @class NCExternalSignalingController;
 
 @interface NCSettingsController : NSObject
@@ -79,8 +74,6 @@ typedef enum NCPasscodeType {
 @property (nonatomic, copy) NSString *ncDeviceSignature;
 @property (nonatomic, copy) NSString *ncUserPublicKey;
 @property (nonatomic, copy) NSMutableArray *supportedBrowsers;
-@property (nonatomic, copy) NSString *lockScreenPasscode;
-@property (nonatomic, assign) NCPasscodeType lockScreenPasscodeType;
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
 @property (nonatomic, copy) NSMutableDictionary *signalingConfigutations; // accountId -> signalingConfigutation
 @property (nonatomic, copy) NSMutableDictionary *externalSignalingControllers; // accountId -> externalSignalingController

@@ -24,8 +24,6 @@
 		2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */; };
 		2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */; };
 		2C06330F2046CC8B0043481A /* NCUserInterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06330E2046CC8B0043481A /* NCUserInterfaceController.m */; };
-		2C063313205A85850043481A /* VideoSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063312205A85850043481A /* VideoSettingsViewController.m */; };
-		2C063318205ACB140043481A /* VideoResolutionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C063317205ACB140043481A /* VideoResolutionsViewController.m */; };
 		2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */; };
 		2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C06BF6320AC64370031EB46 /* DateHeaderView.xib */; };
 		2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
@@ -168,7 +166,6 @@
 		2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */; };
 		2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */; };
 		2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
-		2C9E071826D934F500F65D41 /* UserStatusTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C9E071626D934F500F65D41 /* UserStatusTableViewController.xib */; };
 		2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */; };
 		2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
 		2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15544208E41B500CE8EF0 /* NCChatViewController.m */; };
@@ -263,12 +260,11 @@
 		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
-		C1292B8C237313590004C3B7 /* CCBKPasscode.m in Sources */ = {isa = PBXBuildFile; fileRef = C1292B8B237313590004C3B7 /* CCBKPasscode.m */; };
 		DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */; };
 		DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */; };
-		DA755811278EF3EF00A48A1B /* SettingsUserTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA755810278EF3EF00A48A1B /* SettingsUserTableViewCell.swift */; };
-		DA7558132790D65700A48A1B /* UserAccountTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558122790D65700A48A1B /* UserAccountTableViewCell.swift */; };
-		DA7558C6279AE67F00A48A1B /* StatusUserTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558C5279AE67F00A48A1B /* StatusUserTableViewController.swift */; };
+		DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */; };
+		DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558122790D65700A48A1B /* AccountTableViewCell.swift */; };
+		DA7558C6279AE67F00A48A1B /* UserStatusTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558C5279AE67F00A48A1B /* UserStatusTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -324,10 +320,6 @@
 		2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoginViewController.xib; sourceTree = "<group>"; };
 		2C06330D2046CC8B0043481A /* NCUserInterfaceController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCUserInterfaceController.h; sourceTree = "<group>"; };
 		2C06330E2046CC8B0043481A /* NCUserInterfaceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCUserInterfaceController.m; sourceTree = "<group>"; };
-		2C063311205A85850043481A /* VideoSettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoSettingsViewController.h; sourceTree = "<group>"; };
-		2C063312205A85850043481A /* VideoSettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoSettingsViewController.m; sourceTree = "<group>"; };
-		2C063316205ACB140043481A /* VideoResolutionsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoResolutionsViewController.h; sourceTree = "<group>"; };
-		2C063317205ACB140043481A /* VideoResolutionsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoResolutionsViewController.m; sourceTree = "<group>"; };
 		2C06BF5B20A89F510031EB46 /* NCRoomsManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCRoomsManager.h; sourceTree = "<group>"; };
 		2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCRoomsManager.m; sourceTree = "<group>"; };
 		2C06BF6320AC64370031EB46 /* DateHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DateHeaderView.xib; sourceTree = "<group>"; };
@@ -594,7 +586,6 @@
 		2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNotificationController.m; sourceTree = "<group>"; };
 		2C9B0B9A217F756B00A4752C /* NCNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCNotification.h; sourceTree = "<group>"; };
 		2C9B0B9B217F756B00A4752C /* NCNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNotification.m; sourceTree = "<group>"; };
-		2C9E071626D934F500F65D41 /* UserStatusTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserStatusTableViewController.xib; sourceTree = "<group>"; };
 		2C9E6CCC1F6F34F000399B7A /* ARDSDPUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDSDPUtils.h; sourceTree = "<group>"; };
 		2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDSDPUtils.m; sourceTree = "<group>"; };
 		2CA1553F208E350300CE8EF0 /* NCChatMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatMessage.h; sourceTree = "<group>"; };
@@ -728,15 +719,13 @@
 		684807120F4439797973DF73 /* libPods-ShareExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ShareExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		95D756208A81284B975853EC /* Pods-ShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-ShareExtension/Pods-ShareExtension.release.xcconfig"; sourceTree = "<group>"; };
 		9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C1292B8A237313590004C3B7 /* CCBKPasscode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCBKPasscode.h; sourceTree = "<group>"; };
-		C1292B8B237313590004C3B7 /* CCBKPasscode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCBKPasscode.m; sourceTree = "<group>"; };
 		D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateLabelCustom.swift; sourceTree = "<group>"; };
 		DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
-		DA755810278EF3EF00A48A1B /* SettingsUserTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUserTableViewCell.swift; sourceTree = "<group>"; };
-		DA7558122790D65700A48A1B /* UserAccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountTableViewCell.swift; sourceTree = "<group>"; };
-		DA7558C5279AE67F00A48A1B /* StatusUserTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusUserTableViewController.swift; sourceTree = "<group>"; };
+		DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsTableViewCell.swift; sourceTree = "<group>"; };
+		DA7558122790D65700A48A1B /* AccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTableViewCell.swift; sourceTree = "<group>"; };
+		DA7558C5279AE67F00A48A1B /* UserStatusTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1057,17 +1046,12 @@
 				2C5E957B227097E0009CA9BE /* NCUtils.m */,
 				DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */,
 				2C2026A32369F47400DFC89B /* AccountTableViewCell.xib */,
-				DA7558122790D65700A48A1B /* UserAccountTableViewCell.swift */,
+				DA7558122790D65700A48A1B /* AccountTableViewCell.swift */,
 				2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */,
-				DA755810278EF3EF00A48A1B /* SettingsUserTableViewCell.swift */,
-				2C063316205ACB140043481A /* VideoResolutionsViewController.h */,
-				2C063317205ACB140043481A /* VideoResolutionsViewController.m */,
-				2C063311205A85850043481A /* VideoSettingsViewController.h */,
-				2C063312205A85850043481A /* VideoSettingsViewController.m */,
+				DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */,
 				2C78E9E125120DE500E3D4CA /* NCUserStatus.h */,
 				2C78E9E225120DE500E3D4CA /* NCUserStatus.m */,
-				2C9E071626D934F500F65D41 /* UserStatusTableViewController.xib */,
-				DA7558C5279AE67F00A48A1B /* StatusUserTableViewController.swift */,
+				DA7558C5279AE67F00A48A1B /* UserStatusTableViewController.swift */,
 				2CF9CBD926010835002246EF /* UserProfileViewController.h */,
 				2CF9CBDA26010835002246EF /* UserProfileViewController.m */,
 				2CF9CBF926025F64002246EF /* TextInputTableViewCell.h */,
@@ -1381,8 +1365,6 @@
 		2CBF82B31FCC7DC100636459 /* Security */ = {
 			isa = PBXGroup;
 			children = (
-				C1292B8A237313590004C3B7 /* CCBKPasscode.h */,
-				C1292B8B237313590004C3B7 /* CCBKPasscode.m */,
 				2CBF82B01FCC7DBA00636459 /* CCCertificate.h */,
 				2CBF82B11FCC7DBA00636459 /* CCCertificate.m */,
 			);
@@ -1632,7 +1614,6 @@
 				2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
-				2C9E071826D934F500F65D41 /* UserStatusTableViewController.xib in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
 				2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
@@ -1836,13 +1817,12 @@
 				2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */,
 				2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
-				C1292B8C237313590004C3B7 /* CCBKPasscode.m in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
 				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
-				DA755811278EF3EF00A48A1B /* SettingsUserTableViewCell.swift in Sources */,
-				DA7558C6279AE67F00A48A1B /* StatusUserTableViewController.swift in Sources */,
+				DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */,
+				DA7558C6279AE67F00A48A1B /* UserStatusTableViewController.swift in Sources */,
 				2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */,
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
 				2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */,
@@ -1881,7 +1861,7 @@
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
-				DA7558132790D65700A48A1B /* UserAccountTableViewCell.swift in Sources */,
+				DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */,
 				2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
 				2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */,
@@ -1906,7 +1886,6 @@
 				2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */,
 				2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */,
 				2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */,
-				2C063313205A85850043481A /* VideoSettingsViewController.m in Sources */,
 				2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */,
 				2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */,
 				2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */,
@@ -1935,7 +1914,6 @@
 				2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */,
 				2C1ABDCE257E939600AEDFB6 /* NCContact.m in Sources */,
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
-				2C063318205ACB140043481A /* VideoResolutionsViewController.m in Sources */,
 				2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */,
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,

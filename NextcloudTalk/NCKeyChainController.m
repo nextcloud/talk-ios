@@ -43,8 +43,6 @@ NSString * const kNCDeviceIdentifier            = @"ncDeviceIdentifier";
 NSString * const kNCDeviceSignature             = @"ncDeviceSignature";
 NSString * const kNCUserPublicKey               = @"ncUserPublicKey";
 NSString * const kNCUserDefaultBrowser          = @"ncUserDefaultBrowser";
-NSString * const kNCLockScreenPasscode          = @"ncLockScreenPasscode";
-NSString * const kNCLockScreenPasscodeType      = @"ncLockScreenPasscodeType";
 
 + (NCKeyChainController *)sharedInstance
 {

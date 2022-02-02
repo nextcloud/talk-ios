@@ -225,7 +225,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     func presentUserStatusOptions() {
         if let activeUserStatus = activeUserStatus {
-            let viewController = StatusUserTableViewController(userStatus: activeUserStatus)
+            let viewController = UserStatusTableViewController(userStatus: activeUserStatus)
             self.navigationController?.pushViewController(viewController, animated: true)
         }
     }
@@ -581,7 +581,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 extension SettingsTableViewController {
     // Cell configuration for every section
     func userSettingsCell(for indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: kUserSettingsCellIdentifier, for: indexPath) as? SettingsUserTableViewCell else { return UITableViewCell() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: kUserSettingsCellIdentifier, for: indexPath) as? UserSettingsTableViewCell else { return UITableViewCell() }
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         cell.userDisplayNameLabel.text = activeAccount.userDisplayName
         let accountServer = activeAccount.server
@@ -610,7 +610,7 @@ extension SettingsTableViewController {
     func userAccountsCell(for indexPath: IndexPath) -> UITableViewCell {
         let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
         let account = inactiveAccounts[indexPath.row] as? TalkAccount
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier, for: indexPath) as? UserAccountTableViewCell else { return UITableViewCell() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier, for: indexPath) as? AccountTableViewCell else { return UITableViewCell() }
         if let account = account {
             cell.accountNameLabel.text = account.userDisplayName
             let accountServer = account.server.replacingOccurrences(of: "https://", with: "")

@@ -1,7 +1,7 @@
 /**
- * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
+ * @copyright Copyright (c) 2022 Aleksandra Lazarevic <aleksandra@nextcloud.com>
  *
- * @author Ivan Sein <ivan@nextcloud.com>
+ * @author Aleksandra Lazarevic <aleksandra@nextcloud.com>
  *
  * @license GNU GPL version 3 or any later version
  *
@@ -20,8 +20,20 @@
  *
  */
 
-#import <UIKit/UIKit.h>
+import UIKit
+import NCCommunication
 
-@interface VideoResolutionsViewController : UITableViewController
+class UserSettingsTableViewCell: UITableViewCell {
 
-@end
+    @IBOutlet weak var userImageView: UIImageView!
+    @IBOutlet weak var userDisplayNameLabel: UILabel!
+    @IBOutlet weak var userStatusImageView: UIImageView!
+    @IBOutlet weak var serverAddressLabel: UILabel!
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        self.userImageView.layer.cornerRadius = 40.0
+        self.userImageView.layer.masksToBounds = true
+    }
+
+}

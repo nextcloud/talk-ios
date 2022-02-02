@@ -28,7 +28,7 @@ enum UserStatusSection: Int {
     case kUserStatusSectionCount
 }
 
-class StatusUserTableViewController: UITableViewController, DetailedOptionsSelectorTableViewControllerDelegate, UserStatusMessageViewControllerDelegate {
+class UserStatusTableViewController: UITableViewController, DetailedOptionsSelectorTableViewControllerDelegate, UserStatusMessageViewControllerDelegate {
 
     var userStatus: NCUserStatus?
 
