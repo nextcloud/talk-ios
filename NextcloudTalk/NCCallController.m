@@ -673,11 +673,14 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)checkIfPendingOffer:(NCSignalingMessage *)signalingMessage
 {
-    NSString *peerKey = [signalingMessage.from stringByAppendingString:signalingMessage.roomType];
-    NSTimer *pendingRequestTimer = [_pendingOffersDict objectForKey:peerKey];
-    if (pendingRequestTimer && signalingMessage.messageType == kNCSignalingMessageTypeOffer) {
-        NSLog(@"Pending requested offer arrived. Removing timer.");
-        [pendingRequestTimer invalidate];
+    if (signalingMessage.messageType == kNCSignalingMessageTypeOffer) {
+        NSString *peerKey = [signalingMessage.from stringByAppendingString:signalingMessage.roomType];
+        NSTimer *pendingRequestTimer = [_pendingOffersDict objectForKey:peerKey];
+        
+        if (pendingRequestTimer) {
+            NSLog(@"Pending requested offer arrived. Removing timer.");
+            [pendingRequestTimer invalidate];
+        }
     }
 }
 
