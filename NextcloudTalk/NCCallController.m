@@ -56,6 +56,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, assign) BOOL leavingCall;
 @property (nonatomic, assign) BOOL preparedForRejoin;
 @property (nonatomic, assign) BOOL joinedCallOnce;
+@property (nonatomic, assign) BOOL serverSupportsConversationPermissions;
 @property (nonatomic, assign) NSInteger joinCallAttempts;
 @property (nonatomic, strong) AVAudioRecorder *recorder;
 @property (nonatomic, strong) NSTimer *micAudioLevelTimer;
@@ -111,6 +112,12 @@ static NSString * const kNCVideoTrackKind = @"video";
         _externalSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:_account.accountId];
         _externalSignalingController.delegate = self;
         
+        // 'conversation-permissions' capability was not added in Talk 13 release, so we check for 'direct-mention-flag' capability
+        // as a workaround.
+        _serverSupportsConversationPermissions =
+        [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityConversationPermissions forAccountId:_account.accountId] ||
+        [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag forAccountId:_account.accountId];
+        
         if (audioOnly) {
             [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
         } else {
@@ -132,13 +139,12 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (NSInteger)joinCallFlags
 {
     NSInteger flags = CallFlagInCall;
-    BOOL serverSupportsPermissions = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions forAccountId:_account.accountId];
     
-    if ((_userPermissions & NCPermissionCanPublishAudio) != 0 || !serverSupportsPermissions) {
+    if ((_userPermissions & NCPermissionCanPublishAudio) != 0 || !_serverSupportsConversationPermissions) {
         flags += CallFlagWithAudio;
     }
     
-    if (!_isAudioOnly && ((_userPermissions & NCPermissionCanPublishVideo) != 0 || !serverSupportsPermissions)) {
+    if (!_isAudioOnly && ((_userPermissions & NCPermissionCanPublishVideo) != 0 || !_serverSupportsConversationPermissions)) {
         flags += CallFlagWithVideo;
     }
     
@@ -525,15 +531,13 @@ static NSString * const kNCVideoTrackKind = @"video";
     [_localVideoCapturer stopCapture];
     _localVideoCapturer = nil;
     
-    BOOL serverSupportsPermissions = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions forAccountId:_account.accountId];
-    
-    if ((_userPermissions & NCPermissionCanPublishAudio) != 0 || !serverSupportsPermissions) {
+    if ((_userPermissions & NCPermissionCanPublishAudio) != 0 || !_serverSupportsConversationPermissions) {
         [self createLocalAudioTrack];
     } else {
         [self.delegate callController:self didCreateLocalAudioTrack:nil];
     }
     
-    if (!_isAudioOnly && ((_userPermissions & NCPermissionCanPublishVideo) != 0 || !serverSupportsPermissions)) {
+    if (!_isAudioOnly && ((_userPermissions & NCPermissionCanPublishVideo) != 0 || !_serverSupportsConversationPermissions)) {
         [self createLocalVideoTrack];
     } else {
         [self.delegate callController:self didCreateLocalVideoTrack:nil];
@@ -843,7 +847,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         [self getPeersForCall];
     }
     
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions forAccountId:_account.accountId]) {
+    if (_serverSupportsConversationPermissions) {
         [self checkUserPermissionsChange];
     }
     
