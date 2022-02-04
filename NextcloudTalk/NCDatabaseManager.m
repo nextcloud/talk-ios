@@ -57,6 +57,7 @@ NSString * const kCapabilityPublishingPermissions   = @"publishing-permissions";
 NSString * const kCapabilityClearHistory            = @"clear-history";
 NSString * const kCapabilityDirectMentionFlag       = @"direct-mention-flag";
 NSString * const kCapabilityNotificationCalls       = @"notification-calls";
+NSString * const kCapabilityConversationPermissions = @"conversation-permissions";
 
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 

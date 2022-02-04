@@ -187,7 +187,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions forAccountId:activeAccount.accountId]) {
+    // 'conversation-permissions' capability was not added in Talk 13 release, so we check for 'direct-mention-flag' capability
+    // as a workaround.
+    BOOL serverSupportsConversationPermissions =
+    [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityConversationPermissions forAccountId:activeAccount.accountId] ||
+    [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag forAccountId:activeAccount.accountId];
+    if (serverSupportsConversationPermissions) {
         [self setAudioMuteButtonEnabled:(_room.permissions & NCPermissionCanPublishAudio)];
         [self setVideoDisableButtonEnabled:(_room.permissions & NCPermissionCanPublishVideo)];
     }
