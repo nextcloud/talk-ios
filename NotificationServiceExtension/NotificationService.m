@@ -88,6 +88,8 @@
     NSError *error = nil;
     RLMRealm *realm = [RLMRealm realmWithConfiguration:configuration error:&error];
     
+    BOOL foundDecryptableMessage = NO;
+    
     // Decrypt message
     NSString *message = [self.bestAttemptContent.userInfo objectForKey:@"subject"];
     for (TalkAccount *talkAccount in [TalkAccount allObjectsInRealm:realm]) {
@@ -98,6 +100,17 @@
                 NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
                 if (decryptedMessage) {
                     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
+                    
+                    if (pushNotification.type == NCPushNotificationTypeAdminNotification) {
+                        // Test notification send through "occ notification:test-push --talk <userid>"
+                        // No need to increase the badge or query the server about it
+                        
+                        self.bestAttemptContent.body = pushNotification.subject;
+                        self.contentHandler(self.bestAttemptContent);
+                        return;
+                    }
+                    
+                    foundDecryptableMessage = YES;
                     
                     // Update unread notifications counter for push notification account
                     [realm beginWriteTransaction];
@@ -169,6 +182,12 @@
                 NSLog(@"An error ocurred decrypting the message. %@", exception);
             }
         }
+    }
+    
+    if (!foundDecryptableMessage) {
+        // At this point we tried everything to decrypt the received message
+        // No need to wait for the extension timeout, nothing is happening anymore
+        self.contentHandler(self.bestAttemptContent);
     }
 }
 
