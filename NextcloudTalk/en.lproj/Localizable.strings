@@ -842,9 +842,6 @@
 "Published" = "Published";
 
 /* No comment provided by engineer. */
-"Quality" = "Quality";
-
-/* No comment provided by engineer. */
 "Read status" = "Read status";
 
 /* No comment provided by engineer. */
@@ -885,9 +882,6 @@
 
 /* No comment provided by engineer. */
 "Resend invitations" = "Resend invitations";
-
-/* No comment provided by engineer. */
-"Resolutions" = "Resolutions";
 
 /* No comment provided by engineer. */
 "Retry" = "Retry";
@@ -1067,16 +1061,7 @@
 "Video call" = "Video call";
 
 /* No comment provided by engineer. */
-"Video calls" = "Video calls";
-
-/* No comment provided by engineer. */
-"Video disabled on start" = "Video disabled on start";
-
-/* No comment provided by engineer. */
 "Video quality" = "Video quality";
-
-/* No comment provided by engineer. */
-"Video resolution" = "Video resolution";
 
 /* No comment provided by engineer. */
 "Voice call" = "Voice call";
