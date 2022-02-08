@@ -36,6 +36,8 @@ NSString * const NCChatControllerDidReceiveChatBlockedNotification              
 NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification       = @"NCChatControllerDidReceiveNewerCommonReadMessageNotification";
 NSString * const NCChatControllerDidReceiveDeletedMessageNotification               = @"NCChatControllerDidReceiveDeletedMessageNotification";
 NSString * const NCChatControllerDidReceiveHistoryClearedNotification               = @"NCChatControllerDidReceiveHistoryClearedNotification";
+NSString * const NCChatControllerDidReceiveCallStartedMessageNotification           = @"NCChatControllerDidReceiveCallStartedMessageNotification";
+NSString * const NCChatControllerDidReceiveCallEndedMessageNotification             = @"NCChatControllerDidReceiveCallEndedMessageNotification";
 
 @interface NCChatController ()
 
@@ -359,6 +361,20 @@ NSString * const NCChatControllerDidReceiveHistoryClearedNotification           
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         
         for (NCChatMessage *message in storedMessages) {
+            // Notify if "call started" have been received
+            if ([message.systemMessage isEqualToString:@"call_started"]) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveCallStartedMessageNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
+            }
+            // Notify if "call eneded" have been received
+            if ([message.systemMessage isEqualToString:@"call_ended"] ||
+                [message.systemMessage isEqualToString:@"call_ended_everyone"] ||
+                [message.systemMessage isEqualToString:@"call_missed"]) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveCallEndedMessageNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
+            }
             // Notify if "deleted messages" have been received
             if ([message.systemMessage isEqualToString:@"message_deleted"]) {
                 [userInfo setObject:message forKey:@"deleteMessage"];
@@ -594,6 +610,20 @@ NSString * const NCChatControllerDidReceiveHistoryClearedNotification           
                         [[NCRoomsManager sharedInstance] updateLastMessage:message withNoUnreadMessages:YES forRoom:self->_room];
                     }
                     
+                    // Notify if "call started" have been received
+                    if ([message.systemMessage isEqualToString:@"call_started"]) {
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveCallStartedMessageNotification
+                                                                            object:self
+                                                                          userInfo:userInfo];
+                    }
+                    // Notify if "call eneded" have been received
+                    if ([message.systemMessage isEqualToString:@"call_ended"] ||
+                        [message.systemMessage isEqualToString:@"call_ended_everyone"] ||
+                        [message.systemMessage isEqualToString:@"call_missed"]) {
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveCallEndedMessageNotification
+                                                                            object:self
+                                                                          userInfo:userInfo];
+                    }
                     // Notify if "deleted messages" have been received
                     if ([message.systemMessage isEqualToString:@"message_deleted"]) {
                         [userInfo setObject:message forKey:@"deleteMessage"];

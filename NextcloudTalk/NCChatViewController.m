@@ -174,6 +174,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSendChatMessage:) name:NCChatControllerDidSendChatMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatBlocked:) name:NCChatControllerDidReceiveChatBlockedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveNewerCommonReadMessage:) name:NCChatControllerDidReceiveNewerCommonReadMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCallStartedMessage:) name:NCChatControllerDidReceiveCallStartedMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCallEndedMessage:) name:NCChatControllerDidReceiveCallEndedMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDeletedMessage:) name:NCChatControllerDidReceiveDeletedMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveHistoryCleared:) name:NCChatControllerDidReceiveHistoryClearedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
@@ -2444,6 +2446,24 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     [self checkLastCommonReadMessage];
+}
+
+- (void)didReceiveCallStartedMessage:(NSNotification *)notification
+{
+    if (notification.object != _chatController) {
+        return;
+    }
+    _room.hasCall = YES;
+    [self checkRoomControlsAvailability];
+}
+
+- (void)didReceiveCallEndedMessage:(NSNotification *)notification
+{
+    if (notification.object != _chatController) {
+        return;
+    }
+    _room.hasCall = NO;
+    [self checkRoomControlsAvailability];
 }
 
 - (void)didReceiveDeletedMessage:(NSNotification *)notification
