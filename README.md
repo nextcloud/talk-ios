@@ -24,6 +24,10 @@ $ git submodule update --init
 $ open NextcloudTalk.xcworkspace
 ```
 
+## Push notifications
+
+If you are experiencing problems with push notifications, please check this [document](https://github.com/nextcloud/talk-ios/blob/master/docs/notifications.md) to detect possible issues.
+
 ## TestFlight
 
 Do you want to try the latest version in development of Nextcloud Talk iOS? Simple, follow this simple step
