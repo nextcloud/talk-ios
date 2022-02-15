@@ -60,6 +60,7 @@
         
         RTCConfiguration *config = [[RTCConfiguration alloc] init];
         [config setIceServers:iceServers];
+        [config setSdpSemantics:RTCSdpSemanticsUnifiedPlan];
         
         RTCPeerConnection *peerConnection = [_peerConnectionFactory peerConnectionWithConfiguration:config
                                                                                         constraints:constraints
