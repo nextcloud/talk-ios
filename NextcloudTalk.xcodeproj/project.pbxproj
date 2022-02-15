@@ -58,6 +58,8 @@
 		2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
 		2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
 		2C3780C5210F4A26003F9AE8 /* HeaderWithButton.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */; };
+		2C38D4AC27BBAFCC00BAE015 /* WebRTC.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C38D4AB27BBAFCC00BAE015 /* WebRTC.xcframework */; };
+		2C38D4AD27BBAFCC00BAE015 /* WebRTC.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2C38D4AB27BBAFCC00BAE015 /* WebRTC.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
 		2C415F9B2136BDD6005F7F37 /* FileMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */; };
 		2C42ADB420B58E6300296DEA /* NCChatController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C42ADB320B58E6300296DEA /* NCChatController.m */; };
@@ -285,6 +287,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		2C38D4AE27BBAFCC00BAE015 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				2C38D4AD27BBAFCC00BAE015 /* WebRTC.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -365,6 +378,7 @@
 		2C3780C1210F49DC003F9AE8 /* HeaderWithButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HeaderWithButton.h; sourceTree = "<group>"; };
 		2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HeaderWithButton.m; sourceTree = "<group>"; };
 		2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HeaderWithButton.xib; sourceTree = "<group>"; };
+		2C38D4AB27BBAFCC00BAE015 /* WebRTC.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = WebRTC.xcframework; path = ThirdParty/WebRTC.xcframework; sourceTree = "<group>"; };
 		2C40281322832EED0000DDFC /* NCDatabaseManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCDatabaseManager.h; sourceTree = "<group>"; };
 		2C40281422832EED0000DDFC /* NCDatabaseManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCDatabaseManager.m; sourceTree = "<group>"; };
 		2C415F992136BDD6005F7F37 /* FileMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileMessageTableViewCell.h; sourceTree = "<group>"; };
@@ -742,6 +756,7 @@
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
 				2CC5F0982716FF1900DE1775 /* NCCommunication in Frameworks */,
+				2C38D4AC27BBAFCC00BAE015 /* WebRTC.xcframework in Frameworks */,
 				9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1271,6 +1286,7 @@
 		2C90E5621EDDE0FB0093D85A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2C38D4AB27BBAFCC00BAE015 /* WebRTC.xcframework */,
 				2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */,
 				2CA1CC961F016117002FE6A2 /* Security.framework */,
 				2C90E5CE1EDF23A00093D85A /* WebKit.framework */,
@@ -1435,6 +1451,7 @@
 				2C8035721F950BA800501B5C /* ShellScript */,
 				2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */,
 				2C5E72BC27957FCA004ED7FB /* ShellScript */,
+				2C38D4AE27BBAFCC00BAE015 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
