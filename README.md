@@ -24,6 +24,11 @@ $ git submodule update --init
 $ open NextcloudTalk.xcworkspace
 ```
 
+## WebRTC library
+
+We are using our own builds of the WebRTC library. They can be found in this [repository](https://github.com/nextcloud-releases/talk-clients-webrtc)
+Current version: [96.4664.0](https://github.com/nextcloud-releases/talk-clients-webrtc/releases/tag/96.4664.0-RC1)
+
 ## Push notifications
 
 If you are experiencing problems with push notifications, please check this [document](https://github.com/nextcloud/talk-ios/blob/master/docs/notifications.md) to detect possible issues.
