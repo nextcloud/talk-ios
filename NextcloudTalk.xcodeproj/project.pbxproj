@@ -1431,7 +1431,6 @@
 				2C0574791EDD9E8E00D9E7F2 /* Sources */,
 				2C05747A1EDD9E8E00D9E7F2 /* Frameworks */,
 				2C05747B1EDD9E8E00D9E7F2 /* Resources */,
-				29696B57B26EBF9C28436CE8 /* [CP] Embed Pods Frameworks */,
 				A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */,
 				2C8035721F950BA800501B5C /* ShellScript */,
 				2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */,
@@ -1668,24 +1667,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		29696B57B26EBF9C28436CE8 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks.sh",
-				"${PODS_ROOT}/GoogleWebRTC/Frameworks/frameworks/WebRTC.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WebRTC.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		2C5E72BC27957FCA004ED7FB /* ShellScript */ = {
