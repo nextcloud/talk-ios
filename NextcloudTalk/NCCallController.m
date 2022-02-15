@@ -70,7 +70,6 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) NCPeerConnection *publisherPeerConnection;
 @property (nonatomic, strong) NSMutableDictionary *connectionsDict;
 @property (nonatomic, strong) NSMutableDictionary *pendingOffersDict;
-@property (nonatomic, strong) RTCMediaStream *localStream;
 @property (nonatomic, strong) RTCAudioTrack *localAudioTrack;
 @property (nonatomic, strong) RTCVideoTrack *localVideoTrack;
 @property (nonatomic, strong) RTCCameraVideoCapturer *localVideoCapturer;
@@ -296,9 +295,6 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     [_localVideoCapturer stopCapture];
     _localVideoCapturer = nil;
-    [_localStream removeAudioTrack:_localAudioTrack];
-    [_localStream removeVideoTrack:_localVideoTrack];
-    _localStream = nil;
     _localAudioTrack = nil;
     _localVideoTrack = nil;
     _peerConnectionFactory = nil;
@@ -334,14 +330,12 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (BOOL)isVideoEnabled
 {
-    RTCVideoTrack *videoTrack = [_localStream.videoTracks firstObject];
-    return videoTrack ? videoTrack.isEnabled : NO;
+    return _localVideoTrack ? _localVideoTrack.isEnabled : NO;
 }
 
 - (BOOL)isAudioEnabled
 {
-    RTCAudioTrack *audioTrack = [_localStream.audioTracks firstObject];
-    return audioTrack ? audioTrack.isEnabled : NO;
+    return _localAudioTrack ? _localAudioTrack.isEnabled : NO;
 }
 
 - (void)switchCamera
@@ -357,15 +351,13 @@ static NSString * const kNCVideoTrackKind = @"video";
         [_localVideoCaptureController stopCapture];
     }
     
-    RTCVideoTrack *videoTrack = [_localStream.videoTracks firstObject];
-    [videoTrack setIsEnabled:enable];
+    [_localVideoTrack setIsEnabled:enable];
     [self sendDataChannelMessageToAllOfType:enable ? @"videoOn" : @"videoOff" withPayload:nil];
 }
 
 - (void)enableAudio:(BOOL)enable
 {
-    RTCAudioTrack *audioTrack = [_localStream.audioTracks firstObject];
-    [audioTrack setIsEnabled:enable];
+    [_localAudioTrack setIsEnabled:enable];
     [self sendDataChannelMessageToAllOfType:enable ? @"audioOn" : @"audioOff" withPayload:nil];
     if (!enable) {
         _speaking = NO;
@@ -501,7 +493,6 @@ static NSString * const kNCVideoTrackKind = @"video";
     RTCAudioSource *source = [_peerConnectionFactory audioSourceWithConstraints:nil];
     _localAudioTrack = [_peerConnectionFactory audioTrackWithSource:source trackId:kNCAudioTrackId];
     [_localAudioTrack setIsEnabled:!_disableAudioAtStart];
-    [_localStream addAudioTrack:_localAudioTrack];
     
     [self.delegate callController:self didCreateLocalAudioTrack:_localAudioTrack];
 }
@@ -518,7 +509,6 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     _localVideoTrack = [_peerConnectionFactory videoTrackWithSource:source trackId:kNCVideoTrackId];
     [_localVideoTrack setIsEnabled:!_disableVideoAtStart];
-    [_localStream addVideoTrack:_localVideoTrack];
     
     [self.delegate callController:self didCreateLocalVideoTrack:_localVideoTrack];
 #endif
@@ -526,8 +516,6 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)createLocalMedia
 {
-    RTCMediaStream *localMediaStream = [_peerConnectionFactory mediaStreamWithStreamId:kNCMediaStreamId];
-    self.localStream = localMediaStream;
     [_localVideoCapturer stopCapture];
     _localVideoCapturer = nil;
     
@@ -576,7 +564,12 @@ static NSString * const kNCVideoTrackKind = @"video";
         
         // Do not add local stream when using a MCU or to screensharing peers
         if (![_externalSignalingController hasMCU] || !screensharingPeer) {
-            [peerConnectionWrapper.peerConnection addStream:_localStream];
+            if (_localAudioTrack) {
+                [peerConnectionWrapper.peerConnection addTrack:_localAudioTrack streamIds:@[kNCMediaStreamId]];
+            }
+            if (_localVideoTrack) {
+                [peerConnectionWrapper.peerConnection addTrack:_localVideoTrack streamIds:@[kNCMediaStreamId]];
+            }
         }
         
         // Add peer connection to the connections dictionary
@@ -636,7 +629,12 @@ static NSString * const kNCVideoTrackKind = @"video";
     _publisherPeerConnection.delegate = self;
     NSString *peerKey = [_userSessionId stringByAppendingString:kRoomTypeVideo];
     [_connectionsDict setObject:_publisherPeerConnection forKey:peerKey];
-    [_publisherPeerConnection.peerConnection addStream:_localStream];
+    if (_localAudioTrack) {
+        [_publisherPeerConnection.peerConnection addTrack:_localAudioTrack streamIds:@[kNCMediaStreamId]];
+    }
+    if (_localVideoTrack) {
+        [_publisherPeerConnection.peerConnection addTrack:_localVideoTrack streamIds:@[kNCMediaStreamId]];
+    }
     [_publisherPeerConnection sendPublisherOffer];
 }
 
