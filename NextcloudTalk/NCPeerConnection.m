@@ -151,29 +151,24 @@
 
 - (void)sendOffer
 {
-    //Create data channel before creating the offer to enable data channels
-    RTCDataChannelConfiguration* config = [[RTCDataChannelConfiguration alloc] init];
-    config.isNegotiated = NO;
-    _localDataChannel = [_peerConnection dataChannelForLabel:@"status" configuration:config];
-    _localDataChannel.delegate = self;
-    __weak NCPeerConnection *weakSelf = self;
-    [_peerConnection offerForConstraints:[self defaultOfferConstraints] completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
-        NCPeerConnection *strongSelf = weakSelf;
-        if (strongSelf) {
-            [strongSelf peerConnectionDidCreateSessionDescription:sdp error:error];
-        }
-    }];
+    [self sendOfferWithConstraints:[self defaultOfferConstraints]];
 }
 
 - (void)sendPublishOfferToMCU
+{
+    [self sendOfferWithConstraints:[self mcuOfferConstraints]];
+}
+
+- (void)sendOfferWithConstraints:(RTCMediaConstraints *)constraints
 {
     //Create data channel before creating the offer to enable data channels
     RTCDataChannelConfiguration* config = [[RTCDataChannelConfiguration alloc] init];
     config.isNegotiated = NO;
     _localDataChannel = [_peerConnection dataChannelForLabel:@"status" configuration:config];
     _localDataChannel.delegate = self;
+    // Create offer
     __weak NCPeerConnection *weakSelf = self;
-    [_peerConnection offerForConstraints:[self mcuOfferConstraints] completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
+    [_peerConnection offerForConstraints:constraints completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
         NCPeerConnection *strongSelf = weakSelf;
         if (strongSelf) {
             [strongSelf peerConnectionDidCreateSessionDescription:sdp error:error];
