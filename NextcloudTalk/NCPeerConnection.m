@@ -144,7 +144,7 @@
     [_peerConnection setRemoteDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
         NCPeerConnection *strongSelf = weakSelf;
         if (strongSelf) {
-            [strongSelf peerConnectionDidSetSessionDescriptionWithError:error];
+            [strongSelf peerConnectionDidSetRemoteSessionDescription:(RTCSessionDescription *)sessionDescription error:error];
         }
     }];
 }
@@ -375,42 +375,39 @@
 // Callbacks for this delegate occur on non-main thread and need to be
 // dispatched back to main queue as needed.
 
-- (void)peerConnectionForSessionDidCreateSessionDescription:(RTCSessionDescription *)sdp error:(NSError *)error
+- (void)peerConnectionDidCreateAnswerWithSessionDescription:(RTCSessionDescription *)sdp error:(NSError *)error
 {
     if (error) {
-        NSLog(@"Failed to create session description for peer %@. Error: %@", _peerId, error);
+        NSLog(@"Failed to create answer for peer %@. Error: %@", _peerId, error);
         return;
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"Did create session sescriptionfor peer %@", self->_peerId);
+        NSLog(@"Did create answer with session description for peer %@", self->_peerId);
         // Set H264 as preferred codec.
         RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sdp preferredVideoCodec:@"H264"];
         __weak NCPeerConnection *weakSelf = self;
         [self->_peerConnection setLocalDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
             NCPeerConnection *strongSelf = weakSelf;
             if (strongSelf) {
-                [strongSelf peerConnectionDidSetSessionDescriptionWithError:error];
+                [strongSelf.delegate peerConnection:strongSelf needsToSendSessionDescription:sdpPreferringCodec];
             }
         }];
-        
-        [self.delegate peerConnection:self needsToSendSessionDescription:sdpPreferringCodec];
     });
 }
 
-- (void)peerConnectionDidSetSessionDescriptionWithError:(NSError *)error
+- (void)peerConnectionDidSetRemoteSessionDescription:(RTCSessionDescription *)sessionDescription error:(NSError *)error
 {
     if (error) {
-        NSLog(@"Failed to set session description for peer %@. Error: %@", _peerId, error);
+        NSLog(@"Failed to set remote session description for peer %@. Error: %@", _peerId, error);
         return;
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        // If we're answering and we've just set the remote offer we need to create
-        // an answer and set the local description.
-        NSLog(@"Did set session description for peer %@", self->_peerId);
-        if (!self->_peerConnection.localDescription) {
-            NSLog(@"Creating local description for peer %@", self->_peerId);
+        NSLog(@"Did set remote session description of type %@ for peer %@", [RTCSessionDescription stringForType:sessionDescription.type], self->_peerId);
+        // If we just set a remote offer we need to create an answer and set it as local description.
+        if (sessionDescription.type == RTCSdpTypeOffer) {
+            NSLog(@"Creating answer for peer %@", self->_peerId);
             RTCMediaConstraints *constraints = [self defaultAnswerConstraints];
             __weak NCPeerConnection *weakSelf = self;
             //Create data channel before sending answer
@@ -421,7 +418,7 @@
             [self->_peerConnection answerForConstraints:constraints completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
                 NCPeerConnection *strongSelf = weakSelf;
                 if (strongSelf) {
-                    [strongSelf peerConnectionForSessionDidCreateSessionDescription:sdp error:error];
+                    [strongSelf peerConnectionDidCreateAnswerWithSessionDescription:sdp error:error];
                 }
             }];
         }
