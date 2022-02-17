@@ -67,7 +67,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) NSArray *usersInRoom;
 @property (nonatomic, strong) NSArray *sessionsInCall;
 @property (nonatomic, strong) NSArray *peersInCall;
-@property (nonatomic, strong) NCPeerConnection *ownPeerConnection;
+@property (nonatomic, strong) NCPeerConnection *publisherPeerConnection;
 @property (nonatomic, strong) NSMutableDictionary *connectionsDict;
 @property (nonatomic, strong) NSMutableDictionary *pendingOffersDict;
 @property (nonatomic, strong) RTCMediaStream *localStream;
@@ -161,7 +161,7 @@ static NSString * const kNCVideoTrackKind = @"video";
             if ([self->_externalSignalingController isEnabled]) {
                 self->_userSessionId = [self->_externalSignalingController sessionId];
                 if ([self->_externalSignalingController hasMCU]) {
-                    [self createOwnPublishPeerConnection];
+                    [self createPublisherPeerConnection];
                 }
                 if (self->_pendingUsersInRoom) {
                     NSLog(@"Procees pending users on start call");;
@@ -224,7 +224,7 @@ static NSString * const kNCVideoTrackKind = @"video";
             [self.delegate callControllerDidJoinCall:self];
             NSLog(@"Rejoined call");
             if ([self->_externalSignalingController hasMCU]) {
-                [self createOwnPublishPeerConnection];
+                [self createPublisherPeerConnection];
             }
             if (self->_pendingUsersInRoom) {
                 NSLog(@"Procees pending users on rejoin");
@@ -610,7 +610,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)sendDataChannelMessageToAllOfType:(NSString *)type withPayload:(id)payload
 {
     if ([_externalSignalingController hasMCU]) {
-        [_ownPeerConnection sendDataChannelMessageOfType:type withPayload:payload];
+        [_publisherPeerConnection sendDataChannelMessageOfType:type withPayload:payload];
     } else {
         NSArray *connectionWrappers = [self.connectionsDict allValues];
         for (NCPeerConnection *peerConnection in connectionWrappers) {
@@ -621,21 +621,23 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 #pragma mark - External signaling support
 
-- (void)createOwnPublishPeerConnection
+- (void)createPublisherPeerConnection
 {
-    if (_ownPeerConnection) {
-        _ownPeerConnection.delegate = nil;
-        [_ownPeerConnection close];
+    if (_publisherPeerConnection) {
+        _publisherPeerConnection.delegate = nil;
+        [_publisherPeerConnection close];
     }
-    NSLog(@"Creating own pusblish peer connection: %@", _userSessionId);
+    
+    NSLog(@"Creating publisher peer connection with sessionId: %@", _userSessionId);
+    
     NSArray *iceServers = [_signalingController getIceServers];
-    _ownPeerConnection = [[NCPeerConnection alloc] initForMCUWithSessionId:_userSessionId andICEServers:iceServers forAudioOnlyCall:YES];
-    _ownPeerConnection.roomType = kRoomTypeVideo;
-    _ownPeerConnection.delegate = self;
+    _publisherPeerConnection = [[NCPeerConnection alloc] initForPublisherWithSessionId:_userSessionId andICEServers:iceServers forAudioOnlyCall:YES];
+    _publisherPeerConnection.roomType = kRoomTypeVideo;
+    _publisherPeerConnection.delegate = self;
     NSString *peerKey = [_userSessionId stringByAppendingString:kRoomTypeVideo];
-    [_connectionsDict setObject:_ownPeerConnection forKey:peerKey];
-    [_ownPeerConnection.peerConnection addStream:_localStream];
-    [_ownPeerConnection sendPublishOfferToMCU];
+    [_connectionsDict setObject:_publisherPeerConnection forKey:peerKey];
+    [_publisherPeerConnection.peerConnection addStream:_localStream];
+    [_publisherPeerConnection sendPublisherOffer];
 }
 
 - (void)sendNick

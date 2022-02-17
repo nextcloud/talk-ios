@@ -73,7 +73,7 @@
     return self;
 }
 
-- (instancetype)initForMCUWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly
+- (instancetype)initForPublisherWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly
 {
     self = [self initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:audioOnly];
     
@@ -154,9 +154,9 @@
     [self sendOfferWithConstraints:[self defaultOfferConstraints]];
 }
 
-- (void)sendPublishOfferToMCU
+- (void)sendPublisherOffer
 {
-    [self sendOfferWithConstraints:[self mcuOfferConstraints]];
+    [self sendOfferWithConstraints:[self publisherOfferConstraints]];
 }
 
 - (void)sendOfferWithConstraints:(RTCMediaConstraints *)constraints
@@ -455,7 +455,7 @@
     return constraints;
 }
 
-- (RTCMediaConstraints *)mcuOfferConstraints
+- (RTCMediaConstraints *)publisherOfferConstraints
 {
     NSDictionary *mandatoryConstraints = @{
                                            @"OfferToReceiveAudio" : @"false",

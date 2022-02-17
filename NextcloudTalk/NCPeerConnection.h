@@ -74,10 +74,10 @@
 @property (nonatomic, strong) RTCMediaStream *remoteStream;
 
 - (instancetype)initWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;
-- (instancetype)initForMCUWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;
+- (instancetype)initForPublisherWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;
 - (void)addICECandidate:(RTCIceCandidate *)candidate;
 - (void)setRemoteDescription:(RTCSessionDescription *)sessionDescription;
-- (void)sendPublishOfferToMCU;
+- (void)sendPublisherOffer;
 - (void)sendOffer;
 - (void)sendDataChannelMessageOfType:(NSString *)type withPayload:(id)payload;
 - (void)setStatusForDataChannelMessageType:(NSString *)type withPayload:(id)payload;
