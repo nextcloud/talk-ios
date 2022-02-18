@@ -757,9 +757,9 @@ static NSString * const kNCVideoTrackKind = @"video";
             {
                 NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
                 NCSessionDescriptionMessage *sdpMessage = (NCSessionDescriptionMessage *)signalingMessage;
-                RTCSessionDescription *description = sdpMessage.sessionDescription;
+                RTCSessionDescription *sessionDescription = sdpMessage.sessionDescription;
                 [peerConnectionWrapper setPeerName:sdpMessage.nick];
-                [peerConnectionWrapper setRemoteDescription:description];
+                [peerConnectionWrapper setRemoteDescription:sessionDescription];
                 break;
             }
             case kNCSignalingMessageTypeCandidate:
