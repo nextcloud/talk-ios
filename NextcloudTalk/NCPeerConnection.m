@@ -244,15 +244,41 @@
         
         self.remoteStream = stream;
         [self.delegate peerConnection:self didAddStream:stream];
-        
     });
 }
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didRemoveStream:(RTCMediaStream *)stream
 {
-    NSLog(@"Stream was removed from %@.", self.peerId);
-    self.remoteStream = nil;
-    [self.delegate peerConnection:self didRemoveStream:stream];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSLog(@"Stream was removed from %@", self.peerId);
+        self.remoteStream = nil;
+        [self.delegate peerConnection:self didRemoveStream:stream];
+    });
+}
+
+- (void)peerConnection:(RTCPeerConnection *)peerConnection didAddReceiver:(RTCRtpReceiver *)rtpReceiver streams:(NSArray<RTCMediaStream *> *)mediaStreams
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        RTCMediaStream *stream = mediaStreams[0];
+        if (!stream) {return;}
+        NSLog(@"Received %lu video tracks and %lu audio tracks from %@",
+              (unsigned long)stream.videoTracks.count,
+              (unsigned long)stream.audioTracks.count,
+              self.peerId);
+        
+        self.remoteStream = stream;
+        [self.delegate peerConnection:self didAddStream:stream];
+        
+    });
+}
+
+- (void)peerConnection:(RTCPeerConnection *)peerConnection didRemoveReceiver:(RTCRtpReceiver *)rtpReceiver
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSLog(@"Receiver was removed from %@", self.peerId);
+        self.remoteStream = nil;
+        [self.delegate peerConnection:self didRemoveStream:nil];
+    });
 }
 
 - (void)peerConnectionShouldNegotiate:(RTCPeerConnection *)peerConnection
