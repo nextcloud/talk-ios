@@ -171,7 +171,7 @@
     [_peerConnection offerForConstraints:constraints completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
         NCPeerConnection *strongSelf = weakSelf;
         if (strongSelf) {
-            [strongSelf peerConnectionDidCreateSessionDescription:sdp error:error];
+            [strongSelf peerConnectionDidCreateLocalSessionDescription:sdp error:error];
         }
     }];
 }
@@ -364,7 +364,7 @@
 // Callbacks for this delegate occur on non-main thread and need to be
 // dispatched back to main queue as needed.
 
-- (void)peerConnectionDidCreateSessionDescription:(RTCSessionDescription *)sdp error:(NSError *)error
+- (void)peerConnectionDidCreateLocalSessionDescription:(RTCSessionDescription *)sdp error:(NSError *)error
 {
     if (error) {
         NSLog(@"Failed to create local session description for peer %@. Error: %@", _peerId, error);
@@ -372,7 +372,7 @@
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"Did create local session description for peer %@", self->_peerId);
+        NSLog(@"Did create local session description of type %@ for peer %@", [RTCSessionDescription stringForType:sdp.type], self->_peerId);
         // Set H264 as preferred codec.
         RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sdp preferredVideoCodec:@"H264"];
         __weak NCPeerConnection *weakSelf = self;
@@ -412,7 +412,7 @@
             [self->_peerConnection answerForConstraints:constraints completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
                 NCPeerConnection *strongSelf = weakSelf;
                 if (strongSelf) {
-                    [strongSelf peerConnectionDidCreateSessionDescription:sdp error:error];
+                    [strongSelf peerConnectionDidCreateLocalSessionDescription:sdp error:error];
                 }
             }];
         }
