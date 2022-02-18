@@ -105,8 +105,6 @@
 
 - (void)addICECandidate:(RTCIceCandidate *)candidate
 {
-    BOOL queueCandidates = self.peerConnection == nil || self.peerConnection.signalingState != RTCSignalingStateStable;
-    
     if (!_peerConnection.remoteDescription) {
         if (!self.queuedRemoteCandidates) {
             self.queuedRemoteCandidates = [NSMutableArray array];
@@ -253,7 +251,6 @@
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didRemoveStream:(RTCMediaStream *)stream
 {
     NSLog(@"Stream was removed from %@.", self.peerId);
-#warning Check if if is the same stream?
     self.remoteStream = nil;
     [self.delegate peerConnection:self didRemoveStream:stream];
 }
