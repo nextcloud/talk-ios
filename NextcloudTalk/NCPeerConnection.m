@@ -144,7 +144,7 @@
     [_peerConnection setRemoteDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
         NCPeerConnection *strongSelf = weakSelf;
         if (strongSelf) {
-            [strongSelf peerConnectionDidSetRemoteSessionDescription:(RTCSessionDescription *)sessionDescription error:error];
+            [strongSelf peerConnectionDidSetRemoteSessionDescription:sdpPreferringCodec error:error];
         }
     }];
 }
