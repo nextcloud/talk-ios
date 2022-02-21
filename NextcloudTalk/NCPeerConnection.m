@@ -404,7 +404,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         NSLog(@"Did set remote session description of type %@ for peer %@", [RTCSessionDescription stringForType:sessionDescription.type], self->_peerId);
         // If we just set a remote offer we need to create an answer and set it as local description.
-        if (sessionDescription.type == RTCSdpTypeOffer) {
+        if (self->_peerConnection.signalingState == RTCSignalingStateHaveRemoteOffer) {
             NSLog(@"Creating answer for peer %@", self->_peerId);
             //Create data channel before sending answer
             RTCDataChannelConfiguration* config = [[RTCDataChannelConfiguration alloc] init];
