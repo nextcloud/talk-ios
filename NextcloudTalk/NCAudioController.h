@@ -31,7 +31,6 @@
 
 - (void)setAudioSessionToVoiceChatMode;
 - (void)setAudioSessionToVideoChatMode;
-- (void)changeAudioSessionConfigurationModeTo:(NSString *)mode;
 - (void)disableAudioSession;
 - (BOOL)isSpeakerActive;
 - (void)providerDidActivateAudioSession:(AVAudioSession *)audioSession;
