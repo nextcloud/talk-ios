@@ -64,7 +64,7 @@
 @property (nonatomic, assign) BOOL disableVideoAtStart;
 
 
-- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId;
+- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId andVoiceChatMode:(BOOL)voiceChatMode;
 - (void)startCall;
 - (void)leaveCall;
 - (BOOL)isVideoEnabled;

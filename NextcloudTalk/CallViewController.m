@@ -125,7 +125,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)startCallWithSessionId:(NSString *)sessionId
 {
-    _callController = [[NCCallController alloc] initWithDelegate:self inRoom:_room forAudioOnlyCall:_isAudioOnly withSessionId:sessionId];
+    _callController = [[NCCallController alloc] initWithDelegate:self inRoom:_room forAudioOnlyCall:_isAudioOnly withSessionId:sessionId andVoiceChatMode:_voiceChatModeAtStart];
     _callController.userDisplayName = _displayName;
     _callController.disableVideoAtStart = _videoDisabledAtStart;
     
