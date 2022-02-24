@@ -24,11 +24,8 @@
 
 #import "CallKitManager.h"
 
-@interface NCAudioController () <RTCAudioSessionDelegate>
-
-@property (nonatomic, strong) RTCAudioSession *rtcAudioSession;
-
-@end
+NSString * const AudioSessionDidChangeRouteNotification         = @"AudioSessionDidChangeRouteNotification";
+NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSessionWasActivatedByProviderNotification";
 
 @implementation NCAudioController
 
@@ -48,7 +45,7 @@
     if (self) {
         RTCAudioSessionConfiguration *configuration = [RTCAudioSessionConfiguration webRTCConfiguration];
         configuration.category = AVAudioSessionCategoryPlayAndRecord;
-        configuration.mode = AVAudioSessionModeVideoChat;
+        configuration.mode = AVAudioSessionModeVoiceChat;
         [RTCAudioSessionConfiguration setWebRTCConfiguration:configuration];
         
         _rtcAudioSession = [RTCAudioSession sharedInstance];
@@ -123,12 +120,25 @@
 {
     [_rtcAudioSession audioSessionDidActivate:audioSession];
     _rtcAudioSession.isAudioEnabled = YES;
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:AudioSessionWasActivatedByProviderNotification
+                                                        object:self
+                                                      userInfo:nil];
 }
 
 - (void)providerDidDeactivateAudioSession:(AVAudioSession *)audioSession
 {
     [_rtcAudioSession audioSessionDidDeactivate:audioSession];
     _rtcAudioSession.isAudioEnabled = NO;
+}
+
+#pragma mark - RTCAudioSessionDelegate
+
+- (void)audioSessionDidChangeRoute:(RTCAudioSession *)session reason:(AVAudioSessionRouteChangeReason)reason previousRoute:(AVAudioSessionRouteDescription *)previousRoute
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:AudioSessionDidChangeRouteNotification
+                                                        object:self
+                                                      userInfo:nil];
 }
 
 @end

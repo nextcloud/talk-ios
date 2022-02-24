@@ -120,6 +120,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidEndCall:) name:CallKitManagerDidEndCallNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidChangeAudioMute:) name:CallKitManagerDidChangeAudioMuteNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerWantsToUpgradeToVideoCall:) name:CallKitManagerWantsToUpgradeToVideoCall object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeRoute:) name:AudioSessionDidChangeRouteNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidActivate:) name:AudioSessionWasActivatedByProviderNotification object:nil];
     
     return self;
 }
@@ -190,6 +192,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (_voiceChatModeAtStart) {
         _userDisabledSpeaker = YES;
     }
+    
+    [self adjustSpeakerButton];
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     // 'conversation-permissions' capability was not added in Talk 13 release, so we check for 'direct-mention-flag' capability
@@ -377,6 +381,18 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (_isAudioOnly) {
         [self showUpgradeToVideoCallDialog];
     }
+}
+
+#pragma mark - Audio controller notifications
+
+- (void)audioSessionDidChangeRoute:(NSNotification *)notification
+{
+    [self adjustSpeakerButton];
+}
+
+- (void)audioSessionDidActivate:(NSNotification *)notification
+{
+    [self adjustSpeakerButton];
 }
 
 #pragma mark - Local video
@@ -766,6 +782,17 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
+- (void)adjustSpeakerButton
+{
+    AVAudioSession *audioSession = [NCAudioController sharedInstance].rtcAudioSession.session;
+    AVAudioSessionPortDescription *currentOutput = audioSession.currentRoute.outputs[0];
+    if ([currentOutput.portType isEqualToString:AVAudioSessionPortBuiltInSpeaker]) {
+        [self setSpeakerButtonActive:YES showInfoToast:NO];
+    } else {
+        [self setSpeakerButtonActive:NO showInfoToast:NO];
+    }
+}
+
 - (void)setDetailedViewTimer
 {
     [self invalidateDetailedViewTimer];
@@ -997,19 +1024,31 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)disableSpeaker
 {
     [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
-    [_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
-    NSString *speakerDisabledString = NSLocalizedString(@"Speaker disabled", nil);
-    _speakerButton.accessibilityValue = speakerDisabledString;
-    [self.view makeToast:speakerDisabledString duration:1.5 position:CSToastPositionCenter];
+    [self setSpeakerButtonActive:NO showInfoToast:YES];
 }
 
 - (void)enableSpeaker
 {
     [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
-    [_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
-    NSString *speakerEnabledString = NSLocalizedString(@"Speaker enabled", nil);
-    _speakerButton.accessibilityValue = speakerEnabledString;
-    [self.view makeToast:speakerEnabledString duration:1.5 position:CSToastPositionCenter];
+    [self setSpeakerButtonActive:YES showInfoToast:YES];
+}
+
+- (void)setSpeakerButtonActive:(BOOL)active showInfoToast:(BOOL)showToast
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *speakerStatusString = nil;
+        if (active) {
+            speakerStatusString = NSLocalizedString(@"Speaker enabled", nil);
+            [self->_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
+        } else {
+            speakerStatusString = NSLocalizedString(@"Speaker disabled", nil);
+            [self->_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
+        }
+        self->_speakerButton.accessibilityValue = speakerStatusString;
+        if (showToast) {
+            [self.view makeToast:speakerStatusString duration:1.5 position:CSToastPositionCenter];
+        }
+    });
 }
 
 - (IBAction)hangupButtonPressed:(id)sender
