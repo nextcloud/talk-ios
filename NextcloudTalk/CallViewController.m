@@ -69,6 +69,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     BOOL _isAudioOnly;
     BOOL _isDetailedViewVisible;
     BOOL _userDisabledVideo;
+    BOOL _userDisabledSpeaker;
     BOOL _videoCallUpgrade;
     BOOL _hangingUp;
     BOOL _pushToTalkActive;
@@ -184,6 +185,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (_videoDisabledAtStart) {
         _userDisabledVideo = YES;
         [self disableLocalVideo];
+    }
+    
+    if (_voiceChatModeAtStart) {
+        _userDisabledSpeaker = YES;
     }
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -422,13 +427,15 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (!_isAudioOnly) {
         if ([[UIDevice currentDevice] proximityState] == YES) {
             [self disableLocalVideo];
-            [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
+            [self disableSpeaker];
         } else {
             // Only enable video if it was not disabled by the user.
             if (!_userDisabledVideo) {
                 [self enableLocalVideo];
             }
-            [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
+            if (!_userDisabledSpeaker) {
+                [self enableSpeaker];
+            }
         }
     }
     
@@ -738,24 +745,10 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)adjustButtonsConainer
 {
-    if (_isAudioOnly) {
-        _videoDisableButton.hidden = YES;
-        _switchCameraButton.hidden = YES;
-        _videoCallButton.hidden = NO;
-    } else {
-        _speakerButton.hidden = YES;
-        _videoCallButton.hidden = YES;
-        // Center audio - video - hang up buttons
-        CGRect audioButtonFrame = _audioMuteButton.frame;
-        audioButtonFrame.origin.x = 40;
-        _audioMuteButton.frame = audioButtonFrame;
-        CGRect videoButtonFrame = _videoDisableButton.frame;
-        videoButtonFrame.origin.x = 130;
-        _videoDisableButton.frame = videoButtonFrame;
-        CGRect hangUpButtonFrame = _hangUpButton.frame;
-        hangUpButtonFrame.origin.x = 220;
-        _hangUpButton.frame = hangUpButtonFrame;
-    }
+    // Enable/Disable video buttons
+    _videoDisableButton.hidden = _isAudioOnly;
+    _switchCameraButton.hidden = _isAudioOnly;
+    _videoCallButton.hidden = !_isAudioOnly;
     
     // Only show speaker button in iPhones
     if(![[UIDevice currentDevice].model isEqualToString:@"iPhone"] && _isAudioOnly) {
@@ -994,8 +987,10 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     if ([[NCAudioController sharedInstance] isSpeakerActive]) {
         [self disableSpeaker];
+        _userDisabledSpeaker = YES;
     } else {
         [self enableSpeaker];
+        _userDisabledSpeaker = NO;
     }
 }
 
