@@ -22,6 +22,8 @@
 
 #import "CallViewController.h"
 
+#import <AVKit/AVKit.h>
+
 #import <WebRTC/RTCCameraVideoCapturer.h>
 #import <WebRTC/RTCMediaStream.h>
 #import <WebRTC/RTCEAGLVideoView.h>
@@ -78,6 +80,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
     CGPoint _localVideoDragStartingPosition;
     CGPoint _localVideoOriginPosition;
+    AVRoutePickerView *_airplayView;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -157,6 +160,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.videoCallButton.layer setCornerRadius:30.0f];
     [self.toggleChatButton.layer setCornerRadius:30.0f];
     [self.closeScreensharingButton.layer setCornerRadius:16.0f];
+    
+    _airplayView = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
+    _airplayView.tintColor = [UIColor whiteColor];
+    _airplayView.activeTintColor = [UIColor whiteColor];
         
     self.audioMuteButton.accessibilityLabel = NSLocalizedString(@"Microphone", nil);
     self.audioMuteButton.accessibilityValue = NSLocalizedString(@"Microphone enabled", nil);
@@ -791,6 +798,13 @@ typedef NS_ENUM(NSInteger, CallState) {
     } else {
         [self setSpeakerButtonActive:NO showInfoToast:NO];
     }
+    
+    // Show AirPlay button if there are more audio routes available
+    if (audioSession.availableInputs.count > 1) {
+        [self setSpeakerButtonWithAirplayButton];
+    } else {
+        [_airplayView removeFromSuperview];
+    }
 }
 
 - (void)setDetailedViewTimer
@@ -1025,12 +1039,14 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
     [self setSpeakerButtonActive:NO showInfoToast:YES];
+    [self adjustSpeakerButton];
 }
 
 - (void)enableSpeaker
 {
     [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
     [self setSpeakerButtonActive:YES showInfoToast:YES];
+    [self adjustSpeakerButton];
 }
 
 - (void)setSpeakerButtonActive:(BOOL)active showInfoToast:(BOOL)showToast
@@ -1048,6 +1064,15 @@ typedef NS_ENUM(NSInteger, CallState) {
         if (showToast) {
             [self.view makeToast:speakerStatusString duration:1.5 position:CSToastPositionCenter];
         }
+    });
+}
+
+- (void)setSpeakerButtonWithAirplayButton
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_speakerButton setImage:nil forState:UIControlStateNormal];
+        self->_speakerButton.accessibilityValue = NSLocalizedString(@"Airplay button", nil);
+        [self.speakerButton addSubview:_airplayView];
     });
 }
 
