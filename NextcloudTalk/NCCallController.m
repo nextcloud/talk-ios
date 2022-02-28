@@ -85,7 +85,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 @implementation NCCallController
 
-- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId
+- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId andVoiceChatMode:(BOOL)voiceChatMode
 {
     self = [super init];
     
@@ -117,7 +117,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityConversationPermissions forAccountId:_account.accountId] ||
         [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag forAccountId:_account.accountId];
         
-        if (audioOnly) {
+        if (audioOnly || voiceChatMode) {
             [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
         } else {
             [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];

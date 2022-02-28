@@ -25,13 +25,17 @@
 #import <WebRTC/RTCAudioSession.h>
 #import <WebRTC/RTCAudioSessionConfiguration.h>
 
-@interface NCAudioController : NSObject
+extern NSString * const AudioSessionDidChangeRouteNotification;
+extern NSString * const AudioSessionWasActivatedByProviderNotification;
+
+@interface NCAudioController : NSObject <RTCAudioSessionDelegate>
+
+@property (nonatomic, strong) RTCAudioSession *rtcAudioSession;
 
 + (instancetype)sharedInstance;
 
 - (void)setAudioSessionToVoiceChatMode;
 - (void)setAudioSessionToVideoChatMode;
-- (void)changeAudioSessionConfigurationModeTo:(NSString *)mode;
 - (void)disableAudioSession;
 - (BOOL)isSpeakerActive;
 - (void)providerDidActivateAudioSession:(AVAudioSession *)audioSession;

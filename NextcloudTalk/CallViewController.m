@@ -22,6 +22,8 @@
 
 #import "CallViewController.h"
 
+#import <AVKit/AVKit.h>
+
 #import <WebRTC/RTCCameraVideoCapturer.h>
 #import <WebRTC/RTCMediaStream.h>
 #import <WebRTC/RTCEAGLVideoView.h>
@@ -69,6 +71,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     BOOL _isAudioOnly;
     BOOL _isDetailedViewVisible;
     BOOL _userDisabledVideo;
+    BOOL _userDisabledSpeaker;
     BOOL _videoCallUpgrade;
     BOOL _hangingUp;
     BOOL _pushToTalkActive;
@@ -77,6 +80,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
     CGPoint _localVideoDragStartingPosition;
     CGPoint _localVideoOriginPosition;
+    AVRoutePickerView *_airplayView;
 }
 
 @property (nonatomic, strong) IBOutlet UIView *buttonsContainerView;
@@ -119,13 +123,15 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidEndCall:) name:CallKitManagerDidEndCallNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidChangeAudioMute:) name:CallKitManagerDidChangeAudioMuteNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerWantsToUpgradeToVideoCall:) name:CallKitManagerWantsToUpgradeToVideoCall object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeRoute:) name:AudioSessionDidChangeRouteNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidActivate:) name:AudioSessionWasActivatedByProviderNotification object:nil];
     
     return self;
 }
 
 - (void)startCallWithSessionId:(NSString *)sessionId
 {
-    _callController = [[NCCallController alloc] initWithDelegate:self inRoom:_room forAudioOnlyCall:_isAudioOnly withSessionId:sessionId];
+    _callController = [[NCCallController alloc] initWithDelegate:self inRoom:_room forAudioOnlyCall:_isAudioOnly withSessionId:sessionId andVoiceChatMode:_voiceChatModeAtStart];
     _callController.userDisplayName = _displayName;
     _callController.disableVideoAtStart = _videoDisabledAtStart;
     
@@ -154,6 +160,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.videoCallButton.layer setCornerRadius:30.0f];
     [self.toggleChatButton.layer setCornerRadius:30.0f];
     [self.closeScreensharingButton.layer setCornerRadius:16.0f];
+    
+    _airplayView = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
+    _airplayView.tintColor = [UIColor whiteColor];
+    _airplayView.activeTintColor = [UIColor whiteColor];
         
     self.audioMuteButton.accessibilityLabel = NSLocalizedString(@"Microphone", nil);
     self.audioMuteButton.accessibilityValue = NSLocalizedString(@"Microphone enabled", nil);
@@ -185,6 +195,12 @@ typedef NS_ENUM(NSInteger, CallState) {
         _userDisabledVideo = YES;
         [self disableLocalVideo];
     }
+    
+    if (_voiceChatModeAtStart) {
+        _userDisabledSpeaker = YES;
+    }
+    
+    [self adjustSpeakerButton];
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     // 'conversation-permissions' capability was not added in Talk 13 release, so we check for 'direct-mention-flag' capability
@@ -374,6 +390,18 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
+#pragma mark - Audio controller notifications
+
+- (void)audioSessionDidChangeRoute:(NSNotification *)notification
+{
+    [self adjustSpeakerButton];
+}
+
+- (void)audioSessionDidActivate:(NSNotification *)notification
+{
+    [self adjustSpeakerButton];
+}
+
 #pragma mark - Local video
 
 - (void)setLocalVideoRect
@@ -422,13 +450,15 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (!_isAudioOnly) {
         if ([[UIDevice currentDevice] proximityState] == YES) {
             [self disableLocalVideo];
-            [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
+            [self disableSpeaker];
         } else {
             // Only enable video if it was not disabled by the user.
             if (!_userDisabledVideo) {
                 [self enableLocalVideo];
             }
-            [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
+            if (!_userDisabledSpeaker) {
+                [self enableSpeaker];
+            }
         }
     }
     
@@ -738,24 +768,10 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)adjustButtonsConainer
 {
-    if (_isAudioOnly) {
-        _videoDisableButton.hidden = YES;
-        _switchCameraButton.hidden = YES;
-        _videoCallButton.hidden = NO;
-    } else {
-        _speakerButton.hidden = YES;
-        _videoCallButton.hidden = YES;
-        // Center audio - video - hang up buttons
-        CGRect audioButtonFrame = _audioMuteButton.frame;
-        audioButtonFrame.origin.x = 40;
-        _audioMuteButton.frame = audioButtonFrame;
-        CGRect videoButtonFrame = _videoDisableButton.frame;
-        videoButtonFrame.origin.x = 130;
-        _videoDisableButton.frame = videoButtonFrame;
-        CGRect hangUpButtonFrame = _hangUpButton.frame;
-        hangUpButtonFrame.origin.x = 220;
-        _hangUpButton.frame = hangUpButtonFrame;
-    }
+    // Enable/Disable video buttons
+    _videoDisableButton.hidden = _isAudioOnly;
+    _switchCameraButton.hidden = _isAudioOnly;
+    _videoCallButton.hidden = !_isAudioOnly;
     
     // Only show speaker button in iPhones
     if(![[UIDevice currentDevice].model isEqualToString:@"iPhone"] && _isAudioOnly) {
@@ -770,6 +786,24 @@ typedef NS_ENUM(NSInteger, CallState) {
         CGRect hangUpButtonFrame = _hangUpButton.frame;
         hangUpButtonFrame.origin.x = 220;
         _hangUpButton.frame = hangUpButtonFrame;
+    }
+}
+
+- (void)adjustSpeakerButton
+{
+    AVAudioSession *audioSession = [NCAudioController sharedInstance].rtcAudioSession.session;
+    AVAudioSessionPortDescription *currentOutput = audioSession.currentRoute.outputs[0];
+    if ([currentOutput.portType isEqualToString:AVAudioSessionPortBuiltInSpeaker]) {
+        [self setSpeakerButtonActive:YES showInfoToast:NO];
+    } else {
+        [self setSpeakerButtonActive:NO showInfoToast:NO];
+    }
+    
+    // Show AirPlay button if there are more audio routes available
+    if (audioSession.availableInputs.count > 1) {
+        [self setSpeakerButtonWithAirplayButton];
+    } else {
+        [_airplayView removeFromSuperview];
     }
 }
 
@@ -994,27 +1028,52 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     if ([[NCAudioController sharedInstance] isSpeakerActive]) {
         [self disableSpeaker];
+        _userDisabledSpeaker = YES;
     } else {
         [self enableSpeaker];
+        _userDisabledSpeaker = NO;
     }
 }
 
 - (void)disableSpeaker
 {
     [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
-    [_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
-    NSString *speakerDisabledString = NSLocalizedString(@"Speaker disabled", nil);
-    _speakerButton.accessibilityValue = speakerDisabledString;
-    [self.view makeToast:speakerDisabledString duration:1.5 position:CSToastPositionCenter];
+    [self setSpeakerButtonActive:NO showInfoToast:YES];
+    [self adjustSpeakerButton];
 }
 
 - (void)enableSpeaker
 {
     [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
-    [_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
-    NSString *speakerEnabledString = NSLocalizedString(@"Speaker enabled", nil);
-    _speakerButton.accessibilityValue = speakerEnabledString;
-    [self.view makeToast:speakerEnabledString duration:1.5 position:CSToastPositionCenter];
+    [self setSpeakerButtonActive:YES showInfoToast:YES];
+    [self adjustSpeakerButton];
+}
+
+- (void)setSpeakerButtonActive:(BOOL)active showInfoToast:(BOOL)showToast
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *speakerStatusString = nil;
+        if (active) {
+            speakerStatusString = NSLocalizedString(@"Speaker enabled", nil);
+            [self->_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
+        } else {
+            speakerStatusString = NSLocalizedString(@"Speaker disabled", nil);
+            [self->_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
+        }
+        self->_speakerButton.accessibilityValue = speakerStatusString;
+        if (showToast) {
+            [self.view makeToast:speakerStatusString duration:1.5 position:CSToastPositionCenter];
+        }
+    });
+}
+
+- (void)setSpeakerButtonWithAirplayButton
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_speakerButton setImage:nil forState:UIControlStateNormal];
+        self->_speakerButton.accessibilityValue = NSLocalizedString(@"Airplay button", nil);
+        [self.speakerButton addSubview:_airplayView];
+    });
 }
 
 - (IBAction)hangupButtonPressed:(id)sender
