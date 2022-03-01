@@ -1,5 +1,5 @@
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '10.0'
+platform :ios, '12.0'
 
 target "NextcloudTalk" do
 pod 'AFNetworking', "3.1.0"
