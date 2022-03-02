@@ -1055,12 +1055,13 @@ typedef NS_ENUM(NSInteger, CallState) {
         NSString *speakerStatusString = nil;
         if (active) {
             speakerStatusString = NSLocalizedString(@"Speaker enabled", nil);
-            [self->_speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
+            [self.speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
         } else {
             speakerStatusString = NSLocalizedString(@"Speaker disabled", nil);
-            [self->_speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
+            [self.speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
         }
-        self->_speakerButton.accessibilityValue = speakerStatusString;
+        self.speakerButton.accessibilityValue = speakerStatusString;
+        self.speakerButton.accessibilityHint = NSLocalizedString(@"Double tap to enable or disable the speaker", nil);
         if (showToast) {
             [self.view makeToast:speakerStatusString duration:1.5 position:CSToastPositionCenter];
         }
@@ -1070,9 +1071,10 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)setSpeakerButtonWithAirplayButton
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_speakerButton setImage:nil forState:UIControlStateNormal];
-        self->_speakerButton.accessibilityValue = NSLocalizedString(@"Airplay button", nil);
-        [self.speakerButton addSubview:_airplayView];
+        [self.speakerButton setImage:nil forState:UIControlStateNormal];
+        self.speakerButton.accessibilityValue = NSLocalizedString(@"AirPlay button", nil);
+        self.speakerButton.accessibilityHint = NSLocalizedString(@"Double tap to select different audio routes", nil);
+        [self.speakerButton addSubview:self->_airplayView];
     });
 }
 
