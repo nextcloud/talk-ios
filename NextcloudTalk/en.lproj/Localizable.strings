@@ -83,6 +83,9 @@
 "Address" = "Address";
 
 /* No comment provided by engineer. */
+"AirPlay button" = "AirPlay button";
+
+/* No comment provided by engineer. */
 "All messages" = "All messages";
 
 /* No comment provided by engineer. */
@@ -453,6 +456,9 @@
 
 /* No comment provided by engineer. */
 "Double tap to open file browser" = "Double tap to open file browser";
+
+/* No comment provided by engineer. */
+"Double tap to select different audio routes" = "Double tap to select different audio routes";
 
 /* No comment provided by engineer. */
 "Double tap to send message" = "Double tap to send message";
