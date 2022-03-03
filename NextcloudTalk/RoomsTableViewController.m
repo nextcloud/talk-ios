@@ -975,47 +975,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     return kRoomTableCellHeight;
 }
 
-- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return UITableViewCellEditingStyleDelete;
-}
-
-- (NSString *)tableView:(UITableView *)tableView titleForSwipeAccessoryButtonForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return NSLocalizedString(@"More", nil);
-}
-
-- (void)tableView:(UITableView *)tableView swipeAccessoryButtonPushedForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    [self presentMoreActionsForRoomAtIndexPath:indexPath];
-}
-
-- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    NCRoom *room = [self roomForIndexPath:indexPath];
-    
-    NSString *deleteButtonText = NSLocalizedString(@"Delete", nil);
-    if (room.isLeavable) {
-        deleteButtonText = NSLocalizedString(@"Leave", nil);
-    }
-    return deleteButtonText;
-}
-
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        NCRoom *room = [self roomForIndexPath:indexPath];
-        
-        if (room.isLeavable) {
-            [self leaveRoomAtIndexPath:indexPath];
-        } else {
-            [self deleteRoomAtIndexPath:indexPath];
-        }
-    }
-}
-
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
-API_AVAILABLE(ios(11.0)){
+{
     UIContextualAction *moreAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
                                                                             handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
                                                                                 [self presentMoreActionsForRoomAtIndexPath:indexPath];
@@ -1045,7 +1006,7 @@ API_AVAILABLE(ios(11.0)){
 }
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
-API_AVAILABLE(ios(11.0)){
+{
     NCRoom *room = [self roomForIndexPath:indexPath];
     UIContextualAction *favoriteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
                                                                                handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
@@ -1061,7 +1022,6 @@ API_AVAILABLE(ios(11.0)){
     
     return [UISwipeActionsConfiguration configurationWithActions:@[favoriteAction]];
 }
-
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
