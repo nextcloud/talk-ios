@@ -449,7 +449,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
 {
-    [self searchForRoomsWithString:_searchController.searchBar.text];
+    NSString *searchString = _searchController.searchBar.text;
+    if (searchString.length > 0) {
+        [self searchForRoomsWithString:searchString];
+    }
 }
 
 - (void)searchForRoomsWithString:(NSString *)searchString
