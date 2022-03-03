@@ -388,7 +388,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
     }
     self.navigationItem.titleView.accessibilityLabel = talkAppName;
-    self.navigationItem.titleView.accessibilityHint = NSLocalizedString(@"Double tap to change accounts or add a new one.", nil);
+    self.navigationItem.titleView.accessibilityHint = NSLocalizedString(@"Double tap to change accounts or add a new one", nil);
 }
 
 -(void)showAccountsMenu:(UIButton*)sender
