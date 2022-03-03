@@ -936,7 +936,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (NCRoom *)roomForIndexPath:(NSIndexPath *)indexPath
 {
-    if (_searchController.active && _resultTableViewController.hasResults) {
+    if (_searchController.active && !_resultTableViewController.view.isHidden) {
         return [_resultTableViewController roomForIndexPath:indexPath];
     } else if (indexPath.row < _rooms.count) {
         return [_rooms objectAtIndex:indexPath.row];

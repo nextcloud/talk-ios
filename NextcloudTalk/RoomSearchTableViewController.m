@@ -101,11 +101,6 @@ typedef enum RoomSearchSection {
     return nil;
 }
 
-- (BOOL)hasResults
-{
-    return _rooms.count > 0 || _listableRooms.count > 0;
-}
-
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView

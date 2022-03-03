@@ -32,7 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSArray *listableRooms;
 
 - (NCRoom *)roomForIndexPath:(NSIndexPath *)indexPath;
-- (BOOL)hasResults;
 
 @end
 
