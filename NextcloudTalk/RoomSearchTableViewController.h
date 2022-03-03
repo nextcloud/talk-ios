@@ -24,9 +24,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class NCRoom;
+
 @interface RoomSearchTableViewController : UITableViewController
 
 @property (nonatomic, strong) NSArray *rooms;
+@property (nonatomic, strong) NSArray *listableRooms;
+
+- (NCRoom *)roomForIndexPath:(NSIndexPath *)indexPath;
+- (BOOL)hasResults;
 
 @end
 

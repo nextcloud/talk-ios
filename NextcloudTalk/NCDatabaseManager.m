@@ -44,6 +44,7 @@ NSString * const kCapabilityCirclesSupport          = @"circles-support";
 NSString * const kCapabilityChatReferenceId         = @"chat-reference-id";
 NSString * const kCapabilityPhonebookSearch         = @"phonebook-search";
 NSString * const kCapabilityChatReadStatus          = @"chat-read-status";
+NSString * const kCapabilityListableRooms           = @"listable-rooms";
 NSString * const kCapabilityDeleteMessages          = @"delete-messages";
 NSString * const kCapabilityCallFlags               = @"conversation-call-flags";
 NSString * const kCapabilityRoomDescription         = @"room-description";
