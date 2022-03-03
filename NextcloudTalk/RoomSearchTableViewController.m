@@ -72,7 +72,7 @@ typedef enum RoomSearchSection {
     _rooms = rooms;
     [_roomSearchBackgroundView.loadingView stopAnimating];
     [_roomSearchBackgroundView.loadingView setHidden:YES];
-    [_roomSearchBackgroundView.placeholderView setHidden:(rooms.count > 0)];
+    [_roomSearchBackgroundView.placeholderView setHidden:[self hasResults]];
 }
 
 #pragma mark - Utils
@@ -99,6 +99,11 @@ typedef enum RoomSearchSection {
     }
     
     return nil;
+}
+
+- (BOOL)hasResults
+{
+    return _rooms.count > 0 || _listableRooms.count > 0;
 }
 
 #pragma mark - Table view data source
