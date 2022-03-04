@@ -996,6 +996,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     NCRoom *room = [self roomForIndexPath:indexPath];
     
+    // Do not show swipe actions for open conversations
+    if (tableView == _resultTableViewController.tableView && room.listable) {return nil;}
+    
     if (room.isLeavable) {
         deleteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
                                                              handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
@@ -1011,6 +1014,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
 {
     NCRoom *room = [self roomForIndexPath:indexPath];
+    
+    // Do not show swipe actions for open conversations
+    if (tableView == _resultTableViewController.tableView && room.listable) {return nil;}
+    
     UIContextualAction *favoriteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
                                                                                handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
                                                                                    if (room.isFavorite) {
