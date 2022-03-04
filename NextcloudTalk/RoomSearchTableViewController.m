@@ -33,6 +33,11 @@
 #import "PlaceholderView.h"
 #import "RoomTableViewCell.h"
 
+typedef enum RoomSearchSection {
+    RoomSearchSectionFiltered = 0,
+    RoomSearchSectionListable
+} RoomSearchSection;
+
 @interface RoomSearchTableViewController ()
 {
     PlaceholderView *_roomSearchBackgroundView;
@@ -67,7 +72,7 @@
     _rooms = rooms;
     [_roomSearchBackgroundView.loadingView stopAnimating];
     [_roomSearchBackgroundView.loadingView setHidden:YES];
-    [_roomSearchBackgroundView.placeholderView setHidden:(rooms.count > 0)];
+    [_roomSearchBackgroundView.placeholderView setHidden:[self hasResults]];
 }
 
 #pragma mark - Utils
@@ -85,14 +90,39 @@
     return [formatter stringFromDate:date];
 }
 
-#pragma mark - Table view data source
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
+- (NCRoom *)roomForIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section == RoomSearchSectionFiltered && indexPath.row < _rooms.count) {
+        return [_rooms objectAtIndex:indexPath.row];
+    } else if (indexPath.section == RoomSearchSectionListable && indexPath.row < _listableRooms.count) {
+        return [_listableRooms objectAtIndex:indexPath.row];
+    }
+    
+    return nil;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return _rooms.count;
+- (BOOL)hasResults
+{
+    return _rooms.count > 0 || _listableRooms.count > 0;
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return _listableRooms.count > 0 ? 2 : 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    switch (section) {
+        case RoomSearchSectionFiltered:
+            return _rooms.count;
+        case RoomSearchSectionListable:
+            return _listableRooms.count;
+        default:
+            return 0;
+    }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -100,14 +130,20 @@
     return kRoomTableCellHeight;
 }
 
-//- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
-//{
-//    return [_indexes objectAtIndex:section];
-//}
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    switch (section) {
+        case RoomSearchSectionListable:
+            return NSLocalizedString(@"Open conversations", nil);
+        default:
+            return nil;
+    }
+}
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+    NCRoom *room = [self roomForIndexPath:indexPath];
+    
     RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
     if (!cell) {
         cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];

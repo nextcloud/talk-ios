@@ -298,6 +298,38 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+- (NSURLSessionDataTask *)getListableRoomsForAccount:(TalkAccount *)account withSearchTerm:(NSString *)searchTerm andCompletionBlock:(GetRoomsCompletionBlock)block
+{
+    NSString *endpoint = @"listed-room";
+    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
+    NSDictionary *parameters = nil;
+    if (searchTerm.length > 0) {
+        parameters = @{@"searchTerm" : searchTerm};
+    }
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
+        NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSMutableArray *parsedRooms = [NSMutableArray new];
+        for (NSDictionary *roomDict in responseRooms) {
+            NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:account.accountId];
+            [parsedRooms addObject:room];
+        }
+        if (block) {
+            block(parsedRooms, nil, 0);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(nil, error, statusCode);
+        }
+    }];
+    
+    return task;
+}
+
+
 - (NSURLSessionDataTask *)createRoomForAccount:(TalkAccount *)account with:(NSString *)invite ofType:(NCRoomType)type andName:(NSString *)roomName withCompletionBlock:(CreateRoomCompletionBlock)block
 {
     NSString *endpoint = @"room";

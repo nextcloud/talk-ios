@@ -422,7 +422,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     [self checkRoomControlsAvailability];
     
-    if (!_hasReceiveInitialHistory && !_hasRequestedInitialHistory) {
+    // Workaround for open conversations:
+    // We can't get initial chat history until we join the conversation (since we are not a participant until then)
+    // So for rooms that we don't know the last read message we wait until we join the room to get the initial chat history.
+    if (!_hasReceiveInitialHistory && !_hasRequestedInitialHistory && _room.lastReadMessage > 0) {
         _hasRequestedInitialHistory = YES;
         [_chatController getInitialChatHistory];
     }

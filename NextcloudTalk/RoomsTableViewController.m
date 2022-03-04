@@ -449,13 +449,25 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
 {
-    [self searchForRoomsWithString:_searchController.searchBar.text];
+    NSString *searchString = _searchController.searchBar.text;
+    if (searchString.length > 0) {
+        [self searchForRoomsWithString:searchString];
+    }
 }
 
 - (void)searchForRoomsWithString:(NSString *)searchString
 {
+    // Filter rooms
     _resultTableViewController.rooms = [self filterRoomsWithString:searchString];
     [_resultTableViewController.tableView reloadData];
+    // Search for listable rooms
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getListableRoomsForAccount:account withSearchTerm:searchString andCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
+        if (!error) {
+            self->_resultTableViewController.listableRooms = rooms;
+            [self->_resultTableViewController.tableView reloadData];
+        }
+    }];
 }
 
 - (NSArray *)filterRoomsWithString:(NSString *)searchString
@@ -686,10 +698,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)setNotificationLevelForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
+    NCRoom *room = [self roomForIndexPath:indexPath];
     
     UIAlertController *optionsActionSheet =
     [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Notifications", nil)
@@ -730,10 +739,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)shareLinkFromRoomAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
+    NCRoom *room = [self roomForIndexPath:indexPath];
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
@@ -766,10 +772,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)addRoomToFavoritesAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
+    NCRoom *room = [self roomForIndexPath:indexPath];
     
     [[NCAPIController sharedInstance] addRoomToFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
@@ -781,10 +784,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)removeRoomFromFavoritesAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
+    NCRoom *room = [self roomForIndexPath:indexPath];
     
     [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
@@ -796,10 +796,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)presentRoomInfoForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
+    NCRoom *room = [self roomForIndexPath:indexPath];
     
     RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:room];
     NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:roomInfoVC];
@@ -808,17 +805,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)leaveRoomAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
+    NCRoom *room = [self roomForIndexPath:indexPath];
     
     UIAlertController *confirmDialog =
     [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Leave conversation", nil)
                                         message:NSLocalizedString(@"Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Leave", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-        [_rooms removeObjectAtIndex:indexPath.row];
+        [self->_rooms removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [[NCAPIController sharedInstance] removeSelfFromRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSInteger errorCode, NSError *error) {
             if (errorCode == 400) {
@@ -837,17 +831,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)deleteRoomAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
+    NCRoom *room = [self roomForIndexPath:indexPath];
     
     UIAlertController *confirmDialog =
     [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Delete conversation", nil)
                                         message:room.deletionMessage
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-        [_rooms removeObjectAtIndex:indexPath.row];
+        [self->_rooms removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [[NCAPIController sharedInstance] deleteRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             if (error) {
@@ -864,10 +855,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)presentMoreActionsForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
+    NCRoom *room = [self roomForIndexPath:indexPath];
     
     UIAlertController *optionsActionSheet =
     [UIAlertController alertControllerWithTitle:room.displayName
@@ -928,11 +916,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
+    NCRoom *room = [self roomForIndexPath:indexPath];
     
     [[NCRoomsManager sharedInstance] startChatInRoom:room];
 }
@@ -951,6 +935,17 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [formatter setDateStyle:NSDateFormatterShortStyle];
     }
     return [formatter stringFromDate:date];
+}
+
+- (NCRoom *)roomForIndexPath:(NSIndexPath *)indexPath
+{
+    if (_searchController.active && !_resultTableViewController.view.isHidden) {
+        return [_resultTableViewController roomForIndexPath:indexPath];
+    } else if (indexPath.row < _rooms.count) {
+        return [_rooms objectAtIndex:indexPath.row];
+    }
+    
+    return nil;
 }
 
 - (void)showLeaveRoomLastModeratorErrorForRoom:(NCRoom *)room
@@ -983,53 +978,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     return kRoomTableCellHeight;
 }
 
-- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return UITableViewCellEditingStyleDelete;
-}
-
-- (NSString *)tableView:(UITableView *)tableView titleForSwipeAccessoryButtonForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return NSLocalizedString(@"More", nil);
-}
-
-- (void)tableView:(UITableView *)tableView swipeAccessoryButtonPushedForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    [self presentMoreActionsForRoomAtIndexPath:indexPath];
-}
-
-- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
-    
-    NSString *deleteButtonText = NSLocalizedString(@"Delete", nil);
-    if (room.isLeavable) {
-        deleteButtonText = NSLocalizedString(@"Leave", nil);
-    }
-    return deleteButtonText;
-}
-
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-        if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-            room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-        }
-        
-        if (room.isLeavable) {
-            [self leaveRoomAtIndexPath:indexPath];
-        } else {
-            [self deleteRoomAtIndexPath:indexPath];
-        }
-    }
-}
-
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
-API_AVAILABLE(ios(11.0)){
+{
     UIContextualAction *moreAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
                                                                             handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
                                                                                 [self presentMoreActionsForRoomAtIndexPath:indexPath];
@@ -1044,10 +994,10 @@ API_AVAILABLE(ios(11.0)){
                                                                             }];
     deleteAction.image = [UIImage imageNamed:@"delete"];
     
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
+    NCRoom *room = [self roomForIndexPath:indexPath];
+    
+    // Do not show swipe actions for open conversations
+    if (tableView == _resultTableViewController.tableView && room.listable) {return nil;}
     
     if (room.isLeavable) {
         deleteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
@@ -1062,11 +1012,12 @@ API_AVAILABLE(ios(11.0)){
 }
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
-API_AVAILABLE(ios(11.0)){
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
-    if (_searchController.active && _resultTableViewController.rooms.count > 0) {
-        room = [_resultTableViewController.rooms objectAtIndex:indexPath.row];
-    }
+{
+    NCRoom *room = [self roomForIndexPath:indexPath];
+    
+    // Do not show swipe actions for open conversations
+    if (tableView == _resultTableViewController.tableView && room.listable) {return nil;}
+    
     UIContextualAction *favoriteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
                                                                                handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
                                                                                    if (room.isFavorite) {
@@ -1081,7 +1032,6 @@ API_AVAILABLE(ios(11.0)){
     
     return [UISwipeActionsConfiguration configurationWithActions:@[favoriteAction]];
 }
-
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
