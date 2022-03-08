@@ -176,32 +176,24 @@
 - (void)checkForPushNotificationSubscription
 {
     if (normalPushToken && pushKitToken) {
-        UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:bundleIdentifier accessGroup:groupIdentifier];
-        NSString *deviceNormalPushToken = [NCSettingsController sharedInstance].ncNormalPushToken;
-        NSString *devicePushKitToken = [NCSettingsController sharedInstance].ncPushKitToken;
-        BOOL tokenChanged = ![deviceNormalPushToken isEqualToString:normalPushToken] || ![devicePushKitToken isEqualToString:devicePushKitToken];
-        
         // Store new Normal Push & PushKit tokens in Keychain
+        UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:bundleIdentifier accessGroup:groupIdentifier];
         [NCSettingsController sharedInstance].ncNormalPushToken = normalPushToken;
         [keychain setString:normalPushToken forKey:kNCNormalPushTokenKey];
         [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
         [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
         
-        if (tokenChanged) {
-            // Remove subscribed flag if token has changed
-            RLMRealm *realm = [RLMRealm defaultRealm];
-            [realm beginWriteTransaction];
-            for (TalkAccount *account in [TalkAccount allObjects]) {
-                account.pushNotificationSubscribed = NO;
-            }
-            [realm commitWriteTransaction];
+        // Remove subscribed flag for all accounts
+        RLMRealm *realm = [RLMRealm defaultRealm];
+        [realm beginWriteTransaction];
+        for (TalkAccount *account in [TalkAccount allObjects]) {
+            account.pushNotificationSubscribed = NO;
         }
+        [realm commitWriteTransaction];
         
-        // Check if any account needs to subscribe for push notifications
+        // Try to subscribe for push notifications in all accounts
         for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
-            if (tokenChanged || !account.pushNotificationSubscribed) {
-                [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId];
-            }
+            [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId];
         }
     }
 }
