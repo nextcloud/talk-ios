@@ -772,6 +772,18 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     };
 }
 
+- (void)markRoomAsReadAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [self roomForIndexPath:indexPath];
+    
+    [[NCAPIController sharedInstance] setChatReadMarker:room.lastMessage.messageId inRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (error) {
+            NSLog(@"Error marking room as read: %@", error.description);
+        }
+        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES];
+    }];
+}
+
 - (void)addRoomToFavoritesAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [self roomForIndexPath:indexPath];
@@ -877,6 +889,19 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     NSString *favImageName = (room.isFavorite) ? @"favorite-action" : @"fav-setting";
     [favoriteAction setValue:[[UIImage imageNamed:favImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     [optionsActionSheet addAction:favoriteAction];
+    // Mark room as read/unread
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
+        if (room.unreadMessages > 0) {
+            // Mark room as read
+            UIAlertAction *markReadkAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Mark as read", nil)
+                                                                      style:UIAlertActionStyleDefault
+                                                                    handler:^void (UIAlertAction *action) {
+                                                                        [self markRoomAsReadAtIndexPath:indexPath];
+                                                                    }];
+            [markReadkAction setValue:[[UIImage imageNamed:@"visibility"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+            [optionsActionSheet addAction:markReadkAction];
+        }
+    }
     // Notification levels
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         UIAlertAction *notificationsAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Notifications: %@", nil), room.notificationLevelString]
