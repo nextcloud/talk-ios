@@ -784,6 +784,18 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }];
 }
 
+- (void)markRoomAsUnreadAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCRoom *room = [self roomForIndexPath:indexPath];
+    
+    [[NCAPIController sharedInstance] markChatAsUnreadInRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (error) {
+            NSLog(@"Error marking chat as unread: %@", error.description);
+        }
+        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES];
+    }];
+}
+
 - (void)addRoomToFavoritesAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [self roomForIndexPath:indexPath];
@@ -900,6 +912,15 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                     }];
             [markReadkAction setValue:[[UIImage imageNamed:@"visibility"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
             [optionsActionSheet addAction:markReadkAction];
+        } else if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatUnread]) {
+            // Mark room as unread
+            UIAlertAction *markUnreadkAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Mark as unread", nil)
+                                                                        style:UIAlertActionStyleDefault
+                                                                      handler:^void (UIAlertAction *action) {
+                                                                        [self markRoomAsUnreadAtIndexPath:indexPath];
+                                                                    }];
+            [markUnreadkAction setValue:[[UIImage imageNamed:@"visibility-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+            [optionsActionSheet addAction:markUnreadkAction];
         }
     }
     // Notification levels
