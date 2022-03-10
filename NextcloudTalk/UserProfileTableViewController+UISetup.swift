@@ -128,9 +128,9 @@ extension UserProfileTableViewController {
             return
         }
 
-        var field: String?
-        var currentValue: String?
-        var title: String?
+        let field: String
+        let currentValue: String
+        let title: String
 
         if sender.tag == kNameTextFieldTag {
             field = kUserProfileDisplayNameScope
@@ -160,9 +160,7 @@ extension UserProfileTableViewController {
             field = kUserProfileAvatarScope
             currentValue = account.avatarScope
             title = NSLocalizedString("Profile picture", comment: "")
-        }
-
-        guard let field = field, let currentValue = currentValue, let title = title else {
+        } else {
             return
         }
 
