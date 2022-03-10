@@ -124,38 +124,54 @@ extension UserProfileTableViewController {
     }
 
     @objc func showScopeSelectionDialog( _ sender: UIButton?) {
-        var field: String?
-        var currentValue: String?
-        var title: String?
         guard let sender = sender else {
             return
         }
-        switch sender.tag {
-        case kNameTextFieldTag:
-            setupFieldsForScopeSelectionDialog(field: &field, currentValue: &currentValue, title: &title,
-                                               fieldValue: kUserProfileDisplayNameScope, currentValueText: account.userDisplayNameScope, titleValue: "Full name")
-        case kEmailTextFieldTag:
-            setupFieldsForScopeSelectionDialog(field: &field, currentValue: &currentValue, title: &title,
-                                               fieldValue: kUserProfileEmailScope, currentValueText: account.emailScope, titleValue: "Email")
-        case kPhoneTextFieldTag:
-            setupFieldsForScopeSelectionDialog(field: &field, currentValue: &currentValue, title: &title,
-                                               fieldValue: kUserProfilePhoneScope, currentValueText: account.phoneScope, titleValue: "Phone number")
-        case kAddressTextFieldTag:
-            setupFieldsForScopeSelectionDialog(field: &field, currentValue: &currentValue, title: &title,
-                                               fieldValue: kUserProfileAddressScope, currentValueText: account.addressScope, titleValue: "Address")
-        case kWebsiteTextFieldTag:
-            setupFieldsForScopeSelectionDialog(field: &field, currentValue: &currentValue, title: &title,
-                                               fieldValue: kUserProfileWebsiteScope, currentValueText: account.websiteScope, titleValue: "Website")
-        case kTwitterTextFieldTag:
-            setupFieldsForScopeSelectionDialog(field: &field, currentValue: &currentValue, title: &title,
-                                               fieldValue: kUserProfileTwitterScope, currentValueText: account.twitterScope, titleValue: "Twitter")
-        case kAvatarScopeButtonTag:
-            setupFieldsForScopeSelectionDialog(field: &field, currentValue: &currentValue, title: &title,
-                                               fieldValue: kUserProfileAvatarScope, currentValueText: account.avatarScope, titleValue: "Profile picture")
-        default:
-            break
+
+        var field: String?
+        var currentValue: String?
+        var title: String?
+
+        if sender.tag == kNameTextFieldTag {
+            field = kUserProfileDisplayNameScope
+            currentValue = account.userDisplayNameScope
+            title = NSLocalizedString("Full name", comment: "")
+        } else if sender.tag == kEmailTextFieldTag {
+            field = kUserProfileEmailScope
+            currentValue = account.emailScope
+            title = NSLocalizedString("Email", comment: "")
+        } else if sender.tag == kPhoneTextFieldTag {
+            field = kUserProfilePhoneScope
+            currentValue = account.phoneScope
+            title = NSLocalizedString("Phone number", comment: "")
+        } else if sender.tag == kAddressTextFieldTag {
+            field = kUserProfileAddressScope
+            currentValue = account.addressScope
+            title = NSLocalizedString("Address", comment: "")
+        } else if sender.tag == kWebsiteTextFieldTag {
+            field = kUserProfileWebsiteScope
+            currentValue = account.websiteScope
+            title = NSLocalizedString("Website", comment: "")
+        } else if sender.tag == kTwitterTextFieldTag {
+            field = kUserProfileTwitterScope
+            currentValue = account.twitterScope
+            title = NSLocalizedString("Twitter", comment: "")
+        } else if sender.tag == kAvatarScopeButtonTag {
+            field = kUserProfileAvatarScope
+            currentValue = account.avatarScope
+            title = NSLocalizedString("Profile picture", comment: "")
         }
+
+        guard let field = field, let currentValue = currentValue, let title = title else {
+            return
+        }
+
+        presentScopeSelector(field: field, currentValue: currentValue, title: title)
+    }
+
+    func presentScopeSelector(field: String, currentValue: String, title: String) {
         var options = [DetailedOption]()
+
         let privateOption = setupDetailedOption(identifier: kUserProfileScopePrivate, imageName: "mobile-phone", title: NSLocalizedString("Private", comment: ""),
                                                 subtitle: NSLocalizedString("Only visible to people matched via phone number integration", comment: ""),
                                                 selected: currentValue == kUserProfileScopePrivate)
@@ -166,15 +182,19 @@ extension UserProfileTableViewController {
         let publishedOption = setupDetailedOption(identifier: kUserProfileScopePublished, imageName: "browser-settings", title: NSLocalizedString("Published", comment: ""),
                                                   subtitle: NSLocalizedString("Synchronize to trusted servers and the global and public address book", comment: ""),
                                                   selected: currentValue == kUserProfileScopePublished)
+
         if field != kUserProfileDisplayNameScope && field != kUserProfileEmailScope {
             options.append(privateOption)
         }
+
         options.append(localOption)
+
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
         if serverCapabilities.accountPropertyScopesFederationEnabled {
             options.append(federatedOption)
             options.append(publishedOption)
         }
+
         let optionSelectorVC = DetailedOptionsSelectorTableViewController(options: options, forSenderIdentifier: field, andTitle: title)
         if let optionSelectorVC = optionSelectorVC {
             optionSelectorVC.delegate = self
@@ -211,12 +231,6 @@ extension UserProfileTableViewController {
         detailedOption.subtitle = subtitle
         detailedOption.selected = selected
         return detailedOption
-    }
-
-    func setupFieldsForScopeSelectionDialog(field: inout String?, currentValue: inout String?, title: inout String?, fieldValue: String, currentValueText: String, titleValue: String) {
-        field = fieldValue
-        currentValue = currentValueText
-        title = NSLocalizedString(titleValue, comment: "")
     }
 
     func getProfileSections() -> [Int] {
