@@ -692,9 +692,6 @@
 "Modification date" = "Modification date";
 
 /* No comment provided by engineer. */
-"More" = "More";
-
-/* No comment provided by engineer. */
 "More options" = "More options";
 
 /* No comment provided by engineer. */
@@ -786,6 +783,9 @@
 
 /* No comment provided by engineer. */
 "Only visible to people on this instance and guests" = "Only visible to people on this instance and guests";
+
+/* No comment provided by engineer. */
+"Open conversations" = "Open conversations";
 
 /* No comment provided by engineer. */
 "Open in %@" = "Open in %@";
