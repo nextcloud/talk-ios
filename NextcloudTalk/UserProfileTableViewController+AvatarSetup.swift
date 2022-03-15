@@ -35,7 +35,7 @@ extension UserProfileTableViewController {
         headerView.scopeButton?.tag = kAvatarScopeButtonTag
         headerView.scopeButton?.setImage(self.imageForScope(scope: account.avatarScope), for: .normal)
         headerView.scopeButton?.addTarget(self, action: #selector(showScopeSelectionDialog(_:)), for: .touchUpInside)
-        headerView.scopeButton?.isHidden = !(isEditable && (showScopes != nil))
+        headerView.scopeButton?.isHidden = !(isEditable && showScopes)
         headerView.editButton?.isHidden = !(isEditable && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTempUserAvatarAPI, forAccountId: account.accountId))
         headerView.editButton?.setTitle(NSLocalizedString("Edit", comment: ""), for: .normal)
         headerView.editButton?.addTarget(self, action: #selector(showAvatarOptions), for: .touchUpInside)

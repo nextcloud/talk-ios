@@ -61,9 +61,9 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
     var editAvatarButton = UIButton()
     var imagePicker: UIImagePickerController?
     var setPhoneAction = UIAlertAction()
-    var phoneUtil: NBPhoneNumberUtil?
+    var phoneUtil = NBPhoneNumberUtil()
     var editableFields = NSArray()
-    var showScopes: Bool?
+    var showScopes = Bool()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -97,36 +97,21 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         // Workaround to fix label width
-        let headerView = self.tableView.tableHeaderView as? AvatarHeaderView
-        guard let headerView = headerView else {
-            return
-        }
-        var labelFrame = headerView.nameLabel?.frame
+        guard let headerView = self.tableView.tableHeaderView as? AvatarHeaderView else {return}
+        guard var labelFrame = headerView.nameLabel?.frame else {return}
         let padding: CGFloat = 16
-        labelFrame?.origin.x = padding
-        labelFrame?.size.width = self.tableView.bounds.size.width - padding * 2
-        if let labelFrame = labelFrame {
-            headerView.nameLabel?.frame = labelFrame
-        }
+        labelFrame.origin.x = padding
+        labelFrame.size.width = self.tableView.bounds.size.width - padding * 2
+        headerView.nameLabel?.frame = labelFrame
     }
 
-    init(withAccount account: TalkAccount?) {
+    init(withAccount account: TalkAccount) {
         super.init(style: .grouped)
-        if let account = account {
-            self.account = account
-        }
-        self.phoneUtil = NBPhoneNumberUtil()
+        self.account = account
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: Notifications
-
-    @objc func userProfileImageUpdated(notification: NSNotification) {
-        self.account = NCDatabaseManager.sharedInstance().activeAccount()
-        self.refreshProfileTableView()
     }
 
     // MARK: - Table view data source
@@ -208,8 +193,8 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
                                keyBoardType: .emailAddress, placeHolder: NSLocalizedString("Your email address", comment: ""))
             isTextInputCell = true
         case ProfileSection.kProfileSectionPhoneNumber.rawValue:
-            let phoneNumber = try? phoneUtil?.parse(account.phone, defaultRegion: nil)
-            let text = (phoneNumber != nil) ? try? phoneUtil?.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
+            let phoneNumber = try? phoneUtil.parse(account.phone, defaultRegion: nil)
+            let text = (phoneNumber != nil) ? try? phoneUtil.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
             setupTextInputCell(textInputCell: &textInputCell, text: text,
                                tag: kPhoneTextFieldTag, interactionEnabled: false,
                                keyBoardType: .phonePad, placeHolder: NSLocalizedString("Your phone number", comment: ""))
@@ -237,8 +222,8 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
             case SummaryRow.kSummaryRowEmail.rawValue:
                 setupSummaryRowCell(cell: &cell, scopeImage: &scopeImage, text: account.email, image: (UIImage(named: "mail")?.withRenderingMode(.alwaysTemplate)), scope: account.emailScope)
             case SummaryRow.kSummaryRowPhoneNumber.rawValue:
-                let phoneNumber = try? phoneUtil?.parse(account.phone, defaultRegion: nil)
-                let text = (phoneNumber != nil) ? try? phoneUtil?.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
+                let phoneNumber = try? phoneUtil.parse(account.phone, defaultRegion: nil)
+                let text = (phoneNumber != nil) ? try? phoneUtil.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
                 setupSummaryRowCell(cell: &cell, scopeImage: &scopeImage, text: text, image: UIImage(named: "phone")?.withRenderingMode(.alwaysTemplate), scope: account.phoneScope)
             case SummaryRow.kSummaryRowAddress.rawValue:
                 setupSummaryRowCell(cell: &cell, scopeImage: &scopeImage, text: account.address, image: UIImage(named: "location")?.withRenderingMode(.alwaysTemplate), scope: account.addressScope)
@@ -251,7 +236,7 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
             }
             cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
 
-            if showScopes ?? false {
+            if showScopes {
                 let scopeImageView = UIImageView(image: scopeImage)
                 scopeImageView.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
                 scopeImageView.tintColor = NCAppBranding.placeholderColor()
@@ -310,19 +295,23 @@ extension UserProfileTableViewController {
 
         switch profileSection {
         case ProfileSection.kProfileSectionName.rawValue:
-            setupViewForSection(headerView: &headerView, title: NSLocalizedString("Full name", comment: ""), buttonTag:
-                                        kNameTextFieldTag, enabled: shouldEnableNameAndEmailScopeButton, scopeForImage: account.userDisplayNameScope)
+            setupViewForSection(headerView: &headerView, title: NSLocalizedString("Full name", comment: ""), buttonTag: kNameTextFieldTag,
+                                enabled: shouldEnableNameAndEmailScopeButton, scopeForImage: account.userDisplayNameScope)
         case ProfileSection.kProfileSectionEmail.rawValue:
             setupViewForSection(headerView: &headerView, title: NSLocalizedString("Email", comment: ""), buttonTag: kEmailTextFieldTag,
-                                       enabled: shouldEnableNameAndEmailScopeButton, scopeForImage: account.emailScope)
+                                enabled: shouldEnableNameAndEmailScopeButton, scopeForImage: account.emailScope)
         case ProfileSection.kProfileSectionPhoneNumber.rawValue:
-            setupViewForSection(headerView: &headerView, title: NSLocalizedString("Phone number", comment: ""), buttonTag: kPhoneTextFieldTag, enabled: nil, scopeForImage: account.phoneScope)
+            setupViewForSection(headerView: &headerView, title: NSLocalizedString("Phone number", comment: ""), buttonTag: kPhoneTextFieldTag,
+                                enabled: nil, scopeForImage: account.phoneScope)
         case ProfileSection.kProfileSectionAddress.rawValue:
-            setupViewForSection(headerView: &headerView, title: NSLocalizedString("Address", comment: ""), buttonTag: kAddressTextFieldTag, enabled: nil, scopeForImage: account.addressScope)
+            setupViewForSection(headerView: &headerView, title: NSLocalizedString("Address", comment: ""), buttonTag: kAddressTextFieldTag,
+                                enabled: nil, scopeForImage: account.addressScope)
         case ProfileSection.kProfileSectionWebsite.rawValue:
-            setupViewForSection(headerView: &headerView, title: NSLocalizedString("Website", comment: ""), buttonTag: kWebsiteTextFieldTag, enabled: nil, scopeForImage: account.websiteScope)
+            setupViewForSection(headerView: &headerView, title: NSLocalizedString("Website", comment: ""), buttonTag: kWebsiteTextFieldTag,
+                                enabled: nil, scopeForImage: account.websiteScope)
         case ProfileSection.kProfileSectionTwitter.rawValue:
-            setupViewForSection(headerView: &headerView, title: NSLocalizedString("Twitter", comment: ""), buttonTag: kTwitterTextFieldTag, enabled: nil, scopeForImage: account.twitterScope)
+            setupViewForSection(headerView: &headerView, title: NSLocalizedString("Twitter", comment: ""), buttonTag: kTwitterTextFieldTag,
+                                enabled: nil, scopeForImage: account.twitterScope)
         default:
             break
         }
