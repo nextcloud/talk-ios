@@ -168,96 +168,41 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let summaryCellIdentifier = "SummaryCellIdentifier"
-        let addAccountCellIdentifier = "AddAccountCellIdentifier"
-        let removeAccountCellIdentifier = "RemoveAccountCellIdentifier"
-        var isTextInputCell = false
-        var cell = UITableViewCell()
-        var textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell
-        if textInputCell == nil {
-            textInputCell = TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
-        }
-        textInputCell?.textField?.delegate = self
-        textInputCell?.textField?.keyboardType = .default
-        textInputCell?.textField?.placeholder = nil
-        textInputCell?.textField?.autocorrectionType = .no
         let section = self.getProfileSections()[indexPath.section]
         switch section {
         case ProfileSection.kProfileSectionName.rawValue:
-            setupTextInputCell(textInputCell: &textInputCell,
-                               text: account.userDisplayName, tag: kNameTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileDisplayName), keyBoardType: nil, placeHolder: nil)
-            isTextInputCell = true
+            return textInputCellWith(text: account.userDisplayName, tag: kNameTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileDisplayName),
+                                     keyBoardType: nil, placeHolder: nil)
         case ProfileSection.kProfileSectionEmail.rawValue:
-            setupTextInputCell(textInputCell: &textInputCell, text: account.email,
-                               tag: kEmailTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileEmail),
-                               keyBoardType: .emailAddress, placeHolder: NSLocalizedString("Your email address", comment: ""))
-            isTextInputCell = true
+            return textInputCellWith(text: account.email, tag: kEmailTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileEmail),
+                                     keyBoardType: .emailAddress, placeHolder: NSLocalizedString("Your email address", comment: ""))
         case ProfileSection.kProfileSectionPhoneNumber.rawValue:
             let phoneNumber = try? phoneUtil.parse(account.phone, defaultRegion: nil)
             let text = (phoneNumber != nil) ? try? phoneUtil.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
-            setupTextInputCell(textInputCell: &textInputCell, text: text,
-                               tag: kPhoneTextFieldTag, interactionEnabled: false,
-                               keyBoardType: .phonePad, placeHolder: NSLocalizedString("Your phone number", comment: ""))
-            isTextInputCell = true
+            return textInputCellWith(text: text, tag: kPhoneTextFieldTag, interactionEnabled: false,
+                                     keyBoardType: .phonePad, placeHolder: NSLocalizedString("Your phone number", comment: ""))
         case ProfileSection.kProfileSectionAddress.rawValue:
-            setupTextInputCell(textInputCell: &textInputCell, text: account.address,
-                               tag: kAddressTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileAddress),
-                               keyBoardType: nil, placeHolder: NSLocalizedString("Your postal address", comment: ""))
-            isTextInputCell = true
+            return textInputCellWith(text: account.address, tag: kAddressTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileAddress),
+                                     keyBoardType: nil, placeHolder: NSLocalizedString("Your postal address", comment: ""))
         case ProfileSection.kProfileSectionWebsite.rawValue:
-            setupTextInputCell(textInputCell: &textInputCell, text: account.website,
-                               tag: kWebsiteTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileWebsite),
-                               keyBoardType: .URL, placeHolder: NSLocalizedString("Link https://…", comment: ""))
-            isTextInputCell = true
+            return textInputCellWith(text: account.website, tag: kWebsiteTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileWebsite),
+                                     keyBoardType: .URL, placeHolder: NSLocalizedString("Link https://…", comment: ""))
         case ProfileSection.kProfileSectionTwitter.rawValue:
-            setupTextInputCell(textInputCell: &textInputCell, text: account.twitter,
-                               tag: kTwitterTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileTwitter),
-                               keyBoardType: .emailAddress, placeHolder: NSLocalizedString("Twitter handle @…", comment: ""))
-            isTextInputCell = true
+            return textInputCellWith(text: account.twitter, tag: kTwitterTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileTwitter),
+                                     keyBoardType: .emailAddress, placeHolder: NSLocalizedString("Twitter handle @…", comment: ""))
         case ProfileSection.kProfileSectionSummary.rawValue:
-            cell = UITableViewCell(style: .default, reuseIdentifier: summaryCellIdentifier)
-            var scopeImage: UIImage?
-            let summaryRow = self.rowsInSummarySection()[indexPath.row]
-            switch summaryRow {
-            case SummaryRow.kSummaryRowEmail.rawValue:
-                setupSummaryRowCell(cell: &cell, scopeImage: &scopeImage, text: account.email, image: (UIImage(named: "mail")?.withRenderingMode(.alwaysTemplate)), scope: account.emailScope)
-            case SummaryRow.kSummaryRowPhoneNumber.rawValue:
-                let phoneNumber = try? phoneUtil.parse(account.phone, defaultRegion: nil)
-                let text = (phoneNumber != nil) ? try? phoneUtil.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
-                setupSummaryRowCell(cell: &cell, scopeImage: &scopeImage, text: text, image: UIImage(named: "phone")?.withRenderingMode(.alwaysTemplate), scope: account.phoneScope)
-            case SummaryRow.kSummaryRowAddress.rawValue:
-                setupSummaryRowCell(cell: &cell, scopeImage: &scopeImage, text: account.address, image: UIImage(named: "location")?.withRenderingMode(.alwaysTemplate), scope: account.addressScope)
-            case SummaryRow.kSummaryRowWebsite.rawValue:
-                setupSummaryRowCell(cell: &cell, scopeImage: &scopeImage, text: account.website, image: UIImage(named: "website")?.withRenderingMode(.alwaysTemplate), scope: account.websiteScope)
-            case SummaryRow.kSummaryRowTwitter.rawValue:
-                setupSummaryRowCell(cell: &cell, scopeImage: &scopeImage, text: account.twitter, image: UIImage(named: "twitter")?.withRenderingMode(.alwaysTemplate), scope: account.twitterScope)
-            default:
-                break
-            }
-            cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
-
-            if showScopes {
-                let scopeImageView = UIImageView(image: scopeImage)
-                scopeImageView.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
-                scopeImageView.tintColor = NCAppBranding.placeholderColor()
-            }
+            return summaryCellForRow(row: indexPath.row)
         case ProfileSection.kProfileSectionAddAccount.rawValue:
-            cell = UITableViewCell(style: .default, reuseIdentifier: addAccountCellIdentifier)
-            setupAddRemoveAccountCell(cell: &cell, text: NSLocalizedString("Add account", comment: ""), textColor: .systemBlue, image: UIImage(named: "add-action"), tintColor: .systemBlue)
+            return actionCellWith(identifier: "AddAccountCellIdentifier", text: NSLocalizedString("Add account", comment: ""),
+                                  textColor: .systemBlue, image: UIImage(named: "add-action"), tintColor: .systemBlue)
         case ProfileSection.kProfileSectionRemoveAccount.rawValue:
-            cell = UITableViewCell(style: .default, reuseIdentifier: removeAccountCellIdentifier)
             let actionTitle = multiAccountEnabled.boolValue ? NSLocalizedString("Remove account", comment: "") : NSLocalizedString("Log out", comment: "")
             let actionImage = multiAccountEnabled.boolValue ? UIImage(named: "delete") : UIImage(named: "logout")
-            setupAddRemoveAccountCell(cell: &cell, text: actionTitle, textColor: .systemRed, image: actionImage, tintColor: .systemRed)
+            return actionCellWith(identifier: "RemoveAccountCellIdentifier", text: actionTitle, textColor: .systemRed, image: actionImage, tintColor: .systemRed)
         default:
             break
         }
-        if isTextInputCell {
-            if let textInputCell = textInputCell {
-                cell = textInputCell
-            }
-        }
-        return cell
+        return UITableViewCell()
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -320,39 +265,78 @@ extension UserProfileTableViewController {
 
     // MARK: Setup cells
 
-    func setupTextInputCell(textInputCell: inout TextInputTableViewCell?, text: String?, tag: Int?, interactionEnabled: Bool?, keyBoardType: UIKeyboardType?, placeHolder: String?) {
-        guard let textInputCell = textInputCell else {
-            return
+    func textInputCellWith(text: String?, tag: Int?, interactionEnabled: Bool?, keyBoardType: UIKeyboardType?, placeHolder: String?) -> TextInputTableViewCell {
+        var textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell
+        if textInputCell == nil {
+            textInputCell = TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
         }
+
+        textInputCell?.textField.delegate = self
+
         if let text = text {
-            textInputCell.textField.text = text
+            textInputCell?.textField.text = text
         }
         if let tag = tag {
-            textInputCell.textField.tag = tag
+            textInputCell?.textField.tag = tag
         }
         if let interactionEnabled = interactionEnabled {
-            textInputCell.textField.isUserInteractionEnabled = interactionEnabled
+            textInputCell?.textField.isUserInteractionEnabled = interactionEnabled
         }
         if let keyBoardType = keyBoardType {
-            textInputCell.textField.keyboardType = keyBoardType
+            textInputCell?.textField.keyboardType = keyBoardType
         }
         if let placeHolder = placeHolder {
-            textInputCell.textField.placeholder = placeHolder
+            textInputCell?.textField.placeholder = placeHolder
         }
+
+        return textInputCell ?? TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
     }
 
-    func setupSummaryRowCell(cell: inout UITableViewCell, scopeImage: inout UIImage?, text: String?, image: UIImage?, scope: String) {
-        if let text = text {
-            cell.textLabel?.text = text
+    func summaryCellForRow(row: Int) -> UITableViewCell {
+        var summaryCell = tableView.dequeueReusableCell(withIdentifier: "SummaryCellIdentifier")
+        if summaryCell == nil {
+            summaryCell = UITableViewCell(style: .default, reuseIdentifier: "SummaryCellIdentifier")
         }
-        cell.imageView?.image = image
-        scopeImage = self.imageForScope(scope: scope)
+
+        let summaryRow = self.rowsInSummarySection()[row]
+        switch summaryRow {
+        case SummaryRow.kSummaryRowEmail.rawValue:
+            summaryCell?.textLabel?.text = account.email
+            summaryCell?.imageView?.image = UIImage(named: "mail")?.withRenderingMode(.alwaysTemplate)
+        case SummaryRow.kSummaryRowPhoneNumber.rawValue:
+            let phoneNumber = try? phoneUtil.parse(account.phone, defaultRegion: nil)
+            let text = (phoneNumber != nil) ? try? phoneUtil.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
+            summaryCell?.textLabel?.text = text
+            summaryCell?.imageView?.image = UIImage(named: "phone")?.withRenderingMode(.alwaysTemplate)
+        case SummaryRow.kSummaryRowAddress.rawValue:
+            summaryCell?.textLabel?.text = account.address
+            summaryCell?.imageView?.image = UIImage(named: "location")?.withRenderingMode(.alwaysTemplate)
+        case SummaryRow.kSummaryRowWebsite.rawValue:
+            summaryCell?.textLabel?.text = account.website
+            summaryCell?.imageView?.image = UIImage(named: "website")?.withRenderingMode(.alwaysTemplate)
+        case SummaryRow.kSummaryRowTwitter.rawValue:
+            summaryCell?.textLabel?.text = account.twitter
+            summaryCell?.imageView?.image = UIImage(named: "twitter")?.withRenderingMode(.alwaysTemplate)
+        default:
+            break
+        }
+
+        summaryCell?.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
+
+        return summaryCell ?? UITableViewCell()
     }
 
-    func setupAddRemoveAccountCell(cell: inout UITableViewCell, text: String, textColor: UIColor, image: UIImage?, tintColor: UIColor) {
-        cell.textLabel?.text = text
-        cell.textLabel?.textColor = textColor
-        cell.imageView?.image = image?.withRenderingMode(.alwaysTemplate)
-        cell.imageView?.tintColor = tintColor
+    func actionCellWith(identifier: String, text: String, textColor: UIColor, image: UIImage?, tintColor: UIColor) -> UITableViewCell {
+        var actionCell = tableView.dequeueReusableCell(withIdentifier: identifier)
+        if actionCell == nil {
+            actionCell = UITableViewCell(style: .default, reuseIdentifier: identifier)
+        }
+
+        actionCell?.textLabel?.text = text
+        actionCell?.textLabel?.textColor = textColor
+        actionCell?.imageView?.image = image?.withRenderingMode(.alwaysTemplate)
+        actionCell?.imageView?.tintColor = tintColor
+
+        return actionCell ?? UITableViewCell()
     }
 }
