@@ -266,77 +266,68 @@ extension UserProfileTableViewController {
     // MARK: Setup cells
 
     func textInputCellWith(text: String?, tag: Int?, interactionEnabled: Bool?, keyBoardType: UIKeyboardType?, placeHolder: String?) -> TextInputTableViewCell {
-        var textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell
-        if textInputCell == nil {
-            textInputCell = TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
-        }
+        let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
+        TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
 
-        textInputCell?.textField.delegate = self
+        textInputCell.textField.delegate = self
 
         if let text = text {
-            textInputCell?.textField.text = text
+            textInputCell.textField.text = text
         }
         if let tag = tag {
-            textInputCell?.textField.tag = tag
+            textInputCell.textField.tag = tag
         }
         if let interactionEnabled = interactionEnabled {
-            textInputCell?.textField.isUserInteractionEnabled = interactionEnabled
+            textInputCell.textField.isUserInteractionEnabled = interactionEnabled
         }
         if let keyBoardType = keyBoardType {
-            textInputCell?.textField.keyboardType = keyBoardType
+            textInputCell.textField.keyboardType = keyBoardType
         }
         if let placeHolder = placeHolder {
-            textInputCell?.textField.placeholder = placeHolder
+            textInputCell.textField.placeholder = placeHolder
         }
 
-        return textInputCell ?? TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
+        return textInputCell
     }
 
     func summaryCellForRow(row: Int) -> UITableViewCell {
-        var summaryCell = tableView.dequeueReusableCell(withIdentifier: "SummaryCellIdentifier")
-        if summaryCell == nil {
-            summaryCell = UITableViewCell(style: .default, reuseIdentifier: "SummaryCellIdentifier")
-        }
-
+        let summaryCell = tableView.dequeueReusableCell(withIdentifier: "SummaryCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "SummaryCellIdentifier")
         let summaryRow = self.rowsInSummarySection()[row]
         switch summaryRow {
         case SummaryRow.kSummaryRowEmail.rawValue:
-            summaryCell?.textLabel?.text = account.email
-            summaryCell?.imageView?.image = UIImage(named: "mail")?.withRenderingMode(.alwaysTemplate)
+            summaryCell.textLabel?.text = account.email
+            summaryCell.imageView?.image = UIImage(named: "mail")?.withRenderingMode(.alwaysTemplate)
         case SummaryRow.kSummaryRowPhoneNumber.rawValue:
             let phoneNumber = try? phoneUtil.parse(account.phone, defaultRegion: nil)
             let text = (phoneNumber != nil) ? try? phoneUtil.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
-            summaryCell?.textLabel?.text = text
-            summaryCell?.imageView?.image = UIImage(named: "phone")?.withRenderingMode(.alwaysTemplate)
+            summaryCell.textLabel?.text = text
+            summaryCell.imageView?.image = UIImage(named: "phone")?.withRenderingMode(.alwaysTemplate)
         case SummaryRow.kSummaryRowAddress.rawValue:
-            summaryCell?.textLabel?.text = account.address
-            summaryCell?.imageView?.image = UIImage(named: "location")?.withRenderingMode(.alwaysTemplate)
+            summaryCell.textLabel?.text = account.address
+            summaryCell.imageView?.image = UIImage(named: "location")?.withRenderingMode(.alwaysTemplate)
         case SummaryRow.kSummaryRowWebsite.rawValue:
-            summaryCell?.textLabel?.text = account.website
-            summaryCell?.imageView?.image = UIImage(named: "website")?.withRenderingMode(.alwaysTemplate)
+            summaryCell.textLabel?.text = account.website
+            summaryCell.imageView?.image = UIImage(named: "website")?.withRenderingMode(.alwaysTemplate)
         case SummaryRow.kSummaryRowTwitter.rawValue:
-            summaryCell?.textLabel?.text = account.twitter
-            summaryCell?.imageView?.image = UIImage(named: "twitter")?.withRenderingMode(.alwaysTemplate)
+            summaryCell.textLabel?.text = account.twitter
+            summaryCell.imageView?.image = UIImage(named: "twitter")?.withRenderingMode(.alwaysTemplate)
         default:
             break
         }
 
-        summaryCell?.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
+        summaryCell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
 
-        return summaryCell ?? UITableViewCell()
+        return summaryCell
     }
 
     func actionCellWith(identifier: String, text: String, textColor: UIColor, image: UIImage?, tintColor: UIColor) -> UITableViewCell {
-        var actionCell = tableView.dequeueReusableCell(withIdentifier: identifier)
-        if actionCell == nil {
-            actionCell = UITableViewCell(style: .default, reuseIdentifier: identifier)
-        }
+        let actionCell = tableView.dequeueReusableCell(withIdentifier: identifier) ?? UITableViewCell(style: .default, reuseIdentifier: identifier)
 
-        actionCell?.textLabel?.text = text
-        actionCell?.textLabel?.textColor = textColor
-        actionCell?.imageView?.image = image?.withRenderingMode(.alwaysTemplate)
-        actionCell?.imageView?.tintColor = tintColor
+        actionCell.textLabel?.text = text
+        actionCell.textLabel?.textColor = textColor
+        actionCell.imageView?.image = image?.withRenderingMode(.alwaysTemplate)
+        actionCell.imageView?.tintColor = tintColor
 
-        return actionCell ?? UITableViewCell()
+        return actionCell
     }
 }
