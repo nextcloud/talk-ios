@@ -24,7 +24,7 @@ import Foundation
 
 extension UserProfileTableViewController: UINavigationControllerDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate, UIImagePickerControllerDelegate {
 
-    // MARK: DetailedOptionSelector Delegate
+    // MARK: - DetailedOptionSelector Delegate
 
     func detailedOptionsSelector(_ viewController: DetailedOptionsSelectorTableViewController!, didSelectOptionWithIdentifier option: DetailedOption!) {
         self.dismiss(animated: true) {
@@ -38,7 +38,7 @@ extension UserProfileTableViewController: UINavigationControllerDelegate, UIText
         self.dismiss(animated: true, completion: nil)
     }
 
-    // MARK: UIImagePickerController Delegate
+    // MARK: - UIImagePickerController Delegate
 
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         let mediaType = info[UIImagePickerController.InfoKey.mediaType] as? String
@@ -58,7 +58,7 @@ extension UserProfileTableViewController: UINavigationControllerDelegate, UIText
         self.dismiss(animated: true, completion: nil)
     }
 
-    // MARK: TOCROPViewControllerDelegate
+    // MARK: - TOCROPViewControllerDelegate
 
     func cropViewController(_ cropViewController: TOCropViewController, didCropTo image: UIImage, with cropRect: CGRect, angle: Int) {
         self.sendUserProfileImage(image: image)
@@ -73,7 +73,7 @@ extension UserProfileTableViewController: UINavigationControllerDelegate, UIText
         cropViewController.dismiss(animated: true)
     }
 
-    // MARK: UITextField delegate
+    // MARK: - UITextField delegate
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
         activeTextField = textField
@@ -130,9 +130,8 @@ extension UserProfileTableViewController: UINavigationControllerDelegate, UIText
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField.tag == kPhoneTextFieldTag {
             let inputPhoneNumber = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
-            var phoneNumber: NBPhoneNumber?
-            phoneNumber = try? phoneUtil?.parse(inputPhoneNumber, defaultRegion: nil)
-            setPhoneAction.isEnabled = (phoneUtil?.isValidNumber(phoneNumber))! && (account.phone != inputPhoneNumber)
+            let phoneNumber = try? phoneUtil.parse(inputPhoneNumber, defaultRegion: nil)
+            setPhoneAction.isEnabled = phoneUtil.isValidNumber(phoneNumber) && account.phone != inputPhoneNumber
         }
         return true
     }

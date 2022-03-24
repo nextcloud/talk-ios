@@ -263,8 +263,8 @@
 		DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */; };
 		DA66582B27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66582A27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift */; };
 		DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66582C27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift */; };
-		DA66582F27B6B19C00B46B11 /* UserProfileTableViewController+ActionsSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66582E27B6B19C00B46B11 /* UserProfileTableViewController+ActionsSetup.swift */; };
-		DA66583127B6B24E00B46B11 /* UserProfileTableViewController+UISetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66583027B6B24E00B46B11 /* UserProfileTableViewController+UISetup.swift */; };
+		DA66582F27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66582E27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift */; };
+		DA66583127B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */; };
 		DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */; };
 		DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */; };
 		DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558122790D65700A48A1B /* AccountTableViewCell.swift */; };
@@ -738,8 +738,8 @@
 		DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateLabelCustom.swift; sourceTree = "<group>"; };
 		DA66582A27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+AvatarSetup.swift"; sourceTree = "<group>"; };
 		DA66582C27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+DelegateMethods.swift"; sourceTree = "<group>"; };
-		DA66582E27B6B19C00B46B11 /* UserProfileTableViewController+ActionsSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+ActionsSetup.swift"; sourceTree = "<group>"; };
-		DA66583027B6B24E00B46B11 /* UserProfileTableViewController+UISetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+UISetup.swift"; sourceTree = "<group>"; };
+		DA66582E27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+Actions.swift"; sourceTree = "<group>"; };
+		DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+Utils.swift"; sourceTree = "<group>"; };
 		DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 		DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsTableViewCell.swift; sourceTree = "<group>"; };
 		DA7558122790D65700A48A1B /* AccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTableViewCell.swift; sourceTree = "<group>"; };
@@ -1076,8 +1076,8 @@
 				DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */,
 				DA66582A27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift */,
 				DA66582C27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift */,
-				DA66582E27B6B19C00B46B11 /* UserProfileTableViewController+ActionsSetup.swift */,
-				DA66583027B6B24E00B46B11 /* UserProfileTableViewController+UISetup.swift */,
+				DA66582E27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift */,
+				DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */,
 				DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */,
 				2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */,
 				2C4446EA265D25BA00DF1DBC /* NCKeyChainController.h */,
@@ -1855,7 +1855,7 @@
 				2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */,
 				2C4CDCCC269618240023F403 /* RoomDescriptionTableViewCell.m in Sources */,
 				2CC007BD20D8F24B0096D91F /* RoomCreation2TableViewController.m in Sources */,
-				DA66583127B6B24E00B46B11 /* UserProfileTableViewController+UISetup.swift in Sources */,
+				DA66583127B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift in Sources */,
 				2CBF82BD1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
 				2C1ABD9925769F7500AEDFB6 /* ShareItem.m in Sources */,
 				2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */,
@@ -1919,7 +1919,7 @@
 				2C7A245B24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
 				2C4446D32658147900DF1DBC /* TalkAccount.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
-				DA66582F27B6B19C00B46B11 /* UserProfileTableViewController+ActionsSetup.swift in Sources */,
+				DA66582F27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift in Sources */,
 				2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */,
 				2C1ABDCE257E939600AEDFB6 /* NCContact.m in Sources */,
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,

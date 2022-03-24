@@ -39,6 +39,8 @@ class TextInputTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         self.textField.text = ""
+        self.textField.placeholder = nil
         self.textField.keyboardType = .default
+        self.textField.autocorrectionType = .no
     }
 }

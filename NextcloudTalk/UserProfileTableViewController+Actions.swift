@@ -24,11 +24,10 @@ import Foundation
 
 extension UserProfileTableViewController {
 
-    // MARK: Actions
-
     @objc func editButtonPressed() {
         if activeTextField != nil {
             self.waitingForModification = true
+            activeTextField?.resignFirstResponder()
             return
         }
         if !isEditable {
@@ -75,17 +74,17 @@ extension UserProfileTableViewController {
         let setPhoneNumberDialog = UIAlertController(title: NSLocalizedString("Phone number", comment: ""), message: nil, preferredStyle: .alert)
         let hasPhone = !account.phone.isEmpty
         setPhoneNumberDialog.addTextField { [self] textField in
-            let location = NSLocale.current.regionCode
-            let countryCode = phoneUtil?.getCountryCode(forRegion: location)
+            let regionCode = NSLocale.current.regionCode
+            let countryCode = phoneUtil.getCountryCode(forRegion: regionCode)
             if let countryCode = countryCode {
                 textField.text = "+\(countryCode)"
             }
             if hasPhone {
                 textField.text = self.account.phone
             }
-            let exampleNumber = try? self.phoneUtil?.getExampleNumber(location ?? "")
+            let exampleNumber = try? self.phoneUtil.getExampleNumber(regionCode ?? "")
             if let exampleNumber = exampleNumber {
-                textField.placeholder = try? self.phoneUtil?.format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
+                textField.placeholder = try? self.phoneUtil.format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
                 textField.keyboardType = .phonePad
                 textField.delegate = self
                 textField.tag = self.kPhoneTextFieldTag
