@@ -701,7 +701,20 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedParticipantListMessage:(NSDictionary *)participantListMessageDict
 {
     NSLog(@"External participants message received: %@", participantListMessageDict);
+    
     NSArray *usersInRoom = [participantListMessageDict objectForKey:@"users"];
+    
+    // Update for "all" participants
+    if ([[participantListMessageDict objectForKey:@"all"] boolValue]) {
+        // Check if "incall" key exist
+        if ([[participantListMessageDict allKeys] containsObject:@"incall"]) {
+            // Clear usersInRoom array if incall=false
+            if (![[participantListMessageDict objectForKey:@"incall"] boolValue]) {
+                usersInRoom = @[];
+            }
+        }
+    }
+    
     if (_inCall) {
         [self processUsersInRoom:usersInRoom];
     } else {
