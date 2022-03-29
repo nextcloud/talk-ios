@@ -57,6 +57,7 @@ extern NSString * const kCapabilityDirectMentionFlag;
 extern NSString * const kCapabilityNotificationCalls;
 extern NSString * const kCapabilityConversationPermissions;
 extern NSString * const kCapabilityChatUnread;
+extern NSString * const kCapabilityRichObjectDelete;
 
 extern NSString * const kMinimumRequiredTalkCapability;
 

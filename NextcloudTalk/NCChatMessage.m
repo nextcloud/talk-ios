@@ -172,12 +172,27 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
 - (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType
 {
     NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
-    BOOL canServerDeleteMessages = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDeleteMessages forAccountId:account.accountId];
-    if ([self.messageType isEqualToString:kMessageTypeComment] && !self.isDeleting && !self.file && self.timestamp >= sixHoursAgoTimestamp && canServerDeleteMessages &&
-        (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:account.userId])) {
+    
+    BOOL severCanDeleteMessage =
+    // Delete normal messages
+    ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDeleteMessages forAccountId:account.accountId] && [self.messageType isEqualToString:kMessageTypeComment] && !self.file && ![self isObjectShare]) ||
+    // Delete files or shared objects
+    ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRichObjectDelete forAccountId:account.accountId] && ([self.messageType isEqualToString:kMessageTypeVoiceMessage] || self.file || [self isObjectShare]));
+    
+    BOOL userCanDeleteMessage = (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:account.userId]);
+    
+    if (severCanDeleteMessage && userCanDeleteMessage && !self.isDeleting && self.timestamp >= sixHoursAgoTimestamp) {
         return YES;
     }
     
+    return NO;
+}
+
+- (BOOL)isObjectShare
+{
+    if ([self.message isEqualToString:@"{object}"] && [self.messageParameters objectForKey:@"object"]) {
+        return YES;
+    }
     return NO;
 }
 
