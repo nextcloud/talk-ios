@@ -963,11 +963,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 #pragma mark - Message updates
 
-- (void)updateMessageWithReferenceId:(NSString *)referenceId withMessage:(NCChatMessage *)updatedMessage
+- (void)updateMessageWithMessageId:(NSInteger)messageId withMessage:(NCChatMessage *)updatedMessage
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSMutableArray *reloadIndexPaths = [NSMutableArray new];
-        NSIndexPath *indexPath = [self indexPathForMessageWithReferenceId:referenceId];
+        NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:messageId];
         if (indexPath) {
             [reloadIndexPaths addObject:indexPath];
             NSDate *keyDate = [self->_dateSections objectAtIndex:indexPath.section];
@@ -1274,7 +1274,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NCChatMessage *deletingMessage = [message copy];
         deletingMessage.message = NSLocalizedString(@"Deleting message", nil);
         deletingMessage.isDeleting = YES;
-        [self updateMessageWithReferenceId:deletingMessage.referenceId withMessage:deletingMessage];
+        [self updateMessageWithMessageId:deletingMessage.messageId withMessage:deletingMessage];
         // Delete message
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         [[NCAPIController sharedInstance] deleteChatMessageInRoom:self->_room.token withMessageId:message.messageId forAccount:activeAccount withCompletionBlock:^(NSDictionary *messageDict, NSError *error, NSInteger statusCode) {
@@ -1286,7 +1286,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 }
                 NCChatMessage *deleteMessage = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:activeAccount.accountId];
                 if (deleteMessage) {
-                    [self updateMessageWithReferenceId:deleteMessage.referenceId withMessage:deleteMessage];
+                    [self updateMessageWithMessageId:deleteMessage.messageId withMessage:deleteMessage];
                 }
             } else if (error) {
                 if (statusCode == 400) {
@@ -1297,7 +1297,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                     [self.view makeToast:NSLocalizedString(@"An error occurred while deleting the message", nil) duration:5 position:CSToastPositionCenter];
                 }
                 // Set back original message on failure
-                [self updateMessageWithReferenceId:message.referenceId withMessage:message];
+                [self updateMessageWithMessageId:message.messageId withMessage:message];
             }
         }];
     }
@@ -2478,7 +2478,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     NCChatMessage *message = [notification.userInfo objectForKey:@"deleteMessage"];
     NCChatMessage *deleteMessage = message.parent;
     if (deleteMessage) {
-        [self updateMessageWithReferenceId:deleteMessage.referenceId withMessage:deleteMessage];
+        [self updateMessageWithMessageId:deleteMessage.messageId withMessage:deleteMessage];
     }
 }
 
@@ -2664,6 +2664,24 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             if ((!currentMessage.isTemporary && currentMessage.messageId == message.messageId) ||
                 (currentMessage.isTemporary && [currentMessage.referenceId isEqualToString:message.referenceId])) {
                 return [NSIndexPath indexPathForRow:i inSection:section];
+            }
+        }
+    }
+    
+    return nil;
+}
+
+- (NSIndexPath *)indexPathForMessageWithMessageId:(NSInteger)messageId
+{
+    for (NSInteger i = _dateSections.count - 1; i >= 0; i--) {
+        NSDate *keyDate = [_dateSections objectAtIndex:i];
+        NSMutableArray *messages = [_messages objectForKey:keyDate];
+        NCChatMessage *firstMessage = messages.firstObject;
+        if (firstMessage.messageId > messageId) continue;
+        for (NSInteger j = messages.count - 1; j >= 0; j--) {
+            NCChatMessage *currentMessage = messages[j];
+            if (currentMessage.messageId == messageId) {
+                return [NSIndexPath indexPathForRow:j inSection:i];
             }
         }
     }
