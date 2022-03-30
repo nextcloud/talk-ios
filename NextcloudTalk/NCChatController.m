@@ -34,7 +34,7 @@ NSString * const NCChatControllerDidReceiveChatMessagesNotification             
 NSString * const NCChatControllerDidSendChatMessageNotification                     = @"NCChatControllerDidSendChatMessageNotification";
 NSString * const NCChatControllerDidReceiveChatBlockedNotification                  = @"NCChatControllerDidReceiveChatBlockedNotification";
 NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification       = @"NCChatControllerDidReceiveNewerCommonReadMessageNotification";
-NSString * const NCChatControllerDidReceiveDeletedMessageNotification               = @"NCChatControllerDidReceiveDeletedMessageNotification";
+NSString * const NCChatControllerDidReceiveUpdateMessageNotification                = @"NCChatControllerDidReceiveUpdateMessageNotification";
 NSString * const NCChatControllerDidReceiveHistoryClearedNotification               = @"NCChatControllerDidReceiveHistoryClearedNotification";
 NSString * const NCChatControllerDidReceiveCallStartedMessageNotification           = @"NCChatControllerDidReceiveCallStartedMessageNotification";
 NSString * const NCChatControllerDidReceiveCallEndedMessageNotification             = @"NCChatControllerDidReceiveCallEndedMessageNotification";
@@ -376,9 +376,9 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
                                                                   userInfo:userInfo];
             }
             // Notify if "deleted messages" have been received
-            if ([message.systemMessage isEqualToString:@"message_deleted"]) {
-                [userInfo setObject:message forKey:@"deleteMessage"];
-                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveDeletedMessageNotification
+            if ([message.systemMessage isEqualToString:@"message_deleted"] || [message.systemMessage isEqualToString:@"reaction"]) {
+                [userInfo setObject:message forKey:@"updateMessage"];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveUpdateMessageNotification
                                                                     object:self
                                                                   userInfo:userInfo];
             }
@@ -625,9 +625,9 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
                                                                           userInfo:userInfo];
                     }
                     // Notify if "deleted messages" have been received
-                    if ([message.systemMessage isEqualToString:@"message_deleted"]) {
-                        [userInfo setObject:message forKey:@"deleteMessage"];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveDeletedMessageNotification
+                    if ([message.systemMessage isEqualToString:@"message_deleted"] || [message.systemMessage isEqualToString:@"reaction"]) {
+                        [userInfo setObject:message forKey:@"updateMessage"];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveUpdateMessageNotification
                                                                             object:self
                                                                           userInfo:userInfo];
                     }

@@ -176,7 +176,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveNewerCommonReadMessage:) name:NCChatControllerDidReceiveNewerCommonReadMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCallStartedMessage:) name:NCChatControllerDidReceiveCallStartedMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCallEndedMessage:) name:NCChatControllerDidReceiveCallEndedMessageNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDeletedMessage:) name:NCChatControllerDidReceiveDeletedMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveUpdateMessage:) name:NCChatControllerDidReceiveUpdateMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveHistoryCleared:) name:NCChatControllerDidReceiveHistoryClearedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
@@ -2469,13 +2469,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self checkRoomControlsAvailability];
 }
 
-- (void)didReceiveDeletedMessage:(NSNotification *)notification
+- (void)didReceiveUpdateMessage:(NSNotification *)notification
 {
     if (notification.object != _chatController) {
         return;
     }
     
-    NCChatMessage *message = [notification.userInfo objectForKey:@"deleteMessage"];
+    NCChatMessage *message = [notification.userInfo objectForKey:@"updateMessage"];
     NCChatMessage *deleteMessage = message.parent;
     if (deleteMessage) {
         [self updateMessageWithMessageId:deleteMessage.messageId withMessage:deleteMessage];
