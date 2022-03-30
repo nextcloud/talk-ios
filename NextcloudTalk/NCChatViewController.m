@@ -3041,7 +3041,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return separatorCell;
     }
     if (message.isSystemMessage) {
-        if ([message.systemMessage isEqualToString:@"message_deleted"]) {
+        if ([message.systemMessage isEqualToString:@"message_deleted"] || [message.systemMessage isEqualToString:@"reaction"]) {
             return (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:InvisibleSystemMessageCellIdentifier];
         }
         SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
@@ -3130,7 +3130,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Message deleted (the ones that notify about a deleted message, they should not be displayed)
-    if (message.message.length == 0 || [message.systemMessage isEqualToString:@"message_deleted"]) {
+    if (message.message.length == 0 || [message.systemMessage isEqualToString:@"message_deleted"] || [message.systemMessage isEqualToString:@"reaction"]) {
         return 0.0;
     }
     
