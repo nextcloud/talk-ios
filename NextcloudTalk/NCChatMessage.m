@@ -41,6 +41,9 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
 
 @end
 
+@implementation NCChatReaction
+@end
+
 @implementation NCChatMessage
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict
@@ -85,6 +88,19 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
         }
     }
     
+    id reactions = [messageDict objectForKey:@"reactions"];
+    if ([reactions isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *reactionsDict = reactions;
+        NSMutableArray *reactionsArray = [NSMutableArray new];
+        for (NSString *reactionKey in reactionsDict.allKeys) {
+            NCChatReaction *reaction = [[NCChatReaction alloc] init];
+            reaction.reaction = reactionKey;
+            reaction.count = [[reactionsDict objectForKey:reactionKey] integerValue];
+            [reactionsArray addObject:reaction];
+        }
+        message.reactions = (RLMArray<NCChatReaction *><NCChatReaction> *)reactionsArray;
+    }
+    
     return message;
 }
 
@@ -110,6 +126,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     managedChatMessage.systemMessage = chatMessage.systemMessage;
     managedChatMessage.isReplyable = chatMessage.isReplyable;
     managedChatMessage.messageType = chatMessage.messageType;
+    managedChatMessage.reactions = chatMessage.reactions;
     
     if (!managedChatMessage.parentId && chatMessage.parentId) {
         managedChatMessage.parentId = chatMessage.parentId;
@@ -139,6 +156,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     messageCopy.parentId = [_parentId copyWithZone:zone];
     messageCopy.referenceId = [_referenceId copyWithZone:zone];
     messageCopy.messageType = [_messageType copyWithZone:zone];
+    // warning: reactions are not copied
     messageCopy.isTemporary = _isTemporary;
     messageCopy.sendingFailed = _sendingFailed;
     messageCopy.isGroupMessage = _isGroupMessage;

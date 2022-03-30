@@ -37,6 +37,13 @@ extern NSString * const kMessageTypeSystem;
 extern NSString * const kMessageTypeCommand;
 extern NSString * const kMessageTypeVoiceMessage;
 
+@interface NCChatReaction : RLMObject
+@property (nonatomic, strong) NSString *reaction;
+@property (nonatomic, assign) NSInteger count;
+@end
+
+RLM_ARRAY_TYPE(NCChatReaction)
+
 @interface NCChatMessage : RLMObject <NSCopying>
 
 @property (nonatomic, strong) NSString *internalId; // accountId@token@messageId
@@ -54,6 +61,7 @@ extern NSString * const kMessageTypeVoiceMessage;
 @property (nonatomic, strong) NSString *parentId;
 @property (nonatomic, strong) NSString *referenceId;
 @property (nonatomic, strong) NSString *messageType;
+@property (nonatomic, strong) RLMArray<NCChatReaction *><NCChatReaction> *reactions;
 @property (nonatomic, assign) BOOL isTemporary;
 @property (nonatomic, assign) BOOL sendingFailed;
 @property (nonatomic, assign) BOOL isGroupMessage;
