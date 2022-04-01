@@ -3041,7 +3041,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return separatorCell;
     }
     if (message.isSystemMessage) {
-        if ([message.systemMessage isEqualToString:@"message_deleted"] || [message.systemMessage isEqualToString:@"reaction"]) {
+        if ([message.systemMessage isEqualToString:@"message_deleted"] ||
+            [message.systemMessage isEqualToString:@"reaction"] ||
+            [message.systemMessage isEqualToString:@"reaction_revoked"]) {
             return (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:InvisibleSystemMessageCellIdentifier];
         }
         SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
@@ -3129,8 +3131,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return kMessageSeparatorCellHeight;
     }
     
-    // Message deleted (the ones that notify about a deleted message, they should not be displayed)
-    if (message.message.length == 0 || [message.systemMessage isEqualToString:@"message_deleted"] || [message.systemMessage isEqualToString:@"reaction"]) {
+    // Update messages (the ones that notify about an update in one message, they should not be displayed)
+    if (message.message.length == 0 ||
+        [message.systemMessage isEqualToString:@"message_deleted"] ||
+        [message.systemMessage isEqualToString:@"reaction"] ||
+        [message.systemMessage isEqualToString:@"reaction_revoked"]) {
         return 0.0;
     }
     
@@ -3146,6 +3151,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         height = kChatMessageCellMinimumHeight;
     }
     
+    if (message.reactionsArray.count > 0) {
+        height += 40; // reactionsView(40)
+    }
+    
     if (message.parent) {
         height += 55; // left(5) + quoteView(50)
         return height;
@@ -3156,6 +3165,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         
         if (height < kGroupedChatMessageCellMinimumHeight) {
             height = kGroupedChatMessageCellMinimumHeight;
+        }
+        
+        if (message.reactionsArray.count > 0) {
+            height += 40; // reactionsView(40)
         }
     }
     

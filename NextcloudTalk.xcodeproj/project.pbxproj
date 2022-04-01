@@ -246,6 +246,12 @@
 		2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C820E125C20096D91F /* NewRoomTableViewController.m */; };
 		2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */; };
 		2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
+		2CC32E8D27F4540E00BB8C39 /* ReactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E8C27F4540E00BB8C39 /* ReactionsView.swift */; };
+		2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */; };
+		2CC32E9327F45AE000BB8C39 /* ReactionsViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */; };
+		2CC32E9827F5D9BD00BB8C39 /* NCChatReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E9727F5D9BD00BB8C39 /* NCChatReaction.m */; };
+		2CC32E9927F5DADA00BB8C39 /* NCChatReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E9727F5D9BD00BB8C39 /* NCChatReaction.m */; };
+		2CC32E9A27F5DADB00BB8C39 /* NCChatReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E9727F5D9BD00BB8C39 /* NCChatReaction.m */; };
 		2CC5F0982716FF1900DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F0972716FF1900DE1775 /* NCCommunication */; };
 		2CC5F09A2717028B00DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F0992717028B00DE1775 /* NCCommunication */; };
 		2CC5F09C2717198500DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F09B2717198500DE1775 /* NCCommunication */; };
@@ -714,6 +720,11 @@
 		2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NewRoomTableViewController.xib; sourceTree = "<group>"; };
 		2CC007CC20E50B0A0096D91F /* MessageBodyTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageBodyTextView.h; sourceTree = "<group>"; };
 		2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageBodyTextView.m; sourceTree = "<group>"; };
+		2CC32E8C27F4540E00BB8C39 /* ReactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsView.swift; sourceTree = "<group>"; };
+		2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsViewCell.swift; sourceTree = "<group>"; };
+		2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReactionsViewCell.xib; sourceTree = "<group>"; };
+		2CC32E9627F5D9BD00BB8C39 /* NCChatReaction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatReaction.h; sourceTree = "<group>"; };
+		2CC32E9727F5D9BD00BB8C39 /* NCChatReaction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatReaction.m; sourceTree = "<group>"; };
 		2CC7158820B837140045C789 /* PlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PlaceholderView.xib; sourceTree = "<group>"; };
 		2CC7158A20B8394A0045C789 /* PlaceholderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaceholderView.h; sourceTree = "<group>"; };
 		2CC7158B20B8394A0045C789 /* PlaceholderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlaceholderView.m; sourceTree = "<group>"; };
@@ -1177,6 +1188,9 @@
 				2CA52AC92670D02800619610 /* VoiceMessageRecordingView.h */,
 				2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */,
 				2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */,
+				2CC32E8C27F4540E00BB8C39 /* ReactionsView.swift */,
+				2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */,
+				2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -1413,6 +1427,8 @@
 				2C6DEAB3243CCCCA00AE8437 /* Chat views */,
 				2CA1553F208E350300CE8EF0 /* NCChatMessage.h */,
 				2CA15540208E350300CE8EF0 /* NCChatMessage.m */,
+				2CC32E9627F5D9BD00BB8C39 /* NCChatReaction.h */,
+				2CC32E9727F5D9BD00BB8C39 /* NCChatReaction.m */,
 				2C42ADB220B58E6300296DEA /* NCChatController.h */,
 				2C42ADB320B58E6300296DEA /* NCChatController.m */,
 				1FEDE3C5257D439500853F79 /* NCChatFileController.h */,
@@ -1610,6 +1626,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CC007BE20D8F24B0096D91F /* RoomCreation2TableViewController.xib in Resources */,
+				2CC32E9327F45AE000BB8C39 /* ReactionsViewCell.xib in Resources */,
 				2C330372255E6EBC00BDB4E4 /* InfoPlist.strings in Resources */,
 				2C78EFA11F828C41008AFA74 /* CallViewController.xib in Resources */,
 				2C3780C5210F4A26003F9AE8 /* HeaderWithButton.xib in Resources */,
@@ -1838,6 +1855,7 @@
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
 				2CB6ACE92641954700D3D641 /* MapViewController.m in Sources */,
+				2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */,
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
@@ -1867,6 +1885,7 @@
 				2C4446F0265D454200DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
+				2CC32E9827F5D9BD00BB8C39 /* NCChatReaction.m in Sources */,
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */,
@@ -1924,6 +1943,7 @@
 				2C1ABDCE257E939600AEDFB6 /* NCContact.m in Sources */,
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
 				2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */,
+				2CC32E8D27F4540E00BB8C39 /* ReactionsView.swift in Sources */,
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,
 				2C42ADB420B58E6300296DEA /* NCChatController.m in Sources */,
@@ -1986,6 +2006,7 @@
 				2C62AFB924C1A4E6007E460A /* ShareViewController.m in Sources */,
 				2C4446DF2658158000DF1DBC /* NCChatBlock.m in Sources */,
 				2C62B00924C1BDBD007E460A /* NCAPISessionManager.m in Sources */,
+				2CC32E9A27F5DADB00BB8C39 /* NCChatReaction.m in Sources */,
 				2C62AFBB24C1B7B1007E460A /* NCDatabaseManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2024,6 +2045,7 @@
 				2C444704265D641300DF1DBC /* NCUserDefaults.m in Sources */,
 				2CC001B724A37A9A00A20167 /* NCUser.m in Sources */,
 				2CC0016124A25B5500A20167 /* NCAPIController.m in Sources */,
+				2CC32E9927F5DADA00BB8C39 /* NCChatReaction.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

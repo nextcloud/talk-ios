@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <Realm/Realm.h>
+#import "NCChatReaction.h"
 #import "NCDatabaseManager.h"
 #import "NCMessageParameter.h"
 #import "NCMessageFileParameter.h"
@@ -36,11 +37,6 @@ extern NSString * const kMessageTypeCommentDeleted;
 extern NSString * const kMessageTypeSystem;
 extern NSString * const kMessageTypeCommand;
 extern NSString * const kMessageTypeVoiceMessage;
-
-@interface NCChatReaction : RLMObject
-@property (nonatomic, strong) NSString *reaction;
-@property (nonatomic, assign) NSInteger count;
-@end
 
 RLM_ARRAY_TYPE(NCChatReaction)
 
@@ -81,5 +77,6 @@ RLM_ARRAY_TYPE(NCChatReaction)
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)systemMessageFormat;
 - (NCChatMessage *)parent;
+- (NSArray *)reactionsArray;
 
 @end

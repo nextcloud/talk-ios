@@ -21,6 +21,9 @@
  */
 
 #import <UIKit/UIKit.h>
+
+#import "NextcloudTalk-Swift.h"
+
 #import "ChatTableViewCell.h"
 #import "NCChatMessage.h"
 #import "MessageBodyTextView.h"
@@ -32,6 +35,8 @@ static NSString *GroupedChatMessageCellIdentifier = @"GroupedChatMessageCellIden
 
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 @property (nonatomic, strong) UIView *statusView;
+@property (nonatomic, strong) ReactionsView *reactionsView;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vConstraint;
 
 + (CGFloat)defaultFontSize;
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;

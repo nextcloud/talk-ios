@@ -41,9 +41,6 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
 
 @end
 
-@implementation NCChatReaction
-@end
-
 @implementation NCChatMessage
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict
@@ -93,9 +90,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
         NSDictionary *reactionsDict = reactions;
         NSMutableArray *reactionsArray = [NSMutableArray new];
         for (NSString *reactionKey in reactionsDict.allKeys) {
-            NCChatReaction *reaction = [[NCChatReaction alloc] init];
-            reaction.reaction = reactionKey;
-            reaction.count = [[reactionsDict objectForKey:reactionKey] integerValue];
+            NCChatReaction *reaction = [NCChatReaction initWithReaction:reactionKey andCount:[[reactionsDict objectForKey:reactionKey] integerValue]];
             [reactionsArray addObject:reaction];
         }
         message.reactions = (RLMArray<NCChatReaction *><NCChatReaction> *)reactionsArray;
@@ -372,6 +367,15 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     }
     
     return nil;
+}
+
+- (NSArray *)reactionsArray
+{
+    NSMutableArray *reactions = [NSMutableArray new];
+    for (NCChatReaction *reaction in _reactions) {
+        [reactions addObject:reaction];
+    }
+    return reactions;
 }
 
 @end
