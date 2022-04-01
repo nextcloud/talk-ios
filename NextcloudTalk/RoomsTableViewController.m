@@ -224,6 +224,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [super viewWillAppear:animated];
     
     [self refreshRoomList];
+    
+    self.clearsSelectionOnViewWillAppear = self.splitViewController.isCollapsed;
+
+    if (self.splitViewController.isCollapsed) {
+        [self setSelectedRoomToken:nil];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -1212,6 +1218,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     
     // Present room chat
+<<<<<<< HEAD
+=======
+    [self setSelectedRoomToken:[self roomForIndexPath:indexPath].token];
+>>>>>>> 08997027 (Add conversation list as sidebar in Talk UI for iPads and Macs)
     [self presentChatForRoomAtIndexPath:indexPath];
 }
 

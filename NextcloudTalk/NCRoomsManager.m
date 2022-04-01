@@ -543,6 +543,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     }
     
     if (!_chatViewController || ![_chatViewController.room.token isEqualToString:room.token]) {
+        // Leave the previous chat
+        //[[NCRoomsManager sharedInstance].chatViewController leaveChat];
+
+        NSLog(@"Creating new chat view controller.");
         _chatViewController = [[NCChatViewController alloc] initForRoom:room];
         if (_highlightMessageDict && [[_highlightMessageDict objectForKey:@"token"] isEqualToString:room.token]) {
             _chatViewController.highlightMessageId = [[_highlightMessageDict objectForKey:@"messageId"] integerValue];
