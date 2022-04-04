@@ -118,9 +118,8 @@
             self.bodyTextView.textColor = [UIColor tertiaryLabelColor];
         }
     }
-    const NSArray *reactions = message.reactionsArray;
-    [self.reactionsView updateReactionsWithReactions:reactions];
-    if (reactions.count > 0) {
+    [self.reactionsView updateReactionsWithReactions:message.reactionsArray];
+    if (message.reactionsArray.count > 0) {
         _vConstraint[3].constant = 40;
     }
 }

@@ -335,9 +335,8 @@
         }
     }
     
-    const NSArray *reactions = message.reactionsArray;
-    [self.reactionsView updateReactionsWithReactions:reactions];
-    if (reactions.count > 0) {
+    [self.reactionsView updateReactionsWithReactions:message.reactionsArray];
+    if (message.reactionsArray.count > 0) {
         _vConstraint1[5].constant = 40;
         _vConstraint2[5].constant = 40;
     }
