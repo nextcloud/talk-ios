@@ -87,7 +87,8 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionResend,
     kNCChatMessageActionDelete,
     kNCChatMessageActionReplyPrivately,
-    kNCChatMessageActionOpenFileInNextcloud
+    kNCChatMessageActionOpenFileInNextcloud,
+    kNCChatMessageActionAddReaction
 } NCChatMessageAction;
 
 @interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
@@ -134,6 +135,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) AVAudioPlayer *voiceMessagesPlayer;
 @property (nonatomic, strong) NSTimer *playerProgressTimer;
 @property (nonatomic, strong) NCChatFileStatus *playerAudioFileStatus;
+@property (nonatomic, strong) EmojiTextField *emojiTextField;
 
 @end
 
@@ -1245,6 +1247,12 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                                                       userInfo:userInfo];
 }
 
+- (void)didPressAddReaction:(NCChatMessage *)message atIndexPath:(NSIndexPath *)indexPath {
+    ChatTableViewCell *cell = (ChatTableViewCell *)[self.tableView cellForRowAtIndexPath:indexPath];
+    self.emojiTextField = cell.emojiTextField;
+    [self.emojiTextField becomeFirstResponder];
+}
+
 - (void)didPressForward:(NCChatMessage *)message {
     ShareViewController *shareViewController = [[ShareViewController alloc] initToForwardMessage:message.parsedMessage.string fromChatViewController:self];
     shareViewController.delegate = self;
@@ -1945,6 +1953,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 }
             }
             
+            // Add reaction option
+            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode) {
+                NSDictionary *reactionInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionAddReaction) forKey:@"action"];
+                FTPopOverMenuModel *reactionModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Add reaction", nil) image:[[UIImage imageNamed:@"emoji"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:reactionInfo];
+                [menuArray addObject:reactionModel];
+            }
+            
             // Forward option (only normal messages for now)
             if (!message.file && !_offlineMode) {
                 NSDictionary *forwardInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionForward) forKey:@"action"];
@@ -2001,7 +2016,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                         break;
                     case kNCChatMessageActionForward:
                     {
-                        [weakSelf didPressForward:message];
+                        [weakSelf didPressAddReaction:message atIndexPath:indexPath];
                     }
                         break;
                     case kNCChatMessageActionCopy:
@@ -3212,6 +3227,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [mentionString appendString:@" "];
         [self acceptAutoCompletionWithString:mentionString keepPrefix:YES];
     } else {
+        [self.emojiTextField resignFirstResponder];
         [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
 }
@@ -3253,6 +3269,17 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             
             [actions addObject:replyPrivateAction];
         }
+    }
+    
+    // Add reaction option
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode) {
+        UIImage *reactionImage = [[UIImage imageNamed:@"emoji"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *reactionAction = [UIAction actionWithTitle:NSLocalizedString(@"Add reaction", nil) image:reactionImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressAddReaction:message atIndexPath:indexPath];
+        }];
+        
+        [actions addObject:reactionAction];
     }
     
     // Forward option (only normal messages for now)
@@ -3465,6 +3492,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (indexPath && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId]) {
         [self presentOptionsForMessageActor:message fromIndexPath:indexPath];
     }
+}
+
+- (void)cellWantsToAddReaction:(NSString *)reaction forMessage:(NCChatMessage *)message
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] addReaction:reaction toMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
+        if (error) {
+            [self.view makeToast:NSLocalizedString(@"An error occurred while adding a reaction to message", nil) duration:5 position:CSToastPositionCenter];
+        }
+    }];
 }
 
 #pragma mark - NCChatFileControllerDelegate
