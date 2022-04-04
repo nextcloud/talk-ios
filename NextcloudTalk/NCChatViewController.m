@@ -3043,7 +3043,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (message.isSystemMessage) {
         if ([message.systemMessage isEqualToString:@"message_deleted"] ||
             [message.systemMessage isEqualToString:@"reaction"] ||
-            [message.systemMessage isEqualToString:@"reaction_revoked"]) {
+            [message.systemMessage isEqualToString:@"reaction_revoked"] ||
+            [message.systemMessage isEqualToString:@"reaction_deleted"]) {
             return (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:InvisibleSystemMessageCellIdentifier];
         }
         SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
@@ -3135,7 +3136,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (message.message.length == 0 ||
         [message.systemMessage isEqualToString:@"message_deleted"] ||
         [message.systemMessage isEqualToString:@"reaction"] ||
-        [message.systemMessage isEqualToString:@"reaction_revoked"]) {
+        [message.systemMessage isEqualToString:@"reaction_revoked"] ||
+        [message.systemMessage isEqualToString:@"reaction_deleted"]) {
         return 0.0;
     }
     

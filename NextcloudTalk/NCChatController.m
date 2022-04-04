@@ -376,7 +376,7 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
                                                                   userInfo:userInfo];
             }
             // Notify if "deleted messages" have been received
-            if ([message.systemMessage isEqualToString:@"message_deleted"] || [message.systemMessage isEqualToString:@"reaction"] || [message.systemMessage isEqualToString:@"reaction_revoked"]) {
+            if ([message.systemMessage isEqualToString:@"message_deleted"] || [message.systemMessage isEqualToString:@"reaction"] || [message.systemMessage isEqualToString:@"reaction_revoked"] || [message.systemMessage isEqualToString:@"reaction_deleted"]) {
                 [userInfo setObject:message forKey:@"updateMessage"];
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveUpdateMessageNotification
                                                                     object:self
@@ -627,7 +627,8 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
                     // Notify if an "update messages" have been received
                     if ([message.systemMessage isEqualToString:@"message_deleted"] ||
                         [message.systemMessage isEqualToString:@"reaction"] ||
-                        [message.systemMessage isEqualToString:@"reaction_revoked"]) {
+                        [message.systemMessage isEqualToString:@"reaction_revoked"] ||
+                        [message.systemMessage isEqualToString:@"reaction_deleted"]) {
                         [userInfo setObject:message forKey:@"updateMessage"];
                         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveUpdateMessageNotification
                                                                             object:self
