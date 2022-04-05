@@ -369,6 +369,12 @@
     }
 }
 
+#pragma mark - Actions
+
+- (void)addReaction:(NSString *)reaction
+{
+    [self.delegate cellWantsToAddReaction:reaction forMessage:self.message];
+}
 
 #pragma mark - Getters
 

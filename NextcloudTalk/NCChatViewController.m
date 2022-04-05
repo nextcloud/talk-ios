@@ -3106,6 +3106,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     if (message.isGroupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
+        groupedCell.delegate = self;
+        
         [groupedCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
         
         return groupedCell;
