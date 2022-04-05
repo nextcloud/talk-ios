@@ -58,6 +58,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) UIView *fileStatusView;
 @property (nonatomic, strong) NCMessageFileParameter *fileParameter;
 
+@property (nonatomic, strong) ReactionsView *reactionsView;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vPreviewSize;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *hPreviewSize;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vGroupedPreviewSize;

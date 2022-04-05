@@ -53,6 +53,9 @@ static NSString *GroupedLocationMessageCellIdentifier   = @"GroupedLocationMessa
 @property (nonatomic, strong) UIImageView *avatarView;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) GeoLocationRichObject *geoLocationRichObject;
+@property (nonatomic, strong) ReactionsView *reactionsView;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vConstraints;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vGroupedConstraints;
 
 + (CGFloat)defaultFontSize;
 - (void)setGuestAvatar:(NSString *)displayName;

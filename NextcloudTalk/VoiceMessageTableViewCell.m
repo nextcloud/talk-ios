@@ -109,6 +109,8 @@
     _durationLabel.minimumScaleFactor = 0.5;
     [_audioPlayerView addSubview:_durationLabel];
     
+    [self.contentView addSubview:self.reactionsView];
+    
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"statusView": self.statusView,
                             @"fileStatusView": self.fileStatusView,
@@ -119,6 +121,7 @@
                             @"dateLabel": self.dateLabel,
                             @"bodyTextView": self.bodyTextView,
                             @"audioPlayerView": _audioPlayerView,
+                            @"reactionsView": self.reactionsView
                             };
     
     NSDictionary *metrics = @{@"avatarSize": @(kChatCellAvatarHeight),
@@ -138,18 +141,21 @@
     
     if ([self.reuseIdentifier isEqualToString:VoiceMessageCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        self.vConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
+        [self.contentView addConstraints:self.vConstraints];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-statusTopPadding-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:GroupedVoiceMessageCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        self.vGroupedConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
+        [self.contentView addConstraints:self.vGroupedConstraints];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-statusTopPadding-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     }
     
     [_audioPlayerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[playButton(buttonHeight)]-[progressView(progressWidth)]-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     [_audioPlayerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[playButton(buttonHeight)]-[progressView(progressWidth)]-[durationLabel(>=0)]-|" options:0 metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[audioPlayerView(>=0)]-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
     [_audioPlayerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[playButton(buttonHeight)]|" options:0 metrics:metrics views:views]];
     [_audioPlayerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-progressPadding-[progressView(progressHeight)]-progressPadding-|" options:0 metrics:metrics views:views]];
@@ -175,6 +181,9 @@
     
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
+    
+    self.vConstraints[7].constant = 0;
+    self.vGroupedConstraints[5].constant = 0;
     
     [self resetPlayer];
     
@@ -208,6 +217,12 @@
     }
     
     self.fileParameter = message.file;
+    
+    [self.reactionsView updateReactionsWithReactions:message.reactionsArray];
+    if (message.reactionsArray.count > 0) {
+        _vConstraints[7].constant = 40;
+        _vGroupedConstraints[5].constant = 40;
+    }
     
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     BOOL shouldShowDeliveryStatus = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
@@ -417,6 +432,17 @@
         }
     }
     return _dateLabel;
+}
+
+- (ReactionsView *)reactionsView
+{
+    if (!_reactionsView) {
+        UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+        flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        _reactionsView = [[ReactionsView alloc] initWithFrame:CGRectMake(0, 0, 50, 50) collectionViewLayout:flowLayout];
+        _reactionsView.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    return _reactionsView;
 }
 
 - (MessageBodyTextView *)bodyTextView

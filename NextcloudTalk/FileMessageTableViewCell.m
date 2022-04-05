@@ -95,6 +95,8 @@
     _fileStatusView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.contentView addSubview:_fileStatusView];
     
+    [self.contentView addSubview:self.reactionsView];
+    
     _previewImageView.contentMode = UIViewContentModeScaleAspectFit;
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
@@ -104,6 +106,7 @@
                             @"dateLabel": self.dateLabel,
                             @"previewImageView": self.previewImageView,
                             @"bodyTextView": self.bodyTextView,
+                            @"reactionsView": self.reactionsView
                             };
     
     NSDictionary *metrics = @{@"avatarSize": @(kChatCellAvatarHeight),
@@ -121,20 +124,22 @@
         self.hPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.hPreviewSize];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:NSLayoutFormatAlignAllTop metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[fileStatusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        self.vPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views];
+        self.vPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.vPreviewSize];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[fileStatusView(previewSize)]-(>=0)-[statusView(statusSize)]-left-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[fileStatusView(previewSize)]-(>=0)-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:GroupedFileMessageCellIdentifier]) {
         self.hGroupedPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.hGroupedPreviewSize];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[fileStatusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        self.vGroupedPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views];
+        self.vGroupedPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.vGroupedPreviewSize];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[fileStatusView(previewSize)]-(>=0)-[statusView(statusSize)]-left-|" options:0 metrics:metrics views:views]];
     }
@@ -167,6 +172,9 @@
     self.hPreviewSize[3].constant = kFileMessageCellFilePreviewHeight;
     self.vGroupedPreviewSize[1].constant = kFileMessageCellFilePreviewHeight;
     self.hGroupedPreviewSize[1].constant = kFileMessageCellFilePreviewHeight;
+    
+    self.vPreviewSize[7].constant = 0;
+    self.vGroupedPreviewSize[5].constant = 0;
     
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
     [self clearFileStatusView];
@@ -242,6 +250,12 @@
     
     if (message.file.contactPhotoImage) {
         [self.previewImageView setImage:message.file.contactPhotoImage];
+    }
+    
+    [self.reactionsView updateReactionsWithReactions:message.reactionsArray];
+    if (message.reactionsArray.count > 0) {
+        _vPreviewSize[7].constant = 40;
+        _vGroupedPreviewSize[5].constant = 40;
     }
     
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
@@ -393,6 +407,17 @@
         }
     }
     return _dateLabel;
+}
+
+- (ReactionsView *)reactionsView
+{
+    if (!_reactionsView) {
+        UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+        flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        _reactionsView = [[ReactionsView alloc] initWithFrame:CGRectMake(0, 0, 50, 50) collectionViewLayout:flowLayout];
+        _reactionsView.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    return _reactionsView;
 }
 
 - (MessageBodyTextView *)bodyTextView

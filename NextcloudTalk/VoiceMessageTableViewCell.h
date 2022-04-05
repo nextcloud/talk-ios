@@ -54,6 +54,9 @@ static NSString *GroupedVoiceMessageCellIdentifier   = @"GroupedVoiceMessageCell
 @property (nonatomic, strong) UIButton *playPauseButton;
 @property (nonatomic, strong) UISlider *slider;
 @property (nonatomic, strong) UILabel *durationLabel;
+@property (nonatomic, strong) ReactionsView *reactionsView;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vConstraints;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vGroupedConstraints;
 
 + (CGFloat)defaultFontSize;
 - (void)setGuestAvatar:(NSString *)displayName;
