@@ -31,7 +31,7 @@
 static CGFloat kGroupedChatMessageCellMinimumHeight = 30.0;
 static NSString *GroupedChatMessageCellIdentifier = @"GroupedChatMessageCellIdentifier";
 
-@interface GroupedChatMessageTableViewCell : ChatTableViewCell
+@interface GroupedChatMessageTableViewCell : ChatTableViewCell <ReactionsViewDelegate>
 
 @property (nonatomic, weak) id<ChatTableViewCellDelegate> delegate;
 

@@ -42,7 +42,7 @@ static NSString *GroupedLocationMessageCellIdentifier   = @"GroupedLocationMessa
 
 @end
 
-@interface LocationMessageTableViewCell : ChatTableViewCell
+@interface LocationMessageTableViewCell : ChatTableViewCell <ReactionsViewDelegate>
 
 @property (nonatomic, weak) id<LocationMessageTableViewCellDelegate> delegate;
 

@@ -45,7 +45,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 
 @end
 
-@interface FileMessageTableViewCell : ChatTableViewCell
+@interface FileMessageTableViewCell : ChatTableViewCell <ReactionsViewDelegate>
 
 @property (nonatomic, weak) id<FileMessageTableViewCellDelegate> delegate;
 

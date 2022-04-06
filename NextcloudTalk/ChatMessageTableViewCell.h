@@ -41,7 +41,7 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 
 @end
 
-@interface ChatMessageTableViewCell : ChatTableViewCell
+@interface ChatMessageTableViewCell : ChatTableViewCell <ReactionsViewDelegate>
 
 @property (nonatomic, weak) id<ChatMessageTableViewCellDelegate> delegate;
 

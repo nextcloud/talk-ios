@@ -22,8 +22,13 @@
 
 import UIKit
 
+@objc protocol ReactionsViewDelegate {
+    func didSelectReaction(reaction: String)
+}
+
 @objcMembers class ReactionsView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
+    public weak var reactionsDelegate: ReactionsViewDelegate?
     var reactions: [NCChatReaction] = []
 
     required init?(coder aDecoder: NSCoder) {
@@ -69,9 +74,9 @@ import UIKit
         }
         return cell ?? UICollectionViewCell()
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        // TODO: Set reaction
+        self.reactionsDelegate?.didSelectReaction(reaction: reactions[indexPath.row].reaction)
     }
 
     func neededHeight() -> CGFloat {

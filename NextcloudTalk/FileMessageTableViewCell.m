@@ -376,6 +376,13 @@
     [self.delegate cellWantsToAddReaction:reaction forMessage:self.message];
 }
 
+#pragma mark - ReactionsView delegate
+
+- (void)didSelectReactionWithReaction:(NSString *)reaction
+{
+    [self.delegate cellDidSelectedReaction:reaction forMessage:self.message];
+}
+
 #pragma mark - Getters
 
 - (UILabel *)titleLabel
@@ -422,6 +429,7 @@
         flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
         _reactionsView = [[ReactionsView alloc] initWithFrame:CGRectMake(0, 0, 50, 50) collectionViewLayout:flowLayout];
         _reactionsView.translatesAutoresizingMaskIntoConstraints = NO;
+        _reactionsView.reactionsDelegate = self;
     }
     return _reactionsView;
 }

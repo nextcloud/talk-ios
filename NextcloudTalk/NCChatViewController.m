@@ -2912,6 +2912,48 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [[NCRoomsManager sharedInstance] updateLastReadMessage:_lastReadMessage forRoom:_room];
 }
 
+#pragma mark - Reactions
+
+- (void)addReaction:(NSString *)reaction toChatMessage:(NCChatMessage *)message
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] addReaction:reaction toMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
+        if (error) {
+            [self.view makeToast:NSLocalizedString(@"An error occurred while adding a reaction to message", nil) duration:5 position:CSToastPositionCenter];
+        }
+    }];
+}
+
+- (void)removeReaction:(NSString *)reaction fromChatMessage:(NCChatMessage *)message
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] removeReaction:reaction fromMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
+        if (error) {
+            [self.view makeToast:NSLocalizedString(@"An error occurred while removing a reaction from message", nil) duration:5 position:CSToastPositionCenter];
+        }
+    }];
+}
+
+- (void)addOrRemoveReaction:(NSString *)reaction inChatMessage:(NCChatMessage *)message
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getReactions:reaction fromMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
+        NSArray *actors = [reactionsDict objectForKey:reaction];
+        BOOL userReacted = NO;
+        for (NSDictionary *actorDict in actors) {
+            if ([[actorDict objectForKey:@"actorId"] isEqualToString:activeAccount.userId] &&
+                [[actorDict objectForKey:@"actorType"] isEqualToString:@"users"]) {
+                userReacted = YES;
+            }
+        }
+        if (userReacted) {
+            [self removeReaction:reaction fromChatMessage:message];
+        } else {
+            [self addReaction:reaction toChatMessage:message];
+        }
+    }];
+}
+
 #pragma mark - Autocompletion
 
 - (void)didChangeAutoCompletionPrefix:(NSString *)prefix andWord:(NSString *)word
@@ -3498,12 +3540,12 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)cellWantsToAddReaction:(NSString *)reaction forMessage:(NCChatMessage *)message
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] addReaction:reaction toMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
-        if (error) {
-            [self.view makeToast:NSLocalizedString(@"An error occurred while adding a reaction to message", nil) duration:5 position:CSToastPositionCenter];
-        }
-    }];
+    [self addReaction:reaction toChatMessage:message];
+}
+
+- (void)cellDidSelectedReaction:(NSString *)reaction forMessage:(NCChatMessage *)message
+{
+    [self addOrRemoveReaction:reaction inChatMessage:message];
 }
 
 #pragma mark - NCChatFileControllerDelegate

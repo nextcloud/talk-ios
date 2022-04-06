@@ -40,7 +40,7 @@ static NSString *GroupedVoiceMessageCellIdentifier   = @"GroupedVoiceMessageCell
 
 @end
 
-@interface VoiceMessageTableViewCell : ChatTableViewCell
+@interface VoiceMessageTableViewCell : ChatTableViewCell <ReactionsViewDelegate>
 
 @property (nonatomic, weak) id<VoiceMessageTableViewCellDelegate> delegate;
 
