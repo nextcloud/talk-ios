@@ -1289,7 +1289,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Reactions Controller
 
-- (NSURLSessionDataTask *)addReaction:(NSString *)reaction toMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block
+- (NSURLSessionDataTask *)addReaction:(NSString *)reaction toMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"reaction/%@/%ld", encodedToken, (long)messageId];
@@ -1298,14 +1298,69 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"reaction" : reaction};
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *reactionsDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
-            block(nil);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            block(reactionsDict, nil, httpResponse.statusCode);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = [self getResponseStatusCode:task.response];
         [self checkResponseStatusCode:statusCode forAccount:account];
         if (block) {
-            block(error);
+            block(nil, error, statusCode);
+        }
+    }];
+    
+    return task;
+}
+
+- (NSURLSessionDataTask *)removeReaction:(NSString *)reaction fromMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"reaction/%@/%ld", encodedToken, (long)messageId];
+    NSInteger reactionsAPIVersion = [self reactionsAPIVersionForAccount:account];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:reactionsAPIVersion forAccount:account];
+    NSDictionary *parameters = @{@"reaction" : reaction};
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *reactionsDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            block(reactionsDict, nil, httpResponse.statusCode);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(nil, error, statusCode);
+        }
+    }];
+    
+    return task;
+}
+
+- (NSURLSessionDataTask *)getReactions:(NSString *)reaction fromMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"reaction/%@/%ld", encodedToken, (long)messageId];
+    NSInteger reactionsAPIVersion = [self reactionsAPIVersionForAccount:account];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:reactionsAPIVersion forAccount:account];
+    NSDictionary *parameters = nil;
+    if (reaction) {
+        parameters = @{@"reaction" : reaction};
+    }
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *reactionsDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            block(reactionsDict, nil, httpResponse.statusCode);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(nil, error, statusCode);
         }
     }];
     
