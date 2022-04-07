@@ -29,7 +29,10 @@ import UIKit
     override func awakeFromNib() {
         super.awakeFromNib()
         label.layer.borderWidth = 1.0
-        label.layer.borderColor = NCAppBranding.elementColor().cgColor
+        label.layer.borderColor = UIColor.lightGray.cgColor
+        if #available(iOS 13.0, *) {
+            label.layer.borderColor = UIColor.tertiaryLabel.cgColor
+        }
         label.layer.cornerRadius = 15.0
         label.clipsToBounds = true
         label.backgroundColor = NCAppBranding.backgroundColor()
