@@ -97,6 +97,7 @@
 		2C444706265E59B100DF1DBC /* ShareConfirmationCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8025769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m */; };
 		2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */; };
 		2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
+		2C44B4D127FF05A000AD1C86 /* ReactionsSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C44B4D027FF05A000AD1C86 /* ReactionsSummaryView.swift */; };
 		2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4987BC21E640E20060AC27 /* CallKitManager.m */; };
 		2C4CDCCC269618240023F403 /* RoomDescriptionTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4CDCCA269618230023F403 /* RoomDescriptionTableViewCell.m */; };
 		2C4CDCCD269618240023F403 /* RoomDescriptionTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C4CDCCB269618230023F403 /* RoomDescriptionTableViewCell.xib */; };
@@ -415,6 +416,7 @@
 		2C4446FA265D5BEF00DF1DBC /* CallConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CallConstants.h; sourceTree = "<group>"; };
 		2C444701265D641300DF1DBC /* NCUserDefaults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCUserDefaults.h; sourceTree = "<group>"; };
 		2C444702265D641300DF1DBC /* NCUserDefaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCUserDefaults.m; sourceTree = "<group>"; };
+		2C44B4D027FF05A000AD1C86 /* ReactionsSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsSummaryView.swift; sourceTree = "<group>"; };
 		2C4987BB21E640E20060AC27 /* CallKitManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CallKitManager.h; sourceTree = "<group>"; };
 		2C4987BC21E640E20060AC27 /* CallKitManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CallKitManager.m; sourceTree = "<group>"; };
 		2C4CDCC9269618230023F403 /* RoomDescriptionTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomDescriptionTableViewCell.h; sourceTree = "<group>"; };
@@ -1191,6 +1193,7 @@
 				2CC32E8C27F4540E00BB8C39 /* ReactionsView.swift */,
 				2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */,
 				2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */,
+				2C44B4D027FF05A000AD1C86 /* ReactionsSummaryView.swift */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -1845,6 +1848,7 @@
 				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */,
+				2C44B4D127FF05A000AD1C86 /* ReactionsSummaryView.swift in Sources */,
 				DA7558C6279AE67F00A48A1B /* UserStatusTableViewController.swift in Sources */,
 				2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */,
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,

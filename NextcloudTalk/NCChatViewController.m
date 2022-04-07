@@ -2954,6 +2954,24 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }];
 }
 
+- (void)showReactionsSummaryOfMessage:(NCChatMessage *)message
+{
+    UITableViewStyle style = UITableViewStyleGrouped;
+    if (@available(iOS 13.0, *)) {
+        style = UITableViewStyleInsetGrouped;
+    }
+    ReactionsSummaryView *reactionsVC = [[ReactionsSummaryView alloc] initWithStyle:style];
+    NCNavigationController *reactionsNC = [[NCNavigationController alloc] initWithRootViewController:reactionsVC];
+    [self presentViewController:reactionsNC animated:YES completion:nil];
+    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getReactions:nil fromMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
+        if (!error) {
+            [reactionsVC updateReactionsWithReactions:reactionsDict];
+        }
+    }];
+}
+
 #pragma mark - Autocompletion
 
 - (void)didChangeAutoCompletionPrefix:(NSString *)prefix andWord:(NSString *)word
@@ -3282,6 +3300,15 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return nil;
     }
     
+    // Do not show context menu if long pressing in reactions view
+    ChatTableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    CGPoint pointInCell = [tableView convertPoint:point toView:cell];
+    for (UIView *subview in cell.contentView.subviews) {
+        if ([subview isKindOfClass:ReactionsView.class] && CGRectContainsPoint(subview.frame, pointInCell)) {
+            return nil;
+        }
+    }
+    
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
     
@@ -3546,6 +3573,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)cellDidSelectedReaction:(NSString *)reaction forMessage:(NCChatMessage *)message
 {
     [self addOrRemoveReaction:reaction inChatMessage:message];
+}
+
+- (void)cellWantsToDisplayReactionsSummaryForMessage:(NCChatMessage *)message
+{
+    [self showReactionsSummaryOfMessage:message];
 }
 
 #pragma mark - NCChatFileControllerDelegate
