@@ -96,9 +96,4 @@ import AudioToolbox
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         self.reactionsDelegate?.didSelectReaction(reaction: reactions[indexPath.row].reaction)
     }
-
-    func neededHeight() -> CGFloat {
-        return self.collectionViewLayout.collectionViewContentSize.height
-    }
-
 }
