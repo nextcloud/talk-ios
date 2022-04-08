@@ -3116,10 +3116,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return separatorCell;
     }
     if (message.isSystemMessage) {
-        if ([message.systemMessage isEqualToString:@"message_deleted"] ||
-            [message.systemMessage isEqualToString:@"reaction"] ||
-            [message.systemMessage isEqualToString:@"reaction_revoked"] ||
-            [message.systemMessage isEqualToString:@"reaction_deleted"]) {
+        if ([message isUpdateMessage]) {
             return (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:InvisibleSystemMessageCellIdentifier];
         }
         SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
@@ -3210,11 +3207,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Update messages (the ones that notify about an update in one message, they should not be displayed)
-    if (message.message.length == 0 ||
-        [message.systemMessage isEqualToString:@"message_deleted"] ||
-        [message.systemMessage isEqualToString:@"reaction"] ||
-        [message.systemMessage isEqualToString:@"reaction_revoked"] ||
-        [message.systemMessage isEqualToString:@"reaction_deleted"]) {
+    if (message.message.length == 0 || [message isUpdateMessage]) {
         return 0.0;
     }
     

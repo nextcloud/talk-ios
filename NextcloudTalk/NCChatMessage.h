@@ -69,6 +69,7 @@ RLM_ARRAY_TYPE(NCChatReaction)
 
 - (BOOL)isSystemMessage;
 - (BOOL)isEmojiMessage;
+- (BOOL)isUpdateMessage;
 - (BOOL)isMessageFromUser:(NSString *)userId;
 - (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType;
 - (NCMessageFileParameter *)file;

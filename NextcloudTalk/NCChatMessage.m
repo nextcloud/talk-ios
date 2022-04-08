@@ -177,6 +177,14 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     return NO;
 }
 
+- (BOOL)isUpdateMessage
+{
+    return  [self.systemMessage isEqualToString:@"message_deleted"] ||
+            [self.systemMessage isEqualToString:@"reaction"] ||
+            [self.systemMessage isEqualToString:@"reaction_revoked"] ||
+            [self.systemMessage isEqualToString:@"reaction_deleted"];
+}
+
 - (BOOL)isMessageFromUser:(NSString *)userId
 {
     return [self.actorId isEqualToString:userId] && [self.actorType isEqualToString:@"users"];
