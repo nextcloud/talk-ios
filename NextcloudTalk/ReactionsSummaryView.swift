@@ -59,6 +59,8 @@ import UIKit
     func setupReactionsSummaryView() {
         self.tableView.dataSource = self
         self.tableView.delegate = self
+        self.tableView.register(UINib(nibName: kShareTableCellNibName, bundle: .main), forCellReuseIdentifier: kShareCellIdentifier)
+        self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 54, bottom: 0, right: 0)
     }
 
     func updateReactions(reactions: [String: [[String: AnyObject]]]) {
@@ -82,16 +84,37 @@ import UIKit
         return Array(reactions.keys)[section]
     }
 
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return kShareTableCellHeight
+    }
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCell(withIdentifier: "ReactionActorCellIdentifier")
-        if cell == nil {
-            cell = UITableViewCell(style: .default, reuseIdentifier: "ReactionActorCellIdentifier")
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: kShareCellIdentifier) as? ShareTableViewCell ??
+        ShareTableViewCell(style: .default, reuseIdentifier: kShareCellIdentifier)
+
         let reaction = Array(reactions.keys)[indexPath.section]
         let actor = reactions[reaction]?[indexPath.row]
-        let actorDisplayName = actor?["actorDisplayName"]
-        cell?.textLabel!.text = actorDisplayName as? String
-        return cell ?? UITableViewCell()
+
+        // Actor name
+        let actorDisplayName = actor?["actorDisplayName"] as? String
+        cell.titleLabel.text = actorDisplayName
+
+        // Actor avatar
+        let actorId = actor?["actorId"] as? String
+        let actorType = actor?["actorType"] as? String
+        if actorId != nil && actorType == "users" {
+            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+            if let request = NCAPIController.sharedInstance().createAvatarRequest(forUser: actorId, andSize: 96, using: activeAccount) {
+                cell.avatarImageView.setImageWith(request, placeholderImage: nil, success: nil, failure: nil)
+                cell.avatarImageView.contentMode = .scaleToFill
+            }
+        } else {
+            let color = UIColor(red: 0.73, green: 0.73, blue: 0.73, alpha: 1.0) /*#b9b9b9*/
+            cell.avatarImageView.setImageWith("?", color: color, circular: true)
+            cell.avatarImageView.contentMode = .scaleToFill
+        }
+
+        return cell
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
