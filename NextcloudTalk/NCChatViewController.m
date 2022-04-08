@@ -2400,7 +2400,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 });
             } else if (shouldScrollOnNewMessages || newMessagesContainUserMessage) {
                 [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-            } else if (!self->_firstUnreadMessage && areReallyNewMessages) {
+            } else if (!self->_firstUnreadMessage && areReallyNewMessages && [self newMessagesContainVisibleMessages:messages]) {
                 [self showNewMessagesViewUntilMessage:firstNewMessage];
             }
             
@@ -2810,6 +2810,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     for (NCChatMessage *message in messages) {
         if ([message.actorId isEqualToString:activeAccount.userId] && !message.isSystemMessage) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (BOOL)newMessagesContainVisibleMessages:(NSMutableArray *)messages
+{
+    for (NCChatMessage *message in messages) {
+        if (![message isUpdateMessage]) {
             return YES;
         }
     }
