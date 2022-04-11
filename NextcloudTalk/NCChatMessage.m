@@ -89,9 +89,23 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     if ([reactions isKindOfClass:[NSDictionary class]]) {
         NSDictionary *reactionsDict = reactions;
         NSMutableArray *reactionsArray = [NSMutableArray new];
+        NSArray *ownReactions = nil;
+        // Grab message reactions
         for (NSString *reactionKey in reactionsDict.allKeys) {
+            if ([reactionKey isEqualToString:@"self"]) {
+                ownReactions = [reactionsDict objectForKey:reactionKey];
+                continue;
+            }
             NCChatReaction *reaction = [NCChatReaction initWithReaction:reactionKey andCount:[[reactionsDict objectForKey:reactionKey] integerValue]];
             [reactionsArray addObject:reaction];
+        }
+        // Set flag for own reactions
+        for (NSString *ownReaction in ownReactions) {
+            for (NCChatReaction *reaction in reactionsArray) {
+                if ([reaction.reaction isEqualToString:ownReaction]) {
+                    reaction.userReacted = YES;
+                }
+            }
         }
         message.reactions = (RLMArray<NCChatReaction *><NCChatReaction> *)reactionsArray;
     }

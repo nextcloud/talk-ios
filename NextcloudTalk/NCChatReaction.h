@@ -27,6 +27,7 @@
 
 @property (nonatomic, strong) NSString *reaction;
 @property (nonatomic, assign) NSInteger count;
+@property (nonatomic, assign) BOOL userReacted;
 
 + (instancetype)initWithReaction:(NSString *)reaction andCount:(NSInteger)count;
 

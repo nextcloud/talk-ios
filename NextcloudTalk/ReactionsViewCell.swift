@@ -29,10 +29,7 @@ import UIKit
     override func awakeFromNib() {
         super.awakeFromNib()
         label.layer.borderWidth = 1.0
-        label.layer.borderColor = UIColor.lightGray.cgColor
-        if #available(iOS 13.0, *) {
-            label.layer.borderColor = UIColor.tertiaryLabel.cgColor
-        }
+        label.layer.borderColor = self.borderColor()
         label.layer.cornerRadius = 15.0
         label.clipsToBounds = true
         label.backgroundColor = NCAppBranding.backgroundColor()
@@ -41,10 +38,21 @@ import UIKit
     override func prepareForReuse() {
         super.prepareForReuse()
         label.text = ""
+        label.layer.borderColor = self.borderColor()
+        label.backgroundColor = NCAppBranding.backgroundColor()
+    }
+
+    func borderColor() -> CGColor {
+        if #available(iOS 13.0, *) {
+            return UIColor.tertiaryLabel.cgColor
+        }
+        return UIColor.lightGray.cgColor
     }
 
     func setReaction(reaction: NCChatReaction) {
         label.text = reaction.reaction + " " + String(reaction.count)
+        label.backgroundColor = reaction.userReacted ? NCAppBranding.elementColor().withAlphaComponent(0.2) : NCAppBranding.backgroundColor()
+        label.layer.borderColor = reaction.userReacted ? NCAppBranding.elementColor().cgColor : self.borderColor()
     }
 
 }
