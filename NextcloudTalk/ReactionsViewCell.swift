@@ -51,7 +51,7 @@ import UIKit
 
     func setReaction(reaction: NCChatReaction) {
         label.text = reaction.reaction + " " + String(reaction.count)
-        label.backgroundColor = reaction.userReacted ? NCAppBranding.elementColor().withAlphaComponent(0.2) : NCAppBranding.backgroundColor()
+        label.backgroundColor = reaction.userReacted ? NCAppBranding.elementColor().withAlphaComponent(0.15) : NCAppBranding.backgroundColor()
         label.layer.borderColor = reaction.userReacted ? NCAppBranding.elementColor().cgColor : self.borderColor()
     }
 
