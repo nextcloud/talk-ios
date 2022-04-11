@@ -397,6 +397,10 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     for (NCChatReaction *reaction in _reactions) {
         [reactions addObject:reaction];
     }
+    // Sort by reactions count
+    NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"count" ascending:NO];
+    NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];
+    [reactions sortUsingDescriptors:descriptors];
     return reactions;
 }
 
