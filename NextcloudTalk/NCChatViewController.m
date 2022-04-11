@@ -1248,9 +1248,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 }
 
 - (void)didPressAddReaction:(NCChatMessage *)message atIndexPath:(NSIndexPath *)indexPath {
-    ChatTableViewCell *cell = (ChatTableViewCell *)[self.tableView cellForRowAtIndexPath:indexPath];
-    self.emojiTextField = cell.emojiTextField;
-    [self.emojiTextField becomeFirstResponder];
+    // Hide the keyboard because we are going to present the emoji keyboard
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.textView resignFirstResponder];
+    });
+    // Present emoji keyboard
+    dispatch_async(dispatch_get_main_queue(), ^{
+        ChatTableViewCell *cell = (ChatTableViewCell *)[self.tableView cellForRowAtIndexPath:indexPath];
+        self.emojiTextField = cell.emojiTextField;
+        [self.emojiTextField becomeFirstResponder];
+    });
 }
 
 - (void)didPressForward:(NCChatMessage *)message {
