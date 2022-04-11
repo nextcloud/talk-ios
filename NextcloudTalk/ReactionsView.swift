@@ -21,11 +21,9 @@
  */
 
 import UIKit
-import AudioToolbox
 
 @objc protocol ReactionsViewDelegate {
     func didSelectReaction(reaction: String)
-    func wantsToDisplayReactionsSummary()
 }
 
 @objcMembers class ReactionsView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -49,19 +47,6 @@ import AudioToolbox
         self.register(UINib(nibName: "ReactionsViewCell", bundle: .main), forCellWithReuseIdentifier: "ReactionCellIdentifier")
         self.backgroundColor = .clear
         self.showsHorizontalScrollIndicator = false
-        // Configure long press gesture
-        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
-        longPressGesture.minimumPressDuration = 0.5
-        longPressGesture.delaysTouchesBegan = true
-        self.addGestureRecognizer(longPressGesture)
-    }
-
-    func handleLongPress(gestureRecognizer: UILongPressGestureRecognizer) {
-        if gestureRecognizer.state == .began {
-            // 'Pop' feedback (strong boom)
-            AudioServicesPlaySystemSound(1520)
-            self.reactionsDelegate?.wantsToDisplayReactionsSummary()
-       }
     }
 
     func updateReactions(reactions: [NCChatReaction]) {

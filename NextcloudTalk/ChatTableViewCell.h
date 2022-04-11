@@ -43,7 +43,6 @@ typedef enum ChatMessageDeliveryState {
 - (void)cellWantsToDisplayOptionsForMessageActor:(NCChatMessage *)message;
 - (void)cellWantsToAddReaction:(NSString *)reaction forMessage:(NCChatMessage *)message;
 - (void)cellDidSelectedReaction:(NSString *)reaction forMessage:(NCChatMessage *)message;
-- (void)cellWantsToDisplayReactionsSummaryForMessage:(NCChatMessage *)message;
 
 @end
 

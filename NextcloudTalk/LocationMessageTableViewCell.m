@@ -289,11 +289,6 @@
     [self.delegate cellDidSelectedReaction:reaction forMessage:self.message];
 }
 
-- (void)wantsToDisplayReactionsSummary
-{
-    [self.delegate cellWantsToDisplayReactionsSummaryForMessage:self.message];
-}
-
 #pragma mark - Getters
 
 - (UILabel *)titleLabel

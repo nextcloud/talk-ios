@@ -1925,6 +1925,17 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
         NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
         if (!message.isSystemMessage) {
+            
+            // Do not show menu if long pressing in reactions view
+            ChatTableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+            CGPoint pointInCell = [self.tableView convertPoint:point toView:cell];
+            for (UIView *subview in cell.contentView.subviews) {
+                if ([subview isKindOfClass:ReactionsView.class] && CGRectContainsPoint(subview.frame, pointInCell)) {
+                    [self showReactionsSummaryOfMessage:cell.message];
+                    return;
+                }
+            }
+            
             // Select cell
             [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
             
@@ -2021,9 +2032,14 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                         [weakSelf didPressReplyPrivately:message];
                     }
                         break;
-                    case kNCChatMessageActionForward:
+                    case kNCChatMessageActionAddReaction:
                     {
                         [weakSelf didPressAddReaction:message atIndexPath:indexPath];
+                    }
+                        break;
+                    case kNCChatMessageActionForward:
+                    {
+                        [weakSelf didPressForward:message];
                     }
                         break;
                     case kNCChatMessageActionCopy:
@@ -2973,6 +2989,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)showReactionsSummaryOfMessage:(NCChatMessage *)message
 {
+    // Actuate `Peek` feedback (weak boom)
+    AudioServicesPlaySystemSound(1519);
+    
     UITableViewStyle style = UITableViewStyleGrouped;
     if (@available(iOS 13.0, *)) {
         style = UITableViewStyleInsetGrouped;
@@ -3315,6 +3334,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     CGPoint pointInCell = [tableView convertPoint:point toView:cell];
     for (UIView *subview in cell.contentView.subviews) {
         if ([subview isKindOfClass:ReactionsView.class] && CGRectContainsPoint(subview.frame, pointInCell)) {
+            [self showReactionsSummaryOfMessage:cell.message];
             return nil;
         }
     }
@@ -3583,11 +3603,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)cellDidSelectedReaction:(NSString *)reaction forMessage:(NCChatMessage *)message
 {
     [self addOrRemoveReaction:reaction inChatMessage:message];
-}
-
-- (void)cellWantsToDisplayReactionsSummaryForMessage:(NCChatMessage *)message
-{
-    [self showReactionsSummaryOfMessage:message];
 }
 
 #pragma mark - NCChatFileControllerDelegate
