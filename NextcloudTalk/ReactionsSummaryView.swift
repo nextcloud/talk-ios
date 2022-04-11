@@ -25,6 +25,7 @@ import UIKit
 @objcMembers class ReactionsSummaryView: UITableViewController {
 
     var reactions: [String: [[String: AnyObject]]] = [:]
+    var sortedReactions: [String] = []
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -72,23 +73,27 @@ import UIKit
 
     func updateReactions(reactions: [String: [[String: AnyObject]]]) {
         self.reactions = reactions
+        // Sort reactions by number of reactions
+        for (k, _) in Array(reactions).sorted(by: {$0.value.count > $1.value.count}) {
+            self.sortedReactions.append(k)
+        }
         self.tableView.reloadData()
     }
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return Array(reactions.keys).count
+        return self.sortedReactions.count
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let reaction = Array(reactions.keys)[section]
-        if let actors = reactions[reaction] {
+        let reaction = self.sortedReactions[section]
+        if let actors = self.reactions[reaction] {
             return actors.count
         }
         return 0
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return Array(reactions.keys)[section]
+        return self.sortedReactions[section]
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -99,8 +104,8 @@ import UIKit
         let cell = tableView.dequeueReusableCell(withIdentifier: kShareCellIdentifier) as? ShareTableViewCell ??
         ShareTableViewCell(style: .default, reuseIdentifier: kShareCellIdentifier)
 
-        let reaction = Array(reactions.keys)[indexPath.section]
-        let actor = reactions[reaction]?[indexPath.row]
+        let reaction = self.sortedReactions[indexPath.section]
+        let actor = self.reactions[reaction]?[indexPath.row]
 
         // Actor name
         let actorDisplayName = actor?["actorDisplayName"] as? String
