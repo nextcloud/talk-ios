@@ -85,6 +85,31 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
         }
     }
     
+    id reactions = [messageDict objectForKey:@"reactions"];
+    if ([reactions isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *reactionsDict = reactions;
+        NSMutableArray *reactionsArray = [NSMutableArray new];
+        NSArray *ownReactions = nil;
+        // Grab message reactions
+        for (NSString *reactionKey in reactionsDict.allKeys) {
+            if ([reactionKey isEqualToString:@"self"]) {
+                ownReactions = [reactionsDict objectForKey:reactionKey];
+                continue;
+            }
+            NCChatReaction *reaction = [NCChatReaction initWithReaction:reactionKey andCount:[[reactionsDict objectForKey:reactionKey] integerValue]];
+            [reactionsArray addObject:reaction];
+        }
+        // Set flag for own reactions
+        for (NSString *ownReaction in ownReactions) {
+            for (NCChatReaction *reaction in reactionsArray) {
+                if ([reaction.reaction isEqualToString:ownReaction]) {
+                    reaction.userReacted = YES;
+                }
+            }
+        }
+        message.reactions = (RLMArray<NCChatReaction *><NCChatReaction> *)reactionsArray;
+    }
+    
     return message;
 }
 
@@ -110,6 +135,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     managedChatMessage.systemMessage = chatMessage.systemMessage;
     managedChatMessage.isReplyable = chatMessage.isReplyable;
     managedChatMessage.messageType = chatMessage.messageType;
+    managedChatMessage.reactions = chatMessage.reactions;
     
     if (!managedChatMessage.parentId && chatMessage.parentId) {
         managedChatMessage.parentId = chatMessage.parentId;
@@ -139,6 +165,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     messageCopy.parentId = [_parentId copyWithZone:zone];
     messageCopy.referenceId = [_referenceId copyWithZone:zone];
     messageCopy.messageType = [_messageType copyWithZone:zone];
+    // warning: reactions are not copied
     messageCopy.isTemporary = _isTemporary;
     messageCopy.sendingFailed = _sendingFailed;
     messageCopy.isGroupMessage = _isGroupMessage;
@@ -162,6 +189,14 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     }
     
     return NO;
+}
+
+- (BOOL)isUpdateMessage
+{
+    return  [self.systemMessage isEqualToString:@"message_deleted"] ||
+            [self.systemMessage isEqualToString:@"reaction"] ||
+            [self.systemMessage isEqualToString:@"reaction_revoked"] ||
+            [self.systemMessage isEqualToString:@"reaction_deleted"];
 }
 
 - (BOOL)isMessageFromUser:(NSString *)userId
@@ -354,6 +389,19 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     }
     
     return nil;
+}
+
+- (NSArray *)reactionsArray
+{
+    NSMutableArray *reactions = [NSMutableArray new];
+    for (NCChatReaction *reaction in _reactions) {
+        [reactions addObject:reaction];
+    }
+    // Sort by reactions count
+    NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"count" ascending:NO];
+    NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];
+    [reactions sortUsingDescriptors:descriptors];
+    return reactions;
 }
 
 @end

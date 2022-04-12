@@ -404,7 +404,7 @@ extension UserStatusMessageViewController: UITableViewDataSource {
     }
 }
 
-class EmojiTextField: UITextField {
+@objc class EmojiTextField: UITextField {
 
     // required for iOS 13
     override var textInputContextIdentifier: String? { "" } // return non-nil to show the Emoji keyboard ¯\_(ツ)_/¯

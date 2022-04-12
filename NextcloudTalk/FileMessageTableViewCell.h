@@ -45,7 +45,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 
 @end
 
-@interface FileMessageTableViewCell : ChatTableViewCell
+@interface FileMessageTableViewCell : ChatTableViewCell <ReactionsViewDelegate>
 
 @property (nonatomic, weak) id<FileMessageTableViewCellDelegate> delegate;
 
@@ -58,6 +58,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) UIView *fileStatusView;
 @property (nonatomic, strong) NCMessageFileParameter *fileParameter;
 
+@property (nonatomic, strong) ReactionsView *reactionsView;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vPreviewSize;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *hPreviewSize;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vGroupedPreviewSize;

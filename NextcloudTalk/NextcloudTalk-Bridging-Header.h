@@ -41,11 +41,14 @@
 #import "NCUserStatus.h"
 #import "NotificationCenterNotifications.h"
 #import "RoundedNumberView.h"
+#import "ShareTableViewCell.h"
 #import "UIView+Toast.h"
 #import "TOCroppedImageAttributes.h"
 #import "TOCropViewController.h"
 #import "TOCropViewControllerTransitioning.h"
 #import "TOActivityCroppedImageProvider.h"
+#import "UIImageView+AFNetworking.h"
 #import "UIImage+CropRotate.h"
+#import "UIImageView+Letters.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */

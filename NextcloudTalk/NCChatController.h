@@ -34,7 +34,7 @@ extern NSString * const NCChatControllerDidReceiveChatMessagesNotification;
 extern NSString * const NCChatControllerDidSendChatMessageNotification;
 extern NSString * const NCChatControllerDidReceiveChatBlockedNotification;
 extern NSString * const NCChatControllerDidReceiveNewerCommonReadMessageNotification;
-extern NSString * const NCChatControllerDidReceiveDeletedMessageNotification;
+extern NSString * const NCChatControllerDidReceiveUpdateMessageNotification;
 extern NSString * const NCChatControllerDidReceiveHistoryClearedNotification;
 extern NSString * const NCChatControllerDidReceiveCallStartedMessageNotification;
 extern NSString * const NCChatControllerDidReceiveCallEndedMessageNotification;

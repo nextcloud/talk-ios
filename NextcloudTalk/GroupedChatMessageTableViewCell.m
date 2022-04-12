@@ -47,9 +47,11 @@
     _statusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
     _statusView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.contentView addSubview:_statusView];
+    [self.contentView addSubview:self.reactionsView];
     
     NSDictionary *views = @{@"bodyTextView": self.bodyTextView,
-                            @"statusView": self.statusView
+                            @"statusView": self.statusView,
+                            @"reactionsView": self.reactionsView
                             };
     
     NSDictionary *metrics = @{@"avatar": @50,
@@ -61,7 +63,9 @@
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatar-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+    _vConstraint = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
+    [self.contentView addConstraints:_vConstraint];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
 }
 
@@ -74,6 +78,9 @@
     self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
     
     self.bodyTextView.text = @"";
+    
+    self.reactionsView.reactions = @[];
+    _vConstraint[3].constant = 0;
     
     self.statusView.hidden = NO;
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
@@ -111,6 +118,10 @@
             self.bodyTextView.textColor = [UIColor tertiaryLabelColor];
         }
     }
+    [self.reactionsView updateReactionsWithReactions:message.reactionsArray];
+    if (message.reactionsArray.count > 0) {
+        _vConstraint[3].constant = 40;
+    }
 }
 
 - (void)setDeliveryState:(ChatMessageDeliveryState)state
@@ -142,6 +153,20 @@
     }
 }
 
+#pragma mark - Actions
+
+- (void)addReaction:(NSString *)reaction
+{
+    [self.delegate cellWantsToAddReaction:reaction forMessage:self.message];
+}
+
+#pragma mark - ReactionsView delegate
+
+- (void)didSelectReactionWithReaction:(NSString *)reaction
+{
+    [self.delegate cellDidSelectedReaction:reaction forMessage:self.message];
+}
+
 #pragma mark - Getters
 
 - (MessageBodyTextView *)bodyTextView
@@ -151,6 +176,18 @@
         _bodyTextView.font = [UIFont systemFontOfSize:[GroupedChatMessageTableViewCell defaultFontSize]];
     }
     return _bodyTextView;
+}
+
+- (ReactionsView *)reactionsView
+{
+    if (!_reactionsView) {
+        UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+        flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        _reactionsView = [[ReactionsView alloc] initWithFrame:CGRectMake(0, 0, 50, 50) collectionViewLayout:flowLayout];
+        _reactionsView.translatesAutoresizingMaskIntoConstraints = NO;
+        _reactionsView.reactionsDelegate = self;
+    }
+    return _reactionsView;
 }
 
 + (CGFloat)defaultFontSize

@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <Realm/Realm.h>
+#import "NCChatReaction.h"
 #import "NCDatabaseManager.h"
 #import "NCMessageParameter.h"
 #import "NCMessageFileParameter.h"
@@ -36,6 +37,8 @@ extern NSString * const kMessageTypeCommentDeleted;
 extern NSString * const kMessageTypeSystem;
 extern NSString * const kMessageTypeCommand;
 extern NSString * const kMessageTypeVoiceMessage;
+
+RLM_ARRAY_TYPE(NCChatReaction)
 
 @interface NCChatMessage : RLMObject <NSCopying>
 
@@ -54,6 +57,7 @@ extern NSString * const kMessageTypeVoiceMessage;
 @property (nonatomic, strong) NSString *parentId;
 @property (nonatomic, strong) NSString *referenceId;
 @property (nonatomic, strong) NSString *messageType;
+@property (nonatomic, strong) RLMArray<NCChatReaction *><NCChatReaction> *reactions;
 @property (nonatomic, assign) BOOL isTemporary;
 @property (nonatomic, assign) BOOL sendingFailed;
 @property (nonatomic, assign) BOOL isGroupMessage;
@@ -65,6 +69,7 @@ extern NSString * const kMessageTypeVoiceMessage;
 
 - (BOOL)isSystemMessage;
 - (BOOL)isEmojiMessage;
+- (BOOL)isUpdateMessage;
 - (BOOL)isMessageFromUser:(NSString *)userId;
 - (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType;
 - (NCMessageFileParameter *)file;
@@ -73,5 +78,6 @@ extern NSString * const kMessageTypeVoiceMessage;
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)systemMessageFormat;
 - (NCChatMessage *)parent;
+- (NSArray *)reactionsArray;
 
 @end

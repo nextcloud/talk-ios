@@ -87,7 +87,8 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionResend,
     kNCChatMessageActionDelete,
     kNCChatMessageActionReplyPrivately,
-    kNCChatMessageActionOpenFileInNextcloud
+    kNCChatMessageActionOpenFileInNextcloud,
+    kNCChatMessageActionAddReaction
 } NCChatMessageAction;
 
 @interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
@@ -134,6 +135,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) AVAudioPlayer *voiceMessagesPlayer;
 @property (nonatomic, strong) NSTimer *playerProgressTimer;
 @property (nonatomic, strong) NCChatFileStatus *playerAudioFileStatus;
+@property (nonatomic, strong) EmojiTextField *emojiTextField;
 
 @end
 
@@ -176,7 +178,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveNewerCommonReadMessage:) name:NCChatControllerDidReceiveNewerCommonReadMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCallStartedMessage:) name:NCChatControllerDidReceiveCallStartedMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCallEndedMessage:) name:NCChatControllerDidReceiveCallEndedMessageNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveDeletedMessage:) name:NCChatControllerDidReceiveDeletedMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveUpdateMessage:) name:NCChatControllerDidReceiveUpdateMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveHistoryCleared:) name:NCChatControllerDidReceiveHistoryClearedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
@@ -1245,6 +1247,19 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                                                       userInfo:userInfo];
 }
 
+- (void)didPressAddReaction:(NCChatMessage *)message atIndexPath:(NSIndexPath *)indexPath {
+    // Hide the keyboard because we are going to present the emoji keyboard
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.textView resignFirstResponder];
+    });
+    // Present emoji keyboard
+    dispatch_async(dispatch_get_main_queue(), ^{
+        ChatTableViewCell *cell = (ChatTableViewCell *)[self.tableView cellForRowAtIndexPath:indexPath];
+        self.emojiTextField = cell.emojiTextField;
+        [self.emojiTextField becomeFirstResponder];
+    });
+}
+
 - (void)didPressForward:(NCChatMessage *)message {
     ShareViewController *shareViewController = [[ShareViewController alloc] initToForwardMessage:message.parsedMessage.string fromChatViewController:self];
     shareViewController.delegate = self;
@@ -1910,6 +1925,17 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
         NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
         if (!message.isSystemMessage) {
+            
+            // Do not show menu if long pressing in reactions view
+            ChatTableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+            CGPoint pointInCell = [self.tableView convertPoint:point toView:cell];
+            for (UIView *subview in cell.contentView.subviews) {
+                if ([subview isKindOfClass:ReactionsView.class] && CGRectContainsPoint(subview.frame, pointInCell)) {
+                    [self showReactionsSummaryOfMessage:cell.message];
+                    return;
+                }
+            }
+            
             // Select cell
             [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
             
@@ -1943,6 +1969,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                     FTPopOverMenuModel *replyPrivatModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply Privately", nil) image:[[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyPrivatInfo];
                     [menuArray addObject:replyPrivatModel];
                 }
+            }
+            
+            // Add reaction option
+            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode) {
+                NSDictionary *reactionInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionAddReaction) forKey:@"action"];
+                FTPopOverMenuModel *reactionModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Add reaction", nil) image:[[UIImage imageNamed:@"emoji"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:reactionInfo];
+                [menuArray addObject:reactionModel];
             }
             
             // Forward option (only normal messages for now)
@@ -1997,6 +2030,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                     case kNCChatMessageActionReplyPrivately:
                     {
                         [weakSelf didPressReplyPrivately:message];
+                    }
+                        break;
+                    case kNCChatMessageActionAddReaction:
+                    {
+                        [weakSelf didPressAddReaction:message atIndexPath:indexPath];
                     }
                         break;
                     case kNCChatMessageActionForward:
@@ -2385,7 +2423,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 });
             } else if (shouldScrollOnNewMessages || newMessagesContainUserMessage) {
                 [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-            } else if (!self->_firstUnreadMessage && areReallyNewMessages) {
+            } else if (!self->_firstUnreadMessage && areReallyNewMessages && [self newMessagesContainVisibleMessages:messages]) {
                 [self showNewMessagesViewUntilMessage:firstNewMessage];
             }
             
@@ -2469,13 +2507,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self checkRoomControlsAvailability];
 }
 
-- (void)didReceiveDeletedMessage:(NSNotification *)notification
+- (void)didReceiveUpdateMessage:(NSNotification *)notification
 {
     if (notification.object != _chatController) {
         return;
     }
     
-    NCChatMessage *message = [notification.userInfo objectForKey:@"deleteMessage"];
+    NCChatMessage *message = [notification.userInfo objectForKey:@"updateMessage"];
     NCChatMessage *deleteMessage = message.parent;
     if (deleteMessage) {
         [self updateMessageWithMessageId:deleteMessage.messageId withMessage:deleteMessage];
@@ -2801,6 +2839,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     return NO;
 }
 
+- (BOOL)newMessagesContainVisibleMessages:(NSMutableArray *)messages
+{
+    for (NCChatMessage *message in messages) {
+        if (![message isUpdateMessage]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 - (void)showNewMessagesViewUntilMessage:(NCChatMessage *)message
 {
     _firstUnreadMessage = message;
@@ -2895,6 +2943,69 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)saveLastReadMessage
 {
     [[NCRoomsManager sharedInstance] updateLastReadMessage:_lastReadMessage forRoom:_room];
+}
+
+#pragma mark - Reactions
+
+- (void)addReaction:(NSString *)reaction toChatMessage:(NCChatMessage *)message
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] addReaction:reaction toMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
+        if (error) {
+            [self.view makeToast:NSLocalizedString(@"An error occurred while adding a reaction to message", nil) duration:5 position:CSToastPositionCenter];
+        }
+    }];
+}
+
+- (void)removeReaction:(NSString *)reaction fromChatMessage:(NCChatMessage *)message
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] removeReaction:reaction fromMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
+        if (error) {
+            [self.view makeToast:NSLocalizedString(@"An error occurred while removing a reaction from message", nil) duration:5 position:CSToastPositionCenter];
+        }
+    }];
+}
+
+- (void)addOrRemoveReaction:(NSString *)reaction inChatMessage:(NCChatMessage *)message
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getReactions:reaction fromMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
+        NSArray *actors = [reactionsDict objectForKey:reaction];
+        BOOL userReacted = NO;
+        for (NSDictionary *actorDict in actors) {
+            if ([[actorDict objectForKey:@"actorId"] isEqualToString:activeAccount.userId] &&
+                [[actorDict objectForKey:@"actorType"] isEqualToString:@"users"]) {
+                userReacted = YES;
+            }
+        }
+        if (userReacted) {
+            [self removeReaction:reaction fromChatMessage:message];
+        } else {
+            [self addReaction:reaction toChatMessage:message];
+        }
+    }];
+}
+
+- (void)showReactionsSummaryOfMessage:(NCChatMessage *)message
+{
+    // Actuate `Peek` feedback (weak boom)
+    AudioServicesPlaySystemSound(1519);
+    
+    UITableViewStyle style = UITableViewStyleGrouped;
+    if (@available(iOS 13.0, *)) {
+        style = UITableViewStyleInsetGrouped;
+    }
+    ReactionsSummaryView *reactionsVC = [[ReactionsSummaryView alloc] initWithStyle:style];
+    NCNavigationController *reactionsNC = [[NCNavigationController alloc] initWithRootViewController:reactionsVC];
+    [self presentViewController:reactionsNC animated:YES completion:nil];
+    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getReactions:nil fromMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
+        if (!error) {
+            [reactionsVC updateReactionsWithReactions:reactionsDict];
+        }
+    }];
 }
 
 #pragma mark - Autocompletion
@@ -3041,7 +3152,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return separatorCell;
     }
     if (message.isSystemMessage) {
-        if ([message.systemMessage isEqualToString:@"message_deleted"]) {
+        if ([message isUpdateMessage]) {
             return (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:InvisibleSystemMessageCellIdentifier];
         }
         SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
@@ -3088,6 +3199,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     if (message.isGroupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
+        groupedCell.delegate = self;
+        
         [groupedCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
         
         return groupedCell;
@@ -3129,8 +3242,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return kMessageSeparatorCellHeight;
     }
     
-    // Message deleted (the ones that notify about a deleted message, they should not be displayed)
-    if (message.message.length == 0 || [message.systemMessage isEqualToString:@"message_deleted"]) {
+    // Update messages (the ones that notify about an update in one message, they should not be displayed)
+    if (message.message.length == 0 || [message isUpdateMessage]) {
         return 0.0;
     }
     
@@ -3146,6 +3259,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         height = kChatMessageCellMinimumHeight;
     }
     
+    if (message.reactionsArray.count > 0) {
+        height += 40; // reactionsView(40)
+    }
+    
     if (message.parent) {
         height += 55; // left(5) + quoteView(50)
         return height;
@@ -3156,6 +3273,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         
         if (height < kGroupedChatMessageCellMinimumHeight) {
             height = kGroupedChatMessageCellMinimumHeight;
+        }
+        
+        if (message.reactionsArray.count > 0) {
+            height += 40; // reactionsView(40)
         }
     }
     
@@ -3197,6 +3318,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [mentionString appendString:@" "];
         [self acceptAutoCompletionWithString:mentionString keepPrefix:YES];
     } else {
+        [self.emojiTextField resignFirstResponder];
         [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
 }
@@ -3205,6 +3327,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     if ([tableView isEqual:self.autoCompletionView]) {
         return nil;
+    }
+    
+    // Do not show context menu if long pressing in reactions view
+    ChatTableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    CGPoint pointInCell = [tableView convertPoint:point toView:cell];
+    for (UIView *subview in cell.contentView.subviews) {
+        if ([subview isKindOfClass:ReactionsView.class] && CGRectContainsPoint(subview.frame, pointInCell)) {
+            [self showReactionsSummaryOfMessage:cell.message];
+            return nil;
+        }
     }
     
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
@@ -3238,6 +3370,17 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             
             [actions addObject:replyPrivateAction];
         }
+    }
+    
+    // Add reaction option
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode) {
+        UIImage *reactionImage = [[UIImage imageNamed:@"emoji"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *reactionAction = [UIAction actionWithTitle:NSLocalizedString(@"Add reaction", nil) image:reactionImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressAddReaction:message atIndexPath:indexPath];
+        }];
+        
+        [actions addObject:reactionAction];
     }
     
     // Forward option (only normal messages for now)
@@ -3450,6 +3593,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (indexPath && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId]) {
         [self presentOptionsForMessageActor:message fromIndexPath:indexPath];
     }
+}
+
+- (void)cellWantsToAddReaction:(NSString *)reaction forMessage:(NCChatMessage *)message
+{
+    [self addReaction:reaction toChatMessage:message];
+}
+
+- (void)cellDidSelectedReaction:(NSString *)reaction forMessage:(NCChatMessage *)message
+{
+    [self addOrRemoveReaction:reaction inChatMessage:message];
 }
 
 #pragma mark - NCChatFileControllerDelegate

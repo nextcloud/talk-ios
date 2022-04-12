@@ -27,14 +27,20 @@
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 
+#import "NextcloudTalk-Swift.h"
+
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCChatMessage.h"
 #import "NCDatabaseManager.h"
 #import "NCUtils.h"
 #import "QuotedMessageView.h"
 
 @interface ChatMessageTableViewCell ()
 @property (nonatomic, strong) UIView *quoteContainerView;
+@property (nonatomic, strong) ReactionsView *reactionsView;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vConstraint1;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vConstraint2;
 @end
 
 @implementation ChatMessageTableViewCell
@@ -83,6 +89,8 @@
         [self.quoteContainerView addGestureRecognizer:quoteTap];
     }
     
+    [self.contentView addSubview:self.reactionsView];
+    
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"userStatusImageView": self.userStatusImageView,
                             @"statusView": self.statusView,
@@ -90,7 +98,8 @@
                             @"dateLabel": self.dateLabel,
                             @"bodyTextView": self.bodyTextView,
                             @"quoteContainerView": self.quoteContainerView,
-                            @"quotedMessageView": self.quotedMessageView
+                            @"quotedMessageView": self.quotedMessageView,
+                            @"reactionsView": self.reactionsView
                             };
     
     NSDictionary *metrics = @{@"avatarSize": @(kChatCellAvatarHeight),
@@ -104,9 +113,12 @@
     if ([self.reuseIdentifier isEqualToString:ChatMessageCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
+        _vConstraint1 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
+        [self.contentView addConstraints:_vConstraint1];
+        _vConstraint2 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-left-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
+        [self.contentView addConstraints:_vConstraint2];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:ReplyMessageCellIdentifier]) {
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
@@ -151,6 +163,10 @@
     self.quotedMessageView.actorLabel.text = @"";
     self.quotedMessageView.messageLabel.text = @"";
     
+    self.reactionsView.reactions = @[];
+    _vConstraint1[5].constant = 0;
+    _vConstraint2[5].constant = 0;
+    
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
     self.avatarView.contentMode = UIViewContentModeScaleToFill;
@@ -178,6 +194,20 @@
     if (self.delegate && self.message && self.message.parent) {
         [self.delegate cellWantsToScrollToMessage:self.message.parent];
     }
+}
+
+#pragma mark - Actions
+
+- (void)addReaction:(NSString *)reaction
+{
+    [self.delegate cellWantsToAddReaction:reaction forMessage:self.message];
+}
+
+#pragma mark - ReactionsView delegate
+
+- (void)didSelectReactionWithReaction:(NSString *)reaction
+{
+    [self.delegate cellDidSelectedReaction:reaction forMessage:self.message];
 }
 
 #pragma mark - Getters
@@ -217,6 +247,18 @@
         }
     }
     return _dateLabel;
+}
+
+- (ReactionsView *)reactionsView
+{
+    if (!_reactionsView) {
+        UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+        flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        _reactionsView = [[ReactionsView alloc] initWithFrame:CGRectMake(0, 0, 50, 50) collectionViewLayout:flowLayout];
+        _reactionsView.translatesAutoresizingMaskIntoConstraints = NO;
+        _reactionsView.reactionsDelegate = self;
+    }
+    return _reactionsView;
 }
 
 - (UIView *)quoteContainerView
@@ -270,10 +312,12 @@
             [self setBotAvatar];
         }
     } else {
-        [self.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId
-                                                                                                     andSize:96
-                                                                                                usingAccount:activeAccount]
-                               placeholderImage:nil success:nil failure:nil];
+        [self.avatarView
+         setImageWithURLRequest:[[NCAPIController sharedInstance]
+                                 createAvatarRequestForUser:message.actorId
+                                 andSize:96
+                                 usingAccount:activeAccount]
+         placeholderImage:nil success:nil failure:nil];
     }
     
     // This check is just a workaround to fix the issue with the deleted parents returned by the API.
@@ -304,6 +348,12 @@
         if (@available(iOS 13.0, *)) {
             self.bodyTextView.textColor = [UIColor tertiaryLabelColor];
         }
+    }
+    
+    [self.reactionsView updateReactionsWithReactions:message.reactionsArray];
+    if (message.reactionsArray.count > 0) {
+        _vConstraint1[5].constant = 40;
+        _vConstraint2[5].constant = 40;
     }
 }
 

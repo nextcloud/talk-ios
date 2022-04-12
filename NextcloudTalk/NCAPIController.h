@@ -62,6 +62,8 @@ typedef void (^GetMentionSuggestionsCompletionBlock)(NSMutableArray *mentions, N
 typedef void (^DeleteChatMessageCompletionBlock)(NSDictionary *messageDict, NSError *error, NSInteger statusCode);
 typedef void (^ClearChatHistoryCompletionBlock)(NSDictionary *messageDict, NSError *error, NSInteger statusCode);
 
+typedef void (^MessageReactionCompletionBlock)(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode);
+
 typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);
 typedef void (^GetSignalingSettingsCompletionBlock)(NSDictionary *settings, NSError *error);
@@ -112,6 +114,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)conversationAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)callAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)chatAPIVersionForAccount:(TalkAccount *)accounts;
+- (NSInteger)reactionsAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
 
 // Contacts Controller
@@ -163,6 +166,11 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)clearChatHistoryInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ClearChatHistoryCompletionBlock)block;
 - (NSURLSessionDataTask *)setChatReadMarker:(NSInteger)lastReadMessage inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block;
 - (NSURLSessionDataTask *)markChatAsUnreadInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block;
+
+// Reactions Controller
+- (NSURLSessionDataTask *)addReaction:(NSString *)reaction toMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;
+- (NSURLSessionDataTask *)removeReaction:(NSString *)reaction fromMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;
+- (NSURLSessionDataTask *)getReactions:(NSString *)reaction fromMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;
 
 // Signaling Controller
 - (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
