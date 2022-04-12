@@ -77,6 +77,9 @@
 "Add participants to new group conversation" = "Add participants to new group conversation";
 
 /* No comment provided by engineer. */
+"Add reaction" = "Add reaction";
+
+/* No comment provided by engineer. */
 "Add to favorites" = "Add to favorites";
 
 /* No comment provided by engineer. */
@@ -134,6 +137,9 @@
 "An error occurred while adding %@ to the room" = "An error occurred while adding %@ to the room";
 
 /* No comment provided by engineer. */
+"An error occurred while adding a reaction to message" = "An error occurred while adding a reaction to message";
+
+/* No comment provided by engineer. */
 "An error occurred while clearing status message" = "An error occurred while clearing status message";
 
 /* No comment provided by engineer. */
@@ -144,6 +150,9 @@
 
 /* No comment provided by engineer. */
 "An error occurred while opening the file %@" = "An error occurred while opening the file %@";
+
+/* No comment provided by engineer. */
+"An error occurred while removing a reaction from message" = "An error occurred while removing a reaction from message";
 
 /* No comment provided by engineer. */
 "An error occurred while sending the message" = "An error occurred while sending the message";
@@ -644,6 +653,12 @@
 "Manual" = "Manual";
 
 /* No comment provided by engineer. */
+"Mark as read" = "Mark as read";
+
+/* No comment provided by engineer. */
+"Mark as unread" = "Mark as unread";
+
+/* No comment provided by engineer. */
 "Match system contacts" = "Match system contacts";
 
 /* No comment provided by engineer. */
@@ -846,6 +861,9 @@
 
 /* No comment provided by engineer. */
 "Published" = "Published";
+
+/* No comment provided by engineer. */
+"Reactions" = "Reactions";
 
 /* No comment provided by engineer. */
 "Read status" = "Read status";
