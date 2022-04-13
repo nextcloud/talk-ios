@@ -284,7 +284,7 @@
 
 #pragma mark - ReactionsView delegate
 
-- (void)didSelectReactionWithReaction:(NSString *)reaction
+- (void)didSelectReactionWithReaction:(NCChatReaction *)reaction
 {
     [self.delegate cellDidSelectedReaction:reaction forMessage:self.message];
 }
