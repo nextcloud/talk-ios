@@ -151,6 +151,16 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
     }];
 }
 
+- (void)deleteUpdateMessagesOlderThanUpdateMessageId:(NSInteger)messageId
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        NSArray *updateMessages = @[@"message_deleted", @"reaction", @"reaction_revoked", @"reaction_deleted"];
+        RLMResults *managedOldUpdateMessages = [NCChatMessage objectsWhere:@"accountId = %@ AND token = %@ AND messageId < %ld AND systemMessage IN %@", _account.accountId, _room.token, messageId, updateMessages];
+        [realm deleteObjects:managedOldUpdateMessages];
+    }];
+}
+
 - (BOOL)hasOlderStoredMessagesThanMessageId:(NSInteger)messageId
 {
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId < %ld", _account.accountId, _room.token, (long)messageId];
@@ -600,8 +610,7 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
             if (messages.count > 0) {
                 [self storeMessages:messages];
                 NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-                NSArray *storedMessages = [self getNewStoredMessagesInBlock:lastChatBlock sinceMessageId:messageId];
-                [userInfo setObject:storedMessages forKey:@"messages"];
+                NSMutableArray *storedMessages = [self getNewStoredMessagesInBlock:lastChatBlock sinceMessageId:messageId];
                 
                 for (NCChatMessage *message in storedMessages) {
                     // Update the current room with the new message
@@ -614,7 +623,7 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
                     if ([message.systemMessage isEqualToString:@"call_started"]) {
                         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveCallStartedMessageNotification
                                                                             object:self
-                                                                          userInfo:userInfo];
+                                                                          userInfo:nil];
                     }
                     // Notify if "call eneded" have been received
                     if ([message.systemMessage isEqualToString:@"call_ended"] ||
@@ -622,24 +631,33 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
                         [message.systemMessage isEqualToString:@"call_missed"]) {
                         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveCallEndedMessageNotification
                                                                             object:self
-                                                                          userInfo:userInfo];
+                                                                          userInfo:nil];
                     }
                     // Notify if an "update messages" have been received
                     if ([message isUpdateMessage]) {
-                        [userInfo setObject:message forKey:@"updateMessage"];
+                        NSMutableDictionary *updateInfo = [NSMutableDictionary new];
+                        [updateInfo setObject:message forKey:@"updateMessage"];
                         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveUpdateMessageNotification
                                                                             object:self
-                                                                          userInfo:userInfo];
+                                                                          userInfo:updateInfo];
+                        if (message.messageId != lastChatBlock.newestMessageId) {
+                            [storedMessages removeObject:message];
+                        }
                     }
                     // Notify if "history cleared" has been received
                     if ([message.systemMessage isEqualToString:@"history_cleared"]) {
-                        [userInfo setObject:message forKey:@"historyCleared"];
+                        NSMutableDictionary *historyClearedInfo = [NSMutableDictionary new];
+                        [historyClearedInfo setObject:message forKey:@"historyCleared"];
                         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveHistoryClearedNotification
                                                                             object:self
-                                                                          userInfo:userInfo];
+                                                                          userInfo:historyClearedInfo];
                         return;
                     }
                 }
+                // Remove old update messages from DB
+                [self deleteUpdateMessagesOlderThanUpdateMessageId:lastChatBlock.newestMessageId];
+                // Set messages to be sent to chat view controller
+                [userInfo setObject:storedMessages forKey:@"messages"];
             }
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
