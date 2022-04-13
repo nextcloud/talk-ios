@@ -23,7 +23,7 @@
 #import <Realm/Realm.h>
 
 
-@interface NCChatReaction : RLMObject
+@interface NCChatReaction : NSObject
 
 @property (nonatomic, strong) NSString *reaction;
 @property (nonatomic, assign) NSInteger count;

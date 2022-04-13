@@ -87,27 +87,15 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     
     id reactions = [messageDict objectForKey:@"reactions"];
     if ([reactions isKindOfClass:[NSDictionary class]]) {
-        NSDictionary *reactionsDict = reactions;
-        NSMutableArray *reactionsArray = [NSMutableArray new];
-        NSArray *ownReactions = nil;
-        // Grab message reactions
-        for (NSString *reactionKey in reactionsDict.allKeys) {
-            if ([reactionKey isEqualToString:@"self"]) {
-                ownReactions = [reactionsDict objectForKey:reactionKey];
-                continue;
-            }
-            NCChatReaction *reaction = [NCChatReaction initWithReaction:reactionKey andCount:[[reactionsDict objectForKey:reactionKey] integerValue]];
-            [reactionsArray addObject:reaction];
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:reactions
+                                                           options:0
+                                                             error:&error];
+        if (jsonData) {
+            message.reactionsJSONString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        } else {
+            NSLog(@"Error generating reactions JSON string: %@", error);
         }
-        // Set flag for own reactions
-        for (NSString *ownReaction in ownReactions) {
-            for (NCChatReaction *reaction in reactionsArray) {
-                if ([reaction.reaction isEqualToString:ownReaction]) {
-                    reaction.userReacted = YES;
-                }
-            }
-        }
-        message.reactions = (RLMArray<NCChatReaction *><NCChatReaction> *)reactionsArray;
     }
     
     return message;
@@ -135,7 +123,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     managedChatMessage.systemMessage = chatMessage.systemMessage;
     managedChatMessage.isReplyable = chatMessage.isReplyable;
     managedChatMessage.messageType = chatMessage.messageType;
-    managedChatMessage.reactions = chatMessage.reactions;
+    managedChatMessage.reactionsJSONString = chatMessage.reactionsJSONString;
     
     if (!managedChatMessage.parentId && chatMessage.parentId) {
         managedChatMessage.parentId = chatMessage.parentId;
@@ -165,7 +153,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     messageCopy.parentId = [_parentId copyWithZone:zone];
     messageCopy.referenceId = [_referenceId copyWithZone:zone];
     messageCopy.messageType = [_messageType copyWithZone:zone];
-    // warning: reactions are not copied
+    messageCopy.reactionsJSONString = [_reactionsJSONString copyWithZone:zone];
     messageCopy.isTemporary = _isTemporary;
     messageCopy.sendingFailed = _sendingFailed;
     messageCopy.isGroupMessage = _isGroupMessage;
@@ -391,17 +379,51 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     return nil;
 }
 
+- (NSDictionary *)reactionsDictionary
+{
+    NSDictionary *reactionsDictionary = @{};
+    NSData *data = [self.reactionsJSONString dataUsingEncoding:NSUTF8StringEncoding];
+    if (data) {
+        NSError* error;
+        NSDictionary* jsonData = [NSJSONSerialization JSONObjectWithData:data
+                                                                 options:0
+                                                                   error:&error];
+        if (jsonData) {
+            reactionsDictionary = jsonData;
+        } else {
+            NSLog(@"Error retrieving reactions JSON data: %@", error);
+        }
+    }
+    return reactionsDictionary;
+}
+
 - (NSArray *)reactionsArray
 {
-    NSMutableArray *reactions = [NSMutableArray new];
-    for (NCChatReaction *reaction in _reactions) {
-        [reactions addObject:reaction];
+    NSDictionary *reactionsDict = [self reactionsDictionary];
+    NSMutableArray *reactionsArray = [NSMutableArray new];
+    NSArray *ownReactions = nil;
+    // Grab message reactions
+    for (NSString *reactionKey in reactionsDict.allKeys) {
+        if ([reactionKey isEqualToString:@"self"]) {
+            ownReactions = [reactionsDict objectForKey:reactionKey];
+            continue;
+        }
+        NCChatReaction *reaction = [NCChatReaction initWithReaction:reactionKey andCount:[[reactionsDict objectForKey:reactionKey] integerValue]];
+        [reactionsArray addObject:reaction];
+    }
+    // Set flag for own reactions
+    for (NSString *ownReaction in ownReactions) {
+        for (NCChatReaction *reaction in reactionsArray) {
+            if ([reaction.reaction isEqualToString:ownReaction]) {
+                reaction.userReacted = YES;
+            }
+        }
     }
     // Sort by reactions count
     NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"count" ascending:NO];
     NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];
-    [reactions sortUsingDescriptors:descriptors];
-    return reactions;
+    [reactionsArray sortUsingDescriptors:descriptors];
+    return reactionsArray;
 }
 
 @end
