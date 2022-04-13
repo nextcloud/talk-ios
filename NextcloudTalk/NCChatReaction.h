@@ -22,12 +22,18 @@
 
 #import <Realm/Realm.h>
 
+typedef enum NCChatReactionState {
+    NCChatReactionStateSet = 0,
+    NCChatReactionStateAdding,
+    NCChatReactionStateRemoving
+} NCChatReactionState;
 
 @interface NCChatReaction : NSObject
 
 @property (nonatomic, strong) NSString *reaction;
 @property (nonatomic, assign) NSInteger count;
 @property (nonatomic, assign) BOOL userReacted;
+@property (nonatomic, assign) NCChatReactionState state;
 
 + (instancetype)initWithReaction:(NSString *)reaction andCount:(NSInteger)count;
 

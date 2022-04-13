@@ -23,7 +23,7 @@
 import UIKit
 
 @objc protocol ReactionsViewDelegate {
-    func didSelectReaction(reaction: String)
+    func didSelectReaction(reaction: NCChatReaction)
 }
 
 @objcMembers class ReactionsView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -79,6 +79,8 @@ import UIKit
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        self.reactionsDelegate?.didSelectReaction(reaction: reactions[indexPath.row].reaction)
+        if indexPath.row < reactions.count {
+            self.reactionsDelegate?.didSelectReaction(reaction: reactions[indexPath.row])
+        }
     }
 }

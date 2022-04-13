@@ -37,6 +37,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
 {
     NCMessageFileParameter *_fileParameter;
     NCMessageLocationParameter *_locationParameter;
+    NSMutableArray *_temporaryReactions;
 }
 
 @end
@@ -379,6 +380,103 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     return nil;
 }
 
+- (NSMutableArray *)temporaryReactions
+{
+    if (!_temporaryReactions) {
+        _temporaryReactions = [NSMutableArray new];
+    }
+    return _temporaryReactions;
+}
+
+- (BOOL)isReactionBeingModified:(NSString *)reaction
+{
+    for (NCChatReaction *temporaryReaction in [self temporaryReactions]) {
+        if ([temporaryReaction.reaction isEqualToString:reaction]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (void)removeReactionFromTemporayReactions:(NSString *)reaction
+{
+    NCChatReaction *removeReaction = nil;
+    for (NCChatReaction *temporaryReaction in [self temporaryReactions]) {
+        if ([temporaryReaction.reaction isEqualToString:reaction]) {
+            removeReaction = temporaryReaction;
+            break;
+        }
+    }
+    if (removeReaction) {
+        [[self temporaryReactions] removeObject:removeReaction];
+    }
+}
+
+- (void)addTemporaryReaction:(NSString *)reaction
+{
+    NCChatReaction *temporaryReaction = [[NCChatReaction alloc] init];
+    temporaryReaction.reaction = reaction;
+    temporaryReaction.state = NCChatReactionStateAdding;
+    [[self temporaryReactions] addObject:temporaryReaction];
+}
+
+- (void)removeReactionTemporarily:(NSString *)reaction
+{
+    NCChatReaction *temporaryReaction = [[NCChatReaction alloc] init];
+    temporaryReaction.reaction = reaction;
+    temporaryReaction.state = NCChatReactionStateRemoving;
+    [[self temporaryReactions] addObject:temporaryReaction];
+}
+
+- (void)mergeTemporaryReactionsWithReactions:(NSMutableArray *)reactions
+{
+    for (NCChatReaction *temporaryReaction in [self temporaryReactions]) {
+        if (temporaryReaction.state == NCChatReactionStateAdding) {
+            [self addTemporaryReaction:temporaryReaction.reaction inReactions:reactions];
+        } else if (temporaryReaction.state == NCChatReactionStateRemoving) {
+            [self removeReactionTemporarily:temporaryReaction.reaction inReactions:reactions];
+        }
+    }
+}
+
+- (void)addTemporaryReaction:(NSString *)reaction inReactions:(NSMutableArray *)reactions
+{
+    BOOL includedReaction = NO;
+    for (NCChatReaction *currentReaction in reactions) {
+        if ([currentReaction.reaction isEqualToString:reaction]) {
+            currentReaction.count += 1;
+            currentReaction.userReacted = YES;
+            includedReaction = YES;
+        }
+    }
+    if (!includedReaction) {
+        NCChatReaction *newReaction = [[NCChatReaction alloc] init];
+        newReaction.reaction = reaction;
+        newReaction.count = 1;
+        newReaction.userReacted = YES;
+        [reactions addObject:newReaction];
+    }
+}
+
+- (void)removeReactionTemporarily:(NSString *)reaction inReactions:(NSMutableArray *)reactions
+{
+    NCChatReaction *removeReaction = nil;
+    for (NCChatReaction *currentReaction in reactions) {
+        if ([currentReaction.reaction isEqualToString:reaction]) {
+            currentReaction.state = NCChatReactionStateRemoving;
+            if (currentReaction.count > 1) {
+                currentReaction.count -= 1;
+                currentReaction.userReacted = NO;
+            } else {
+                removeReaction = currentReaction;
+            }
+        }
+    }
+    if (removeReaction) {
+        [reactions removeObject:removeReaction];
+    }
+}
+
 - (NSDictionary *)reactionsDictionary
 {
     NSDictionary *reactionsDictionary = @{};
@@ -397,7 +495,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     return reactionsDictionary;
 }
 
-- (NSArray *)reactionsArray
+- (NSMutableArray *)reactionsArray
 {
     NSDictionary *reactionsDict = [self reactionsDictionary];
     NSMutableArray *reactionsArray = [NSMutableArray new];
@@ -419,6 +517,8 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
             }
         }
     }
+    // Merge with temporary reactions
+    [self mergeTemporaryReactionsWithReactions:reactionsArray];
     // Sort by reactions count
     NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"count" ascending:NO];
     NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];

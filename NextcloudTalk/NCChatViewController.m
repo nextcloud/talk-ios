@@ -2950,9 +2950,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)addReaction:(NSString *)reaction toChatMessage:(NCChatMessage *)message
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [self setTemporaryReaction:reaction withState:NCChatReactionStateAdding toMessage:message];
     [[NCAPIController sharedInstance] addReaction:reaction toMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
         if (error) {
             [self.view makeToast:NSLocalizedString(@"An error occurred while adding a reaction to message", nil) duration:5 position:CSToastPositionCenter];
+            [self removeTemporaryReaction:reaction forMessageId:message.messageId];
         }
     }];
 }
@@ -2960,32 +2962,73 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)removeReaction:(NSString *)reaction fromChatMessage:(NCChatMessage *)message
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [self setTemporaryReaction:reaction withState:NCChatReactionStateRemoving toMessage:message];
     [[NCAPIController sharedInstance] removeReaction:reaction fromMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
         if (error) {
             [self.view makeToast:NSLocalizedString(@"An error occurred while removing a reaction from message", nil) duration:5 position:CSToastPositionCenter];
+            [self removeTemporaryReaction:reaction forMessageId:message.messageId];
         }
     }];
 }
 
-- (void)addOrRemoveReaction:(NSString *)reaction inChatMessage:(NCChatMessage *)message
+- (void)addOrRemoveReaction:(NCChatReaction *)reaction inChatMessage:(NCChatMessage *)message
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getReactions:reaction fromMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
-        NSArray *actors = [reactionsDict objectForKey:reaction];
-        BOOL userReacted = NO;
-        for (NSDictionary *actorDict in actors) {
-            if ([[actorDict objectForKey:@"actorId"] isEqualToString:activeAccount.userId] &&
-                [[actorDict objectForKey:@"actorType"] isEqualToString:@"users"]) {
-                userReacted = YES;
+    if ([message isReactionBeingModified:reaction.reaction]) {return;}
+    
+    if (reaction.userReacted) {
+        [self removeReaction:reaction.reaction fromChatMessage:message];
+    } else {
+        [self addReaction:reaction.reaction toChatMessage:message];
+    }
+}
+
+- (void)removeTemporaryReaction:(NSString *)reaction forMessageId:(NSInteger)messageId
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSMutableArray *reloadIndexPaths = [NSMutableArray new];
+        NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:messageId];
+        if (indexPath) {
+            [reloadIndexPaths addObject:indexPath];
+            NSDate *keyDate = [self->_dateSections objectAtIndex:indexPath.section];
+            NSMutableArray *messages = [self->_messages objectForKey:keyDate];
+            NCChatMessage *currentMessage = messages[indexPath.row];
+            //Remove temporary reaction
+            [currentMessage removeReactionFromTemporayReactions:reaction];
+        }
+        
+        [self.tableView beginUpdates];
+        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView endUpdates];
+    });
+}
+
+- (void)setTemporaryReaction:(NSString *)reaction withState:(NCChatReactionState)state toMessage:(NCChatMessage *)message
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSMutableArray *reloadIndexPaths = [NSMutableArray new];
+        NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:message.messageId];
+        if (indexPath) {
+            [reloadIndexPaths addObject:indexPath];
+            NSDate *keyDate = [self->_dateSections objectAtIndex:indexPath.section];
+            NSMutableArray *messages = [self->_messages objectForKey:keyDate];
+            NCChatMessage *currentMessage = messages[indexPath.row];
+            // Add temporary reaction
+            if (state == NCChatReactionStateAdding) {
+                [currentMessage addTemporaryReaction:reaction];
+            }
+            // Remove reaction temporarily
+            else if (state == NCChatReactionStateRemoving) {
+                [currentMessage removeReactionTemporarily:reaction];
             }
         }
-        if (userReacted) {
-            [self removeReaction:reaction fromChatMessage:message];
-        } else {
-            [self addReaction:reaction toChatMessage:message];
-        }
-    }];
+        
+        [self.tableView beginUpdates];
+        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView endUpdates];
+    });
 }
+
+
 
 - (void)showReactionsSummaryOfMessage:(NCChatMessage *)message
 {
@@ -3600,7 +3643,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self addReaction:reaction toChatMessage:message];
 }
 
-- (void)cellDidSelectedReaction:(NSString *)reaction forMessage:(NCChatMessage *)message
+- (void)cellDidSelectedReaction:(NCChatReaction *)reaction forMessage:(NCChatMessage *)message
 {
     [self addOrRemoveReaction:reaction inChatMessage:message];
 }

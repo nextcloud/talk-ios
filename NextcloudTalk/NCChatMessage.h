@@ -78,6 +78,10 @@ RLM_ARRAY_TYPE(NCChatReaction)
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)systemMessageFormat;
 - (NCChatMessage *)parent;
-- (NSArray *)reactionsArray;
+- (NSMutableArray *)reactionsArray;
+- (BOOL)isReactionBeingModified:(NSString *)reaction;
+- (void)addTemporaryReaction:(NSString *)reaction;
+- (void)removeReactionTemporarily:(NSString *)reaction;
+- (void)removeReactionFromTemporayReactions:(NSString *)reaction;
 
 @end
