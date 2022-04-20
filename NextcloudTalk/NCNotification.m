@@ -83,6 +83,9 @@
         NSString* parameter = [_subjectRich substringWithRange:match.range];
         NSString *parameterKey = [[parameter stringByReplacingOccurrencesOfString:@"{" withString:@""]
                                   stringByReplacingOccurrencesOfString:@"}" withString:@""];
+        if ([parameterKey isEqualToString:@"reaction"]) {
+            return _subject;
+        }
         if ([parameterKey isEqualToString:@"call"]) {
             NSString *inString = NSLocalizedString(@"in", nil);
             title = [title stringByAppendingString:[NSString stringWithFormat:@" %@ %@", inString, [[_subjectRichParameters objectForKey:@"call"] objectForKey:@"name"]]];
