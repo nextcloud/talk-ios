@@ -58,6 +58,7 @@ RLM_ARRAY_TYPE(NCChatReaction)
 @property (nonatomic, strong) NSString *referenceId;
 @property (nonatomic, strong) NSString *messageType;
 @property (nonatomic, strong) NSString *reactionsJSONString;
+@property (nonatomic, strong) NSString *reactionsSelfJSONString;
 @property (nonatomic, assign) BOOL isTemporary;
 @property (nonatomic, assign) BOOL sendingFailed;
 @property (nonatomic, assign) BOOL isGroupMessage;

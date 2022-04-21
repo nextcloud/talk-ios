@@ -99,6 +99,19 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
         }
     }
     
+    id reactionsSelf = [messageDict objectForKey:@"reactionsSelf"];
+    if ([reactionsSelf isKindOfClass:[NSArray class]]) {
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:reactionsSelf
+                                                           options:0
+                                                             error:&error];
+        if (jsonData) {
+            message.reactionsSelfJSONString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        } else {
+            NSLog(@"Error generating reactionsSelf JSON string: %@", error);
+        }
+    }
+    
     return message;
 }
 
@@ -125,6 +138,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     managedChatMessage.isReplyable = chatMessage.isReplyable;
     managedChatMessage.messageType = chatMessage.messageType;
     managedChatMessage.reactionsJSONString = chatMessage.reactionsJSONString;
+    managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
     
     if (!managedChatMessage.parentId && chatMessage.parentId) {
         managedChatMessage.parentId = chatMessage.parentId;
@@ -155,6 +169,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     messageCopy.referenceId = [_referenceId copyWithZone:zone];
     messageCopy.messageType = [_messageType copyWithZone:zone];
     messageCopy.reactionsJSONString = [_reactionsJSONString copyWithZone:zone];
+    messageCopy.reactionsSelfJSONString = [_reactionsSelfJSONString copyWithZone:zone];
     messageCopy.isTemporary = _isTemporary;
     messageCopy.sendingFailed = _sendingFailed;
     messageCopy.isGroupMessage = _isGroupMessage;
@@ -495,22 +510,35 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     return reactionsDictionary;
 }
 
+- (NSArray *)reactionsSelfArray
+{
+    NSArray *reactionsSelfArray = @[];
+    NSData *data = [self.reactionsSelfJSONString dataUsingEncoding:NSUTF8StringEncoding];
+    if (data) {
+        NSError* error;
+        NSArray* jsonData = [NSJSONSerialization JSONObjectWithData:data
+                                                            options:0
+                                                              error:&error];
+        if (jsonData) {
+            reactionsSelfArray = jsonData;
+        } else {
+            NSLog(@"Error retrieving reactionsSelf JSON data: %@", error);
+        }
+    }
+    return reactionsSelfArray;
+}
+
 - (NSMutableArray *)reactionsArray
 {
-    NSDictionary *reactionsDict = [self reactionsDictionary];
     NSMutableArray *reactionsArray = [NSMutableArray new];
-    NSArray *ownReactions = nil;
     // Grab message reactions
+    NSDictionary *reactionsDict = [self reactionsDictionary];
     for (NSString *reactionKey in reactionsDict.allKeys) {
-        if ([reactionKey isEqualToString:@"self"]) {
-            ownReactions = [reactionsDict objectForKey:reactionKey];
-            continue;
-        }
         NCChatReaction *reaction = [NCChatReaction initWithReaction:reactionKey andCount:[[reactionsDict objectForKey:reactionKey] integerValue]];
         [reactionsArray addObject:reaction];
     }
     // Set flag for own reactions
-    for (NSString *ownReaction in ownReactions) {
+    for (NSString *ownReaction in [self reactionsSelfArray]) {
         for (NCChatReaction *reaction in reactionsArray) {
             if ([reaction.reaction isEqualToString:ownReaction]) {
                 reaction.userReacted = YES;
