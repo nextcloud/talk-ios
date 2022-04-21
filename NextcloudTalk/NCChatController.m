@@ -404,7 +404,7 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
         NCChatMessage *lastMessage = [storedMessages lastObject];
 
         // Make sure we update the unread flags for the room (lastMessage can already be set, but there still might be unread flags)
-        if (lastMessage.timestamp >= self->_room.lastActivity) {
+        if (lastMessage.timestamp >= self->_room.lastActivity && !lastMessage.isUpdateMessage) {
             self->_room.lastActivity = lastMessage.timestamp;
             [[NCRoomsManager sharedInstance] updateLastMessage:lastMessage withNoUnreadMessages:YES forRoom:self->_room];
         }
@@ -433,7 +433,7 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
         NCChatMessage *lastMessage = [storedMessages lastObject];
         
         // Make sure we update the unread flags for the room (lastMessage can already be set, but there still might be unread flags)
-        if (lastMessage.timestamp >= self->_room.lastActivity) {
+        if (lastMessage.timestamp >= self->_room.lastActivity && !lastMessage.isUpdateMessage) {
             self->_room.lastActivity = lastMessage.timestamp;
             [[NCRoomsManager sharedInstance] updateLastMessage:lastMessage withNoUnreadMessages:YES forRoom:self->_room];
         }
@@ -605,7 +605,7 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
                 
                 for (NCChatMessage *message in storedMessages) {
                     // Update the current room with the new message
-                    if (message.messageId == lastKnownMessage && message.timestamp > self->_room.lastActivity) {
+                    if (message.messageId == lastKnownMessage && message.timestamp > self->_room.lastActivity && !message.isUpdateMessage) {
                         self->_room.lastActivity = message.timestamp;
                         [[NCRoomsManager sharedInstance] updateLastMessage:message withNoUnreadMessages:YES forRoom:self->_room];
                     }
