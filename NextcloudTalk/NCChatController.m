@@ -129,14 +129,14 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
         
         NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", message.internalId].firstObject;
         if (managedMessage) {
-            [NCChatMessage updateChatMessage:managedMessage withChatMessage:message];
+            [NCChatMessage updateChatMessage:managedMessage withChatMessage:message isRoomLastMessage:NO];
         } else if (message) {
             [realm addObject:message];
         }
         
         NCChatMessage *managedParentMessage = [NCChatMessage objectsWhere:@"internalId = %@", parent.internalId].firstObject;
         if (managedParentMessage) {
-            [NCChatMessage updateChatMessage:managedParentMessage withChatMessage:parent];
+            [NCChatMessage updateChatMessage:managedParentMessage withChatMessage:parent isRoomLastMessage:NO];
         } else if (parent) {
             [realm addObject:parent];
         }

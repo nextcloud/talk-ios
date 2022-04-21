@@ -126,7 +126,7 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     return message;
 }
 
-+ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage
++ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage isRoomLastMessage:(BOOL)isRoomLastMessage
 {
     managedChatMessage.actorDisplayName = chatMessage.actorDisplayName;
     managedChatMessage.actorId = chatMessage.actorId;
@@ -138,7 +138,10 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     managedChatMessage.isReplyable = chatMessage.isReplyable;
     managedChatMessage.messageType = chatMessage.messageType;
     managedChatMessage.reactionsJSONString = chatMessage.reactionsJSONString;
-    managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
+    
+    if (!isRoomLastMessage) {
+        managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
+    }
     
     if (!managedChatMessage.parentId && chatMessage.parentId) {
         managedChatMessage.parentId = chatMessage.parentId;
