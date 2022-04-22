@@ -30,6 +30,8 @@
 #import "UIImageView+Letters.h"
 #import "UIView+Toast.h"
 
+#import "NextcloudTalk-Swift.h"
+
 #import "AddParticipantsTableViewController.h"
 #import "ContactsTableViewCell.h"
 #import "HeaderWithButton.h"
@@ -883,6 +885,20 @@ typedef enum FileAction {
             [alert addAction:okButton];
             
             [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+        }
+    }];
+}
+
+- (void)presentSharedItemsView
+{
+    RoomSharedItemsTableViewController *sharedItemsVC = [[RoomSharedItemsTableViewController alloc] init];
+    [self.navigationController pushViewController:sharedItemsVC animated:YES];
+    
+    [[NCAPIController sharedInstance] getSharedItemsOverviewInRoom:_room.token withLimit:-1 forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *sharedItems, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
+        if (!error) {
+            [sharedItemsVC addSharedItemsWithSharedItems:sharedItems];
+        } else {
+            NSLog(@"Error getting shared items: %@", error.description);
         }
     }];
 }
@@ -1954,6 +1970,11 @@ typedef enum FileAction {
                     [self openRoomFileInFilesApp:indexPath];
                     break;
             }
+        }
+            break;
+        case kRoomInfoSectionSharedItems:
+        {
+            [self presentSharedItemsView];
         }
             break;
         case kRoomInfoSectionNotifications:

@@ -25,6 +25,7 @@
 
 #import "AvatarHeaderView.h"
 #import "DetailedOptionsSelectorTableViewController.h"
+#import "DirectoryTableViewCell.h"
 #import "HeaderWithButton.h"
 #import "NBPhoneNumber.h"
 #import "NBPhoneNumberDefines.h"
@@ -39,6 +40,7 @@
 #import "NCUserDefaults.h"
 #import "NCUserInterfaceController.h"
 #import "NCUserStatus.h"
+#import "NCUtils.h"
 #import "NotificationCenterNotifications.h"
 #import "PlaceholderView.h"
 #import "RoundedNumberView.h"

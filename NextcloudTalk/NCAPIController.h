@@ -61,7 +61,7 @@ typedef void (^SendChatMessagesCompletionBlock)(NSError *error);
 typedef void (^GetMentionSuggestionsCompletionBlock)(NSMutableArray *mentions, NSError *error);
 typedef void (^DeleteChatMessageCompletionBlock)(NSDictionary *messageDict, NSError *error, NSInteger statusCode);
 typedef void (^ClearChatHistoryCompletionBlock)(NSDictionary *messageDict, NSError *error, NSInteger statusCode);
-typedef void (^GetSharedItemsCompletionBlock)(NSArray *messages, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
+typedef void (^GetSharedItemsCompletionBlock)(NSDictionary *sharedItems, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
 
 typedef void (^MessageReactionCompletionBlock)(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode);
 

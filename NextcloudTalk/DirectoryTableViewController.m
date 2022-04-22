@@ -297,35 +297,6 @@
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
 
-- (NSString *)dateDiff:(NSDate *) convertedDate
-{
-    NSDate *todayDate = [NSDate date];
-    double ti = [convertedDate timeIntervalSinceDate:todayDate];
-    ti = ti * -1;
-    if (ti < 60) {
-        // This minute
-        return NSLocalizedString(@"less than a minute ago", nil);
-    } else if (ti < 3600) {
-        // This hour
-        int diff = round(ti / 60);
-        return [NSString stringWithFormat:NSLocalizedString(@"%d minutes ago", nil), diff];
-    } else if (ti < 86400) {
-        // This day
-        int diff = round(ti / 60 / 60);
-        return[NSString stringWithFormat:NSLocalizedString(@"%d hours ago", nil), diff];
-    } else if (ti < 86400 * 30) {
-        // This month
-        int diff = round(ti / 60 / 60 / 24);
-        return[NSString stringWithFormat:NSLocalizedString(@"%d days ago", nil), diff];
-    } else {
-        // Older than one month
-        NSDateFormatter *df = [[NSDateFormatter alloc] init];
-        [df setFormatterBehavior:NSDateFormatterBehavior10_4];
-        [df setDateStyle:NSDateFormatterMediumStyle];
-        return [df stringFromDate:convertedDate];
-    }
-}
-
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -353,7 +324,7 @@
     
     // Name and modification date
     cell.fileNameLabel.text = item.fileName;
-    cell.fileInfoLabel.text = [self dateDiff:item.date];
+    cell.fileInfoLabel.text = [NCUtils relativeTimeFromDate:item.date];
     
     // Icon or preview
     NSString *imageName = [NCUtils previewImageForFileMIMEType:item.contentType];

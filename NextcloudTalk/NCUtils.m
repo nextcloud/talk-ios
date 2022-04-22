@@ -148,6 +148,35 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return [formatter stringFromDate:date];
 }
 
++ (NSString *)relativeTimeFromDate:(NSDate *)date
+{
+    NSDate *todayDate = [NSDate date];
+    double ti = [date timeIntervalSinceDate:todayDate];
+    ti = ti * -1;
+    if (ti < 60) {
+        // This minute
+        return NSLocalizedString(@"less than a minute ago", nil);
+    } else if (ti < 3600) {
+        // This hour
+        int diff = round(ti / 60);
+        return [NSString stringWithFormat:NSLocalizedString(@"%d minutes ago", nil), diff];
+    } else if (ti < 86400) {
+        // This day
+        int diff = round(ti / 60 / 60);
+        return[NSString stringWithFormat:NSLocalizedString(@"%d hours ago", nil), diff];
+    } else if (ti < 86400 * 30) {
+        // This month
+        int diff = round(ti / 60 / 60 / 24);
+        return[NSString stringWithFormat:NSLocalizedString(@"%d days ago", nil), diff];
+    } else {
+        // Older than one month
+        NSDateFormatter *df = [[NSDateFormatter alloc] init];
+        [df setFormatterBehavior:NSDateFormatterBehavior10_4];
+        [df setDateStyle:NSDateFormatterMediumStyle];
+        return [df stringFromDate:date];
+    }
+}
+
 + (NSString *)sha1FromString:(NSString *)string
 {
     NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];

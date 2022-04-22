@@ -33,6 +33,14 @@ NSString * const kMessageTypeSystem         = @"system";
 NSString * const kMessageTypeCommand        = @"command";
 NSString * const kMessageTypeVoiceMessage   = @"voice-message";
 
+NSString * const kSharedItemTypeAudio       = @"audio";
+NSString * const kSharedItemTypeDeckcard    = @"deckcard";
+NSString * const kSharedItemTypeFile        = @"file";
+NSString * const kSharedItemTypeLocation    = @"location";
+NSString * const kSharedItemTypeMedia       = @"media";
+NSString * const kSharedItemTypeOther       = @"other";
+NSString * const kSharedItemTypeVoice       = @"voice";
+
 @interface NCChatMessage ()
 {
     NCMessageFileParameter *_fileParameter;

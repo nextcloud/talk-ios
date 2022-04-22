@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)dateAtomFormatFromDate:(NSDate *)date;
 + (NSString *)readableDateFromDate:(NSDate *)date;
 + (NSString *)getTimeFromDate:(NSDate *)date;
++ (NSString *)relativeTimeFromDate:(NSDate *)date;
 
 + (NSString *)sha1FromString:(NSString *)string;
 

@@ -1300,7 +1300,18 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSArray *responseMessages = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSDictionary *responseSharedItems = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        // Create dictionary [String: [NCChatMessage]]
+        NSMutableDictionary *sharedItems = [NSMutableDictionary new];
+        for (NSString *key in responseSharedItems.allKeys) {
+            NSArray *responseMessages = [responseSharedItems objectForKey:key];
+            NSMutableArray *messages = [NSMutableArray new];
+            for (NSDictionary *messageDict in responseMessages) {
+                NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict];
+                [messages addObject:message];
+            }
+            [sharedItems setObject:messages forKey:key];
+        }
         // Get X-Chat-Last-Given
         NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
         NSDictionary *headers = [response allHeaderFields];
@@ -1311,7 +1322,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         }
         
         if (block) {
-            block(responseMessages, lastKnownMessage, nil, 0);
+            block(sharedItems, lastKnownMessage, nil, 0);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = [self getResponseStatusCode:task.response];
@@ -1340,7 +1351,18 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSArray *responseMessages = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSDictionary *responseSharedItems = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        // Create dictionary [String: [NCChatMessage]]
+        NSMutableDictionary *sharedItems = [NSMutableDictionary new];
+        for (NSString *key in responseSharedItems.allKeys) {
+            NSArray *responseMessages = [responseSharedItems objectForKey:key];
+            NSMutableArray *messages = [NSMutableArray new];
+            for (NSDictionary *messageDict in responseMessages) {
+                NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict];
+                [messages addObject:message];
+            }
+            [sharedItems setObject:messages forKey:key];
+        }
         // Get X-Chat-Last-Given
         NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
         NSDictionary *headers = [response allHeaderFields];
@@ -1351,7 +1373,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         }
         
         if (block) {
-            block(responseMessages, lastKnownMessage, nil, 0);
+            block(sharedItems, lastKnownMessage, nil, 0);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = [self getResponseStatusCode:task.response];
