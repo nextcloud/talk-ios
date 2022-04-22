@@ -537,6 +537,8 @@ NSString * const kMessageTypeVoiceMessage   = @"voice-message";
     // Grab message reactions
     NSDictionary *reactionsDict = [self reactionsDictionary];
     for (NSString *reactionKey in reactionsDict.allKeys) {
+        // We need to keep this check for users who installed v14.0 (beta 1)
+        if ([reactionKey isEqualToString:@"self"]) {continue;}
         NCChatReaction *reaction = [NCChatReaction initWithReaction:reactionKey andCount:[[reactionsDict objectForKey:reactionKey] integerValue]];
         [reactionsArray addObject:reaction];
     }
