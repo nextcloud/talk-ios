@@ -1956,19 +1956,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             
             NSMutableArray *menuArray = [NSMutableArray new];
             // Reply option
-            if (message.isReplyable && !message.isDeleting && !_offlineMode) {
+            BOOL isMessageReplyable = message.isReplyable && !message.isDeleting && !_offlineMode;
+            if (isMessageReplyable) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply", nil) image:[[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
-                
-                // Reply-privately option (only to other users and not in one-to-one)
-                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-                if (_room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId] )
-                {
-                    NSDictionary *replyPrivatInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReplyPrivately) forKey:@"action"];
-                    FTPopOverMenuModel *replyPrivatModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply Privately", nil) image:[[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyPrivatInfo];
-                    [menuArray addObject:replyPrivatModel];
-                }
             }
             
             // Add reaction option
@@ -1976,6 +1968,15 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 NSDictionary *reactionInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionAddReaction) forKey:@"action"];
                 FTPopOverMenuModel *reactionModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Add reaction", nil) image:[[UIImage imageNamed:@"emoji"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:reactionInfo];
                 [menuArray addObject:reactionModel];
+            }
+            
+            // Reply-privately option (only to other users and not in one-to-one)
+            TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+            if (isMessageReplyable && _room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId])
+            {
+                NSDictionary *replyPrivatInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReplyPrivately) forKey:@"action"];
+                FTPopOverMenuModel *replyPrivatModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply privately", nil) image:[[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyPrivatInfo];
+                [menuArray addObject:replyPrivatModel];
             }
             
             // Forward option (only normal messages for now)
@@ -3392,7 +3393,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     
     // Reply option
-    if (message.isReplyable && !message.isDeleting && !_offlineMode) {
+    BOOL isMessageReplyable = message.isReplyable && !message.isDeleting && !_offlineMode;
+    if (isMessageReplyable) {
         UIImage *replyImage = [[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *replyAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply", nil) image:replyImage identifier:nil handler:^(UIAction *action){
             
@@ -3400,19 +3402,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         }];
         
         [actions addObject:replyAction];
-        
-        // Reply-privately option (only to other users and not in one-to-one)
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        if (_room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId] )
-        {
-            UIImage *replyPrivateImage = [[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-            UIAction *replyPrivateAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply Privately", nil) image:replyPrivateImage identifier:nil handler:^(UIAction *action){
-                
-                [self didPressReplyPrivately:message];
-            }];
-            
-            [actions addObject:replyPrivateAction];
-        }
     }
     
     // Add reaction option
@@ -3424,6 +3413,19 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         }];
         
         [actions addObject:reactionAction];
+    }
+    
+    // Reply-privately option (only to other users and not in one-to-one)
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if (isMessageReplyable && _room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId] )
+    {
+        UIImage *replyPrivateImage = [[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *replyPrivateAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply privately", nil) image:replyPrivateImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressReplyPrivately:message];
+        }];
+        
+        [actions addObject:replyPrivateAction];
     }
     
     // Forward option (only normal messages for now)
