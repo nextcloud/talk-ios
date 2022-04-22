@@ -40,6 +40,7 @@
 #import "NCUserInterfaceController.h"
 #import "NCUserStatus.h"
 #import "NotificationCenterNotifications.h"
+#import "PlaceholderView.h"
 #import "RoundedNumberView.h"
 #import "ShareTableViewCell.h"
 #import "UIView+Toast.h"

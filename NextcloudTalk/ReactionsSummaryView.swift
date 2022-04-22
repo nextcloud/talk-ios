@@ -26,6 +26,7 @@ import UIKit
 
     var reactions: [String: [[String: AnyObject]]] = [:]
     var sortedReactions: [String] = []
+    var reactionsBackgroundView: PlaceholderView = PlaceholderView()
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -56,6 +57,10 @@ import UIKit
             self.navigationItem.scrollEdgeAppearance = appearance
         }
 
+        reactionsBackgroundView.placeholderView.isHidden = true
+        reactionsBackgroundView.loadingView.startAnimating()
+        self.tableView.backgroundView = reactionsBackgroundView
+
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
     }
@@ -77,6 +82,8 @@ import UIKit
         for (k, _) in Array(reactions).sorted(by: {$0.value.count > $1.value.count}) {
             self.sortedReactions.append(k)
         }
+        reactionsBackgroundView.loadingView.stopAnimating()
+        reactionsBackgroundView.loadingView.isHidden = true
         self.tableView.reloadData()
     }
 
