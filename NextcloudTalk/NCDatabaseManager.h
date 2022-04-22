@@ -58,6 +58,7 @@ extern NSString * const kCapabilityNotificationCalls;
 extern NSString * const kCapabilityConversationPermissions;
 extern NSString * const kCapabilityChatUnread;
 extern NSString * const kCapabilityReactions;
+extern NSString * const kCapabilityRichObjectListMedia;
 extern NSString * const kCapabilityRichObjectDelete;
 
 extern NSString * const kMinimumRequiredTalkCapability;

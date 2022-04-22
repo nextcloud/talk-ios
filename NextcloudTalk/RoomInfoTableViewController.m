@@ -51,6 +51,7 @@ typedef enum RoomInfoSection {
     kRoomInfoSectionName = 0,
     kRoomInfoSectionDescription,
     kRoomInfoSectionFile,
+    kRoomInfoSectionSharedItems,
     kRoomInfoSectionNotifications,
     kRoomInfoSectionGuests,
     kRoomInfoSectionWebinar,
@@ -272,6 +273,10 @@ typedef enum FileAction {
     // File actions section
     if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionFile]];
+    }
+    // Shared items section
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRichObjectListMedia]) {
+        [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionSharedItems]];
     }
     // Notifications section
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
@@ -1282,6 +1287,10 @@ typedef enum FileAction {
             return [self getFileActions].count;
             break;
             
+        case kRoomInfoSectionSharedItems:
+            return 1;
+            break;
+            
         case kRoomInfoSectionGuests:
             return [self getGuestsActions].count;
             break;
@@ -1356,6 +1365,9 @@ typedef enum FileAction {
         case kRoomInfoSectionFile:
             return NSLocalizedString(@"Linked file", nil);
             break;
+        case kRoomInfoSectionSharedItems:
+            return NSLocalizedString(@"Shared items", nil);
+            break;
         case kRoomInfoSectionNotifications:
             return NSLocalizedString(@"Notifications", nil);
             break;
@@ -1408,6 +1420,7 @@ typedef enum FileAction {
             break;
         case kRoomInfoSectionNotifications:
         case kRoomInfoSectionFile:
+        case kRoomInfoSectionSharedItems:
         case kRoomInfoSectionGuests:
         case kRoomInfoSectionWebinar:
         case kRoomInfoSectionSIP:
@@ -1441,6 +1454,7 @@ typedef enum FileAction {
     static NSString *clearHistoryCellIdentifier = @"ClearHistoryCellIdentifier";
     static NSString *leaveRoomCellIdentifier = @"LeaveRoomCellIdentifier";
     static NSString *deleteRoomCellIdentifier = @"DeleteRoomCellIdentifier";
+    static NSString *sharedItemsCellIdentifier = @"SharedItemsCellIdentifier";
     
     NSArray *sections = [self getRoomInfoSections];
     RoomInfoSection section = [[sections objectAtIndex:indexPath.section] intValue];
@@ -1603,6 +1617,23 @@ typedef enum FileAction {
                 }
                     break;
             }
+        }
+            break;
+        case kRoomInfoSectionSharedItems:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sharedItemsCellIdentifier];
+            if (!cell) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sharedItemsCellIdentifier];
+            }
+            
+            cell.textLabel.text = NSLocalizedString(@"Images, files, voice messages…", nil);
+            
+            UIImage *nextcloudActionImage = [[UIImage imageNamed:@"folder-multiple-media"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [cell.imageView setImage:nextcloudActionImage];
+            cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+            return cell;
         }
             break;
         case kRoomInfoSectionGuests:
