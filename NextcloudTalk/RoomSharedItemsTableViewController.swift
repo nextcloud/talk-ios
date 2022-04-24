@@ -64,14 +64,17 @@ import UIKit
     }
 
     func itemsForFilterType(filterType: String) -> [NCChatMessage] {
+        // All items
         if filterType == "all" {
             var allItems: [NCChatMessage] = []
             sharedItems.values.forEach { items in
                 allItems.append(contentsOf: items)
             }
-            return allItems
+            return allItems.sorted(by: { $0.messageId > $1.messageId })
         }
-        return sharedItems[filterType] ?? []
+        // Items for type
+        guard let itemsForType = sharedItems[filterType] else {return []}
+        return itemsForType.sorted(by: { $0.messageId > $1.messageId })
     }
 
     func checkPlaceholderView() {
