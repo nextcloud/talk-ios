@@ -26,6 +26,7 @@ import UIKit
 
     var sharedItems: [String: [NCChatMessage]] = [:]
     var filterType: String = "all"
+    var sharedItemsBackgroundView: PlaceholderView = PlaceholderView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,6 +46,12 @@ import UIKit
             self.navigationItem.compactAppearance = appearance
             self.navigationItem.scrollEdgeAppearance = appearance
         }
+
+        sharedItemsBackgroundView.placeholderView.isHidden = true
+        sharedItemsBackgroundView.setImage(UIImage(named: "media-placeholder"))
+        sharedItemsBackgroundView.placeholderTextView.text = NSLocalizedString("No shared items", comment: "")
+        sharedItemsBackgroundView.loadingView.startAnimating()
+        self.tableView.backgroundView = sharedItemsBackgroundView
 
         self.tableView.register(UINib(nibName: kDirectoryTableCellNibName, bundle: nil), forCellReuseIdentifier: kDirectoryCellIdentifier)
 
@@ -67,8 +74,16 @@ import UIKit
         return sharedItems[filterType] ?? []
     }
 
+    func checkPlaceholderView() {
+        let itemsForType = itemsForFilterType(filterType: filterType)
+        sharedItemsBackgroundView.placeholderView.isHidden = !itemsForType.isEmpty
+    }
+
     func addSharedItems(sharedItems: [String: [NCChatMessage]]) {
         self.sharedItems = sharedItems
+        self.checkPlaceholderView()
+        sharedItemsBackgroundView.loadingView.stopAnimating()
+        sharedItemsBackgroundView.loadingView.isHidden = true
         self.tableView.reloadData()
     }
 
