@@ -61,7 +61,8 @@ typedef void (^SendChatMessagesCompletionBlock)(NSError *error);
 typedef void (^GetMentionSuggestionsCompletionBlock)(NSMutableArray *mentions, NSError *error);
 typedef void (^DeleteChatMessageCompletionBlock)(NSDictionary *messageDict, NSError *error, NSInteger statusCode);
 typedef void (^ClearChatHistoryCompletionBlock)(NSDictionary *messageDict, NSError *error, NSInteger statusCode);
-typedef void (^GetSharedItemsCompletionBlock)(NSDictionary *sharedItems, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
+typedef void (^GetSharedItemsOverviewCompletionBlock)(NSDictionary *sharedItemsOverview, NSError *error, NSInteger statusCode);
+typedef void (^GetSharedItemsCompletionBlock)(NSArray *sharedItems, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
 
 typedef void (^MessageReactionCompletionBlock)(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode);
 
@@ -167,7 +168,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)clearChatHistoryInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ClearChatHistoryCompletionBlock)block;
 - (NSURLSessionDataTask *)setChatReadMarker:(NSInteger)lastReadMessage inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block;
 - (NSURLSessionDataTask *)markChatAsUnreadInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block;
-- (NSURLSessionDataTask *)getSharedItemsOverviewInRoom:(NSString *)token withLimit:(NSInteger)limit forAccount:(TalkAccount *)account withCompletionBlock:(GetSharedItemsCompletionBlock)block;
+- (NSURLSessionDataTask *)getSharedItemsOverviewInRoom:(NSString *)token withLimit:(NSInteger)limit forAccount:(TalkAccount *)account withCompletionBlock:(GetSharedItemsOverviewCompletionBlock)block;
 - (NSURLSessionDataTask *)getSharedItemsOfType:(NSString *)objectType fromLastMessageId:(NSInteger)messageId withLimit:(NSInteger)limit inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetSharedItemsCompletionBlock)block;
 
 // Reactions Controller

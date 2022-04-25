@@ -891,16 +891,8 @@ typedef enum FileAction {
 
 - (void)presentSharedItemsView
 {
-    RoomSharedItemsTableViewController *sharedItemsVC = [[RoomSharedItemsTableViewController alloc] init];
+    RoomSharedItemsTableViewController *sharedItemsVC = [[RoomSharedItemsTableViewController alloc] initWithRoomToken:_room.token];
     [self.navigationController pushViewController:sharedItemsVC animated:YES];
-    
-    [[NCAPIController sharedInstance] getSharedItemsOverviewInRoom:_room.token withLimit:-1 forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *sharedItems, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode) {
-        if (!error) {
-            [sharedItemsVC addSharedItemsWithSharedItems:sharedItems];
-        } else {
-            NSLog(@"Error getting shared items: %@", error.description);
-        }
-    }];
 }
 
 - (void)clearHistory

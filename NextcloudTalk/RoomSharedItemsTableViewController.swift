@@ -24,9 +24,21 @@ import UIKit
 
 @objcMembers class RoomSharedItemsTableViewController: UITableViewController {
 
-    var sharedItems: [String: [NCChatMessage]] = [:]
-    var filterType: String = "all"
+    let roomToken: String
+    let account: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
+    var sharedItemsOverview: [String: [NCChatMessage]] = [:]
+    var currentItems: [NCChatMessage] = []
+    var currentItemType: String = "all"
     var sharedItemsBackgroundView: PlaceholderView = PlaceholderView()
+
+    init(roomToken: String) {
+        self.roomToken = roomToken
+        super.init(nibName: "RoomSharedItemsTableViewController", bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,47 +59,133 @@ import UIKit
             self.navigationItem.scrollEdgeAppearance = appearance
         }
 
+        self.tableView.register(UINib(nibName: kDirectoryTableCellNibName, bundle: nil), forCellReuseIdentifier: kDirectoryCellIdentifier)
+
+        self.getItemsOverview()
+    }
+
+    func presentItemTypeSelector() {
+        let itemTypesActionSheet = UIAlertController(title: NSLocalizedString("Shared items", comment: ""), message: nil, preferredStyle: .actionSheet)
+
+        for itemType in availableItemTypes() {
+            let itemTypeName = nameForItemType(itemType: itemType)
+            let action = UIAlertAction(title: itemTypeName, style: .default) { _ in
+                self.setupViewForItemType(itemType: itemType)
+            }
+
+            if itemType == currentItemType {
+                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_:.alwaysOriginal), forKey: "image")
+            }
+            itemTypesActionSheet.addAction(action)
+        }
+
+        itemTypesActionSheet.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
+
+        // Presentation on iPads
+        itemTypesActionSheet.popoverPresentationController?.sourceView = self.navigationItem.titleView
+        itemTypesActionSheet.popoverPresentationController?.sourceRect = self.navigationItem.titleView?.frame ?? CGRect()
+
+        self.present(itemTypesActionSheet, animated: true, completion: nil)
+    }
+
+    func availableItemTypes() -> [String] {
+        var availableItemTypes: [String] = []
+        for itemType in sharedItemsOverview.keys {
+            guard let items = sharedItemsOverview[itemType] else {continue}
+            if !items.isEmpty {
+                availableItemTypes.append(itemType)
+            }
+        }
+        return availableItemTypes.sorted(by: { $0 < $1 })
+    }
+
+    func getItemsForItemType(itemType: String) {
+        showFetchingItemsPlaceholderView()
+        NCAPIController.sharedInstance()
+            .getSharedItems(ofType: itemType, fromLastMessageId: -1, withLimit: -1,
+                            inRoom: roomToken, for: account) { items, _, error, _ in
+                if error == nil {
+                    self.currentItems = items as? [NCChatMessage] ?? []
+                    self.tableView.reloadData()
+                }
+                self.hideFetchingItemsPlaceholderView()
+            }
+    }
+
+    func getItemsOverview() {
+        showFetchingItemsPlaceholderView()
+        NCAPIController.sharedInstance()
+            .getSharedItemsOverview(inRoom: roomToken, withLimit: -1, for: account) { itemsOverview, error, _ in
+                if error == nil {
+                    self.sharedItemsOverview = itemsOverview as? [String: [NCChatMessage]] ?? [:]
+                    let availableItemTypes = self.availableItemTypes()
+                    if availableItemTypes.isEmpty {
+                        self.hideFetchingItemsPlaceholderView()
+                    } else if availableItemTypes.contains(kSharedItemTypeMedia) {
+                        self.setupViewForItemType(itemType: kSharedItemTypeMedia)
+                    } else if availableItemTypes.contains(kSharedItemTypeFile) {
+                        self.setupViewForItemType(itemType: kSharedItemTypeFile)
+                    } else if let firstItemType = availableItemTypes.first {
+                        self.setupViewForItemType(itemType: firstItemType)
+                    }
+                } else {
+                    self.hideFetchingItemsPlaceholderView()
+                }
+            }
+    }
+
+    func setupViewForItemType(itemType: String) {
+        currentItemType = itemType
+        currentItems = []
+        tableView.reloadData()
+        setupTitleButtonForItemType(itemType: itemType)
+        getItemsForItemType(itemType: itemType)
+    }
+
+    func setupTitleButtonForItemType(itemType: String) {
+        let itemTypeSelectorButton = UIButton(type: .custom)
+        let buttonTitle = nameForItemType(itemType: itemType) + " ▼"
+        itemTypeSelectorButton.setTitle(buttonTitle, for: .normal)
+        itemTypeSelectorButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+        itemTypeSelectorButton.setTitleColor(NCAppBranding.themeTextColor(), for: .normal)
+        itemTypeSelectorButton.addTarget(self, action: #selector(presentItemTypeSelector), for: .touchUpInside)
+        self.navigationItem.titleView = itemTypeSelectorButton
+    }
+
+    func showFetchingItemsPlaceholderView() {
         sharedItemsBackgroundView.placeholderView.isHidden = true
         sharedItemsBackgroundView.setImage(UIImage(named: "media-placeholder"))
         sharedItemsBackgroundView.placeholderTextView.text = NSLocalizedString("No shared items", comment: "")
         sharedItemsBackgroundView.loadingView.startAnimating()
+        sharedItemsBackgroundView.loadingView.isHidden = false
         self.tableView.backgroundView = sharedItemsBackgroundView
-
-        self.tableView.register(UINib(nibName: kDirectoryTableCellNibName, bundle: nil), forCellReuseIdentifier: kDirectoryCellIdentifier)
-
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "sorting"), style: .plain, target: self, action: #selector(self.filterButtonPressed))
-        self.navigationItem.rightBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
     }
 
-    func filterButtonPressed() {
-        // TODO: Implement items filter
-    }
-
-    func itemsForFilterType(filterType: String) -> [NCChatMessage] {
-        // All items
-        if filterType == "all" {
-            var allItems: [NCChatMessage] = []
-            sharedItems.values.forEach { items in
-                allItems.append(contentsOf: items)
-            }
-            return allItems.sorted(by: { $0.messageId > $1.messageId })
-        }
-        // Items for type
-        guard let itemsForType = sharedItems[filterType] else {return []}
-        return itemsForType.sorted(by: { $0.messageId > $1.messageId })
-    }
-
-    func checkPlaceholderView() {
-        let itemsForType = itemsForFilterType(filterType: filterType)
-        sharedItemsBackgroundView.placeholderView.isHidden = !itemsForType.isEmpty
-    }
-
-    func addSharedItems(sharedItems: [String: [NCChatMessage]]) {
-        self.sharedItems = sharedItems
-        self.checkPlaceholderView()
+    func hideFetchingItemsPlaceholderView() {
         sharedItemsBackgroundView.loadingView.stopAnimating()
         sharedItemsBackgroundView.loadingView.isHidden = true
-        self.tableView.reloadData()
+        sharedItemsBackgroundView.placeholderView.isHidden = !currentItems.isEmpty
+    }
+
+    func nameForItemType(itemType: String) -> String {
+        switch itemType {
+        case kSharedItemTypeAudio:
+            return NSLocalizedString("Audios", comment: "")
+        case kSharedItemTypeDeckcard:
+            return NSLocalizedString("Deckcards", comment: "")
+        case kSharedItemTypeFile:
+            return NSLocalizedString("Files", comment: "")
+        case kSharedItemTypeMedia:
+            return NSLocalizedString("Media", comment: "")
+        case kSharedItemTypeLocation:
+            return NSLocalizedString("Locations", comment: "")
+        case kSharedItemTypeOther:
+            return NSLocalizedString("Others", comment: "")
+        case kSharedItemTypeVoice:
+            return NSLocalizedString("Voice messages", comment: "")
+        default:
+            return NSLocalizedString("Shared items", comment: "")
+        }
     }
 
     func imageNameForMessage(message: NCChatMessage) -> String {
@@ -105,8 +203,7 @@ import UIKit
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let itemsForType = itemsForFilterType(filterType: filterType)
-        return itemsForType.count
+        return currentItems.count
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -117,8 +214,7 @@ import UIKit
         let cell = tableView.dequeueReusableCell(withIdentifier: kDirectoryCellIdentifier) as? DirectoryTableViewCell ??
         DirectoryTableViewCell(style: .default, reuseIdentifier: kShareCellIdentifier)
 
-        let itemsForType = itemsForFilterType(filterType: filterType)
-        let message = itemsForType[indexPath.row]
+        let message = currentItems[indexPath.row]
 
         cell.fileNameLabel?.text = message.parsedMessage().string
         cell.fileInfoLabel?.text = NCUtils.relativeTime(from: Date(timeIntervalSince1970: Double(message.timestamp)))
