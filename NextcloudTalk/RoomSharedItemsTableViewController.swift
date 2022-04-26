@@ -21,15 +21,17 @@
  */
 
 import UIKit
+import QuickLook
 
-@objcMembers class RoomSharedItemsTableViewController: UITableViewController {
-
+@objcMembers class RoomSharedItemsTableViewController: UITableViewController, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource {
     let roomToken: String
     let account: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
     var sharedItemsOverview: [String: [NCChatMessage]] = [:]
     var currentItems: [NCChatMessage] = []
     var currentItemType: String = "all"
     var sharedItemsBackgroundView: PlaceholderView = PlaceholderView()
+    var previewControllerFilePath: String = ""
+    var isPreviewControllerShown: Bool = false
 
     init(roomToken: String) {
         self.roomToken = roomToken
@@ -196,6 +198,52 @@ import UIKit
         return imageName
     }
 
+    // MARK: - File downloader
+
+    func downloadFileForCell(cell: DirectoryTableViewCell, message: NCChatMessage) {
+        cell.fileParameter = message.file()
+        let downloader = NCChatFileController()
+        downloader.delegate = self
+        downloader.downloadFile(fromMessage: message.file())
+    }
+
+    func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {
+        DispatchQueue.main.async {
+            if self.isPreviewControllerShown {return}
+            let previewController = QLPreviewController()
+            previewController.dataSource = self
+            previewController.delegate = self
+            self.previewControllerFilePath = fileStatus.fileLocalPath
+            self.isPreviewControllerShown = true
+            self.present(previewController, animated: true)
+        }
+    }
+
+    func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withErrorDescription errorDescription: String) {
+        let alertTitle = NSLocalizedString("Unable to load file", comment: "")
+        let alert = UIAlertController(
+            title: alertTitle,
+            message: errorDescription,
+            preferredStyle: .alert)
+
+        let okAction = UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default, handler: nil)
+        alert.addAction(okAction)
+
+        self.present(alert, animated: true, completion: nil)
+    }
+
+    func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+        return 1
+    }
+
+    func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+        return NSURL(fileURLWithPath: previewControllerFilePath)
+    }
+
+    func previewControllerDidDismiss(_ controller: QLPreviewController) {
+        isPreviewControllerShown = false
+    }
+
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -229,5 +277,19 @@ import UIKit
                               placeholderImage: image, success: nil, failure: nil)
         }
         return cell
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath) as? DirectoryTableViewCell ?? DirectoryTableViewCell()
+        let message = currentItems[indexPath.row]
+
+        switch currentItemType {
+        case kSharedItemTypeMedia, kSharedItemTypeFile, kSharedItemTypeVoice:
+            downloadFileForCell(cell: cell, message: message)
+        default:
+            return
+        }
+
+        self.tableView.deselectRow(at: indexPath, animated: true)
     }
 }

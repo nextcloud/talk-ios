@@ -35,6 +35,7 @@
 #import "NCConnectionController.h"
 #import "NCContactsManager.h"
 #import "NCDatabaseManager.h"
+#import "NCChatFileController.h"
 #import "NCNavigationController.h"
 #import "NCSettingsController.h"
 #import "NCUserDefaults.h"

@@ -22,6 +22,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "NCMessageFileParameter.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 extern NSString *const kDirectoryCellIdentifier;
@@ -34,6 +36,8 @@ extern CGFloat const kDirectoryTableCellHeight;
 @property (weak, nonatomic) IBOutlet UIImageView *fileImageView;
 @property (weak, nonatomic) IBOutlet UILabel *fileNameLabel;
 @property (weak, nonatomic) IBOutlet UILabel *fileInfoLabel;
+
+@property (nonatomic, strong) NCMessageFileParameter *fileParameter;
 
 @end
 
