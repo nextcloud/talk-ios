@@ -106,8 +106,8 @@ import QuickLook
         NCAPIController.sharedInstance()
             .getSharedItems(ofType: itemType, fromLastMessageId: -1, withLimit: -1,
                             inRoom: roomToken, for: account) { items, _, error, _ in
-                if error == nil {
-                    self.currentItems = items as? [NCChatMessage] ?? []
+                if error == nil, let sharedItems = items as? [NCChatMessage] {
+                    self.currentItems = sharedItems.sorted(by: { $0.messageId > $1.messageId })
                     self.tableView.reloadData()
                 }
                 self.hideFetchingItemsPlaceholderView()
