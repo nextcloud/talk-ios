@@ -195,6 +195,12 @@ import QuickLook
         if message.file() != nil {
             imageName = NCUtils.previewImage(forFileMIMEType: message.file().mimetype)
         }
+        if message.geoLocation() != nil {
+            imageName = "location-item"
+        }
+        if message.deckCard() != nil {
+            imageName = "deck-item"
+        }
         return imageName
     }
 

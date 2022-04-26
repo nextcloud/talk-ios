@@ -45,6 +45,7 @@ NSString * const kSharedItemTypeVoice       = @"voice";
 {
     NCMessageFileParameter *_fileParameter;
     NCMessageLocationParameter *_locationParameter;
+    NCDeckCardParameter *_deckCardParameter;
     NSString *_objectShareLink;
     NSMutableArray *_temporaryReactions;
 }
@@ -247,7 +248,7 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return NO;
 }
 
-- (NCMessageParameter *)file;
+- (NCMessageParameter *)file
 {
     if (!_fileParameter) {
         for (NSDictionary *parameterDict in [[self messageParameters] allValues]) {
@@ -270,7 +271,7 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return _fileParameter;
 }
 
-- (NCMessageLocationParameter *)geoLocation;
+- (NCMessageLocationParameter *)geoLocation
 {
     if (!_locationParameter) {
         for (NSDictionary *parameterDict in [[self messageParameters] allValues]) {
@@ -283,6 +284,21 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     }
 
     return _locationParameter;
+}
+
+- (NCDeckCardParameter *)deckCard
+{
+    if (!_deckCardParameter) {
+        for (NSDictionary *parameterDict in [[self messageParameters] allValues]) {
+            NCDeckCardParameter *parameter = [[NCDeckCardParameter alloc] initWithDictionary:parameterDict] ;
+            if ([parameter.type isEqualToString:@"deck-card"]) {
+                _deckCardParameter = parameter;
+                break;
+            }
+        }
+    }
+
+    return _deckCardParameter;
 }
 
 - (NSString *)objectShareLink;
