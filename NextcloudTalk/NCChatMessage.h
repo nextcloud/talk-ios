@@ -81,6 +81,7 @@ extern NSString * const kSharedItemTypeVoice;
 - (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType;
 - (NCMessageFileParameter *)file;
 - (NCMessageLocationParameter *)geoLocation;
+- (NSString *)objectShareLink;
 - (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)systemMessageFormat;

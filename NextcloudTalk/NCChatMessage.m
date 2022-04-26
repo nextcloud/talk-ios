@@ -45,6 +45,7 @@ NSString * const kSharedItemTypeVoice       = @"voice";
 {
     NCMessageFileParameter *_fileParameter;
     NCMessageLocationParameter *_locationParameter;
+    NSString *_objectShareLink;
     NSMutableArray *_temporaryReactions;
 }
 
@@ -282,6 +283,15 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     }
 
     return _locationParameter;
+}
+
+- (NSString *)objectShareLink;
+{
+    if (!_objectShareLink && [self isObjectShare]) {
+        _objectShareLink = [[self.messageParameters objectForKey:@"object"] objectForKey:@"link"];
+    }
+
+    return _objectShareLink;
 }
 
 - (NSDictionary *)messageParameters

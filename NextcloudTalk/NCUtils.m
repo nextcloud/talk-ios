@@ -104,10 +104,21 @@ static NSString *const nextcloudScheme = @"nextcloud:";
 {
 #ifndef APP_EXTENSION
     if (path && link) {
-        NSURL *url = [NSURL URLWithString:link];
         if ([NCUtils isNextcloudAppInstalled]) {
             [NCUtils openFileInNextcloudApp:path withFileLink:link];
-        } else if ([[NCUserDefaults defaultBrowser] isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
+        } else {
+            [self openLinkInBrowser:link];
+        }
+    }
+#endif
+}
+
++ (void)openLinkInBrowser:(NSString *)link
+{
+#ifndef APP_EXTENSION
+    if (link) {
+        NSURL *url = [NSURL URLWithString:link];
+        if ([[NCUserDefaults defaultBrowser] isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
             [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:url];
         } else {
             [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];

@@ -252,6 +252,12 @@ import QuickLook
         self.present(navigationViewController, animated: true, completion: nil)
     }
 
+    // MARK: - Other files
+
+    func openLink(link: String) {
+        NCUtils.openLink(inBrowser: link)
+    }
+
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -294,10 +300,12 @@ import QuickLook
         self.tableView.deselectRow(at: indexPath, animated: true)
 
         switch currentItemType {
-        case kSharedItemTypeMedia, kSharedItemTypeFile, kSharedItemTypeVoice:
+        case kSharedItemTypeMedia, kSharedItemTypeFile, kSharedItemTypeVoice, kSharedItemTypeAudio:
             downloadFileForCell(cell: cell, message: message)
         case kSharedItemTypeLocation:
             presentLocation(location: GeoLocationRichObject(from: message.geoLocation()))
+        case kSharedItemTypeDeckcard, kSharedItemTypeOther:
+            openLink(link: message.objectShareLink())
         default:
             return
         }
