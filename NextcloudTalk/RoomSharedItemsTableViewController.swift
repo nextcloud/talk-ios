@@ -244,6 +244,14 @@ import QuickLook
         isPreviewControllerShown = false
     }
 
+    // MARK: - Locations
+
+    func presentLocation(location: GeoLocationRichObject) {
+        let mapViewController = MapViewController(geoLocationRichObject: location)
+        let navigationViewController = NCNavigationController(rootViewController: mapViewController)
+        self.present(navigationViewController, animated: true, completion: nil)
+    }
+
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -283,13 +291,15 @@ import QuickLook
         let cell = tableView.cellForRow(at: indexPath) as? DirectoryTableViewCell ?? DirectoryTableViewCell()
         let message = currentItems[indexPath.row]
 
+        self.tableView.deselectRow(at: indexPath, animated: true)
+
         switch currentItemType {
         case kSharedItemTypeMedia, kSharedItemTypeFile, kSharedItemTypeVoice:
             downloadFileForCell(cell: cell, message: message)
+        case kSharedItemTypeLocation:
+            presentLocation(location: GeoLocationRichObject(from: message.geoLocation()))
         default:
             return
         }
-
-        self.tableView.deselectRow(at: indexPath, animated: true)
     }
 }

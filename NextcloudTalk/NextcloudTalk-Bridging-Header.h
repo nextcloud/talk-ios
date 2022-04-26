@@ -43,6 +43,7 @@
 #import "NCUserStatus.h"
 #import "NCUtils.h"
 #import "NotificationCenterNotifications.h"
+#import "MapViewController.h"
 #import "PlaceholderView.h"
 #import "RoundedNumberView.h"
 #import "ShareTableViewCell.h"
