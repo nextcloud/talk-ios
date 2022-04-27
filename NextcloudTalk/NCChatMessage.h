@@ -25,6 +25,7 @@
 #import <Realm/Realm.h>
 #import "NCChatReaction.h"
 #import "NCDatabaseManager.h"
+#import "NCDeckCardParameter.h"
 #import "NCMessageParameter.h"
 #import "NCMessageFileParameter.h"
 #import "NCMessageLocationParameter.h"
@@ -38,7 +39,13 @@ extern NSString * const kMessageTypeSystem;
 extern NSString * const kMessageTypeCommand;
 extern NSString * const kMessageTypeVoiceMessage;
 
-RLM_ARRAY_TYPE(NCChatReaction)
+extern NSString * const kSharedItemTypeAudio;
+extern NSString * const kSharedItemTypeDeckcard;
+extern NSString * const kSharedItemTypeFile;
+extern NSString * const kSharedItemTypeLocation;
+extern NSString * const kSharedItemTypeMedia;
+extern NSString * const kSharedItemTypeOther;
+extern NSString * const kSharedItemTypeVoice;
 
 @interface NCChatMessage : RLMObject <NSCopying>
 
@@ -75,6 +82,8 @@ RLM_ARRAY_TYPE(NCChatReaction)
 - (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType;
 - (NCMessageFileParameter *)file;
 - (NCMessageLocationParameter *)geoLocation;
+- (NCDeckCardParameter *)deckCard;
+- (NSString *)objectShareLink;
 - (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)systemMessageFormat;

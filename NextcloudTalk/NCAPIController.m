@@ -1287,6 +1287,95 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+- (NSURLSessionDataTask *)getSharedItemsOverviewInRoom:(NSString *)token withLimit:(NSInteger)limit forAccount:(TalkAccount *)account withCompletionBlock:(GetSharedItemsOverviewCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"chat/%@/share/overview", encodedToken];
+    NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
+    NSMutableDictionary *parameters = [NSMutableDictionary new];
+    if (limit > -1) {
+        [parameters setObject:@(limit) forKey:@"limit"];
+    }
+    
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *responseSharedItems = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        // Create dictionary [String: [NCChatMessage]]
+        NSMutableDictionary *sharedItems = [NSMutableDictionary new];
+        for (NSString *key in responseSharedItems.allKeys) {
+            NSArray *responseMessages = [responseSharedItems objectForKey:key];
+            NSMutableArray *messages = [NSMutableArray new];
+            for (NSDictionary *messageDict in responseMessages) {
+                NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict];
+                [messages addObject:message];
+            }
+            [sharedItems setObject:messages forKey:key];
+        }
+        
+        if (block) {
+            block(sharedItems, nil, 0);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(nil, error, statusCode);
+        }
+    }];
+    
+    return task;
+}
+- (NSURLSessionDataTask *)getSharedItemsOfType:(NSString *)objectType fromLastMessageId:(NSInteger)messageId withLimit:(NSInteger)limit inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetSharedItemsCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"chat/%@/share", encodedToken];
+    NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
+    NSMutableDictionary *parameters = [NSMutableDictionary new];
+    [parameters setObject:objectType forKey:@"objectType"];
+    if (messageId > -1) {
+        [parameters setObject:@(messageId) forKey:@"lastKnownMessageId"];
+    }
+    if (limit > -1) {
+        [parameters setObject:@(limit) forKey:@"limit"];
+    }
+    
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        id responseData = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        // Create array [NCChatMessage]
+        NSMutableArray *sharedItems = [NSMutableArray new];
+        if ([responseData isKindOfClass:[NSDictionary class]]) {
+            NSDictionary *responseSharedItems = responseData;
+            for (NSDictionary *messageDict in responseSharedItems.allValues) {
+                NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict];
+                [sharedItems addObject:message];
+            }
+        }
+        // Get X-Chat-Last-Given
+        NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
+        NSDictionary *headers = [response allHeaderFields];
+        NSString *lastKnowMessageHeader = [headers objectForKey:@"X-Chat-Last-Given"];
+        NSInteger lastKnownMessage = -1;
+        if (lastKnowMessageHeader) {
+            lastKnownMessage = [lastKnowMessageHeader integerValue];
+        }
+        
+        if (block) {
+            block(sharedItems, lastKnownMessage, nil, 0);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(nil, -1, error, statusCode);
+        }
+    }];
+    
+    return task;
+}
+
 #pragma mark - Reactions Controller
 
 - (NSURLSessionDataTask *)addReaction:(NSString *)reaction toMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block

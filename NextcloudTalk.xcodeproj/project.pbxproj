@@ -247,6 +247,11 @@
 		2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C820E125C20096D91F /* NewRoomTableViewController.m */; };
 		2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */; };
 		2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
+		2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4228147F10009F7288 /* RoomSharedItemsTableViewController.swift */; };
+		2CC1FF4528147F11009F7288 /* RoomSharedItemsTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4328147F10009F7288 /* RoomSharedItemsTableViewController.xib */; };
+		2CC1FF4828183958009F7288 /* NCDeckCardParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */; };
+		2CC1FF492818395E009F7288 /* NCDeckCardParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */; };
+		2CC1FF4A2818395F009F7288 /* NCDeckCardParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */; };
 		2CC32E8D27F4540E00BB8C39 /* ReactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E8C27F4540E00BB8C39 /* ReactionsView.swift */; };
 		2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */; };
 		2CC32E9327F45AE000BB8C39 /* ReactionsViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */; };
@@ -722,6 +727,10 @@
 		2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NewRoomTableViewController.xib; sourceTree = "<group>"; };
 		2CC007CC20E50B0A0096D91F /* MessageBodyTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageBodyTextView.h; sourceTree = "<group>"; };
 		2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageBodyTextView.m; sourceTree = "<group>"; };
+		2CC1FF4228147F10009F7288 /* RoomSharedItemsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomSharedItemsTableViewController.swift; sourceTree = "<group>"; };
+		2CC1FF4328147F10009F7288 /* RoomSharedItemsTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomSharedItemsTableViewController.xib; sourceTree = "<group>"; };
+		2CC1FF4628183958009F7288 /* NCDeckCardParameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCDeckCardParameter.h; sourceTree = "<group>"; };
+		2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCDeckCardParameter.m; sourceTree = "<group>"; };
 		2CC32E8C27F4540E00BB8C39 /* ReactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsView.swift; sourceTree = "<group>"; };
 		2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsViewCell.swift; sourceTree = "<group>"; };
 		2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReactionsViewCell.xib; sourceTree = "<group>"; };
@@ -1004,6 +1013,8 @@
 				2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */,
 				2C98F77721622445001A6A73 /* RoomSearchTableViewController.h */,
 				2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */,
+				2CC1FF4228147F10009F7288 /* RoomSharedItemsTableViewController.swift */,
+				2CC1FF4328147F10009F7288 /* RoomSharedItemsTableViewController.xib */,
 			);
 			name = Rooms;
 			sourceTree = "<group>";
@@ -1446,6 +1457,8 @@
 				1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */,
 				2CB6ACD82641483800D3D641 /* NCMessageLocationParameter.h */,
 				2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */,
+				2CC1FF4628183958009F7288 /* NCDeckCardParameter.h */,
+				2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -1646,6 +1659,7 @@
 				2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */,
 				2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */,
 				2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */,
+				2CC1FF4528147F11009F7288 /* RoomSharedItemsTableViewController.xib in Resources */,
 				2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */,
 				2C440D1220EA4A770005F9BB /* RoomInfoTableViewController.xib in Resources */,
 				2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */,
@@ -1915,12 +1929,14 @@
 				2CB3041E2264775E0053078A /* SLKTextViewController.m in Sources */,
 				2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */,
 				2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */,
+				2CC1FF4828183958009F7288 /* NCDeckCardParameter.m in Sources */,
 				2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */,
 				2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */,
 				2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */,
 				2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */,
 				2CA155562099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m in Sources */,
 				2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */,
+				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
 				2C4446D8265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */,
 				1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */,
@@ -2000,6 +2016,7 @@
 				2C62B00A24C1BDBD007E460A /* NCImageSessionManager.m in Sources */,
 				2C7A245C24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
 				2C3195C224C5E2100066F221 /* ShareTableViewCell.m in Sources */,
+				2CC1FF4A2818395F009F7288 /* NCDeckCardParameter.m in Sources */,
 				2C4446DA265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				2C444705265D641300DF1DBC /* NCUserDefaults.m in Sources */,
 				2C4446F5265D583200DF1DBC /* NCKeyChainController.m in Sources */,
@@ -2038,6 +2055,7 @@
 				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2CB6ACDB2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				2C4446FB265D5C5700DF1DBC /* NCRoomParticipants.m in Sources */,
+				2CC1FF492818395E009F7288 /* NCDeckCardParameter.m in Sources */,
 				2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */,
 				2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */,
 				1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */,

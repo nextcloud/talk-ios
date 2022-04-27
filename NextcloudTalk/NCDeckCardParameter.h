@@ -1,5 +1,5 @@
 /**
- * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
+ * @copyright Copyright (c) 2022 Ivan Sein <ivan@nextcloud.com>
  *
  * @author Ivan Sein <ivan@nextcloud.com>
  *
@@ -20,24 +20,16 @@
  *
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-#import "NCMessageFileParameter.h"
+#import "NCMessageParameter.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString *const kDirectoryCellIdentifier;
-extern NSString *const kDirectoryTableCellNibName;
+@interface NCDeckCardParameter : NCMessageParameter
 
-extern CGFloat const kDirectoryTableCellHeight;
-
-@interface DirectoryTableViewCell : UITableViewCell
-
-@property (weak, nonatomic) IBOutlet UIImageView *fileImageView;
-@property (weak, nonatomic) IBOutlet UILabel *fileNameLabel;
-@property (weak, nonatomic) IBOutlet UILabel *fileInfoLabel;
-
-@property (nonatomic, strong) NCMessageFileParameter *fileParameter;
+@property (nonatomic, strong) NSString *stackName;
+@property (nonatomic, strong) NSString *boardName;
 
 @end
 
