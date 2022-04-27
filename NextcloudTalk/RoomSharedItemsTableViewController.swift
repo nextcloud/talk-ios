@@ -26,6 +26,7 @@ import QuickLook
 @objcMembers class RoomSharedItemsTableViewController: UITableViewController, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource {
     let roomToken: String
     let account: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
+    let itemsOverviewLimit: Int = 1
     let itemLimit: Int = 100
     var sharedItemsOverview: [String: [NCChatMessage]] = [:]
     var currentItems: [NCChatMessage] = []
@@ -135,7 +136,7 @@ import QuickLook
     func getItemsOverview() {
         showFetchingItemsPlaceholderView()
         NCAPIController.sharedInstance()
-            .getSharedItemsOverview(inRoom: roomToken, withLimit: -1, for: account) { itemsOverview, error, _ in
+            .getSharedItemsOverview(inRoom: roomToken, withLimit: itemsOverviewLimit, for: account) { itemsOverview, error, _ in
                 if error == nil {
                     self.sharedItemsOverview = itemsOverview as? [String: [NCChatMessage]] ?? [:]
                     let availableItemTypes = self.availableItemTypes()
