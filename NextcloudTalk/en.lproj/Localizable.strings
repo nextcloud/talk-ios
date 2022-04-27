@@ -179,6 +179,9 @@
 "Appear offline" = "Appear offline";
 
 /* No comment provided by engineer. */
+"Audios" = "Audios";
+
+/* No comment provided by engineer. */
 "Away" = "Away";
 
 /* No comment provided by engineer. */
@@ -368,6 +371,9 @@
 "days" = "days";
 
 /* No comment provided by engineer. */
+"Deckcards" = "Deckcards";
+
+/* No comment provided by engineer. */
 "Default" = "Default";
 
 /* No comment provided by engineer. */
@@ -548,10 +554,10 @@
 "Group conversation" = "Group conversation";
 
 /* No comment provided by engineer. */
-"Guest" = "Guest";
+"guest" = "guest";
 
 /* No comment provided by engineer. */
-"guest" = "guest";
+"Guest" = "Guest";
 
 /* No comment provided by engineer. */
 "Guests access" = "Guests access";
@@ -570,6 +576,9 @@
 
 /* No comment provided by engineer. */
 "If you enable your camera, this call will be interrupted for a few seconds." = "If you enable your camera, this call will be interrupted for a few seconds.";
+
+/* No comment provided by engineer. */
+"Images, files, voice messages…" = "Images, files, voice messages…";
 
 /* No comment provided by engineer. */
 "in" = "in";
@@ -641,6 +650,9 @@
 "Location service has been denied. Check your settings." = "Location service has been denied. Check your settings.";
 
 /* No comment provided by engineer. */
+"Locations" = "Locations";
+
+/* No comment provided by engineer. */
 "Log in" = "Log in";
 
 /* No comment provided by engineer. */
@@ -660,6 +672,9 @@
 
 /* No comment provided by engineer. */
 "Match system contacts" = "Match system contacts";
+
+/* No comment provided by engineer. */
+"Media" = "Media";
 
 /* No comment provided by engineer. */
 "Meeting ID" = "Meeting ID";
@@ -761,6 +776,9 @@
 "No results found" = "No results found";
 
 /* No comment provided by engineer. */
+"No shared items" = "No shared items";
+
+/* No comment provided by engineer. */
 "Notifications" = "Notifications";
 
 /* No comment provided by engineer. */
@@ -807,6 +825,9 @@
 
 /* No comment provided by engineer. */
 "Open links in" = "Open links in";
+
+/* No comment provided by engineer. */
+"Others" = "Others";
 
 /* No comment provided by engineer. */
 "Password" = "Password";
@@ -977,7 +998,13 @@
 "Share with" = "Share with";
 
 /* No comment provided by engineer. */
+"Shared items" = "Shared items";
+
+/* No comment provided by engineer. */
 "Shared location" = "Shared location";
+
+/* No comment provided by engineer. */
+"Show more…" = "Show more…";
 
 /* No comment provided by engineer. */
 "SIP dial-in" = "SIP dial-in";
@@ -1089,6 +1116,9 @@
 
 /* No comment provided by engineer. */
 "Voice call" = "Voice call";
+
+/* No comment provided by engineer. */
+"Voice messages" = "Voice messages";
 
 /* No comment provided by engineer. */
 "Waiting for %@ to join call …" = "Waiting for %@ to join call …";
