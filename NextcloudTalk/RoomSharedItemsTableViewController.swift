@@ -26,9 +26,11 @@ import QuickLook
 @objcMembers class RoomSharedItemsTableViewController: UITableViewController, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource {
     let roomToken: String
     let account: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
+    let itemLimit: Int = 100
     var sharedItemsOverview: [String: [NCChatMessage]] = [:]
     var currentItems: [NCChatMessage] = []
     var currentItemType: String = "all"
+    var currentLastItemId: Int = -1
     var sharedItemsBackgroundView: PlaceholderView = PlaceholderView()
     var previewControllerFilePath: String = ""
     var isPreviewControllerShown: Bool = false
@@ -104,10 +106,26 @@ import QuickLook
     func getItemsForItemType(itemType: String) {
         showFetchingItemsPlaceholderView()
         NCAPIController.sharedInstance()
-            .getSharedItems(ofType: itemType, fromLastMessageId: -1, withLimit: -1,
-                            inRoom: roomToken, for: account) { items, _, error, _ in
+            .getSharedItems(ofType: itemType, fromLastMessageId: currentLastItemId, withLimit: itemLimit,
+                            inRoom: roomToken, for: account) { items, lastItemId, error, _ in
                 if error == nil, let sharedItems = items as? [NCChatMessage] {
-                    self.currentItems = sharedItems.sorted(by: { $0.messageId > $1.messageId })
+                    // Sort received items
+                    let sortedItems = sharedItems.sorted(by: { $0.messageId > $1.messageId })
+                    // Set or append items
+                    if self.currentLastItemId > 0 {
+                        self.currentItems.append(contentsOf: sortedItems)
+                    } else {
+                        self.currentItems = sortedItems
+                    }
+                    // Set new last item id
+                    self.currentLastItemId = lastItemId
+                    // Show ir hide "Show more" button
+                    if sharedItems.count == self.itemLimit {
+                        self.showShowMoreButton()
+                    } else {
+                        self.hideShowMoreButton()
+                    }
+                    // Load items
                     self.tableView.reloadData()
                 }
                 self.hideFetchingItemsPlaceholderView()
@@ -139,6 +157,8 @@ import QuickLook
     func setupViewForItemType(itemType: String) {
         currentItemType = itemType
         currentItems = []
+        currentLastItemId = -1
+        hideShowMoreButton()
         tableView.reloadData()
         setupTitleButtonForItemType(itemType: itemType)
         getItemsForItemType(itemType: itemType)
@@ -167,6 +187,27 @@ import QuickLook
         sharedItemsBackgroundView.loadingView.stopAnimating()
         sharedItemsBackgroundView.loadingView.isHidden = true
         sharedItemsBackgroundView.placeholderView.isHidden = !currentItems.isEmpty
+    }
+
+    func showShowMoreButton() {
+        let showMoreButton = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: self.tableView.frame.width, height: 40)))
+        showMoreButton.titleLabel?.font = .systemFont(ofSize: 15)
+        showMoreButton.setTitleColor(.systemBlue, for: .normal)
+        showMoreButton.setTitle(NSLocalizedString("Show more…", comment: ""), for: .normal)
+        showMoreButton.addTarget(self, action: #selector(showMoreButtonClicked), for: .touchUpInside)
+        self.tableView.tableFooterView = showMoreButton
+    }
+
+    func hideShowMoreButton() {
+        self.tableView.tableFooterView = nil
+    }
+
+    func showMoreButtonClicked() {
+        let loadingMoreView = UIActivityIndicatorView(frame: CGRect(origin: .zero, size: CGSize(width: 40, height: 40)))
+        loadingMoreView.color = .darkGray
+        loadingMoreView.startAnimating()
+        self.tableView.tableFooterView = loadingMoreView
+        getItemsForItemType(itemType: currentItemType)
     }
 
     func nameForItemType(itemType: String) -> String {
