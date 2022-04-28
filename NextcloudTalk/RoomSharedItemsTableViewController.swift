@@ -64,8 +64,10 @@ import QuickLook
             self.navigationItem.scrollEdgeAppearance = appearance
         }
 
+        self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 64, bottom: 0, right: 0)
         self.tableView.register(UINib(nibName: kDirectoryTableCellNibName, bundle: nil), forCellReuseIdentifier: kDirectoryCellIdentifier)
 
+        self.hideShowMoreButton()
         self.getItemsOverview()
     }
 
@@ -128,6 +130,8 @@ import QuickLook
                     }
                     // Load items
                     self.tableView.reloadData()
+                } else {
+                    self.hideShowMoreButton()
                 }
                 self.hideFetchingItemsPlaceholderView()
             }
@@ -200,7 +204,7 @@ import QuickLook
     }
 
     func hideShowMoreButton() {
-        self.tableView.tableFooterView = nil
+        self.tableView.tableFooterView = UIView()
     }
 
     func showMoreButtonClicked() {
