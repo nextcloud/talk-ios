@@ -24,6 +24,8 @@
 
 @interface PlaceholderView : UIView
 
+- (instancetype)initForTableViewStyle:(UITableViewStyle)style;
+
 @property (weak, nonatomic) IBOutlet UIView *placeholderView;
 @property (weak, nonatomic) IBOutlet UIImageView *placeholderImage;
 @property (weak, nonatomic) IBOutlet UITextView *placeholderTextView;
