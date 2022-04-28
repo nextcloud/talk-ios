@@ -26,7 +26,7 @@ import UIKit
 
     var reactions: [String: [[String: AnyObject]]] = [:]
     var sortedReactions: [String] = []
-    var reactionsBackgroundView: PlaceholderView = PlaceholderView()
+    var reactionsBackgroundView: PlaceholderView = PlaceholderView(for: .grouped)
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)

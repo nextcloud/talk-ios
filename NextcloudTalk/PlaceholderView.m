@@ -47,6 +47,18 @@
     return self;
 }
 
+- (instancetype)initForTableViewStyle:(UITableViewStyle)style
+{
+    self = [self init];
+    
+    if (self && style == UITableViewStyleGrouped) {
+        self.contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        self.placeholderView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    }
+    
+    return self;
+}
+
 - (void)setImage:(UIImage *)image
 {
     UIImage *placeholderImage = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
