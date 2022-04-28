@@ -216,7 +216,7 @@ import QuickLook
         case kSharedItemTypeAudio:
             return NSLocalizedString("Audios", comment: "")
         case kSharedItemTypeDeckcard:
-            return NSLocalizedString("Deckcards", comment: "")
+            return NSLocalizedString("Deck cards", comment: "")
         case kSharedItemTypeFile:
             return NSLocalizedString("Files", comment: "")
         case kSharedItemTypeMedia:
