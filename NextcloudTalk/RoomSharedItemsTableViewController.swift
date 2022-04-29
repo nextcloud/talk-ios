@@ -112,8 +112,14 @@ import QuickLook
             .getSharedItems(ofType: itemType, fromLastMessageId: currentLastItemId, withLimit: itemLimit,
                             inRoom: roomToken, for: account) { items, lastItemId, error, _ in
                 if error == nil, let sharedItems = items as? [NCChatMessage] {
+                    // Remove deleted files
+                    var filteredItems: [NCChatMessage] = []
+                    for message in sharedItems {
+                        if message.systemMessage == "file_shared" && message.file() == nil {continue}
+                        filteredItems.append(message)
+                    }
                     // Sort received items
-                    let sortedItems = sharedItems.sorted(by: { $0.messageId > $1.messageId })
+                    let sortedItems = filteredItems.sorted(by: { $0.messageId > $1.messageId })
                     // Set or append items
                     if self.currentLastItemId > 0 {
                         self.currentItems.append(contentsOf: sortedItems)
