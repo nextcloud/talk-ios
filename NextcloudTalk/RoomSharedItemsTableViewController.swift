@@ -252,11 +252,11 @@ import QuickLook
 
     // MARK: - File downloader
 
-    func downloadFileForCell(cell: DirectoryTableViewCell, message: NCChatMessage) {
-        cell.fileParameter = message.file()
+    func downloadFileForCell(cell: DirectoryTableViewCell, file: NCMessageFileParameter) {
+        cell.fileParameter = file
         let downloader = NCChatFileController()
         downloader.delegate = self
-        downloader.downloadFile(fromMessage: message.file())
+        downloader.downloadFile(fromMessage: file)
     }
 
     func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {
@@ -353,11 +353,17 @@ import QuickLook
 
         switch currentItemType {
         case kSharedItemTypeMedia, kSharedItemTypeFile, kSharedItemTypeVoice, kSharedItemTypeAudio:
-            downloadFileForCell(cell: cell, message: message)
+            if let file = message.file() {
+                downloadFileForCell(cell: cell, file: file)
+            }
         case kSharedItemTypeLocation:
-            presentLocation(location: GeoLocationRichObject(from: message.geoLocation()))
+            if let geoLocation = message.geoLocation() {
+                presentLocation(location: GeoLocationRichObject(from: geoLocation))
+            }
         case kSharedItemTypeDeckcard, kSharedItemTypeOther:
-            openLink(link: message.objectShareLink())
+            if let link = message.objectShareLink() {
+                openLink(link: link)
+            }
         default:
             return
         }
