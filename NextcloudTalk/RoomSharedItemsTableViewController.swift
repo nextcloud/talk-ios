@@ -112,8 +112,14 @@ import QuickLook
             .getSharedItems(ofType: itemType, fromLastMessageId: currentLastItemId, withLimit: itemLimit,
                             inRoom: roomToken, for: account) { items, lastItemId, error, _ in
                 if error == nil, let sharedItems = items as? [NCChatMessage] {
+                    // Remove deleted files
+                    var filteredItems: [NCChatMessage] = []
+                    for message in sharedItems {
+                        if message.systemMessage == "file_shared" && message.file() == nil {continue}
+                        filteredItems.append(message)
+                    }
                     // Sort received items
-                    let sortedItems = sharedItems.sorted(by: { $0.messageId > $1.messageId })
+                    let sortedItems = filteredItems.sorted(by: { $0.messageId > $1.messageId })
                     // Set or append items
                     if self.currentLastItemId > 0 {
                         self.currentItems.append(contentsOf: sortedItems)
@@ -252,11 +258,11 @@ import QuickLook
 
     // MARK: - File downloader
 
-    func downloadFileForCell(cell: DirectoryTableViewCell, message: NCChatMessage) {
-        cell.fileParameter = message.file()
+    func downloadFileForCell(cell: DirectoryTableViewCell, file: NCMessageFileParameter) {
+        cell.fileParameter = file
         let downloader = NCChatFileController()
         downloader.delegate = self
-        downloader.downloadFile(fromMessage: message.file())
+        downloader.downloadFile(fromMessage: file)
     }
 
     func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {
@@ -353,11 +359,17 @@ import QuickLook
 
         switch currentItemType {
         case kSharedItemTypeMedia, kSharedItemTypeFile, kSharedItemTypeVoice, kSharedItemTypeAudio:
-            downloadFileForCell(cell: cell, message: message)
+            if let file = message.file() {
+                downloadFileForCell(cell: cell, file: file)
+            }
         case kSharedItemTypeLocation:
-            presentLocation(location: GeoLocationRichObject(from: message.geoLocation()))
+            if let geoLocation = message.geoLocation() {
+                presentLocation(location: GeoLocationRichObject(from: geoLocation))
+            }
         case kSharedItemTypeDeckcard, kSharedItemTypeOther:
-            openLink(link: message.objectShareLink())
+            if let link = message.objectShareLink() {
+                openLink(link: link)
+            }
         default:
             return
         }
