@@ -41,6 +41,7 @@
     self.translatesAutoresizingMaskIntoConstraints = NO;
     self.backgroundColor = [UIColor clearColor];
     self.editable = NO;
+    self.scrollEnabled = NO;
     self.delegate = self;
     
     return self;
