@@ -3313,7 +3313,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     if (message.isGroupMessage || message.isSystemMessage) {
-        height = CGRectGetHeight(bodyBounds) + 10; // 2*left(5)
+        height = ceil(CGRectGetHeight(bodyBounds)) + 10; // 2*left(5)
         
         if (height < kGroupedChatMessageCellMinimumHeight) {
             height = kGroupedChatMessageCellMinimumHeight;
@@ -3326,7 +3326,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     // Voice message should be before message.file check since it contains a file
     if ([message.messageType isEqualToString:kMessageTypeVoiceMessage]) {
-        height -= CGRectGetHeight(bodyBounds);
+        height -= ceil(CGRectGetHeight(bodyBounds));
         return height += kVoiceMessageCellPlayerHeight + 10; // right(10)
     }
     
