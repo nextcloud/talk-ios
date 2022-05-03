@@ -343,7 +343,7 @@
         }
     }
     
-    if ([message.messageType isEqualToString:kMessageTypeCommentDeleted]) {
+    if (message.isDeletedMessage) {
         self.statusView.hidden = YES;
         self.bodyTextView.textColor = [UIColor colorWithWhite:0 alpha:0.3];
         if (@available(iOS 13.0, *)) {
