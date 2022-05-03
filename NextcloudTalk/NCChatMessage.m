@@ -216,6 +216,11 @@ NSString * const kSharedItemTypeVoice       = @"voice";
             [self.systemMessage isEqualToString:@"reaction_deleted"];
 }
 
+- (BOOL)isDeletedMessage
+{
+    return [_messageType isEqualToString:kMessageTypeCommentDeleted];
+}
+
 - (BOOL)isMessageFromUser:(NSString *)userId
 {
     return [self.actorId isEqualToString:userId] && [self.actorType isEqualToString:@"users"];
