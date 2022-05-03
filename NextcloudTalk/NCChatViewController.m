@@ -1964,7 +1964,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
             
             // Add reaction option
-            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode) {
+            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode && _room.readOnlyState != NCRoomReadOnlyStateReadOnly && !message.isDeletedMessage) {
                 NSDictionary *reactionInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionAddReaction) forKey:@"action"];
                 FTPopOverMenuModel *reactionModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Add reaction", nil) image:[[UIImage imageNamed:@"emoji"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:reactionInfo];
                 [menuArray addObject:reactionModel];
@@ -3405,7 +3405,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Add reaction option
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode && _room.readOnlyState != NCRoomReadOnlyStateReadOnly && !message.isDeletedMessage) {
         UIImage *reactionImage = [[UIImage imageNamed:@"emoji"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *reactionAction = [UIAction actionWithTitle:NSLocalizedString(@"Add reaction", nil) image:reactionImage identifier:nil handler:^(UIAction *action){
             
