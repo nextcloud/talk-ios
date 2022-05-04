@@ -1980,7 +1980,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
             
             // Forward option (only normal messages for now)
-            if (!message.file && !_offlineMode) {
+            if (!message.file && !message.isDeletedMessage && !_offlineMode) {
                 NSDictionary *forwardInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionForward) forKey:@"action"];
                 FTPopOverMenuModel *forwardModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Forward", nil) image:[[UIImage imageNamed:@"forward"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:forwardInfo];
                 [menuArray addObject:forwardModel];
@@ -3429,7 +3429,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Forward option (only normal messages for now)
-    if (!message.file && !_offlineMode) {
+    if (!message.file && !message.isDeletedMessage && !_offlineMode) {
         UIImage *forwardImage = [[UIImage imageNamed:@"forward"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *forwardAction = [UIAction actionWithTitle:NSLocalizedString(@"Forward", nil) image:forwardImage identifier:nil handler:^(UIAction *action){
             
