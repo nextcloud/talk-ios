@@ -221,6 +221,11 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return [_messageType isEqualToString:kMessageTypeCommentDeleted];
 }
 
+- (BOOL)isVoiceMessage
+{
+    return [_messageType isEqualToString:kMessageTypeVoiceMessage];
+}
+
 - (BOOL)isMessageFromUser:(NSString *)userId
 {
     return [self.actorId isEqualToString:userId] && [self.actorType isEqualToString:@"users"];
@@ -234,7 +239,7 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     // Delete normal messages
     ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDeleteMessages forAccountId:account.accountId] && [self.messageType isEqualToString:kMessageTypeComment] && !self.file && ![self isObjectShare]) ||
     // Delete files or shared objects
-    ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRichObjectDelete forAccountId:account.accountId] && ([self.messageType isEqualToString:kMessageTypeVoiceMessage] || self.file || [self isObjectShare]));
+    ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRichObjectDelete forAccountId:account.accountId] && (self.file || [self isVoiceMessage] ||[self isObjectShare]));
     
     BOOL userCanDeleteMessage = (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:account.userId]);
     

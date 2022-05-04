@@ -79,6 +79,7 @@ extern NSString * const kSharedItemTypeVoice;
 - (BOOL)isEmojiMessage;
 - (BOOL)isUpdateMessage;
 - (BOOL)isDeletedMessage;
+- (BOOL)isVoiceMessage;
 - (BOOL)isMessageFromUser:(NSString *)userId;
 - (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType;
 - (NCMessageFileParameter *)file;
