@@ -31,9 +31,7 @@
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        _emojiTextField = [[EmojiTextField alloc] init];
-        _emojiTextField.delegate = self;
-        [self addSubview:_emojiTextField];
+        // Initialization
     }
     return self;
 }
@@ -43,28 +41,6 @@
     [super prepareForReuse];
     self.messageId = -1;
     self.message = nil;
-}
-
-- (void)addReaction:(NSString *)reaction
-{
-    // Should be implemented in subclasses of ChatTableViewCell
-}
-
-#pragma mark - UITextField delegate
-
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
-{
-    [_emojiTextField resignFirstResponder];
-    return YES;
-}
-
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
-{
-    if (textField == _emojiTextField && string.isSingleEmoji) {
-        [self addReaction:string];
-    }
-    [textField resignFirstResponder];
-    return YES;
 }
 
 @end

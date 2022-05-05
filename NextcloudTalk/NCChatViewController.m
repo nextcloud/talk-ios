@@ -91,7 +91,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionAddReaction
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -136,6 +136,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) NSTimer *playerProgressTimer;
 @property (nonatomic, strong) NCChatFileStatus *playerAudioFileStatus;
 @property (nonatomic, strong) EmojiTextField *emojiTextField;
+@property (nonatomic, strong) NCChatMessage *reactingMessage;
 
 @end
 
@@ -284,6 +285,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
 
     [self.textInputbar addSubview:self.inputbarBorderView];
+    
+    // Add emoji textfield for reactions
+    _emojiTextField = [[EmojiTextField alloc] init];
+    _emojiTextField.delegate = self;
+    [self.view addSubview:_emojiTextField];
     
     // Add long press gesture recognizer for messages
     UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
@@ -1254,8 +1260,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     });
     // Present emoji keyboard
     dispatch_async(dispatch_get_main_queue(), ^{
-        ChatTableViewCell *cell = (ChatTableViewCell *)[self.tableView cellForRowAtIndexPath:indexPath];
-        self.emojiTextField = cell.emojiTextField;
+        self.reactingMessage = message;
         [self.emojiTextField becomeFirstResponder];
     });
 }
@@ -1386,6 +1391,33 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
         }
     }];
+}
+
+#pragma mark - UITextField delegate
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    if (textField == _emojiTextField && _reactingMessage) {
+        _reactingMessage = nil;
+        [textField resignFirstResponder];
+    }
+    return YES;
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    if (textField == _emojiTextField && string.isSingleEmoji && _reactingMessage) {
+        [self addReaction:string toChatMessage:_reactingMessage];
+        [textField resignFirstResponder];
+    }
+    return YES;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    if (textField == _emojiTextField && _reactingMessage) {
+        _reactingMessage = nil;
+    }
 }
 
 #pragma mark - UIImagePickerController Delegate
@@ -3638,11 +3670,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (indexPath && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId]) {
         [self presentOptionsForMessageActor:message fromIndexPath:indexPath];
     }
-}
-
-- (void)cellWantsToAddReaction:(NSString *)reaction forMessage:(NCChatMessage *)message
-{
-    [self addReaction:reaction toChatMessage:message];
 }
 
 - (void)cellDidSelectedReaction:(NCChatReaction *)reaction forMessage:(NCChatMessage *)message
