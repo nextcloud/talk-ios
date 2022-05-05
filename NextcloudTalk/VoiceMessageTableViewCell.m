@@ -394,13 +394,6 @@
     }
 }
 
-#pragma mark - Actions
-
-- (void)addReaction:(NSString *)reaction
-{
-    [self.delegate cellWantsToAddReaction:reaction forMessage:self.message];
-}
-
 #pragma mark - ReactionsView delegate
 
 - (void)didSelectReactionWithReaction:(NCChatReaction *)reaction

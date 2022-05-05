@@ -41,7 +41,6 @@ typedef enum ChatMessageDeliveryState {
 @protocol ChatTableViewCellDelegate <NSObject>
 
 - (void)cellWantsToDisplayOptionsForMessageActor:(NCChatMessage *)message;
-- (void)cellWantsToAddReaction:(NSString *)reaction forMessage:(NCChatMessage *)message;
 - (void)cellDidSelectedReaction:(NCChatReaction *)reaction forMessage:(NCChatMessage *)message;
 
 @end
@@ -50,8 +49,5 @@ typedef enum ChatMessageDeliveryState {
 
 @property (nonatomic, assign) NSInteger messageId;
 @property (nonatomic, strong) NCChatMessage *message;
-@property (nonatomic, strong) EmojiTextField *emojiTextField;
-
-- (void)addReaction:(NSString *)reaction;
 
 @end
