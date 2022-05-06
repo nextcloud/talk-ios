@@ -33,6 +33,7 @@
 #import "NSDate+DateTools.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
+#import "UIResponder+SLKAdditions.h"
 #import "UIView+Toast.h"
 
 #import "AppDelegate.h"
@@ -167,6 +168,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         const char *dispatchQueueIdentifierChar = [dispatchQueueIdentifier UTF8String];
         self.animationDispatchGroup = dispatch_group_create();
         self.animationDispatchQueue = dispatch_queue_create(dispatchQueueIdentifierChar, DISPATCH_QUEUE_SERIAL);
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willShowKeyboard:) name:UIKeyboardWillShowNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(wllHideHideKeyboard:) name:UIKeyboardWillHideNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didLeaveRoom:) name:NCRoomsManagerDidLeaveRoomNotification object:nil];
@@ -560,6 +563,43 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             [self.textView setTintColor:[UIColor colorWithCGColor:[UIColor systemBlueColor].CGColor]];
             [self updateToolbar:YES];
         }
+    }
+}
+
+#pragma mark - Keyboard notifications
+
+- (void)willShowKeyboard:(NSNotification *)notification
+{
+    UIResponder *currentResponder = [UIResponder slk_currentFirstResponder];
+    // Skips if it's not the emoji text field
+    if (currentResponder && ![currentResponder isKindOfClass:[EmojiTextField class]]) {
+        return;
+    }
+
+    CGRect keyboardRect = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    [self updateViewToShowOrHideEmojiKeyboard:keyboardRect.size.height];
+    NSIndexPath *indexPath = [self indexPathForMessage:_reactingMessage];
+    if (indexPath) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+        });
+    }
+}
+
+- (void)wllHideHideKeyboard:(NSNotification *)notification
+{
+    UIResponder *currentResponder = [UIResponder slk_currentFirstResponder];
+    // Skips if it's not the emoji text field
+    if (currentResponder && ![currentResponder isKindOfClass:[EmojiTextField class]]) {
+        return;
+    }
+    
+    NSIndexPath *lastVisibleRowIndexPath = [[self.tableView indexPathsForVisibleRows] lastObject];
+    [self updateViewToShowOrHideEmojiKeyboard:0.0];
+    if (lastVisibleRowIndexPath) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.tableView scrollToRowAtIndexPath:lastVisibleRowIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+        });
     }
 }
 
