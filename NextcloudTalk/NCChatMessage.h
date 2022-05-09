@@ -80,6 +80,7 @@ extern NSString * const kSharedItemTypeVoice;
 - (BOOL)isUpdateMessage;
 - (BOOL)isDeletedMessage;
 - (BOOL)isVoiceMessage;
+- (BOOL)isCommandMessage;
 - (BOOL)isMessageFromUser:(NSString *)userId;
 - (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType;
 - (NCMessageFileParameter *)file;
