@@ -581,7 +581,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     NSIndexPath *indexPath = [self indexPathForMessage:_reactingMessage];
     if (indexPath) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+            CGRect cellRect = [self.tableView rectForRowAtIndexPath:indexPath];
+            // Only scroll if cell is not completely visible
+            if (!CGRectContainsRect(self.tableView.bounds, cellRect)) {
+                [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+            }
         });
     }
 }
