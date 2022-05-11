@@ -184,12 +184,18 @@
                                  message:NSLocalizedString(@"Speech recognition access is not allowed. Check your settings.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction* okButton = [UIAlertAction
-                               actionWithTitle:NSLocalizedString(@"OK", nil)
-                               style:UIAlertActionStyleDefault
-                               handler:nil];
-    
-    [alert addAction:okButton];
+    UIAlertAction* settingsButton = [UIAlertAction actionWithTitle:NSLocalizedString(@"Settings", nil)
+                                                             style:UIAlertActionStyleDefault
+                                                           handler:^(UIAlertAction * _Nonnull action) {
+        [self closeViewController];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
+    }];
+    [alert addAction:settingsButton];
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil)
+                                              style:UIAlertActionStyleCancel
+                                            handler:^(UIAlertAction * _Nonnull action) {
+        [self closeViewController];
+    }]];
     [self presentViewController:alert animated:YES completion:nil];
 }
 
