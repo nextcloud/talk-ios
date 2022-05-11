@@ -147,9 +147,9 @@
     [speechRecognizer recognitionTaskWithRequest:speechRecognitionRequest
                                    resultHandler:^(SFSpeechRecognitionResult * _Nullable result, NSError * _Nullable error)
     {
-        if (error)
-        {
+        if (error) {
             NSLog(@"Recognition task failed: %@", error.description);
+            [self showSpeechRecognitionError:error.localizedDescription];
             return;
         }
         
@@ -157,6 +157,24 @@
         [self setTranscribedText:transcribedText isFinal:result.final];
     }];
     
+}
+
+- (void)showSpeechRecognitionError:(NSString *)errorDescription
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Speech recognition failed", nil)
+                                 message:errorDescription
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * _Nonnull action) {
+        [self closeViewController];
+    }];
+    
+    [alert addAction:okButton];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)showSpeechRecognitionNotAvailable
