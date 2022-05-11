@@ -90,12 +90,14 @@
 - (void)checkPermissionAndStartTranscription API_AVAILABLE(ios(13.0))
 {
     [SFSpeechRecognizer requestAuthorization:^(SFSpeechRecognizerAuthorizationStatus status){
-        if (status != SFSpeechRecognizerAuthorizationStatusAuthorized) {
-            [self showSpeechRecognitionNotAvailable];
-            return;
-        }
-        
-        [self showLocaleSelection];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (status != SFSpeechRecognizerAuthorizationStatusAuthorized) {
+                [self showSpeechRecognitionNotAvailable];
+                return;
+            }
+            
+            [self showLocaleSelection];
+        });
     }];
 }
 
