@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) NSString *path;
 @property (nonatomic, strong) NSString *mimetype;
+@property (nonatomic, assign) NSInteger size;
 @property (nonatomic, assign) BOOL previewAvailable;
 @property (nonatomic, strong) NCChatFileStatus *fileStatus;
 @property (nonatomic, assign) int previewImageHeight;

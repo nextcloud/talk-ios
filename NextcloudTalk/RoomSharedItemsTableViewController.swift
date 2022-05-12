@@ -341,6 +341,12 @@ import QuickLook
         if !message.actorDisplayName.isEmpty {
             infoLabelText += " ⸱ " + message.actorDisplayName
         }
+        if let file = message.file(), file.size > 0 {
+            let formatter = ByteCountFormatter()
+            formatter.countStyle = .file
+            let sizeString = formatter.string(fromByteCount: Int64(file.size))
+            infoLabelText += " ⸱ " + sizeString
+        }
         cell.fileInfoLabel?.text = infoLabelText
 
         let image = UIImage(named: imageNameForMessage(message: message))

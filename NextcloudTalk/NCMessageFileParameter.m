@@ -30,6 +30,7 @@
     if (self) {      
         self.path = [parameterDict objectForKey:@"path"];
         self.mimetype = [parameterDict objectForKey:@"mimetype"];
+        self.size = [[parameterDict objectForKey:@"size"] integerValue];
         self.previewAvailable = [[parameterDict objectForKey:@"preview-available"] boolValue];
     }
     
