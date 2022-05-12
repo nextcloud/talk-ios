@@ -337,7 +337,17 @@ import QuickLook
         let message = currentItems[indexPath.row]
 
         cell.fileNameLabel?.text = message.parsedMessage().string
-        cell.fileInfoLabel?.text = NCUtils.relativeTime(from: Date(timeIntervalSince1970: Double(message.timestamp)))
+        var infoLabelText = NCUtils.relativeTime(from: Date(timeIntervalSince1970: Double(message.timestamp)))
+        if !message.actorDisplayName.isEmpty {
+            infoLabelText += " ⸱ " + message.actorDisplayName
+        }
+        if let file = message.file(), file.size > 0 {
+            let formatter = ByteCountFormatter()
+            formatter.countStyle = .file
+            let sizeString = formatter.string(fromByteCount: Int64(file.size))
+            infoLabelText += " ⸱ " + sizeString
+        }
+        cell.fileInfoLabel?.text = infoLabelText
 
         let image = UIImage(named: imageNameForMessage(message: message))
         cell.fileImageView?.image = image
