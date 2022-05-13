@@ -172,7 +172,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                 [self->_signalingController startPullingSignalingMessages];
             }
             self->_joinedCallOnce = YES;
-            _joinCallAttempts = 0;
+            self->_joinCallAttempts = 0;
             [self setInCall:YES];
         } else {
             if (self->_joinCallAttempts < 3) {
@@ -231,7 +231,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                 self->_pendingUsersInRoom = nil;
                 [self processUsersInRoom:usersInRoom];
             }
-            _joinCallAttempts = 0;
+            self->_joinCallAttempts = 0;
             [self setInCall:YES];
         } else {
             if (self->_joinCallAttempts < 3) {
