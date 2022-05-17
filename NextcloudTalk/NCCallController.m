@@ -372,6 +372,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     _pendingOffersDict = [[NSMutableDictionary alloc] init];
     _usersInRoom = [[NSArray alloc] init];
     _sessionsInCall = [[NSArray alloc] init];
+    _publisherPeerConnection = nil;
 }
 
 - (void)cleanPeerConnectionForSessionId:(NSString *)sessionId ofType:(NSString *)roomType
@@ -608,10 +609,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)createPublisherPeerConnection
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self->_publisherPeerConnection) {
-            self->_publisherPeerConnection.delegate = nil;
-            [self->_publisherPeerConnection close];
-        }
+        if (self->_publisherPeerConnection) {return;}
         
         NSLog(@"Creating publisher peer connection with sessionId: %@", [self signalingSessionId]);
         
