@@ -505,6 +505,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)createLocalMedia
 {
+    _localAudioTrack = nil;
+    _localVideoTrack = nil;
     [_localVideoCapturer stopCapture];
     _localVideoCapturer = nil;
     
