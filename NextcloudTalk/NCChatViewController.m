@@ -2093,7 +2093,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
             
             // Delete option
-            if ((message.sendingFailed || [message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType]) && hasChatPermission) {
+            if (message.sendingFailed || ([message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType] && hasChatPermission)) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionDelete) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Delete", nil) image:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
@@ -3563,7 +3563,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
 
     // Delete option
-    if ((message.sendingFailed || [message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType]) && hasChatPermission) {
+    if (message.sendingFailed || ([message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType] && hasChatPermission)) {
         UIImage *deleteImage = [[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
             
