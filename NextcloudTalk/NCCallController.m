@@ -842,7 +842,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         // Do nothing if app user is stil not in the call
         if (!_userInCall) {return;}
         // Create publisher peer connection
-        if ([self->_externalSignalingController hasMCU]) {
+        if ([_externalSignalingController hasMCU]) {
             [self createPublisherPeerConnection];
         }
     }
