@@ -91,6 +91,7 @@ typedef enum NCPreferredFileSorting {
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId;
 - (NSInteger)chatMaxLengthConfigCapability;
 - (BOOL)canCreateGroupAndPublicRooms;
+- (BOOL)callsEnabledCapability;
 - (NCPreferredFileSorting)getPreferredFileSorting;
 - (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting;
 - (BOOL)isContactSyncEnabled;

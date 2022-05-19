@@ -702,8 +702,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                                                     target:nil
                                                     action:nil];
     fixedSpace.width = buttonPadding;
-    
-    self.navigationItem.rightBarButtonItems = @[_videoCallButton, fixedSpace, _voiceCallButton];
+
+    if ([[NCSettingsController sharedInstance] callsEnabledCapability]) {
+        // Only register the call buttons when calling is enabled
+        self.navigationItem.rightBarButtonItems = @[_videoCallButton, fixedSpace, _voiceCallButton];
+    }
 }
 
 #pragma mark - User Interface
@@ -752,7 +755,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [self.rightButton setEnabled:[self canPressRightButton]];
         self.textInputbar.userInteractionEnabled = YES;
     }
-    
+
     if (![_room userCanStartCall] && !_room.hasCall) {
         // Disable call buttons
         [_videoCallButton setEnabled:NO];

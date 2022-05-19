@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 31;
+uint64_t const kTalkDatabaseSchemaVersion           = 32;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -341,6 +341,11 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     capabilities.readStatusPrivacy = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"read-privacy"] boolValue];
     capabilities.accountPropertyScopesVersion2 = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesVersion"] integerValue] == 2;
     capabilities.accountPropertyScopesFederationEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesFederationEnabled"] boolValue];
+    if ([[[[talkCaps objectForKey:@"config"] objectForKey:@"call"] allKeys] containsObject:@"enabled"]) {
+        capabilities.callEnabled = [[[[talkCaps objectForKey:@"config"] objectForKey:@"call"] objectForKey:@"enabled"] boolValue];
+    } else {
+        capabilities.callEnabled = YES;
+    }
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
