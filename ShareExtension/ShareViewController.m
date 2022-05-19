@@ -566,7 +566,14 @@
         room = [_filteredRooms objectAtIndex:indexPath.row];
         isFilteredTable = YES;
     }
-    
+
+    BOOL hasChatPermission = ![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatPermission] || (room.permissions & NCPermissionChat) != 0;
+
+    if (!hasChatPermission || room.readOnlyState == NCRoomReadOnlyStateReadOnly) {
+        [self showChatPermissionAlert];
+        return;
+    }
+
     ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:room account:_shareAccount serverCapabilities:_serverCapabilities];
     shareConfirmationVC.delegate = self;
     if (_forwardMessage) {
@@ -577,6 +584,24 @@
         [self setSharedItemToShareConfirmationViewController:shareConfirmationVC];
     }
     [self.navigationController pushViewController:shareConfirmationVC animated:YES];
+}
+
+
+
+- (void)showChatPermissionAlert
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Can not share to conversation", nil)
+                                 message:NSLocalizedString(@"Either you don't have chat permission or the conversation is read-only.", nil)
+                                 preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+
+    [alert addAction:okButton];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 @end

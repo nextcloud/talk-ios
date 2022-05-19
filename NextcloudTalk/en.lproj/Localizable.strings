@@ -206,6 +206,9 @@
 "Camera enabled" = "Camera enabled";
 
 /* No comment provided by engineer. */
+"Can not share to conversation" = "Can not share to conversation";
+
+/* No comment provided by engineer. */
 "Cancel" = "Cancel";
 
 /* No comment provided by engineer. */
@@ -507,6 +510,9 @@
 
 /* No comment provided by engineer. */
 "Editing Message" = "Editing Message";
+
+/* No comment provided by engineer. */
+"Either you don't have chat permission or the conversation is read-only." = "Either you don't have chat permission or the conversation is read-only.";
 
 /* No comment provided by engineer. */
 "Email" = "Email";
