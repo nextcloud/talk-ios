@@ -55,6 +55,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, assign) BOOL leavingCall;
 @property (nonatomic, assign) BOOL preparedForRejoin;
 @property (nonatomic, assign) BOOL joinedCallOnce;
+@property (nonatomic, assign) BOOL shouldRejoinCallUsingInternalSignaling;
 @property (nonatomic, assign) BOOL serverSupportsConversationPermissions;
 @property (nonatomic, assign) NSInteger joinCallAttempts;
 @property (nonatomic, strong) AVAudioRecorder *recorder;
@@ -259,15 +260,15 @@ static NSString * const kNCVideoTrackKind = @"video";
     if ([_externalSignalingController isEnabled]) {
         [_externalSignalingController forceReconnect];
     } else {
-        [self rejoinCall];
+        [self rejoinCallUsingInternalSignaling];
     }
 }
 
-- (void)rejoinCall
+- (void)rejoinCallUsingInternalSignaling
 {
     [[NCAPIController sharedInstance] leaveCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [self shouldRejoinCall];
+            self->_shouldRejoinCallUsingInternalSignaling = YES;
         }
     }];
 }
@@ -830,6 +831,12 @@ static NSString * const kNCVideoTrackKind = @"video";
     NSMutableArray *newSessions = [self getInCallSessionsFromUsersInRoom:users];
     
     if (_leavingCall) {return;}
+    
+    // Detect if user should rejoin call (internal signaling)
+    if (!_userInCall && _shouldRejoinCallUsingInternalSignaling) {
+        _shouldRejoinCallUsingInternalSignaling = NO;
+        [self shouldRejoinCall];
+    }
     
     if (!previousUserInCall) {
         // Do nothing if app user is stil not in the call
