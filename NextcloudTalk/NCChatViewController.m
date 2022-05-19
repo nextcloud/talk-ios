@@ -765,6 +765,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         // Disable call buttons
         [_videoCallButton setEnabled:NO];
         [_voiceCallButton setEnabled:NO];
+    } else if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatPermission] && (_room.permissions & NCPermissionChat) == 0) {
+        // Hide text input
+        self.textInputbarHidden = YES;
     } else if ([self isTextInputbarHidden]) {
         // Show text input if it was hidden in a previous state
         [self setTextInputbarHidden:NO animated:YES];
@@ -1989,6 +1992,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     appDelegate.shouldLockInterfaceOrientation = lock;
 }
 
+
+
+#pragma mark - iOS <=12 message long press menu
+
 - (void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
 {
     if (@available(iOS 13.0, *)) {
@@ -2030,18 +2037,20 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             menuConfiguration.shadowOpacity = 0;
             menuConfiguration.roundedImage = NO;
             menuConfiguration.defaultSelection = YES;
-            
+
+            BOOL hasChatPermission = ![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatPermission] || (_room.permissions & NCPermissionChat) != 0;
+
             NSMutableArray *menuArray = [NSMutableArray new];
             // Reply option
             BOOL isMessageReplyable = message.isReplyable && !message.isDeleting && !_offlineMode;
-            if (isMessageReplyable) {
+            if (isMessageReplyable && hasChatPermission) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply", nil) image:[[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
             }
             
             // Add reaction option
-            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode && _room.readOnlyState != NCRoomReadOnlyStateReadOnly && !message.isDeletedMessage && !message.isCommandMessage) {
+            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode && _room.readOnlyState != NCRoomReadOnlyStateReadOnly && hasChatPermission && !message.isDeletedMessage && !message.isCommandMessage) {
                 NSDictionary *reactionInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionAddReaction) forKey:@"action"];
                 FTPopOverMenuModel *reactionModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Add reaction", nil) image:[[UIImage imageNamed:@"emoji"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:reactionInfo];
                 [menuArray addObject:reactionModel];
@@ -2064,7 +2073,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
 
             // Re-send option
-            if (message.sendingFailed && !_offlineMode) {
+            if (message.sendingFailed && !_offlineMode && hasChatPermission) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionResend) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Resend", nil) image:[[UIImage imageNamed:@"refresh"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
@@ -2084,7 +2093,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
             
             // Delete option
-            if (message.sendingFailed || [message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType]) {
+            if ((message.sendingFailed || [message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType]) && hasChatPermission) {
                 NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionDelete) forKey:@"action"];
                 FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Delete", nil) image:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyInfo];
                 [menuArray addObject:replyModel];
@@ -3444,6 +3453,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
 }
 
+#pragma mark - iOS >=13 message long press menu
+
 - (UIContextMenuConfiguration *)tableView:(UITableView *)tableView contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point API_AVAILABLE(ios(13.0))
 {
     if ([tableView isEqual:self.autoCompletionView]) {
@@ -3468,10 +3479,12 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
         
     NSMutableArray *actions = [[NSMutableArray alloc] init];
-    
+
+    BOOL hasChatPermission = ![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatPermission] || (_room.permissions & NCPermissionChat) != 0;
+
     // Reply option
     BOOL isMessageReplyable = message.isReplyable && !message.isDeleting && !_offlineMode;
-    if (isMessageReplyable) {
+    if (isMessageReplyable && hasChatPermission) {
         UIImage *replyImage = [[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *replyAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply", nil) image:replyImage identifier:nil handler:^(UIAction *action){
             
@@ -3482,7 +3495,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Add reaction option
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode && _room.readOnlyState != NCRoomReadOnlyStateReadOnly && !message.isDeletedMessage && !message.isCommandMessage) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReactions] && !_offlineMode && _room.readOnlyState != NCRoomReadOnlyStateReadOnly && hasChatPermission && !message.isDeletedMessage && !message.isCommandMessage) {
         UIImage *reactionImage = [[UIImage imageNamed:@"emoji"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *reactionAction = [UIAction actionWithTitle:NSLocalizedString(@"Add reaction", nil) image:reactionImage identifier:nil handler:^(UIAction *action){
             
@@ -3517,7 +3530,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
 
     // Re-send option
-    if (message.sendingFailed && !_offlineMode) {
+    if (message.sendingFailed && !_offlineMode && hasChatPermission) {
         UIImage *resendImage = [[UIImage imageNamed:@"refresh"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *resendAction = [UIAction actionWithTitle:NSLocalizedString(@"Resend", nil) image:resendImage identifier:nil handler:^(UIAction *action){
             
@@ -3550,7 +3563,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
 
     // Delete option
-    if (message.sendingFailed || [message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType]) {
+    if ((message.sendingFailed || [message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType]) && hasChatPermission) {
         UIImage *deleteImage = [[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
             

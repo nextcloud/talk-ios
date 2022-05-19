@@ -65,6 +65,7 @@ typedef enum NCPermission {
     NCPermissionCanPublishAudio = 16,
     NCPermissionCanPublishVideo = 32,
     NCPermissionCanPublishScreen = 64,
+    NCPermissionChat = 128,
 } NCPermission;
 
 extern NSString * const NCRoomObjectTypeFile;

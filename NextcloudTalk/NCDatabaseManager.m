@@ -62,6 +62,7 @@ NSString * const kCapabilityChatUnread              = @"chat-unread";
 NSString * const kCapabilityReactions               = @"reactions";
 NSString * const kCapabilityRichObjectListMedia     = @"rich-object-list-media";
 NSString * const kCapabilityRichObjectDelete        = @"rich-object-delete";
+NSString * const kCapabilityChatPermission          = @"chat-permission";
 
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
