@@ -591,7 +591,7 @@
 - (void)showChatPermissionAlert
 {
     UIAlertController * alert = [UIAlertController
-                                 alertControllerWithTitle:NSLocalizedString(@"Can not share to conversation", nil)
+                                 alertControllerWithTitle:NSLocalizedString(@"Cannot share to conversation", nil)
                                  message:NSLocalizedString(@"Either you don't have chat permission or the conversation is read-only.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
 
