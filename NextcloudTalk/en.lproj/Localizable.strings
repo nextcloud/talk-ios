@@ -206,9 +206,6 @@
 "Camera enabled" = "Camera enabled";
 
 /* No comment provided by engineer. */
-"Cannot share to conversation" = "Cannot share to conversation";
-
-/* No comment provided by engineer. */
 "Cancel" = "Cancel";
 
 /* No comment provided by engineer. */
@@ -216,6 +213,9 @@
 
 /* No comment provided by engineer. */
 "Cancelled call from another account" = "Cancelled call from another account";
+
+/* No comment provided by engineer. */
+"Cannot share to conversation" = "Cannot share to conversation";
 
 /* No comment provided by engineer. */
 "Change password" = "Change password";
@@ -906,6 +906,9 @@
 
 /* No comment provided by engineer. */
 "Remove account" = "Remove account";
+
+/* No comment provided by engineer. */
+"Remove circle and members" = "Remove circle and members";
 
 /* No comment provided by engineer. */
 "Remove from favorites" = "Remove from favorites";
