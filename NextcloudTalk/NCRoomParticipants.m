@@ -90,7 +90,7 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
 {
     // In Talk 5 guest moderators were introduced
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityInviteGroupsAndMails]) {
-        return !self.canModerate && ! self.isGroup && !self.isBridgeBotUser;
+        return !self.canModerate && !self.isGroup && !self.isCircle && !self.isBridgeBotUser;
     }
     return _participantType == kNCParticipantTypeUser;
 }
@@ -113,6 +113,11 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
 - (BOOL)isGroup
 {
     return [_actorType isEqualToString:NCAttendeeTypeGroup];
+}
+
+- (BOOL)isCircle
+{
+    return [_actorType isEqualToString:NCAttendeeTypeCircle];
 }
 
 - (BOOL)isOffline
