@@ -45,6 +45,18 @@
 #import "NotificationCenterNotifications.h"
 
 
+@interface NCPushNotificationKeyPair : NSObject
+
+@property (nonatomic, copy) NSData *publicKey;
+@property (nonatomic, copy) NSData *privateKey;
+
+@end
+
+@implementation NCPushNotificationKeyPair
+
+@end
+
+
 @implementation NCSettingsController
 
 NSString * const kUserProfileUserId             = @"id";
@@ -495,8 +507,9 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId
 {
 #if !TARGET_IPHONE_SIMULATOR
-    if ([self generatePushNotificationsKeyPairForAccountId:accountId]) {
-        [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId] toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
+    NCPushNotificationKeyPair *keyPair = [self generatePushNotificationsKeyPairForAccountId:accountId];
+    if (keyPair) {
+        [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId] withPublicKey:keyPair.publicKey toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
             if (!error) {
                 NSLog(@"Subscribed to NC server successfully.");
                 
@@ -519,8 +532,10 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
                         [realm beginWriteTransaction];
                         NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
                         TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+                        managedAccount.pushNotificationPublicKey = keyPair.publicKey;
                         managedAccount.pushNotificationSubscribed = YES;
                         [realm commitWriteTransaction];
+                        [[NCKeyChainController sharedInstance] setPushNotificationPrivateKey:keyPair.privateKey forAccountId:accountId];
                         NSLog(@"Subscribed to Push Notification server successfully.");
                     } else {
                         NSLog(@"Error while subscribing to Push Notification server.");
@@ -534,13 +549,13 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
 #endif
 }
 
-- (BOOL)generatePushNotificationsKeyPairForAccountId:(NSString *)accountId
+- (NCPushNotificationKeyPair *)generatePushNotificationsKeyPairForAccountId:(NSString *)accountId
 {
     EVP_PKEY *pkey;
     NSError *keyError;
     pkey = [self generateRSAKey:&keyError];
     if (keyError) {
-        return NO;
+        return nil;
     }
     
     // Extract publicKey, privateKey
@@ -556,12 +571,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     
     BIO_read(publicKeyBIO, keyBytes, len);
     NSData *pnPublicKey = [NSData dataWithBytes:keyBytes length:len];
-    RLMRealm *realm = [RLMRealm defaultRealm];
-    [realm beginWriteTransaction];
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
-    TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
-    managedAccount.pushNotificationPublicKey = pnPublicKey;
-    [realm commitWriteTransaction];
     NSLog(@"Push Notifications Key Pair generated: \n%@", [[NSString alloc] initWithData:pnPublicKey encoding:NSUTF8StringEncoding]);
     
     // PrivateKey
@@ -573,10 +582,13 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     
     BIO_read(privateKeyBIO, keyBytes, len);
     NSData *pnPrivateKey = [NSData dataWithBytes:keyBytes length:len];
-    [[NCKeyChainController sharedInstance] setPushNotificationPrivateKey:pnPrivateKey forAccountId:accountId];
     EVP_PKEY_free(pkey);
     
-    return YES;
+    NCPushNotificationKeyPair *keyPair = [[NCPushNotificationKeyPair alloc] init];
+    keyPair.publicKey = pnPublicKey;
+    keyPair.privateKey = pnPrivateKey;
+    
+    return keyPair;
 }
 
 - (EVP_PKEY *)generateRSAKey:(NSError **)error

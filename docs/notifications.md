@@ -32,6 +32,12 @@ Please note that under rare circumstances apple will stop sending (call-)notific
     - If you're using Talk 13 or later, please note that notifications for chat messages and calls can be enabled/disabled independently for each conversation.
 - Also be aware that notifications are not generated when you have an active session for a conversation! This also applies for tabs that are open in the background, etc. You might want to check if there's still a browser open somewhere preventing notifications to be send to your device(s).
 
+## 🔒 Check app sessions
+
+- Using the web interface go to your Nextcloud "Settings" -> "Security"
+- Under "Devices & sessions" check if there are duplicate entries for the same device (e.g. iPhone (Nextcloud Talk))
+- Remove old duplicate entries and just leave the entry with the most recent "Last activity"
+
 ## 🖥 Check server settings
 
 Run the `notification:test-push` command for the user who is logged in at the device that should receive the notification:
