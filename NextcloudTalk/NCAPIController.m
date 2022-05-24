@@ -2134,10 +2134,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Push Notifications
 
-- (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account toNextcloudServerWithCompletionBlock:(SubscribeToNextcloudServerCompletionBlock)block
+- (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account withPublicKey:(NSData *)publicKey toNextcloudServerWithCompletionBlock:(SubscribeToNextcloudServerCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/push", account.server];
-    NSString *devicePublicKey = [[NSString alloc] initWithData:account.pushNotificationPublicKey encoding:NSUTF8StringEncoding];
+    NSString *devicePublicKey = [[NSString alloc] initWithData:publicKey encoding:NSUTF8StringEncoding];
 
     NSDictionary *parameters = @{@"pushTokenHash" : [[NCKeyChainController sharedInstance] pushTokenSHA512],
                                  @"devicePublicKey" : devicePublicKey,
