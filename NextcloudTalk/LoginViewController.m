@@ -175,20 +175,9 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
                 });
-            } else if ([error code] == NSURLErrorAppTransportSecurityRequiresSecureConnection ||
-                       [error code] == NSURLErrorBadServerResponse ||
-                       [error code] == NSURLErrorCannotConnectToHost ||
-                       [error code] == NSURLErrorCannotFindHost ||
-                       [error code] == NSURLErrorClientCertificateRejected ||
-                       [error code] == NSURLErrorHTTPTooManyRedirects ||
-                       [error code] == NSURLErrorNetworkConnectionLost ||
-                       [error code] == NSURLErrorServerCertificateHasBadDate ||
-                       [error code] == NSURLErrorServerCertificateHasUnknownRoot ||
-                       [error code] == NSURLErrorTimedOut) {
+            } else {
                 NSString *errorMessage = [NSString stringWithFormat:@"%@\n%@", [error localizedDescription], NSLocalizedString(@"Please check that you entered the correct Nextcloud server address.", nil)];
                 [self showAlertWithTitle:NSLocalizedString(@"Nextcloud server not found", nil) andMessage:errorMessage];
-            } else {
-                [self showAlertWithTitle:NSLocalizedString(@"Nextcloud server not found", nil) andMessage:NSLocalizedString(@"Please check that you entered the correct Nextcloud server address.", nil)];
             }
         }
     }];
