@@ -2473,7 +2473,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             
             // Check if unread messages separator should be added (only if it's not already shown)
             NSIndexPath *indexPathUnreadMessageSeparator;
-            if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && ![self getIndexPathOfUnreadMessageSeparator]) {
+            if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && ![self getIndexPathOfUnreadMessageSeparator] && [self newMessagesContainVisibleMessages:messages]) {
                 NSMutableArray *messagesForLastDateBeforeUpdate = [self->_messages objectForKey:[self->_dateSections lastObject]];
                 [messagesForLastDateBeforeUpdate addObject:self->_unreadMessagesSeparator];
                 indexPathUnreadMessageSeparator = [NSIndexPath indexPathForRow:messagesForLastDateBeforeUpdate.count - 1 inSection: self->_dateSections.count - 1];
