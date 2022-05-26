@@ -1071,21 +1071,20 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:NO andDisplayName:_room.displayName withAccountId:_room.accountId];
 }
 
-- (void)sendChatMessage:(NSString *)message fromInputField:(BOOL)fromInputField
+- (void)sendChatMessage:(NSString *)message withParentMessage:(NCChatMessage *)parentMessage
 {
     // Create temporary message
     NSString *referenceId = nil;
-    NCChatMessage *replyToMessage = (_replyMessageView.isVisible && fromInputField) ? _replyMessageView.message : nil;
     
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
-        NCChatMessage *temporaryMessage = [self createTemporaryMessage:message replyToMessage:replyToMessage];
+        NCChatMessage *temporaryMessage = [self createTemporaryMessage:message replyToMessage:parentMessage];
         referenceId = temporaryMessage.referenceId;
         [self appendTemporaryMessage:temporaryMessage];
     }
     
     // Send message
     NSString *sendingText = [self createSendingMessage:message];
-    NSInteger replyTo = replyToMessage ? replyToMessage.messageId : -1;
+    NSInteger replyTo = parentMessage ? parentMessage.messageId : -1;
     [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId];
 }
 
@@ -1107,7 +1106,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     UIButton *button = sender;
     if (button.tag == k_send_message_button_tag) {
-        [self sendChatMessage:self.textView.text fromInputField:YES];
+        NCChatMessage *replyToMessage = _replyMessageView.isVisible ? _replyMessageView.message : nil;
+        [self sendChatMessage:self.textView.text withParentMessage:replyToMessage];
         [_replyMessageView dismiss];
         [super didPressRightButton:sender];
         
@@ -1328,7 +1328,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self removeUnreadMessagesSeparator];
     
     [self removePermanentlyTemporaryMessage:message];
-    [self sendChatMessage:message.message fromInputField:NO];
+    [self sendChatMessage:message.message withParentMessage:message.parent];
 }
 
 - (void)didPressCopy:(NCChatMessage *)message {
