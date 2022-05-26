@@ -60,7 +60,15 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
     [super viewDidLoad];
     WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
     configuration.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", _serverUrl, kNCAuthTokenFlowEndpoint]];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@%@", _serverUrl, kNCAuthTokenFlowEndpoint];
+    
+    if (_user) {
+        urlString = [NSString stringWithFormat:@"%@?user=%@", urlString, _user];
+    }
+    
+    NSURL *url = [NSURL URLWithString:urlString];
+    
     
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     for (NSHTTPCookie *cookie in [storage cookies])
