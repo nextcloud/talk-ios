@@ -22,6 +22,9 @@
 
 #import "AuthenticationViewController.h"
 
+
+#import "NextcloudTalk-Swift.h"
+
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -73,7 +76,7 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
         [request setValue:@"true" forHTTPHeaderField:@"OCS-APIRequest"];
         
-        self->_webView = [[WKWebView alloc] initWithFrame:self.view.frame configuration:configuration];
+        self->_webView = [[DebounceWebView alloc] initWithFrame:self.view.frame configuration:configuration];
         NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
         NSString *deviceName = [[UIDevice currentDevice] name];
         NSString *userAgent = [NSString stringWithFormat:@"%@ (%@)", deviceName, appDisplayName];

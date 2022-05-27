@@ -14,6 +14,7 @@
 		1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
+		1FA20C8A284001D80062B4F3 /* DebounceWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA20C89284001D80062B4F3 /* DebounceWebView.swift */; };
 		1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3C4257D439500853F79 /* NCChatFileController.m */; };
 		1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
 		1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
@@ -329,6 +330,7 @@
 		1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiUtils.swift; sourceTree = "<group>"; };
 		1F5CDF622584E78900B0026E /* NCChatFileStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatFileStatus.h; sourceTree = "<group>"; };
 		1F5CDF632584E78900B0026E /* NCChatFileStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatFileStatus.m; sourceTree = "<group>"; };
+		1FA20C89284001D80062B4F3 /* DebounceWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebounceWebView.swift; sourceTree = "<group>"; };
 		1FEDE3C4257D439500853F79 /* NCChatFileController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCChatFileController.m; sourceTree = "<group>"; };
 		1FEDE3C5257D439500853F79 /* NCChatFileController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCChatFileController.h; sourceTree = "<group>"; };
 		1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCMessageFileParameter.m; sourceTree = "<group>"; };
@@ -966,6 +968,7 @@
 				2C0574A11EDDA2E300D9E7F2 /* LoginViewController.h */,
 				2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */,
 				2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */,
+				1FA20C89284001D80062B4F3 /* DebounceWebView.swift */,
 			);
 			name = Login;
 			sourceTree = "<group>";
@@ -1719,6 +1722,7 @@
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
 				2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */,
+				1FA20C8A284001D80062B4F3 /* DebounceWebView.swift in Sources */,
 				2C4CDCD126A84E500023F403 /* ShareTableViewCell.m in Sources */,
 				2C8CDD0621C2EDE8004E2997 /* AvatarBackgroundImageView.m in Sources */,
 				2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */,
