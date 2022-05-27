@@ -1024,6 +1024,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)updateMessageWithMessageId:(NSInteger)messageId withMessage:(NCChatMessage *)updatedMessage
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        BOOL isAtBottom = [self shouldScrollOnNewMessages];
+        
         NSMutableArray *reloadIndexPaths = [NSMutableArray new];
         NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:messageId];
         if (indexPath) {
@@ -1038,6 +1040,14 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [self.tableView beginUpdates];
         [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
         [self.tableView endUpdates];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Make sure we're really at the bottom after updating a message
+            if (isAtBottom) {
+                [self.tableView slk_scrollToBottomAnimated:NO];
+                [self updateToolbar:NO];
+            }
+        });
     });
 }
 
