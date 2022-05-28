@@ -56,6 +56,7 @@ typedef enum RoomInfoSection {
     kRoomInfoSectionSharedItems,
     kRoomInfoSectionNotifications,
     kRoomInfoSectionGuests,
+    kRoomInfoSectionConversation,
     kRoomInfoSectionWebinar,
     kRoomInfoSectionSIP,
     kRoomInfoSectionParticipants,
@@ -73,6 +74,12 @@ typedef enum GuestAction {
     kGuestActionShareLink,
     kGuestActionResendInvitations
 } GuestAction;
+
+typedef enum ConversationAction {
+    kConversationActionListable = 0,
+    kConversationActionListableForEveryone,
+    kConversationActionReadOnly
+} ConversationAction;
 
 typedef enum WebinarAction {
     kWebinarActionLobby = 0,
@@ -107,7 +114,9 @@ typedef enum ModificationError {
     kModificationErrorLeave,
     kModificationErrorLeaveModeration,
     kModificationErrorDelete,
-    kModificationErrorClearHistory
+    kModificationErrorClearHistory,
+    kModificationErrorListable,
+    kModificationErrorReadOnly
 } ModificationError;
 
 typedef enum FileAction {
@@ -125,6 +134,9 @@ typedef enum FileAction {
 @property (nonatomic, strong) NSMutableArray *roomParticipants;
 @property (nonatomic, strong) UITextField *roomNameTextField;
 @property (nonatomic, strong) UISwitch *publicSwitch;
+@property (nonatomic, strong) UISwitch *listableSwitch;
+@property (nonatomic, strong) UISwitch *listableForEveryoneSwitch;
+@property (nonatomic, strong) UISwitch *readOnlySwitch;
 @property (nonatomic, strong) UISwitch *lobbySwitch;
 @property (nonatomic, strong) UISwitch *sipSwitch;
 @property (nonatomic, strong) UISwitch *callNotificationSwitch;
@@ -181,6 +193,15 @@ typedef enum FileAction {
     
     _publicSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_publicSwitch addTarget: self action: @selector(publicValueChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    _listableSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_listableSwitch addTarget: self action: @selector(listableValueChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    _listableForEveryoneSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_listableForEveryoneSwitch addTarget: self action: @selector(listableForEveryoneValueChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    _readOnlySwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_readOnlySwitch addTarget: self action: @selector(readOnlyValueChanged:) forControlEvents:UIControlEventValueChanged];
     
     _lobbySwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_lobbySwitch addTarget: self action: @selector(lobbyValueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -288,9 +309,17 @@ typedef enum FileAction {
     if (_room.canModerate) {
         // Guests section
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionGuests]];
-        // Webinar section
-        if (_room.type != kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
-            [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionWebinar]];
+        
+        if (_room.type != kNCRoomTypeOneToOne) {
+            // Conversation section
+            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReadOnlyRooms] || [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
+                [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionConversation]];
+            }
+            
+            // Webinar section
+            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
+                [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionWebinar]];
+            }
         }
     }
     // SIP section
@@ -379,6 +408,25 @@ typedef enum FileAction {
         actionIndexPath = [NSIndexPath indexPathForRow:actionRow inSection:section];
     }
     return actionIndexPath;
+}
+
+- (NSArray *)getConversationActions
+{
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+    // Listable room action
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
+        [actions addObject:[NSNumber numberWithInt:kConversationActionListable]];
+        
+        if (_room.listable == NCRoomListableScopeRegularUsersOnly || _room.listable == NCRoomListableScopeEveryone) {
+            [actions addObject:[NSNumber numberWithInt:kConversationActionListableForEveryone]];
+        }
+    }
+    // Read only room action
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReadOnlyRooms]) {
+        [actions addObject:[NSNumber numberWithInt:kConversationActionReadOnly]];
+    }
+    
+    return [NSArray arrayWithArray:actions];
 }
 
 - (NSArray *)getWebinarActions
@@ -508,6 +556,14 @@ typedef enum FileAction {
             
         case kModificationErrorClearHistory:
             errorDescription = NSLocalizedString(@"Could not clear chat history", nil);
+            break;
+            
+        case kModificationErrorListable:
+            errorDescription = NSLocalizedString(@"Could not change listable scope of the conversation", nil);
+            break;
+            
+        case kModificationErrorReadOnly:
+            errorDescription = NSLocalizedString(@"Could not change read-only state of the converstion", nil);
             break;
             
         default:
@@ -822,6 +878,45 @@ typedef enum FileAction {
             NSLog(@"An Error occured sharing room: %@, %@", error.localizedDescription, error.localizedFailureReason);
         }
     };
+}
+
+- (void)setListableScope:(NCRoomListableScope)scope
+{
+    if (scope == _room.listable) {
+        return;
+    }
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] setListableScope:scope forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+        } else {
+            NSLog(@"Error setting room listable scope: %@", error.description);
+            [self.tableView reloadData];
+            [self showRoomModificationError:kModificationErrorListable];
+        }
+        
+        self->_listableSwitch.enabled = YES;
+        self->_listableForEveryoneSwitch.enabled = YES;
+    }];
+}
+
+- (void)setReadOnlyState:(NCRoomReadOnlyState)state
+{
+    if (state == _room.readOnlyState) {
+        return;
+    }
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] setReadOnlyState:state forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+        } else {
+            NSLog(@"Error setting room readonly state: %@", error.description);
+            [self.tableView reloadData];
+            [self showRoomModificationError:kModificationErrorReadOnly];
+        }
+        
+        self->_readOnlySwitch.enabled = true;
+    }];
 }
 
 - (void)previewRoomFile:(NSIndexPath *)indexPath
@@ -1208,6 +1303,43 @@ typedef enum FileAction {
     }
 }
 
+#pragma mark - Listable switches
+
+- (void)listableValueChanged:(id)sender
+{
+    _listableSwitch.enabled = NO;
+    _listableForEveryoneSwitch.enabled = NO;
+    if (_listableSwitch.on) {
+        [self setListableScope:NCRoomListableScopeRegularUsersOnly];
+    } else {
+        [self setListableScope:NCRoomListableScopeParticipantsOnly];
+    }
+}
+
+- (void)listableForEveryoneValueChanged:(id)sender
+{
+    _listableSwitch.enabled = NO;
+    _listableForEveryoneSwitch.enabled = NO;
+    if (_listableForEveryoneSwitch.on) {
+        [self setListableScope:NCRoomListableScopeEveryone];
+    } else {
+        [self setListableScope:NCRoomListableScopeRegularUsersOnly];
+    }
+}
+
+
+#pragma mark - ReadOnly switch
+
+- (void)readOnlyValueChanged:(id)sender
+{
+    _readOnlySwitch.enabled = NO;
+    if (_readOnlySwitch.on) {
+        [self setReadOnlyState:NCRoomReadOnlyStateReadOnly];
+    } else {
+        [self setReadOnlyState:NCRoomReadOnlyStateReadWrite];
+    }
+}
+
 #pragma mark - SIP switch
 
 - (void)sipValueChanged:(id)sender
@@ -1308,6 +1440,10 @@ typedef enum FileAction {
             return [self getGuestsActions].count;
             break;
             
+        case kRoomInfoSectionConversation:
+            return [self getConversationActions].count;
+            break;
+            
         case kRoomInfoSectionWebinar:
             return [self getWebinarActions].count;
             break;
@@ -1387,6 +1523,9 @@ typedef enum FileAction {
         case kRoomInfoSectionGuests:
             return NSLocalizedString(@"Guests access", nil);
             break;
+        case kRoomInfoSectionConversation:
+            return NSLocalizedString(@"Conversation settings", nil);
+            break;
         case kRoomInfoSectionWebinar:
             return NSLocalizedString(@"Meeting settings", nil);
             break;
@@ -1435,6 +1574,7 @@ typedef enum FileAction {
         case kRoomInfoSectionFile:
         case kRoomInfoSectionSharedItems:
         case kRoomInfoSectionGuests:
+        case kRoomInfoSectionConversation:
         case kRoomInfoSectionWebinar:
         case kRoomInfoSectionSIP:
             return 36;
@@ -1468,6 +1608,9 @@ typedef enum FileAction {
     static NSString *leaveRoomCellIdentifier = @"LeaveRoomCellIdentifier";
     static NSString *deleteRoomCellIdentifier = @"DeleteRoomCellIdentifier";
     static NSString *sharedItemsCellIdentifier = @"SharedItemsCellIdentifier";
+    static NSString *listableCellIdentifier = @"ListableCellIdentifier";
+    static NSString *listableForEveryoneCellIdentifier = @"ListableForEveryoneCellIdentifier";
+    static NSString *readOnlyStateCellIdentifier = @"ReadOnlyStateCellIdentifier";
     
     NSArray *sections = [self getRoomInfoSections];
     RoomInfoSection section = [[sections objectAtIndex:indexPath.section] intValue];
@@ -1711,6 +1854,68 @@ typedef enum FileAction {
                     
                     UIImage *nextcloudActionImage = [[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
                     [cell.imageView setImage:nextcloudActionImage];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    
+                    return cell;
+                }
+                    break;
+            }
+        }
+            break;
+        case kRoomInfoSectionConversation:
+        {
+            NSArray *actions = [self getConversationActions];
+            ConversationAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kConversationActionListable:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:listableCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:listableCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Open conversation to registered users", nil);
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _listableSwitch;
+                    _listableSwitch.on = (_room.listable != NCRoomListableScopeParticipantsOnly);
+                    [cell.imageView setImage:[[UIImage imageNamed:@"listable-conversation"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    
+                    return cell;
+                }
+                    break;
+                case kConversationActionListableForEveryone:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:listableForEveryoneCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:listableForEveryoneCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Also open to guest app users", nil);
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _listableForEveryoneSwitch;
+                    _listableForEveryoneSwitch.on = (_room.listable == NCRoomListableScopeEveryone);
+                    
+                    // Still assign an image, but hide it to keep the margin the same as the other cells
+                    [cell.imageView setImage:[[UIImage imageNamed:@"listable-conversation"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setHidden:YES];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    
+                    return cell;
+                }
+                    break;
+                case kConversationActionReadOnly:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:readOnlyStateCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:readOnlyStateCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Lock conversation", nil);
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _readOnlySwitch;
+                    _readOnlySwitch.on = _room.readOnlyState;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"message-text-lock"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
                     return cell;
