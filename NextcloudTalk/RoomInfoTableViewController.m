@@ -563,7 +563,7 @@ typedef enum FileAction {
             break;
             
         case kModificationErrorReadOnly:
-            errorDescription = NSLocalizedString(@"Could not change read-only state of the converstion", nil);
+            errorDescription = NSLocalizedString(@"Could not change read-only state of the conversation", nil);
             break;
             
         default:
