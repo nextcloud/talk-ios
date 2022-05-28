@@ -198,7 +198,7 @@ typedef enum FileAction {
     }
     _lobbyDateTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 00, 150, 30)];
     _lobbyDateTextField.textAlignment = NSTextAlignmentRight;
-    _lobbyDateTextField.placeholder = NSLocalizedString(@"Manual", nil);
+    _lobbyDateTextField.placeholder = NSLocalizedString(@"Manual", @"TRANSLATORS this is used when no meeting start time is set and the meeting will be started manually");
     _lobbyDateTextField.adjustsFontSizeToFitWidth = YES;
     _lobbyDateTextField.minimumFontSize = 9;
     [_lobbyDateTextField setInputView:_lobbyDatePicker];
