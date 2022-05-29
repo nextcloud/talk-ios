@@ -22,15 +22,19 @@
 
 #import "LoginViewController.h"
 
+#import "NextcloudTalk-Swift.h"
+
 #import "AuthenticationViewController.h"
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 
-@interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate>
+@interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate, QRCodeLoginControllerDelegate>
 {
     AuthenticationViewController *_authenticationViewController;
+    QRCodeLoginController *_qrCodeLoginController;
+    NSString *_serverURL;
 }
 
 @end
@@ -107,6 +111,12 @@
 - (IBAction)cancel:(id)sender
 {
     [self dismissViewControllerAnimated:true completion:nil];
+}
+
+- (IBAction)qrCodeLogin:(id)sender
+{
+    _qrCodeLoginController = [[QRCodeLoginController alloc] initWithDelegate:self];
+    [_qrCodeLoginController scan];
 }
 
 - (void)trustedCerticateAccepted
@@ -225,5 +235,15 @@
     }
 }
 
+#pragma mark - QRCodeLoginControllerDelegate
+
+- (void)readLoginDetailsWithServerUrl:(NSString *)serverUrl user:(NSString *)user password:(NSString *)password
+{
+    // TODO: Add checks for server-/talk-version
+    if (serverUrl && user && password) {
+        [[NCSettingsController sharedInstance] addNewAccountForUser:user withToken:password inServer:serverUrl];
+        [self.delegate loginViewControllerDidFinish:self];
+    }
+}
 
 @end
