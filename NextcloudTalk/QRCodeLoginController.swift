@@ -73,7 +73,11 @@ import QRCodeReader
             
             switch error.code {
             case -11852:
-                alert = UIAlertController(title: NSLocalizedString("Could not access camera", comment: ""), message: NSLocalizedString("Camera access is not allowed. Check your settings.", comment: ""), preferredStyle: .alert)
+                alert = UIAlertController(
+                    title: NSLocalizedString("Could not access camera", comment: ""),
+                    message: NSLocalizedString("Camera access is not allowed. Check your settings.", comment: ""),
+                    preferredStyle: .alert
+                )
                 
                 alert.addAction(UIAlertAction(title: NSLocalizedString("Settings", comment: ""), style: .default, handler: { _ in
                     DispatchQueue.main.async {
@@ -85,7 +89,12 @@ import QRCodeReader
                 
                 alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
             default:
-                alert = UIAlertController(title: NSLocalizedString("Not supported", comment: ""), message: NSLocalizedString("Scanning QR Codes is not supported on this device.", comment: ""), preferredStyle: .alert)
+                alert = UIAlertController(
+                    title: NSLocalizedString("Not supported", comment: ""),
+                    message: NSLocalizedString("Scanning QR Codes is not supported on this device.", comment: ""),
+                    preferredStyle: .alert
+                )
+                
                 alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel, handler: nil))
             }
             

@@ -34,7 +34,6 @@
 {
     AuthenticationViewController *_authenticationViewController;
     QRCodeLoginController *_qrCodeLoginController;
-    NSString *_serverURL;
 }
 
 @end
