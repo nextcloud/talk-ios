@@ -282,7 +282,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     }];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [[NCAPIController sharedInstance] sendChatMessage:pushNotification.responseUserText toRoom:pushNotification.roomToken displayName:nil replyTo:-1 referenceId:nil forAccount:pushAccount withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] sendChatMessage:pushNotification.responseUserText toRoom:pushNotification.roomToken displayName:nil replyTo:-1 referenceId:nil silently:NO forAccount:pushAccount withCompletionBlock:^(NSError *error) {
 
             if (error) {
                 NSLog(@"Could not send chat message. Error: %@", error.description);

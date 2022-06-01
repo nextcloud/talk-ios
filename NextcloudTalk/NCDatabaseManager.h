@@ -42,6 +42,7 @@ extern NSString * const kCapabilityCirclesSupport;
 extern NSString * const kCapabilityChatReferenceId;
 extern NSString * const kCapabilityPhonebookSearch;
 extern NSString * const kCapabilityChatReadStatus;
+extern NSString * const kCapabilityReadOnlyRooms;
 extern NSString * const kCapabilityListableRooms;
 extern NSString * const kCapabilityDeleteMessages;
 extern NSString * const kCapabilityCallFlags;
@@ -61,7 +62,7 @@ extern NSString * const kCapabilityReactions;
 extern NSString * const kCapabilityRichObjectListMedia;
 extern NSString * const kCapabilityRichObjectDelete;
 extern NSString * const kCapabilityChatPermission;
-extern NSString * const kCapabilityReadOnlyRooms;
+extern NSString * const kCapabilitySilentSend;
 
 extern NSString * const kMinimumRequiredTalkCapability;
 
