@@ -1102,7 +1102,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     if (![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySilentSend]) {return;}
     
-    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:nil
+    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Send options", nil)
                                                                                 message:nil
                                                                          preferredStyle:UIAlertControllerStyleActionSheet];
     
@@ -1113,6 +1113,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }];
     [silentSendAction setValue:[[UIImage imageNamed:@"notifications-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     [optionsActionSheet addAction:silentSendAction];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.rightButton;
