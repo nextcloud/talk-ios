@@ -2471,9 +2471,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             // Otherwise longer messages will prevent scrolling
             BOOL shouldScrollOnNewMessages = [self shouldScrollOnNewMessages] ;
             
+            BOOL newMessagesContainVisibleMessages = [self newMessagesContainVisibleMessages:messages];
             // Check if unread messages separator should be added (only if it's not already shown)
             NSIndexPath *indexPathUnreadMessageSeparator;
-            if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && ![self getIndexPathOfUnreadMessageSeparator] && [self newMessagesContainVisibleMessages:messages]) {
+            if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && ![self getIndexPathOfUnreadMessageSeparator] && newMessagesContainVisibleMessages) {
                 NSMutableArray *messagesForLastDateBeforeUpdate = [self->_messages objectForKey:[self->_dateSections lastObject]];
                 [messagesForLastDateBeforeUpdate addObject:self->_unreadMessagesSeparator];
                 indexPathUnreadMessageSeparator = [NSIndexPath indexPathForRow:messagesForLastDateBeforeUpdate.count - 1 inSection: self->_dateSections.count - 1];
@@ -2513,7 +2514,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 });
             } else if (shouldScrollOnNewMessages || newMessagesContainUserMessage) {
                 [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-            } else if (!self->_firstUnreadMessage && areReallyNewMessages && [self newMessagesContainVisibleMessages:messages]) {
+            } else if (!self->_firstUnreadMessage && areReallyNewMessages && newMessagesContainVisibleMessages) {
                 [self showNewMessagesViewUntilMessage:firstNewMessage];
             }
             
