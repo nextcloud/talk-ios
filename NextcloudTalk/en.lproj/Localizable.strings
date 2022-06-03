@@ -667,7 +667,7 @@
 /* No comment provided by engineer. */
 "Logged out" = "Logged out";
 
-/* No comment provided by engineer. */
+/* TRANSLATORS this is used when no meeting start time is set and the meeting will be started manually */
 "Manual" = "Manual";
 
 /* No comment provided by engineer. */
