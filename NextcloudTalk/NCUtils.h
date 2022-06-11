@@ -38,7 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 // https://www.php.net/manual/en/class.datetimeinterface.php#datetime.constants.atom
 + (NSDate *)dateFromDateAtomFormat:(NSString *)dateAtomFormatString;
 + (NSString *)dateAtomFormatFromDate:(NSDate *)date;
-+ (NSString *)readableDateFromDate:(NSDate *)date;
++ (NSString *)readableDateTimeFromDate:(NSDate *)date;
++ (NSString *)readableTimeOrDateFromDate:(NSDate *)date;
 + (NSString *)getTimeFromDate:(NSDate *)date;
 + (NSString *)relativeTimeFromDate:(NSDate *)date;
 

@@ -29,6 +29,8 @@
 
 #import "NCDatabaseManager.h"
 #import "NCUserDefaults.h"
+#import "NSDate+DateTools.h"
+
 
 static NSString *const nextcloudScheme = @"nextcloud:";
 
@@ -143,13 +145,27 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     
     return [dateFormatter stringFromDate:date];
 }
-+ (NSString *)readableDateFromDate:(NSDate *)date
++ (NSString *)readableDateTimeFromDate:(NSDate *)date
 {
     NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
     [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
     dateFormatter.doesRelativeDateFormatting = YES;
     return [dateFormatter stringFromDate:date];
+}
+
++ (NSString *)readableTimeOrDateFromDate:(NSDate *)date
+{
+    if ([date isToday]) {
+        return [self getTimeFromDate:date];
+    } else if ([date isYesterday]) {
+        return NSLocalizedString(@"Yesterday", nil);
+    }
+    
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setTimeStyle:NSDateFormatterNoStyle];
+    [formatter setDateStyle:NSDateFormatterShortStyle];
+    return [formatter stringFromDate:date];
 }
 
 + (NSString *)getTimeFromDate:(NSDate *)date
