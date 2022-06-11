@@ -473,13 +473,24 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            block(nil);
+            block(nil, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = [self getResponseStatusCode:task.response];
         [self checkResponseStatusCode:statusCode forAccount:account];
         if (block) {
-            block(error);
+            if (statusCode == 400) {
+                NSData *errorData = (NSData *)error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
+                NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:errorData
+                                                                         options:0
+                                                                           error:&error];
+                
+                // message is already translated server-side
+                NSString *errorDescription = [[[jsonData objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"message"];
+                block(error, errorDescription);
+            } else {
+                block(error, nil);
+            }
         }
     }];
     

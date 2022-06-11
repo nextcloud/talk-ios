@@ -201,13 +201,14 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 - (void)setPassword
 {
-    [[NCAPIController sharedInstance] setPassword:_passwordToBeSet toRoom:_createdRoomToken forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] setPassword:_passwordToBeSet toRoom:_createdRoomToken forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error, NSString *errorDescription) {
         if (!error) {
             self->_passwordToBeSet = nil;
             [self checkRoomCreationCompletion];
         } else {
             NSLog(@"Error setting room password: %@", error.description);
-            [self cancelRoomCreation];        }
+            [self cancelRoomCreationWithMessage:errorDescription];
+        }
     }];
 }
 
@@ -233,13 +234,22 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 - (void)cancelRoomCreation
 {
+    [self cancelRoomCreationWithMessage:nil];
+}
+
+- (void)cancelRoomCreationWithMessage:(NSString *)message
+{
     [self enableInteraction];
     [_creatingRoomView stopAnimating];
     self.navigationItem.rightBarButtonItem = _createRoomButton;
     
+    if (message == nil) {
+        message = NSLocalizedString(@"An error occurred while creating the conversation", nil);
+    }
+    
     UIAlertController * alert = [UIAlertController
                                  alertControllerWithTitle:NSLocalizedString(@"Could not create conversation", nil)
-                                 message:NSLocalizedString(@"An error occurred while creating the conversation", nil)
+                                 message:message
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction* okButton = [UIAlertAction
                                actionWithTitle:NSLocalizedString(@"OK", nil)
