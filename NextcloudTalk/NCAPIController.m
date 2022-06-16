@@ -265,6 +265,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
+        NSDictionary *headers = [self getResponseHeaders:response];
+        
+        [self checkResponseHeaders:headers forAccount:account];
+        
         if (block) {
             block(responseRooms, nil, 0);
         }
@@ -289,6 +294,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *roomDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
+        NSDictionary *headers = [self getResponseHeaders:response];
+        
+        [self checkResponseHeaders:headers forAccount:account];
+        
         if (block) {
             block(roomDict, nil);
         }
@@ -2250,6 +2260,41 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         [[NSNotificationCenter defaultCenter] postNotificationName:NCServerMaintenanceModeNotification
                                                             object:self
                                                           userInfo:userInfo];
+    }
+}
+
+#pragma mark - Header handling
+- (NSDictionary *)getResponseHeaders:(NSURLResponse *)response
+{
+    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        return [httpResponse allHeaderFields];
+    }
+    
+    return nil;
+}
+
+- (void)checkResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account
+{
+    NSString *configurationHash = [headers objectForKey:@"X-Nextcloud-Talk-Hash"];
+    
+    if (!configurationHash) {
+        return;
+    }
+    
+    if (![configurationHash isEqualToString:account.lastReceivedConfigurationHash]) {
+        if (account.lastReceivedConfigurationHash) {
+            // We previously stored a configuration hash which now changed -> Update settings and capabilities
+            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:account.accountId forKey:@"accountId"];
+            [userInfo setObject:configurationHash forKey:@"configurationHash"];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCTalkConfigurationHashChangedNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+        } else {
+            [[NCDatabaseManager sharedInstance] updateTalkConfigurationHashForAccountId:account.accountId withHash:configurationHash];
+        }
     }
 }
 
