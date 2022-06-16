@@ -789,7 +789,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         // Lobby timer
         if (_room.lobbyTimer > 0) {
             NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
-            NSString *meetingStart = [NCUtils readableDateFromDate:date];
+            NSString *meetingStart = [NCUtils readableDateTimeFromDate:date];
             placeHolderText = [placeHolderText stringByAppendingString:[NSString stringWithFormat:@"\n\n%@\n%@", NSLocalizedString(@"This meeting is scheduled for", @"The meeting start time will be displayed after this text e.g (This meeting is scheduled for tomorrow at 10:00)"), meetingStart]];
         }
         // Room description
