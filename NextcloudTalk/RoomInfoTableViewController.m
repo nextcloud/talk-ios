@@ -978,7 +978,7 @@ typedef enum FileAction {
     NSInteger lobbyTimer = _lobbyDatePicker.date.timeIntervalSince1970;
     [self setLobbyState:NCRoomLobbyStateModeratorsOnly withTimer:lobbyTimer];
     
-    NSString *lobbyTimerReadable = [NCUtils readableDateFromDate:_lobbyDatePicker.date];
+    NSString *lobbyTimerReadable = [NCUtils readableDateTimeFromDate:_lobbyDatePicker.date];
     _lobbyDateTextField.text = [NSString stringWithFormat:@"%@",lobbyTimerReadable];
     [self dismissLobbyDatePicker];
 }
@@ -1756,7 +1756,7 @@ typedef enum FileAction {
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _lobbyDateTextField;
                     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
-                    _lobbyDateTextField.text = _room.lobbyTimer > 0 ? [NCUtils readableDateFromDate:date] : nil;
+                    _lobbyDateTextField.text = _room.lobbyTimer > 0 ? [NCUtils readableDateTimeFromDate:date] : nil;
                     [cell.imageView setImage:[UIImage imageNamed:@"timer"]];
                     
                     return cell;

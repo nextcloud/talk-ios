@@ -22,7 +22,6 @@
 
 #import "RoomSearchTableViewController.h"
 
-#import "NSDate+DateTools.h"
 #import "UIImageView+AFNetworking.h"
 
 #import "NCAPIController.h"
@@ -30,6 +29,7 @@
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "NCSettingsController.h"
+#import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "RoomTableViewCell.h"
 
@@ -76,19 +76,6 @@ typedef enum RoomSearchSection {
 }
 
 #pragma mark - Utils
-
-- (NSString *)getDateLabelStringForDate:(NSDate *)date
-{
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    if ([date isToday]) {
-        [formatter setDateFormat:@"HH:mm"];
-    } else if ([date isYesterday]) {
-        return NSLocalizedString(@"Yesterday", nil);
-    } else {
-        [formatter setDateFormat:@"dd/MM/yy"];
-    }
-    return [formatter stringFromDate:date];
-}
 
 - (NCRoom *)roomForIndexPath:(NSIndexPath *)indexPath
 {
@@ -160,7 +147,7 @@ typedef enum RoomSearchSection {
         cell.titleOnly = YES;
     }
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastActivity];
-    cell.dateLabel.text = [self getDateLabelStringForDate:date];
+    cell.dateLabel.text = [NCUtils readableTimeOrDateFromDate:date];
     
     // Set unread messages
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag]) {

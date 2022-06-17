@@ -26,7 +26,6 @@
 
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
-#import "NSDate+DateTools.h"
 #import "UIButton+AFNetworking.h"
 #import "UIImageView+AFNetworking.h"
 
@@ -971,20 +970,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 #pragma mark - Utils
 
-- (NSString *)getDateLabelStringForDate:(NSDate *)date
-{
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    if ([date isToday]) {
-        [formatter setDateFormat:@"HH:mm"];
-    } else if ([date isYesterday]) {
-        return NSLocalizedString(@"Yesterday", nil);
-    } else {
-        [formatter setTimeStyle:NSDateFormatterNoStyle];
-        [formatter setDateStyle:NSDateFormatterShortStyle];
-    }
-    return [formatter stringFromDate:date];
-}
-
 - (NCRoom *)roomForIndexPath:(NSIndexPath *)indexPath
 {
     if (_searchController.active && !_resultTableViewController.view.isHidden) {
@@ -1100,7 +1085,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         cell.titleOnly = YES;
     }
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastActivity];
-    cell.dateLabel.text = [self getDateLabelStringForDate:date];
+    cell.dateLabel.text = [NCUtils readableTimeOrDateFromDate:date];
     
     // Set unread messages
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag]) {
