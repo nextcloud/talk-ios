@@ -134,7 +134,7 @@ typedef enum RoomSearchSection {
 {
     switch (section) {
         case RoomSearchSectionListable:
-            return NSLocalizedString(@"Open conversations", nil);
+            return NSLocalizedString(@"Open conversations", @"TRANSLATORS 'Open conversations' as a type of conversation. 'Open conversations' are conversations that can be found by other users");
         default:
             return nil;
     }
