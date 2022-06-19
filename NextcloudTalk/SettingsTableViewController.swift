@@ -29,6 +29,7 @@ enum SettingsSection: Int {
     case kSettingsSectionUserStatus
     case kSettingsSectionAccounts
     case kSettingsSectionConfiguration
+    case kSettingsSEctionDiagnostics
     case kSettingsSectionAbout
 }
 
@@ -113,20 +114,28 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     func getSettingsSections() -> [Int] {
         var sections = [Int]()
+        
         // Active user sections
         sections.append(SettingsSection.kSettingsSectionUser.rawValue)
+        
         // User Status section
         let activeAccount: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
         if serverCapabilities.userStatus {
             sections.append(SettingsSection.kSettingsSectionUserStatus.rawValue)
         }
+        
         // Accounts section
         if !NCDatabaseManager.sharedInstance().inactiveAccounts().isEmpty {
             sections.append(SettingsSection.kSettingsSectionAccounts.rawValue)
         }
+        
         // Configuration section
         sections.append(SettingsSection.kSettingsSectionConfiguration.rawValue)
+        
+        // Diagnostics section
+        sections.append(SettingsSection.kSettingsSEctionDiagnostics.rawValue)
+        
         // About section
         sections.append(SettingsSection.kSettingsSectionAbout.rawValue)
         return sections
@@ -134,16 +143,20 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     func getConfigurationSectionOptions() -> [Int] {
         var options = [Int]()
+        
         // Video quality
         options.append(ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue)
+        
         // Open links in
         if NCSettingsController.sharedInstance().supportedBrowsers.count > 1 {
             options.append(ConfigurationSectionOption.kConfigurationSectionOptionBrowser.rawValue)
         }
+        
         // Read status privacy setting
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReadStatus) {
             options.append(ConfigurationSectionOption.kConfigurationSectionOptionReadStatus.rawValue)
         }
+        
         // Contacts sync
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityPhonebookSearch) {
             options.append(ConfigurationSectionOption.kConfigurationSectionOptionContactsSync.rawValue)
@@ -426,6 +439,15 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         errorDialog.addAction(okAction)
         self.present(errorDialog, animated: true, completion: nil)
     }
+    
+    // MARK: Diagnostics actions
+
+    func diagnosticsPressed() {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let diagnosticsVC = DiagnosticsTableViewController(withAccount: activeAccount)
+        
+        self.navigationController?.pushViewController(diagnosticsVC, animated: true)
+    }
 
     // MARK: Table view data source
 
@@ -442,6 +464,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             return 1
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
             return getConfigurationSectionOptions().count
+        case SettingsSection.kSettingsSEctionDiagnostics.rawValue:
+            return 1
         case SettingsSection.kSettingsSectionAbout.rawValue:
             return AboutSection.kAboutSectionNumber.rawValue
         case SettingsSection.kSettingsSectionAccounts.rawValue:
@@ -529,6 +553,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             cell = userAccountsCell(for: indexPath)
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
             cell = sectionConfigurationCell(for: indexPath)
+        case SettingsSection.kSettingsSEctionDiagnostics.rawValue:
+            cell = diagnosticsCell(for: indexPath)
         case SettingsSection.kSettingsSectionAbout.rawValue:
             cell = sectionAboutCell(for: indexPath)
         default:
@@ -561,6 +587,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             default:
                 break
             }
+        case SettingsSection.kSettingsSEctionDiagnostics.rawValue:
+            self.diagnosticsPressed()
         case SettingsSection.kSettingsSectionAbout.rawValue:
             switch indexPath.row {
             case AboutSection.kAboutSectionPrivacy.rawValue:
@@ -590,6 +618,7 @@ extension SettingsTableViewController {
         cell.accessoryType = .disclosureIndicator
         return cell
     }
+    
     func userStatusCell(for indexPath: IndexPath) -> UITableViewCell {
         let userStatusCellIdentifier = "UserStatusCellIdentifier"
         let cell = UITableViewCell(style: .default, reuseIdentifier: userStatusCellIdentifier)
@@ -607,6 +636,7 @@ extension SettingsTableViewController {
         cell.accessoryType = .disclosureIndicator
         return cell
     }
+    
     func userAccountsCell(for indexPath: IndexPath) -> UITableViewCell {
         let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
         let account = inactiveAccounts[indexPath.row] as? TalkAccount
@@ -626,6 +656,7 @@ extension SettingsTableViewController {
         }
         return cell
     }
+    
     func sectionConfigurationCell(for indexPath: IndexPath) -> UITableViewCell {
         let videoConfigurationCellIdentifier = "VideoConfigurationCellIdentifier"
         let browserConfigurationCellIdentifier = "BrowserConfigurationCellIdentifier"
@@ -674,6 +705,19 @@ extension SettingsTableViewController {
         }
         return cell
     }
+    
+    func diagnosticsCell(for indexPath: IndexPath) -> UITableViewCell {
+        let userStatusCellIdentifier = "DiagnosticsCellIdentifier"
+        let cell = UITableViewCell(style: .default, reuseIdentifier: userStatusCellIdentifier)
+        
+        cell.textLabel?.text = NSLocalizedString("Diagnostics", comment: "")
+        cell.imageView?.image = UIImage(named: "settings")?.withRenderingMode(.alwaysTemplate)
+        cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
+        cell.accessoryType = .disclosureIndicator
+        
+        return cell
+    }
+    
     func sectionAboutCell(for indexPath: IndexPath) -> UITableViewCell {
         let privacyCellIdentifier = "PrivacyCellIdentifier"
         let sourceCodeCellIdentifier = "SourceCodeCellIdentifier"
