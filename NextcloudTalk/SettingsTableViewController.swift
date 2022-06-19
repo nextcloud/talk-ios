@@ -29,7 +29,7 @@ enum SettingsSection: Int {
     case kSettingsSectionUserStatus
     case kSettingsSectionAccounts
     case kSettingsSectionConfiguration
-    case kSettingsSEctionDiagnostics
+    case kSettingsSectionDiagnostics
     case kSettingsSectionAbout
 }
 
@@ -134,7 +134,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         sections.append(SettingsSection.kSettingsSectionConfiguration.rawValue)
         
         // Diagnostics section
-        sections.append(SettingsSection.kSettingsSEctionDiagnostics.rawValue)
+        sections.append(SettingsSection.kSettingsSectionDiagnostics.rawValue)
         
         // About section
         sections.append(SettingsSection.kSettingsSectionAbout.rawValue)
@@ -464,7 +464,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             return 1
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
             return getConfigurationSectionOptions().count
-        case SettingsSection.kSettingsSEctionDiagnostics.rawValue:
+        case SettingsSection.kSettingsSectionDiagnostics.rawValue:
             return 1
         case SettingsSection.kSettingsSectionAbout.rawValue:
             return AboutSection.kAboutSectionNumber.rawValue
@@ -553,7 +553,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             cell = userAccountsCell(for: indexPath)
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
             cell = sectionConfigurationCell(for: indexPath)
-        case SettingsSection.kSettingsSEctionDiagnostics.rawValue:
+        case SettingsSection.kSettingsSectionDiagnostics.rawValue:
             cell = diagnosticsCell(for: indexPath)
         case SettingsSection.kSettingsSectionAbout.rawValue:
             cell = sectionAboutCell(for: indexPath)
@@ -587,7 +587,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             default:
                 break
             }
-        case SettingsSection.kSettingsSEctionDiagnostics.rawValue:
+        case SettingsSection.kSettingsSectionDiagnostics.rawValue:
             self.diagnosticsPressed()
         case SettingsSection.kSettingsSectionAbout.rawValue:
             switch indexPath.row {
