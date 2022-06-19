@@ -563,9 +563,17 @@ class DiagnosticsTableViewController: UITableViewController {
             if let stunServersArray = stunServersConfig {
                 for stunServerDict in stunServersArray {
                     if signalingVersion >= APIv3 {
-                        stunServers += stunServerDict["urls"] as! [String]
+                        guard let stunServerStringDict = stunServerDict["urls"] as? [String] else {
+                            continue
+                        }
+                        
+                        stunServers += stunServerStringDict
                     } else {
-                        stunServers.append(stunServerDict["url"] as! String)
+                        guard let stunServerString = stunServerDict["url"] as? String else {
+                            continue
+                        }
+                        
+                        stunServers.append(stunServerString)
                     }
                 }
                 
@@ -583,9 +591,17 @@ class DiagnosticsTableViewController: UITableViewController {
             if let turnServersArray = turnServersConfig {
                 for turnServerDict in turnServersArray {
                     if signalingVersion >= APIv3 {
-                        turnServers += turnServerDict["urls"] as! [String]
+                        guard let turnServerStringDict = turnServerDict["urls"] as? [String] else {
+                            continue
+                        }
+                        
+                        turnServers += turnServerStringDict
                     } else {
-                        turnServers.append(turnServerDict["url"] as! String)
+                        guard let turnServerString = turnServerDict["url"] as? String else {
+                            continue
+                        }
+                        
+                        turnServers.append(turnServerString)
                     }
                 }
                 
