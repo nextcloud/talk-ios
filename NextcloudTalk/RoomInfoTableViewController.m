@@ -454,6 +454,11 @@ typedef enum FileAction {
 
 - (void)showRoomModificationError:(ModificationError)error
 {
+    [self showRoomModificationError:error withMessage:nil];
+}
+
+- (void)showRoomModificationError:(ModificationError)error withMessage:(NSString *)errorMessage
+{
     [self removeModifyingRoomUI];
     NSString *errorDescription = @"";
     switch (error) {
@@ -519,7 +524,7 @@ typedef enum FileAction {
     
     UIAlertController *renameDialog =
     [UIAlertController alertControllerWithTitle:errorDescription
-                                        message:nil
+                                        message:errorMessage
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
     [renameDialog addAction:okAction];
@@ -705,13 +710,13 @@ typedef enum FileAction {
         NSString *password = [[passwordDialog textFields][0] text];
         NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         [self setModifyingRoomUI];
-        [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error, NSString *errorDescription) {
             if (!error) {
                 [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
             } else {
                 NSLog(@"Error setting room password: %@", error.description);
                 [self.tableView reloadData];
-                [self showRoomModificationError:kModificationErrorPassword];
+                [self showRoomModificationError:kModificationErrorPassword withMessage:errorDescription];
             }
         }];
     }];
@@ -721,13 +726,13 @@ typedef enum FileAction {
     if (_room.hasPassword) {
         UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove password", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
             [self setModifyingRoomUI];
-            [[NCAPIController sharedInstance] setPassword:@"" toRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+            [[NCAPIController sharedInstance] setPassword:@"" toRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error, NSString *errorDescription) {
                 if (!error) {
                     [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
                 } else {
                     NSLog(@"Error changing room password: %@", error.description);
                     [self.tableView reloadData];
-                    [self showRoomModificationError:kModificationErrorPassword];
+                    [self showRoomModificationError:kModificationErrorPassword withMessage:errorDescription];
                 }
             }];
         }];
