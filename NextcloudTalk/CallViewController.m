@@ -125,6 +125,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerWantsToUpgradeToVideoCall:) name:CallKitManagerWantsToUpgradeToVideoCall object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeRoute:) name:AudioSessionDidChangeRouteNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidActivate:) name:AudioSessionWasActivatedByProviderNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     
     return self;
 }
@@ -330,6 +332,24 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     [super pressesEnded:presses withEvent:event];
+}
+
+#pragma mark - App lifecycle notifications
+
+-(void)appDidBecomeActive:(NSNotification*)notification
+{
+    if (!_isAudioOnly && _callController && !_userDisabledVideo) {
+        // Only enable video if it was not disabled by the user.
+        [self enableLocalVideo];
+    }
+}
+
+-(void)appWillResignActive:(NSNotification*)notification
+{
+    if (!_isAudioOnly && _callController && [_callController isVideoEnabled]) {
+        // Disable video when the app moves to the background as we can't access the camera anymore.
+        [self disableLocalVideo];
+    }
 }
 
 #pragma mark - Rooms manager notifications
