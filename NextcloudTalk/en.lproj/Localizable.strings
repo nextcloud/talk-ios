@@ -104,6 +104,9 @@
 "Alphabetical order" = "Alphabetical order";
 
 /* No comment provided by engineer. */
+"Also open to guest app users" = "Also open to guest app users";
+
+/* No comment provided by engineer. */
 "An error occurred changing privacy setting" = "An error occurred changing privacy setting";
 
 /* No comment provided by engineer. */
@@ -266,6 +269,9 @@
 "Conversation not found or not joined" = "Conversation not found or not joined";
 
 /* No comment provided by engineer. */
+"Conversation settings" = "Conversation settings";
+
+/* No comment provided by engineer. */
 "Copy" = "Copy";
 
 /* No comment provided by engineer. */
@@ -284,6 +290,9 @@
 "Could not change call notifications setting" = "Could not change call notifications setting";
 
 /* No comment provided by engineer. */
+"Could not change listable scope of the conversation" = "Could not change listable scope of the conversation";
+
+/* No comment provided by engineer. */
 "Could not change lobby state of the conversation" = "Could not change lobby state of the conversation";
 
 /* No comment provided by engineer. */
@@ -294,6 +303,9 @@
 
 /* No comment provided by engineer. */
 "Could not change password protection settings" = "Could not change password protection settings";
+
+/* No comment provided by engineer. */
+"Could not change read-only state of the conversation" = "Could not change read-only state of the conversation";
 
 /* No comment provided by engineer. */
 "Could not change sharing permissions of the conversation" = "Could not change sharing permissions of the conversation";
@@ -659,6 +671,9 @@
 "Locations" = "Locations";
 
 /* No comment provided by engineer. */
+"Lock conversation" = "Lock conversation";
+
+/* No comment provided by engineer. */
 "Log in" = "Log in";
 
 /* No comment provided by engineer. */
@@ -822,6 +837,9 @@
 
 /* No comment provided by engineer. */
 "Only visible to people on this instance and guests" = "Only visible to people on this instance and guests";
+
+/* No comment provided by engineer. */
+"Open conversation to registered users" = "Open conversation to registered users";
 
 /* TRANSLATORS 'Open conversations' as a type of conversation. 'Open conversations' are conversations that can be found by other users */
 "Open conversations" = "Open conversations";
