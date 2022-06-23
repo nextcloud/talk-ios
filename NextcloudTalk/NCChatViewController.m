@@ -1116,7 +1116,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.sourceView = self.rightButton;
+    optionsActionSheet.popoverPresentationController.sourceView = self.textInputbar;
     optionsActionSheet.popoverPresentationController.sourceRect = self.rightButton.frame;
     
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
