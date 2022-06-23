@@ -1081,7 +1081,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:NO andDisplayName:_room.displayName withAccountId:_room.accountId];
 }
 
-- (void)sendChatMessage:(NSString *)message withParentMessage:(NCChatMessage *)parentMessage
+- (void)sendChatMessage:(NSString *)message withParentMessage:(NCChatMessage *)parentMessage silently:(BOOL)silently
 {
     // Create temporary message
     NSString *referenceId = nil;
@@ -1095,7 +1095,41 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     // Send message
     NSString *sendingText = [self createSendingMessage:message];
     NSInteger replyTo = parentMessage ? parentMessage.messageId : -1;
-    [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId];
+    [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId silently:silently];
+}
+
+- (void)presentSendChatMessageOptions
+{
+    if (![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySilentSend]) {return;}
+    
+    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Send options", nil)
+                                                                                message:nil
+                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *silentSendAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Send silently", nil)
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+        [self sendCurrentMessageSilently:YES];
+    }];
+    [silentSendAction setValue:[[UIImage imageNamed:@"notifications-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [optionsActionSheet addAction:silentSendAction];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.textInputbar;
+    optionsActionSheet.popoverPresentationController.sourceRect = self.rightButton.frame;
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (void)sendCurrentMessageSilently:(BOOL)silently
+{
+    NCChatMessage *replyToMessage = _replyMessageView.isVisible ? _replyMessageView.message : nil;
+    [self sendChatMessage:self.textView.text withParentMessage:replyToMessage silently:silently];
+    
+    [_replyMessageView dismiss];
+    [super didPressRightButton:self];
+    [self clearPendingMessage];
 }
 
 - (BOOL)canPressRightButton
@@ -1116,13 +1150,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     UIButton *button = sender;
     if (button.tag == k_send_message_button_tag) {
-        NCChatMessage *replyToMessage = _replyMessageView.isVisible ? _replyMessageView.message : nil;
-        [self sendChatMessage:self.textView.text withParentMessage:replyToMessage];
-        [_replyMessageView dismiss];
+        [self sendCurrentMessageSilently:NO];
         [super didPressRightButton:sender];
-        
-        // Input field is empty after send -> this clears a previously saved pending message
-        [self savePendingMessage];
     } else if (button.tag == k_voice_record_button_tag) {
         [self showVoiceMessageRecordHint];
     }
@@ -1338,7 +1367,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self removeUnreadMessagesSeparator];
     
     [self removePermanentlyTemporaryMessage:message];
-    [self sendChatMessage:message.message withParentMessage:message.parent];
+    [self sendChatMessage:message.message withParentMessage:message.parent silently:NO];
 }
 
 - (void)didPressCopy:(NCChatMessage *)message {
@@ -1955,6 +1984,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)handleLongPressInVoiceMessageRecordButton:(UILongPressGestureRecognizer *)gestureRecognizer
 {
     if (self.rightButton.tag != k_voice_record_button_tag) {
+        if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
+            [self presentSendChatMessageOptions];
+        }
         return;
     }
     
@@ -3037,6 +3069,12 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)savePendingMessage
 {
     _room.pendingMessage = self.textView.text;
+    [[NCRoomsManager sharedInstance] updatePendingMessage:_room.pendingMessage forRoom:_room];
+}
+
+- (void)clearPendingMessage
+{
+    _room.pendingMessage = @"";
     [[NCRoomsManager sharedInstance] updatePendingMessage:_room.pendingMessage forRoom:_room];
 }
 

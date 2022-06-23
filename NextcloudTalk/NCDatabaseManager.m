@@ -44,6 +44,7 @@ NSString * const kCapabilityCirclesSupport          = @"circles-support";
 NSString * const kCapabilityChatReferenceId         = @"chat-reference-id";
 NSString * const kCapabilityPhonebookSearch         = @"phonebook-search";
 NSString * const kCapabilityChatReadStatus          = @"chat-read-status";
+NSString * const kCapabilityReadOnlyRooms           = @"read-only-rooms";
 NSString * const kCapabilityListableRooms           = @"listable-rooms";
 NSString * const kCapabilityDeleteMessages          = @"delete-messages";
 NSString * const kCapabilityCallFlags               = @"conversation-call-flags";
@@ -63,7 +64,7 @@ NSString * const kCapabilityReactions               = @"reactions";
 NSString * const kCapabilityRichObjectListMedia     = @"rich-object-list-media";
 NSString * const kCapabilityRichObjectDelete        = @"rich-object-delete";
 NSString * const kCapabilityChatPermission          = @"chat-permission";
-NSString * const kCapabilityReadOnlyRooms           = @"read-only-rooms";
+NSString * const kCapabilitySilentSend              = @"silent-send";
 
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 

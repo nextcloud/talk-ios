@@ -667,11 +667,11 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
     [_pullMessagesTask cancel];
 }
 
-- (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId
+- (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:message forKey:@"message"];
-    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token displayName:nil replyTo:replyTo referenceId:referenceId forAccount:_account withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token displayName:nil replyTo:replyTo referenceId:referenceId silently:silently forAccount:_account withCompletionBlock:^(NSError *error) {
         if (referenceId) {
             [userInfo setObject:referenceId forKey:@"referenceId"];
         }
