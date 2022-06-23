@@ -216,10 +216,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     [self.collectionView registerNib:[UINib nibWithNibName:kCallParticipantCellNibName bundle:nil] forCellWithReuseIdentifier:kCallParticipantCellIdentifier];
-    
-    if (@available(iOS 11.0, *)) {
-        [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
-    }
+    [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
     
     UIPanGestureRecognizer *localVideoDragGesturure = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(localVideoDragged:)];
     [self.localVideoView addGestureRecognizer:localVideoDragGesturure];
@@ -447,12 +444,9 @@ typedef NS_ENUM(NSInteger, CallState) {
             localVideoSize = CGSizeMake(width, width * 9/16);
         }
     }
-    
-    _localVideoOriginPosition = CGPointMake(16, 60);
-    if (@available(iOS 11.0, *)) {
-        UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
-        _localVideoOriginPosition = CGPointMake(16 + safeAreaInsets.left, 60 + safeAreaInsets.top);
-    }
+
+    UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
+    _localVideoOriginPosition = CGPointMake(16 + safeAreaInsets.left, 60 + safeAreaInsets.top);
     
     CGRect localVideoRect = CGRectMake(_localVideoOriginPosition.x, _localVideoOriginPosition.y, localVideoSize.width, localVideoSize.height);
     
@@ -712,10 +706,8 @@ typedef NS_ENUM(NSInteger, CallState) {
         CGFloat duration = animated ? 0.3 : 0.0;
         [UIView animateWithDuration:duration animations:^{
             CGRect buttonsFrame = self.buttonsContainerView.frame;
-            buttonsFrame.origin.y = self.view.frame.size.height - buttonsFrame.size.height - 16;
-            if (@available(iOS 11.0, *)) {
-                buttonsFrame.origin.y -= self.view.safeAreaInsets.bottom;
-            }
+            buttonsFrame.origin.y = self.view.frame.size.height - buttonsFrame.size.height - 16 - self.view.safeAreaInsets.bottom;
+
             self.buttonsContainerView.frame = buttonsFrame;
         } completion:^(BOOL finished) {
             [self adjustLocalVideoPositionFromOriginPosition:self->_localVideoOriginPosition];
@@ -755,12 +747,9 @@ typedef NS_ENUM(NSInteger, CallState) {
         CGFloat duration = animated ? 0.3 : 0.0;
         [UIView animateWithDuration:duration animations:^{
             CGRect buttonFrame = self.toggleChatButton.frame;
-            buttonFrame.origin.x = self.view.frame.size.width - buttonFrame.size.width - 16;
-            buttonFrame.origin.y = 60;
-            if (@available(iOS 11.0, *)) {
-                buttonFrame.origin.x -= self.view.safeAreaInsets.right;
-                buttonFrame.origin.y = self.view.safeAreaInsets.top + 60;
-            }
+            buttonFrame.origin.x = self.view.frame.size.width - buttonFrame.size.width - 16 - self.view.safeAreaInsets.right;
+            buttonFrame.origin.y = self.view.safeAreaInsets.top + 60;
+
             self.toggleChatButton.frame = buttonFrame;
         }];
     });
@@ -774,10 +763,8 @@ typedef NS_ENUM(NSInteger, CallState) {
             [UIView animateWithDuration:duration animations:^{
                 CGRect buttonFrame = self.toggleChatButton.frame;
                 buttonFrame.origin.x = self.view.frame.size.width;
-                buttonFrame.origin.y = 60;
-                if (@available(iOS 11.0, *)) {
-                    buttonFrame.origin.y = self.view.safeAreaInsets.top + 60;
-                }
+                buttonFrame.origin.y = self.view.safeAreaInsets.top + 60;
+
                 self.toggleChatButton.frame = buttonFrame;
             } completion:^(BOOL finished) {
                 [self.toggleChatButton setAlpha:0.0f];
@@ -863,11 +850,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)adjustLocalVideoPositionFromOriginPosition:(CGPoint)position
 {
-    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(16, 16, 16, 16);
-    if (@available(iOS 11.0, *)) {
-        UIEdgeInsets safeAreaInsets = _localVideoView.superview.safeAreaInsets;
-        edgeInsets = UIEdgeInsetsMake(16 + safeAreaInsets.top, 16 + safeAreaInsets.left,16 + safeAreaInsets.bottom,16 + safeAreaInsets.right);
-    }
+    UIEdgeInsets safeAreaInsets = _localVideoView.superview.safeAreaInsets;
+    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(16 + safeAreaInsets.top, 16 + safeAreaInsets.left, 16 + safeAreaInsets.bottom, 16 + safeAreaInsets.right);
 
     CGSize parentSize = _localVideoView.superview.bounds.size;
     CGSize viewSize = _localVideoView.bounds.size;

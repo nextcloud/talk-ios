@@ -147,11 +147,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[unreadMentionsButton(buttonWidth)]-(>=0)-|" options:0 metrics:metrics views:views]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual
                                                              toItem:_unreadMentionsBottomButton attribute:NSLayoutAttributeCenterX multiplier:1.f constant:0.f]];
-    if (@available(iOS 11.0, *)) {
-        [self.view addConstraint:[_unreadMentionsBottomButton.bottomAnchor constraintEqualToAnchor:self.tableView.safeAreaLayoutGuide.bottomAnchor constant:-20]];
-    } else {
-        [self.view addConstraint:[_unreadMentionsBottomButton.bottomAnchor constraintEqualToAnchor:self.tableView.layoutMarginsGuide.bottomAnchor constant:-20]];
-    }
+    [self.view addConstraint:[_unreadMentionsBottomButton.bottomAnchor constraintEqualToAnchor:self.tableView.safeAreaLayoutGuide.bottomAnchor constant:-20]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
@@ -202,7 +198,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
             [clearButton setTintColor:[NCAppBranding themeTextColor]];
         });
-    } else if (@available(iOS 11.0, *)) {
+    } else {
         self.navigationItem.searchController = _searchController;
         _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
@@ -211,11 +207,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         backgroundview.backgroundColor = [NCAppBranding backgroundColor];
         backgroundview.layer.cornerRadius = 8;
         backgroundview.clipsToBounds = YES;
-    } else {
-        self.tableView.tableHeaderView = _searchController.searchBar;
-        _searchController.searchBar.barTintColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
-        _searchController.searchBar.layer.borderWidth = 1;
-        _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
     }
     
     [self setNeedsStatusBarAppearanceUpdate];
@@ -350,12 +341,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)createRefreshControl
 {
     _refreshControl = [UIRefreshControl new];
-    if (@available(iOS 11.0, *)) {
-        _refreshControl.tintColor = [NCAppBranding themeTextColor];
-    } else {
-        _refreshControl.tintColor = [UIColor colorWithWhite:0 alpha:0.3];
-        _refreshControl.backgroundColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
-    }
+    _refreshControl.tintColor = [NCAppBranding themeTextColor];
+
     [_refreshControl addTarget:self action:@selector(refreshControlTarget) forControlEvents:UIControlEventValueChanged];
     self.tableView.refreshControl = _refreshControl;
 }
@@ -660,13 +647,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     _settingsButton = [[UIBarButtonItem alloc] initWithCustomView:profileButton];
     [self setUnreadMessageForInactiveAccountsIndicator];
-    
-    if (@available(iOS 11.0, *)) {
-        NSLayoutConstraint *width = [_settingsButton.customView.widthAnchor constraintEqualToConstant:30];
-        width.active = YES;
-        NSLayoutConstraint *height = [_settingsButton.customView.heightAnchor constraintEqualToConstant:30];
-        height.active = YES;
-    }
+
+    NSLayoutConstraint *width = [_settingsButton.customView.widthAnchor constraintEqualToConstant:30];
+    width.active = YES;
+    NSLayoutConstraint *height = [_settingsButton.customView.heightAnchor constraintEqualToConstant:30];
+    height.active = YES;
     
     [self.navigationItem setLeftBarButtonItem:_settingsButton];
 }

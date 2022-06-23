@@ -3404,9 +3404,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
         
         CGFloat width = CGRectGetWidth(tableView.frame) - kChatCellAvatarHeight;
-        if (@available(iOS 11.0, *)) {
-            width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right;
-        }
+        width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right;
         
         return [self getCellHeightForMessage:message withWidth:width];
     }

@@ -168,9 +168,7 @@
                         if (serverNotification && serverNotification.notificationType == kNCNotificationTypeChat) {
                             self.bestAttemptContent.title = serverNotification.chatMessageTitle;
                             self.bestAttemptContent.body = serverNotification.message;
-                            if (@available(iOS 12.0, *)) {
-                                self.bestAttemptContent.summaryArgument = serverNotification.chatMessageAuthor;
-                            }
+                            self.bestAttemptContent.summaryArgument = serverNotification.chatMessageAuthor;
                         }
                         self.contentHandler(self.bestAttemptContent);
                     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {

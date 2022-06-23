@@ -180,7 +180,7 @@
             [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
             [clearButton setTintColor:[NCAppBranding themeTextColor]];
         });
-    } else if (@available(iOS 11.0, *)) {
+    } else {
         self.navigationItem.searchController = _searchController;
         _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
@@ -189,11 +189,6 @@
         backgroundview.backgroundColor = [NCAppBranding backgroundColor];
         backgroundview.layer.cornerRadius = 8;
         backgroundview.clipsToBounds = YES;
-    } else {
-        self.tableView.tableHeaderView = _searchController.searchBar;
-        _searchController.searchBar.barTintColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
-        _searchController.searchBar.layer.borderWidth = 1;
-        _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
     }
     
     // Place resultTableViewController correctly
@@ -253,12 +248,10 @@
     }
     
     UIBarButtonItem *profileBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:profileButton];
-    if (@available(iOS 11.0, *)) {
-        NSLayoutConstraint *width = [profileBarButtonItem.customView.widthAnchor constraintEqualToConstant:30];
-        width.active = YES;
-        NSLayoutConstraint *height = [profileBarButtonItem.customView.heightAnchor constraintEqualToConstant:30];
-        height.active = YES;
-    }
+	NSLayoutConstraint *width = [profileBarButtonItem.customView.widthAnchor constraintEqualToConstant:30];
+	width.active = YES;
+	NSLayoutConstraint *height = [profileBarButtonItem.customView.heightAnchor constraintEqualToConstant:30];
+	height.active = YES;
     
     [self.navigationItem setRightBarButtonItem:profileBarButtonItem];
 }
