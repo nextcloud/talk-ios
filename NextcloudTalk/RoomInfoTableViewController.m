@@ -1504,9 +1504,7 @@ typedef enum FileAction {
 - (CGFloat)heightForDescription:(NSString *)description
 {
     CGFloat width = CGRectGetWidth(self.tableView.frame) - 32;
-    if (@available(iOS 11.0, *)) {
-        width -= self.tableView.safeAreaInsets.left + self.tableView.safeAreaInsets.right;
-    }
+    width -= self.tableView.safeAreaInsets.left + self.tableView.safeAreaInsets.right;
 
     NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:17]};
     CGRect bodyBounds = [description boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];

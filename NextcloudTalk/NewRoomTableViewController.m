@@ -124,7 +124,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
             [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
             [clearButton setTintColor:[NCAppBranding themeTextColor]];
         });
-    } else if (@available(iOS 11.0, *)) {
+    } else {
         self.navigationItem.searchController = _searchController;
         _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
         UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
@@ -133,11 +133,6 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         backgroundview.backgroundColor = [NCAppBranding backgroundColor];
         backgroundview.layer.cornerRadius = 8;
         backgroundview.clipsToBounds = YES;
-    } else {
-        self.tableView.tableHeaderView = _searchController.searchBar;
-        _searchController.searchBar.barTintColor = [UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0]; //efeff4
-        _searchController.searchBar.layer.borderWidth = 1;
-        _searchController.searchBar.layer.borderColor = [[UIColor colorWithRed:0.94 green:0.94 blue:0.96 alpha:1.0] CGColor];
     }
     
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
@@ -185,10 +180,8 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    
-    if (@available(iOS 11.0, *)) {
-        self.navigationItem.hidesSearchBarWhenScrolling = NO;
-    }
+
+    self.navigationItem.hidesSearchBarWhenScrolling = NO;
     
     if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
         [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:NO];
@@ -201,10 +194,8 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
-    if (@available(iOS 11.0, *)) {
-        self.navigationItem.hidesSearchBarWhenScrolling = NO;
-    }
+
+    self.navigationItem.hidesSearchBarWhenScrolling = NO;
 }
 
 - (void)dealloc

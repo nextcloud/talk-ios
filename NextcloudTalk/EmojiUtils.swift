@@ -23,7 +23,6 @@
 import Foundation
 
 // based on https://stackoverflow.com/a/39425959/2512312
-@available(iOS 10.2, *)
 extension Character {
     /// A simple emoji is one scalar and presented to the user as an Emoji
     var isSimpleEmoji: Bool {
@@ -37,7 +36,6 @@ extension Character {
     var isEmoji: Bool { isSimpleEmoji || isCombinedIntoEmoji }
 }
 
-@available(iOS 10.2, *)
 extension String {
     var isSingleEmoji: Bool { count == 1 && containsEmoji }
 
@@ -55,30 +53,18 @@ extension String {
 @objc extension NSString {
 
     public var containsOnlyEmoji: Bool {
-        if #available(iOS 10.2, *) {
-            let str = self as String
-            return str.containsOnlyEmoji
-        }
-
-        return false
+        let str = self as String
+        return str.containsOnlyEmoji
     }
 
     public var isSingleEmoji: Bool {
-        if #available(iOS 10.2, *) {
-            let str = self as String
-            return str.isSingleEmoji
-        }
-
-        return false
+        let str = self as String
+        return str.isSingleEmoji
     }
 
     public var emojiCount: Int {
-        if #available(iOS 10.2, *) {
-            let str = self as String
-            return str.emojis.count
-        }
-
-        return 0
+        let str = self as String
+        return str.emojis.count
     }
 
 }
