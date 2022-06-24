@@ -402,18 +402,18 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
             [self.callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
                 if (!error) {
-                    _startCallRetried = NO;
+                    self->_startCallRetried = NO;
                     [weakSelf.calls setObject:call forKey:callUUID];
                 } else {
-                    if (_startCallRetried) {
+                    if (self->_startCallRetried) {
                         NSLog(@"%@", error.localizedDescription);
-                        _startCallRetried = NO;
+                        self->_startCallRetried = NO;
                         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:token forKey:@"roomToken"];
                         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidFailRequestingCallTransaction
                                                                             object:self
                                                                           userInfo:userInfo];
                     } else {
-                        _startCallRetried = YES;
+                        self->_startCallRetried = YES;
                         [self startCall:token withVideoEnabled:videoEnabled andDisplayName:displayName withAccountId:accountId];
                     }
                 }
