@@ -39,6 +39,7 @@ extern NSString * const CallKitManagerDidFailRequestingCallTransaction;
 @property (nonatomic, strong) CXCallUpdate *update;
 @property (nonatomic, assign) BOOL reportedWhileInCall;
 @property (nonatomic, assign) BOOL isRinging;
+@property (nonatomic, assign) BOOL silentCall;
 
 @end
 
@@ -52,7 +53,7 @@ extern NSString * const CallKitManagerDidFailRequestingCallTransaction;
 + (BOOL)isCallKitAvailable;
 - (void)reportIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId;
 - (void)reportIncomingCallForNonCallKitDevicesWithPushNotification:(NCPushNotification *)pushNotification;
-- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName withAccountId:(NSString *)accountId;
+- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName silently:(BOOL)silently withAccountId:(NSString *)accountId;
 - (void)endCall:(NSString *)token;
 - (void)reportAudioMuted:(BOOL)muted forCall:(NSString *)token;
 

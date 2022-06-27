@@ -62,6 +62,7 @@
 @property (nonatomic, copy) NSString *userDisplayName;
 @property (nonatomic, assign) BOOL disableAudioAtStart;
 @property (nonatomic, assign) BOOL disableVideoAtStart;
+@property (nonatomic, assign) BOOL silentCall;
 
 
 - (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId andVoiceChatMode:(BOOL)voiceChatMode;

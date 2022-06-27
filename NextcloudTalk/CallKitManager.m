@@ -365,11 +365,12 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     }];
 }
 
-- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName withAccountId:(NSString *)accountId
+- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName silently:(BOOL)silently withAccountId:(NSString *)accountId
 {
     if (![CallKitManager isCallKitAvailable]) {
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:token forKey:@"roomToken"];
         [userInfo setValue:@(videoEnabled) forKey:@"isVideoEnabled"];
+        [userInfo setValue:@(silently) forKey:@"silentCall"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
                                                             object:self
                                                           userInfo:userInfo];
@@ -391,6 +392,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         call.displayName = displayName;
         call.accountId = accountId;
         call.update = update;
+        call.silentCall = silently;
         
         CXStartCallAction *startCallAction = [[CXStartCallAction alloc] initWithCallUUID:callUUID handle:handle];
         startCallAction.video = videoEnabled;
@@ -414,7 +416,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
                                                                           userInfo:userInfo];
                     } else {
                         self->_startCallRetried = YES;
-                        [self startCall:token withVideoEnabled:videoEnabled andDisplayName:displayName withAccountId:accountId];
+                        [self startCall:token withVideoEnabled:videoEnabled andDisplayName:displayName silently:silently withAccountId:accountId];
                     }
                 }
             }];
@@ -486,6 +488,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         [provider reportOutgoingCallWithUUID:action.callUUID connectedAtDate:[NSDate new]];
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:action.handle.value forKey:@"roomToken"];
         [userInfo setValue:@(action.isVideo) forKey:@"isVideoEnabled"];
+        [userInfo setValue:@(call.silentCall) forKey:@"silentCall"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
                                                             object:self
                                                           userInfo:userInfo];

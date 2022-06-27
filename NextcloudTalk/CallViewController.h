@@ -41,6 +41,7 @@
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, assign) BOOL videoDisabledAtStart;
 @property (nonatomic, assign) BOOL voiceChatModeAtStart;
+@property (nonatomic, assign) BOOL silentCall;
 
 @property (nonatomic, strong) IBOutlet RTCCameraPreviewView *localVideoView;
 @property (nonatomic, strong) IBOutlet UIView *screensharingView;
