@@ -194,6 +194,12 @@
 "bot" = "bot";
 
 /* No comment provided by engineer. */
+"Call options" = "Call options";
+
+/* No comment provided by engineer. */
+"Call without notification" = "Call without notification";
+
+/* No comment provided by engineer. */
 "Calls" = "Calls";
 
 /* No comment provided by engineer. */
