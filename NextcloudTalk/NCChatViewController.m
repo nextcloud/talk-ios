@@ -1110,6 +1110,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     UIAlertAction *silentSendAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
                                                                style:UIAlertActionStyleDefault
                                                              handler:^void (UIAlertAction *action) {
+        if (audioOnly) {
+            [self->_voiceCallButton showActivityIndicator];
+        } else {
+            [self->_videoCallButton showActivityIndicator];
+        }
         [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:NO andDisplayName:self->_room.displayName
                                           silently:YES withAccountId:self->_room.accountId];
     }];
