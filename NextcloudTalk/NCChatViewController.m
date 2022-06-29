@@ -299,7 +299,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
     longPressGesture.delegate = self;
     [self.tableView addGestureRecognizer:longPressGesture];
-    self.longPressGesture = longPressGesture;
     
     // Add long press gesture recognizer for voice message recording button
     self.voiceMessageLongPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressInVoiceMessageRecordButton:)];
@@ -707,6 +706,18 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         // Only register the call buttons when calling is enabled
         self.navigationItem.rightBarButtonItems = @[_videoCallButton, fixedSpace, _voiceCallButton];
     }
+    
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySilentCall]) {
+        [_voiceCallButton.innerButton addGestureRecognizer:[self longPressGestureForBarButtonItem]];
+        [_videoCallButton.innerButton addGestureRecognizer:[self longPressGestureForBarButtonItem]];
+    }
+}
+
+- (UILongPressGestureRecognizer *)longPressGestureForBarButtonItem
+{
+    UILongPressGestureRecognizer *barButtomItemsLongPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressInBarButtonItem:)];
+    barButtomItemsLongPressGesture.delegate = self;
+    return barButtomItemsLongPressGesture;
 }
 
 #pragma mark - User Interface
@@ -1072,13 +1083,49 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)videoCallButtonPressed:(id)sender
 {
     [_videoCallButton showActivityIndicator];
-    [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:YES andDisplayName:_room.displayName withAccountId:_room.accountId];
+    [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:YES andDisplayName:_room.displayName silently:NO withAccountId:_room.accountId];
 }
 
 - (void)voiceCallButtonPressed:(id)sender
 {
     [_voiceCallButton showActivityIndicator];
-    [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:NO andDisplayName:_room.displayName withAccountId:_room.accountId];
+    [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:NO andDisplayName:_room.displayName silently:NO withAccountId:_room.accountId];
+}
+
+- (void)handleLongPressInBarButtonItem:(UILongPressGestureRecognizer *)gestureRecognizer
+{
+    UIButton *button = (UIButton *)gestureRecognizer.view;
+    BOOL isVoiceCallButton = button == self.voiceCallButton.innerButton;
+    if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
+        [self presentStartCallOptions:isVoiceCallButton];
+    }
+}
+
+- (void)presentStartCallOptions:(BOOL)audioOnly
+{
+    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Call options", nil)
+                                                                                message:nil
+                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *silentCallAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^void (UIAlertAction *action) {
+        if (audioOnly) {
+            [self->_voiceCallButton showActivityIndicator];
+        } else {
+            [self->_videoCallButton showActivityIndicator];
+        }
+        [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:!audioOnly andDisplayName:self->_room.displayName
+                                          silently:YES withAccountId:self->_room.accountId];
+    }];
+    [silentCallAction setValue:[[UIImage imageNamed:@"notifications-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [optionsActionSheet addAction:silentCallAction];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.barButtonItem = audioOnly ? self.voiceCallButton : self.videoCallButton;
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
 - (void)sendChatMessage:(NSString *)message withParentMessage:(NCChatMessage *)parentMessage silently:(BOOL)silently
@@ -1791,7 +1838,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:audioFileName originalName:YES forAccount:activeAccount withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription) {
         if (fileServerURL && fileServerPath) {
             NSDictionary *talkMetaData = @{@"messageType" : @"voice-message"};
-            [self uploadFileAtPath:_recorder.url.path withFileServerURL:fileServerURL andFileServerPath:fileServerPath withMetaData:talkMetaData];
+            [self uploadFileAtPath:self->_recorder.url.path withFileServerURL:fileServerURL andFileServerPath:fileServerPath withMetaData:talkMetaData];
         } else {
             NSLog(@"Could not find unique name for voice message file.");
         }

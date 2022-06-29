@@ -563,13 +563,14 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 
 #pragma mark - Call
 
-- (void)startCall:(BOOL)video inRoom:(NCRoom *)room withVideoEnabled:(BOOL)enabled andVoiceChatMode:(BOOL)voiceChatMode
+- (void)startCall:(BOOL)video inRoom:(NCRoom *)room withVideoEnabled:(BOOL)enabled silently:(BOOL)silently andVoiceChatMode:(BOOL)voiceChatMode
 {
     if (!_callViewController) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         _callViewController = [[CallViewController alloc] initCallInRoom:room asUser:activeAccount.userDisplayName audioOnly:!video];
         _callViewController.videoDisabledAtStart = !enabled;
         _callViewController.voiceChatModeAtStart = voiceChatMode;
+        _callViewController.silentCall = silently;
         [_callViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
         _callViewController.delegate = self;
         // Workaround until external signaling supports multi-room
@@ -601,18 +602,18 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
         if (!error) {
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
-            [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName withAccountId:activeAccount.accountId];
+            [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName silently:YES withAccountId:activeAccount.accountId];
         }
     }];
 }
 
-- (void)startCallWithCallToken:(NSString *)token withVideo:(BOOL)video enabledAtStart:(BOOL)enabled andVoiceChatMode:(BOOL)voiceChatMode
+- (void)startCallWithCallToken:(NSString *)token withVideo:(BOOL)video enabledAtStart:(BOOL)enabled silently:(BOOL)silently andVoiceChatMode:(BOOL)voiceChatMode
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
         if (!error) {
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
-            [self startCall:video inRoom:room withVideoEnabled:enabled andVoiceChatMode:voiceChatMode];
+            [self startCall:video inRoom:room withVideoEnabled:enabled silently:silently andVoiceChatMode:voiceChatMode];
         }
     }];
 }
@@ -621,7 +622,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     if (_pendingToStartCallToken) {
         // Pending calls can only happen when answering a new call. That's why we start with video disabled at start and in voice chat mode.
-        [self startCallWithCallToken:_pendingToStartCallToken withVideo:_pendingToStartCallHasVideo enabledAtStart:NO andVoiceChatMode:YES];
+        // We also can start call silently because we are joining an already started call so no need to notify.
+        [self startCallWithCallToken:_pendingToStartCallToken withVideo:_pendingToStartCallHasVideo enabledAtStart:NO silently:YES andVoiceChatMode:YES];
         _pendingToStartCallToken = nil;
     }
 }
@@ -721,8 +723,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     BOOL hasVideo = [[notification.userInfo objectForKey:@"hasVideo"] boolValue];
     BOOL activeCalls = [self areThereActiveCalls];
     if (!waitForCallEnd || (!activeCalls && !_leaveRoomTask)) {
-        // Calls that have been answered start with video disabled by default and in voice chat mode.
-        [self startCallWithCallToken:roomToken withVideo:hasVideo enabledAtStart:NO andVoiceChatMode:YES];
+        // Calls that have been answered start with video disabled by default, in voice chat mode and silently (without notification).
+        [self startCallWithCallToken:roomToken withVideo:hasVideo enabledAtStart:NO silently:YES andVoiceChatMode:YES];
     } else {
         _pendingToStartCallToken = roomToken;
         _pendingToStartCallHasVideo = hasVideo;
@@ -733,7 +735,8 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
     BOOL isVideoEnabled = [[notification.userInfo objectForKey:@"isVideoEnabled"] boolValue];
-    [self startCallWithCallToken:roomToken withVideo:isVideoEnabled enabledAtStart:YES andVoiceChatMode:NO];
+    BOOL silentCall = [[notification.userInfo objectForKey:@"silentCall"] boolValue];
+    [self startCallWithCallToken:roomToken withVideo:isVideoEnabled enabledAtStart:YES silently:silentCall andVoiceChatMode:NO];
 }
 
 - (void)joinAudioCallAccepted:(NSNotification *)notification
