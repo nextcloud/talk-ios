@@ -1153,7 +1153,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                                                                                 message:nil
                                                                          preferredStyle:UIAlertControllerStyleActionSheet];
     
-    UIAlertAction *silentSendAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Send silently", nil)
+    UIAlertAction *silentSendAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Send without notification", nil)
                                                                style:UIAlertActionStyleDefault
                                                              handler:^void (UIAlertAction *action) {
         [self sendCurrentMessageSilently:YES];

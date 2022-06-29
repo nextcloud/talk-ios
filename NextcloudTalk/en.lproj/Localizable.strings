@@ -983,7 +983,7 @@
 "Send options" = "Send options";
 
 /* No comment provided by engineer. */
-"Send silently" = "Send silently";
+"Send without notification" = "Send without notification";
 
 /* No comment provided by engineer. */
 "Send/Accept" = "Send/Accept";
