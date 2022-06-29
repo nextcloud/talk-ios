@@ -1107,7 +1107,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                                                                                 message:nil
                                                                          preferredStyle:UIAlertControllerStyleActionSheet];
     
-    UIAlertAction *silentSendAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
+    UIAlertAction *silentCallAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
                                                                style:UIAlertActionStyleDefault
                                                              handler:^void (UIAlertAction *action) {
         if (audioOnly) {
@@ -1115,11 +1115,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         } else {
             [self->_videoCallButton showActivityIndicator];
         }
-        [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:NO andDisplayName:self->_room.displayName
+        [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:!audioOnly andDisplayName:self->_room.displayName
                                           silently:YES withAccountId:self->_room.accountId];
     }];
-    [silentSendAction setValue:[[UIImage imageNamed:@"notifications-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    [optionsActionSheet addAction:silentSendAction];
+    [silentCallAction setValue:[[UIImage imageNamed:@"notifications-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [optionsActionSheet addAction:silentCallAction];
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     // Presentation on iPads
