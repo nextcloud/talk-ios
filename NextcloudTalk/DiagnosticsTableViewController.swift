@@ -64,7 +64,7 @@ enum ServerSections: Int {
 }
 
 enum TalkSections: Int {
-    case kTalkSectionCapabilites = 0
+    case kTalkSectionVersion = 0
     case kTalkSectionCanCreate
     case kTalkSectionCallEnabled
     case kTalkSectionAttachmentsAllowed
@@ -255,7 +255,7 @@ class DiagnosticsTableViewController: UITableViewController {
             UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
             
         } else if indexPath.section == DiagnosticsSections.kDiagnosticsSectionTalk.rawValue,
-                  indexPath.row == TalkSections.kTalkSectionCapabilites.rawValue {
+                  indexPath.row == TalkSections.kTalkSectionVersion.rawValue {
             
             presentCapabilitiesDetails()
         }
@@ -515,11 +515,16 @@ class DiagnosticsTableViewController: UITableViewController {
         cell.accessoryType = .none
         
         switch indexPath.row {
-        case TalkSections.kTalkSectionCapabilites.rawValue:
-            cell.textLabel?.text = NSLocalizedString("Capabilities", comment: "")
-            cell.detailTextLabel?.text = String(serverCapabilities.talkCapabilities.count)
+        case TalkSections.kTalkSectionVersion.rawValue:
+            cell.textLabel?.text = NSLocalizedString("Version", comment: "")
             cell.accessoryType = .disclosureIndicator
-            
+
+            if serverCapabilities.talkVersion.isEmpty {
+                cell.detailTextLabel?.text = NSLocalizedString("Unknown", comment: "")
+            } else {
+                cell.detailTextLabel?.text = serverCapabilities.talkVersion
+            }
+
         case TalkSections.kTalkSectionCanCreate.rawValue:
             cell.textLabel?.text = NSLocalizedString("Can create conversations?", comment: "")
             cell.detailTextLabel?.text = readableBool(for: serverCapabilities.canCreate)

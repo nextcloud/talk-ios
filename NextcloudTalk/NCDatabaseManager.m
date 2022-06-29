@@ -359,6 +359,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     } else {
         capabilities.callEnabled = YES;
     }
+    capabilities.talkVersion = [talkCaps objectForKey:@"version"];
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{

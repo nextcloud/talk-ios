@@ -57,6 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL accountPropertyScopesVersion2;
 @property BOOL accountPropertyScopesFederationEnabled;
 @property BOOL callEnabled;
+@property NSString *talkVersion;
 
 @end
 
