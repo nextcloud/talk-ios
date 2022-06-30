@@ -25,61 +25,60 @@ import Contacts
 import Photos
 import UserNotifications
 
-enum DiagnosticsSections: Int {
-    case kDiagnosticsSectionApp = 0
-    case kDiagnosticsSectionAccount
-    case kDiagnosticsSectionServer
-    case kDiagnosticsSectionTalk
-    case kDiagnosticsSectionSignaling
-    case kDiagnosticsSectionCount
-}
-
-enum AppSections: Int {
-    case kAppSectionName = 0
-    case kAppSectionVersion
-    case kAppSectionAllowNotifications
-    case kAppSectionAllowMicrophoneAccess
-    case kAppSectionAllowCameraAccess
-    case kAppSectionAllowContactsAccess
-    case kAppSectionAllowLocationAccess
-    case kAppSectionAllowPhotoLibraryAccess
-    case kAppSectionOpenSettings
-    case kAppSectionCount
-}
-
-enum AccountSections: Int {
-    case kAccountSectionServer = 0
-    case kAccountSectionUser
-    case kAccountPushSubscribed
-    case kAccountSectionCount
-}
-
-enum ServerSections: Int {
-    case kServerSectionName = 0
-    case kServerSectionVersion
-    case kServerSectionWebDavRoot
-    case kServerSectionUserStatusSupported
-    case kServerSectionReachable
-    case kServerSectionCount
-}
-
-enum TalkSections: Int {
-    case kTalkSectionVersion = 0
-    case kTalkSectionCanCreate
-    case kTalkSectionCallEnabled
-    case kTalkSectionAttachmentsAllowed
-    case kTalkSectionCount
-}
-
-enum SignalingSections: Int {
-    case kSignalingSectionApiVersion = 0
-    case kSignalingSectionIsExternal
-    case kSignalingSectionStunServers
-    case kSignalingSectionTurnServers
-    case kSignalingSectionCount
-}
-
 class DiagnosticsTableViewController: UITableViewController {
+    enum DiagnosticsSections: Int {
+        case kDiagnosticsSectionApp = 0
+        case kDiagnosticsSectionAccount
+        case kDiagnosticsSectionServer
+        case kDiagnosticsSectionTalk
+        case kDiagnosticsSectionSignaling
+        case kDiagnosticsSectionCount
+    }
+
+    enum AppSections: Int {
+        case kAppSectionName = 0
+        case kAppSectionVersion
+        case kAppSectionAllowNotifications
+        case kAppSectionAllowMicrophoneAccess
+        case kAppSectionAllowCameraAccess
+        case kAppSectionAllowContactsAccess
+        case kAppSectionAllowLocationAccess
+        case kAppSectionAllowPhotoLibraryAccess
+        case kAppSectionOpenSettings
+        case kAppSectionCount
+    }
+
+    enum AccountSections: Int {
+        case kAccountSectionServer = 0
+        case kAccountSectionUser
+        case kAccountPushSubscribed
+        case kAccountSectionCount
+    }
+
+    enum ServerSections: Int {
+        case kServerSectionName = 0
+        case kServerSectionVersion
+        case kServerSectionWebDavRoot
+        case kServerSectionUserStatusSupported
+        case kServerSectionReachable
+        case kServerSectionCount
+    }
+
+    enum TalkSections: Int {
+        case kTalkSectionVersion = 0
+        case kTalkSectionCanCreate
+        case kTalkSectionCallEnabled
+        case kTalkSectionAttachmentsAllowed
+        case kTalkSectionCount
+    }
+
+    enum SignalingSections: Int {
+        case kSignalingSectionIsExternal = 0
+        case kSignalingSectionStunServers
+        case kSignalingSectionTurnServers
+        case kSignalingSectionCount
+    }
+
     var account: TalkAccount
     var serverCapabilities: ServerCapabilities
     var signalingConfiguration: NSDictionary?
@@ -205,19 +204,19 @@ class DiagnosticsTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch section {
         case DiagnosticsSections.kDiagnosticsSectionApp.rawValue:
-            return NSLocalizedString("App Diagnostics", comment: "")
+            return NSLocalizedString("App", comment: "")
             
         case DiagnosticsSections.kDiagnosticsSectionAccount.rawValue:
-            return NSLocalizedString("Account Diagnostics", comment: "")
+            return NSLocalizedString("Account", comment: "")
             
         case DiagnosticsSections.kDiagnosticsSectionServer.rawValue:
-            return NSLocalizedString("Server Diagnostics", comment: "")
+            return NSLocalizedString("Server", comment: "")
             
         case DiagnosticsSections.kDiagnosticsSectionTalk.rawValue:
-            return NSLocalizedString("Talk Diagnostics", comment: "")
+            return NSLocalizedString("Talk", comment: "")
             
         case DiagnosticsSections.kDiagnosticsSectionSignaling.rawValue:
-            return NSLocalizedString("Signaling Diagnostics", comment: "")
+            return NSLocalizedString("Signaling", comment: "")
             
         default:
             return nil
@@ -516,12 +515,13 @@ class DiagnosticsTableViewController: UITableViewController {
         
         switch indexPath.row {
         case TalkSections.kTalkSectionVersion.rawValue:
-            cell.textLabel?.text = NSLocalizedString("Version", comment: "")
             cell.accessoryType = .disclosureIndicator
 
             if serverCapabilities.talkVersion.isEmpty {
-                cell.detailTextLabel?.text = NSLocalizedString("Unknown", comment: "")
+                cell.textLabel?.text = NSLocalizedString("Capabilities", comment: "")
+                cell.detailTextLabel?.text = String(serverCapabilities.talkCapabilities.count)
             } else {
+                cell.textLabel?.text = NSLocalizedString("Version", comment: "")
                 cell.detailTextLabel?.text = serverCapabilities.talkVersion
             }
 
@@ -550,10 +550,6 @@ class DiagnosticsTableViewController: UITableViewController {
         cell.detailTextLabel?.numberOfLines = 1
         
         switch indexPath.row {
-        case SignalingSections.kSignalingSectionApiVersion.rawValue:
-            cell.textLabel?.text = NSLocalizedString("Version", comment: "")
-            cell.detailTextLabel?.text = String(signalingVersion)
-            
         case SignalingSections.kSignalingSectionIsExternal.rawValue:
             cell.textLabel?.text = NSLocalizedString("External signaling server?", comment: "")
             cell.detailTextLabel?.text = readableBool(for: externalSignalingController?.isEnabled() ?? false)
