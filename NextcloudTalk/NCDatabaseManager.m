@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 32;
+uint64_t const kTalkDatabaseSchemaVersion           = 33;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -286,6 +286,16 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     for (TalkAccount *account in [TalkAccount allObjects]) {
         account.unreadNotification = NO;
     }
+    [realm commitWriteTransaction];
+}
+
+- (void)updateTalkConfigurationHashForAccountId:(NSString *)accountId withHash:(nonnull NSString *)hash
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
+    account.lastReceivedConfigurationHash = hash;
     [realm commitWriteTransaction];
 }
 

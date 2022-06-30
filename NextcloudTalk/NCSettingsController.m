@@ -108,6 +108,7 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
         [self configureAppSettings];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tokenRevokedResponseReceived:) name:NCTokenRevokedResponseReceivedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(talkConfigurationHasChanged:) name:NCTalkConfigurationHashChangedNotification object:nil];
     }
     return self;
 }
@@ -194,6 +195,31 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
         [[NCUserInterfaceController sharedInstance] presentConversationsList];
         [[NCUserInterfaceController sharedInstance] presentLoggedOutInvalidCredentialsAlert];
         [[NCConnectionController sharedInstance] checkAppState];
+    }];
+}
+
+- (void)talkConfigurationHasChanged:(NSNotification *)notification
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
+    NSString *configurationHash = [notification.userInfo objectForKey:@"configurationHash"];
+    
+    if (!accountId || !configurationHash || ![activeAccount.accountId isEqualToString:accountId]) {
+        return;
+    }
+    
+    [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
+                if (!error) {
+                    // SetSignalingConfiguration should be called just once
+                    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+                    [[NCSettingsController sharedInstance] setSignalingConfigurationForAccountId:account.accountId];
+                    
+                    [[NCDatabaseManager sharedInstance] updateTalkConfigurationHashForAccountId:account.accountId withHash:configurationHash];
+                }
+            }];
+        }
     }];
 }
 
@@ -418,11 +444,14 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     if (externalSignalingServer && externalSignalingTicket) {
         dispatch_async(dispatch_get_main_queue(), ^{
             NCExternalSignalingController *extSignalingController = [self->_externalSignalingControllers objectForKey:accountId];
-            if (!extSignalingController) {
-                TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
-                extSignalingController = [[NCExternalSignalingController alloc] initWithAccount:account server:externalSignalingServer andTicket:externalSignalingTicket];
-                [self->_externalSignalingControllers setObject:extSignalingController forKey:accountId];
+            
+            if (extSignalingController) {
+                [extSignalingController disconnect];
             }
+            
+            TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
+            extSignalingController = [[NCExternalSignalingController alloc] initWithAccount:account server:externalSignalingServer andTicket:externalSignalingTicket];
+            [self->_externalSignalingControllers setObject:extSignalingController forKey:accountId];
         });
     }
 }
