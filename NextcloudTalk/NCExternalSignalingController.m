@@ -245,6 +245,9 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
             _mcuSupport = YES;
         }
     }
+
+    NSString *serverVersion = [[helloDict objectForKey:@"server"] objectForKey:@"version"];
+    [[NCDatabaseManager sharedInstance] setExternalSignalingServerVersion:serverVersion forAccountId:_account.accountId];
     
     // Send pending messages
     for (NSDictionary *message in _pendingMessages) {

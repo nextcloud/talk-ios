@@ -93,6 +93,7 @@ extern NSString * const kMinimumRequiredTalkCapability;
 - (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
 - (BOOL)serverHasTalkCapability:(NSString *)capability forAccountId:(NSString *)accountId;
+- (void)setExternalSignalingServerVersion:(NSString *)version forAccountId:(NSString *)accountId;
 
 @end
 

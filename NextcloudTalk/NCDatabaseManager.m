@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 33;
+uint64_t const kTalkDatabaseSchemaVersion           = 34;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -359,6 +359,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     } else {
         capabilities.callEnabled = YES;
     }
+    capabilities.talkVersion = [talkCaps objectForKey:@"version"];
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
@@ -382,6 +383,19 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
         }
     }
     return NO;
+}
+
+- (void)setExternalSignalingServerVersion:(NSString *)version forAccountId:(NSString *)accountId
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+        ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsWithPredicate:query].firstObject;
+        
+        if (managedServerCapabilities && managedServerCapabilities.externalSignalingServerVersion != version) {
+            managedServerCapabilities.externalSignalingServerVersion = version;
+        }
+    }];
 }
 
 @end
