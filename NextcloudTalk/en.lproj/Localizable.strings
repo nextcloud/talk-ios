@@ -53,6 +53,9 @@
 "About" = "About";
 
 /* No comment provided by engineer. */
+"Account" = "Account";
+
+/* No comment provided by engineer. */
 "Account not configured" = "Account not configured";
 
 /* No comment provided by engineer. */
@@ -86,6 +89,9 @@
 "Address" = "Address";
 
 /* No comment provided by engineer. */
+"Advanced" = "Advanced";
+
+/* No comment provided by engineer. */
 "AirPlay button" = "AirPlay button";
 
 /* No comment provided by engineer. */
@@ -99,6 +105,9 @@
 
 /* No comment provided by engineer. */
 "Allow guests" = "Allow guests";
+
+/* '{Microphone, Camera, ...} access is allowed' */
+"Allowed" = "Allowed";
 
 /* No comment provided by engineer. */
 "Alphabetical order" = "Alphabetical order";
@@ -179,7 +188,13 @@
 "Anyone who knows the link to this conversation will be able to access it. You can protect it by setting a password." = "Anyone who knows the link to this conversation will be able to access it. You can protect it by setting a password.";
 
 /* No comment provided by engineer. */
+"App" = "App";
+
+/* No comment provided by engineer. */
 "Appear offline" = "Appear offline";
+
+/* No comment provided by engineer. */
+"Attachments allowed?" = "Attachments allowed?";
 
 /* No comment provided by engineer. */
 "Audios" = "Audios";
@@ -203,7 +218,13 @@
 "Calls" = "Calls";
 
 /* No comment provided by engineer. */
+"Calls enabled?" = "Calls enabled?";
+
+/* No comment provided by engineer. */
 "Camera" = "Camera";
+
+/* No comment provided by engineer. */
+"Camera access" = "Camera access";
 
 /* No comment provided by engineer. */
 "Camera access is not allowed. Check your settings." = "Camera access is not allowed. Check your settings.";
@@ -213,6 +234,9 @@
 
 /* No comment provided by engineer. */
 "Camera enabled" = "Camera enabled";
+
+/* No comment provided by engineer. */
+"Can create conversations?" = "Can create conversations?";
 
 /* No comment provided by engineer. */
 "Cancel" = "Cancel";
@@ -225,6 +249,9 @@
 
 /* No comment provided by engineer. */
 "Cannot share to conversation" = "Cannot share to conversation";
+
+/* No comment provided by engineer. */
+"Capabilities" = "Capabilities";
 
 /* No comment provided by engineer. */
 "Change password" = "Change password";
@@ -249,6 +276,9 @@
 
 /* No comment provided by engineer. */
 "Connecting to the call …" = "Connecting to the call …";
+
+/* No comment provided by engineer. */
+"Contact access" = "Contact access";
 
 /* No comment provided by engineer. */
 "Contact access has been denied" = "Contact access has been denied";
@@ -415,6 +445,12 @@
 /* No comment provided by engineer. */
 "Demote from moderator" = "Demote from moderator";
 
+/* '{Microphone, Camera, ...} access is denied' */
+"Denied" = "Denied";
+
+/* No comment provided by engineer. */
+"Diagnostics" = "Diagnostics";
+
 /* No comment provided by engineer. */
 "Disconnected" = "Disconnected";
 
@@ -538,6 +574,9 @@
 /* No comment provided by engineer. */
 "Enable" = "Enable";
 
+/* External signaling used */
+"External" = "External";
+
 /* No comment provided by engineer. */
 "Failed to connect to %@" = "Failed to connect to %@";
 
@@ -610,6 +649,9 @@
 /* No comment provided by engineer. */
 "Incoming call" = "Incoming call";
 
+/* Internal signaling used */
+"Internal" = "Internal";
+
 /* No comment provided by engineer. */
 "Invalid server address" = "Invalid server address";
 
@@ -671,7 +713,13 @@
 "Location" = "Location";
 
 /* No comment provided by engineer. */
+"Location access" = "Location access";
+
+/* No comment provided by engineer. */
 "Location service has been denied. Check your settings." = "Location service has been denied. Check your settings.";
+
+/* No comment provided by engineer. */
+"Location service is not enabled" = "Location service is not enabled";
 
 /* No comment provided by engineer. */
 "Locations" = "Locations";
@@ -725,6 +773,9 @@
 "Microphone" = "Microphone";
 
 /* No comment provided by engineer. */
+"Microphone access" = "Microphone access";
+
+/* No comment provided by engineer. */
 "Microphone access is not allowed. Check your settings." = "Microphone access is not allowed. Check your settings.";
 
 /* No comment provided by engineer. */
@@ -742,6 +793,9 @@
 /* No comment provided by engineer. */
 "Missing phone number information" = "Missing phone number information";
 
+/* The signaling mode used */
+"Mode" = "Mode";
+
 /* No comment provided by engineer. */
 "moderator" = "moderator";
 
@@ -756,6 +810,9 @@
 
 /* No comment provided by engineer. */
 "My location" = "My location";
+
+/* No comment provided by engineer. */
+"Name" = "Name";
 
 /* No comment provided by engineer. */
 "Nearby places" = "Nearby places";
@@ -845,6 +902,9 @@
 "Only visible to people on this instance and guests" = "Only visible to people on this instance and guests";
 
 /* No comment provided by engineer. */
+"Open app settings" = "Open app settings";
+
+/* No comment provided by engineer. */
 "Open conversation to registered users" = "Open conversation to registered users";
 
 /* TRANSLATORS 'Open conversations' as a type of conversation. 'Open conversations' are conversations that can be found by other users */
@@ -876,6 +936,9 @@
 
 /* No comment provided by engineer. */
 "Photo Library" = "Photo Library";
+
+/* No comment provided by engineer. */
+"Photo library access" = "Photo library access";
 
 /* No comment provided by engineer. */
 "Please check that you entered a valid server address." = "Please check that you entered a valid server address.";
@@ -912,6 +975,9 @@
 
 /* No comment provided by engineer. */
 "Published" = "Published";
+
+/* No comment provided by engineer. */
+"Reachable?" = "Reachable?";
 
 /* No comment provided by engineer. */
 "Reactions" = "Reactions";
@@ -989,6 +1055,9 @@
 "Send/Accept" = "Send/Accept";
 
 /* No comment provided by engineer. */
+"Server" = "Server";
+
+/* No comment provided by engineer. */
 "Server address https://…" = "Server address https://…";
 
 /* No comment provided by engineer. */
@@ -1046,6 +1115,9 @@
 "Show more…" = "Show more…";
 
 /* No comment provided by engineer. */
+"Signaling" = "Signaling";
+
+/* No comment provided by engineer. */
 "SIP dial-in" = "SIP dial-in";
 
 /* No comment provided by engineer. */
@@ -1076,10 +1148,19 @@
 "Status message" = "Status message";
 
 /* No comment provided by engineer. */
+"STUN servers" = "STUN servers";
+
+/* No comment provided by engineer. */
+"Subscribed to push server?" = "Subscribed to push server?";
+
+/* No comment provided by engineer. */
 "Sync contacts" = "Sync contacts";
 
 /* No comment provided by engineer. */
 "Synchronize to trusted servers and the global and public address book" = "Synchronize to trusted servers and the global and public address book";
+
+/* No comment provided by engineer. */
+"Talk" = "Talk";
 
 /* No comment provided by engineer. */
 "Tap and hold to record a voice message" = "Tap and hold to record a voice message";
@@ -1102,11 +1183,17 @@
 /* No comment provided by engineer. */
 "This week" = "This week";
 
+/* No comment provided by engineer. */
+"This will impact the functionality of this app. Please review your settings." = "This will impact the functionality of this app. Please review your settings.";
+
 /* TRANSLATORS this is for sending something 'to' a user. Eg. 'To: John Doe' */
 "To:" = "To:";
 
 /* No comment provided by engineer. */
 "Today" = "Today";
+
+/* No comment provided by engineer. */
+"TURN servers" = "TURN servers";
 
 /* No comment provided by engineer. */
 "Twitter" = "Twitter";
@@ -1121,10 +1208,16 @@
 "Unable to open file" = "Unable to open file";
 
 /* No comment provided by engineer. */
+"Unavailable" = "Unavailable";
+
+/* No comment provided by engineer. */
 "Undo" = "Undo";
 
 /* No comment provided by engineer. */
 "Undo Typing" = "Undo Typing";
+
+/* No comment provided by engineer. */
+"Unknown" = "Unknown";
 
 /* No comment provided by engineer. */
 "Unknown error occurred" = "Unknown error occurred";
@@ -1145,7 +1238,16 @@
 "Uploading 1 element" = "Uploading 1 element";
 
 /* No comment provided by engineer. */
+"User" = "User";
+
+/* No comment provided by engineer. */
 "User profile and settings" = "User profile and settings";
+
+/* No comment provided by engineer. */
+"User status suppported?" = "User status suppported?";
+
+/* No comment provided by engineer. */
+"Version" = "Version";
 
 /* No comment provided by engineer. */
 "Video call" = "Video call";
@@ -1164,6 +1266,9 @@
 
 /* No comment provided by engineer. */
 "Waiting for others to join call …" = "Waiting for others to join call …";
+
+/* No comment provided by engineer. */
+"WebDAV root" = "WebDAV root";
 
 /* No comment provided by engineer. */
 "Website" = "Website";
