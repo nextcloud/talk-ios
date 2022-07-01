@@ -20,7 +20,6 @@
  *
  */
 
-
 class SimpleTableViewController: UITableViewController {
     let options: [String]
     let navigationTitle: String
@@ -28,14 +27,14 @@ class SimpleTableViewController: UITableViewController {
     init(withOptions options: [String], withTitle title: String) {
         self.options = options
         self.navigationTitle = title
-        
+
         super.init(style: .grouped)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isTranslucent = false
@@ -55,7 +54,6 @@ class SimpleTableViewController: UITableViewController {
             self.navigationItem.scrollEdgeAppearance = appearance
         }
     }
-    
 
     // MARK: Table view data source
 
@@ -71,7 +69,7 @@ class SimpleTableViewController: UITableViewController {
         let cell = UITableViewCell(style: .default, reuseIdentifier: "SimpleTableViewCell")
         cell.textLabel?.text = options[indexPath.row]
         cell.selectionStyle = .none
-        
+
         return cell
     }
 }
