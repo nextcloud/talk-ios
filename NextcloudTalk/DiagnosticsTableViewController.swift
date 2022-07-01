@@ -72,12 +72,15 @@ class DiagnosticsTableViewController: UITableViewController {
         case kTalkSectionCount
     }
 
-    enum SignalingSections: Int {
-        case kSignalingSectionIsExternal = 0
+    enum AllSignalingSections: Int {
+        case kSignalingSectionMode = 0
+        case kSignalingSectionVersion
         case kSignalingSectionStunServers
         case kSignalingSectionTurnServers
         case kSignalingSectionCount
     }
+
+    var SignalingSections : [Int] = []
 
     var account: TalkAccount
     var serverCapabilities: ServerCapabilities
@@ -91,8 +94,8 @@ class DiagnosticsTableViewController: UITableViewController {
     var notificationSettings : UNNotificationSettings?
     var notificationSettingsIndicator = UIActivityIndicatorView(frame: .init(x: 0, y: 0, width: 24, height: 24))
     
-    let allowedString = NSLocalizedString("Allowed", comment: "TRANSLATORS '{Microphone, Camera, ...} access is allowed'")
-    let deniedString = NSLocalizedString("Denied", comment: "TRANSLATORS '{Microphone, Camera, ...} access is denied'")
+    let allowedString = NSLocalizedString("Allowed", comment: "'{Microphone, Camera, ...} access is allowed'")
+    let deniedString = NSLocalizedString("Denied", comment: "'{Microphone, Camera, ...} access is denied'")
     let deniedFunctionalityString = NSLocalizedString("This will impact the functionality of this app. Please review your settings.", comment: "")
 
 
@@ -103,6 +106,16 @@ class DiagnosticsTableViewController: UITableViewController {
         self.signalingConfiguration = NCSettingsController.sharedInstance().signalingConfigutations[account.accountId] as? NSDictionary
         self.externalSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: account.accountId)
         self.signalingVersion = NCAPIController.sharedInstance().signalingAPIVersion(for: account)
+
+        // Build signaling sections based on external signaling server
+        SignalingSections.append(AllSignalingSections.kSignalingSectionMode.rawValue)
+
+        if (externalSignalingController?.isEnabled() ?? false) {
+            SignalingSections.append(AllSignalingSections.kSignalingSectionVersion.rawValue)
+        }
+
+        SignalingSections.append(AllSignalingSections.kSignalingSectionStunServers.rawValue)
+        SignalingSections.append(AllSignalingSections.kSignalingSectionTurnServers.rawValue)
         
         super.init(style: .grouped)
     }
@@ -194,7 +207,7 @@ class DiagnosticsTableViewController: UITableViewController {
             return TalkSections.kTalkSectionCount.rawValue
             
         case DiagnosticsSections.kDiagnosticsSectionSignaling.rawValue:
-            return SignalingSections.kSignalingSectionCount.rawValue
+            return SignalingSections.count
             
         default:
             return 1
@@ -548,13 +561,31 @@ class DiagnosticsTableViewController: UITableViewController {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "signalingCellIdentifier")
         cell.accessoryType = .none
         cell.detailTextLabel?.numberOfLines = 1
+
+        let allSectionsIndex = SignalingSections[indexPath.row]
         
-        switch indexPath.row {
-        case SignalingSections.kSignalingSectionIsExternal.rawValue:
-            cell.textLabel?.text = NSLocalizedString("External signaling server?", comment: "")
-            cell.detailTextLabel?.text = readableBool(for: externalSignalingController?.isEnabled() ?? false)
-            
-        case SignalingSections.kSignalingSectionStunServers.rawValue:
+        switch allSectionsIndex {
+        case AllSignalingSections.kSignalingSectionMode.rawValue:
+            let externalSignalingServerUsed = externalSignalingController?.isEnabled() ?? false
+
+            cell.textLabel?.text = NSLocalizedString("Mode", comment: "The signaling mode used")
+
+            if (externalSignalingServerUsed) {
+                cell.detailTextLabel?.text = NSLocalizedString("External", comment: "External signaling used")
+            } else {
+                cell.detailTextLabel?.text = NSLocalizedString("Internal", comment: "Internal signaling used")
+            }
+
+        case AllSignalingSections.kSignalingSectionVersion.rawValue:
+            cell.textLabel?.text = NSLocalizedString("Version", comment: "")
+
+            if serverCapabilities.externalSignalingServerVersion.isEmpty {
+                cell.detailTextLabel?.text = NSLocalizedString("Unknown", comment: "")
+            } else {
+                cell.detailTextLabel?.text = serverCapabilities.externalSignalingServerVersion
+            }
+
+        case AllSignalingSections.kSignalingSectionStunServers.rawValue:
             cell.textLabel?.text = NSLocalizedString("STUN servers", comment: "")
             cell.detailTextLabel?.text = NSLocalizedString("Unavailable", comment: "")
             
@@ -582,7 +613,7 @@ class DiagnosticsTableViewController: UITableViewController {
                 cell.detailTextLabel?.numberOfLines = stunServers.count
             }
             
-        case SignalingSections.kSignalingSectionTurnServers.rawValue:
+        case AllSignalingSections.kSignalingSectionTurnServers.rawValue:
             cell.textLabel?.text = NSLocalizedString("TURN servers", comment: "")
             cell.detailTextLabel?.text = NSLocalizedString("Unavailable", comment: "")
             
