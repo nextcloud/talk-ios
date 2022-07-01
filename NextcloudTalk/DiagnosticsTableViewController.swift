@@ -97,6 +97,7 @@ class DiagnosticsTableViewController: UITableViewController {
 
     let allowedString = NSLocalizedString("Allowed", comment: "'{Microphone, Camera, ...} access is allowed'")
     let deniedString = NSLocalizedString("Denied", comment: "'{Microphone, Camera, ...} access is denied'")
+    let notRequestedString = NSLocalizedString("Not requested", comment: "'{Microphone, Camera, ...} access was not requested'")
     let deniedFunctionalityString = NSLocalizedString("This will impact the functionality of this app. Please review your settings.", comment: "")
 
     init(withAccount account: TalkAccount) {
@@ -363,7 +364,7 @@ class DiagnosticsTableViewController: UITableViewController {
             cell.detailTextLabel?.numberOfLines = 2
 
         default:
-            cell.detailTextLabel?.text = NSLocalizedString("Unknown", comment: "")
+            cell.detailTextLabel?.text = notRequestedString
         }
 
         return cell
@@ -383,7 +384,7 @@ class DiagnosticsTableViewController: UITableViewController {
             cell.detailTextLabel?.numberOfLines = 2
 
         default:
-            cell.detailTextLabel?.text = NSLocalizedString("Unknown", comment: "")
+            cell.detailTextLabel?.text = notRequestedString
         }
 
         return cell
@@ -404,7 +405,7 @@ class DiagnosticsTableViewController: UITableViewController {
                 cell.detailTextLabel?.numberOfLines = 2
 
             default:
-                cell.detailTextLabel?.text = NSLocalizedString("Unknown", comment: "")
+                cell.detailTextLabel?.text = notRequestedString
 
             }
         } else {
@@ -428,7 +429,7 @@ class DiagnosticsTableViewController: UITableViewController {
             cell.detailTextLabel?.numberOfLines = 2
 
         default:
-            cell.detailTextLabel?.text = NSLocalizedString("Unknown", comment: "")
+            cell.detailTextLabel?.text = notRequestedString
         }
 
         return cell
@@ -453,7 +454,7 @@ class DiagnosticsTableViewController: UITableViewController {
                 cell.detailTextLabel?.numberOfLines = 2
 
             default:
-                cell.detailTextLabel?.text = NSLocalizedString("Unknown", comment: "")
+                cell.detailTextLabel?.text = notRequestedString
             }
         }
 
