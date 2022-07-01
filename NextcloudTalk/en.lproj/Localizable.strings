@@ -862,6 +862,9 @@
 /* No comment provided by engineer. */
 "No shared items" = "No shared items";
 
+/* '{Microphone, Camera, ...} access was not requested' */
+"Not requested" = "Not requested";
+
 /* No comment provided by engineer. */
 "Notifications" = "Notifications";
 
