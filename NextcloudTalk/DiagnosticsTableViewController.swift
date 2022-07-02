@@ -502,7 +502,7 @@ class DiagnosticsTableViewController: UITableViewController {
             cell.detailTextLabel?.text = serverCapabilities.webDAVRoot
 
         case ServerSections.kServerSectionUserStatusSupported.rawValue:
-            cell.textLabel?.text = NSLocalizedString("User status suppported?", comment: "")
+            cell.textLabel?.text = NSLocalizedString("User status supported?", comment: "")
             cell.detailTextLabel?.text = readableBool(for: serverCapabilities.userStatus)
 
         case ServerSections.kServerSectionReachable.rawValue:
