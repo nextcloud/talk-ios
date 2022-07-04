@@ -141,6 +141,7 @@
 		2C5BFBFB2891598A00E75118 /* PollResultTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */; };
 		2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */; };
 		2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */; };
+		2C5BFB63287326CC00E75118 /* NCSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFB62287326CC00E75118 /* NCSplitViewController.swift */; };
 		2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
 		2C62AFAE24C08845007E460A /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C62AFA324C08845007E460A /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -295,10 +296,9 @@
 		2CEDA88A26F10BB20044552B /* UserStatusMessageViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */; };
 		2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */; };
 		2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
-		53D7E486280B3CA10036F0F5 /* NCSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D7E485280B3CA10036F0F5 /* NCSplitViewController.swift */; };
-		6D33CCD0D4BE4F4321053E24 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A257E6162A47F2ECF1A60793 /* libPods-NotificationServiceExtension.a */; };
-		81004E5E897819F3B4D23620 /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BD2FF5C18FD7058759879648 /* libPods-NextcloudTalk.a */; };
-		95A64294E0ACC385083FE1B4 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DEAC5ED3FF1B189E41415C5F /* libPods-ShareExtension.a */; };
+		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
+		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
+		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
 		DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */; };
 		DA66582B27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66582A27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift */; };
 		DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66582C27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift */; };
@@ -505,6 +505,7 @@
 		2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollResultTableViewCell.swift; sourceTree = "<group>"; };
 		2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PollResultTableViewCell.xib; sourceTree = "<group>"; };
 		2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollResultsDetailsViewController.swift; sourceTree = "<group>"; };
+		2C5BFB62287326CC00E75118 /* NCSplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewController.swift; sourceTree = "<group>"; };
 		2C5E957B227097E0009CA9BE /* NCUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCUtils.m; sourceTree = "<group>"; };
 		2C5E957C227097E0009CA9BE /* NCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCUtils.h; sourceTree = "<group>"; };
 		2C604A2A25E4556E00F23615 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -738,12 +739,15 @@
 		2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserStatusMessageViewController.xib; sourceTree = "<group>"; };
 		2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+Extensions.swift"; sourceTree = "<group>"; };
 		2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextInputTableViewCell.xib; sourceTree = "<group>"; };
-		2D4C50CC65B50EA39817ACF8 /* Pods-ShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.release.xcconfig"; path = "Target Support Files/Pods-ShareExtension/Pods-ShareExtension.release.xcconfig"; sourceTree = "<group>"; };
-		53D7E485280B3CA10036F0F5 /* NCSplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCSplitViewController.swift; sourceTree = "<group>"; };
-		89D9F62E8AB095CF81F7BEDC /* Pods-NextcloudTalk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.debug.xcconfig"; path = "Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.debug.xcconfig"; sourceTree = "<group>"; };
-		A257E6162A47F2ECF1A60793 /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		BD2FF5C18FD7058759879648 /* libPods-NextcloudTalk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NextcloudTalk.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		BD73E317C1C0DA4AD450D406 /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		4202C63030F0FFBB1C16D75E /* Pods-NextcloudTalk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.debug.xcconfig"; sourceTree = "<group>"; };
+		4D4C7BF2F97F47B0D9094618 /* Pods-NextcloudTalk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.release.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.release.xcconfig"; sourceTree = "<group>"; };
+		4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NextcloudTalk.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		584BF273DF09DE4D5EE0DA0F /* Pods-ShareExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ShareExtension/Pods-ShareExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		684807120F4439797973DF73 /* libPods-ShareExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ShareExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		95D756208A81284B975853EC /* Pods-ShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-ShareExtension/Pods-ShareExtension.release.xcconfig"; sourceTree = "<group>"; };
+		9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateLabelCustom.swift; sourceTree = "<group>"; };
 		DA66582A27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+AvatarSetup.swift"; sourceTree = "<group>"; };
 		DA66582C27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+DelegateMethods.swift"; sourceTree = "<group>"; };
@@ -755,9 +759,6 @@
 		DA7558C5279AE67F00A48A1B /* UserStatusTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusTableViewController.swift; sourceTree = "<group>"; };
 		DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTableViewController.swift; sourceTree = "<group>"; };
 		DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputTableViewCell.swift; sourceTree = "<group>"; };
-		DEAC5ED3FF1B189E41415C5F /* libPods-ShareExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ShareExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		E06F278E851CE2FC2FECB7E5 /* Pods-NextcloudTalk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.release.xcconfig"; path = "Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.release.xcconfig"; sourceTree = "<group>"; };
-		E5432B28D2CCB0C21411681A /* Pods-ShareExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.debug.xcconfig"; path = "Target Support Files/Pods-ShareExtension/Pods-ShareExtension.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -776,7 +777,7 @@
 				2CC5F0982716FF1900DE1775 /* NCCommunication in Frameworks */,
 				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
 				2C38D4AC27BBAFCC00BAE015 /* WebRTC.xcframework in Frameworks */,
-				81004E5E897819F3B4D23620 /* libPods-NextcloudTalk.a in Frameworks */,
+				9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -784,8 +785,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
 				2CC5F09A2717028B00DE1775 /* NCCommunication in Frameworks */,
-				95A64294E0ACC385083FE1B4 /* libPods-ShareExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -794,7 +795,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CC5F09C2717198500DE1775 /* NCCommunication in Frameworks */,
-				6D33CCD0D4BE4F4321053E24 /* libPods-NotificationServiceExtension.a in Frameworks */,
+				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -850,7 +851,7 @@
 				2C05749C1EDDA01700D9E7F2 /* ThirdParty */,
 				2C05747F1EDD9E8E00D9E7F2 /* NextcloudTalk */,
 				2C90E5621EDDE0FB0093D85A /* Frameworks */,
-				2DFED0361CF3E692BFCE2E2B /* Pods */,
+				926177EBCFB97EA1273DEDB9 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1284,9 +1285,9 @@
 				2C90E5681EDDE13A0093D85A /* UIKit.framework */,
 				2C90E5661EDDE1340093D85A /* CoreGraphics.framework */,
 				2C90E5631EDDE0FB0093D85A /* Foundation.framework */,
-				BD2FF5C18FD7058759879648 /* libPods-NextcloudTalk.a */,
-				A257E6162A47F2ECF1A60793 /* libPods-NotificationServiceExtension.a */,
-				DEAC5ED3FF1B189E41415C5F /* libPods-ShareExtension.a */,
+				9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */,
+				684807120F4439797973DF73 /* libPods-ShareExtension.a */,
+				4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1420,17 +1421,17 @@
 			name = Chat;
 			sourceTree = "<group>";
 		};
-		2DFED0361CF3E692BFCE2E2B /* Pods */ = {
+		926177EBCFB97EA1273DEDB9 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				89D9F62E8AB095CF81F7BEDC /* Pods-NextcloudTalk.debug.xcconfig */,
-				E06F278E851CE2FC2FECB7E5 /* Pods-NextcloudTalk.release.xcconfig */,
-				BD73E317C1C0DA4AD450D406 /* Pods-NotificationServiceExtension.debug.xcconfig */,
-				09F2987A7078CD7D1C7913D2 /* Pods-NotificationServiceExtension.release.xcconfig */,
-				E5432B28D2CCB0C21411681A /* Pods-ShareExtension.debug.xcconfig */,
-				2D4C50CC65B50EA39817ACF8 /* Pods-ShareExtension.release.xcconfig */,
+				D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */,
+				D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */,
+				584BF273DF09DE4D5EE0DA0F /* Pods-ShareExtension.debug.xcconfig */,
+				95D756208A81284B975853EC /* Pods-ShareExtension.release.xcconfig */,
+				4202C63030F0FFBB1C16D75E /* Pods-NextcloudTalk.debug.xcconfig */,
+				4D4C7BF2F97F47B0D9094618 /* Pods-NextcloudTalk.release.xcconfig */,
 			);
-			path = Pods;
+			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1440,15 +1441,15 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2C0574971EDD9E8E00D9E7F2 /* Build configuration list for PBXNativeTarget "NextcloudTalk" */;
 			buildPhases = (
-				962D092AFC8A2736431D56A1 /* [CP] Check Pods Manifest.lock */,
+				902A7A3EC0BDCC947AEF3EBF /* [CP] Check Pods Manifest.lock */,
 				2C0574791EDD9E8E00D9E7F2 /* Sources */,
 				2C05747A1EDD9E8E00D9E7F2 /* Frameworks */,
 				2C05747B1EDD9E8E00D9E7F2 /* Resources */,
+				A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */,
 				2C8035721F950BA800501B5C /* ShellScript */,
 				2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */,
 				2C5E72BC27957FCA004ED7FB /* ShellScript */,
 				2C38D4AE27BBAFCC00BAE015 /* Embed Frameworks */,
-				AEDAB98FC0209AF7B8EC0A97 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1471,11 +1472,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2C62AFB124C08845007E460A /* Build configuration list for PBXNativeTarget "ShareExtension" */;
 			buildPhases = (
-				357DDA36AAAAF278308D20C8 /* [CP] Check Pods Manifest.lock */,
+				25F3EB565BD21EF2FF15F197 /* [CP] Check Pods Manifest.lock */,
 				2C62AF9F24C08845007E460A /* Sources */,
 				2C62AFA024C08845007E460A /* Frameworks */,
 				2C62AFA124C08845007E460A /* Resources */,
-				7A203982F3EC91560D4E8A77 /* [CP] Copy Pods Resources */,
+				95F4C6F5C8959694D2B7BA03 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1493,7 +1494,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2CC0015A24A1F0E900A20167 /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */;
 			buildPhases = (
-				150689484908BE6C0980EA61 /* [CP] Check Pods Manifest.lock */,
+				E75968B5C5288222BC8FCA99 /* [CP] Check Pods Manifest.lock */,
 				2CC0014B24A1F0E900A20167 /* Sources */,
 				2CC0014C24A1F0E900A20167 /* Frameworks */,
 				2CC0014D24A1F0E900A20167 /* Resources */,
@@ -1673,7 +1674,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		150689484908BE6C0980EA61 /* [CP] Check Pods Manifest.lock */ = {
+		25F3EB565BD21EF2FF15F197 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1688,7 +1689,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-NotificationServiceExtension-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-ShareExtension-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1725,29 +1726,25 @@
 			shellPath = /bin/sh;
 			shellScript = "APP_PATH=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\n\n# This script loops through the frameworks embedded in the application and\n# removes unused architectures.\nfind \"$APP_PATH\" -name '*.framework' -type d | while read -r FRAMEWORK\ndo\nFRAMEWORK_EXECUTABLE_NAME=$(defaults read \"$FRAMEWORK/Info.plist\" CFBundleExecutable)\nFRAMEWORK_EXECUTABLE_PATH=\"$FRAMEWORK/$FRAMEWORK_EXECUTABLE_NAME\"\necho \"Executable is $FRAMEWORK_EXECUTABLE_PATH\"\n\nEXTRACTED_ARCHS=()\n\nfor ARCH in $ARCHS\ndo\necho \"Extracting $ARCH from $FRAMEWORK_EXECUTABLE_NAME\"\nlipo -extract \"$ARCH\" \"$FRAMEWORK_EXECUTABLE_PATH\" -o \"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\"\nEXTRACTED_ARCHS+=(\"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\")\ndone\n\necho \"Merging extracted architectures: ${ARCHS}\"\nlipo -o \"$FRAMEWORK_EXECUTABLE_PATH-merged\" -create \"${EXTRACTED_ARCHS[@]}\"\nrm \"${EXTRACTED_ARCHS[@]}\"\n\necho \"Replacing original executable with thinned version\"\nrm \"$FRAMEWORK_EXECUTABLE_PATH\"\nmv \"$FRAMEWORK_EXECUTABLE_PATH-merged\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n\ndone\n";
 		};
-		357DDA36AAAAF278308D20C8 /* [CP] Check Pods Manifest.lock */ = {
+		902A7A3EC0BDCC947AEF3EBF /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			inputFileListPaths = (
 			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ShareExtension-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-NextcloudTalk-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7A203982F3EC91560D4E8A77 /* [CP] Copy Pods Resources */ = {
+		95F4C6F5C8959694D2B7BA03 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1765,29 +1762,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ShareExtension/Pods-ShareExtension-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		962D092AFC8A2736431D56A1 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-NextcloudTalk-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		AEDAB98FC0209AF7B8EC0A97 /* [CP] Copy Pods Resources */ = {
+		A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1807,6 +1782,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E75968B5C5288222BC8FCA99 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-NotificationServiceExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -1886,7 +1883,6 @@
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */,
-				53D7E486280B3CA10036F0F5 /* NCSplitViewController.swift in Sources */,
 				2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */,
 				2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
@@ -2206,8 +2202,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				EXCLUDED_ARCHS = "";
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -2267,8 +2261,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				EXCLUDED_ARCHS = "";
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -2279,7 +2271,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2289,7 +2280,7 @@
 		};
 		2C0574981EDD9E8E00D9E7F2 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 89D9F62E8AB095CF81F7BEDC /* Pods-NextcloudTalk.debug.xcconfig */;
+			baseConfigurationReference = 4202C63030F0FFBB1C16D75E /* Pods-NextcloudTalk.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -2337,7 +2328,7 @@
 		};
 		2C0574991EDD9E8E00D9E7F2 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E06F278E851CE2FC2FECB7E5 /* Pods-NextcloudTalk.release.xcconfig */;
+			baseConfigurationReference = 4D4C7BF2F97F47B0D9094618 /* Pods-NextcloudTalk.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -2384,7 +2375,7 @@
 		};
 		2C62AFAF24C08845007E460A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E5432B28D2CCB0C21411681A /* Pods-ShareExtension.debug.xcconfig */;
+			baseConfigurationReference = 584BF273DF09DE4D5EE0DA0F /* Pods-ShareExtension.debug.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -2477,7 +2468,7 @@
 		};
 		2C62AFB024C08845007E460A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2D4C50CC65B50EA39817ACF8 /* Pods-ShareExtension.release.xcconfig */;
+			baseConfigurationReference = 95D756208A81284B975853EC /* Pods-ShareExtension.release.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -2568,7 +2559,7 @@
 		};
 		2CC0015824A1F0E900A20167 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BD73E317C1C0DA4AD450D406 /* Pods-NotificationServiceExtension.debug.xcconfig */;
+			baseConfigurationReference = D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -2643,7 +2634,7 @@
 		};
 		2CC0015924A1F0E900A20167 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 09F2987A7078CD7D1C7913D2 /* Pods-NotificationServiceExtension.release.xcconfig */;
+			baseConfigurationReference = D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
