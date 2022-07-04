@@ -73,10 +73,10 @@ typedef enum NCPreferredFileSorting {
 @property (nonatomic, copy) NSString *ncDeviceIdentifier;
 @property (nonatomic, copy) NSString *ncDeviceSignature;
 @property (nonatomic, copy) NSString *ncUserPublicKey;
-@property (nonatomic, copy) NSMutableArray *supportedBrowsers;
+@property (nonatomic, strong) NSMutableArray *supportedBrowsers;
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
-@property (nonatomic, copy) NSMutableDictionary *signalingConfigutations; // accountId -> signalingConfigutation
-@property (nonatomic, copy) NSMutableDictionary *externalSignalingControllers; // accountId -> externalSignalingController
+@property (nonatomic, strong) NSMutableDictionary *signalingConfigutations; // accountId -> signalingConfigutation
+@property (nonatomic, strong) NSMutableDictionary *externalSignalingControllers; // accountId -> externalSignalingController
 
 + (instancetype)sharedInstance;
 - (void)addNewAccountForUser:(NSString *)user withToken:(NSString *)token inServer:(NSString *)server;
