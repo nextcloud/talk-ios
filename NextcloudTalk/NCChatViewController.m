@@ -1693,8 +1693,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         vcString = [vcString stringByReplacingOccurrencesOfString:@"END:VCARD" withString:[vcardImageString stringByAppendingString:@"END:VCARD"]];
     }
     
-    vCardData = [vcString dataUsingEncoding:NSUTF8StringEncoding];
-    
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *folderPath = [paths objectAtIndex:0];
     NSString *filePath = [folderPath stringByAppendingPathComponent:@"contact.vcf"];
@@ -3366,7 +3364,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (UITableViewCell *)getCellForMessage:(NCChatMessage *) message
 {
-    UITableViewCell *cell = [UITableViewCell new];
+    UITableViewCell *cell;
     if (message.messageId == kUnreadMessagesSeparatorIdentifier) {
         MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
         separatorCell.messageId = message.messageId;

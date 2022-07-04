@@ -428,7 +428,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)setLocalVideoRect
 {
-    CGSize localVideoSize = CGSizeMake(0, 0);
+    CGSize localVideoSize;
     
     CGFloat width = [UIScreen mainScreen].bounds.size.width / 6;
     CGFloat height = [UIScreen mainScreen].bounds.size.height / 6;
