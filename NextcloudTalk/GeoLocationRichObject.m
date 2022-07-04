@@ -62,7 +62,7 @@ NSString * const GeoLocationRichObjectType = @"geo-location";
 - (NSDictionary *)richObjectDictionary
 {
     NSError *error;
-    NSString *jsonString = nil;
+    NSString *jsonString = @"";
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[self metaData]
                                                        options:0
                                                          error:&error];
