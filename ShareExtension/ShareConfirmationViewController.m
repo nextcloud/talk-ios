@@ -153,6 +153,8 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
+
     if (_type == ShareConfirmationTypeText) {
         [self.itemToolbar setHidden:YES];
         [self.shareTextView becomeFirstResponder];

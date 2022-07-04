@@ -251,6 +251,8 @@ typedef enum FileAction {
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
+    
     [[NCRoomsManager sharedInstance] updateRoom:_room.token];
     [self getRoomParticipants];
 }

@@ -263,6 +263,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    [super viewWillAppear:animated];
+
     [self setLocalVideoRect];
     
     // Fix missing hallo after the view controller disappears
@@ -281,6 +283,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
+
     [[UIDevice currentDevice] setProximityMonitoringEnabled:YES];
     [UIApplication sharedApplication].idleTimerDisabled = YES;
 }
