@@ -1355,7 +1355,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
         if (!indexPath) {
             [self->_peersInCall addObject:peer];
-            NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:_peersInCall.count - 1 inSection:0];
+            NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:self->_peersInCall.count - 1 inSection:0];
             [self.collectionView insertItemsAtIndexPaths:@[insertionIndexPath]];
         }
     });
@@ -1420,7 +1420,7 @@ typedef NS_ENUM(NSInteger, CallState) {
             NSIndexPath *indexPath = [self indexPathForPeerId:remotePeer.peerId];
             if (!indexPath) {
                 [self->_peersInCall addObject:remotePeer];
-                NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:_peersInCall.count - 1 inSection:0];
+                NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:self->_peersInCall.count - 1 inSection:0];
                 [self.collectionView insertItemsAtIndexPaths:@[insertionIndexPath]];
             } else {
                 [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
@@ -1603,7 +1603,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         for (RTCEAGLVideoView *rendererView in [self->_videoRenderersDict allValues]) {
             if ([videoView isEqual:rendererView]) {
                 rendererView.frame = CGRectMake(0, 0, size.width, size.height);
-                NSArray *keys = [_videoRenderersDict allKeysForObject:videoView];
+                NSArray *keys = [self->_videoRenderersDict allKeysForObject:videoView];
                 if (keys.count) {
                     NSIndexPath *indexPath = [self indexPathForPeerId:keys[0]];
                     if (indexPath) {
