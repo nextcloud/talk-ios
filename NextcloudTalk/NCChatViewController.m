@@ -1594,11 +1594,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 #pragma mark - UIDocumentPickerViewController Delegate
 
-- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url
-{
-    [self shareDocumentsWithURLs:@[url] fromController:controller];
-}
-
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
 {
     [self shareDocumentsWithURLs:urls fromController:controller];
