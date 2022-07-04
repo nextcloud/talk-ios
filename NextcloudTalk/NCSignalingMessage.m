@@ -382,7 +382,7 @@ NSString *const kRoomTypeScreen = @"screen";
                                       nick:(NSString *)nick
 {
     RTCSdpType sdpType = sessionDescription.type;
-    NSString *type = nil;
+    NSString *type = @"";
     switch (sdpType) {
         case RTCSdpTypeOffer:
             type = kNCSignalingMessageTypeOfferKey;
