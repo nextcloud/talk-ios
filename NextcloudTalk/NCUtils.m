@@ -40,7 +40,10 @@ static NSString *const nextcloudScheme = @"nextcloud:";
 {
     CFStringRef fileExtensionSR = (__bridge CFStringRef)fileExtension;
     CFStringRef fileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtensionSR, NULL);
-    return [self previewImageForFileType:fileUTI];
+    NSString *result = [self previewImageForFileType:fileUTI];
+    CFRelease(fileUTI);
+
+    return result;
 }
 
 + (NSString *)previewImageForFileMIMEType:(NSString *)fileMIMEType
@@ -50,15 +53,20 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     }
     CFStringRef fileMIMETypeSR = (__bridge CFStringRef)fileMIMEType;
     CFStringRef fileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, fileMIMETypeSR, NULL);
-    if (!UTTypeIsDeclared(fileUTI)) {
-        // Folders
-        if ([fileMIMEType isEqualToString:@"httpd/unix-directory"]) {
-            return @"folder";
-        }
-        // Default
-        return @"file";
+
+    NSString *resultImage = @"file";
+
+    if ([fileMIMEType isEqualToString:@"httpd/unix-directory"]) {
+        resultImage = @"folder";
     }
-    return [self previewImageForFileType:fileUTI];
+
+    if (UTTypeIsDeclared(fileUTI)) {
+        resultImage = [self previewImageForFileType:fileUTI];
+    }
+
+    CFRelease(fileUTI);
+
+    return resultImage;
 }
 
 + (NSString *)previewImageForFileType:(CFStringRef)fileType
@@ -231,7 +239,13 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     CGRect imageRect = [inputImage extent];
     CGRect cropRect = CGRectMake(imageRect.origin.x + inputRadius, imageRect.origin.y + inputRadius, imageRect.size.width - inputRadius * 2, imageRect.size.height - inputRadius * 2);
     CGImageRef cgImage = [context createCGImage:result fromRect:imageRect];
-    return [UIImage imageWithCGImage:CGImageCreateWithImageInRect(cgImage, cropRect)];
+    CGImageRef cgImageCroped = CGImageCreateWithImageInRect(cgImage, cropRect);
+
+    UIImage *resultImage = [UIImage imageWithCGImage:cgImageCroped];
+    CGImageRelease(cgImage);
+    CGImageRelease(cgImageCroped);
+
+    return resultImage;
 }
 
 + (UIColor *)searchbarBGColorForColor:(UIColor *)color
