@@ -141,6 +141,7 @@
 		2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */; };
 		2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */; };
 		2C5BFB63287326CC00E75118 /* NCSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFB62287326CC00E75118 /* NCSplitViewController.swift */; };
+		2C5BFBE828748BF400E75118 /* NCSplitViewPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBE728748BF400E75118 /* NCSplitViewPlaceholderViewController.swift */; };
 		2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
 		2C62AFAE24C08845007E460A /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C62AFA324C08845007E460A /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -504,6 +505,7 @@
 		2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PollResultTableViewCell.xib; sourceTree = "<group>"; };
 		2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollResultsDetailsViewController.swift; sourceTree = "<group>"; };
 		2C5BFB62287326CC00E75118 /* NCSplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewController.swift; sourceTree = "<group>"; };
+		2C5BFBE728748BF400E75118 /* NCSplitViewPlaceholderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCSplitViewPlaceholderViewController.swift; sourceTree = "<group>"; };
 		2C5E957B227097E0009CA9BE /* NCUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCUtils.m; sourceTree = "<group>"; };
 		2C5E957C227097E0009CA9BE /* NCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCUtils.h; sourceTree = "<group>"; };
 		2C604A2A25E4556E00F23615 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
