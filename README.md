@@ -24,6 +24,8 @@ $ git submodule update --init
 $ open NextcloudTalk.xcworkspace
 ```
 
+Pull Requests will be checked with [SwiftLint](https://github.com/realm/SwiftLint). We strongly encourage the installation of SwiftLint to detect issues as early as possible.
+
 ## WebRTC library
 
 We are using our own builds of the WebRTC library. They can be found in this [repository](https://github.com/nextcloud-releases/talk-clients-webrtc)
