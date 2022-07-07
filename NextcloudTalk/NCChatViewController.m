@@ -1849,7 +1849,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] setupNCCommunicationForAccount:activeAccount];
-    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:localPath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil taskHandler:^(NSURLSessionTask *task) {
+    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:localPath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() taskHandler:^(NSURLSessionTask *task) {
         NSLog(@"Upload task");
     } progressHandler:^(NSProgress *progress) {
         NSLog(@"Progress:%f", progress.fractionCompleted);

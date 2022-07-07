@@ -177,7 +177,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
     [self didChangeIsDownloadingNotification:YES];
     
     // First read metadata from the file and check if we already downloaded it
-    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:serverUrlFileName depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:serverUrlFileName depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
         if (errorCode == 0 && files.count == 1) {
             // File exists on server -> check our cache
             NCCommunicationFile *file = files.firstObject;
@@ -190,7 +190,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
                 
                 return;
             }
-            [[NCCommunication shared] downloadWithServerUrlFileName:serverUrlFileName fileNameLocalPath:self->_fileStatus.fileLocalPath customUserAgent:nil addCustomHeaders:nil taskHandler:^(NSURLSessionTask *task) {
+            [[NCCommunication shared] downloadWithServerUrlFileName:serverUrlFileName fileNameLocalPath:self->_fileStatus.fileLocalPath customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() taskHandler:^(NSURLSessionTask *task) {
                 NSLog(@"Download task");
             } progressHandler:^(NSProgress *progress) {
                 [self didChangeDownloadProgressNotification:progress.fractionCompleted];
