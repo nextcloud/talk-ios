@@ -2598,8 +2598,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/krzyzanowskim/OpenSSL";
 			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 1.1.180;
+				kind = exactVersion;
+				version = 1.1.1700;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
