@@ -22,12 +22,15 @@
 
 #import "RoomsTableViewController.h"
 
+@import NCCommunication;
 #import <Realm/Realm.h>
 
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
 #import "UIButton+AFNetworking.h"
 #import "UIImageView+AFNetworking.h"
+
+#import "NextcloudTalk-Swift.h"
 
 #import "CCCertificate.h"
 #import "FTPopOverMenu.h"
@@ -443,17 +446,27 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)searchForRoomsWithString:(NSString *)searchString
 {
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
     // Filter rooms
     _resultTableViewController.rooms = [self filterRoomsWithString:searchString];
     [_resultTableViewController.tableView reloadData];
     // Search for listable rooms
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
-        TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
         [[NCAPIController sharedInstance] getListableRoomsForAccount:account withSearchTerm:searchString andCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
             if (!error) {
                 self->_resultTableViewController.listableRooms = rooms;
                 [self->_resultTableViewController.tableView reloadData];
             }
+        }];
+    }
+    // Search for messages
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityUnifiedSearch]) {
+        NCUnifiedSearchController *unifiedSearchController = [[NCUnifiedSearchController alloc] init];
+        [unifiedSearchController searchMessagesWithTerm:searchString account:account completionHandler:^(NCCSearchResult *searchResult) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self->_resultTableViewController.messages = searchResult.entries;
+                [self->_resultTableViewController.tableView reloadData];
+            });
         }];
     }
 }
@@ -1133,8 +1146,19 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self presentChatForRoomAtIndexPath:indexPath];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    // Searched messages
+    if (tableView == _resultTableViewController.tableView) {
+        NCCSearchEntry *searchMessage = [_resultTableViewController messageForIndexPath:indexPath];
+        if (searchMessage) {
+            // Present message in chat view
+            return;
+        }
+    }
+    
+    // Present room chat
+    [self presentChatForRoomAtIndexPath:indexPath];
 }
 
 

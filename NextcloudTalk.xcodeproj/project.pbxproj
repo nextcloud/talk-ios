@@ -113,6 +113,7 @@
 		2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */; };
 		2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4DE9F121F732B40096940D /* NCAudioController.m */; };
 		2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
+		2C5BFBEA28772A9A00E75118 /* NCUnifiedSearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */; };
 		2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
 		2C62AFAE24C08845007E460A /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C62AFA324C08845007E460A /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -447,6 +448,7 @@
 		2C4DE9F121F732B40096940D /* NCAudioController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAudioController.m; sourceTree = "<group>"; };
 		2C4E758D214B942D003910D5 /* OpenInFirefoxControllerObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenInFirefoxControllerObjC.h; sourceTree = "<group>"; };
 		2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenInFirefoxControllerObjC.m; sourceTree = "<group>"; };
+		2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUnifiedSearchController.swift; sourceTree = "<group>"; };
 		2C5E957B227097E0009CA9BE /* NCUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCUtils.m; sourceTree = "<group>"; };
 		2C5E957C227097E0009CA9BE /* NCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCUtils.h; sourceTree = "<group>"; };
 		2C604A2A25E4556E00F23615 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1050,6 +1052,7 @@
 				2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */,
 				2CBF82BF1FD5AE3F00636459 /* NCPushProxySessionManager.h */,
 				2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */,
+				2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */,
 			);
 			name = Network;
 			sourceTree = "<group>";
@@ -1724,6 +1727,7 @@
 				2C36A038261342220026F04A /* AvatarHeaderView.m in Sources */,
 				2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */,
 				2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */,
+				2C5BFBEA28772A9A00E75118 /* NCUnifiedSearchController.swift in Sources */,
 				2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */,
 				1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
@@ -2590,8 +2594,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nextcloud/ios-communication-library";
 			requirement = {
-				branch = develop;
-				kind = branch;
+				kind = revision;
+				revision = 1b36623a2470818343027f29d572c4dc9274f563;
 			};
 		};
 		2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */ = {
