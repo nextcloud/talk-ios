@@ -129,6 +129,9 @@ typedef enum RoomSearchSection {
     cell.subtitleLabel.text = messageEntry.subline;
     [cell.roomImage setImageWithURLRequest:[[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:messageEntry.thumbnailURL]] placeholderImage:nil success:nil failure:nil];
     cell.roomImage.contentMode = UIViewContentModeScaleToFill;
+    // Clear possible content not removed by cell reuse
+    cell.dateLabel.text = @"";
+    [cell setUnreadMessages:0 mentioned:NO groupMentioned:NO];
     
     return cell;
 }
