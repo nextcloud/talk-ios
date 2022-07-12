@@ -500,8 +500,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     
     // Reload search controller if active
-    if (_searchController.isActive) {
-        [self searchForRoomsWithString:_searchController.searchBar.text];
+    NSString *searchString = _searchController.searchBar.text;
+    if (_searchController.isActive && searchString.length > 0) {
+        [self searchForRoomsWithString:searchString];
     }
     
     // Reload room list
