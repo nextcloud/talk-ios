@@ -129,9 +129,17 @@ typedef enum RoomSearchSection {
     cell.subtitleLabel.text = messageEntry.subline;
     [cell.roomImage setImageWithURLRequest:[[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:messageEntry.thumbnailURL]] placeholderImage:nil success:nil failure:nil];
     cell.roomImage.contentMode = UIViewContentModeScaleToFill;
+    
     // Clear possible content not removed by cell reuse
     cell.dateLabel.text = @"";
     [cell setUnreadMessages:0 mentioned:NO groupMentioned:NO];
+    
+    // Add message date (if it is included in attributes)
+    NSInteger timestamp = [[messageEntry.attributes objectForKey:@"timestamp"] integerValue];
+    if (timestamp > 0) {
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:timestamp];
+        cell.dateLabel.text = [NCUtils readableTimeOrDateFromDate:date];
+    }
     
     return cell;
 }
