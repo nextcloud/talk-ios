@@ -24,14 +24,29 @@ import NCCommunication
 
 @objcMembers class NCUnifiedSearchController: NSObject {
 
-    func searchMessages(term: String, account: TalkAccount, completionHandler: @escaping (NCCSearchResult?) -> Void) {
+    var account: TalkAccount
+    var searchTerm: String
+    var cursor: Int = 0
+    let limit: Int = 10
+    var showMore: Bool = false
+    var entries: [NCCSearchEntry] = []
+
+    init(account: TalkAccount, searchTerm: String) {
+        self.account = account
+        self.searchTerm = searchTerm
+    }
+
+    func searchMessages(completionHandler: @escaping ([NCCSearchEntry]?) -> Void) {
         NCAPIController.sharedInstance().setupNCCommunication(for: account)
-        NCCommunication.shared.searchProvider("talk-message", term: term, limit: 5, cursor: 5, options: NCCRequestOptions(), timeout: 30) { searchResult, _, _ in
+        NCCommunication.shared.searchProvider("talk-message", term: searchTerm, limit: limit, cursor: cursor, options: NCCRequestOptions(), timeout: 30) { searchResult, _, _ in
             guard let searchResult = searchResult else {
                 completionHandler(nil)
                 return
             }
-            completionHandler(searchResult)
+            self.entries.append(contentsOf: searchResult.entries)
+            self.cursor = searchResult.cursor ?? 0
+            self.showMore = searchResult.entries.count == self.limit
+            completionHandler(self.entries)
         }
     }
 }

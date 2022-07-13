@@ -64,6 +64,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     BOOL _allowEmptyGroupRooms;
     UISearchController *_searchController;
     RoomSearchTableViewController *_resultTableViewController;
+    NCUnifiedSearchController *_unifiedSearchController;
     PlaceholderView *_roomsBackgroundView;
     UIBarButtonItem *_settingsButton;
     NSTimer *_refreshRoomsTimer;
@@ -461,20 +462,62 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     // Search for messages
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityUnifiedSearch]) {
-        NCUnifiedSearchController *unifiedSearchController = [[NCUnifiedSearchController alloc] init];
-        [unifiedSearchController searchMessagesWithTerm:searchString account:account completionHandler:^(NCCSearchResult *searchResult) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self->_resultTableViewController.messages = searchResult.entries;
-                [self->_resultTableViewController.tableView reloadData];
-            });
-        }];
+        if (_unifiedSearchController && [_unifiedSearchController.searchTerm isEqualToString:searchString]) {
+            return;
+        }
+        
+        [self setLoadMoreButtonHidden:YES];
+        
+        _unifiedSearchController = [[NCUnifiedSearchController alloc] initWithAccount:account searchTerm:searchString];
+        [self searchForMessagesWithCurrentSearchTerm];
     }
+}
+
+- (void)searchForMessagesWithCurrentSearchTerm
+{
+    [_unifiedSearchController searchMessagesWithCompletionHandler:^(NSArray<NCCSearchEntry *> *entries) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self->_resultTableViewController.messages = entries;
+            [self->_resultTableViewController.tableView reloadData];
+            [self setLoadMoreButtonHidden:!self->_unifiedSearchController.showMore];
+        });
+    }];
 }
 
 - (NSArray *)filterRoomsWithString:(NSString *)searchString
 {
     NSPredicate *sPredicate = [NSPredicate predicateWithFormat:@"displayName CONTAINS[c] %@", searchString];
     return [_rooms filteredArrayUsingPredicate:sPredicate];
+}
+
+- (void)setLoadMoreButtonHidden:(BOOL)hidden
+{
+    if (!hidden) {
+        UIButton *loadMoreButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, 44)];
+        loadMoreButton.titleLabel.font = [UIFont systemFontOfSize:15];
+        [loadMoreButton setTitleColor:[UIColor systemBlueColor] forState:UIControlStateNormal];
+        [loadMoreButton setTitle:NSLocalizedString(@"Load more results", @"") forState:UIControlStateNormal];
+        [loadMoreButton addTarget:self action:@selector(loadMoreMessagesWithCurrentSearchTerm) forControlEvents:UIControlEventTouchUpInside];
+        _resultTableViewController.tableView.tableFooterView = loadMoreButton;
+    } else {
+        _resultTableViewController.tableView.tableFooterView = nil;
+    }
+}
+
+- (void)showLoadingMoreMessagesView
+{
+    UIActivityIndicatorView *loadingMoreView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
+    loadingMoreView.color = [UIColor darkGrayColor];
+    [loadingMoreView startAnimating];
+    _resultTableViewController.tableView.tableFooterView = loadingMoreView;
+}
+
+- (void)loadMoreMessagesWithCurrentSearchTerm
+{
+    if (_unifiedSearchController && [_unifiedSearchController.searchTerm isEqualToString:_searchController.searchBar.text]) {
+        [self showLoadingMoreMessagesView];
+        [self searchForMessagesWithCurrentSearchTerm];
+    }
 }
 
 #pragma mark - User Interface
