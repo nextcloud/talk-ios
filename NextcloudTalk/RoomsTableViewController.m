@@ -450,13 +450,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
     // Filter rooms
     _resultTableViewController.rooms = [self filterRoomsWithString:searchString];
-    [_resultTableViewController.tableView reloadData];
     // Search for listable rooms
+    _resultTableViewController.listableRooms = @[];
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
         [[NCAPIController sharedInstance] getListableRoomsForAccount:account withSearchTerm:searchString andCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
             if (!error) {
                 self->_resultTableViewController.listableRooms = rooms;
-                [self->_resultTableViewController.tableView reloadData];
             }
         }];
     }
@@ -469,6 +468,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [self setLoadMoreButtonHidden:YES];
         
         _unifiedSearchController = [[NCUnifiedSearchController alloc] initWithAccount:account searchTerm:searchString];
+        _resultTableViewController.searchingMessages = YES;
+        _resultTableViewController.messages = @[];
         [self searchForMessagesWithCurrentSearchTerm];
     }
 }
@@ -477,8 +478,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     [_unifiedSearchController searchMessagesWithCompletionHandler:^(NSArray<NCCSearchEntry *> *entries) {
         dispatch_async(dispatch_get_main_queue(), ^{
+            self->_resultTableViewController.searchingMessages = NO;
             self->_resultTableViewController.messages = entries;
-            [self->_resultTableViewController.tableView reloadData];
             [self setLoadMoreButtonHidden:!self->_unifiedSearchController.showMore];
         });
     }];
@@ -504,18 +505,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
 }
 
-- (void)showLoadingMoreMessagesView
-{
-    UIActivityIndicatorView *loadingMoreView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
-    loadingMoreView.color = [UIColor darkGrayColor];
-    [loadingMoreView startAnimating];
-    _resultTableViewController.tableView.tableFooterView = loadingMoreView;
-}
-
 - (void)loadMoreMessagesWithCurrentSearchTerm
 {
     if (_unifiedSearchController && [_unifiedSearchController.searchTerm isEqualToString:_searchController.searchBar.text]) {
-        [self showLoadingMoreMessagesView];
+        [_resultTableViewController showSearchingFooterView];
         [self searchForMessagesWithCurrentSearchTerm];
     }
 }

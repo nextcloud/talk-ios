@@ -32,9 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSArray *rooms;
 @property (nonatomic, strong) NSArray *listableRooms;
 @property (nonatomic, strong) NSArray *messages;
+@property (nonatomic, assign) BOOL searchingMessages;
 
 - (NCRoom *)roomForIndexPath:(NSIndexPath *)indexPath;
 - (NCCSearchEntry *)messageForIndexPath:(NSIndexPath *)indexPath;
+- (void)showSearchingFooterView;
 
 @end
 

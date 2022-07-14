@@ -73,10 +73,53 @@ typedef enum RoomSearchSection {
 - (void)setRooms:(NSArray *)rooms
 {
     _rooms = rooms;
-    [_roomSearchBackgroundView.loadingView stopAnimating];
-    [_roomSearchBackgroundView.loadingView setHidden:YES];
-    [_roomSearchBackgroundView.placeholderView setHidden:[self searchSections].count > 0];
+    [self reloadAndCheckSeachingIndicator];
 }
+
+- (void)setListableRooms:(NSArray *)listableRooms
+{
+    _listableRooms = listableRooms;
+    [self reloadAndCheckSeachingIndicator];
+}
+
+- (void)setMessages:(NSArray *)messages
+{
+    _messages = messages;
+    [self reloadAndCheckSeachingIndicator];
+}
+
+
+#pragma mark - User Interface
+
+- (void)reloadAndCheckSeachingIndicator
+{
+    [self.tableView reloadData];
+    
+    if (_searchingMessages) {
+        if ([self searchSections].count > 0) {
+            [_roomSearchBackgroundView.loadingView stopAnimating];
+            [_roomSearchBackgroundView.loadingView setHidden:YES];
+            [self showSearchingFooterView];
+        } else {
+            [_roomSearchBackgroundView.loadingView startAnimating];
+            [_roomSearchBackgroundView.loadingView setHidden:NO];
+            [_roomSearchBackgroundView.placeholderView setHidden:YES];
+        }
+    } else {
+        [_roomSearchBackgroundView.loadingView stopAnimating];
+        [_roomSearchBackgroundView.loadingView setHidden:YES];
+        [_roomSearchBackgroundView.placeholderView setHidden:[self searchSections].count > 0];
+    }
+}
+
+- (void)showSearchingFooterView
+{
+    UIActivityIndicatorView *loadingMoreView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
+    loadingMoreView.color = [UIColor darkGrayColor];
+    [loadingMoreView startAnimating];
+    self.tableView.tableFooterView = loadingMoreView;
+}
+
 
 #pragma mark - Utils
 
