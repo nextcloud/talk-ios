@@ -439,20 +439,41 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
 {
+    // Cancel previous call to search listable rooms and messages
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(searchListableRoomsAndMessages) object:nil];
+    
     NSString *searchString = _searchController.searchBar.text;
     if (searchString.length > 0) {
-        [self searchForRoomsWithString:searchString];
+        // Set searchingMessages flag if we are going to search for messages
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityUnifiedSearch]) {
+            [self setLoadMoreButtonHidden:YES];
+            _resultTableViewController.searchingMessages = YES;
+        }
+        // Filter rooms
+        [self filterRooms];
+        // Throttle listable rooms and messages search
+        [self performSelector:@selector(searchListableRoomsAndMessages) withObject:nil afterDelay:1];
+    } else {
+        // Clear search results
+        [self setLoadMoreButtonHidden:YES];
+        _resultTableViewController.searchingMessages = NO;
+        [_resultTableViewController clearSearchedResults];
     }
 }
 
-- (void)searchForRoomsWithString:(NSString *)searchString
+- (void)filterRooms
 {
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-    // Filter rooms
+    NSString *searchString = _searchController.searchBar.text;
     _resultTableViewController.rooms = [self filterRoomsWithString:searchString];
+}
+
+- (void)searchListableRoomsAndMessages
+{
+    NSString *searchString = _searchController.searchBar.text;
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
     // Search for listable rooms
-    _resultTableViewController.listableRooms = @[];
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
+        _resultTableViewController.listableRooms = @[];
         [[NCAPIController sharedInstance] getListableRoomsForAccount:account withSearchTerm:searchString andCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
             if (!error) {
                 self->_resultTableViewController.listableRooms = rooms;
@@ -461,14 +482,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     // Search for messages
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityUnifiedSearch]) {
-        if (_unifiedSearchController && [_unifiedSearchController.searchTerm isEqualToString:searchString]) {
-            return;
-        }
-        
-        [self setLoadMoreButtonHidden:YES];
-        
         _unifiedSearchController = [[NCUnifiedSearchController alloc] initWithAccount:account searchTerm:searchString];
-        _resultTableViewController.searchingMessages = YES;
         _resultTableViewController.messages = @[];
         [self searchForMessagesWithCurrentSearchTerm];
     }
@@ -538,7 +552,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Reload search controller if active
     NSString *searchString = _searchController.searchBar.text;
     if (_searchController.isActive && searchString.length > 0) {
-        [self searchForRoomsWithString:searchString];
+        // Filter rooms to show updated rooms
+        [self filterRooms];
     }
     
     // Reload room list

@@ -88,6 +88,12 @@ typedef enum RoomSearchSection {
     [self reloadAndCheckSeachingIndicator];
 }
 
+- (void)setSearchingMessages:(BOOL)searchingMessages
+{
+    _searchingMessages = searchingMessages;
+    [self reloadAndCheckSeachingIndicator];
+}
+
 
 #pragma mark - User Interface
 
@@ -103,8 +109,9 @@ typedef enum RoomSearchSection {
         } else {
             [_roomSearchBackgroundView.loadingView startAnimating];
             [_roomSearchBackgroundView.loadingView setHidden:NO];
-            [_roomSearchBackgroundView.placeholderView setHidden:YES];
+            [self hideSearchingFooterView];
         }
+        [_roomSearchBackgroundView.placeholderView setHidden:YES];
     } else {
         [_roomSearchBackgroundView.loadingView stopAnimating];
         [_roomSearchBackgroundView.loadingView setHidden:YES];
@@ -118,6 +125,20 @@ typedef enum RoomSearchSection {
     loadingMoreView.color = [UIColor darkGrayColor];
     [loadingMoreView startAnimating];
     self.tableView.tableFooterView = loadingMoreView;
+}
+
+- (void)hideSearchingFooterView
+{
+    self.tableView.tableFooterView = nil;
+}
+
+- (void)clearSearchedResults
+{
+    _rooms = @[];
+    _listableRooms = @[];
+    _messages = @[];
+    
+    [self reloadAndCheckSeachingIndicator];
 }
 
 

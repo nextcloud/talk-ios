@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NCRoom *)roomForIndexPath:(NSIndexPath *)indexPath;
 - (NCCSearchEntry *)messageForIndexPath:(NSIndexPath *)indexPath;
 - (void)showSearchingFooterView;
+- (void)clearSearchedResults;
 
 @end
 
