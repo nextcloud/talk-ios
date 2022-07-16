@@ -2594,8 +2594,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nextcloud/ios-communication-library";
 			requirement = {
-				kind = revision;
-				revision = 1b36623a2470818343027f29d572c4dc9274f563;
+				branch = develop;
+				kind = branch;
 			};
 		};
 		2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */ = {
