@@ -32,6 +32,7 @@ extern NSString * const NCChatViewControllerTalkToUserNotification;
 
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, assign) BOOL presentedInCall;
+@property (nonatomic, assign) NSInteger highlightMessageId;
 
 - (instancetype)initForRoom:(NCRoom *)room;
 - (void)stopChat;

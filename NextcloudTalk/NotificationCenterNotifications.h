@@ -32,5 +32,6 @@ extern NSString * const NCTokenRevokedResponseReceivedNotification;
 extern NSString * const NCURLWantsToOpenConversationNotification;
 extern NSString * const NCServerMaintenanceModeNotification;
 extern NSString * const NCTalkConfigurationHashChangedNotification;
+extern NSString * const NCPresentChatHighlightingMessageNotification;
 
 NS_ASSUME_NONNULL_END

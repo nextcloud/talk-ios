@@ -1200,11 +1200,19 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    // Searched messages
+    // Present searched messages
     if (tableView == _resultTableViewController.tableView) {
         NCCSearchEntry *searchMessage = [_resultTableViewController messageForIndexPath:indexPath];
-        if (searchMessage) {
+        NSString *roomToken = [searchMessage.attributes objectForKey:@"conversation"];
+        NSString *messageId = [searchMessage.attributes objectForKey:@"messageId"];
+        if (roomToken && messageId) {
             // Present message in chat view
+            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:roomToken forKey:@"token"];
+            [userInfo setObject:messageId forKey:@"messageId"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCPresentChatHighlightingMessageNotification
+                                                                object:self
+                                                              userInfo:userInfo];
             return;
         }
     }
