@@ -63,6 +63,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIRefreshControl *_refreshControl;
     BOOL _allowEmptyGroupRooms;
     UISearchController *_searchController;
+    NSString *_searchString;
     RoomSearchTableViewController *_resultTableViewController;
     NCUnifiedSearchController *_unifiedSearchController;
     PlaceholderView *_roomsBackgroundView;
@@ -439,10 +440,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
 {
+    NSString *searchString = _searchController.searchBar.text;
+    // Do not search for the same term twice (e.g. when the searchbar retrieves back the focus)
+    if ([_searchString isEqualToString:searchString]) {return;}
+    _searchString = searchString;
     // Cancel previous call to search listable rooms and messages
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(searchListableRoomsAndMessages) object:nil];
     
-    NSString *searchString = _searchController.searchBar.text;
+    // Filer rooms and search for listable rooms and messages
     if (searchString.length > 0) {
         // Set searchingMessages flag if we are going to search for messages
         if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityUnifiedSearch]) {
