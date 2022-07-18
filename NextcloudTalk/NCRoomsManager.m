@@ -532,6 +532,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         _chatViewController = [[NCChatViewController alloc] initForRoom:room];
         if (_highlightMessageDict && [[_highlightMessageDict objectForKey:@"token"] isEqualToString:room.token]) {
             _chatViewController.highlightMessageId = [[_highlightMessageDict objectForKey:@"messageId"] integerValue];
+            _highlightMessageDict = nil;
         }
         [[NCUserInterfaceController sharedInstance] presentChatViewController:_chatViewController];
     } else {
