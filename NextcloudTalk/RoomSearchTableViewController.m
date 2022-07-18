@@ -73,31 +73,31 @@ typedef enum RoomSearchSection {
 - (void)setRooms:(NSArray *)rooms
 {
     _rooms = rooms;
-    [self reloadAndCheckSeachingIndicator];
+    [self reloadAndCheckSearchingIndicator];
 }
 
 - (void)setListableRooms:(NSArray *)listableRooms
 {
     _listableRooms = listableRooms;
-    [self reloadAndCheckSeachingIndicator];
+    [self reloadAndCheckSearchingIndicator];
 }
 
 - (void)setMessages:(NSArray *)messages
 {
     _messages = messages;
-    [self reloadAndCheckSeachingIndicator];
+    [self reloadAndCheckSearchingIndicator];
 }
 
 - (void)setSearchingMessages:(BOOL)searchingMessages
 {
     _searchingMessages = searchingMessages;
-    [self reloadAndCheckSeachingIndicator];
+    [self reloadAndCheckSearchingIndicator];
 }
 
 
 #pragma mark - User Interface
 
-- (void)reloadAndCheckSeachingIndicator
+- (void)reloadAndCheckSearchingIndicator
 {
     [self.tableView reloadData];
     
@@ -138,7 +138,7 @@ typedef enum RoomSearchSection {
     _listableRooms = @[];
     _messages = @[];
     
-    [self reloadAndCheckSeachingIndicator];
+    [self reloadAndCheckSearchingIndicator];
 }
 
 
