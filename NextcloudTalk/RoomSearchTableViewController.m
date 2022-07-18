@@ -25,6 +25,7 @@
 @import NCCommunication;
 
 #import "UIImageView+AFNetworking.h"
+#import "UIImageView+Letters.h"
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -191,8 +192,26 @@ typedef enum RoomSearchSection {
     
     cell.titleLabel.text = messageEntry.title;
     cell.subtitleLabel.text = messageEntry.subline;
-    [cell.roomImage setImageWithURLRequest:[[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:messageEntry.thumbnailURL]] placeholderImage:nil success:nil failure:nil];
-    cell.roomImage.contentMode = UIViewContentModeScaleToFill;
+    
+    // Thumbnail image
+    NSURL *thumbnailURL = [[NSURL alloc] initWithString:messageEntry.thumbnailURL];
+    NSString *actorId = [messageEntry.attributes objectForKey:@"actorId"];
+    NSString *actorType = [messageEntry.attributes objectForKey:@"actorType"];
+    if ([actorType isEqualToString:@"users"] && actorId) {
+        [cell.roomImage setImageWithURLRequest:
+         [[NCAPIController sharedInstance] createAvatarRequestForUser:actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                              placeholderImage:nil success:nil failure:nil];
+        cell.roomImage.contentMode = UIViewContentModeScaleToFill;
+    } else if ([actorType isEqualToString:@"guests"]) {
+        [cell.roomImage setImageWithString:@"?" color:[UIColor clearColor] circular:NO];
+        cell.roomImage.contentMode = UIViewContentModeScaleAspectFit;
+    } else if (thumbnailURL) {
+        [cell.roomImage setImageWithURL:thumbnailURL placeholderImage:nil];
+        cell.roomImage.contentMode = UIViewContentModeScaleToFill;
+    } else {
+        [cell.roomImage setImage:[UIImage imageNamed:@"navigationLogo"]];
+        cell.roomImage.contentMode = UIViewContentModeCenter;
+    }
     
     // Clear possible content not removed by cell reuse
     cell.dateLabel.text = @"";
