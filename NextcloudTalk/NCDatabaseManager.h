@@ -61,6 +61,7 @@ extern NSString * const kCapabilityChatUnread;
 extern NSString * const kCapabilityReactions;
 extern NSString * const kCapabilityRichObjectListMedia;
 extern NSString * const kCapabilityRichObjectDelete;
+extern NSString * const kCapabilityUnifiedSearch;
 extern NSString * const kCapabilityChatPermission;
 extern NSString * const kCapabilitySilentSend;
 extern NSString * const kCapabilitySilentCall;

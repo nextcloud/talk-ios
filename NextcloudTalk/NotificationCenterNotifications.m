@@ -30,4 +30,5 @@ NSString * const NCTokenRevokedResponseReceivedNotification = @"NCTokenRevokedRe
 NSString * const NCURLWantsToOpenConversationNotification = @"NCURLWantsToOpenConversationNotification";
 NSString * const NCServerMaintenanceModeNotification = @"NCServerMaintenanceModeNotification";
 NSString * const NCTalkConfigurationHashChangedNotification = @"NCTalkConfigurationHashChangedNotification";
+NSString * const NCPresentChatHighlightingMessageNotification = @"NCPresentChatHighlightingMessageNotification";
 

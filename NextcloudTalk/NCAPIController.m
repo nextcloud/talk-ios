@@ -101,9 +101,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
     NSString *userToken = [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId];
     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
-    [[NCCommunicationCommon shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken
-                                             urlBase:account.server userAgent:userAgent webDav:serverCapabilities.webDAVRoot dav:nil
-                                    nextcloudVersion:serverCapabilities.versionMajor delegate:self];
+    [[NCCommunicationCommon shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken urlBase:account.server userAgent:userAgent webDav:serverCapabilities.webDAVRoot nextcloudVersion:serverCapabilities.versionMajor delegate:self];
 }
 
 - (void)initImageDownloaders
@@ -1621,7 +1619,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     [self setupNCCommunicationForAccount:account];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
     NSString *serverUrlString = [NSString stringWithFormat:@"%@/%@/%@", account.server, serverCapabilities.webDAVRoot, path ? path : @""];
-    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:serverUrlString depth:depth showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:serverUrlString depth:depth showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
         if (errorCode == 0 && block) {
             block(files, nil);
         } else if (block) {
@@ -1716,7 +1714,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     </d:searchrequest>";
     
     NSString *bodyRequest = [NSString stringWithFormat:body, account.userId, fileId];
-    [[NCCommunication shared] searchBodyRequestWithServerUrl:account.server requestBody:bodyRequest showHiddenFiles:YES customUserAgent:nil addCustomHeaders:nil timeout:0 completionHandler:^(NSString *account, NSArray<NCCommunicationFile *> *files, NSInteger error, NSString *errorDescription) {
+    [[NCCommunication shared] searchBodyRequestWithServerUrl:account.server requestBody:bodyRequest showHiddenFiles:YES customUserAgent:nil addCustomHeaders:nil timeout:0 queue:dispatch_get_main_queue() completionHandler:^(NSString *account, NSArray<NCCommunicationFile *> *files, NSInteger error, NSString *errorDescription) {
         
         if (block) {
             if ([files count] > 0) {
@@ -1735,7 +1733,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *fileServerPath = [self serverFilePathForFileName:fileName andAccountId:account.accountId];
     NSString *fileServerURL = [self serverFileURLForFilePath:fileServerPath andAccountId:account.accountId];
     
-    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:fileServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:fileServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
         // File already exists
         if (errorCode == 0 && files.count == 1) {
             NSString *alternativeName = [self alternativeNameForFileName:fileName original:isOriginalName];
@@ -1759,10 +1757,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     [self setupNCCommunicationForAccount:account];
     
     NSString *attachmentFolderServerURL = [self attachmentFolderServerURLForAccountId:account.accountId];
-    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
         // Attachment folder do not exist
         if (errorCode == 404) {
-            [[NCCommunication shared] createFolder:attachmentFolderServerURL customUserAgent:nil addCustomHeaders:nil completionHandler:^(NSString *account, NSString *ocId, NSDate *date, NSInteger errorCode, NSString *errorDescription) {
+            [[NCCommunication shared] createFolder:attachmentFolderServerURL customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() completionHandler:^(NSString *account, NSString *ocId, NSDate *date, NSInteger errorCode, NSString *errorDescription) {
                 if (block) {
                     block(errorCode == 0, errorCode);
                 }

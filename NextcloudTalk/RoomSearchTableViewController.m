@@ -22,7 +22,10 @@
 
 #import "RoomSearchTableViewController.h"
 
+@import NCCommunication;
+
 #import "UIImageView+AFNetworking.h"
+#import "UIImageView+Letters.h"
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -35,7 +38,8 @@
 
 typedef enum RoomSearchSection {
     RoomSearchSectionFiltered = 0,
-    RoomSearchSectionListable
+    RoomSearchSectionListable,
+    RoomSearchSectionMessages
 } RoomSearchSection;
 
 @interface RoomSearchTableViewController ()
@@ -70,43 +74,176 @@ typedef enum RoomSearchSection {
 - (void)setRooms:(NSArray *)rooms
 {
     _rooms = rooms;
-    [_roomSearchBackgroundView.loadingView stopAnimating];
-    [_roomSearchBackgroundView.loadingView setHidden:YES];
-    [_roomSearchBackgroundView.placeholderView setHidden:[self hasResults]];
+    [self reloadAndCheckSearchingIndicator];
 }
+
+- (void)setListableRooms:(NSArray *)listableRooms
+{
+    _listableRooms = listableRooms;
+    [self reloadAndCheckSearchingIndicator];
+}
+
+- (void)setMessages:(NSArray *)messages
+{
+    _messages = messages;
+    [self reloadAndCheckSearchingIndicator];
+}
+
+- (void)setSearchingMessages:(BOOL)searchingMessages
+{
+    _searchingMessages = searchingMessages;
+    [self reloadAndCheckSearchingIndicator];
+}
+
+
+#pragma mark - User Interface
+
+- (void)reloadAndCheckSearchingIndicator
+{
+    [self.tableView reloadData];
+    
+    if (_searchingMessages) {
+        if ([self searchSections].count > 0) {
+            [_roomSearchBackgroundView.loadingView stopAnimating];
+            [_roomSearchBackgroundView.loadingView setHidden:YES];
+            [self showSearchingFooterView];
+        } else {
+            [_roomSearchBackgroundView.loadingView startAnimating];
+            [_roomSearchBackgroundView.loadingView setHidden:NO];
+            [self hideSearchingFooterView];
+        }
+        [_roomSearchBackgroundView.placeholderView setHidden:YES];
+    } else {
+        [_roomSearchBackgroundView.loadingView stopAnimating];
+        [_roomSearchBackgroundView.loadingView setHidden:YES];
+        [_roomSearchBackgroundView.placeholderView setHidden:[self searchSections].count > 0];
+    }
+}
+
+- (void)showSearchingFooterView
+{
+    UIActivityIndicatorView *loadingMoreView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
+    loadingMoreView.color = [UIColor darkGrayColor];
+    [loadingMoreView startAnimating];
+    self.tableView.tableFooterView = loadingMoreView;
+}
+
+- (void)hideSearchingFooterView
+{
+    self.tableView.tableFooterView = nil;
+}
+
+- (void)clearSearchedResults
+{
+    _rooms = @[];
+    _listableRooms = @[];
+    _messages = @[];
+    
+    [self reloadAndCheckSearchingIndicator];
+}
+
 
 #pragma mark - Utils
 
+- (NSArray *)searchSections
+{
+    NSMutableArray *sections = [NSMutableArray new];
+    if (_rooms.count > 0) {
+        [sections addObject:@(RoomSearchSectionFiltered)];
+    }
+    if (_listableRooms.count > 0) {
+        [sections addObject:@(RoomSearchSectionListable)];
+    }
+    if (_messages.count > 0) {
+        [sections addObject:@(RoomSearchSectionMessages)];
+    }
+    return [NSArray arrayWithArray:sections];
+}
+
 - (NCRoom *)roomForIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section == RoomSearchSectionFiltered && indexPath.row < _rooms.count) {
+    NSInteger searchSection = [[[self searchSections] objectAtIndex:indexPath.section] integerValue];
+    if (searchSection == RoomSearchSectionFiltered && indexPath.row < _rooms.count) {
         return [_rooms objectAtIndex:indexPath.row];
-    } else if (indexPath.section == RoomSearchSectionListable && indexPath.row < _listableRooms.count) {
+    } else if (searchSection == RoomSearchSectionListable && indexPath.row < _listableRooms.count) {
         return [_listableRooms objectAtIndex:indexPath.row];
     }
     
     return nil;
 }
 
-- (BOOL)hasResults
+- (NCCSearchEntry *)messageForIndexPath:(NSIndexPath *)indexPath
 {
-    return _rooms.count > 0 || _listableRooms.count > 0;
+    NSInteger searchSection = [[[self searchSections] objectAtIndex:indexPath.section] integerValue];
+    if (searchSection == RoomSearchSectionMessages && indexPath.row < _messages.count) {
+        return [_messages objectAtIndex:indexPath.row];;
+    }
+    
+    return nil;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForMessageAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCCSearchEntry *messageEntry = [_messages objectAtIndex:indexPath.row];
+    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
+    if (!cell) {
+        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
+    }
+    
+    cell.titleLabel.text = messageEntry.title;
+    cell.subtitleLabel.text = messageEntry.subline;
+    
+    // Thumbnail image
+    NSURL *thumbnailURL = [[NSURL alloc] initWithString:messageEntry.thumbnailURL];
+    NSString *actorId = [messageEntry.attributes objectForKey:@"actorId"];
+    NSString *actorType = [messageEntry.attributes objectForKey:@"actorType"];
+    if ([actorType isEqualToString:@"users"] && actorId) {
+        [cell.roomImage setImageWithURLRequest:
+         [[NCAPIController sharedInstance] createAvatarRequestForUser:actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                              placeholderImage:nil success:nil failure:nil];
+        cell.roomImage.contentMode = UIViewContentModeScaleToFill;
+    } else if ([actorType isEqualToString:@"guests"]) {
+        [cell.roomImage setImageWithString:@"?" color:[UIColor clearColor] circular:NO];
+        cell.roomImage.contentMode = UIViewContentModeScaleAspectFit;
+    } else if (thumbnailURL) {
+        [cell.roomImage setImageWithURL:thumbnailURL placeholderImage:nil];
+        cell.roomImage.contentMode = UIViewContentModeScaleToFill;
+    } else {
+        [cell.roomImage setImage:[UIImage imageNamed:@"navigationLogo"]];
+        cell.roomImage.contentMode = UIViewContentModeCenter;
+    }
+    
+    // Clear possible content not removed by cell reuse
+    cell.dateLabel.text = @"";
+    [cell setUnreadMessages:0 mentioned:NO groupMentioned:NO];
+    
+    // Add message date (if it is included in attributes)
+    NSInteger timestamp = [[messageEntry.attributes objectForKey:@"timestamp"] integerValue];
+    if (timestamp > 0) {
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:timestamp];
+        cell.dateLabel.text = [NCUtils readableTimeOrDateFromDate:date];
+    }
+    
+    return cell;
 }
 
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return _listableRooms.count > 0 ? 2 : 1;
+    return [self searchSections].count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    switch (section) {
+    NSInteger searchSection = [[[self searchSections] objectAtIndex:section] integerValue];
+    switch (searchSection) {
         case RoomSearchSectionFiltered:
             return _rooms.count;
         case RoomSearchSectionListable:
             return _listableRooms.count;
+        case RoomSearchSectionMessages:
+            return _messages.count;
         default:
             return 0;
     }
@@ -119,9 +256,14 @@ typedef enum RoomSearchSection {
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    switch (section) {
+    NSInteger searchSection = [[[self searchSections] objectAtIndex:section] integerValue];
+    switch (searchSection) {
+        case RoomSearchSectionFiltered:
+            return NSLocalizedString(@"Conversations", @"");
         case RoomSearchSectionListable:
             return NSLocalizedString(@"Open conversations", @"TRANSLATORS 'Open conversations' as a type of conversation. 'Open conversations' are conversations that can be found by other users");
+        case RoomSearchSectionMessages:
+            return NSLocalizedString(@"Messages", @"");
         default:
             return nil;
     }
@@ -129,6 +271,11 @@ typedef enum RoomSearchSection {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    NSInteger searchSection = [[[self searchSections] objectAtIndex:indexPath.section] integerValue];
+    if (searchSection == RoomSearchSectionMessages) {
+        return [self tableView:tableView cellForMessageAtIndexPath:indexPath];
+    }
+    
     NCRoom *room = [self roomForIndexPath:indexPath];
     
     RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];

@@ -56,6 +56,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 @property (nonatomic, strong) NSString *upgradeCallToken;
 @property (nonatomic, strong) NSString *pendingToStartCallToken;
 @property (nonatomic, assign) BOOL pendingToStartCallHasVideo;
+@property (nonatomic, strong) NSDictionary *highlightMessageDict;
 
 @end
 
@@ -94,6 +95,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChatOfForwardedMessage:) name:NCChatViewControllerForwardNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChat:) name:NCChatViewControllerTalkToUserNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChatWithURL:) name:NCURLWantsToOpenConversationNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChatHighlightingMessage:) name:NCPresentChatHighlightingMessageNotification object:nil];
     }
     
     return self;
@@ -528,6 +530,10 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
     
     if (!_chatViewController || ![_chatViewController.room.token isEqualToString:room.token]) {
         _chatViewController = [[NCChatViewController alloc] initForRoom:room];
+        if (_highlightMessageDict && [[_highlightMessageDict objectForKey:@"token"] isEqualToString:room.token]) {
+            _chatViewController.highlightMessageId = [[_highlightMessageDict objectForKey:@"messageId"] integerValue];
+            _highlightMessageDict = nil;
+        }
         [[NCUserInterfaceController sharedInstance] presentChatViewController:_chatViewController];
     } else {
         NSLog(@"Not starting chat: chatViewController for room %@ does already exist.", room.token);
@@ -833,6 +839,13 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
             [_chatViewController setChatMessage:responseUserText];
         }
     }
+}
+
+- (void)joinChatHighlightingMessage:(NSNotification *)notification
+{
+    _highlightMessageDict = notification.userInfo;
+    NSString *token = [notification.userInfo objectForKey:@"token"];
+    [self startChatWithRoomToken:token];
 }
 
 - (void)userSelectedContactForChat:(NSNotification *)notification

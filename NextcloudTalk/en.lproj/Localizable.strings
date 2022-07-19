@@ -308,6 +308,9 @@
 "Conversation settings" = "Conversation settings";
 
 /* No comment provided by engineer. */
+"Conversations" = "Conversations";
+
+/* No comment provided by engineer. */
 "Copy" = "Copy";
 
 /* No comment provided by engineer. */
@@ -701,6 +704,9 @@
 "Linked file" = "Linked file";
 
 /* No comment provided by engineer. */
+"Load more results" = "Load more results";
+
+/* No comment provided by engineer. */
 "Lobby" = "Lobby";
 
 /* No comment provided by engineer. */
@@ -768,6 +774,9 @@
 
 /* No comment provided by engineer. */
 "Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services" = "Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services";
+
+/* No comment provided by engineer. */
+"Messages" = "Messages";
 
 /* No comment provided by engineer. */
 "Microphone" = "Microphone";

@@ -1530,6 +1530,15 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }];
 }
 
+- (void)highlightMessageAtIndexPath:(NSIndexPath *)indexPath withScrollPosition:(UITableViewScrollPosition)scrollPosition
+{
+    [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:scrollPosition];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    });
+}
+
 #pragma mark - UITextField delegate
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -1849,7 +1858,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] setupNCCommunicationForAccount:activeAccount];
-    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:localPath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil taskHandler:^(NSURLSessionTask *task) {
+    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:localPath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() taskHandler:^(NSURLSessionTask *task) {
         NSLog(@"Upload task");
     } progressHandler:^(NSProgress *progress) {
         NSLog(@"Progress:%f", progress.fractionCompleted);
@@ -2614,6 +2623,14 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         if (firstNewMessagesAfterHistory) {
             [self->_chatBackgroundView.loadingView stopAnimating];
             [self->_chatBackgroundView.loadingView setHidden:YES];
+        }
+        
+        if (self->_highlightMessageId) {
+            NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:self->_highlightMessageId];
+            if (indexPath) {
+                [self highlightMessageAtIndexPath:indexPath withScrollPosition:UITableViewScrollPositionMiddle];
+            }
+            self->_highlightMessageId = 0;
         }
     });
 }
@@ -3825,11 +3842,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)cellWantsToScrollToMessage:(NCChatMessage *)message {
     NSIndexPath *indexPath = [self indexPathForMessage:message];
     if (indexPath) {
-        [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionTop];
-        
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-        });
+        [self highlightMessageAtIndexPath:indexPath withScrollPosition:UITableViewScrollPositionTop];
     }
 }
 

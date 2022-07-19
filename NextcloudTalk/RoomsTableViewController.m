@@ -22,12 +22,15 @@
 
 #import "RoomsTableViewController.h"
 
+@import NCCommunication;
 #import <Realm/Realm.h>
 
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
 #import "UIButton+AFNetworking.h"
 #import "UIImageView+AFNetworking.h"
+
+#import "NextcloudTalk-Swift.h"
 
 #import "CCCertificate.h"
 #import "FTPopOverMenu.h"
@@ -60,7 +63,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     UIRefreshControl *_refreshControl;
     BOOL _allowEmptyGroupRooms;
     UISearchController *_searchController;
+    NSString *_searchString;
     RoomSearchTableViewController *_resultTableViewController;
+    NCUnifiedSearchController *_unifiedSearchController;
     PlaceholderView *_roomsBackgroundView;
     UIBarButtonItem *_settingsButton;
     NSTimer *_refreshRoomsTimer;
@@ -436,32 +441,95 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
 {
     NSString *searchString = _searchController.searchBar.text;
+    // Do not search for the same term twice (e.g. when the searchbar retrieves back the focus)
+    if ([_searchString isEqualToString:searchString]) {return;}
+    _searchString = searchString;
+    // Cancel previous call to search listable rooms and messages
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(searchListableRoomsAndMessages) object:nil];
+    
+    // Filer rooms and search for listable rooms and messages
     if (searchString.length > 0) {
-        [self searchForRoomsWithString:searchString];
+        // Set searchingMessages flag if we are going to search for messages
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityUnifiedSearch]) {
+            [self setLoadMoreButtonHidden:YES];
+            _resultTableViewController.searchingMessages = YES;
+        }
+        // Filter rooms
+        [self filterRooms];
+        // Throttle listable rooms and messages search
+        [self performSelector:@selector(searchListableRoomsAndMessages) withObject:nil afterDelay:1];
+    } else {
+        // Clear search results
+        [self setLoadMoreButtonHidden:YES];
+        _resultTableViewController.searchingMessages = NO;
+        [_resultTableViewController clearSearchedResults];
     }
 }
 
-- (void)searchForRoomsWithString:(NSString *)searchString
+- (void)filterRooms
 {
-    // Filter rooms
+    NSString *searchString = _searchController.searchBar.text;
     _resultTableViewController.rooms = [self filterRoomsWithString:searchString];
-    [_resultTableViewController.tableView reloadData];
+}
+
+- (void)searchListableRoomsAndMessages
+{
+    NSString *searchString = _searchController.searchBar.text;
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
     // Search for listable rooms
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
-        TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+        _resultTableViewController.listableRooms = @[];
         [[NCAPIController sharedInstance] getListableRoomsForAccount:account withSearchTerm:searchString andCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
             if (!error) {
                 self->_resultTableViewController.listableRooms = rooms;
-                [self->_resultTableViewController.tableView reloadData];
             }
         }];
     }
+    // Search for messages
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityUnifiedSearch]) {
+        _unifiedSearchController = [[NCUnifiedSearchController alloc] initWithAccount:account searchTerm:searchString];
+        _resultTableViewController.messages = @[];
+        [self searchForMessagesWithCurrentSearchTerm];
+    }
+}
+
+- (void)searchForMessagesWithCurrentSearchTerm
+{
+    [_unifiedSearchController searchMessagesWithCompletionHandler:^(NSArray<NCCSearchEntry *> *entries) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self->_resultTableViewController.searchingMessages = NO;
+            self->_resultTableViewController.messages = entries;
+            [self setLoadMoreButtonHidden:!self->_unifiedSearchController.showMore];
+        });
+    }];
 }
 
 - (NSArray *)filterRoomsWithString:(NSString *)searchString
 {
     NSPredicate *sPredicate = [NSPredicate predicateWithFormat:@"displayName CONTAINS[c] %@", searchString];
     return [_rooms filteredArrayUsingPredicate:sPredicate];
+}
+
+- (void)setLoadMoreButtonHidden:(BOOL)hidden
+{
+    if (!hidden) {
+        UIButton *loadMoreButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, 44)];
+        loadMoreButton.titleLabel.font = [UIFont systemFontOfSize:15];
+        [loadMoreButton setTitleColor:[UIColor systemBlueColor] forState:UIControlStateNormal];
+        [loadMoreButton setTitle:NSLocalizedString(@"Load more results", @"") forState:UIControlStateNormal];
+        [loadMoreButton addTarget:self action:@selector(loadMoreMessagesWithCurrentSearchTerm) forControlEvents:UIControlEventTouchUpInside];
+        _resultTableViewController.tableView.tableFooterView = loadMoreButton;
+    } else {
+        _resultTableViewController.tableView.tableFooterView = nil;
+    }
+}
+
+- (void)loadMoreMessagesWithCurrentSearchTerm
+{
+    if (_unifiedSearchController && [_unifiedSearchController.searchTerm isEqualToString:_searchController.searchBar.text]) {
+        [_resultTableViewController showSearchingFooterView];
+        [self searchForMessagesWithCurrentSearchTerm];
+    }
 }
 
 #pragma mark - User Interface
@@ -487,8 +555,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     
     // Reload search controller if active
-    if (_searchController.isActive) {
-        [self searchForRoomsWithString:_searchController.searchBar.text];
+    NSString *searchString = _searchController.searchBar.text;
+    if (_searchController.isActive && searchString.length > 0) {
+        // Filter rooms to show updated rooms
+        [self filterRooms];
     }
     
     // Reload room list
@@ -1014,8 +1084,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     NCRoom *room = [self roomForIndexPath:indexPath];
     
-    // Do not show swipe actions for open conversations
-    if (tableView == _resultTableViewController.tableView && room.listable) {return nil;}
+    // Do not show swipe actions for open conversations or messages
+    if ((tableView == _resultTableViewController.tableView && room.listable) || !room) {return nil;}
     
     if (room.isLeavable) {
         deleteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
@@ -1033,8 +1103,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NCRoom *room = [self roomForIndexPath:indexPath];
     
-    // Do not show swipe actions for open conversations
-    if (tableView == _resultTableViewController.tableView && room.listable) {return nil;}
+    // Do not show swipe actions for open conversations or messages
+    if ((tableView == _resultTableViewController.tableView && room.listable) || !room) {return nil;}
     
     UIContextualAction *favoriteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
                                                                                handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
@@ -1133,8 +1203,27 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self presentChatForRoomAtIndexPath:indexPath];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    // Present searched messages
+    if (tableView == _resultTableViewController.tableView) {
+        NCCSearchEntry *searchMessage = [_resultTableViewController messageForIndexPath:indexPath];
+        NSString *roomToken = [searchMessage.attributes objectForKey:@"conversation"];
+        NSString *messageId = [searchMessage.attributes objectForKey:@"messageId"];
+        if (roomToken && messageId) {
+            // Present message in chat view
+            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:roomToken forKey:@"token"];
+            [userInfo setObject:messageId forKey:@"messageId"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCPresentChatHighlightingMessageNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+            return;
+        }
+    }
+    
+    // Present room chat
+    [self presentChatForRoomAtIndexPath:indexPath];
 }
 
 
