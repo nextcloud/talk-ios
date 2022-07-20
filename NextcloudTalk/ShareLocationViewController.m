@@ -208,7 +208,7 @@ typedef enum ShareLocationSection {
     [geocoder reverseGeocodeLocation:location completionHandler:^(NSArray *placemarks, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _dropPinPlacemark = placemarks[0];
+                self->_dropPinPlacemark = placemarks[0];
                 [self.tableView reloadSections:[[NSIndexSet alloc] initWithIndex:kShareLocationSectionDropPin] withRowAnimation:UITableViewRowAnimationNone];
             });
         }

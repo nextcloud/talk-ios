@@ -200,7 +200,7 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     }
     
     NSLog(@"Sending: %@", jsonString);
-    [_webSocket send:jsonString];
+    [_webSocket sendString:jsonString error:nil];
 }
 
 - (void)sendHello

@@ -262,7 +262,7 @@
     [self checkForPushNotificationSubscription];
 }
 
-- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
+- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(PKPushType)type withCompletionHandler:(void (^)(void))completion
 {
     NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
     for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
@@ -278,6 +278,8 @@
             }
         }
     }
+
+    completion();
 }
 
 - (NSString *)stringWithDeviceToken:(NSData *)deviceToken

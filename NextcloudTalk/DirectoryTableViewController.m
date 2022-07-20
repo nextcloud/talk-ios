@@ -143,16 +143,11 @@
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
     UIAlertAction *selectedAction = modificationDate;
-    switch ([[NCSettingsController sharedInstance] getPreferredFileSorting]) {
-        case NCAlphabeticalSorting:
-            selectedAction = alphabetical;
-            break;
-        case NCModificationDateSorting:
-            selectedAction = modificationDate;
-            break;
-        default:
-            break;
+
+    if ([[NCSettingsController sharedInstance] getPreferredFileSorting] == NCAlphabeticalSorting) {
+        selectedAction = alphabetical;
     }
+
     [selectedAction setValue:[[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
     
     // Presentation on iPads
@@ -188,16 +183,11 @@
 - (void)sortItemsInDirectory
 {
     NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
-    switch ([[NCSettingsController sharedInstance] getPreferredFileSorting]) {
-        case NCAlphabeticalSorting:
-            valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"fileName" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
-            break;
-        case NCModificationDateSorting:
-            valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
-            break;
-        default:
-            break;
+
+    if ([[NCSettingsController sharedInstance] getPreferredFileSorting] == NCAlphabeticalSorting) {
+        valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"fileName" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
     }
+
     NSArray *descriptors = [NSArray arrayWithObjects:valueDescriptor, nil];
     [_itemsInDirectory sortUsingDescriptors:descriptors];
     [self.tableView reloadData];

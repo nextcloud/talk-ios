@@ -251,6 +251,8 @@ typedef enum FileAction {
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
+    
     [[NCRoomsManager sharedInstance] updateRoom:_room.token];
     [self getRoomParticipants];
 }
@@ -694,7 +696,7 @@ typedef enum FileAction {
                                        message:NSLocalizedString(@"Conversation name cannot be empty", nil)
                                        preferredStyle:UIAlertControllerStyleAlert];
 
-        UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+        UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault
            handler:^(UIAlertAction * action) {}];
 
         [alert addAction:defaultAction];

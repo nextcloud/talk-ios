@@ -1603,11 +1603,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 #pragma mark - UIDocumentPickerViewController Delegate
 
-- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url
-{
-    [self shareDocumentsWithURLs:@[url] fromController:controller];
-}
-
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
 {
     [self shareDocumentsWithURLs:urls fromController:controller];
@@ -1701,8 +1696,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NSString* vcardImageString = [[@"PHOTO;TYPE=JPEG;ENCODING=BASE64:" stringByAppendingString:base64Image] stringByAppendingString:@"\n"];
         vcString = [vcString stringByReplacingOccurrencesOfString:@"END:VCARD" withString:[vcardImageString stringByAppendingString:@"END:VCARD"]];
     }
-    
-    vCardData = [vcString dataUsingEncoding:NSUTF8StringEncoding];
     
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *folderPath = [paths objectAtIndex:0];
@@ -3383,7 +3376,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (UITableViewCell *)getCellForMessage:(NCChatMessage *) message
 {
-    UITableViewCell *cell = [UITableViewCell new];
+    UITableViewCell *cell;
     if (message.messageId == kUnreadMessagesSeparatorIdentifier) {
         MessageSeparatorTableViewCell *separatorCell = (MessageSeparatorTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessageSeparatorCellIdentifier];
         separatorCell.messageId = message.messageId;

@@ -151,6 +151,8 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
+
     if (_type == ShareConfirmationTypeText) {
         [self.itemToolbar setHidden:YES];
         [self.shareTextView becomeFirstResponder];
@@ -574,11 +576,6 @@
 }
 
 #pragma mark - UIDocumentPickerViewController Delegate
-
-- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url
-{
-    [self shareDocumentsWithURLs:@[url] fromController:controller];
-}
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
 {
