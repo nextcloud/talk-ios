@@ -86,6 +86,8 @@ extern NSString * const kSharedItemTypeVoice;
 - (NCMessageFileParameter *)file;
 - (NCMessageLocationParameter *)geoLocation;
 - (NCDeckCardParameter *)deckCard;
+- (NCMessageParameter *)poll;
+- (NCMessageParameter *)objectShareParameter;
 - (NSString *)objectShareLink;
 - (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;

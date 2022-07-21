@@ -67,6 +67,7 @@ NSString * const kCapabilityUnifiedSearch           = @"unified-search";
 NSString * const kCapabilityChatPermission          = @"chat-permission";
 NSString * const kCapabilitySilentSend              = @"silent-send";
 NSString * const kCapabilitySilentCall              = @"silent-call";
+NSString * const kCapabilityTalkPolls               = @"talk-polls";
 
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 

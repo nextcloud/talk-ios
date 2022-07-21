@@ -316,6 +316,28 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return _deckCardParameter;
 }
 
+- (NCMessageParameter *)poll
+{
+    if ([self isObjectShare]) {
+        NCMessageParameter *objectParameter = [[NCMessageParameter alloc] initWithDictionary:[self.messageParameters objectForKey:@"object"]];
+        if ([objectParameter.type isEqualToString:@"talk-poll"]) {
+            return objectParameter;
+        }
+    }
+    
+    return nil;
+}
+
+- (NCMessageParameter *)objectShareParameter
+{
+    if ([self isObjectShare]) {
+        NCMessageParameter *objectParameter = [[NCMessageParameter alloc] initWithDictionary:[self.messageParameters objectForKey:@"object"]];
+        return objectParameter;
+    }
+    
+    return nil;
+}
+
 - (NSString *)objectShareLink;
 {
     if (!_objectShareLink && [self isObjectShare]) {
