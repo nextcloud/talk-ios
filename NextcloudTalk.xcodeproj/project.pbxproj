@@ -115,6 +115,10 @@
 		2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
 		2C5BFBEA28772A9A00E75118 /* NCUnifiedSearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */; };
 		2C5BFBED28895E6B00E75118 /* ObjectShareMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */; };
+		2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBEE288A947800E75118 /* PollVotingView.swift */; };
+		2C5BFBF2288A97D800E75118 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
+		2C5BFBF3288AA37F00E75118 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
+		2C5BFBF4288AA37F00E75118 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
 		2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
 		2C62AFAE24C08845007E460A /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C62AFA324C08845007E460A /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -452,6 +456,9 @@
 		2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUnifiedSearchController.swift; sourceTree = "<group>"; };
 		2C5BFBEB28895E6A00E75118 /* ObjectShareMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectShareMessageTableViewCell.h; sourceTree = "<group>"; };
 		2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectShareMessageTableViewCell.m; sourceTree = "<group>"; };
+		2C5BFBEE288A947800E75118 /* PollVotingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollVotingView.swift; sourceTree = "<group>"; };
+		2C5BFBF0288A97D800E75118 /* NCPoll.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPoll.h; sourceTree = "<group>"; };
+		2C5BFBF1288A97D800E75118 /* NCPoll.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPoll.m; sourceTree = "<group>"; };
 		2C5E957B227097E0009CA9BE /* NCUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCUtils.m; sourceTree = "<group>"; };
 		2C5E957C227097E0009CA9BE /* NCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCUtils.h; sourceTree = "<group>"; };
 		2C604A2A25E4556E00F23615 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1136,6 +1143,7 @@
 				2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */,
 				2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */,
 				2C44B4D027FF05A000AD1C86 /* ReactionsSummaryView.swift */,
+				2C5BFBEE288A947800E75118 /* PollVotingView.swift */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -1297,6 +1305,8 @@
 				1FEDE3C4257D439500853F79 /* NCChatFileController.m */,
 				1F5CDF622584E78900B0026E /* NCChatFileStatus.h */,
 				1F5CDF632584E78900B0026E /* NCChatFileStatus.m */,
+				2C5BFBF0288A97D800E75118 /* NCPoll.h */,
+				2C5BFBF1288A97D800E75118 /* NCPoll.m */,
 				2CA15543208E41B500CE8EF0 /* NCChatViewController.h */,
 				2CA15544208E41B500CE8EF0 /* NCChatViewController.m */,
 				2C43BA7421309A1000B3068A /* NCMessageParameter.h */,
@@ -1710,6 +1720,7 @@
 				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
+				2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */,
 				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */,
@@ -1821,6 +1832,7 @@
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,
 				1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */,
+				2C5BFBF2288A97D800E75118 /* NCPoll.m in Sources */,
 				2C42ADB420B58E6300296DEA /* NCChatController.m in Sources */,
 				2C4CDCD026A84AEA0023F403 /* ShareViewController.m in Sources */,
 				2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
@@ -1884,6 +1896,7 @@
 				2C62B00924C1BDBD007E460A /* NCAPISessionManager.m in Sources */,
 				2CC32E9A27F5DADB00BB8C39 /* NCChatReaction.m in Sources */,
 				2C62AFBB24C1B7B1007E460A /* NCDatabaseManager.m in Sources */,
+				2C5BFBF4288AA37F00E75118 /* NCPoll.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1902,6 +1915,7 @@
 				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */,
 				2C4446DE2658158000DF1DBC /* NCChatBlock.m in Sources */,
+				2C5BFBF3288AA37F00E75118 /* NCPoll.m in Sources */,
 				2C4446D9265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */,
 				2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */,

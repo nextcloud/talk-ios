@@ -244,7 +244,7 @@
         return;
     }
     
-    if (self.delegate) {
+    if (self.delegate && self.message.poll) {
         [self.delegate cellWantsToOpenPoll:self.objectParameter];
     }
 }

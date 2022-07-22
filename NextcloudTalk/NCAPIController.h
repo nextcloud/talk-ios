@@ -24,6 +24,7 @@
 
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
+#import "NCPoll.h"
 #import "NCRoom.h"
 #import "NCUser.h"
 
@@ -66,6 +67,8 @@ typedef void (^GetSharedItemsOverviewCompletionBlock)(NSDictionary *sharedItemsO
 typedef void (^GetSharedItemsCompletionBlock)(NSArray *sharedItems, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
 
 typedef void (^MessageReactionCompletionBlock)(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode);
+
+typedef void (^PollCompletionBlock)(NCPoll *poll, NSError *error, NSInteger statusCode);
 
 typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);
@@ -118,6 +121,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)callAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)chatAPIVersionForAccount:(TalkAccount *)accounts;
 - (NSInteger)reactionsAPIVersionForAccount:(TalkAccount *)account;
+- (NSInteger)pollsAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
 
 // Contacts Controller
@@ -177,6 +181,12 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)addReaction:(NSString *)reaction toMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;
 - (NSURLSessionDataTask *)removeReaction:(NSString *)reaction fromMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;
 - (NSURLSessionDataTask *)getReactions:(NSString *)reaction fromMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;
+
+// Polls Controller
+- (NSURLSessionDataTask *)createPollWithQuestion:(NSString *)question options:(NSArray *)options resultMode:(NCPollMode)resultMode maxVotes:(NSInteger)maxVotes inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;
+- (NSURLSessionDataTask *)getPollWithId:(NSInteger)pollId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;
+- (NSURLSessionDataTask *)voteOnPollWithId:(NSInteger)pollId inRoom:(NSString *)token withOptions:(NSArray *)options forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;
+- (NSURLSessionDataTask *)closePollWithId:(NSInteger)pollId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;
 
 // Signaling Controller
 - (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;

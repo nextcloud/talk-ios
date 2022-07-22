@@ -93,7 +93,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionAddReaction
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, ObjectShareMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -3433,7 +3433,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (message.poll) {
         NSString *pollCellIdentifier = (message.isGroupMessage) ? GroupedObjectShareMessageCellIdentifier : ObjectShareMessageCellIdentifier;
         ObjectShareMessageTableViewCell *pollCell = (ObjectShareMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:pollCellIdentifier];
-//        locationCell.delegate = self;
+        pollCell.delegate = self;
         
         [pollCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
 
@@ -3850,6 +3850,26 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     MapViewController *mapVC = [[MapViewController alloc] initWithGeoLocationRichObject:geoLocationRichObject];
     NCNavigationController *mapNC = [[NCNavigationController alloc] initWithRootViewController:mapVC];
     [self presentViewController:mapNC animated:YES completion:nil];
+}
+
+#pragma mark - ObjectShareMessageTableViewCellDelegate
+
+- (void)cellWantsToOpenPoll:(NCMessageParameter *)poll
+{
+    UITableViewStyle style = UITableViewStyleGrouped;
+    if (@available(iOS 13.0, *)) {
+        style = UITableViewStyleInsetGrouped;
+    }
+    PollVotingView *pollVC = [[PollVotingView alloc] initWithStyle:style];
+    NCNavigationController *pollNC = [[NCNavigationController alloc] initWithRootViewController:pollVC];
+    [self presentViewController:pollNC animated:YES completion:nil];
+    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getPollWithId:poll.parameterId.integerValue inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NCPoll *poll, NSError *error, NSInteger statusCode) {
+        if (!error) {
+            [pollVC updatePollWithPoll:poll];
+        }
+    }];
 }
 
 #pragma mark - ChatMessageTableViewCellDelegate
