@@ -190,7 +190,7 @@ import UIKit
             cell.textLabel?.lineBreakMode = .byWordWrapping
             cell.textLabel?.sizeToFit()
             cell.imageView?.image = UIImage(named: "poll")?.withRenderingMode(.alwaysTemplate)
-            cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
+            cell.imageView?.tintColor = NCAppBranding.placeholderColor()
         case PollSection.kPollSectionOptions.rawValue:
             cell = UITableViewCell(style: .value1, reuseIdentifier: pollOptionCellIdentifier)
             cell.textLabel?.text = poll.options[indexPath.row] as? String
@@ -198,11 +198,13 @@ import UIKit
             cell.textLabel?.lineBreakMode = .byWordWrapping
             cell.textLabel?.sizeToFit()
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+            var checkboxImageView = UIImageView(image: UIImage(named: "checkbox-unchecked")?.withRenderingMode(.alwaysTemplate))
+            checkboxImageView.tintColor = NCAppBranding.placeholderColor()
             if userSelectedOptions.contains(indexPath.row) {
-                cell.accessoryView = UIImageView(image: UIImage(named: "checkbox-checked"))
-            } else {
-                cell.accessoryView = UIImageView(image: UIImage(named: "checkbox-unchecked"))
+                checkboxImageView = UIImageView(image: UIImage(named: "checkbox-checked")?.withRenderingMode(.alwaysTemplate))
+                checkboxImageView.tintColor = NCAppBranding.elementColor()
             }
+            cell.accessoryView = checkboxImageView
         default:
             break
         }
