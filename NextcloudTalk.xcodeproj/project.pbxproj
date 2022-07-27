@@ -121,6 +121,8 @@
 		2C5BFBF4288AA37F00E75118 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
 		2C5BFBF628902E0300E75118 /* PollFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF528902E0300E75118 /* PollFooterView.swift */; };
 		2C5BFBF828902E3700E75118 /* PollFooterView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF728902E3700E75118 /* PollFooterView.xib */; };
+		2C5BFBFB2891598A00E75118 /* PollResultTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */; };
+		2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */; };
 		2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
 		2C62AFAE24C08845007E460A /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C62AFA324C08845007E460A /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -463,6 +465,8 @@
 		2C5BFBF1288A97D800E75118 /* NCPoll.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPoll.m; sourceTree = "<group>"; };
 		2C5BFBF528902E0300E75118 /* PollFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollFooterView.swift; sourceTree = "<group>"; };
 		2C5BFBF728902E3700E75118 /* PollFooterView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PollFooterView.xib; sourceTree = "<group>"; };
+		2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollResultTableViewCell.swift; sourceTree = "<group>"; };
+		2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PollResultTableViewCell.xib; sourceTree = "<group>"; };
 		2C5E957B227097E0009CA9BE /* NCUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCUtils.m; sourceTree = "<group>"; };
 		2C5E957C227097E0009CA9BE /* NCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCUtils.h; sourceTree = "<group>"; };
 		2C604A2A25E4556E00F23615 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1150,6 +1154,8 @@
 				2C5BFBEE288A947800E75118 /* PollVotingView.swift */,
 				2C5BFBF528902E0300E75118 /* PollFooterView.swift */,
 				2C5BFBF728902E3700E75118 /* PollFooterView.xib */,
+				2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */,
+				2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -1535,6 +1541,7 @@
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
 				2C4CDCCD269618240023F403 /* RoomDescriptionTableViewCell.xib in Resources */,
 				2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
+				2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */,
 				2C5BFBF828902E3700E75118 /* PollFooterView.xib in Resources */,
 				2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */,
@@ -1757,6 +1764,7 @@
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
 				2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */,
+				2C5BFBFB2891598A00E75118 /* PollResultTableViewCell.swift in Sources */,
 				1FA20C8A284001D80062B4F3 /* DebounceWebView.swift in Sources */,
 				2C4CDCD126A84E500023F403 /* ShareTableViewCell.m in Sources */,
 				2C8CDD0621C2EDE8004E2997 /* AvatarBackgroundImageView.m in Sources */,

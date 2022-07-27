@@ -84,7 +84,7 @@ import UIKit
     func initPollView() {
         self.tableView.dataSource = self
         self.tableView.delegate = self
-        self.tableView.register(UINib(nibName: kShareTableCellNibName, bundle: .main), forCellReuseIdentifier: kShareCellIdentifier)
+        self.tableView.register(UINib(nibName: "PollResultTableViewCell", bundle: .main), forCellReuseIdentifier: "PollResultCellIdentifier")
     }
 
     func setupPollView() {
@@ -105,8 +105,10 @@ import UIKit
 
     func pollFooterView() -> UIView {
         var footerRect = CGRect(x: 0, y: 0, width: 0, height: 120)
+        footerView.primaryButton.isHidden = true
         footerView.secondaryButton.isHidden = true
         if isPollOpen {
+            // Primary button
             if userVoted && !editingVote {
                 footerView.primaryButton.setTitle(NSLocalizedString("Edit vote", comment: ""), for: .normal)
                 footerView.setPrimaryButtonAction(target: self, selector: #selector(editVoteButtonPressed))
@@ -114,6 +116,8 @@ import UIKit
                 footerView.primaryButton.setTitle(NSLocalizedString("Vote", comment: ""), for: .normal)
                 footerView.setPrimaryButtonAction(target: self, selector: #selector(voteButtonPressed))
             }
+            footerView.primaryButton.isHidden = false
+            // Secondary button
             if isOwnPoll {
                 footerView.secondaryButton.setTitle(NSLocalizedString("End poll", comment: ""), for: .normal)
                 footerView.secondaryButton.isHidden = false
@@ -132,11 +136,14 @@ import UIKit
 
     func voteButtonPressed() {
         guard let poll = poll else {return}
+        footerView.primaryButton.isEnabled = false
         NCAPIController.sharedInstance().voteOnPoll(withId: poll.pollId, inRoom: room, withOptions: userSelectedOptions,
         for: NCDatabaseManager.sharedInstance().activeAccount()) { responsePoll, error, _ in
             if let responsePoll = responsePoll, error == nil {
                 self.poll = responsePoll
+                self.editingVote = false
             }
+            self.setupPollView()
         }
     }
 
@@ -198,12 +205,12 @@ import UIKit
             cell.imageView?.image = UIImage(named: "poll")?.withRenderingMode(.alwaysTemplate)
             cell.imageView?.tintColor = NCAppBranding.placeholderColor()
         case PollSection.kPollSectionOptions.rawValue:
-            cell = UITableViewCell(style: .value1, reuseIdentifier: pollOptionCellIdentifier)
-            cell.textLabel?.text = poll?.options[indexPath.row] as? String
-            cell.textLabel?.numberOfLines = 4
-            cell.textLabel?.lineBreakMode = .byWordWrapping
-            cell.textLabel?.sizeToFit()
             if !showPollResults {
+                cell = UITableViewCell(style: .value1, reuseIdentifier: pollOptionCellIdentifier)
+                cell.textLabel?.text = poll?.options[indexPath.row] as? String
+                cell.textLabel?.numberOfLines = 4
+                cell.textLabel?.lineBreakMode = .byWordWrapping
+                cell.textLabel?.sizeToFit()
                 var checkboxImageView = UIImageView(image: UIImage(named: "checkbox-unchecked")?.withRenderingMode(.alwaysTemplate))
                 checkboxImageView.tintColor = NCAppBranding.placeholderColor()
                 if userSelectedOptions.contains(indexPath.row) {
@@ -211,6 +218,16 @@ import UIKit
                     checkboxImageView.tintColor = NCAppBranding.elementColor()
                 }
                 cell.accessoryView = checkboxImageView
+            } else {
+                let resultCell = tableView.dequeueReusableCell(withIdentifier: "PollResultCellIdentifier", for: indexPath) as? PollResultTableViewCell
+                resultCell?.optionLabel.text = poll?.options[indexPath.row] as? String
+                let votesDict = poll?.votes as? [String: Int]
+                let optionVotes = votesDict?["option-" + String(indexPath.row)] ?? 0
+                let totalVotes = poll?.numVoters ?? 1
+                let progress = Float(optionVotes) / Float(totalVotes)
+                resultCell?.optionProgressView.progress = progress
+                resultCell?.resultLabel.text = String(Int(progress * 100)) + "%"
+                cell = resultCell ?? PollResultTableViewCell()
             }
         default:
             break
