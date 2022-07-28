@@ -190,6 +190,16 @@ import UIKit
         }
     }
 
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if section == PollSection.kPollSectionOptions.rawValue && showPollResults {
+            let votes = poll?.numVoters ?? 0
+            let votesString = votes == 1 ? NSLocalizedString("vote", comment: "1 vote in a poll") : NSLocalizedString("votes", comment: "{number} votes in a poll")
+            let resultsString = NSLocalizedString("Results", comment: "")
+            return resultsString + " - " + String(votes) + " " + votesString
+        }
+        return nil
+    }
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let pollQuestionCellIdentifier = "pollQuestionCellIdentifier"
         let pollOptionCellIdentifier = "pollOptionCellIdentifier"
@@ -237,12 +247,17 @@ import UIKit
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.section != PollSection.kPollSectionOptions.rawValue || showPollResults {
-            tableView.deselectRow(at: indexPath, animated: true)
-            return
-        }
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        if indexPath.section != PollSection.kPollSectionOptions.rawValue {return}
 
         guard let poll = poll else {return}
+
+        if showPollResults {
+            if poll.details == nil {return}
+            let pollResultsDetailsVC = PollResultsDetailsViewController(poll: poll)
+            self.navigationController?.pushViewController(pollResultsDetailsVC, animated: true)
+        }
 
         if let index = userSelectedOptions.firstIndex(of: indexPath.row), poll.maxVotes != 1 {
             userSelectedOptions.remove(at: index)
