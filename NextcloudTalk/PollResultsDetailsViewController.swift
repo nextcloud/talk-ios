@@ -39,6 +39,7 @@ import UIKit
 
     var poll: NCPoll
     var resultsDetails: [Int: [PollResultDetail]] = [:]
+    var sortedOptions: [Int] = []
 
     required init?(coder aDecoder: NSCoder) {
         self.poll = NCPoll()
@@ -98,14 +99,15 @@ import UIKit
                 }
             }
         }
+        sortedOptions = Array(resultsDetails.keys).sorted()
     }
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return Array(resultsDetails.keys).count
+        return sortedOptions.count
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let option = Array(resultsDetails.keys)[section]
+        let option = sortedOptions[section]
         if let optionDetails = resultsDetails[option] {
             return optionDetails.count
         }
@@ -113,7 +115,7 @@ import UIKit
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        let option = Array(resultsDetails.keys)[section]
+        let option = sortedOptions[section]
         return poll.options[option] as? String
     }
 
@@ -125,7 +127,7 @@ import UIKit
         let cell = tableView.dequeueReusableCell(withIdentifier: kShareCellIdentifier) as? ShareTableViewCell ??
         ShareTableViewCell(style: .default, reuseIdentifier: kShareCellIdentifier)
 
-        let option = Array(resultsDetails.keys)[indexPath.section]
+        let option = sortedOptions[indexPath.section]
         let optionDetails = resultsDetails[option]
         guard let detail = optionDetails?[indexPath.row] else {return UITableViewCell()}
 
