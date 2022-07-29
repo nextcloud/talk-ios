@@ -215,7 +215,10 @@ import UIKit
             cell.textLabel?.lineBreakMode = .byWordWrapping
             cell.textLabel?.sizeToFit()
             cell.imageView?.image = UIImage(named: "poll")?.withRenderingMode(.alwaysTemplate)
-            cell.imageView?.tintColor = NCAppBranding.placeholderColor()
+            cell.imageView?.tintColor = UIColor.darkText
+            if #available(iOS 13.0, *) {
+                cell.imageView?.tintColor = UIColor.label
+            }
         case PollSection.kPollSectionOptions.rawValue:
             if !showPollResults || showIntermediateResults {
                 cell = UITableViewCell(style: .value1, reuseIdentifier: pollOptionCellIdentifier)

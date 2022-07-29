@@ -3501,7 +3501,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (message.poll) {
         messageString = [[NSMutableAttributedString alloc] initWithString:message.poll.name];
         [messageString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[ObjectShareMessageTableViewCell defaultFontSize]] range:NSMakeRange(0,messageString.length)];
-        width -= kObjectShareMessageCellObjectTypeImageSize + 15; // 3*left(5)
+        width -= kObjectShareMessageCellObjectTypeImageSize + 25; // 2*right(10) + left(5)
     }
     CGRect bodyBounds = [messageString boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
     
@@ -3549,7 +3549,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     if (message.poll) {
-        return height += 14; // 2*titlePadding(7)
+        return height += 20; // 2*right(10)
     }
     
     return height;

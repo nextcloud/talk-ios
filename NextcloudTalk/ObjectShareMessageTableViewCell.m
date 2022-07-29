@@ -57,7 +57,7 @@
     
     _objectContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 44)];
     _objectContainerView.translatesAutoresizingMaskIntoConstraints = NO;
-    _objectContainerView.layer.cornerRadius = 4.0;
+    _objectContainerView.layer.cornerRadius = 8.0;
     _objectContainerView.layer.masksToBounds = YES;
     _objectContainerView.layer.borderWidth = 1.0;
     _objectContainerView.layer.borderColor = [NCAppBranding placeholderColor].CGColor;
@@ -114,7 +114,6 @@
                               @"statusTopPadding": @17,
                               @"statusPadding": @12,
                               @"padding": @15,
-                              @"titlePadding": @7,
                               @"avatarGap": @50,
                               @"right": @10,
                               @"left": @5
@@ -136,9 +135,9 @@
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[objectContainerView(>=0)]-right-|" options:0 metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[objectContainerView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-    [_objectContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-left-[objectTypeImageView(objectTypeImageSize)]-left-[objectTitle(>=0)]-left-|" options:0 metrics:metrics views:views]];
-    [_objectContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[objectTypeImageView(objectTypeImageSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-    [_objectContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-titlePadding-[objectTitle(>=0)]-titlePadding-|" options:0 metrics:metrics views:views]];
+    [_objectContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[objectTypeImageView(objectTypeImageSize)]-right-[objectTitle(>=0)]-left-|" options:NSLayoutFormatAlignAllCenterY metrics:metrics views:views]];
+    [_objectContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[objectTypeImageView(objectTypeImageSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+    [_objectContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[objectTitle(>=0)]-right-|" options:0 metrics:metrics views:views]];
 }
 
 - (void)prepareForReuse
@@ -189,7 +188,10 @@
     
     if (message.poll) {
         [self.objectTypeImageView setImage:[[UIImage imageNamed:@"poll"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-        [self.objectTypeImageView setTintColor:[NCAppBranding placeholderColor]];
+        [self.objectTypeImageView setTintColor:[UIColor darkTextColor]];
+        if (@available(iOS 13.0, *)) {
+            [self.objectTypeImageView setTintColor:[UIColor labelColor]];
+        }
     }
     
     [self.reactionsView updateReactionsWithReactions:message.reactionsArray];
