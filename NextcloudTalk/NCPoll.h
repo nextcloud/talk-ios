@@ -27,9 +27,9 @@ typedef enum NCPollStatus {
     NCPollStatusClosed
 } NCPollStatus;
 
-typedef enum NCPollMode {
-    NCPollModePublic = 0,
-    NCPollModeHidden
+typedef enum NCPollResultMode {
+    NCPollResultModePublic = 0,
+    NCPollResultModeHidden
 } NCPollMode;
 
 @interface NCPoll : NSObject

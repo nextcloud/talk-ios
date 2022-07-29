@@ -36,6 +36,7 @@ import UIKit
     var userVoted: Bool = false
     var editingVote: Bool = false
     var showPollResults: Bool = false
+    var showIntermediateResults: Bool = false
     let footerView = PollFooterView(frame: CGRect.zero)
     var pollBackgroundView: PlaceholderView = PlaceholderView(for: .grouped)
     var userSelectedOptions: [Int] = []
@@ -94,7 +95,8 @@ import UIKit
         self.isPollOpen = poll.status == NCPollStatusOpen
         self.isOwnPoll = poll.actorId == activeAccountId && poll.actorType == "users"
         self.userVoted = !poll.votedSelf.isEmpty
-        self.showPollResults = (self.userVoted && !self.editingVote) || !self.isPollOpen
+        self.showPollResults = (userVoted && !editingVote) || !isPollOpen
+        self.showIntermediateResults = showPollResults && isPollOpen && poll.resultMode == NCPollResultModeHidden
         // Set footer buttons
         self.tableView.tableFooterView = pollFooterView()
         // Set vote button state
@@ -215,7 +217,7 @@ import UIKit
             cell.imageView?.image = UIImage(named: "poll")?.withRenderingMode(.alwaysTemplate)
             cell.imageView?.tintColor = NCAppBranding.placeholderColor()
         case PollSection.kPollSectionOptions.rawValue:
-            if !showPollResults {
+            if !showPollResults || showIntermediateResults {
                 cell = UITableViewCell(style: .value1, reuseIdentifier: pollOptionCellIdentifier)
                 cell.textLabel?.text = poll?.options[indexPath.row] as? String
                 cell.textLabel?.numberOfLines = 4
@@ -223,9 +225,13 @@ import UIKit
                 cell.textLabel?.sizeToFit()
                 var checkboxImageView = UIImageView(image: UIImage(named: "checkbox-unchecked")?.withRenderingMode(.alwaysTemplate))
                 checkboxImageView.tintColor = NCAppBranding.placeholderColor()
-                if userSelectedOptions.contains(indexPath.row) {
+                let votedSelf = poll?.votedSelf as? [Int] ?? []
+                if userSelectedOptions.contains(indexPath.row) || (showIntermediateResults && votedSelf.contains(indexPath.row)) {
                     checkboxImageView = UIImageView(image: UIImage(named: "checkbox-checked")?.withRenderingMode(.alwaysTemplate))
                     checkboxImageView.tintColor = NCAppBranding.elementColor()
+                }
+                if showIntermediateResults {
+                    checkboxImageView.tintColor = checkboxImageView.tintColor.withAlphaComponent(0.3)
                 }
                 cell.accessoryView = checkboxImageView
             } else {
@@ -249,7 +255,9 @@ import UIKit
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        if indexPath.section != PollSection.kPollSectionOptions.rawValue {return}
+        if indexPath.section != PollSection.kPollSectionOptions.rawValue || showIntermediateResults {
+            return
+        }
 
         guard let poll = poll else {return}
 
