@@ -243,6 +243,10 @@ import UIKit
                 let progress = Float(optionVotes) / Float(totalVotes)
                 resultCell?.optionProgressView.progress = progress
                 resultCell?.resultLabel.text = String(Int(progress * 100)) + "%"
+                let votedSelf = poll?.votedSelf as? [Int] ?? []
+                if votedSelf.contains(indexPath.row) {
+                    resultCell?.highlightResult()
+                }
                 cell = resultCell ?? PollResultTableViewCell()
             }
         default:

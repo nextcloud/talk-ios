@@ -31,4 +31,14 @@ class PollResultTableViewCell: UITableViewCell {
         super.awakeFromNib()
         optionProgressView.progressTintColor = NCAppBranding.elementColor()
     }
+
+    override func prepareForReuse() {
+        optionLabel.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        resultLabel.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+    }
+
+    func highlightResult() {
+        optionLabel.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        resultLabel.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+    }
 }
