@@ -45,6 +45,10 @@
     poll.numVoters = [[pollDict objectForKey:@"numVoters"] integerValue];
     poll.details = [pollDict objectForKey:@"details"];
     
+    if (![poll.votes isKindOfClass:[NSDictionary class]]) {
+        poll.votes = @{};
+    }
+    
     return poll;
 }
 

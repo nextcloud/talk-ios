@@ -92,9 +92,9 @@ import UIKit
     func setupPollView() {
         guard let poll = poll else {return}
         // Set poll settings
-        let activeAccountId = NCDatabaseManager.sharedInstance().activeAccount().accountId
+        let activeAccountUserId = NCDatabaseManager.sharedInstance().activeAccount().userId
         self.isPollOpen = poll.status == NCPollStatusOpen
-        self.isOwnPoll = poll.actorId == activeAccountId && poll.actorType == "users"
+        self.isOwnPoll = poll.actorId == activeAccountUserId && poll.actorType == "users"
         self.userVoted = !poll.votedSelf.isEmpty
         self.userVotedOptions = poll.votedSelf as? [Int] ?? []
         self.userSelectedOptions = self.userVotedOptions
@@ -126,11 +126,12 @@ import UIKit
             if isOwnPoll {
                 footerView.secondaryButton.setTitle(NSLocalizedString("End poll", comment: ""), for: .normal)
                 footerView.secondaryButton.isHidden = false
+                footerView.setSecondaryButtonAction(target: self, selector: #selector(endPollButtonPressed))
             }
             if editingVote {
                 footerView.secondaryButton.setTitle(NSLocalizedString("Dismiss", comment: ""), for: .normal)
                 footerView.secondaryButton.isHidden = false
-                footerView.secondaryButton.addTarget(self, action: #selector(dismissButtonPressed), for: .touchUpInside)
+                footerView.setSecondaryButtonAction(target: self, selector: #selector(dismissButtonPressed))
             }
         } else {
             footerRect.size.height = 0
@@ -162,6 +163,10 @@ import UIKit
         self.setupPollView()
     }
 
+    func endPollButtonPressed() {
+        self.showClosePollConfirmationDialog()
+    }
+
     func setVoteButtonState() {
         if (userSelectedOptions.isEmpty || userSelectedOptions.sorted() == userVotedOptions.sorted()) &&
             isPollOpen && (!userVoted || editingVote) {
@@ -178,6 +183,34 @@ import UIKit
         pollBackgroundView.loadingView.stopAnimating()
         pollBackgroundView.loadingView.isHidden = true
         setupPollView()
+    }
+
+    func showClosePollConfirmationDialog() {
+        let closePollDialog = UIAlertController(
+            title: NSLocalizedString("End poll", comment: ""),
+            message: NSLocalizedString("Do you really want to end this poll?", comment: ""),
+            preferredStyle: .alert)
+
+        let endAction = UIAlertAction(title: NSLocalizedString("End poll", comment: ""), style: .destructive) { _ in
+            self.closePoll()
+        }
+        closePollDialog.addAction(endAction)
+
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil)
+        closePollDialog.addAction(cancelAction)
+
+        self.present(closePollDialog, animated: true, completion: nil)
+    }
+
+    func closePoll() {
+        guard let poll = poll else {return}
+        NCAPIController.sharedInstance().closePoll(withId: poll.pollId, inRoom: room, for: NCDatabaseManager.sharedInstance().activeAccount()) { responsePoll, error, _ in
+            if let responsePoll = responsePoll, error == nil {
+                self.poll = responsePoll
+                self.editingVote = false
+            }
+            self.setupPollView()
+        }
     }
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -243,9 +276,9 @@ import UIKit
             } else {
                 let resultCell = tableView.dequeueReusableCell(withIdentifier: "PollResultCellIdentifier", for: indexPath) as? PollResultTableViewCell
                 resultCell?.optionLabel.text = poll?.options[indexPath.row] as? String
-                let votesDict = poll?.votes as? [String: Int]
-                let optionVotes = votesDict?["option-" + String(indexPath.row)] ?? 0
-                let totalVotes = poll?.numVoters ?? 1
+                let votesDict = poll?.votes as? [String: Int] ?? [:]
+                let optionVotes = votesDict["option-" + String(indexPath.row)] ?? 0
+                let totalVotes = poll?.numVoters == 0 ? 1: poll?.numVoters ?? 1
                 let progress = Float(optionVotes) / Float(totalVotes)
                 resultCell?.optionProgressView.progress = progress
                 resultCell?.resultLabel.text = String(Int(progress * 100)) + "%"
