@@ -34,6 +34,7 @@ import UIKit
     var isPollOpen: Bool = false
     var isOwnPoll: Bool = false
     var userVoted: Bool = false
+    var userVotedOptions: [Int] = []
     var editingVote: Bool = false
     var showPollResults: Bool = false
     var showIntermediateResults: Bool = false
@@ -95,6 +96,8 @@ import UIKit
         self.isPollOpen = poll.status == NCPollStatusOpen
         self.isOwnPoll = poll.actorId == activeAccountId && poll.actorType == "users"
         self.userVoted = !poll.votedSelf.isEmpty
+        self.userVotedOptions = poll.votedSelf as? [Int] ?? []
+        self.userSelectedOptions = self.userVotedOptions
         self.showPollResults = (userVoted && !editingVote) || !isPollOpen
         self.showIntermediateResults = showPollResults && isPollOpen && poll.resultMode == NCPollResultModeHidden
         // Set footer buttons
@@ -156,12 +159,12 @@ import UIKit
 
     func dismissButtonPressed() {
         self.editingVote = false
-        self.userSelectedOptions = []
         self.setupPollView()
     }
 
     func setVoteButtonState() {
-        if userSelectedOptions.isEmpty && isPollOpen && (!userVoted || editingVote) {
+        if (userSelectedOptions.isEmpty || userSelectedOptions.sorted() == userVotedOptions.sorted()) &&
+            isPollOpen && (!userVoted || editingVote) {
             footerView.primaryButton.backgroundColor = NCAppBranding.themeColor().withAlphaComponent(0.5)
             footerView.primaryButton.isEnabled = false
         } else {
