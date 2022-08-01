@@ -213,7 +213,8 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return  [self.systemMessage isEqualToString:@"message_deleted"] ||
             [self.systemMessage isEqualToString:@"reaction"] ||
             [self.systemMessage isEqualToString:@"reaction_revoked"] ||
-            [self.systemMessage isEqualToString:@"reaction_deleted"];
+            [self.systemMessage isEqualToString:@"reaction_deleted"] ||
+            [self.systemMessage isEqualToString:@"poll_voted"];
 }
 
 - (BOOL)isDeletedMessage
