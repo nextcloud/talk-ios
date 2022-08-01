@@ -30,7 +30,7 @@ typedef enum NCPollStatus {
 typedef enum NCPollResultMode {
     NCPollResultModePublic = 0,
     NCPollResultModeHidden
-} NCPollMode;
+} NCPollResultMode;
 
 @interface NCPoll : NSObject
 
@@ -42,7 +42,7 @@ typedef enum NCPollResultMode {
 @property (nonatomic, strong) NSString *actorId;
 @property (nonatomic, strong) NSString *actorDisplayName;
 @property (nonatomic, assign) NCPollStatus status;
-@property (nonatomic, assign) NCPollMode resultMode;
+@property (nonatomic, assign) NCPollResultMode resultMode;
 @property (nonatomic, assign) NSInteger maxVotes;
 @property (nonatomic, strong) NSArray *votedSelf;
 @property (nonatomic, assign) NSInteger numVoters;

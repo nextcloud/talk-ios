@@ -39,7 +39,7 @@
     poll.actorId = [pollDict objectForKey:@"actorId"];
     poll.actorDisplayName = [pollDict objectForKey:@"actorDisplayName"];
     poll.status = (NCPollStatus)[[pollDict objectForKey:@"status"] integerValue];
-    poll.resultMode = (NCPollMode)[[pollDict objectForKey:@"resultMode"] integerValue];
+    poll.resultMode = (NCPollResultMode)[[pollDict objectForKey:@"resultMode"] integerValue];
     poll.maxVotes = [[pollDict objectForKey:@"maxVotes"] integerValue];
     poll.votedSelf = [pollDict objectForKey:@"votedSelf"];
     poll.numVoters = [[pollDict objectForKey:@"numVoters"] integerValue];
