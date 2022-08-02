@@ -49,6 +49,18 @@
         poll.votes = @{};
     }
     
+    if (![poll.options isKindOfClass:[NSArray class]]) {
+        poll.options = @[];
+    }
+    
+    if (![poll.votedSelf isKindOfClass:[NSArray class]]) {
+        poll.votedSelf = @[];
+    }
+    
+    if (![poll.details isKindOfClass:[NSArray class]]) {
+        poll.details = @[];
+    }
+    
     return poll;
 }
 

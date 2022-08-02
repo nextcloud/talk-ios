@@ -305,7 +305,7 @@ import UIKit
         guard let poll = poll else {return}
 
         if showPollResults {
-            if poll.details == nil {return}
+            if poll.details.isEmpty {return}
             let pollResultsDetailsVC = PollResultsDetailsViewController(poll: poll)
             self.navigationController?.pushViewController(pollResultsDetailsVC, animated: true)
         }
