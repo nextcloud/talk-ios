@@ -24,9 +24,12 @@ import UIKit
 class PollFooterView: UIView {
 
     @IBOutlet var contentView: UIView!
+    @IBOutlet weak var primaryButtonContainerView: UIView!
+    @IBOutlet weak var secondaryButtonContainerView: UIView!
     @IBOutlet weak var primaryButton: UIButton!
     @IBOutlet weak var secondaryButton: UIButton!
 
+    static let heightForOption: CGFloat = 60 // buttonHeight(40) + 20 padding
     var primaryButtonAction: Selector?
     var secondaryButtonAction: Selector?
 

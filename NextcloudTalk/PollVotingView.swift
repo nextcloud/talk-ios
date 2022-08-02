@@ -109,9 +109,9 @@ import UIKit
     }
 
     func pollFooterView() -> UIView {
-        var footerRect = CGRect(x: 0, y: 0, width: 0, height: 120)
-        footerView.primaryButton.isHidden = true
-        footerView.secondaryButton.isHidden = true
+        var footerRect = CGRect.zero
+        footerView.primaryButtonContainerView.isHidden = true
+        footerView.secondaryButtonContainerView.isHidden = true
         if isPollOpen {
             // Primary button
             if userVoted && !editingVote {
@@ -121,20 +121,21 @@ import UIKit
                 footerView.primaryButton.setTitle(NSLocalizedString("Vote", comment: ""), for: .normal)
                 footerView.setPrimaryButtonAction(target: self, selector: #selector(voteButtonPressed))
             }
-            footerView.primaryButton.isHidden = false
+            footerRect.size.height += PollFooterView.heightForOption
+            footerView.primaryButtonContainerView.isHidden = false
             // Secondary button
             if isOwnPoll {
                 footerView.secondaryButton.setTitle(NSLocalizedString("End poll", comment: ""), for: .normal)
-                footerView.secondaryButton.isHidden = false
                 footerView.setSecondaryButtonAction(target: self, selector: #selector(endPollButtonPressed))
             }
             if editingVote {
                 footerView.secondaryButton.setTitle(NSLocalizedString("Dismiss", comment: ""), for: .normal)
-                footerView.secondaryButton.isHidden = false
                 footerView.setSecondaryButtonAction(target: self, selector: #selector(dismissButtonPressed))
             }
-        } else {
-            footerRect.size.height = 0
+            if isOwnPoll || editingVote {
+                footerRect.size.height += PollFooterView.heightForOption
+                footerView.secondaryButtonContainerView.isHidden = false
+            }
         }
         footerView.frame = footerRect
         return footerView
