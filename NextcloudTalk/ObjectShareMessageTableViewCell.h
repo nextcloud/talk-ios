@@ -1,5 +1,5 @@
 /**
- * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
+ * @copyright Copyright (c) 2022 Ivan Sein <ivan@nextcloud.com>
  *
  * @author Ivan Sein <ivan@nextcloud.com>
  *
