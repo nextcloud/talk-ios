@@ -230,11 +230,15 @@ import UIKit
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if section == PollSection.kPollSectionOptions.rawValue && showPollResults {
+        if section == PollSection.kPollSectionOptions.rawValue {
             let votes = poll?.numVoters ?? 0
             let votesString = votes == 1 ? NSLocalizedString("vote", comment: "1 vote in a poll") : NSLocalizedString("votes", comment: "{number} votes in a poll")
             let resultsString = NSLocalizedString("Results", comment: "")
-            return resultsString + " - " + String(votes) + " " + votesString
+            if showPollResults && !showIntermediateResults {
+                return resultsString + " - " + String(votes) + " " + votesString
+            } else if isOwnPoll {
+                return String(votes) + " " + votesString
+            }
         }
         return nil
     }
