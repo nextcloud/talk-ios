@@ -127,6 +127,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 + (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room;
 
 - (BOOL)isPublic;
+- (BOOL)isUserOwnerOrModerator;
 - (BOOL)canModerate;
 - (BOOL)isNameEditable;
 - (BOOL)isLeavable;

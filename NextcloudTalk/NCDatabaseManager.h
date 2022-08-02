@@ -65,6 +65,7 @@ extern NSString * const kCapabilityUnifiedSearch;
 extern NSString * const kCapabilityChatPermission;
 extern NSString * const kCapabilitySilentSend;
 extern NSString * const kCapabilitySilentCall;
+extern NSString * const kCapabilityTalkPolls;
 
 extern NSString * const kMinimumRequiredTalkCapability;
 

@@ -114,6 +114,16 @@
 		2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4DE9F121F732B40096940D /* NCAudioController.m */; };
 		2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
 		2C5BFBEA28772A9A00E75118 /* NCUnifiedSearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */; };
+		2C5BFBED28895E6B00E75118 /* ObjectShareMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */; };
+		2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBEE288A947800E75118 /* PollVotingView.swift */; };
+		2C5BFBF2288A97D800E75118 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
+		2C5BFBF3288AA37F00E75118 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
+		2C5BFBF4288AA37F00E75118 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
+		2C5BFBF628902E0300E75118 /* PollFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF528902E0300E75118 /* PollFooterView.swift */; };
+		2C5BFBF828902E3700E75118 /* PollFooterView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF728902E3700E75118 /* PollFooterView.xib */; };
+		2C5BFBFB2891598A00E75118 /* PollResultTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */; };
+		2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */; };
+		2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */; };
 		2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
 		2C62AFAE24C08845007E460A /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C62AFA324C08845007E460A /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -449,6 +459,16 @@
 		2C4E758D214B942D003910D5 /* OpenInFirefoxControllerObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenInFirefoxControllerObjC.h; sourceTree = "<group>"; };
 		2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenInFirefoxControllerObjC.m; sourceTree = "<group>"; };
 		2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUnifiedSearchController.swift; sourceTree = "<group>"; };
+		2C5BFBEB28895E6A00E75118 /* ObjectShareMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectShareMessageTableViewCell.h; sourceTree = "<group>"; };
+		2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectShareMessageTableViewCell.m; sourceTree = "<group>"; };
+		2C5BFBEE288A947800E75118 /* PollVotingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollVotingView.swift; sourceTree = "<group>"; };
+		2C5BFBF0288A97D800E75118 /* NCPoll.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPoll.h; sourceTree = "<group>"; };
+		2C5BFBF1288A97D800E75118 /* NCPoll.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPoll.m; sourceTree = "<group>"; };
+		2C5BFBF528902E0300E75118 /* PollFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollFooterView.swift; sourceTree = "<group>"; };
+		2C5BFBF728902E3700E75118 /* PollFooterView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PollFooterView.xib; sourceTree = "<group>"; };
+		2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollResultTableViewCell.swift; sourceTree = "<group>"; };
+		2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PollResultTableViewCell.xib; sourceTree = "<group>"; };
+		2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollResultsDetailsViewController.swift; sourceTree = "<group>"; };
 		2C5E957B227097E0009CA9BE /* NCUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCUtils.m; sourceTree = "<group>"; };
 		2C5E957C227097E0009CA9BE /* NCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCUtils.h; sourceTree = "<group>"; };
 		2C604A2A25E4556E00F23615 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1102,6 +1122,8 @@
 				2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */,
 				2CA52ACE267613CA00619610 /* VoiceMessageTableViewCell.h */,
 				2CA52ACF267613CA00619610 /* VoiceMessageTableViewCell.m */,
+				2C5BFBEB28895E6A00E75118 /* ObjectShareMessageTableViewCell.h */,
+				2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */,
 			);
 			name = "Chat cells";
 			sourceTree = "<group>";
@@ -1131,6 +1153,12 @@
 				2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */,
 				2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */,
 				2C44B4D027FF05A000AD1C86 /* ReactionsSummaryView.swift */,
+				2C5BFBEE288A947800E75118 /* PollVotingView.swift */,
+				2C5BFBF528902E0300E75118 /* PollFooterView.swift */,
+				2C5BFBF728902E3700E75118 /* PollFooterView.xib */,
+				2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */,
+				2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */,
+				2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -1292,6 +1320,8 @@
 				1FEDE3C4257D439500853F79 /* NCChatFileController.m */,
 				1F5CDF622584E78900B0026E /* NCChatFileStatus.h */,
 				1F5CDF632584E78900B0026E /* NCChatFileStatus.m */,
+				2C5BFBF0288A97D800E75118 /* NCPoll.h */,
+				2C5BFBF1288A97D800E75118 /* NCPoll.m */,
 				2CA15543208E41B500CE8EF0 /* NCChatViewController.h */,
 				2CA15544208E41B500CE8EF0 /* NCChatViewController.m */,
 				2C43BA7421309A1000B3068A /* NCMessageParameter.h */,
@@ -1514,6 +1544,8 @@
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
 				2C4CDCCD269618240023F403 /* RoomDescriptionTableViewCell.xib in Resources */,
 				2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
+				2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */,
+				2C5BFBF828902E3700E75118 /* PollFooterView.xib in Resources */,
 				2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
@@ -1705,6 +1737,7 @@
 				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
+				2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */,
 				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */,
@@ -1717,6 +1750,7 @@
 				2C415F9B2136BDD6005F7F37 /* FileMessageTableViewCell.m in Sources */,
 				2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */,
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
+				2C5BFBF628902E0300E75118 /* PollFooterView.swift in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
 				2CB6ACE92641954700D3D641 /* MapViewController.m in Sources */,
 				2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */,
@@ -1733,6 +1767,7 @@
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
 				2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */,
+				2C5BFBFB2891598A00E75118 /* PollResultTableViewCell.swift in Sources */,
 				1FA20C8A284001D80062B4F3 /* DebounceWebView.swift in Sources */,
 				2C4CDCD126A84E500023F403 /* ShareTableViewCell.m in Sources */,
 				2C8CDD0621C2EDE8004E2997 /* AvatarBackgroundImageView.m in Sources */,
@@ -1756,6 +1791,7 @@
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */,
 				2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */,
+				2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
 				2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */,
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
@@ -1796,6 +1832,7 @@
 				2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */,
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */,
+				2C5BFBED28895E6B00E75118 /* ObjectShareMessageTableViewCell.m in Sources */,
 				2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */,
 				DA8801A227A2DA00009EF248 /* UserProfileTableViewController.swift in Sources */,
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
@@ -1815,6 +1852,7 @@
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,
 				1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */,
+				2C5BFBF2288A97D800E75118 /* NCPoll.m in Sources */,
 				2C42ADB420B58E6300296DEA /* NCChatController.m in Sources */,
 				2C4CDCD026A84AEA0023F403 /* ShareViewController.m in Sources */,
 				2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
@@ -1878,6 +1916,7 @@
 				2C62B00924C1BDBD007E460A /* NCAPISessionManager.m in Sources */,
 				2CC32E9A27F5DADB00BB8C39 /* NCChatReaction.m in Sources */,
 				2C62AFBB24C1B7B1007E460A /* NCDatabaseManager.m in Sources */,
+				2C5BFBF4288AA37F00E75118 /* NCPoll.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1896,6 +1935,7 @@
 				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */,
 				2C4446DE2658158000DF1DBC /* NCChatBlock.m in Sources */,
+				2C5BFBF3288AA37F00E75118 /* NCPoll.m in Sources */,
 				2C4446D9265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */,
 				2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */,

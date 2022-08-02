@@ -48,6 +48,7 @@
 #import "LocationMessageTableViewCell.h"
 #import "MapViewController.h"
 #import "MessageSeparatorTableViewCell.h"
+#import "ObjectShareMessageTableViewCell.h"
 #import "PlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -92,7 +93,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionAddReaction
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, ObjectShareMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -317,6 +318,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self.tableView registerClass:[SystemMessageTableViewCell class] forCellReuseIdentifier:InvisibleSystemMessageCellIdentifier];
     [self.tableView registerClass:[VoiceMessageTableViewCell class] forCellReuseIdentifier:VoiceMessageCellIdentifier];
     [self.tableView registerClass:[VoiceMessageTableViewCell class] forCellReuseIdentifier:GroupedVoiceMessageCellIdentifier];
+    [self.tableView registerClass:[ObjectShareMessageTableViewCell class] forCellReuseIdentifier:ObjectShareMessageCellIdentifier];
+    [self.tableView registerClass:[ObjectShareMessageTableViewCell class] forCellReuseIdentifier:GroupedObjectShareMessageCellIdentifier];
     [self.tableView registerClass:[MessageSeparatorTableViewCell class] forCellReuseIdentifier:MessageSeparatorCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
@@ -3427,6 +3430,15 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
         return locationCell;
     }
+    if (message.poll) {
+        NSString *pollCellIdentifier = (message.isGroupMessage) ? GroupedObjectShareMessageCellIdentifier : ObjectShareMessageCellIdentifier;
+        ObjectShareMessageTableViewCell *pollCell = (ObjectShareMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:pollCellIdentifier];
+        pollCell.delegate = self;
+        
+        [pollCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
+
+        return pollCell;
+    }
     if (message.parent) {
         ChatMessageTableViewCell *replyCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ReplyMessageCellIdentifier];
         replyCell.delegate = self;
@@ -3484,8 +3496,14 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Chat messages
+    NSMutableAttributedString *messageString = message.parsedMessage;
     width -= (message.isSystemMessage)? 80.0 : 30.0; // 4*right(10) + dateLabel(40) : 3*right(10)
-    CGRect bodyBounds = [message.parsedMessage boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
+    if (message.poll) {
+        messageString = [[NSMutableAttributedString alloc] initWithString:message.poll.name];
+        [messageString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[ObjectShareMessageTableViewCell defaultFontSize]] range:NSMakeRange(0,messageString.length)];
+        width -= kObjectShareMessageCellObjectTypeImageSize + 25; // 2*right(10) + left(5)
+    }
+    CGRect bodyBounds = [messageString boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
     
     CGFloat height = kChatCellAvatarHeight;
     height += ceil(CGRectGetHeight(bodyBounds));
@@ -3528,6 +3546,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     if (message.geoLocation) {
         return height += kLocationMessageCellPreviewHeight + 10; // right(10)
+    }
+    
+    if (message.poll) {
+        return height += 20; // 2*right(10)
     }
     
     return height;
@@ -3828,6 +3850,27 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     MapViewController *mapVC = [[MapViewController alloc] initWithGeoLocationRichObject:geoLocationRichObject];
     NCNavigationController *mapNC = [[NCNavigationController alloc] initWithRootViewController:mapVC];
     [self presentViewController:mapNC animated:YES completion:nil];
+}
+
+#pragma mark - ObjectShareMessageTableViewCellDelegate
+
+- (void)cellWantsToOpenPoll:(NCMessageParameter *)poll
+{
+    UITableViewStyle style = UITableViewStyleGrouped;
+    if (@available(iOS 13.0, *)) {
+        style = UITableViewStyleInsetGrouped;
+    }
+    PollVotingView *pollVC = [[PollVotingView alloc] initWithStyle:style];
+    pollVC.room = _room;
+    NCNavigationController *pollNC = [[NCNavigationController alloc] initWithRootViewController:pollVC];
+    [self presentViewController:pollNC animated:YES completion:nil];
+    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getPollWithId:poll.parameterId.integerValue inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NCPoll *poll, NSError *error, NSInteger statusCode) {
+        if (!error) {
+            [pollVC updatePollWithPoll:poll];
+        }
+    }];
 }
 
 #pragma mark - ChatMessageTableViewCellDelegate

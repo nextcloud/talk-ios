@@ -213,7 +213,8 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return  [self.systemMessage isEqualToString:@"message_deleted"] ||
             [self.systemMessage isEqualToString:@"reaction"] ||
             [self.systemMessage isEqualToString:@"reaction_revoked"] ||
-            [self.systemMessage isEqualToString:@"reaction_deleted"];
+            [self.systemMessage isEqualToString:@"reaction_deleted"] ||
+            [self.systemMessage isEqualToString:@"poll_voted"];
 }
 
 - (BOOL)isDeletedMessage
@@ -314,6 +315,28 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     }
 
     return _deckCardParameter;
+}
+
+- (NCMessageParameter *)poll
+{
+    if ([self isObjectShare]) {
+        NCMessageParameter *objectParameter = [[NCMessageParameter alloc] initWithDictionary:[self.messageParameters objectForKey:@"object"]];
+        if ([objectParameter.type isEqualToString:@"talk-poll"]) {
+            return objectParameter;
+        }
+    }
+    
+    return nil;
+}
+
+- (NCMessageParameter *)objectShareParameter
+{
+    if ([self isObjectShare]) {
+        NCMessageParameter *objectParameter = [[NCMessageParameter alloc] initWithDictionary:[self.messageParameters objectForKey:@"object"]];
+        return objectParameter;
+    }
+    
+    return nil;
 }
 
 - (NSString *)objectShareLink;

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="65" id="KGk-i7-Jjw" customClass="PollResultTableViewCell" customModule="NextcloudTalk" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="65"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="65"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sdO-WI-sCv">
+                        <rect key="frame" x="16" y="12" width="236" height="22"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="D6i-w6-Mrm">
+                        <rect key="frame" x="16" y="48" width="236" height="5"/>
+                    </progressView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="100%" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="slL-0m-U8B">
+                        <rect key="frame" x="264" y="10.5" width="44" height="44"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="44" id="dIr-wk-2zP"/>
+                            <constraint firstAttribute="height" constant="44" id="i0i-bl-FPO"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="sdO-WI-sCv" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="1cv-BK-EKA"/>
+                    <constraint firstItem="sdO-WI-sCv" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="12" id="CTB-G2-BB8"/>
+                    <constraint firstAttribute="trailing" secondItem="slL-0m-U8B" secondAttribute="trailing" constant="12" id="FAf-41-vwE"/>
+                    <constraint firstItem="D6i-w6-Mrm" firstAttribute="top" secondItem="sdO-WI-sCv" secondAttribute="bottom" constant="14" id="KxT-rn-wUh"/>
+                    <constraint firstAttribute="bottom" secondItem="D6i-w6-Mrm" secondAttribute="bottom" constant="12" id="Qse-5S-V0L"/>
+                    <constraint firstItem="slL-0m-U8B" firstAttribute="leading" secondItem="D6i-w6-Mrm" secondAttribute="trailing" constant="12" id="a9t-eq-OM1"/>
+                    <constraint firstItem="slL-0m-U8B" firstAttribute="leading" secondItem="sdO-WI-sCv" secondAttribute="trailing" constant="12" id="kTT-86-ZHP"/>
+                    <constraint firstItem="slL-0m-U8B" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="l1S-B2-2yt"/>
+                    <constraint firstItem="D6i-w6-Mrm" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="mCu-K1-lmz"/>
+                    <constraint firstItem="D6i-w6-Mrm" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="48" id="wrv-nV-J1M"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="optionLabel" destination="sdO-WI-sCv" id="Rs3-Ab-H8g"/>
+                <outlet property="optionProgressView" destination="D6i-w6-Mrm" id="sMi-Gf-fyY"/>
+                <outlet property="resultLabel" destination="slL-0m-U8B" id="dWr-ks-pzP"/>
+            </connections>
+            <point key="canvasLocation" x="137.68115942028987" y="111.49553571428571"/>
+        </tableViewCell>
+    </objects>
+</document>

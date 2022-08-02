@@ -470,6 +470,9 @@
 "Do you really want to delete this conversation?" = "Do you really want to delete this conversation?";
 
 /* No comment provided by engineer. */
+"Do you really want to end this poll?" = "Do you really want to end this poll?";
+
+/* No comment provided by engineer. */
 "Do you really want to log out from this account?" = "Do you really want to log out from this account?";
 
 /* No comment provided by engineer. */
@@ -566,6 +569,9 @@
 "Edit" = "Edit";
 
 /* No comment provided by engineer. */
+"Edit vote" = "Edit vote";
+
+/* No comment provided by engineer. */
 "Editing Message" = "Editing Message";
 
 /* No comment provided by engineer. */
@@ -576,6 +582,9 @@
 
 /* No comment provided by engineer. */
 "Enable" = "Enable";
+
+/* No comment provided by engineer. */
+"End poll" = "End poll";
 
 /* External signaling used */
 "External" = "External";
@@ -965,6 +974,12 @@
 "Please, set a name for this conversation." = "Please, set a name for this conversation.";
 
 /* No comment provided by engineer. */
+"Poll" = "Poll";
+
+/* No comment provided by engineer. */
+"Poll results" = "Poll results";
+
+/* No comment provided by engineer. */
 "Preview" = "Preview";
 
 /* No comment provided by engineer. */
@@ -1038,6 +1053,9 @@
 
 /* No comment provided by engineer. */
 "Resend invitations" = "Resend invitations";
+
+/* No comment provided by engineer. */
+"Results" = "Results";
 
 /* No comment provided by engineer. */
 "Retry" = "Retry";
@@ -1272,6 +1290,15 @@
 
 /* No comment provided by engineer. */
 "Voice messages" = "Voice messages";
+
+/* 1 vote in a poll */
+"vote" = "vote";
+
+/* No comment provided by engineer. */
+"Vote" = "Vote";
+
+/* {number} votes in a poll */
+"votes" = "votes";
 
 /* No comment provided by engineer. */
 "Waiting for %@ to join call …" = "Waiting for %@ to join call …";
