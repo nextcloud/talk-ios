@@ -30,9 +30,10 @@ import UIKit
     }
 
     var poll: NCPoll?
-    var room: String = ""
+    var room: NCRoom?
     var isPollOpen: Bool = false
     var isOwnPoll: Bool = false
+    var canModeratePoll: Bool = false
     var userVoted: Bool = false
     var userVotedOptions: [Int] = []
     var editingVote: Bool = false
@@ -95,6 +96,7 @@ import UIKit
         let activeAccountUserId = NCDatabaseManager.sharedInstance().activeAccount().userId
         self.isPollOpen = poll.status == NCPollStatusOpen
         self.isOwnPoll = poll.actorId == activeAccountUserId && poll.actorType == "users"
+        self.canModeratePoll = self.isOwnPoll || room?.isUserOwnerOrModerator() ?? false
         self.userVoted = !poll.votedSelf.isEmpty
         self.userVotedOptions = poll.votedSelf as? [Int] ?? []
         self.userSelectedOptions = self.userVotedOptions
@@ -124,7 +126,7 @@ import UIKit
             footerRect.size.height += PollFooterView.heightForOption
             footerView.primaryButtonContainerView.isHidden = false
             // Secondary button
-            if isOwnPoll {
+            if canModeratePoll {
                 footerView.secondaryButton.setTitle(NSLocalizedString("End poll", comment: ""), for: .normal)
                 footerView.setSecondaryButtonAction(target: self, selector: #selector(endPollButtonPressed))
             }
@@ -132,7 +134,7 @@ import UIKit
                 footerView.secondaryButton.setTitle(NSLocalizedString("Dismiss", comment: ""), for: .normal)
                 footerView.setSecondaryButtonAction(target: self, selector: #selector(dismissButtonPressed))
             }
-            if isOwnPoll || editingVote {
+            if canModeratePoll || editingVote {
                 footerRect.size.height += PollFooterView.heightForOption
                 footerView.secondaryButtonContainerView.isHidden = false
             }
@@ -142,9 +144,9 @@ import UIKit
     }
 
     func voteButtonPressed() {
-        guard let poll = poll else {return}
+        guard let poll = poll, let room = room else {return}
         footerView.primaryButton.isEnabled = false
-        NCAPIController.sharedInstance().voteOnPoll(withId: poll.pollId, inRoom: room, withOptions: userSelectedOptions,
+        NCAPIController.sharedInstance().voteOnPoll(withId: poll.pollId, inRoom: room.token, withOptions: userSelectedOptions,
         for: NCDatabaseManager.sharedInstance().activeAccount()) { responsePoll, error, _ in
             if let responsePoll = responsePoll, error == nil {
                 self.poll = responsePoll
@@ -204,8 +206,8 @@ import UIKit
     }
 
     func closePoll() {
-        guard let poll = poll else {return}
-        NCAPIController.sharedInstance().closePoll(withId: poll.pollId, inRoom: room, for: NCDatabaseManager.sharedInstance().activeAccount()) { responsePoll, error, _ in
+        guard let poll = poll, let room = room else {return}
+        NCAPIController.sharedInstance().closePoll(withId: poll.pollId, inRoom: room.token, for: NCDatabaseManager.sharedInstance().activeAccount()) { responsePoll, error, _ in
             if let responsePoll = responsePoll, error == nil {
                 self.poll = responsePoll
                 self.editingVote = false
@@ -236,7 +238,7 @@ import UIKit
             let resultsString = NSLocalizedString("Results", comment: "")
             if showPollResults && !showIntermediateResults {
                 return resultsString + " - " + String(votes) + " " + votesString
-            } else if isOwnPoll {
+            } else if canModeratePoll {
                 return String(votes) + " " + votesString
             }
         }

@@ -3861,7 +3861,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         style = UITableViewStyleInsetGrouped;
     }
     PollVotingView *pollVC = [[PollVotingView alloc] initWithStyle:style];
-    pollVC.room = _room.token;
+    pollVC.room = _room;
     NCNavigationController *pollNC = [[NCNavigationController alloc] initWithRootViewController:pollVC];
     [self presentViewController:pollNC animated:YES completion:nil];
     

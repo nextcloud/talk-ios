@@ -186,9 +186,14 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return self.type == kNCRoomTypePublic;
 }
 
+- (BOOL)isUserOwnerOrModerator
+{
+    return self.participantType == kNCParticipantTypeOwner || self.participantType == kNCParticipantTypeModerator;
+}
+
 - (BOOL)canModerate
 {
-    return (self.participantType == kNCParticipantTypeOwner || self.participantType == kNCParticipantTypeModerator) && ![self isLockedOneToOne];
+    return [self isUserOwnerOrModerator] && ![self isLockedOneToOne];
 }
 
 - (BOOL)isNameEditable
