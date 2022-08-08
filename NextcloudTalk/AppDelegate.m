@@ -175,17 +175,22 @@
 
 - (void)checkForPushNotificationSubscription
 {
-    BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-    // Subscribe only if both tokens have been generated and app is active (do not try to subscribe when
-    // the app is running in background e.g. when the app is launched due to a VoIP push notification)
-    if (normalPushToken && pushKitToken && isAppActive) {
-        // Store new Normal Push & PushKit tokens in Keychain
-        UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:bundleIdentifier accessGroup:groupIdentifier];
-        [NCSettingsController sharedInstance].ncNormalPushToken = normalPushToken;
-        [keychain setString:normalPushToken forKey:kNCNormalPushTokenKey];
-        [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
-        [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
-        
+    if (!normalPushToken || !pushKitToken) {
+        return;
+    }
+
+    // Store new Normal Push & PushKit tokens in Keychain
+    UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:bundleIdentifier accessGroup:groupIdentifier];
+    [NCSettingsController sharedInstance].ncNormalPushToken = normalPushToken;
+    [keychain setString:normalPushToken forKey:kNCNormalPushTokenKey];
+    [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
+    [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
+
+    BOOL isAppInBackground = [[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground;
+    // Subscribe only if both tokens have been generated and app is not running in the background (do not try to subscribe
+    // when the app is running in background e.g. when the app is launched due to a VoIP push notification)
+
+    if (!isAppInBackground) {
         // Remove subscribed flag for all accounts
         RLMRealm *realm = [RLMRealm defaultRealm];
         [realm beginWriteTransaction];
@@ -193,7 +198,7 @@
             account.pushNotificationSubscribed = NO;
         }
         [realm commitWriteTransaction];
-        
+
         // Try to subscribe for push notifications in all accounts
         for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
             [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId];
