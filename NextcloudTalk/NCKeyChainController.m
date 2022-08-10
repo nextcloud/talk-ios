@@ -85,13 +85,24 @@ NSString * const kNCUserDefaultBrowser          = @"ncUserDefaultBrowser";
 
 - (NSString *)pushTokenSHA512
 {
-    return [self createSHA512:[self combinedPushToken]];
+    NSString *token = [self combinedPushToken];
+
+    if (!token) {
+        return nil;
+    }
+
+    return [self createSHA512:token];
 }
 
 - (NSString *)combinedPushToken
 {
     NSString *normalPushToken = [_keychain stringForKey:kNCNormalPushTokenKey];
     NSString *pushKitToken = [_keychain stringForKey:kNCPushKitTokenKey];
+
+    if (!normalPushToken || !pushKitToken) {
+        return nil;
+    }
+
     return [NSString stringWithFormat:@"%@ %@", normalPushToken, pushKitToken];
 }
 
