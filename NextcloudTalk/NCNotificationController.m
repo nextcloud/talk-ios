@@ -260,16 +260,18 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             UNTextInputNotificationResponse *textInputResponse = (UNTextInputNotificationResponse *)response;
             pushNotification.responseUserText = textInputResponse.userText;
             
-            [self handlePushNotificationResponseWithUserText:pushNotification withCompletionHandler:completionHandler];
+            [self handlePushNotificationResponseWithUserText:pushNotification];
         } else {
-            [self handlePushNotificationResponse:pushNotification withCompletionHandler:completionHandler];
+            [self handlePushNotificationResponse:pushNotification];
         }
     } else if (localNotificationType > 0) {
-        [self handleLocalNotificationResponse:notificationRequest.content.userInfo withCompletionHandler:completionHandler];
+        [self handleLocalNotificationResponse:notificationRequest.content.userInfo];
     }
+
+    completionHandler();
 }
 
-- (void)handlePushNotificationResponseWithUserText:(NCPushNotification *)pushNotification withCompletionHandler:(void (^)(void))completionHandler
+- (void)handlePushNotificationResponseWithUserText:(NCPushNotification *)pushNotification
 {
     NSLog(@"Recevied push-notification with user input -> sending chat message");
     
@@ -303,14 +305,10 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             [application endBackgroundTask:sendTask];
             sendTask = UIBackgroundTaskInvalid;
         }];
-
-
     });
-    
-    completionHandler();
 }
 
-- (void)handlePushNotificationResponse:(NCPushNotification *)pushNotification withCompletionHandler:(void (^)(void))completionHandler
+- (void)handlePushNotificationResponse:(NCPushNotification *)pushNotification
 {
     if (pushNotification) {
         switch (pushNotification.type) {
@@ -329,11 +327,9 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
                 break;
         }
     }
-    
-    completionHandler();
 }
 
-- (void)handleLocalNotificationResponse:(NSDictionary *)notificationUserInfo withCompletionHandler:(void (^)(void))completionHandler
+- (void)handleLocalNotificationResponse:(NSDictionary *)notificationUserInfo
 {
     NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notificationUserInfo objectForKey:@"localNotificationType"] integerValue];
     if (localNotificationType > 0) {
@@ -349,8 +345,6 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
                 break;
         }
     }
-    
-    completionHandler();
 }
 
 @end
