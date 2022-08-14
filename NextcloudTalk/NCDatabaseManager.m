@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 34;
+uint64_t const kTalkDatabaseSchemaVersion           = 35;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -321,6 +321,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     NSDictionary *talkCaps = [serverCaps objectForKey:@"spreed"];
     NSDictionary *userStatusCaps = [serverCaps objectForKey:@"user_status"];
     NSDictionary *provisioningAPICaps = [serverCaps objectForKey:@"provisioning_api"];
+    NSDictionary *guestsCaps = [serverCaps objectForKey:@"guests"];
     
     ServerCapabilities *capabilities = [[ServerCapabilities alloc] init];
     capabilities.accountId = accountId;
@@ -362,6 +363,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
         capabilities.callEnabled = YES;
     }
     capabilities.talkVersion = [talkCaps objectForKey:@"version"];
+    capabilities.guestsAppEnabled = [[guestsCaps objectForKey:@"enabled"] boolValue];
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{

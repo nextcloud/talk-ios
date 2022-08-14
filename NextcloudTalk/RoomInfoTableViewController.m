@@ -422,10 +422,11 @@ typedef enum FileAction {
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
         [actions addObject:[NSNumber numberWithInt:kConversationActionListable]];
         
-        if (_room.listable == NCRoomListableScopeRegularUsersOnly || _room.listable == NCRoomListableScopeEveryone) {
+        if (_room.listable != NCRoomListableScopeParticipantsOnly && [[NCSettingsController sharedInstance] isGuestsAppEnabled]) {
             [actions addObject:[NSNumber numberWithInt:kConversationActionListableForEveryone]];
         }
     }
+
     // Read only room action
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReadOnlyRooms]) {
         [actions addObject:[NSNumber numberWithInt:kConversationActionReadOnly]];
