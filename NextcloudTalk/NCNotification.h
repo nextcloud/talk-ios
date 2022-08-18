@@ -31,6 +31,7 @@ typedef enum NCNotificationType {
 @interface NCNotification : NSObject
 
 @property (nonatomic, assign) NSInteger notificationId;
+@property (nonatomic, strong) NSString *app;
 @property (nonatomic, strong) NSString *objectId;
 @property (nonatomic, strong) NSString *objectType;
 @property (nonatomic, strong) NSString *subject;
@@ -45,5 +46,6 @@ typedef enum NCNotificationType {
 - (NSString *)chatMessageAuthor;
 - (NSString *)chatMessageTitle;
 - (NSString *)callDisplayName;
+- (NSString *)roomToken;
 
 @end

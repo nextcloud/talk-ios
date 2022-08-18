@@ -32,6 +32,7 @@
     
     NCNotification *notification = [[NCNotification alloc] init];
     notification.notificationId = [[notificationDict objectForKey:@"notification_id"] integerValue];
+    notification.app = [notificationDict objectForKey:@"app"];
     notification.objectId = [notificationDict objectForKey:@"object_id"];
     notification.objectType = [notificationDict objectForKey:@"object_type"];
     notification.subject = [notificationDict objectForKey:@"subject"];
@@ -61,6 +62,17 @@
         type = kNCNotificationTypeCall;
     }
     return type;
+}
+
+- (NSString *)roomToken
+{
+    // Starting with NC 24 objectId additionally contains the messageId: "{roomToken}/{messageId}"
+    if ([_objectId containsString:@"/"]) {
+        NSArray *objectIdComponents = [_objectId componentsSeparatedByString:@"/"];
+        return objectIdComponents[0];
+    }
+
+    return _objectId;
 }
 
 - (NSString *)chatMessageAuthor
