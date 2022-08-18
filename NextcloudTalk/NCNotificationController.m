@@ -281,7 +281,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     [self updateAppIconBadgeNumber];
 }
 
-- (void)checkForNewNotificationsWithCompletionBlock:(CheckForNewNotificationsWithCompletionBlock)block
+- (void)checkForNewNotificationsWithCompletionBlock:(CheckForNewNotificationsCompletionBlock)block
 {
     dispatch_group_t notificationsGroup = dispatch_group_create();
 
