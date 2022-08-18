@@ -326,6 +326,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     NSDictionary *userStatusCaps = [serverCaps objectForKey:@"user_status"];
     NSDictionary *provisioningAPICaps = [serverCaps objectForKey:@"provisioning_api"];
     NSDictionary *guestsCaps = [serverCaps objectForKey:@"guests"];
+    NSDictionary *notificationsCaps = [serverCaps objectForKey:@"notifications"];
     
     ServerCapabilities *capabilities = [[ServerCapabilities alloc] init];
     capabilities.accountId = accountId;
@@ -368,6 +369,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     capabilities.talkVersion = [talkCaps objectForKey:@"version"];
     capabilities.guestsAppEnabled = [[guestsCaps objectForKey:@"enabled"] boolValue];
     capabilities.referenceApiSupported = [[coreCaps objectForKey:@"reference-api"] boolValue];
+    capabilities.notificationsAppEnabled = ([notificationsCaps objectForKey:@"ocs-endpoints"] != nil);
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
