@@ -2400,6 +2400,37 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+- (NSURLSessionDataTask *)getServerNotificationsForAccount:(TalkAccount *)account withLastETag:(NSString *)lastETag withCompletionBlock:(GetServerNotificationsCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/notifications", account.server];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:URLString]];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+
+    if (lastETag) {
+        [request addValue:lastETag forHTTPHeaderField:@"If-None-Match"];
+    }
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager dataTaskWithRequest:request completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+        if (!error) {
+            NSArray *notifications = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+            NSDictionary *headers = [self getResponseHeaders:response];
+
+            if (block) {
+                block(notifications, [headers objectForKey:@"ETag"], nil);
+            }
+        } else {
+            if (block) {
+                block(nil, nil, error);
+            }
+        }
+    }];
+
+    [task resume];
+
+    return task;
+}
+
 
 #pragma mark - Push Notifications
 
