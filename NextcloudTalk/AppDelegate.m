@@ -401,6 +401,17 @@
     [NCUtils log:@"Start performBackgroundFetchWithCompletionHandler"];
 
     dispatch_group_enter(backgroundRefreshGroup);
+    [[NCNotificationController sharedInstance] checkForNewNotificationsWithCompletionBlock:^(NSError *error) {
+        [NCUtils log:@"CompletionHandler checkForNewNotificationsWithCompletionBlock"];
+
+        if (error) {
+            errorOccurred = YES;
+        }
+
+        dispatch_group_leave(backgroundRefreshGroup);
+    }];
+
+    dispatch_group_enter(backgroundRefreshGroup);
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:^(NSError *error) {
         [NCUtils log:@"CompletionHandler updateRoomsAndChatsUpdatingUserStatus"];
 

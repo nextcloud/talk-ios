@@ -34,6 +34,7 @@ typedef NS_ENUM(NSInteger, NCPushNotificationType) {
 };
 
 extern NSString * const kNCPNAppKey;
+extern NSString * const kNCPNAppIdKey;
 extern NSString * const kNCPNTypeKey;
 extern NSString * const kNCPNSubjectKey;
 extern NSString * const kNCPNIdKey;
