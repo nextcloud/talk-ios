@@ -361,8 +361,8 @@
     [self scheduleAppRefresh];
 
     [self performBackgroundFetchWithCompletionHandler:^(BOOL errorOccurred) {
-         [task setTaskCompletedWithSuccess:!errorOccurred];
-     }];
+        [task setTaskCompletedWithSuccess:!errorOccurred];
+    }];
 }
 
 // This method is called when you simulate a background fetch from the debug menu in XCode
