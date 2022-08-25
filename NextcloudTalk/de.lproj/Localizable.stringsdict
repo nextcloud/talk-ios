@@ -23,6 +23,17 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@participants@</string>
+        <key>participants</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>ld</string>
+            <key>one</key>
+            <string>%ld Teilnehmer</string>
+            <key>other</key>
+            <string>%ld Teilnehmer</string>
+        </dict>
     </dict>
 </dict>
 </plist>
