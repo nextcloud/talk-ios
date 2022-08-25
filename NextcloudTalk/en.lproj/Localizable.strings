@@ -25,17 +25,14 @@
 /* No comment provided by engineer. */
 "%d minutes ago" = "%d minutes ago";
 
+/* Votes in a poll */
+"%d votes" = "%d votes";
+
 /* No comment provided by engineer. */
 "%ld participants" = "%ld participants";
 
 /* No comment provided by engineer. */
-"%lu participants" = "%lu participants";
-
-/* No comment provided by engineer. */
 "1 hour" = "1 hour";
-
-/* No comment provided by engineer. */
-"1 participant" = "1 participant";
 
 /* No comment provided by engineer. */
 "30 minutes" = "30 minutes";
@@ -1054,7 +1051,7 @@
 /* No comment provided by engineer. */
 "Resend invitations" = "Resend invitations";
 
-/* No comment provided by engineer. */
+/* Results of a poll */
 "Results" = "Results";
 
 /* No comment provided by engineer. */
@@ -1291,14 +1288,8 @@
 /* No comment provided by engineer. */
 "Voice messages" = "Voice messages";
 
-/* 1 vote in a poll */
-"vote" = "vote";
-
 /* No comment provided by engineer. */
 "Vote" = "Vote";
-
-/* {number} votes in a poll */
-"votes" = "votes";
 
 /* No comment provided by engineer. */
 "Waiting for %@ to join call …" = "Waiting for %@ to join call …";

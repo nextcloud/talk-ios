@@ -323,13 +323,8 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    if (section == kCreationSectionParticipantsOrPassword && !_publicRoom ) {
-        if (_participants.count == 0) {
-            return @"";
-        } else if (_participants.count == 1) {
-            return NSLocalizedString(@"1 participant", nil);
-        }
-        return [NSString stringWithFormat:NSLocalizedString(@"%ld participants", nil), _participants.count];
+    if (section == kCreationSectionParticipantsOrPassword && !_publicRoom && _participants.count > 0) {
+        return [NSString localizedStringWithFormat:NSLocalizedString(@"%ld participants", nil), _participants.count];
     }
     
     return nil;
