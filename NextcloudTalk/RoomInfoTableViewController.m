@@ -1555,10 +1555,7 @@ typedef enum FileAction {
     switch (infoSection) {
         case kRoomInfoSectionParticipants:
         {
-            NSString *title = [NSString stringWithFormat:NSLocalizedString(@"%lu participants", nil), (unsigned long)_roomParticipants.count];
-            if (_roomParticipants.count == 1) {
-                title = NSLocalizedString(@"1 participant", nil);
-            }
+            NSString *title = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld participants", nil), _roomParticipants.count];
             _headerView.label.text = [title uppercaseString];
             _headerView.button.hidden = (_room.canModerate) ? NO : YES;
             return _headerView;

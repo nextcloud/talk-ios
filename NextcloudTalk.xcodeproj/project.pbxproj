@@ -99,6 +99,7 @@
 		2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */; };
 		2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
 		2C44B4D127FF05A000AD1C86 /* ReactionsSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C44B4D027FF05A000AD1C86 /* ReactionsSummaryView.swift */; };
+		2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 2C477C1828B79D980044DEB4 /* Localizable.stringsdict */; };
 		2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4987BC21E640E20060AC27 /* CallKitManager.m */; };
 		2C4CDCCC269618240023F403 /* RoomDescriptionTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4CDCCA269618230023F403 /* RoomDescriptionTableViewCell.m */; };
 		2C4CDCCD269618240023F403 /* RoomDescriptionTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C4CDCCB269618230023F403 /* RoomDescriptionTableViewCell.xib */; };
@@ -434,6 +435,7 @@
 		2C444701265D641300DF1DBC /* NCUserDefaults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCUserDefaults.h; sourceTree = "<group>"; };
 		2C444702265D641300DF1DBC /* NCUserDefaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCUserDefaults.m; sourceTree = "<group>"; };
 		2C44B4D027FF05A000AD1C86 /* ReactionsSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsSummaryView.swift; sourceTree = "<group>"; };
+		2C477C1728B79D980044DEB4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2C4987BB21E640E20060AC27 /* CallKitManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CallKitManager.h; sourceTree = "<group>"; };
 		2C4987BC21E640E20060AC27 /* CallKitManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CallKitManager.m; sourceTree = "<group>"; };
 		2C4CDCC9269618230023F403 /* RoomDescriptionTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomDescriptionTableViewCell.h; sourceTree = "<group>"; };
@@ -810,6 +812,7 @@
 				2C4446EE265D454200DF1DBC /* NotificationCenterNotifications.h */,
 				2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */,
 				2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */,
+				2C477C1828B79D980044DEB4 /* Localizable.stringsdict */,
 			);
 			path = NextcloudTalk;
 			sourceTree = "<group>";
@@ -1549,6 +1552,7 @@
 				2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
+				2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
 				2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
@@ -2016,6 +2020,14 @@
 				2C4CDCD426AF16650023F403 /* ar */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		2C477C1828B79D980044DEB4 /* Localizable.stringsdict */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2C477C1728B79D980044DEB4 /* en */,
+			);
+			name = Localizable.stringsdict;
 			sourceTree = "<group>";
 		};
 		2C7F47AC20289B9600081CC7 /* Localizable.strings */ = {

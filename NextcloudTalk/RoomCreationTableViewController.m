@@ -209,7 +209,7 @@
     subTitleLabel.backgroundColor = [UIColor clearColor];
     subTitleLabel.textColor = [NCAppBranding themeTextColor];
     subTitleLabel.font = [UIFont systemFontOfSize:12];
-    subTitleLabel.text = (_selectedParticipants.count == 1) ? NSLocalizedString(@"1 participant", nil) : [NSString stringWithFormat:NSLocalizedString(@"%ld participants", nil), _selectedParticipants.count];
+    subTitleLabel.text = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld participants", nil), _selectedParticipants.count];
     subTitleLabel.accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"%@ added to this new group conversation", nil), subTitleLabel.text];
     [subTitleLabel sizeToFit];
     
