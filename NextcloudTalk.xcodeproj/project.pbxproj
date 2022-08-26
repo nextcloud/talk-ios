@@ -693,6 +693,7 @@
 		2CC7159320C54D080045C789 /* ChatTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatTableViewCell.m; sourceTree = "<group>"; };
 		2CD5F3222142781A006B71BF /* NCExternalSignalingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCExternalSignalingController.h; sourceTree = "<group>"; };
 		2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCExternalSignalingController.m; sourceTree = "<group>"; };
+		2CEA990828B8B5780029216A /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header.h"; sourceTree = "<group>"; };
 		2CEDA88726F10BB20044552B /* UserStatusMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusMessageViewController.swift; sourceTree = "<group>"; };
 		2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserStatusMessageViewController.xib; sourceTree = "<group>"; };
@@ -2026,6 +2027,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				2C477C1728B79D980044DEB4 /* en */,
+				2CEA990828B8B5780029216A /* de */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
