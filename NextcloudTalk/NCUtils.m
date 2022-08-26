@@ -194,15 +194,15 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     } else if (ti < 3600) {
         // This hour
         int diff = round(ti / 60);
-        return [NSString stringWithFormat:NSLocalizedString(@"%d minutes ago", nil), diff];
+        return [NSString localizedStringWithFormat:NSLocalizedString(@"%d minutes ago", nil), diff];
     } else if (ti < 86400) {
         // This day
         int diff = round(ti / 60 / 60);
-        return[NSString stringWithFormat:NSLocalizedString(@"%d hours ago", nil), diff];
+        return[NSString localizedStringWithFormat:NSLocalizedString(@"%d hours ago", nil), diff];
     } else if (ti < 86400 * 30) {
         // This month
         int diff = round(ti / 60 / 60 / 24);
-        return[NSString stringWithFormat:NSLocalizedString(@"%d days ago", nil), diff];
+        return[NSString localizedStringWithFormat:NSLocalizedString(@"%d days ago", nil), diff];
     } else {
         // Older than one month
         NSDateFormatter *df = [[NSDateFormatter alloc] init];
