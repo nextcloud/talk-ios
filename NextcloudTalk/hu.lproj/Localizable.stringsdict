@@ -13,9 +13,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>%d Stimme</string>
+            <string>%d szavazat</string>
             <key>other</key>
-            <string>%d Stimmen</string>
+            <string>%d szavazat</string>
         </dict>
     </dict>
     
@@ -30,9 +30,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>ld</string>
             <key>one</key>
-            <string>%ld Teilnehmer</string>
+            <string>%ld résztvevő</string>
             <key>other</key>
-            <string>%ld Teilnehmer</string>
+            <string>%ld résztvevő</string>
         </dict>
     </dict>
     

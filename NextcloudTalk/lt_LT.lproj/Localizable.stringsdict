@@ -13,9 +13,13 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>%d Stimme</string>
+            <string>%d balsas</string>
+            <key>few</key>
+            <string>%d balsai</string>
+            <key>many</key>
+            <string>%d balsų</string>
             <key>other</key>
-            <string>%d Stimmen</string>
+            <string>%d balsas</string>
         </dict>
     </dict>
     
@@ -30,9 +34,13 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>ld</string>
             <key>one</key>
-            <string>%ld Teilnehmer</string>
+            <string>%ld dalyvis</string>
+            <key>few</key>
+            <string>%ld dalyviai</string>
+            <key>many</key>
+            <string>%ld dalyvių</string>
             <key>other</key>
-            <string>%ld Teilnehmer</string>
+            <string>%ld dalyvis</string>
         </dict>
     </dict>
     
