@@ -40,18 +40,51 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@minutes@</string>
+        <key>minutes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Vor %d Minute</string>
+            <key>other</key>
+            <string>Vor %d Minuten</string>
+        </dict>
     </dict>
     
     <key>%d hours ago</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@hours@</string>
+        <key>hours</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Vor %d Stunde</string>
+            <key>other</key>
+            <string>Vor %d Stunden</string>
+        </dict>
     </dict>
     
     <key>%d days ago</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Vor %d Tag</string>
+            <key>other</key>
+            <string>Vor %d Tagen</string>
+        </dict>
     </dict>
 </dict>
 </plist>

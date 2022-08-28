@@ -12,14 +12,8 @@
             <string>NSStringPluralRuleType</string>
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
-            <key>one</key>
-            <string>%d hlas</string>
-            <key>few</key>
-            <string>%d hlasy</string>
-            <key>many</key>
-            <string>%d hlasů</string>
             <key>other</key>
-            <string>%d hlasy</string>
+            <string>%d 選票</string>
         </dict>
     </dict>
     
@@ -33,14 +27,8 @@
             <string>NSStringPluralRuleType</string>
             <key>NSStringFormatValueTypeKey</key>
             <string>ld</string>
-            <key>one</key>
-            <string>%ld účastník</string>
-            <key>few</key>
-            <string>%ld účastníci</string>
-            <key>many</key>
-            <string>%ld účastníků</string>
             <key>other</key>
-            <string>%ld účastníci</string>
+            <string>%ld 位參與者</string>
         </dict>
     </dict>
     
@@ -54,14 +42,8 @@
             <string>NSStringPluralRuleType</string>
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
-            <key>one</key>
-            <string>před %d minutou</string>
-            <key>few</key>
-            <string>před %d minutami</string>
-            <key>many</key>
-            <string>před %d minutami</string>
             <key>other</key>
-            <string>před %d minutami</string>
+            <string>%d 分鐘前</string>
         </dict>
     </dict>
     
@@ -75,14 +57,8 @@
             <string>NSStringPluralRuleType</string>
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
-            <key>one</key>
-            <string>před %d hodinou</string>
-            <key>few</key>
-            <string>před %d hodinami</string>
-            <key>many</key>
-            <string>před %d hodinami</string>
             <key>other</key>
-            <string>před %d hodinami</string>
+            <string>%d 小時前</string>
         </dict>
     </dict>
     
@@ -96,14 +72,8 @@
             <string>NSStringPluralRuleType</string>
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
-            <key>one</key>
-            <string>před %d dnem</string>
-            <key>few</key>
-            <string>před %d dny</string>
-            <key>many</key>
-            <string>před %d dny</string>
             <key>other</key>
-            <string>před %d dny</string>
+            <string>%d 天前</string>
         </dict>
     </dict>
 </dict>
