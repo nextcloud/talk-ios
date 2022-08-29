@@ -338,18 +338,32 @@
     // With BGTasks (iOS >= 13) we need to schedule another refresh when running in background
     [self scheduleAppRefresh];
 
+    UIApplication *application = [UIApplication sharedApplication];
+    __block UIBackgroundTaskIdentifier updateTask = [application beginBackgroundTaskWithExpirationHandler:^{
+        [application endBackgroundTask:updateTask];
+        updateTask = UIBackgroundTaskInvalid;
+    }];
+
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:^(NSError *error) {
         if (error) {
             [task setTaskCompletedWithSuccess:NO];
         } else {
             [task setTaskCompletedWithSuccess:YES];
         }
+
+        [application endBackgroundTask:updateTask];
+        updateTask = UIBackgroundTaskInvalid;
     }];
 }
 
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     NSLog(@"Performing background fetch -> performFetchWithCompletionHandler");
+
+    __block UIBackgroundTaskIdentifier updateTask = [application beginBackgroundTaskWithExpirationHandler:^{
+        [application endBackgroundTask:updateTask];
+        updateTask = UIBackgroundTaskInvalid;
+    }];
     
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:^(NSError *error) {
         if (error) {
@@ -357,6 +371,9 @@
         } else {
             completionHandler(UIBackgroundFetchResultNewData);
         }
+
+        [application endBackgroundTask:updateTask];
+        updateTask = UIBackgroundTaskInvalid;
     }];
 }
 
