@@ -612,6 +612,9 @@
 		2CA80EDE256C1296006BA449 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2CA80EDF256C12E7006BA449 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2CA80EE0256C12E7006BA449 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		2CB2B24D28BCB9D900A9D606 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = cs; path = cs.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		2CB2B24E28BCB9E800A9D606 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = hu; path = hu.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		2CB2B24F28BCBABC00A9D606 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = pl; path = pl.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2CB3039C2264775E0053078A /* SLKInputAccessoryView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKInputAccessoryView.h; sourceTree = "<group>"; };
 		2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLKInputAccessoryView.m; sourceTree = "<group>"; };
 		2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SLKTextInput+Implementation.m"; sourceTree = "<group>"; };
@@ -2028,6 +2031,9 @@
 			children = (
 				2C477C1728B79D980044DEB4 /* en */,
 				2CEA990828B8B5780029216A /* de */,
+				2CB2B24D28BCB9D900A9D606 /* cs */,
+				2CB2B24E28BCB9E800A9D606 /* hu */,
+				2CB2B24F28BCBABC00A9D606 /* pl */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
