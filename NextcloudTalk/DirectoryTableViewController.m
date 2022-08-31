@@ -170,7 +170,7 @@
             NSMutableArray *itemsInDirectory = [NSMutableArray new];
             for (NCCommunicationFile *item in items) {
                 NSString *currentDirectory = [self->_path isEqualToString:@""] ? @"/" : [self->_path lastPathComponent];
-                NSString *itemPath = [item.path stringByReplacingOccurrencesOfString:_userHomePath withString:@""];
+                NSString *itemPath = [item.path stringByReplacingOccurrencesOfString:self->_userHomePath withString:@""];
                 if ([[itemPath lastPathComponent] isEqualToString:currentDirectory] && !item.e2eEncrypted) {
                     [itemsInDirectory addObject:item];
                 }
