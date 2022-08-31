@@ -99,6 +99,7 @@ typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
 typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
 typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
+extern NSString *const davEndpoint;
 extern NSInteger const APIv1;
 extern NSInteger const APIv2;
 extern NSInteger const APIv3;
@@ -123,6 +124,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)reactionsAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)pollsAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
+- (NSString *)filesPathForAccount:(TalkAccount *)account;
 
 // Contacts Controller
 - (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSDictionary *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block;

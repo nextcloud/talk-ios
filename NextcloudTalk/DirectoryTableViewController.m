@@ -37,6 +37,7 @@
 @interface DirectoryTableViewController ()
 {
     NSString *_path;
+    NSString *_userHomePath;
     NSString *_token;
     NSMutableArray *_itemsInDirectory;
     NSIndexPath *_selectedItem;
@@ -64,6 +65,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    _userHomePath = [[NCAPIController sharedInstance] filesPathForAccount:activeAccount];
     
     [self configureNavigationBar];
     
@@ -165,8 +169,9 @@
         if (!error) {
             NSMutableArray *itemsInDirectory = [NSMutableArray new];
             for (NCCommunicationFile *item in items) {
-                NSString *currentDirectory = [self->_path isEqualToString:@""] ? @"webdav" : [self->_path lastPathComponent];
-                if ([[item.path lastPathComponent] isEqualToString:currentDirectory] && !item.e2eEncrypted) {
+                NSString *currentDirectory = [self->_path isEqualToString:@""] ? @"/" : [self->_path lastPathComponent];
+                NSString *itemPath = [item.path stringByReplacingOccurrencesOfString:_userHomePath withString:@""];
+                if ([[itemPath lastPathComponent] isEqualToString:currentDirectory] && !item.e2eEncrypted) {
                     [itemsInDirectory addObject:item];
                 }
             }
