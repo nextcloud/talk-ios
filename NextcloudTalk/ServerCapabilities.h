@@ -46,7 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSInteger versionMicro;
 @property NSString *edition;
 @property BOOL userStatus;
-@property NSString *webDAVRoot;
 @property BOOL extendedSupport;
 @property RLMArray<RLMString> *talkCapabilities;
 @property NSInteger chatMaxLength;

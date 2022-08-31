@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 35;
+uint64_t const kTalkDatabaseSchemaVersion           = 36;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -343,7 +343,6 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     capabilities.versionMicro = [[version objectForKey:@"micro"] integerValue];
     capabilities.edition = [version objectForKey:@"edition"];
     capabilities.userStatus = [[userStatusCaps objectForKey:@"enabled"] boolValue];
-    capabilities.webDAVRoot = [[serverCaps objectForKey:@"core"] objectForKey:@"webdav-root"];
     capabilities.extendedSupport = [[version objectForKey:@"extendedSupport"] boolValue];
     capabilities.talkCapabilities = [talkCaps objectForKey:@"features"];
     capabilities.chatMaxLength = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"max-length"] integerValue];

@@ -38,6 +38,7 @@ NSInteger const APIv2                       = 2;
 NSInteger const APIv3                       = 3;
 NSInteger const APIv4                       = 4;
 
+NSString * const kDavEndpoint               = @"/remote.php/dav";
 NSString * const kNCOCSAPIVersion           = @"/ocs/v2.php";
 NSString * const kNCSpreedAPIVersionBase    = @"/apps/spreed/api/v";
 
@@ -101,7 +102,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
     NSString *userToken = [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId];
     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
-    [[NCCommunicationCommon shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken urlBase:account.server userAgent:userAgent webDav:serverCapabilities.webDAVRoot nextcloudVersion:serverCapabilities.versionMajor delegate:self];
+    [[NCCommunicationCommon shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken urlBase:account.server userAgent:userAgent webDav:nil nextcloudVersion:serverCapabilities.versionMajor delegate:self];
 }
 
 - (void)initImageDownloaders
@@ -172,6 +173,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     return signalingAPIVersion;
+}
+
+- (NSString *)filesPathForAccount:(TalkAccount *)account
+{
+    return [NSString stringWithFormat:@"%@/files/%@", kDavEndpoint, account.userId];
 }
 
 - (NSString *)getRequestURLForEndpoint:(NSString *)endpoint withAPIVersion:(NSInteger)apiVersion forAccount:(TalkAccount *)account
@@ -1733,8 +1739,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block
 {
     [self setupNCCommunicationForAccount:account];
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
-    NSString *serverUrlString = [NSString stringWithFormat:@"%@/%@/%@", account.server, serverCapabilities.webDAVRoot, path ? path : @""];
+    NSString *serverUrlString = [NSString stringWithFormat:@"%@%@/%@", account.server, [self filesPathForAccount:account], path ? path : @""];
     [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:serverUrlString depth:depth showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
         if (errorCode == 0 && block) {
             block(files, nil);
@@ -1902,14 +1907,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:accountId];
     NSString *attachmentsFolder = serverCapabilities.attachmentsFolder ? serverCapabilities.attachmentsFolder : @"";
-    return [NSString stringWithFormat:@"%@/%@%@", account.server, serverCapabilities.webDAVRoot, attachmentsFolder];
+    return [NSString stringWithFormat:@"%@%@%@", account.server, [self filesPathForAccount:account], attachmentsFolder];
 }
 
 - (NSString *)serverFileURLForFilePath:(NSString *)filePath andAccountId:(NSString *)accountId;
 {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:accountId];
-    return [NSString stringWithFormat:@"%@/%@%@", account.server, serverCapabilities.webDAVRoot, filePath];
+    return [NSString stringWithFormat:@"%@%@%@", account.server, [self filesPathForAccount:account], filePath];
 }
 
 - (NSString *)alternativeNameForFileName:(NSString *)fileName original:(BOOL)isOriginal

@@ -165,12 +165,11 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
 - (void)startDownload
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     
     [[NCAPIController sharedInstance] setupNCCommunicationForAccount:activeAccount];
     [self initDownloadDirectoryForAccount:activeAccount];
     
-    NSString *serverUrlFileName = [NSString stringWithFormat:@"%@/%@/%@", activeAccount.server, serverCapabilities.webDAVRoot, _fileStatus.filePath];
+    NSString *serverUrlFileName = [NSString stringWithFormat:@"%@%@/%@", activeAccount.server, [[NCAPIController sharedInstance] filesPathForAccount:activeAccount], _fileStatus.filePath];
     _fileStatus.fileLocalPath = [_tempDirectoryPath stringByAppendingPathComponent:_fileStatus.fileName];
     
     // Setting just isDownloading without a concrete progress will show an indeterminate activity indicator

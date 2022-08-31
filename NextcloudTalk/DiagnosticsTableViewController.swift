@@ -58,7 +58,6 @@ class DiagnosticsTableViewController: UITableViewController {
     enum ServerSections: Int {
         case kServerSectionName = 0
         case kServerSectionVersion
-        case kServerSectionWebDavRoot
         case kServerSectionUserStatusSupported
         case kServerSectionReachable
         case kServerSectionCount
@@ -495,10 +494,6 @@ class DiagnosticsTableViewController: UITableViewController {
         case ServerSections.kServerSectionVersion.rawValue:
             cell.textLabel?.text = NSLocalizedString("Version", comment: "")
             cell.detailTextLabel?.text = serverCapabilities.version
-
-        case ServerSections.kServerSectionWebDavRoot.rawValue:
-            cell.textLabel?.text = NSLocalizedString("WebDAV root", comment: "")
-            cell.detailTextLabel?.text = serverCapabilities.webDAVRoot
 
         case ServerSections.kServerSectionUserStatusSupported.rawValue:
             cell.textLabel?.text = NSLocalizedString("User status supported?", comment: "")
