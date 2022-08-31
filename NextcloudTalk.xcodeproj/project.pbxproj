@@ -615,6 +615,7 @@
 		2CB2B24D28BCB9D900A9D606 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = cs; path = cs.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2CB2B24E28BCB9E800A9D606 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = hu; path = hu.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2CB2B24F28BCBABC00A9D606 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = pl; path = pl.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		2CB2B25128BF957100A9D606 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = tr; path = tr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2CB3039C2264775E0053078A /* SLKInputAccessoryView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKInputAccessoryView.h; sourceTree = "<group>"; };
 		2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLKInputAccessoryView.m; sourceTree = "<group>"; };
 		2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SLKTextInput+Implementation.m"; sourceTree = "<group>"; };
@@ -2034,6 +2035,7 @@
 				2CB2B24D28BCB9D900A9D606 /* cs */,
 				2CB2B24E28BCB9E800A9D606 /* hu */,
 				2CB2B24F28BCBABC00A9D606 /* pl */,
+				2CB2B25128BF957100A9D606 /* tr */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
