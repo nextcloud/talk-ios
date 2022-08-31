@@ -99,7 +99,6 @@ typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
 typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
 typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
-extern NSString *const davEndpoint;
 extern NSInteger const APIv1;
 extern NSInteger const APIv2;
 extern NSInteger const APIv3;

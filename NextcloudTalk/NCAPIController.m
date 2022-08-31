@@ -38,7 +38,7 @@ NSInteger const APIv2                       = 2;
 NSInteger const APIv3                       = 3;
 NSInteger const APIv4                       = 4;
 
-NSString * const davEndpoint                = @"/remote.php/dav";
+NSString * const kDavEndpoint               = @"/remote.php/dav";
 NSString * const kNCOCSAPIVersion           = @"/ocs/v2.php";
 NSString * const kNCSpreedAPIVersionBase    = @"/apps/spreed/api/v";
 
@@ -177,7 +177,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSString *)filesPathForAccount:(TalkAccount *)account
 {
-    return [NSString stringWithFormat:@"%@/files/%@", davEndpoint, account.userId];
+    return [NSString stringWithFormat:@"%@/files/%@", kDavEndpoint, account.userId];
 }
 
 - (NSString *)getRequestURLForEndpoint:(NSString *)endpoint withAPIVersion:(NSInteger)apiVersion forAccount:(TalkAccount *)account
