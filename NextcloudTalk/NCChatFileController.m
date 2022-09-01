@@ -176,7 +176,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
     [self didChangeIsDownloadingNotification:YES];
     
     // First read metadata from the file and check if we already downloaded it
-    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:serverUrlFileName depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:serverUrlFileName depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil timeout:60 queue:dispatch_get_main_queue() completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
         if (errorCode == 0 && files.count == 1) {
             // File exists on server -> check our cache
             NCCommunicationFile *file = files.firstObject;
