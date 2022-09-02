@@ -460,6 +460,7 @@
 		2C4DE9F121F732B40096940D /* NCAudioController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAudioController.m; sourceTree = "<group>"; };
 		2C4E758D214B942D003910D5 /* OpenInFirefoxControllerObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenInFirefoxControllerObjC.h; sourceTree = "<group>"; };
 		2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenInFirefoxControllerObjC.m; sourceTree = "<group>"; };
+		2C57CD8228C204C600B22E03 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = es; path = es.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUnifiedSearchController.swift; sourceTree = "<group>"; };
 		2C5BFBEB28895E6A00E75118 /* ObjectShareMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectShareMessageTableViewCell.h; sourceTree = "<group>"; };
 		2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectShareMessageTableViewCell.m; sourceTree = "<group>"; };
@@ -2036,6 +2037,7 @@
 				2CB2B24E28BCB9E800A9D606 /* hu */,
 				2CB2B24F28BCBABC00A9D606 /* pl */,
 				2CB2B25128BF957100A9D606 /* tr */,
+				2C57CD8228C204C600B22E03 /* es */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
