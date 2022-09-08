@@ -363,7 +363,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         [NCUtils log:@"Start getRoomsForAccount completionBlock"];
         
         if (!error) {
-            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCBackgroundFetch" expirationHandler:nil];
+            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateRoomsTransaction" expirationHandler:nil];
             [NCUtils log:@"Start transaction"];
 
             RLMRealm *realm = [RLMRealm defaultRealm];
