@@ -298,4 +298,100 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return queryItem.value;
 }
 
++ (NSURL *)getLogfilePath
+{
+    NSURL *documentDir = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] firstObject];
+
+    if (!documentDir) {
+        NSLog(@"Unable to retrieve document directory");
+        return nil;
+    }
+
+    return documentDir;
+}
+
++ (void)removeOldLogfiles
+{
+    NSURL *logPathURL = [self getLogfilePath];
+
+    if (!logPathURL) {
+        return;
+    }
+
+    NSString *logPath = [logPathURL path];
+
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtPath:logPath];
+
+    NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
+    dayComponent.day = -10;
+
+    NSDate *thresholdDate = [[NSCalendar currentCalendar] dateByAddingComponents:dayComponent toDate:[NSDate date] options:0];
+    NSString *file;
+
+    while (file = [enumerator nextObject])
+    {
+        NSString *filePath = [logPath stringByAppendingPathComponent:file];
+        NSDate *creationDate = [[fileManager attributesOfItemAtPath:filePath error:nil] fileCreationDate];
+
+        if ([creationDate compare:thresholdDate] == NSOrderedAscending && [file hasPrefix:@"debug-"] && [file hasSuffix:@".log"]) {
+            NSLog(@"Deleting old logfile %@", filePath);
+
+            [fileManager removeItemAtPath:filePath error:nil];
+        }
+    }
+}
+
++ (void)log:(NSString *)message
+{
+    @try {
+        [self removeOldLogfiles];
+
+        NSURL *logPath = [self getLogfilePath];
+
+        if (!logPath) {
+            return;
+        }
+
+        dispatch_queue_t currentQueue = dispatch_get_current_queue();
+
+        int applicationState = -1;
+        float backgroundTimeRemaining = -1;
+
+    #ifndef APP_EXTENSION
+        applicationState = (int)[UIApplication sharedApplication].applicationState;
+        backgroundTimeRemaining = [UIApplication sharedApplication].backgroundTimeRemaining;
+    #endif
+
+        NSDate *now = [NSDate date];
+
+        NSString *logMessage = [NSString stringWithFormat:@"%@ (%@): %@\nState: %d, Time remaining %f\n\n",
+                                [now formattedDateWithFormat:@"y-MM-dd H:mm:ss.SSSS"],
+                                [currentQueue description],
+                                message,
+                                applicationState,
+                                backgroundTimeRemaining
+        ];
+
+
+        NSString *dateString = [now formattedDateWithFormat:@"yyyy-MM-dd"];
+        NSString *logfileName = [NSString stringWithFormat:@"debug-%@.log", dateString];
+        NSString *fullPath = [[logPath URLByAppendingPathComponent:logfileName] path];
+
+        NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingAtPath:fullPath];
+        if (fileHandle) {
+            [fileHandle seekToEndOfFile];
+            [fileHandle writeData:[logMessage dataUsingEncoding:NSUTF8StringEncoding]];
+            [fileHandle closeFile];
+        } else {
+            [logMessage writeToFile:fullPath atomically:NO encoding:NSUTF8StringEncoding error:nil];
+        }
+
+        NSLog(@"%@", logMessage);
+    } @catch (NSException *exception) {
+        NSLog(@"Exception in NCUtils.log: %@", exception.description);
+        NSLog(@"Message: %@", message);
+    }
+}
+
 @end
