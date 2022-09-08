@@ -176,7 +176,7 @@ import UIKit
         if section == PollCreationSection.kPollCreationSectionQuestion.rawValue {
             return NSLocalizedString("Question", comment: "")
         } else if section == PollCreationSection.kPollCreationSectionOptions.rawValue {
-            return NSLocalizedString("Poll options", comment: "")
+            return NSLocalizedString("Answers", comment: "")
         } else if section == PollCreationSection.kPollCreationSectionSettings.rawValue {
             return NSLocalizedString("Settings", comment: "")
         }
@@ -196,10 +196,10 @@ import UIKit
             return textInputCell
         } else if indexPath.section == PollCreationSection.kPollCreationSectionOptions.rawValue {
             if indexPath.row == options.count {
-                actionCell.textLabel?.text = NSLocalizedString("Add option", comment: "")
+                actionCell.textLabel?.text = NSLocalizedString("Add answer", comment: "")
                 return actionCell
             } else if indexPath.row < options.count {
-                textInputCell.textField.placeholder = NSLocalizedString("Option", comment: "")
+                textInputCell.textField.placeholder = NSLocalizedString("Answer", comment: "") + " " + String(indexPath.row + 1)
                 textInputCell.textField.tag = indexPath.row
                 textInputCell.textField.text = options[indexPath.row]
                 return textInputCell
