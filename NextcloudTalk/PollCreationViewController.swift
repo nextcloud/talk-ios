@@ -78,6 +78,8 @@ import UIKit
             self.navigationItem.scrollEdgeAppearance = appearance
         }
 
+        self.tableView.isEditing = true
+
         // Set footer buttons
         self.tableView.tableFooterView = pollFooterView()
 
@@ -106,7 +108,7 @@ import UIKit
 
     func checkIfPollIsReadyToCreate() {
         footerView.primaryButton.isEnabled = false
-        if !question.isEmpty && !options[0].isEmpty && !options[1].isEmpty {
+        if !question.isEmpty && options.filter({!$0.isEmpty}).count >= 2 {
             footerView.primaryButton.isEnabled = true
         }
     }
@@ -119,6 +121,41 @@ import UIKit
     }
 
     // MARK: - Table view data source
+
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        if indexPath.section == PollCreationSection.kPollCreationSectionOptions.rawValue {
+            return true
+        }
+        return false
+    }
+
+    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        if indexPath.section == PollCreationSection.kPollCreationSectionOptions.rawValue {
+            if indexPath.row == options.count {
+                return .insert
+            }
+            if indexPath.row > 1 || options.count > 2 {
+                return .delete
+            }
+        }
+        return .none
+    }
+
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if indexPath.section == PollCreationSection.kPollCreationSectionOptions.rawValue {
+            if indexPath.row == options.count {
+                options.insert("", at: indexPath.row)
+            } else {
+                options.remove(at: indexPath.row)
+            }
+            checkIfPollIsReadyToCreate()
+            self.tableView.reloadData()
+        }
+    }
+
+    override func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         return PollCreationSection.kPollCreationSectionCount.rawValue
@@ -155,17 +192,18 @@ import UIKit
         if indexPath.section == PollCreationSection.kPollCreationSectionQuestion.rawValue {
             textInputCell.textField.placeholder = NSLocalizedString("Ask a question", comment: "")
             textInputCell.textField.tag = kQuestionTextFieldTag
+            textInputCell.textField.text = question
             return textInputCell
         } else if indexPath.section == PollCreationSection.kPollCreationSectionOptions.rawValue {
-            textInputCell.textField.placeholder = NSLocalizedString("Option", comment: "")
-            textInputCell.textField.tag = indexPath.row
             if indexPath.row == options.count {
                 actionCell.textLabel?.text = NSLocalizedString("Add option", comment: "")
-                actionCell.imageView?.image = UIImage(named: "add")?.withRenderingMode(.alwaysTemplate)
-                actionCell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
                 return actionCell
+            } else if indexPath.row < options.count {
+                textInputCell.textField.placeholder = NSLocalizedString("Option", comment: "")
+                textInputCell.textField.tag = indexPath.row
+                textInputCell.textField.text = options[indexPath.row]
+                return textInputCell
             }
-            return textInputCell
         } else if indexPath.section == PollCreationSection.kPollCreationSectionSettings.rawValue {
             if indexPath.row == PollSetting.kPollSettingPrivate.rawValue {
                 actionCell.textLabel?.text = NSLocalizedString("Private poll", comment: "")
@@ -208,7 +246,7 @@ import UIKit
     func setValueFromTextField(textField: UITextField, value: String) {
         if textField.tag == kQuestionTextFieldTag {
             question = value
-        } else {
+        } else if textField.tag < options.count {
             options[textField.tag] = value
         }
         checkIfPollIsReadyToCreate()
