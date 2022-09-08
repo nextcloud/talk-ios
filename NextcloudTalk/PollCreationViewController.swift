@@ -87,6 +87,12 @@ import UIKit
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        if let questionCell = self.tableView.cellForRow(at: IndexPath(row: 0, section: PollCreationSection.kPollCreationSectionQuestion.rawValue)) as? TextInputTableViewCell {
+            questionCell.textField.becomeFirstResponder()
+        }
+    }
+
     func cancelButtonPressed() {
         self.dismiss(animated: true, completion: nil)
     }
@@ -145,11 +151,17 @@ import UIKit
         if indexPath.section == PollCreationSection.kPollCreationSectionOptions.rawValue {
             if indexPath.row == options.count {
                 options.insert("", at: indexPath.row)
+                tableView.beginUpdates()
+                tableView.insertRows(at: [indexPath], with: .automatic)
+                tableView.endUpdates()
+                if let optionCell = self.tableView.cellForRow(at: indexPath) as? TextInputTableViewCell {
+                    optionCell.textField.becomeFirstResponder()
+                }
             } else {
                 options.remove(at: indexPath.row)
+                self.tableView.reloadSections([PollCreationSection.kPollCreationSectionOptions.rawValue], with: .automatic)
             }
             checkIfPollIsReadyToCreate()
-            self.tableView.reloadData()
         }
     }
 
