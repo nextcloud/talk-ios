@@ -366,10 +366,12 @@
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCBackgroundFetch" expirationHandler:^(BGTaskHelper *task) {
         [NCUtils log:@"ExpirationHandler called"];
 
+        /*
         expired = YES;
         completionHandler(YES);
         
         [task stopBackgroundTask];
+         */
     }];
 
     [NCUtils log:@"Start performBackgroundFetchWithCompletionHandler"];
