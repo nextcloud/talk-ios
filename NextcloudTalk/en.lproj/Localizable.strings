@@ -71,6 +71,9 @@
 "Add account" = "Add account";
 
 /* No comment provided by engineer. */
+"Add answer" = "Add answer";
+
+/* No comment provided by engineer. */
 "Add participants" = "Add participants";
 
 /* No comment provided by engineer. */
@@ -182,6 +185,12 @@
 "an hour" = "an hour";
 
 /* No comment provided by engineer. */
+"Answer" = "Answer";
+
+/* No comment provided by engineer. */
+"Answers" = "Answers";
+
+/* No comment provided by engineer. */
 "Anyone who knows the link to this conversation will be able to access it. You can protect it by setting a password." = "Anyone who knows the link to this conversation will be able to access it. You can protect it by setting a password.";
 
 /* No comment provided by engineer. */
@@ -189,6 +198,9 @@
 
 /* No comment provided by engineer. */
 "Appear offline" = "Appear offline";
+
+/* No comment provided by engineer. */
+"Ask a question" = "Ask a question";
 
 /* No comment provided by engineer. */
 "Attachments allowed?" = "Attachments allowed?";
@@ -414,6 +426,9 @@
 
 /* No comment provided by engineer. */
 "Create a new public conversation" = "Create a new public conversation";
+
+/* No comment provided by engineer. */
+"Create poll" = "Create poll";
 
 /* No comment provided by engineer. */
 "Credentials for this account were no longer valid" = "Credentials for this account were no longer valid";
@@ -821,6 +836,9 @@
 "More options" = "More options";
 
 /* No comment provided by engineer. */
+"Multiple answers" = "Multiple answers";
+
+/* No comment provided by engineer. */
 "Mute all notifications" = "Mute all notifications";
 
 /* No comment provided by engineer. */
@@ -843,6 +861,9 @@
 
 /* No comment provided by engineer. */
 "New group conversation" = "New group conversation";
+
+/* No comment provided by engineer. */
+"New poll" = "New poll";
 
 /* No comment provided by engineer. */
 "New public conversation" = "New public conversation";
@@ -986,6 +1007,9 @@
 "Private" = "Private";
 
 /* No comment provided by engineer. */
+"Private poll" = "Private poll";
+
+/* No comment provided by engineer. */
 "Profile" = "Profile";
 
 /* No comment provided by engineer. */
@@ -999,6 +1023,9 @@
 
 /* No comment provided by engineer. */
 "Published" = "Published";
+
+/* No comment provided by engineer. */
+"Question" = "Question";
 
 /* No comment provided by engineer. */
 "Reachable?" = "Reachable?";

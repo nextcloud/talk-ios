@@ -93,7 +93,7 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionAddReaction
 } NCChatMessageAction;
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, ObjectShareMessageTableViewCellDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, ObjectShareMessageTableViewCellDelegate, PollCreationViewControllerDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -1261,11 +1261,21 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }];
     [ncFilesAction setValue:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
     
+    UIAlertAction *pollAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Poll", nil)
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^void (UIAlertAction *action) {
+        [self presentPollCreation];
+    }];
+    [pollAction setValue:[[UIImage imageNamed:@"poll"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    
     // Add actions
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         [optionsActionSheet addAction:cameraAction];
     }
     [optionsActionSheet addAction:photoLibraryAction];
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityTalkPolls]) {
+        [optionsActionSheet addAction:pollAction];
+    }
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
         [optionsActionSheet addAction:shareLocationAction];
     }
@@ -1340,6 +1350,18 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         self->_imagePicker.delegate = self;
         [self presentViewController:self->_imagePicker animated:YES completion:nil];
     });
+}
+
+- (void)presentPollCreation
+{
+    UITableViewStyle style = UITableViewStyleGrouped;
+    if (@available(iOS 13.0, *)) {
+        style = UITableViewStyleInsetGrouped;
+    }
+    PollCreationViewController *pollCreationVC = [[PollCreationViewController alloc] initWithStyle:style];
+    pollCreationVC.pollCreationDelegate = self;
+    NCNavigationController *pollCreationNC = [[NCNavigationController alloc] initWithRootViewController:pollCreationVC];
+    [self presentViewController:pollCreationNC animated:YES completion:nil];
 }
 
 - (void)presentShareLocation
@@ -3870,6 +3892,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         if (!error) {
             [pollVC updatePollWithPoll:poll];
         }
+    }];
+}
+
+#pragma mark - PollCreationViewControllerDelegate
+
+- (void)wantsToCreatePollWithQuestion:(NSString *)question options:(NSArray<NSString *> *)options resultMode:(NCPollResultMode)resultMode maxVotes:(NSInteger)maxVotes
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] createPollWithQuestion:question options:options resultMode:resultMode maxVotes:maxVotes inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NCPoll *poll, NSError *error, NSInteger statusCode) {
+        [self dismissViewControllerAnimated:YES completion:nil];
     }];
 }
 
