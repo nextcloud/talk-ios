@@ -95,7 +95,7 @@ import UIKit
         footerView.primaryButton.setTitle(NSLocalizedString("Create poll", comment: ""), for: .normal)
         footerView.setPrimaryButtonAction(target: self, selector: #selector(createPollButtonPressed))
         footerView.frame = CGRect(x: 0, y: 0, width: 0, height: PollFooterView.heightForOption)
-        footerView.secondaryButton.isHidden = true
+        footerView.secondaryButtonContainerView.isHidden = true
         checkIfPollIsReadyToCreate()
         return footerView
     }
