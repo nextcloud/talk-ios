@@ -17,6 +17,7 @@
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
 		1FA20C8A284001D80062B4F3 /* DebounceWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA20C89284001D80062B4F3 /* DebounceWebView.swift */; };
+		1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3C4257D439500853F79 /* NCChatFileController.m */; };
 		1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
 		1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
