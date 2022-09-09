@@ -510,8 +510,14 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         let settingsSection = sections[section]
         if settingsSection == SettingsSection.kSettingsSectionAbout.rawValue {
             let appName = (Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)!
-            let appVersion = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String)!
-            return appName + " " + appVersion + " " + copyright
+            var appVersion = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String)!
+
+            if NCUtils.isBetaVersion() {
+                let appBuild = (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String)!
+                appVersion += " Build " + appBuild + " (Beta)"
+            }
+
+            return "\(appName) \(appVersion)\n\(copyright)"
         }
         if let activeUserStatus = activeUserStatus {
             if settingsSection == SettingsSection.kSettingsSectionUserStatus.rawValue, activeUserStatus.status == kUserStatusDND {

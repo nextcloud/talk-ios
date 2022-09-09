@@ -97,6 +97,14 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return isInstalled;
 }
 
++ (BOOL)isBetaVersion
+{
+    // See https://stackoverflow.com/a/26113597
+    NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
+    NSString *receiptURLString = [receiptURL path];
+    return ([receiptURLString rangeOfString:@"sandboxReceipt"].location != NSNotFound);
+}
+
 + (void)openFileInNextcloudApp:(NSString *)path withFileLink:(NSString *)link
 {
 #ifndef APP_EXTENSION
