@@ -307,7 +307,16 @@ static NSString *const nextcloudScheme = @"nextcloud:";
         return nil;
     }
 
-    return documentDir;
+    NSURL *logDir = [documentDir URLByAppendingPathComponent:@"logs"];
+    NSString *logPath = [logDir path];
+
+    // Allow writing to files while the app is in the background
+    if (![[NSFileManager defaultManager] fileExistsAtPath:logPath]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:logPath withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    [[NSFileManager defaultManager] setAttributes:@{NSFileProtectionKey:NSFileProtectionNone} ofItemAtPath:logPath error:nil];
+
+    return logDir;
 }
 
 + (void)removeOldLogfiles
