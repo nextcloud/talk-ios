@@ -48,6 +48,8 @@
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 
+#import "NextcloudTalk-Swift.h"
+
 @interface AppDelegate ()
 
 @end
@@ -325,7 +327,7 @@
     
     NSError *error = nil;
     [[BGTaskScheduler sharedScheduler] submitTaskRequest:request error:&error];
-    
+
     if (error) {
         NSLog(@"Failed to submit apprefresh request: %@", error);
     }
@@ -333,47 +335,55 @@
 
 - (void)handleAppRefresh:(BGTask *)task API_AVAILABLE(ios(13.0))
 {
-    NSLog(@"Performing background fetch -> handleAppRefresh");
+    [NCUtils log:@"Performing background fetch -> handleAppRefresh"];
     
     // With BGTasks (iOS >= 13) we need to schedule another refresh when running in background
     [self scheduleAppRefresh];
 
-    UIApplication *application = [UIApplication sharedApplication];
-    __block UIBackgroundTaskIdentifier updateTask = [application beginBackgroundTaskWithExpirationHandler:^{
-        [application endBackgroundTask:updateTask];
-        updateTask = UIBackgroundTaskInvalid;
-    }];
-
-    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:^(NSError *error) {
-        if (error) {
-            [task setTaskCompletedWithSuccess:NO];
-        } else {
-            [task setTaskCompletedWithSuccess:YES];
-        }
-
-        [application endBackgroundTask:updateTask];
-        updateTask = UIBackgroundTaskInvalid;
-    }];
+    [self performBackgroundFetchWithCompletionHandler:^(BOOL errorOccurred) {
+         [task setTaskCompletedWithSuccess:!errorOccurred];
+     }];
 }
 
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-    NSLog(@"Performing background fetch -> performFetchWithCompletionHandler");
+    [NCUtils log:@"Performing background fetch -> performFetchWithCompletionHandler"];
 
-    __block UIBackgroundTaskIdentifier updateTask = [application beginBackgroundTaskWithExpirationHandler:^{
-        [application endBackgroundTask:updateTask];
-        updateTask = UIBackgroundTaskInvalid;
+    [self performBackgroundFetchWithCompletionHandler:^(BOOL errorOccurred) {
+         if (errorOccurred) {
+             completionHandler(UIBackgroundFetchResultFailed);
+         } else {
+             completionHandler(UIBackgroundFetchResultNewData);
+         }
+     }];
+}
+
+
+- (void)performBackgroundFetchWithCompletionHandler:(void (^)(BOOL errorOccurred))completionHandler
+{
+    __block BOOL expired = NO;
+
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCBackgroundFetch" expirationHandler:^(BGTaskHelper *task) {
+        [NCUtils log:@"ExpirationHandler called"];
+
+        /*
+        expired = YES;
+        completionHandler(YES);
+        
+        [task stopBackgroundTask];
+         */
     }];
-    
+
+    [NCUtils log:@"Start performBackgroundFetchWithCompletionHandler"];
+
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:^(NSError *error) {
-        if (error) {
-            completionHandler(UIBackgroundFetchResultFailed);
-        } else {
-            completionHandler(UIBackgroundFetchResultNewData);
+        [NCUtils log:@"CompletionHandler performBackgroundFetchWithCompletionHandler"];
+
+        if (!expired) {
+            completionHandler(error != nil);
         }
 
-        [application endBackgroundTask:updateTask];
-        updateTask = UIBackgroundTaskInvalid;
+        [bgTask stopBackgroundTask];
     }];
 }
 

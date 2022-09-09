@@ -56,6 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSString *)valueForKey:(NSString *)key fromQueryItems:(NSArray *)queryItems;
 
++ (void)log:(NSString *)message;
+
 @end
 
 NS_ASSUME_NONNULL_END
