@@ -12,14 +12,8 @@
             <string>NSStringPluralRuleType</string>
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
-            <key>one</key>
-            <string>%d balsas</string>
-            <key>few</key>
-            <string>%d balsai</string>
-            <key>many</key>
-            <string>%d balsų</string>
             <key>other</key>
-            <string>%d balsas</string>
+            <string>%s 投票</string>
         </dict>
     </dict>
     
@@ -33,14 +27,8 @@
             <string>NSStringPluralRuleType</string>
             <key>NSStringFormatValueTypeKey</key>
             <string>ld</string>
-            <key>one</key>
-            <string>%ld dalyvis</string>
-            <key>few</key>
-            <string>%ld dalyviai</string>
-            <key>many</key>
-            <string>%ld dalyvių</string>
             <key>other</key>
-            <string>%ld dalyvis</string>
+            <string>%lu 參與者</string>
         </dict>
     </dict>
     
@@ -54,14 +42,8 @@
             <string>NSStringPluralRuleType</string>
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
-            <key>one</key>
-            <string>prieš %d minutę</string>
-            <key>few</key>
-            <string>prieš %d minutes</string>
-            <key>many</key>
-            <string>prieš %d minučių</string>
             <key>other</key>
-            <string>prieš %d minutę</string>
+            <string>%d 分鐘前</string>
         </dict>
     </dict>
     
@@ -75,14 +57,8 @@
             <string>NSStringPluralRuleType</string>
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
-            <key>one</key>
-            <string>prieš %d valandą</string>
-            <key>few</key>
-            <string>prieš %d valandas</string>
-            <key>many</key>
-            <string>prieš %d valandų</string>
             <key>other</key>
-            <string>prieš %d valandą</string>
+            <string>%d 小時前</string>
         </dict>
     </dict>
     
@@ -96,14 +72,8 @@
             <string>NSStringPluralRuleType</string>
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
-            <key>one</key>
-            <string>prieš %d dieną</string>
-            <key>few</key>
-            <string>prieš %d dienas</string>
-            <key>many</key>
-            <string>prieš %d dienų</string>
             <key>other</key>
-            <string>prieš %d dieną</string>
+            <string>%d 天前</string>
         </dict>
     </dict>
 </dict>
