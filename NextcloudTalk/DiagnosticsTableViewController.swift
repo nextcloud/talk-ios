@@ -332,9 +332,8 @@ class DiagnosticsTableViewController: UITableViewController {
             cell.detailTextLabel?.text = appName
 
         case AppSections.kAppSectionVersion.rawValue:
-            let appVersion = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String)!
             cell.textLabel?.text = NSLocalizedString("Version", comment: "")
-            cell.detailTextLabel?.text = appVersion
+            cell.detailTextLabel?.text = NCUtils.getVersionString()
 
         default:
             break
