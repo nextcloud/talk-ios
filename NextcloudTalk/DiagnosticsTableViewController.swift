@@ -142,6 +142,11 @@ class DiagnosticsTableViewController: UITableViewController {
             self.navigationItem.scrollEdgeAppearance = appearance
         }
 
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "defaultCellIdentifier")
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "appOpenSettingsCellIdentifier")
+        self.tableView.register(SubtitleTableViewCell.self, forCellReuseIdentifier: "subtitleCellIdentifier")
+        self.tableView.register(SubtitleTableViewCell.self, forCellReuseIdentifier: "subtitleAccessoryCellIdentifier")
+
         runChecks()
     }
 
@@ -294,25 +299,26 @@ class DiagnosticsTableViewController: UITableViewController {
     func appCell(for indexPath: IndexPath) -> UITableViewCell {
         switch indexPath.row {
         case AppSections.kAppSectionAllowNotifications.rawValue:
-            return appNotificationsCell()
+            return appNotificationsCell(for: indexPath)
 
         case AppSections.kAppSectionAllowMicrophoneAccess.rawValue:
-            return appAVAccessCell(for: .audio)
+            return appAVAccessCell(for: .audio, for: indexPath)
 
         case AppSections.kAppSectionAllowCameraAccess.rawValue:
-            return appAVAccessCell(for: .video)
+            return appAVAccessCell(for: .video, for: indexPath)
 
         case AppSections.kAppSectionAllowContactsAccess.rawValue:
-            return appContactsAccessCell()
+            return appContactsAccessCell(for: indexPath)
 
         case AppSections.kAppSectionAllowLocationAccess.rawValue:
-            return appLocationAccessCell()
+            return appLocationAccessCell(for: indexPath)
 
         case AppSections.kAppSectionAllowPhotoLibraryAccess.rawValue:
-            return appPhotoLibraryAccessCell()
+            return appPhotoLibraryAccessCell(for: indexPath)
 
         case AppSections.kAppSectionOpenSettings.rawValue:
-            let cell = UITableViewCell(style: .default, reuseIdentifier: "appOpenSettingsCellIdentifier")
+            let cell = tableView.dequeueReusableCell(withIdentifier: "appOpenSettingsCellIdentifier", for: indexPath)
+
             cell.textLabel?.text = NSLocalizedString("Open app settings", comment: "")
             cell.textLabel?.textAlignment = .center
             cell.textLabel?.textColor = UIColor.systemBlue
@@ -323,7 +329,7 @@ class DiagnosticsTableViewController: UITableViewController {
             break
         }
 
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "appCellIdentifier")
+        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
 
         switch indexPath.row {
         case AppSections.kAppSectionName.rawValue:
@@ -343,8 +349,8 @@ class DiagnosticsTableViewController: UITableViewController {
         return cell
     }
 
-    func appAVAccessCell(for mediaType: AVMediaType) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "appAVAccessCellIdentifier")
+    func appAVAccessCell(for mediaType: AVMediaType, for indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
         let authStatusAV = AVCaptureDevice.authorizationStatus(for: mediaType)
 
         if mediaType == .audio {
@@ -359,7 +365,6 @@ class DiagnosticsTableViewController: UITableViewController {
 
         case .denied:
             cell.detailTextLabel?.text = deniedString + "\n" + deniedFunctionalityString
-            cell.detailTextLabel?.numberOfLines = 2
 
         default:
             cell.detailTextLabel?.text = notRequestedString
@@ -368,10 +373,9 @@ class DiagnosticsTableViewController: UITableViewController {
         return cell
     }
 
-    func appContactsAccessCell() -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "appContactsAccessCellIdentifier")
+    func appContactsAccessCell(for indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
         cell.textLabel?.text = NSLocalizedString("Contact access", comment: "")
-        cell.detailTextLabel?.numberOfLines = 1
 
         switch CNContactStore.authorizationStatus(for: .contacts) {
         case .authorized:
@@ -379,7 +383,6 @@ class DiagnosticsTableViewController: UITableViewController {
 
         case .denied:
             cell.detailTextLabel?.text = deniedString + "\n" + deniedFunctionalityString
-            cell.detailTextLabel?.numberOfLines = 2
 
         default:
             cell.detailTextLabel?.text = notRequestedString
@@ -388,10 +391,9 @@ class DiagnosticsTableViewController: UITableViewController {
         return cell
     }
 
-    func appLocationAccessCell() -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "appLocationAccessCellIdentifier")
+    func appLocationAccessCell(for indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
         cell.textLabel?.text = NSLocalizedString("Location access", comment: "")
-        cell.detailTextLabel?.numberOfLines = 1
 
         if CLLocationManager.locationServicesEnabled() {
             switch CLLocationManager.authorizationStatus() {
@@ -400,7 +402,6 @@ class DiagnosticsTableViewController: UITableViewController {
 
             case .denied:
                 cell.detailTextLabel?.text = deniedString + "\n" + deniedFunctionalityString
-                cell.detailTextLabel?.numberOfLines = 2
 
             default:
                 cell.detailTextLabel?.text = notRequestedString
@@ -413,10 +414,9 @@ class DiagnosticsTableViewController: UITableViewController {
         return cell
     }
 
-    func appPhotoLibraryAccessCell() -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "appPhotoLibraryAccessCellIdentifier")
+    func appPhotoLibraryAccessCell(for indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
         cell.textLabel?.text = NSLocalizedString("Photo library access", comment: "")
-        cell.detailTextLabel?.numberOfLines = 1
 
         switch PHPhotoLibrary.authorizationStatus() {
         case .authorized:
@@ -424,7 +424,6 @@ class DiagnosticsTableViewController: UITableViewController {
 
         case .denied:
             cell.detailTextLabel?.text = deniedString + "\n" + deniedFunctionalityString
-            cell.detailTextLabel?.numberOfLines = 2
 
         default:
             cell.detailTextLabel?.text = notRequestedString
@@ -433,10 +432,10 @@ class DiagnosticsTableViewController: UITableViewController {
         return cell
     }
 
-    func appNotificationsCell() -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "appNotificationsCellIdentifier")
+    func appNotificationsCell(for indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleAccessoryCellIdentifier", for: indexPath)
         cell.textLabel?.text = NSLocalizedString("Notifications", comment: "")
-        cell.detailTextLabel?.numberOfLines = 1
+        cell.accessoryType = .none
         cell.accessoryView = nil
 
         if notificationSettingsIndicator.isAnimating {
@@ -449,7 +448,6 @@ class DiagnosticsTableViewController: UITableViewController {
 
             case .denied:
                 cell.detailTextLabel?.text = deniedString + "\n" + deniedFunctionalityString
-                cell.detailTextLabel?.numberOfLines = 2
 
             default:
                 cell.detailTextLabel?.text = notRequestedString
@@ -460,7 +458,7 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func accountCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "accountCellIdentifier")
+        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
 
         switch indexPath.row {
         case AccountSections.kAccountSectionServer.rawValue:
@@ -483,7 +481,8 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func serverCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "serverCellIdentifier")
+        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleAccessoryCellIdentifier", for: indexPath)
+        cell.accessoryType = .none
         cell.accessoryView = nil
 
         switch indexPath.row {
@@ -517,8 +516,9 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func talkCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "talkCellIdentifier")
+        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleAccessoryCellIdentifier", for: indexPath)
         cell.accessoryType = .none
+        cell.accessoryView = nil
 
         switch indexPath.row {
         case TalkSections.kTalkSectionVersion.rawValue:
@@ -552,9 +552,7 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func signalingCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "signalingCellIdentifier")
-        cell.accessoryType = .none
-        cell.detailTextLabel?.numberOfLines = 1
+        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
 
         let allSectionsIndex = signalingSections[indexPath.row]
 
@@ -604,7 +602,6 @@ class DiagnosticsTableViewController: UITableViewController {
                 }
 
                 cell.detailTextLabel?.text = stunServers.joined(separator: "\n")
-                cell.detailTextLabel?.numberOfLines = stunServers.count
             }
 
         case AllSignalingSections.kSignalingSectionTurnServers.rawValue:
@@ -632,7 +629,6 @@ class DiagnosticsTableViewController: UITableViewController {
                 }
 
                 cell.detailTextLabel?.text = turnServers.joined(separator: "\n")
-                cell.detailTextLabel?.numberOfLines = turnServers.count
             }
 
         default:
