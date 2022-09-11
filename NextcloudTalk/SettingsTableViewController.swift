@@ -508,22 +508,19 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         let sections = getSettingsSections()
         let settingsSection = sections[section]
+
         if settingsSection == SettingsSection.kSettingsSectionAbout.rawValue {
             let appName = (Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)!
-            var appVersion = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String)!
 
-            if NCUtils.isBetaVersion() {
-                let appBuild = (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String)!
-                appVersion += " Build " + appBuild + " (Beta)"
-            }
-
-            return "\(appName) \(appVersion)\n\(copyright)"
+            return "\(appName) \(NCUtils.getVersionString())\n\(copyright)"
         }
+
         if let activeUserStatus = activeUserStatus {
             if settingsSection == SettingsSection.kSettingsSectionUserStatus.rawValue, activeUserStatus.status == kUserStatusDND {
                 return NSLocalizedString("All notifications are muted", comment: "")
             }
         }
+
         if settingsSection == SettingsSection.kSettingsSectionConfiguration.rawValue && contactSyncSwitch.isOn {
             if NCContactsManager.sharedInstance().isContactAccessDetermined() && !NCContactsManager.sharedInstance().isContactAccessAuthorized() {
                 return NSLocalizedString("Contact access has been denied", comment: "")
@@ -536,6 +533,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                 return NSLocalizedString("Last sync", comment: "") + ": " + dateFormatter.string(from: lastUpdate)
             }
         }
+
         if settingsSection == SettingsSection.kSettingsSectionUser.rawValue && contactSyncSwitch.isOn {
             let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
             if activeAccount.phone.isEmpty {
