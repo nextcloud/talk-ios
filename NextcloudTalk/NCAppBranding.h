@@ -39,6 +39,8 @@ extern BOOL const forceDomain;
 extern NSString * const domain;
 extern BOOL const customNavigationLogo;
 
++ (NSString *)getAppVersionString;
+
 // Theming
 + (UIColor *)brandColor;
 + (UIColor *)brandTextColor;

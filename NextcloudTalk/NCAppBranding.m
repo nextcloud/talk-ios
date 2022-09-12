@@ -43,6 +43,17 @@ NSString * const pushNotificationServer = @"https://push-notifications.nextcloud
 BOOL const multiAccountEnabled = YES;
 BOOL const forceDomain = NO;
 NSString * const domain = nil;
+NSString * const appAlternateVersion = @"";
+
++ (NSString *)getAppVersionString
+{
+    if ([appAlternateVersion length] > 0) {
+        return appAlternateVersion;
+    }
+
+    NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    return appVersion;
+}
 
 #pragma mark - Theming
 
