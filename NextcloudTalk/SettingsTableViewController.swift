@@ -512,7 +512,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         if settingsSection == SettingsSection.kSettingsSectionAbout.rawValue {
             let appName = (Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)!
 
-            return "\(appName) \(NCUtils.getVersionString())\n\(copyright)"
+            return "\(appName) \(NCAppBranding.getAppVersionString())\n\(copyright)"
         }
 
         if let activeUserStatus = activeUserStatus {

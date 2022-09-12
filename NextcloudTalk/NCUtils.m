@@ -97,27 +97,6 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return isInstalled;
 }
 
-+ (BOOL)isBetaVersion
-{
-    // See https://stackoverflow.com/a/26113597
-    NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
-    NSString *receiptURLString = [receiptURL path];
-    return ([receiptURLString rangeOfString:@"sandboxReceipt"].location != NSNotFound);
-}
-
-+ (NSString *)getVersionString
-{
-    NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-
-    if ([self isBetaVersion]) {
-        NSString *appBuild = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
-
-        return [NSString stringWithFormat:@"%@ Build %@ (Beta)", appVersion, appBuild];
-    }
-
-    return [NSString stringWithFormat:@"%@", appVersion];
-}
-
 + (void)openFileInNextcloudApp:(NSString *)path withFileLink:(NSString *)link
 {
 #ifndef APP_EXTENSION

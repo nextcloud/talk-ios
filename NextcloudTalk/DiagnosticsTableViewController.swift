@@ -333,7 +333,7 @@ class DiagnosticsTableViewController: UITableViewController {
 
         case AppSections.kAppSectionVersion.rawValue:
             cell.textLabel?.text = NSLocalizedString("Version", comment: "")
-            cell.detailTextLabel?.text = NCUtils.getVersionString()
+            cell.detailTextLabel?.text = NCAppBranding.getAppVersionString()
 
         default:
             break
