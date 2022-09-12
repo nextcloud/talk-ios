@@ -100,7 +100,7 @@ class DiagnosticsTableViewController: UITableViewController {
 
     let cellIdentifierOpenAppSettings = "cellIdentifierOpenAppSettings"
     let cellIdentifierSubtitle = "cellIdentifierSubtitle"
-    let cellIdentifierSubtitleAccessory = "cellIdentifierSubtitle"
+    let cellIdentifierSubtitleAccessory = "cellIdentifierSubtitleAccessory"
 
     init(withAccount account: TalkAccount) {
         self.account = account
