@@ -98,6 +98,10 @@ class DiagnosticsTableViewController: UITableViewController {
     let notRequestedString = NSLocalizedString("Not requested", comment: "'{Microphone, Camera, ...} access was not requested'")
     let deniedFunctionalityString = NSLocalizedString("This will impact the functionality of this app. Please review your settings.", comment: "")
 
+    let cellIdentifierOpenAppSettings = "cellIdentifierOpenAppSettings"
+    let cellIdentifierSubtitle = "cellIdentifierSubtitle"
+    let cellIdentifierSubtitleAccessory = "cellIdentifierSubtitle"
+
     init(withAccount account: TalkAccount) {
         self.account = account
 
@@ -142,10 +146,9 @@ class DiagnosticsTableViewController: UITableViewController {
             self.navigationItem.scrollEdgeAppearance = appearance
         }
 
-        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "defaultCellIdentifier")
-        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "appOpenSettingsCellIdentifier")
-        self.tableView.register(SubtitleTableViewCell.self, forCellReuseIdentifier: "subtitleCellIdentifier")
-        self.tableView.register(SubtitleTableViewCell.self, forCellReuseIdentifier: "subtitleAccessoryCellIdentifier")
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifierOpenAppSettings)
+        self.tableView.register(SubtitleTableViewCell.self, forCellReuseIdentifier: cellIdentifierSubtitle)
+        self.tableView.register(SubtitleTableViewCell.self, forCellReuseIdentifier: cellIdentifierSubtitleAccessory)
 
         runChecks()
     }
@@ -317,7 +320,7 @@ class DiagnosticsTableViewController: UITableViewController {
             return appPhotoLibraryAccessCell(for: indexPath)
 
         case AppSections.kAppSectionOpenSettings.rawValue:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "appOpenSettingsCellIdentifier", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierOpenAppSettings, for: indexPath)
 
             cell.textLabel?.text = NSLocalizedString("Open app settings", comment: "")
             cell.textLabel?.textAlignment = .center
@@ -329,7 +332,7 @@ class DiagnosticsTableViewController: UITableViewController {
             break
         }
 
-        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitle, for: indexPath)
 
         switch indexPath.row {
         case AppSections.kAppSectionName.rawValue:
@@ -350,7 +353,7 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func appAVAccessCell(for mediaType: AVMediaType, for indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitle, for: indexPath)
         let authStatusAV = AVCaptureDevice.authorizationStatus(for: mediaType)
 
         if mediaType == .audio {
@@ -374,7 +377,7 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func appContactsAccessCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitle, for: indexPath)
         cell.textLabel?.text = NSLocalizedString("Contact access", comment: "")
 
         switch CNContactStore.authorizationStatus(for: .contacts) {
@@ -392,7 +395,7 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func appLocationAccessCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitle, for: indexPath)
         cell.textLabel?.text = NSLocalizedString("Location access", comment: "")
 
         if CLLocationManager.locationServicesEnabled() {
@@ -415,7 +418,7 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func appPhotoLibraryAccessCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitle, for: indexPath)
         cell.textLabel?.text = NSLocalizedString("Photo library access", comment: "")
 
         switch PHPhotoLibrary.authorizationStatus() {
@@ -433,7 +436,7 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func appNotificationsCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleAccessoryCellIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitleAccessory, for: indexPath)
         cell.textLabel?.text = NSLocalizedString("Notifications", comment: "")
         cell.accessoryType = .none
         cell.accessoryView = nil
@@ -458,7 +461,7 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func accountCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitle, for: indexPath)
 
         switch indexPath.row {
         case AccountSections.kAccountSectionServer.rawValue:
@@ -481,7 +484,7 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func serverCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleAccessoryCellIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitleAccessory, for: indexPath)
         cell.accessoryType = .none
         cell.accessoryView = nil
 
@@ -516,7 +519,7 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func talkCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleAccessoryCellIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitleAccessory, for: indexPath)
         cell.accessoryType = .none
         cell.accessoryView = nil
 
@@ -552,7 +555,7 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     func signalingCell(for indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "subtitleCellIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitle, for: indexPath)
 
         let allSectionsIndex = signalingSections[indexPath.row]
 
