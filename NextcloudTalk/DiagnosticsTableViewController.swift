@@ -604,7 +604,9 @@ class DiagnosticsTableViewController: UITableViewController {
                     }
                 }
 
-                cell.detailTextLabel?.text = stunServers.joined(separator: "\n")
+                if !stunServers.isEmpty {
+                    cell.detailTextLabel?.text = stunServers.joined(separator: "\n")
+                }
             }
 
         case AllSignalingSections.kSignalingSectionTurnServers.rawValue:
@@ -631,7 +633,9 @@ class DiagnosticsTableViewController: UITableViewController {
                     }
                 }
 
-                cell.detailTextLabel?.text = turnServers.joined(separator: "\n")
+                if !turnServers.isEmpty {
+                    cell.detailTextLabel?.text = turnServers.joined(separator: "\n")
+                }
             }
 
         default:
