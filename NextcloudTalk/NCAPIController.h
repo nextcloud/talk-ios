@@ -49,6 +49,7 @@ typedef void (^ReadOnlyCompletionBlock)(NSError *error);
 typedef void (^SetLobbyStateCompletionBlock)(NSError *error);
 typedef void (^SetSIPStateCompletionBlock)(NSError *error);
 typedef void (^ListableCompletionBlock)(NSError *error);
+typedef void (^MessageExpirationCompletionBlock)(NSError *error);
 
 typedef void (^GetParticipantsFromRoomCompletionBlock)(NSMutableArray *participants, NSError *error);
 typedef void (^LeaveRoomCompletionBlock)(NSInteger errorCode, NSError *error);
@@ -149,6 +150,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state withTimer:(NSInteger)timer forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetLobbyStateCompletionBlock)block;
 - (NSURLSessionDataTask *)setSIPEnabled:(BOOL)enabled forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetSIPStateCompletionBlock)block;
 - (NSURLSessionDataTask *)setListableScope:(NCRoomListableScope)scope forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ListableCompletionBlock)block;
+- (NSURLSessionDataTask *)setMessageExpiration:(NCMessageExpiration)messageExpiration forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageExpirationCompletionBlock)block;
 
 // Participants Controller
 - (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block;

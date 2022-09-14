@@ -76,7 +76,8 @@ typedef enum GuestAction {
 } GuestAction;
 
 typedef enum ConversationAction {
-    kConversationActionListable = 0,
+    kConversationActionMessageExpiration = 0,
+    kConversationActionListable,
     kConversationActionListableForEveryone,
     kConversationActionReadOnly
 } ConversationAction;
@@ -116,7 +117,8 @@ typedef enum ModificationError {
     kModificationErrorDelete,
     kModificationErrorClearHistory,
     kModificationErrorListable,
-    kModificationErrorReadOnly
+    kModificationErrorReadOnly,
+    kModificationErrorMessageExpiration
 } ModificationError;
 
 typedef enum FileAction {
@@ -418,6 +420,11 @@ typedef enum FileAction {
 - (NSArray *)getConversationActions
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
+    // Message expiration action
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityMessageExpiration]) {
+        [actions addObject:[NSNumber numberWithInt:kConversationActionMessageExpiration]];
+    }
+    
     // Listable room action
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
         [actions addObject:[NSNumber numberWithInt:kConversationActionListable]];
@@ -577,6 +584,10 @@ typedef enum FileAction {
             errorDescription = NSLocalizedString(@"Could not change read-only state of the conversation", nil);
             break;
             
+        case kModificationErrorMessageExpiration:
+            errorDescription = NSLocalizedString(@"Could not set message expiration time", nil);
+            break;
+            
         default:
             break;
     }
@@ -667,6 +678,40 @@ typedef enum FileAction {
     return action;
 }
 
+- (void)presentMessageExpirationSelector
+{
+    UIAlertController *optionsActionSheet =
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Message expiration time", nil)
+                                        message:nil
+                                 preferredStyle:UIAlertControllerStyleActionSheet];
+    [optionsActionSheet addAction:[self actionForMessageExpiration:NCMessageExpirationOff]];
+    [optionsActionSheet addAction:[self actionForMessageExpiration:NCMessageExpiration4Weeks]];
+    [optionsActionSheet addAction:[self actionForMessageExpiration:NCMessageExpiration1Week]];
+    [optionsActionSheet addAction:[self actionForMessageExpiration:NCMessageExpiration1Day]];
+    [optionsActionSheet addAction:[self actionForMessageExpiration:NCMessageExpiration8Hours]];
+    [optionsActionSheet addAction:[self actionForMessageExpiration:NCMessageExpiration1Hour]];
+    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+    
+    // Presentation on iPads
+    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[self getIndexPathForNotificationAction:kNotificationActionChatNotifications]];
+    
+    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+}
+
+- (UIAlertAction *)actionForMessageExpiration:(NCMessageExpiration)messageExpiration
+{
+    UIAlertAction *action = [UIAlertAction actionWithTitle:[_room stringForMessageExpiration:messageExpiration]
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:^void (UIAlertAction *action) {
+                                                       [self setMessageExpiration:messageExpiration];
+                                                   }];
+    if (_room.messageExpiration == messageExpiration) {
+        [action setValue:[[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    }
+    return action;
+}
+
 #pragma mark - Room Manager notifications
 
 - (void)didUpdateRoom:(NSNotification *)notification
@@ -729,6 +774,23 @@ typedef enum FileAction {
             NSLog(@"Error setting room notification level: %@", error.description);
             [self.tableView reloadData];
             [self showRoomModificationError:kModificationErrorChatNotifications];
+        }
+    }];
+}
+
+- (void)setMessageExpiration:(NCMessageExpiration)messageExpiration
+{
+    if (messageExpiration == _room.messageExpiration) {
+        return;
+    }
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] setMessageExpiration:messageExpiration forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+        } else {
+            NSLog(@"Error setting message expiration time: %@", error.description);
+            [self.tableView reloadData];
+            [self showRoomModificationError:kModificationErrorMessageExpiration];
         }
     }];
 }
@@ -1614,6 +1676,7 @@ typedef enum FileAction {
     static NSString *leaveRoomCellIdentifier = @"LeaveRoomCellIdentifier";
     static NSString *deleteRoomCellIdentifier = @"DeleteRoomCellIdentifier";
     static NSString *sharedItemsCellIdentifier = @"SharedItemsCellIdentifier";
+    static NSString *messageExpirationCellIdentifier = @"MessageExpirationCellIdentifier";
     static NSString *listableCellIdentifier = @"ListableCellIdentifier";
     static NSString *listableForEveryoneCellIdentifier = @"ListableForEveryoneCellIdentifier";
     static NSString *readOnlyStateCellIdentifier = @"ReadOnlyStateCellIdentifier";
@@ -1873,6 +1936,21 @@ typedef enum FileAction {
             NSArray *actions = [self getConversationActions];
             ConversationAction action = [[actions objectAtIndex:indexPath.row] intValue];
             switch (action) {
+                case kConversationActionMessageExpiration:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:messageExpirationCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:messageExpirationCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Message expiration", nil);
+                    cell.detailTextLabel.text = _room.messageExpirationString;
+                    [cell.imageView setImage:[[UIImage imageNamed:@"auto-delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    
+                    return cell;
+                }
+                    break;
                 case kConversationActionListable:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:listableCellIdentifier];
@@ -2211,6 +2289,19 @@ typedef enum FileAction {
                     break;
                 case kGuestActionResendInvitations:
                     [self resendInvitations];
+                    break;
+                default:
+                    break;
+            }
+        }
+            break;
+        case kRoomInfoSectionConversation:
+        {
+            NSArray *actions = [self getConversationActions];
+            ConversationAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kConversationActionMessageExpiration:
+                    [self presentMessageExpirationSelector];
                     break;
                 default:
                     break;

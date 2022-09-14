@@ -266,6 +266,36 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return levelString;
 }
 
+- (NSString *)messageExpirationString
+{
+    return [self stringForMessageExpiration:self.messageExpiration];
+}
+
+- (NSString *)stringForMessageExpiration:(NSInteger)messageExpiration
+{
+    NSString *levelString = NSLocalizedString(@"Off", nil);
+    switch (messageExpiration) {
+        case NCMessageExpiration4Weeks:
+            levelString = NSLocalizedString(@"4 weeks", nil);
+            break;
+        case NCMessageExpiration1Week:
+            levelString = NSLocalizedString(@"1 week", nil);
+            break;
+        case NCMessageExpiration1Day:
+            levelString = NSLocalizedString(@"1 day", nil);
+            break;
+        case NCMessageExpiration8Hours:
+            levelString = NSLocalizedString(@"8 hours", nil);
+            break;
+        case NCMessageExpiration1Hour:
+            levelString = NSLocalizedString(@"1 hour", nil);
+            break;
+        default:
+            break;
+    }
+    return levelString;
+}
+
 - (NSString *)lastMessageString
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];

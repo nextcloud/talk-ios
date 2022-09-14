@@ -68,6 +68,15 @@ typedef enum NCPermission {
     NCPermissionChat = 128,
 } NCPermission;
 
+typedef enum NCMessageExpiration {
+    NCMessageExpirationOff = 0,
+    NCMessageExpiration1Hour = 3600,
+    NCMessageExpiration8Hours = 28800,
+    NCMessageExpiration1Day = 86400,
+    NCMessageExpiration1Week = 604800,
+    NCMessageExpiration4Weeks = 2419200,
+} NCMessageExpiration;
+
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;
 
@@ -137,6 +146,8 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 - (NSString *)deletionMessage;
 - (NSString *)notificationLevelString;
 - (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level;
+- (NSString *)messageExpirationString;
+- (NSString *)stringForMessageExpiration:(NSInteger)messageExpiration;
 - (NSString *)lastMessageString;
 - (NCChatMessage *)lastMessage;
 
