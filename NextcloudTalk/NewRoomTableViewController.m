@@ -429,7 +429,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (!_searchController.active && indexPath.section == 0) {
+    if (!(_searchController.active && _resultTableViewController.contacts.count > 0) && indexPath.section == 0) {
         switch (indexPath.row) {
             case kHeaderSectionNewGroup:
                 [self startCreatingNewGroup];
