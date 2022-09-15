@@ -3348,6 +3348,23 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if ([tableView isEqual:self.autoCompletionView]) {
         return 0;
     }
+
+    NSDate *date = [_dateSections objectAtIndex:section];
+    NSMutableArray *messages = [_messages objectForKey:date];
+
+    NSUInteger idx = [messages indexOfObjectPassingTest:^BOOL(NCChatMessage *message, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (![message isUpdateMessage]) {
+            *stop = YES;
+            return YES;
+        }
+
+        return NO;
+    }];
+
+    // No visible message found -> hide section
+    if (idx == NSNotFound) {
+        return 0.0;
+    }
     
     return kDateHeaderViewHeight;
 }
