@@ -509,6 +509,7 @@
 		2C62AFB524C1A449007E460A /* Share.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Share.storyboard; sourceTree = "<group>"; };
 		2C62AFB724C1A4E6007E460A /* ShareViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
 		2C62AFB824C1A4E6007E460A /* ShareViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
+		2C67905128D35BEB00762744 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sl; path = sl.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2C6E74442386D33200AE396C /* ReplyMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReplyMessageView.h; sourceTree = "<group>"; };
 		2C6E74452386D33200AE396C /* ReplyMessageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReplyMessageView.m; sourceTree = "<group>"; };
 		2C6E7447238C1A0800AE396C /* QuotedMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuotedMessageView.h; sourceTree = "<group>"; };
@@ -2052,6 +2053,7 @@
 				2CB2B25128BF957100A9D606 /* tr */,
 				2C57CD8228C204C600B22E03 /* es */,
 				2C57CD8528CB3FAF00B22E03 /* eu */,
+				2C67905128D35BEB00762744 /* sl */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
