@@ -2586,7 +2586,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             // Otherwise longer messages will prevent scrolling
             BOOL shouldScrollOnNewMessages = [self shouldScrollOnNewMessages] ;
             
-            BOOL newMessagesContainVisibleMessages = [self newMessagesContainVisibleMessages:messages];
+            BOOL newMessagesContainVisibleMessages = [self messagesContainVisibleMessages:messages];
             // Check if unread messages separator should be added (only if it's not already shown)
             NSIndexPath *indexPathUnreadMessageSeparator;
             if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && ![self getIndexPathOfUnreadMessageSeparator] && newMessagesContainVisibleMessages) {
@@ -3053,7 +3053,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     return NO;
 }
 
-- (BOOL)newMessagesContainVisibleMessages:(NSMutableArray *)messages
+- (BOOL)messagesContainVisibleMessages:(NSMutableArray *)messages
 {
     for (NCChatMessage *message in messages) {
         if (![message isUpdateMessage]) {
@@ -3352,17 +3352,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     NSDate *date = [_dateSections objectAtIndex:section];
     NSMutableArray *messages = [_messages objectForKey:date];
 
-    NSUInteger idx = [messages indexOfObjectPassingTest:^BOOL(NCChatMessage *message, NSUInteger idx, BOOL * _Nonnull stop) {
-        if (![message isUpdateMessage]) {
-            *stop = YES;
-            return YES;
-        }
-
-        return NO;
-    }];
-
-    // No visible message found -> hide section
-    if (idx == NSNotFound) {
+    if (![self messagesContainVisibleMessages:messages]) {
+        // No visible message found -> hide section
         return 0.0;
     }
     
