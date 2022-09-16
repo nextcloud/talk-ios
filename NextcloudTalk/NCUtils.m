@@ -179,7 +179,8 @@ static NSString *const nextcloudScheme = @"nextcloud:";
 + (NSString *)getTimeFromDate:(NSDate *)date
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    [formatter setDateFormat:@"HH:mm"];
+    [formatter setTimeStyle:NSDateFormatterShortStyle];
+    [formatter setDateStyle:NSDateFormatterNoStyle];
     return [formatter stringFromDate:date];
 }
 
