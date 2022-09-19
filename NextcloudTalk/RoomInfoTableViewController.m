@@ -1512,7 +1512,7 @@ typedef enum FileAction {
     NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:17]};
     CGRect bodyBounds = [description boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
     
-    return bodyBounds.size.height + 22;
+    return ceil(bodyBounds.size.height) + 22;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
