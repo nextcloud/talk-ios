@@ -1273,7 +1273,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [optionsActionSheet addAction:cameraAction];
     }
     [optionsActionSheet addAction:photoLibraryAction];
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityTalkPolls]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityTalkPolls] && _room.type != kNCRoomTypeOneToOne) {
         [optionsActionSheet addAction:pollAction];
     }
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
