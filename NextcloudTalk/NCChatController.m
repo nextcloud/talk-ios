@@ -167,6 +167,16 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
     }];
 }
 
+- (void)removeExpiredMessages
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    NSInteger currentTimestamp = [[NSDate date] timeIntervalSince1970];
+    [realm transactionWithBlock:^{
+        NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND expirationTimestamp > 0 AND expirationTimestamp <= %ld", _account.accountId, _room.token, currentTimestamp];
+        [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
+    }];
+}
+
 - (void)updateLastChatBlockWithNewestKnown:(NSInteger)newestKnown
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
@@ -415,6 +425,9 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:_room.token forKey:@"room"];
+    
+    // Clear expired messages
+    [self removeExpiredMessages];
     
     NSInteger lastReadMessageId = 0;
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {

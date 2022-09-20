@@ -71,6 +71,7 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     message.isReplyable = [[messageDict objectForKey:@"isReplyable"] boolValue];
     message.referenceId = [messageDict objectForKey:@"referenceId"];
     message.messageType = [messageDict objectForKey:@"messageType"];
+    message.expirationTimestamp = [[messageDict objectForKey:@"expirationTimestamp"] integerValue];
     
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
@@ -148,6 +149,7 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     managedChatMessage.isReplyable = chatMessage.isReplyable;
     managedChatMessage.messageType = chatMessage.messageType;
     managedChatMessage.reactionsJSONString = chatMessage.reactionsJSONString;
+    managedChatMessage.expirationTimestamp = chatMessage.expirationTimestamp;
     
     if (!isRoomLastMessage) {
         managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
@@ -183,6 +185,7 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     messageCopy.messageType = [_messageType copyWithZone:zone];
     messageCopy.reactionsJSONString = [_reactionsJSONString copyWithZone:zone];
     messageCopy.reactionsSelfJSONString = [_reactionsSelfJSONString copyWithZone:zone];
+    messageCopy.expirationTimestamp = _expirationTimestamp;
     messageCopy.isTemporary = _isTemporary;
     messageCopy.sendingFailed = _sendingFailed;
     messageCopy.isGroupMessage = _isGroupMessage;
