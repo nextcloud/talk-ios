@@ -59,6 +59,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.objectId = [roomDict objectForKey:@"objectId"];
     room.readOnlyState = (NCRoomReadOnlyState)[[roomDict objectForKey:@"readOnly"] integerValue];
     room.listable = (NCRoomListableScope)[[roomDict objectForKey:@"listable"] integerValue];
+    room.messageExpiration = [[roomDict objectForKey:@"messageExpiration"] integerValue];
     room.lobbyState = (NCRoomLobbyState)[[roomDict objectForKey:@"lobbyState"] integerValue];
     room.lobbyTimer = [[roomDict objectForKey:@"lobbyTimer"] integerValue];
     room.sipEnabled = [[roomDict objectForKey:@"sipEnabled"] boolValue];
@@ -157,6 +158,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     managedRoom.objectId = room.objectId;
     managedRoom.readOnlyState = room.readOnlyState;
     managedRoom.listable = room.listable;
+    managedRoom.messageExpiration = room.messageExpiration;
     managedRoom.lobbyState = room.lobbyState;
     managedRoom.lobbyTimer = room.lobbyTimer;
     managedRoom.sipEnabled = room.sipEnabled;
@@ -257,6 +259,36 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
             break;
         case kNCRoomNotificationLevelNever:
             levelString = NSLocalizedString(@"Off", nil);
+            break;
+        default:
+            break;
+    }
+    return levelString;
+}
+
+- (NSString *)messageExpirationString
+{
+    return [self stringForMessageExpiration:self.messageExpiration];
+}
+
+- (NSString *)stringForMessageExpiration:(NSInteger)messageExpiration
+{
+    NSString *levelString = NSLocalizedString(@"Off", nil);
+    switch (messageExpiration) {
+        case NCMessageExpiration4Weeks:
+            levelString = NSLocalizedString(@"4 weeks", nil);
+            break;
+        case NCMessageExpiration1Week:
+            levelString = NSLocalizedString(@"1 week", nil);
+            break;
+        case NCMessageExpiration1Day:
+            levelString = NSLocalizedString(@"1 day", nil);
+            break;
+        case NCMessageExpiration8Hours:
+            levelString = NSLocalizedString(@"8 hours", nil);
+            break;
+        case NCMessageExpiration1Hour:
+            levelString = NSLocalizedString(@"1 hour", nil);
             break;
         default:
             break;

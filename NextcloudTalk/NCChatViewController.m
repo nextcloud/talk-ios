@@ -140,6 +140,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) EmojiTextField *emojiTextField;
 @property (nonatomic, strong) NCChatMessage *reactingMessage;
 @property (nonatomic, strong) NSIndexPath *lastMessageBeforeReaction;
+@property (nonatomic, strong) NSTimer *messageExpirationTimer;
 
 @end
 
@@ -436,6 +437,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     [self checkRoomControlsAvailability];
     
+    [self startObservingExpiredMessages];
+    
     // Workaround for open conversations:
     // We can't get initial chat history until we join the conversation (since we are not a participant until then)
     // So for rooms that we don't know the last read message we wait until we join the room to get the initial chat history.
@@ -505,6 +508,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     [_lobbyCheckTimer invalidate];
+    [_messageExpirationTimer invalidate];
     [_chatController stopChatController];
     
     // If this chat view controller is for the same room as the one owned by the rooms manager
@@ -546,6 +550,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (!_offlineMode) {
         [[NCRoomsManager sharedInstance] joinRoom:_room.token];
     }
+    
+    [self startObservingExpiredMessages];
 }
 
 -(void)appWillResignActive:(NSNotification*)notification
@@ -554,6 +560,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     _startReceivingMessagesAfterJoin = YES;
     [self removeUnreadMessagesSeparator];
     [_chatController stopChatController];
+    [_messageExpirationTimer invalidate];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
@@ -1031,6 +1038,47 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self.tableView beginUpdates];
     [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
     [self.tableView endUpdates];
+}
+
+#pragma mark - Message expiration
+
+- (void)startObservingExpiredMessages
+{
+    [_messageExpirationTimer invalidate];
+    [self removeExpiredMessages];
+    _messageExpirationTimer = [NSTimer scheduledTimerWithTimeInterval:30.0 target:self selector:@selector(removeExpiredMessages) userInfo:nil repeats:YES];
+}
+
+- (void)removeExpiredMessages
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSInteger currentTimestamp = [[NSDate date] timeIntervalSince1970];
+        for (NSInteger i = 0; i < self->_dateSections.count; i++) {
+            NSDate *keyDate = [self->_dateSections objectAtIndex:i];
+            NSMutableArray *messages = [self->_messages objectForKey:keyDate];
+            NSMutableArray *deleteMessages = [NSMutableArray new];
+            for (NSInteger j = 0; j < messages.count; j++) {
+                NCChatMessage *currentMessage = messages[j];
+                NSInteger messageExpirationTime = currentMessage.expirationTimestamp;
+                if (messageExpirationTime > 0 && messageExpirationTime <= currentTimestamp) {
+                    [deleteMessages addObject:currentMessage];
+                }
+            }
+            if (deleteMessages.count > 0) {
+                [self.tableView beginUpdates];
+                [messages removeObjectsInArray:deleteMessages];
+                if (messages.count > 0) {
+                    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:i] withRowAnimation:UITableViewRowAnimationNone];
+                } else {
+                    [self->_messages removeObjectForKey:keyDate];
+                    [self sortDateSections];
+                    [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:i] withRowAnimation:UITableViewRowAnimationNone];
+                }
+                [self.tableView endUpdates];
+            }
+        }
+        [self->_chatController removeExpiredMessages];
+    });
 }
 
 #pragma mark - Message updates

@@ -32,13 +32,25 @@
 "%ld participants" = "%ld participants";
 
 /* No comment provided by engineer. */
+"1 day" = "1 day";
+
+/* No comment provided by engineer. */
 "1 hour" = "1 hour";
+
+/* No comment provided by engineer. */
+"1 week" = "1 week";
 
 /* No comment provided by engineer. */
 "30 minutes" = "30 minutes";
 
 /* No comment provided by engineer. */
 "4 hours" = "4 hours";
+
+/* No comment provided by engineer. */
+"4 weeks" = "4 weeks";
+
+/* No comment provided by engineer. */
+"8 hours" = "8 hours";
 
 /* No comment provided by engineer. */
 "@-mentions only" = "@-mentions only";
@@ -402,6 +414,9 @@
 
 /* No comment provided by engineer. */
 "Could not set conversation name" = "Could not set conversation name";
+
+/* No comment provided by engineer. */
+"Could not set message expiration time" = "Could not set message expiration time";
 
 /* No comment provided by engineer. */
 "Could not set phone number" = "Could not set phone number";
@@ -795,6 +810,12 @@
 
 /* No comment provided by engineer. */
 "Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services" = "Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services";
+
+/* No comment provided by engineer. */
+"Message expiration" = "Message expiration";
+
+/* No comment provided by engineer. */
+"Message expiration time" = "Message expiration time";
 
 /* No comment provided by engineer. */
 "Messages" = "Messages";

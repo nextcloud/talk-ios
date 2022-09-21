@@ -57,6 +57,7 @@ extern NSString * const NCChatControllerDidReceiveCallEndedMessageNotification;
 - (void)stopReceivingNewChatMessages;
 - (void)stopChatController;
 - (void)clearHistoryAndResetChatController;
+- (void)removeExpiredMessages;
 - (BOOL)hasHistoryFromMessageId:(NSInteger)messageId;
 - (void)storeMessages:(NSArray *)messages withRealm:(RLMRealm *)realm;
 
