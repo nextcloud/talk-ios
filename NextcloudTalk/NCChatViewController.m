@@ -609,7 +609,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     [self updateViewToShowOrHideEmojiKeyboard:0.0];
-    if (_lastMessageBeforeReaction) {
+    if (_lastMessageBeforeReaction && [NCUtils isValidIndexPath:_lastMessageBeforeReaction forTableView:self.tableView]) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.tableView scrollToRowAtIndexPath:self->_lastMessageBeforeReaction atScrollPosition:UITableViewScrollPositionBottom animated:YES];
         });
