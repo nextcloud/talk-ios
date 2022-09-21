@@ -550,6 +550,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (!_offlineMode) {
         [[NCRoomsManager sharedInstance] joinRoom:_room.token];
     }
+    
+    [self startObservingExpiredMessages];
 }
 
 -(void)appWillResignActive:(NSNotification*)notification
@@ -558,6 +560,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     _startReceivingMessagesAfterJoin = YES;
     [self removeUnreadMessagesSeparator];
     [_chatController stopChatController];
+    [_messageExpirationTimer invalidate];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
@@ -1041,6 +1044,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)startObservingExpiredMessages
 {
+    [_messageExpirationTimer invalidate];
+    [self removeExpiredMessages];
     _messageExpirationTimer = [NSTimer scheduledTimerWithTimeInterval:30.0 target:self selector:@selector(removeExpiredMessages) userInfo:nil repeats:YES];
 }
 
