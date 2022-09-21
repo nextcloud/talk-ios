@@ -1427,6 +1427,7 @@ typedef enum FileAction {
 - (void)sipValueChanged:(id)sender
 {
     _sipSwitch.enabled = NO;
+    _sipNoPINSwitch.enabled = NO;
     if (_sipSwitch.on) {
         [self setSIPState:NCRoomSIPStateEnabled];
     } else {
@@ -1436,6 +1437,7 @@ typedef enum FileAction {
 
 - (void)sipNoPINValueChanged:(id)sender
 {
+    _sipSwitch.enabled = NO;
     _sipNoPINSwitch.enabled = NO;
     if (_sipNoPINSwitch.on) {
         [self setSIPState:NCRoomSIPStateEnabledWithoutPIN];
