@@ -56,6 +56,12 @@ typedef enum NCRoomLobbyState {
     NCRoomLobbyStateModeratorsOnly
 } NCRoomLobbyState;
 
+typedef enum NCRoomSIPState {
+    NCRoomSIPStateDisabled = 0,
+    NCRoomSIPStateEnabled,
+    NCRoomSIPStateEnabledWithoutPIN
+} NCRoomSIPState;
+
 typedef enum NCPermission {
     NCPermissionDefaultPermissions = 0,
     NCPermissionCustomPermissions = 1,
@@ -114,7 +120,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, assign) NSInteger messageExpiration;
 @property (nonatomic, assign) NCRoomLobbyState lobbyState;
 @property (nonatomic, assign) NSInteger lobbyTimer;
-@property (nonatomic, assign) BOOL sipEnabled;
+@property (nonatomic, assign) NCRoomSIPState sipState;
 @property (nonatomic, assign) BOOL canEnableSIP;
 @property (nonatomic, assign) NSInteger lastReadMessage;
 @property (nonatomic, assign) NSInteger lastCommonReadMessage;

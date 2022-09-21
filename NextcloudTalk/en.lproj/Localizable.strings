@@ -118,6 +118,9 @@
 /* No comment provided by engineer. */
 "Allow guests" = "Allow guests";
 
+/* No comment provided by engineer. */
+"Allow to dial-in without a pin" = "Allow to dial-in without a pin";
+
 /* '{Microphone, Camera, ...} access is allowed' */
 "Allowed" = "Allowed";
 
