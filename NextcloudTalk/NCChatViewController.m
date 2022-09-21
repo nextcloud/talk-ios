@@ -1065,18 +1065,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 }
             }
             if (deleteMessages.count > 0) {
+                [self.tableView beginUpdates];
                 [messages removeObjectsInArray:deleteMessages];
                 if (messages.count > 0) {
-                    [self.tableView beginUpdates];
                     [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:i] withRowAnimation:UITableViewRowAnimationNone];
-                    [self.tableView endUpdates];
                 } else {
                     [self->_messages removeObjectForKey:keyDate];
                     [self sortDateSections];
-                    [self.tableView beginUpdates];
                     [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:i] withRowAnimation:UITableViewRowAnimationNone];
-                    [self.tableView endUpdates];
                 }
+                [self.tableView endUpdates];
             }
         }
         [self->_chatController removeExpiredMessages];
