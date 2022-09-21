@@ -31,7 +31,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 37;
+uint64_t const kTalkDatabaseSchemaVersion           = 38;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -53,6 +53,7 @@ NSString * const kCapabilityTempUserAvatarAPI       = @"temp-user-avatar-api";
 NSString * const kCapabilityLocationSharing         = @"geo-location-sharing";
 NSString * const kCapabilityConversationV4          = @"conversation-v4";
 NSString * const kCapabilitySIPSupport              = @"sip-support";
+NSString * const kCapabilitySIPSupportNoPIN         = @"sip-support-nopin";
 NSString * const kCapabilityVoiceMessage            = @"voice-message-sharing";
 NSString * const kCapabilitySignalingV3             = @"signaling-v3";
 NSString * const kCapabilityClearHistory            = @"clear-history";

@@ -85,7 +85,8 @@ typedef enum ConversationAction {
 typedef enum WebinarAction {
     kWebinarActionLobby = 0,
     kWebinarActionLobbyTimer,
-    kWebinarActionSIP
+    kWebinarActionSIP,
+    kWebinarActionSIPNoPIN
 } WebinarAction;
 
 typedef enum SIPAction {
@@ -141,6 +142,7 @@ typedef enum FileAction {
 @property (nonatomic, strong) UISwitch *readOnlySwitch;
 @property (nonatomic, strong) UISwitch *lobbySwitch;
 @property (nonatomic, strong) UISwitch *sipSwitch;
+@property (nonatomic, strong) UISwitch *sipNoPINSwitch;
 @property (nonatomic, strong) UISwitch *callNotificationSwitch;
 @property (nonatomic, strong) UIDatePicker *lobbyDatePicker;
 @property (nonatomic, strong) UITextField *lobbyDateTextField;
@@ -210,6 +212,9 @@ typedef enum FileAction {
     
     _sipSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_sipSwitch addTarget: self action: @selector(sipValueChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    _sipNoPINSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_sipNoPINSwitch addTarget: self action: @selector(sipNoPINValueChanged:) forControlEvents:UIControlEventValueChanged];
     
     _callNotificationSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_callNotificationSwitch addTarget: self action: @selector(callNotificationValueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -330,7 +335,7 @@ typedef enum FileAction {
         }
     }
     // SIP section
-    if (_room.sipEnabled) {
+    if (_room.sipState > NCRoomSIPStateDisabled) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionSIP]];
     }
     // Participants section
@@ -454,6 +459,9 @@ typedef enum FileAction {
     // SIP toggle
     if (_room.canEnableSIP) {
         [actions addObject:[NSNumber numberWithInt:kWebinarActionSIP]];
+        if (_room.sipState > NCRoomSIPStateDisabled && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySIPSupportNoPIN]) {
+            [actions addObject:[NSNumber numberWithInt:kWebinarActionSIPNoPIN]];
+        }
     }
     return [NSArray arrayWithArray:actions];
 }
@@ -1184,10 +1192,10 @@ typedef enum FileAction {
     }
 }
 
-- (void)setSIPEnabled:(BOOL)enabled
+- (void)setSIPState:(NCRoomSIPState)state
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] setSIPEnabled:enabled forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] setSIPState:state forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
         } else {
@@ -1196,6 +1204,7 @@ typedef enum FileAction {
             [self showRoomModificationError:kModificationErrorSIP];
         }
         self->_sipSwitch.enabled = YES;
+        self->_sipNoPINSwitch.enabled = YES;
     }];
 }
 
@@ -1418,10 +1427,22 @@ typedef enum FileAction {
 - (void)sipValueChanged:(id)sender
 {
     _sipSwitch.enabled = NO;
+    _sipNoPINSwitch.enabled = NO;
     if (_sipSwitch.on) {
-        [self setSIPEnabled:YES];
+        [self setSIPState:NCRoomSIPStateEnabled];
     } else {
-        [self setSIPEnabled:NO];
+        [self setSIPState:NCRoomSIPStateDisabled];
+    }
+}
+
+- (void)sipNoPINValueChanged:(id)sender
+{
+    _sipSwitch.enabled = NO;
+    _sipNoPINSwitch.enabled = NO;
+    if (_sipNoPINSwitch.on) {
+        [self setSIPState:NCRoomSIPStateEnabledWithoutPIN];
+    } else {
+        [self setSIPState:NCRoomSIPStateEnabled];
     }
 }
 
@@ -1670,6 +1691,7 @@ typedef enum FileAction {
     static NSString *lobbyCellIdentifier = @"LobbyCellIdentifier";
     static NSString *lobbyTimerCellIdentifier = @"LobbyTimerCellIdentifier";
     static NSString *sipCellIdentifier = @"SIPCellIdentifier";
+    static NSString *sipNoPINCellIdentifier = @"SIPNoPINCellIdentifier";
     static NSString *sipMeetingIDCellIdentifier = @"SIPMeetingIDCellIdentifier";
     static NSString *sipUserPINCellIdentifier = @"SIPUserPINCellIdentifier";
     static NSString *clearHistoryCellIdentifier = @"ClearHistoryCellIdentifier";
@@ -2058,8 +2080,28 @@ typedef enum FileAction {
                     cell.textLabel.text = NSLocalizedString(@"SIP dial-in", nil);
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _sipSwitch;
-                    _sipSwitch.on = _room.sipEnabled;
+                    _sipSwitch.on = _room.sipState > NCRoomSIPStateDisabled;
                     [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    
+                    return cell;
+                }
+                    break;
+                case kWebinarActionSIPNoPIN:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sipNoPINCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sipNoPINCellIdentifier];
+                    }
+                    
+                    cell.textLabel.text = NSLocalizedString(@"Allow to dial-in without a pin", nil);
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _sipNoPINSwitch;
+                    _sipNoPINSwitch.on = _room.sipState > NCRoomSIPStateEnabled;
+                    
+                    // Still assign an image, but hide it to keep the margin the same as the other cells
+                    [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setHidden:YES];
                     cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
                     return cell;
