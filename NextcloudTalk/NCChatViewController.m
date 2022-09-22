@@ -1467,10 +1467,26 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.textView resignFirstResponder];
     });
+
     // Present emoji keyboard
     dispatch_async(dispatch_get_main_queue(), ^{
         self.reactingMessage = message;
         self.lastMessageBeforeReaction = [[self.tableView indexPathsForVisibleRows] lastObject];
+
+        if ([NCUtils isiOSAppOnMac]) {
+            // Move the emojiTextField to the position of the cell
+            CGRect rowRect = [self.tableView rectForRowAtIndexPath:indexPath];
+            CGRect convertedRowRect = [self.tableView convertRect:rowRect toView:self.view];
+
+            // We don't want to have a clickable textField floating around
+            convertedRowRect.size.width = 0;
+
+            // Remove and add the emojiTextField to the view, so the Mac OS emoji picker is always at the right location
+            [self.emojiTextField removeFromSuperview];
+            [self.emojiTextField setFrame:convertedRowRect];
+            [self.view addSubview:self.emojiTextField];
+        }
+
         [self.emojiTextField becomeFirstResponder];
     });
 }
