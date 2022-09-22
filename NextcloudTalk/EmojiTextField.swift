@@ -19,7 +19,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+import Dynamic
+
 @objc class EmojiTextField: UITextField {
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        tintColor = .clear
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+
+        tintColor = .clear
+    }
 
     // required for iOS 13
     override var textInputContextIdentifier: String? { "" } // return non-nil to show the Emoji keyboard ¯\_(ツ)_/¯
@@ -29,5 +43,22 @@
             return mode
         }
         return nil
+    }
+
+    @discardableResult override func becomeFirstResponder() -> Bool {
+        let result = super.becomeFirstResponder()
+
+        if result && NCUtils.isiOSAppOnMac() {
+            // Open the emoji picker when running on Mac OS
+
+            let app = Dynamic.NSApplication.sharedApplication()
+            app.orderFrontCharacterPalette(nil)
+        }
+
+        return result
+    }
+
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        return false
     }
 }
