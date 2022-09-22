@@ -26,17 +26,16 @@ class DebounceWebView: WKWebView {
 
     // See: https://developer.apple.com/forums/thread/696525?answerId=708067022#708067022
     override func paste(_ sender: Any?) {
-        if #available(iOS 14.0, *) {
-            if ProcessInfo.processInfo.isiOSAppOnMac {
-                let currentPasteTimestamp: TimeInterval = Date().timeIntervalSinceReferenceDate
+        if NCUtils.isiOSAppOnMac() {
+            let currentPasteTimestamp: TimeInterval = Date().timeIntervalSinceReferenceDate
 
-                if currentPasteTimestamp - previousPasteTimestamp < 0.2 {
-                    return
-                }
-
-                previousPasteTimestamp = currentPasteTimestamp
+            if currentPasteTimestamp - previousPasteTimestamp < 0.2 {
+                return
             }
+
+            previousPasteTimestamp = currentPasteTimestamp
         }
+        
         super.paste(sender)
     }
 }

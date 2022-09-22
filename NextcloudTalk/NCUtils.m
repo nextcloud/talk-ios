@@ -404,4 +404,13 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     }
 }
 
++ (BOOL)isiOSAppOnMac
+{
+    if (@available(iOS 14.0, *)) {
+        return [NSProcessInfo processInfo].isiOSAppOnMac;
+    }
+
+    return false;
+}
+
 @end
