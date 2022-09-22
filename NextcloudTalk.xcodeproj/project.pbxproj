@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */; };
+		1F468E7628DCC6C60099597B /* Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 1F468E7528DCC6C60099597B /* Dynamic */; };
+		1F468E7828DCC7310099597B /* EmojiTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F468E7728DCC7310099597B /* EmojiTextField.swift */; };
 		1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
@@ -344,6 +346,7 @@
 /* Begin PBXFileReference section */
 		1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarButtonItemWithActivity.m; sourceTree = "<group>"; };
 		1F3D3B21255F109E00230DAE /* BarButtonItemWithActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BarButtonItemWithActivity.h; sourceTree = "<group>"; };
+		1F468E7728DCC7310099597B /* EmojiTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiTextField.swift; sourceTree = "<group>"; };
 		1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiUtils.swift; sourceTree = "<group>"; };
 		1F5CDF622584E78900B0026E /* NCChatFileStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatFileStatus.h; sourceTree = "<group>"; };
 		1F5CDF632584E78900B0026E /* NCChatFileStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatFileStatus.m; sourceTree = "<group>"; };
@@ -747,6 +750,7 @@
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
 				2CC5F0982716FF1900DE1775 /* NCCommunication in Frameworks */,
+				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
 				2C38D4AC27BBAFCC00BAE015 /* WebRTC.xcframework in Frameworks */,
 				9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */,
 			);
@@ -876,6 +880,7 @@
 				2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */,
 				1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */,
 				1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */,
+				1F468E7728DCC7310099597B /* EmojiTextField.swift */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -1396,6 +1401,7 @@
 			packageProductDependencies = (
 				2CC5F0972716FF1900DE1775 /* NCCommunication */,
 				2CCCD21C2835088F00F076CE /* OpenSSL */,
+				1F468E7528DCC6C60099597B /* Dynamic */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1519,6 +1525,7 @@
 			packageReferences = (
 				2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */,
 				2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */,
+				1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -1888,6 +1895,7 @@
 				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
 				2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
+				1F468E7828DCC7310099597B /* EmojiTextField.swift in Sources */,
 				2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
@@ -2670,6 +2678,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mhdhejazi/Dynamic.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nextcloud/ios-communication-library";
@@ -2689,6 +2705,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1F468E7528DCC6C60099597B /* Dynamic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */;
+			productName = Dynamic;
+		};
 		2CC5F0972716FF1900DE1775 /* NCCommunication */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */;
