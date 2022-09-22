@@ -1068,11 +1068,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 [self.tableView beginUpdates];
                 [messages removeObjectsInArray:deleteMessages];
                 if (messages.count > 0) {
-                    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:i] withRowAnimation:UITableViewRowAnimationNone];
+                    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:i] withRowAnimation:UITableViewRowAnimationTop];
                 } else {
                     [self->_messages removeObjectForKey:keyDate];
                     [self sortDateSections];
-                    [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:i] withRowAnimation:UITableViewRowAnimationNone];
+                    [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:i] withRowAnimation:UITableViewRowAnimationTop];
                 }
                 [self.tableView endUpdates];
             }
