@@ -57,8 +57,4 @@ import Dynamic
 
         return result
     }
-
-    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-        return false
-    }
 }
