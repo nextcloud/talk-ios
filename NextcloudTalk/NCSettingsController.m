@@ -44,6 +44,8 @@
 #import "NCChatFileController.h"
 #import "NotificationCenterNotifications.h"
 
+#import "NextcloudTalk-Swift.h"
+
 
 @interface NCPushNotificationKeyPair : NSObject
 
@@ -215,8 +217,11 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
                     // SetSignalingConfiguration should be called just once
                     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
                     [[NCSettingsController sharedInstance] setSignalingConfigurationForAccountId:account.accountId];
-                    
+                    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateConfigHashTransaction" expirationHandler:nil];
+                    [NCUtils log:@"Start update config hash transaction"];
                     [[NCDatabaseManager sharedInstance] updateTalkConfigurationHashForAccountId:account.accountId withHash:configurationHash];
+                    [bgTask stopBackgroundTask];
+                    [NCUtils log:@"End update config hash transaction"];
                 }
             }];
         }
@@ -468,8 +473,12 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         if (!error && [serverCapabilities isKindOfClass:[NSDictionary class]]) {
+            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateCapabilitiesTransaction" expirationHandler:nil];
+            [NCUtils log:@"Start update capabilities transaction"];
             [[NCDatabaseManager sharedInstance] setServerCapabilities:serverCapabilities forAccountId:activeAccount.accountId];
             [self checkServerCapabilities];
+            [bgTask stopBackgroundTask];
+            [NCUtils log:@"End update capabilities transaction"];
             [[NSNotificationCenter defaultCenter] postNotificationName:NCServerCapabilitiesUpdatedNotification
                                                                 object:self
                                                               userInfo:nil];
