@@ -1478,8 +1478,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             CGRect rowRect = [self.tableView rectForRowAtIndexPath:indexPath];
             CGRect convertedRowRect = [self.tableView convertRect:rowRect toView:self.view];
 
+            // Show the emoji picker at the textView location of the cell
+            convertedRowRect.origin.y += convertedRowRect.size.height - 16;
+            convertedRowRect.origin.x += 54;
+
             // We don't want to have a clickable textField floating around
             convertedRowRect.size.width = 0;
+            convertedRowRect.size.height = 0;
 
             // Remove and add the emojiTextField to the view, so the Mac OS emoji picker is always at the right location
             [self.emojiTextField removeFromSuperview];
