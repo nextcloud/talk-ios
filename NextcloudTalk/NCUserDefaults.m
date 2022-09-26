@@ -27,6 +27,9 @@
 
 @implementation NCUserDefaults
 
+NSString * const kNCUserDefaultBrowser          = @"ncUserDefaultBrowser";
+NSString * const kNCPreferredCameraFlashMode    = @"ncPreferredCameraFlashMode";
+
 + (void)setDefaultBrowser:(NSString *)defaultBrowser
 {
     [[NSUserDefaults standardUserDefaults] setObject:defaultBrowser forKey:kNCUserDefaultBrowser];
@@ -45,6 +48,16 @@
         [[NSUserDefaults standardUserDefaults] setObject:browser forKey:kNCUserDefaultBrowser];
     }
     return browser;
+}
+
++ (void)setPreferredCameraFlashMode:(NSInteger)flashMode
+{
+    [[NSUserDefaults standardUserDefaults] setObject:@(flashMode) forKey:kNCPreferredCameraFlashMode];
+}
+
++ (NSInteger)preferredCameraFlashMode
+{
+    return [[[NSUserDefaults standardUserDefaults] objectForKey:kNCPreferredCameraFlashMode] integerValue];
 }
 
 @end

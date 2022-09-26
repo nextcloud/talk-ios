@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)setDefaultBrowser:(NSString *)defaultBrowser;
 + (NSString *)defaultBrowser;
++ (void)setPreferredCameraFlashMode:(NSInteger)flashMode;
++ (NSInteger)preferredCameraFlashMode;
 
 @end
 
