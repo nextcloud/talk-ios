@@ -39,7 +39,6 @@ extern NSString * const kNCPNPrivateKey;
 extern NSString * const kNCDeviceIdentifier;
 extern NSString * const kNCDeviceSignature;
 extern NSString * const kNCUserPublicKey;
-extern NSString * const kNCUserDefaultBrowser;
 
 @interface NCKeyChainController : NSObject
 
