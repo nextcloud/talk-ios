@@ -22,6 +22,7 @@
 
 #import "NCChatMessage.h"
 
+#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NextcloudTalk-Swift.h"
 
@@ -48,6 +49,10 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     NCDeckCardParameter *_deckCardParameter;
     NSString *_objectShareLink;
     NSMutableArray *_temporaryReactions;
+    BOOL _urlDetectionDone;
+    NSString *_urlDetected;
+    BOOL _referenceDataDone;
+    NSDictionary *_referenceData;
 }
 
 @end
@@ -627,6 +632,44 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     NSArray *descriptors = [NSArray arrayWithObject:valueDescriptor];
     [reactionsArray sortUsingDescriptors:descriptors];
     return reactionsArray;
+}
+
+- (BOOL)containsURL
+{
+    if (_urlDetectionDone) {
+        return ([_urlDetected length] != 0);
+    }
+
+    NSDataDetector *dataDetector = [[NSDataDetector alloc] initWithTypes:NSTextCheckingTypeLink error:nil];
+    NSArray *urlMatches = [dataDetector matchesInString:self.message options:0 range:NSMakeRange(0, [self.message length])];
+
+    _urlDetectionDone = YES;
+
+    if (urlMatches.count > 0) {
+        _urlDetected = [[[urlMatches objectAtIndex:0] URL] absoluteString];
+    }
+
+    return (urlMatches.count > 0);
+}
+
+- (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock)block
+{
+    if (_referenceDataDone) {
+        if (block) {
+            block(_referenceData, _urlDetected);
+        }
+    } else {
+        TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_accountId];
+
+        [[NCAPIController sharedInstance] getReferencesForText:_message forAccount:account withLimit:1 withCompletionBlock:^(NSDictionary *references, NSError *error) {
+            if (block) {
+                block(references, self->_urlDetected);
+            }
+
+            self->_referenceData = references;
+            self->_referenceDataDone = YES;
+        }];
+    }
 }
 
 @end

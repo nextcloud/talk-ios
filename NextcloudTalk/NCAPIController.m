@@ -2418,6 +2418,38 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+#pragma mark - Reference handling
+
+- (NSURLSessionDataTask *)getReferencesForText:(NSString *)text forAccount:(TalkAccount *)account withLimit:(NSInteger)limit withCompletionBlock:(GetReferencesForTextCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/references/extract", account.server];
+    NSDictionary *parameters = @{@"text" : text,
+                                 @"resolve": @(true),
+                                 @"limit" : @(limit)};
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *responseReferences = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"references"];
+        if (block) {
+            block(responseReferences, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error);
+        }
+    }];
+
+    return task;
+}
+
+- (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url usingAccount:(TalkAccount *)account
+{
+    NSString *urlString = [NSString stringWithFormat:url, account.server];
+    NSMutableURLRequest *thumbnailRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
+    [thumbnailRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
+    return thumbnailRequest;
+}
+
 #pragma mark - Error handling
 
 - (NSInteger)getResponseStatusCode:(NSURLResponse *)response

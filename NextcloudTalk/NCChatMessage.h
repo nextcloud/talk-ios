@@ -47,6 +47,8 @@ extern NSString * const kSharedItemTypeMedia;
 extern NSString * const kSharedItemTypeOther;
 extern NSString * const kSharedItemTypeVoice;
 
+typedef void (^GetReferenceDataCompletionBlock)(NSDictionary *referenceData, NSString *url);
+
 @interface NCChatMessage : RLMObject <NSCopying>
 
 @property (nonatomic, strong) NSString *internalId; // accountId@token@messageId
@@ -99,5 +101,7 @@ extern NSString * const kSharedItemTypeVoice;
 - (void)addTemporaryReaction:(NSString *)reaction;
 - (void)removeReactionTemporarily:(NSString *)reaction;
 - (void)removeReactionFromTemporayReactions:(NSString *)reaction;
+- (BOOL)containsURL;
+- (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock)block;
 
 @end

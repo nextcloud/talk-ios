@@ -24,6 +24,8 @@
 
 #import "MaterialActivityIndicator.h"
 #import "SLKUIConstants.h"
+#import "AFImageDownloader.h"
+#import "UIImageView+AFNetworking.h"
 
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
@@ -48,10 +50,12 @@
     _statusView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.contentView addSubview:_statusView];
     [self.contentView addSubview:self.reactionsView];
+    [self.contentView addSubview:self.referenceView];
     
     NSDictionary *views = @{@"bodyTextView": self.bodyTextView,
                             @"statusView": self.statusView,
-                            @"reactionsView": self.reactionsView
+                            @"reactionsView": self.reactionsView,
+                            @"referenceView": self.referenceView
                             };
     
     NSDictionary *metrics = @{@"avatar": @50,
@@ -64,7 +68,8 @@
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatar-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-    _vConstraint = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[referenceView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+    _vConstraint = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyTextView(>=0@999)]-0-[referenceView(0)]-0-[reactionsView(0)]-(>=left)-|" options:0 metrics:metrics views:views];
     [self.contentView addConstraints:_vConstraint];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
 }
@@ -76,11 +81,15 @@
     CGFloat pointSize = [GroupedChatMessageTableViewCell defaultFontSize];
     
     self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
-    
     self.bodyTextView.text = @"";
     
     self.reactionsView.reactions = @[];
+
+    _vConstraint[2].constant = 0;
     _vConstraint[3].constant = 0;
+    _vConstraint[5].constant = 0;
+
+    [_referenceView prepareForReuse];
     
     self.statusView.hidden = NO;
     [self.statusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
@@ -117,7 +126,16 @@
     }
     [self.reactionsView updateReactionsWithReactions:message.reactionsArray];
     if (message.reactionsArray.count > 0) {
-        _vConstraint[3].constant = 40;
+        _vConstraint[5].constant = 40;
+    }
+
+    if (message.containsURL) {
+        _vConstraint[2].constant = 5;
+        _vConstraint[3].constant = 100;
+
+        [message getReferenceDataWithCompletionBlock:^(NSDictionary *referenceData, NSString *url) {
+            [self.referenceView updateFor:referenceData and:url];
+        }];
     }
 }
 
@@ -178,6 +196,15 @@
         _reactionsView.reactionsDelegate = self;
     }
     return _reactionsView;
+}
+
+- (ReferenceView *)referenceView
+{
+    if (!_referenceView) {
+        _referenceView = [[ReferenceView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+        _referenceView.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    return _referenceView;
 }
 
 + (CGFloat)defaultFontSize
