@@ -87,17 +87,15 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
-    
-    if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding themeColor];
-        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-        [appearance configureWithOpaqueBackground];
-        appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-        self.navigationItem.standardAppearance = appearance;
-        self.navigationItem.compactAppearance = appearance;
-        self.navigationItem.scrollEdgeAppearance = appearance;
-    }
+
+    UIColor *themeColor = [NCAppBranding themeColor];
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = themeColor;
+    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+    self.navigationItem.standardAppearance = appearance;
+    self.navigationItem.compactAppearance = appearance;
+    self.navigationItem.scrollEdgeAppearance = appearance;
     
     _passwordTextField = [[UITextField alloc] initWithFrame:CGRectMake(180, 10, 115, 30)];
     _passwordTextField.textAlignment = NSTextAlignmentRight;

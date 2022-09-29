@@ -65,11 +65,7 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
     self.userStatusMessageLabel.hidden = YES;
     
     self.labelTitle.text = @"";
-    self.labelTitle.textColor = [UIColor darkTextColor];
-    
-    if (@available(iOS 13.0, *)) {
-        self.labelTitle.textColor = [UIColor labelColor];
-    }
+    self.labelTitle.textColor = [UIColor labelColor];
     
     self.labelTitle.font = [UIFont systemFontOfSize:kContactsTableCellTitleFontSize weight:UIFontWeightRegular];
 }

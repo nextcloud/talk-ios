@@ -447,14 +447,9 @@ NSString * const kSharedItemTypeVoice       = @"voice";
 - (NSMutableAttributedString *)systemMessageFormat
 {
     NSMutableAttributedString *message = [self parsedMessage];
-    
-    if (@available(iOS 13.0, *)) {
-        //TODO: Further adjust for dark-mode ?
-        [message addAttribute:NSForegroundColorAttributeName value:[UIColor tertiaryLabelColor] range:NSMakeRange(0,message.length)];
-    } else {
-        [message addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithWhite:0 alpha:0.3] range:NSMakeRange(0,message.length)];
-    }
-    
+
+    //TODO: Further adjust for dark-mode ?
+    [message addAttribute:NSForegroundColorAttributeName value:[UIColor tertiaryLabelColor] range:NSMakeRange(0,message.length)];
     
     return message;
 }

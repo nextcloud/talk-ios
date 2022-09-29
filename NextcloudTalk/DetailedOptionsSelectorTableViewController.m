@@ -54,17 +54,15 @@
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
     self.navigationController.navigationBar.translucent = NO;
-    
-    if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding themeColor];
-        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-        [appearance configureWithOpaqueBackground];
-        appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-        self.navigationItem.standardAppearance = appearance;
-        self.navigationItem.compactAppearance = appearance;
-        self.navigationItem.scrollEdgeAppearance = appearance;
-    }
+
+    UIColor *themeColor = [NCAppBranding themeColor];
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = themeColor;
+    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+    self.navigationItem.standardAppearance = appearance;
+    self.navigationItem.compactAppearance = appearance;
+    self.navigationItem.scrollEdgeAppearance = appearance;
     
     self.navigationController.title = self.title;
     

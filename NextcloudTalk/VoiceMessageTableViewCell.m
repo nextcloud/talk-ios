@@ -306,16 +306,9 @@
     NSString *durationTime = [dateComponentsFormatter stringFromTimeInterval:duration];
     
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:12],
-                                 NSForegroundColorAttributeName:[UIColor lightGrayColor]};
+                                 NSForegroundColorAttributeName:[UIColor secondaryLabelColor]};
     NSDictionary *subAttribute = @{NSFontAttributeName:[UIFont systemFontOfSize:12 weight:UIFontWeightMedium],
-                                   NSForegroundColorAttributeName:[UIColor darkGrayColor]};
-    
-    if (@available(iOS 13.0, *)) {
-        attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:12],
-                       NSForegroundColorAttributeName:[UIColor secondaryLabelColor]};
-        subAttribute = @{NSFontAttributeName:[UIFont systemFontOfSize:12 weight:UIFontWeightMedium],
-                         NSForegroundColorAttributeName:[UIColor labelColor]};
-    }
+                                   NSForegroundColorAttributeName:[UIColor labelColor]};
     
     NSString *playerTime = [NSString stringWithFormat:@"%@ / %@", progressTime, durationTime];
     NSMutableAttributedString *playerTimeString = [[NSMutableAttributedString alloc] initWithString:playerTime attributes:attributes];
@@ -411,12 +404,8 @@
         _titleLabel.backgroundColor = [UIColor clearColor];
         _titleLabel.userInteractionEnabled = NO;
         _titleLabel.numberOfLines = 1;
-        _titleLabel.textColor = [UIColor lightGrayColor];
         _titleLabel.font = [UIFont systemFontOfSize:[VoiceMessageTableViewCell defaultFontSize]];
-        
-        if (@available(iOS 13.0, *)) {
-            _titleLabel.textColor = [UIColor secondaryLabelColor];
-        }
+        _titleLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _titleLabel;
 }
@@ -430,12 +419,8 @@
         _dateLabel.backgroundColor = [UIColor clearColor];
         _dateLabel.userInteractionEnabled = NO;
         _dateLabel.numberOfLines = 1;
-        _dateLabel.textColor = [UIColor lightGrayColor];
         _dateLabel.font = [UIFont systemFontOfSize:12.0];
-        
-        if (@available(iOS 13.0, *)) {
-            _dateLabel.textColor = [UIColor secondaryLabelColor];
-        }
+        _dateLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _dateLabel;
 }

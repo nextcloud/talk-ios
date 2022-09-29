@@ -78,17 +78,15 @@
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
-    
-    if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding themeColor];
-        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-        [appearance configureWithOpaqueBackground];
-        appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-        self.navigationItem.standardAppearance = appearance;
-        self.navigationItem.compactAppearance = appearance;
-        self.navigationItem.scrollEdgeAppearance = appearance;
-    }
+
+    UIColor *themeColor = [NCAppBranding themeColor];
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = themeColor;
+    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+    self.navigationItem.standardAppearance = appearance;
+    self.navigationItem.compactAppearance = appearance;
+    self.navigationItem.scrollEdgeAppearance = appearance;
     
     self.pageControl.currentPageIndicatorTintColor = [NCAppBranding elementColor];
     self.pageControl.pageIndicatorTintColor = [NCAppBranding placeholderColor];
@@ -118,16 +116,9 @@
     
     // Set to section
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],
-                                 NSForegroundColorAttributeName:[UIColor darkTextColor]};
+                                 NSForegroundColorAttributeName:[UIColor labelColor]};
     NSDictionary *subAttribute = @{NSFontAttributeName:[UIFont boldSystemFontOfSize:15],
-                                   NSForegroundColorAttributeName:[UIColor lightGrayColor]};
-    
-    if (@available(iOS 13.0, *)) {
-        attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],
-                       NSForegroundColorAttributeName:[UIColor labelColor]};
-        subAttribute = @{NSFontAttributeName:[UIFont boldSystemFontOfSize:15],
-                         NSForegroundColorAttributeName:[UIColor tertiaryLabelColor]};
-    }
+                                   NSForegroundColorAttributeName:[UIColor tertiaryLabelColor]};
     
     NSString *localizedToString = NSLocalizedString(@"To:", @"TRANSLATORS this is for sending something 'to' a user. Eg. 'To: John Doe'");
     NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ %@", localizedToString, _room.displayName] attributes:attributes];
@@ -636,22 +627,20 @@
 
 - (void)generatePreviewForCell:(ShareConfirmationCollectionViewCell *)cell withCollectionView:(UICollectionView *)collectionView withItem:(ShareItem *)item
 {
-    if (@available(iOS 13.0, *)) {
-        CGSize size = CGSizeMake(collectionView.bounds.size.width, collectionView.bounds.size.height);
-        CGFloat scale = [UIScreen mainScreen].scale;
-        
-        // updateHandler might be called multiple times, starting from low quality representation to high-quality
-        QLThumbnailGenerationRequest *request = [[QLThumbnailGenerationRequest alloc] initWithFileAtURL:item.fileURL size:size scale:scale representationTypes:(QLThumbnailGenerationRequestRepresentationTypeLowQualityThumbnail | QLThumbnailGenerationRequestRepresentationTypeThumbnail)];
-        [QLThumbnailGenerator.sharedGenerator generateRepresentationsForRequest:request updateHandler:^(QLThumbnailRepresentation * _Nullable thumbnail, QLThumbnailRepresentationType type, NSError * _Nullable error) {
-            if (error) {
-                return;
-            }
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [cell setPreviewImage:thumbnail.UIImage];
-            });
-        }];
-    }
+    CGSize size = CGSizeMake(collectionView.bounds.size.width, collectionView.bounds.size.height);
+    CGFloat scale = [UIScreen mainScreen].scale;
+
+    // updateHandler might be called multiple times, starting from low quality representation to high-quality
+    QLThumbnailGenerationRequest *request = [[QLThumbnailGenerationRequest alloc] initWithFileAtURL:item.fileURL size:size scale:scale representationTypes:(QLThumbnailGenerationRequestRepresentationTypeLowQualityThumbnail | QLThumbnailGenerationRequestRepresentationTypeThumbnail)];
+    [QLThumbnailGenerator.sharedGenerator generateRepresentationsForRequest:request updateHandler:^(QLThumbnailRepresentation * _Nullable thumbnail, QLThumbnailRepresentationType type, NSError * _Nullable error) {
+        if (error) {
+            return;
+        }
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [cell setPreviewImage:thumbnail.UIImage];
+        });
+    }];
 }
 
 - (NSInteger)collectionView:(nonnull UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -754,15 +743,13 @@
     preview.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
 
     UIColor *themeColor = [NCAppBranding themeColor];
-    if (@available(iOS 13.0, *)) {
-        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-        [appearance configureWithOpaqueBackground];
-        appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-        preview.navigationItem.standardAppearance = appearance;
-        preview.navigationItem.compactAppearance = appearance;
-        preview.navigationItem.scrollEdgeAppearance = appearance;
-    }
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = themeColor;
+    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+    preview.navigationItem.standardAppearance = appearance;
+    preview.navigationItem.compactAppearance = appearance;
+    preview.navigationItem.scrollEdgeAppearance = appearance;
 
     [self.navigationController pushViewController:preview animated:YES];
 }
@@ -784,7 +771,7 @@
     return 1;
 }
 
-- (QLPreviewItemEditingMode)previewController:(QLPreviewController *)controller editingModeForPreviewItem:(id<QLPreviewItem>)previewItem  API_AVAILABLE(ios(13.0)) {
+- (QLPreviewItemEditingMode)previewController:(QLPreviewController *)controller editingModeForPreviewItem:(id<QLPreviewItem>)previewItem {
     return QLPreviewItemEditingModeCreateCopy;
 }
 

@@ -53,15 +53,13 @@ import QuickLook
         self.navigationController?.navigationBar.isTranslucent = false
         self.navigationItem.title = NSLocalizedString("Shared items", comment: "")
 
-        if #available(iOS 13.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-            appearance.backgroundColor = NCAppBranding.themeColor()
-            self.navigationItem.standardAppearance = appearance
-            self.navigationItem.compactAppearance = appearance
-            self.navigationItem.scrollEdgeAppearance = appearance
-        }
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
+        appearance.backgroundColor = NCAppBranding.themeColor()
+        self.navigationItem.standardAppearance = appearance
+        self.navigationItem.compactAppearance = appearance
+        self.navigationItem.scrollEdgeAppearance = appearance
 
         self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 64, bottom: 0, right: 0)
         self.tableView.register(UINib(nibName: kDirectoryTableCellNibName, bundle: nil), forCellReuseIdentifier: kDirectoryCellIdentifier)
@@ -80,7 +78,7 @@ import QuickLook
             }
 
             if itemType == currentItemType {
-                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_:.alwaysOriginal), forKey: "image")
+                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_: .alwaysOriginal), forKey: "image")
             }
             itemTypesActionSheet.addAction(action)
         }

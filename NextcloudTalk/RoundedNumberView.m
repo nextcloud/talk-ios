@@ -131,10 +131,7 @@
             _numberColor = nil;
             break;
         case kHighlightTypeBorder:
-            self.backgroundColor = [UIColor whiteColor];
-            if (@available(iOS 13.0, *)) {
-                self.backgroundColor = [UIColor systemBackgroundColor];
-            }
+            self.backgroundColor = [UIColor systemBackgroundColor];
             _numberColor = [NCAppBranding elementColor];
             self.layer.borderWidth = 2;
             self.layer.borderColor = [NCAppBranding elementColor].CGColor;

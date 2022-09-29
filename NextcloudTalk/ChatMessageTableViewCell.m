@@ -136,13 +136,8 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[titleLabel]|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-32-[userStatusImageView(12)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-32-[userStatusImageView(12)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        self.backgroundColor = [UIColor groupTableViewBackgroundColor];
-        self.titleLabel.textColor = [UIColor darkTextColor];
-        
-        if (@available(iOS 13.0, *)) {
-            self.backgroundColor = [UIColor secondarySystemBackgroundColor];
-            self.titleLabel.textColor = [UIColor labelColor];
-        }
+        self.backgroundColor = [UIColor secondarySystemBackgroundColor];
+        self.titleLabel.textColor = [UIColor labelColor];
     }
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
@@ -214,12 +209,8 @@
         _titleLabel.backgroundColor = [UIColor clearColor];
         _titleLabel.userInteractionEnabled = NO;
         _titleLabel.numberOfLines = 1;
-        _titleLabel.textColor = [UIColor lightGrayColor];
         _titleLabel.font = [UIFont systemFontOfSize:[ChatMessageTableViewCell defaultFontSize]];
-        
-        if (@available(iOS 13.0, *)) {
-            _titleLabel.textColor = [UIColor secondaryLabelColor];
-        }
+        _titleLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _titleLabel;
 }
@@ -233,12 +224,8 @@
         _dateLabel.backgroundColor = [UIColor clearColor];
         _dateLabel.userInteractionEnabled = NO;
         _dateLabel.numberOfLines = 1;
-        _dateLabel.textColor = [UIColor lightGrayColor];
         _dateLabel.font = [UIFont systemFontOfSize:12.0];
-        
-        if (@available(iOS 13.0, *)) {
-            _dateLabel.textColor = [UIColor secondaryLabelColor];
-        }
+        _dateLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _dateLabel;
 }
@@ -338,10 +325,7 @@
     
     if (message.isDeletedMessage) {
         self.statusView.hidden = YES;
-        self.bodyTextView.textColor = [UIColor colorWithWhite:0 alpha:0.3];
-        if (@available(iOS 13.0, *)) {
-            self.bodyTextView.textColor = [UIColor tertiaryLabelColor];
-        }
+        self.bodyTextView.textColor = [UIColor tertiaryLabelColor];
     }
     
     [self.reactionsView updateReactionsWithReactions:message.reactionsArray];

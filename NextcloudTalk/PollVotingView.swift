@@ -62,15 +62,13 @@ import UIKit
         self.navigationController?.navigationBar.isTranslucent = false
         self.navigationItem.title = NSLocalizedString("Poll", comment: "")
 
-        if #available(iOS 13.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-            appearance.backgroundColor = NCAppBranding.themeColor()
-            self.navigationItem.standardAppearance = appearance
-            self.navigationItem.compactAppearance = appearance
-            self.navigationItem.scrollEdgeAppearance = appearance
-        }
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
+        appearance.backgroundColor = NCAppBranding.themeColor()
+        self.navigationItem.standardAppearance = appearance
+        self.navigationItem.compactAppearance = appearance
+        self.navigationItem.scrollEdgeAppearance = appearance
 
         pollBackgroundView.placeholderView.isHidden = true
         pollBackgroundView.loadingView.startAnimating()
@@ -258,10 +256,8 @@ import UIKit
             cell.textLabel?.lineBreakMode = .byWordWrapping
             cell.textLabel?.sizeToFit()
             cell.imageView?.image = UIImage(named: "poll")?.withRenderingMode(.alwaysTemplate)
-            cell.imageView?.tintColor = UIColor.darkText
-            if #available(iOS 13.0, *) {
-                cell.imageView?.tintColor = UIColor.label
-            }
+            cell.imageView?.tintColor = UIColor.label
+            
         case PollSection.kPollSectionOptions.rawValue:
             if !showPollResults || showIntermediateResults {
                 cell = UITableViewCell(style: .value1, reuseIdentifier: pollOptionCellIdentifier)

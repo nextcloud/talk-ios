@@ -65,17 +65,6 @@ typedef enum ShareLocationSection {
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     self.navigationController.navigationBar.translucent = NO;
     
-    if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding themeColor];
-        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-        [appearance configureWithOpaqueBackground];
-        appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-        self.navigationItem.standardAppearance = appearance;
-        self.navigationItem.compactAppearance = appearance;
-        self.navigationItem.scrollEdgeAppearance = appearance;
-    }
-    
     _locationManager = [[CLLocationManager alloc] init];
     _locationManager.delegate = self;
     [_locationManager requestWhenInUseAuthorization];
@@ -93,54 +82,51 @@ typedef enum ShareLocationSection {
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
     self.navigationItem.leftBarButtonItem = cancelButton;
-    
-    // Only make search available on iOS 13+
-    if (@available(iOS 13.0, *)) {
-        _resultTableViewController = [[UITableViewController alloc] init];
-        _resultTableViewController.tableView.delegate = self;
-        _resultTableViewController.tableView.dataSource = self;
-        _resultTableViewController.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-        
-        _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
-        _searchController.delegate = self;
-        _searchController.searchResultsUpdater = self;
-        _searchController.hidesNavigationBarDuringPresentation = NO;
-        [_searchController.searchBar sizeToFit];
-        
-        UIColor *themeColor = [NCAppBranding themeColor];
-        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-        [appearance configureWithOpaqueBackground];
-        appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-        self.navigationItem.standardAppearance = appearance;
-        self.navigationItem.compactAppearance = appearance;
-        self.navigationItem.scrollEdgeAppearance = appearance;
 
-        self.navigationItem.searchController = _searchController;
-        self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
-        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
-        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
-        searchTextField.tintColor = [NCAppBranding themeTextColor];
-        searchTextField.textColor = [NCAppBranding themeTextColor];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // Search bar placeholder
-            searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search for places", nil)
-            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
-            // Search bar search icon
-            UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
-            searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-            [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
-            // Search bar search clear button
-            UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-            [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
-            [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
-            [clearButton setTintColor:[NCAppBranding themeTextColor]];
-        });
-        
-        // Place resultTableViewController correctly
-        self.definesPresentationContext = YES;
-    }
+    _resultTableViewController = [[UITableViewController alloc] init];
+    _resultTableViewController.tableView.delegate = self;
+    _resultTableViewController.tableView.dataSource = self;
+    _resultTableViewController.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+
+    _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
+    _searchController.delegate = self;
+    _searchController.searchResultsUpdater = self;
+    _searchController.hidesNavigationBarDuringPresentation = NO;
+    [_searchController.searchBar sizeToFit];
+
+    UIColor *themeColor = [NCAppBranding themeColor];
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = themeColor;
+    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+    self.navigationItem.standardAppearance = appearance;
+    self.navigationItem.compactAppearance = appearance;
+    self.navigationItem.scrollEdgeAppearance = appearance;
+
+    self.navigationItem.searchController = _searchController;
+    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
+    _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
+    UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+    UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
+    searchTextField.tintColor = [NCAppBranding themeTextColor];
+    searchTextField.textColor = [NCAppBranding themeTextColor];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Search bar placeholder
+        searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search for places", nil)
+        attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
+        // Search bar search icon
+        UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
+        searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
+        // Search bar search clear button
+        UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
+        [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
+        [clearButton setTintColor:[NCAppBranding themeTextColor]];
+    });
+
+    // Place resultTableViewController correctly
+    self.definesPresentationContext = YES;
 }
 
 #pragma mark - CLLocationManagerDelegate
@@ -299,18 +285,16 @@ typedef enum ShareLocationSection {
 
 - (void)searchForPlacesWithString:(NSString *)searchString
 {
-    if (@available(iOS 13.0, *)) {
-        MKLocalSearchRequest *request = [[MKLocalSearchRequest alloc] initWithNaturalLanguageQuery:searchString];
-        MKLocalSearch *search = [[MKLocalSearch alloc] initWithRequest:request];
-        [search startWithCompletionHandler:^(MKLocalSearchResponse * _Nullable response, NSError * _Nullable error) {
-            if (response) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self->_searchedPlaces = response.mapItems;
-                    [self->_resultTableViewController.tableView reloadData];
-                });
-            }
-        }];
-    }
+    MKLocalSearchRequest *request = [[MKLocalSearchRequest alloc] initWithNaturalLanguageQuery:searchString];
+    MKLocalSearch *search = [[MKLocalSearch alloc] initWithRequest:request];
+    [search startWithCompletionHandler:^(MKLocalSearchResponse * _Nullable response, NSError * _Nullable error) {
+        if (response) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self->_searchedPlaces = response.mapItems;
+                [self->_resultTableViewController.tableView reloadData];
+            });
+        }
+    }];
 }
 
 #pragma mark - Search controller

@@ -76,48 +76,37 @@
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
+
+    UIColor *themeColor = [NCAppBranding themeColor];
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = themeColor;
+    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+    self.navigationItem.standardAppearance = appearance;
+    self.navigationItem.compactAppearance = appearance;
+    self.navigationItem.scrollEdgeAppearance = appearance;
     
-    if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding themeColor];
-        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-        [appearance configureWithOpaqueBackground];
-        appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-        self.navigationItem.standardAppearance = appearance;
-        self.navigationItem.compactAppearance = appearance;
-        self.navigationItem.scrollEdgeAppearance = appearance;
-        
-        self.navigationItem.searchController = _searchController;
-        self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
-        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
-        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
-        searchTextField.tintColor = [NCAppBranding themeTextColor];
-        searchTextField.textColor = [NCAppBranding themeTextColor];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // Search bar placeholder
-            searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
-            // Search bar search icon
-            UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
-            searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-            [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
-            // Search bar search clear button
-            UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-            [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
-            [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
-            [clearButton setTintColor:[NCAppBranding themeTextColor]];
-        });
-    } else {
-        self.navigationItem.searchController = _searchController;
-        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
-        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [NCAppBranding themeColor];
-        UIView *backgroundview = [searchTextField.subviews firstObject];
-        backgroundview.backgroundColor = [NCAppBranding backgroundColor];
-        backgroundview.layer.cornerRadius = 8;
-        backgroundview.clipsToBounds = YES;
-    }
+    self.navigationItem.searchController = _searchController;
+    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
+    _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
+    UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+    UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
+    searchTextField.tintColor = [NCAppBranding themeTextColor];
+    searchTextField.textColor = [NCAppBranding themeTextColor];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Search bar placeholder
+        searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
+        attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
+        // Search bar search icon
+        UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
+        searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
+        // Search bar search clear button
+        UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
+        [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
+        [clearButton setTintColor:[NCAppBranding themeTextColor]];
+    });
     
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
     _resultTableViewController.tableView.delegate = self;

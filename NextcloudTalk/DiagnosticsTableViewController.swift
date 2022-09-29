@@ -135,16 +135,14 @@ class DiagnosticsTableViewController: UITableViewController {
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
         self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
         self.tabBarController?.tabBar.tintColor = NCAppBranding.themeColor()
-        if #available(iOS 13.0, *) {
-            let themeColor: UIColor = NCAppBranding.themeColor()
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = themeColor
-            appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-            self.navigationItem.standardAppearance = appearance
-            self.navigationItem.compactAppearance = appearance
-            self.navigationItem.scrollEdgeAppearance = appearance
-        }
+        let themeColor: UIColor = NCAppBranding.themeColor()
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = themeColor
+        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
+        self.navigationItem.standardAppearance = appearance
+        self.navigationItem.compactAppearance = appearance
+        self.navigationItem.scrollEdgeAppearance = appearance
 
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifierOpenAppSettings)
         self.tableView.register(SubtitleTableViewCell.self, forCellReuseIdentifier: cellIdentifierSubtitle)

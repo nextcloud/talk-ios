@@ -113,10 +113,8 @@
 {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-    
-    if (@available(iOS 13.0, *)) {
-        [self scheduleAppRefresh];
-    }
+
+    [self scheduleAppRefresh];
 }
 
 
@@ -306,19 +304,15 @@
 - (void)registerBackgroundFetchTask {
     NSString *refreshTaskIdentifier = [NSString stringWithFormat:@"%@.refresh", NSBundle.mainBundle.bundleIdentifier];
 
-    if (@available(iOS 13.0, *)) {
-        // see: https://developer.apple.com/documentation/backgroundtasks/bgtaskscheduler?language=objc
-        [[BGTaskScheduler sharedScheduler] registerForTaskWithIdentifier:refreshTaskIdentifier
-                                                              usingQueue:nil
-                                                           launchHandler:^(__kindof BGTask * _Nonnull task) {
-            [self handleAppRefresh:task];
-        }];
-    } else {
-        [UIApplication.sharedApplication setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
-    }
+    // see: https://developer.apple.com/documentation/backgroundtasks/bgtaskscheduler?language=objc
+    [[BGTaskScheduler sharedScheduler] registerForTaskWithIdentifier:refreshTaskIdentifier
+                                                          usingQueue:nil
+                                                       launchHandler:^(__kindof BGTask * _Nonnull task) {
+        [self handleAppRefresh:task];
+    }];
 }
 
-- (void)scheduleAppRefresh API_AVAILABLE(ios(13.0))
+- (void)scheduleAppRefresh
 {
     NSString *refreshTaskIdentifier = [NSString stringWithFormat:@"%@.refresh", NSBundle.mainBundle.bundleIdentifier];
     
@@ -333,7 +327,7 @@
     }
 }
 
-- (void)handleAppRefresh:(BGTask *)task API_AVAILABLE(ios(13.0))
+- (void)handleAppRefresh:(BGTask *)task
 {
     [NCUtils log:@"Performing background fetch -> handleAppRefresh"];
     
@@ -345,6 +339,8 @@
      }];
 }
 
+// This method is called when you simulate a background fetch from the debug menu in XCode
+// so we keep it around, although it's deprecated on iOS 13 onwards
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     [NCUtils log:@"Performing background fetch -> performFetchWithCompletionHandler"];

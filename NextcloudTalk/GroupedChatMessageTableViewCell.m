@@ -113,10 +113,7 @@
     
     if (message.isDeletedMessage) {
         self.statusView.hidden = YES;
-        self.bodyTextView.textColor = [UIColor colorWithWhite:0 alpha:0.3];
-        if (@available(iOS 13.0, *)) {
-            self.bodyTextView.textColor = [UIColor tertiaryLabelColor];
-        }
+        self.bodyTextView.textColor = [UIColor tertiaryLabelColor];
     }
     [self.reactionsView updateReactionsWithReactions:message.reactionsArray];
     if (message.reactionsArray.count > 0) {
