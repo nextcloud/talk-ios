@@ -256,24 +256,22 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
-    
-    if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding themeColor];
-        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-        [appearance configureWithOpaqueBackground];
-        appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-        self.navigationItem.standardAppearance = appearance;
-        self.navigationItem.compactAppearance = appearance;
-        self.navigationItem.scrollEdgeAppearance = appearance;
-        
-        [self.view setBackgroundColor:[UIColor systemBackgroundColor]];
-        [self.textInputbar setBackgroundColor:[UIColor systemBackgroundColor]];
-        
-        [self.textInputbar.editorTitle setTextColor:[UIColor labelColor]];
-        [self.textView.layer setBorderWidth:1.0];
-        [self.textView.layer setBorderColor:[UIColor systemGray4Color].CGColor];
-    }
+
+    UIColor *themeColor = [NCAppBranding themeColor];
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = themeColor;
+    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+    self.navigationItem.standardAppearance = appearance;
+    self.navigationItem.compactAppearance = appearance;
+    self.navigationItem.scrollEdgeAppearance = appearance;
+
+    [self.view setBackgroundColor:[UIColor systemBackgroundColor]];
+    [self.textInputbar setBackgroundColor:[UIColor systemBackgroundColor]];
+
+    [self.textInputbar.editorTitle setTextColor:[UIColor labelColor]];
+    [self.textView.layer setBorderWidth:1.0];
+    [self.textView.layer setBorderColor:[UIColor systemGray4Color].CGColor];
     
     // Hide default top border of UIToolbar
     [self.textInputbar setShadowImage:[UIImage new] forToolbarPosition:UIBarPositionAny];
@@ -283,12 +281,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self.inputbarBorderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin];
     self.inputbarBorderView.frame = CGRectMake(0, 0, self.textInputbar.frame.size.width, 1);
     self.inputbarBorderView.hidden = YES;
-    
-    if (@available(iOS 13.0, *)) {
-        self.inputbarBorderView.backgroundColor = [UIColor systemGray6Color];
-    } else {
-        self.inputbarBorderView.backgroundColor = [NCAppBranding placeholderColor];
-    }
+    self.inputbarBorderView.backgroundColor = [UIColor systemGray6Color];
 
     [self.textInputbar addSubview:self.inputbarBorderView];
     
@@ -296,11 +289,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     _emojiTextField = [[EmojiTextField alloc] init];
     _emojiTextField.delegate = self;
     [self.view addSubview:_emojiTextField];
-    
-    // Add long press gesture recognizer for messages
-    UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
-    longPressGesture.delegate = self;
-    [self.tableView addGestureRecognizer:longPressGesture];
     
     // Add long press gesture recognizer for voice message recording button
     self.voiceMessageLongPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressInVoiceMessageRecordButton:)];
@@ -324,10 +312,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self.tableView registerClass:[MessageSeparatorTableViewCell class] forCellReuseIdentifier:MessageSeparatorCellIdentifier];
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
-    self.autoCompletionView.backgroundColor = [UIColor groupTableViewBackgroundColor];
-    if (@available(iOS 13.0, *)) {
-        self.autoCompletionView.backgroundColor = [UIColor secondarySystemBackgroundColor];
-    }
+    self.autoCompletionView.backgroundColor = [UIColor secondarySystemBackgroundColor];
+
     if (@available(iOS 15.0, *)) {
         self.autoCompletionView.sectionHeaderTopPadding = 0;
     }
@@ -566,13 +552,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
 {
-    if (@available(iOS 13.0, *)) {
-        if ([self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection]) {
-            // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
-            [self.textView.layer setBorderColor:[UIColor systemGray4Color].CGColor];
-            [self.textView setTintColor:[UIColor colorWithCGColor:[UIColor systemBlueColor].CGColor]];
-            [self updateToolbar:YES];
-        }
+    if ([self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection]) {
+        // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
+        [self.textView.layer setBorderColor:[UIColor systemGray4Color].CGColor];
+        [self.textView setTintColor:[UIColor colorWithCGColor:[UIColor systemBlueColor].CGColor]];
+        [self updateToolbar:YES];
     }
 }
 
@@ -850,16 +834,12 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     UILabel *footerLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 350, 24)];
     footerLabel.textAlignment = NSTextAlignmentCenter;
-    footerLabel.textColor = [UIColor lightGrayColor];
+    footerLabel.textColor = [UIColor secondaryLabelColor];
     footerLabel.font = [UIFont systemFontOfSize:12.0];
     footerLabel.backgroundColor = [UIColor clearColor];
     footerLabel.text = NSLocalizedString(@"Offline, only showing downloaded messages", nil);
     self.tableView.tableFooterView = footerLabel;
-    self.tableView.tableFooterView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
-    if (@available(iOS 13.0, *)) {
-        footerLabel.textColor = [UIColor secondaryLabelColor];
-        self.tableView.tableFooterView.backgroundColor = [UIColor secondarySystemBackgroundColor];
-    }
+    self.tableView.tableFooterView.backgroundColor = [UIColor secondarySystemBackgroundColor];
     
     if (isAtBottom) {
         [self.tableView slk_scrollToBottomAnimated:YES];
@@ -1403,11 +1383,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)presentPollCreation
 {
-    UITableViewStyle style = UITableViewStyleGrouped;
-    if (@available(iOS 13.0, *)) {
-        style = UITableViewStyleInsetGrouped;
-    }
-    PollCreationViewController *pollCreationVC = [[PollCreationViewController alloc] initWithStyle:style];
+    PollCreationViewController *pollCreationVC = [[PollCreationViewController alloc] initWithStyle:UITableViewStyleInsetGrouped];
     pollCreationVC.pollCreationDelegate = self;
     NCNavigationController *pollCreationNC = [[NCNavigationController alloc] initWithRootViewController:pollCreationVC];
     [self presentViewController:pollCreationNC animated:YES completion:nil];
@@ -2189,172 +2165,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     AppDelegate *appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     appDelegate.shouldLockInterfaceOrientation = lock;
-}
-
-
-
-#pragma mark - iOS <=12 message long press menu
-
-- (void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
-{
-    if (@available(iOS 13.0, *)) {
-        // Use native contextmenus on iOS >= 13
-        return;
-    }
-    
-    CGPoint point = [gestureRecognizer locationInView:self.tableView];
-    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:point];
-    if (indexPath != nil && gestureRecognizer.state == UIGestureRecognizerStateBegan) {
-        NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
-        NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
-        if (!message.isSystemMessage) {
-            
-            // Do not show menu if long pressing in reactions view
-            ChatTableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-            CGPoint pointInCell = [self.tableView convertPoint:point toView:cell];
-            for (UIView *subview in cell.contentView.subviews) {
-                if ([subview isKindOfClass:ReactionsView.class] && CGRectContainsPoint(subview.frame, pointInCell)) {
-                    [self showReactionsSummaryOfMessage:cell.message];
-                    return;
-                }
-            }
-            
-            // Select cell
-            [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
-            
-            // Create menu
-            FTPopOverMenuConfiguration *menuConfiguration = [[FTPopOverMenuConfiguration alloc] init];
-            menuConfiguration.menuIconMargin = 12;
-            menuConfiguration.menuTextMargin = 12;
-            menuConfiguration.imageSize = CGSizeMake(20, 20);
-            menuConfiguration.separatorInset = UIEdgeInsetsMake(0, 44, 0, 0);
-            menuConfiguration.menuRowHeight = 44;
-            menuConfiguration.autoMenuWidth = YES;
-            menuConfiguration.textFont = [UIFont systemFontOfSize:15];
-            menuConfiguration.backgroundColor = [UIColor colorWithWhite:0.3 alpha:1];
-            menuConfiguration.borderWidth = 0;
-            menuConfiguration.shadowOpacity = 0;
-            menuConfiguration.roundedImage = NO;
-            menuConfiguration.defaultSelection = YES;
-
-            BOOL hasChatPermission = ![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatPermission] || (_room.permissions & NCPermissionChat) != 0;
-
-            NSMutableArray *menuArray = [NSMutableArray new];
-            // Reply option
-            if ([self isMessageReplyable:message] && hasChatPermission) {
-                NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReply) forKey:@"action"];
-                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply", nil) image:[[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyInfo];
-                [menuArray addObject:replyModel];
-            }
-            
-            // Add reaction option
-            if ([self isMessageReactable:message] && hasChatPermission) {
-                NSDictionary *reactionInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionAddReaction) forKey:@"action"];
-                FTPopOverMenuModel *reactionModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Add reaction", nil) image:[[UIImage imageNamed:@"emoji"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:reactionInfo];
-                [menuArray addObject:reactionModel];
-            }
-            
-            // Reply-privately option (only to other users and not in one-to-one)
-            TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-            if ([self isMessageReplyable:message] && _room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId])
-            {
-                NSDictionary *replyPrivatInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionReplyPrivately) forKey:@"action"];
-                FTPopOverMenuModel *replyPrivatModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Reply privately", nil) image:[[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyPrivatInfo];
-                [menuArray addObject:replyPrivatModel];
-            }
-            
-            // Forward option (only normal messages for now)
-            if (!message.file && !message.isDeletedMessage && !_offlineMode) {
-                NSDictionary *forwardInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionForward) forKey:@"action"];
-                FTPopOverMenuModel *forwardModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Forward", nil) image:[[UIImage imageNamed:@"forward"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:forwardInfo];
-                [menuArray addObject:forwardModel];
-            }
-
-            // Re-send option
-            if (message.sendingFailed && !_offlineMode && hasChatPermission) {
-                NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionResend) forKey:@"action"];
-                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Resend", nil) image:[[UIImage imageNamed:@"refresh"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyInfo];
-                [menuArray addObject:replyModel];
-            }
-            
-            // Copy option
-            NSDictionary *copyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionCopy) forKey:@"action"];
-            FTPopOverMenuModel *copyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Copy", nil) image:[[UIImage imageNamed:@"copy"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:copyInfo];
-            [menuArray addObject:copyModel];
-            
-            // Open in nextcloud option
-            if (message.file && !_offlineMode) {
-                NSDictionary *openInNextcloudInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionOpenFileInNextcloud) forKey:@"action"];
-                NSString *openInNextcloudTitle = [NSString stringWithFormat:NSLocalizedString(@"Open in %@", nil), filesAppName];
-                FTPopOverMenuModel *openInNextcloudModel = [[FTPopOverMenuModel alloc] initWithTitle:openInNextcloudTitle image:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:openInNextcloudInfo];
-                [menuArray addObject:openInNextcloudModel];
-            }
-            
-            // Delete option
-            if (message.sendingFailed || ([message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType] && hasChatPermission)) {
-                NSDictionary *replyInfo = [NSDictionary dictionaryWithObject:@(kNCChatMessageActionDelete) forKey:@"action"];
-                FTPopOverMenuModel *replyModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Delete", nil) image:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] userInfo:replyInfo];
-                [menuArray addObject:replyModel];
-            }
-            
-            CGRect frame = [self.tableView rectForRowAtIndexPath:indexPath];
-            CGPoint yOffset = self.tableView.contentOffset;
-            CGRect cellRect = CGRectMake(frame.origin.x, (frame.origin.y - yOffset.y), frame.size.width, frame.size.height);
-            
-            __weak NCChatViewController *weakSelf = self;
-            [FTPopOverMenu showFromSenderFrame:cellRect withMenuArray:menuArray imageArray:nil configuration:menuConfiguration doneBlock:^(NSInteger selectedIndex) {
-                [weakSelf.tableView deselectRowAtIndexPath:indexPath animated:YES];
-                FTPopOverMenuModel *model = [menuArray objectAtIndex:selectedIndex];
-                NCChatMessageAction action = (NCChatMessageAction)[[model.userInfo objectForKey:@"action"] integerValue];
-                switch (action) {
-                    case kNCChatMessageActionReply:
-                    {
-                        [weakSelf didPressReply:message];
-                    }
-                        break;
-                    case kNCChatMessageActionReplyPrivately:
-                    {
-                        [weakSelf didPressReplyPrivately:message];
-                    }
-                        break;
-                    case kNCChatMessageActionAddReaction:
-                    {
-                        [weakSelf didPressAddReaction:message atIndexPath:indexPath];
-                    }
-                        break;
-                    case kNCChatMessageActionForward:
-                    {
-                        [weakSelf didPressForward:message];
-                    }
-                        break;
-                    case kNCChatMessageActionCopy:
-                    {
-                        [weakSelf didPressCopy:message];
-                    }
-                        break;
-                    case kNCChatMessageActionResend:
-                    {
-                        [weakSelf didPressResend:message];
-                    }
-                        break;
-                    case kNCChatMessageActionOpenFileInNextcloud:
-                    {
-                        [weakSelf didPressOpenInNextcloud:message];
-                    }
-                        break;
-                    case kNCChatMessageActionDelete:
-                    {
-                        [weakSelf didPressDelete:message];
-                    }
-                        break;
-                    default:
-                        break;
-                }
-            } dismissBlock:^{
-                [weakSelf.tableView deselectRowAtIndexPath:indexPath animated:YES];
-            }];
-        }
-    }
 }
 
 #pragma mark - UIScrollViewDelegate Methods
@@ -3334,12 +3144,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     // Actuate `Peek` feedback (weak boom)
     AudioServicesPlaySystemSound(1519);
-    
-    UITableViewStyle style = UITableViewStyleGrouped;
-    if (@available(iOS 13.0, *)) {
-        style = UITableViewStyleInsetGrouped;
-    }
-    ReactionsSummaryView *reactionsVC = [[ReactionsSummaryView alloc] initWithStyle:style];
+
+    ReactionsSummaryView *reactionsVC = [[ReactionsSummaryView alloc] initWithStyle:UITableViewStyleInsetGrouped];
     NCNavigationController *reactionsNC = [[NCNavigationController alloc] initWithRootViewController:reactionsVC];
     [self presentViewController:reactionsNC animated:YES completion:nil];
     
@@ -3708,7 +3514,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     return isReactable;
 }
 
-- (UIContextMenuConfiguration *)tableView:(UITableView *)tableView contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point API_AVAILABLE(ios(13.0))
+- (UIContextMenuConfiguration *)tableView:(UITableView *)tableView contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point
 {
     if ([tableView isEqual:self.autoCompletionView]) {
         return nil;
@@ -3966,11 +3772,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)cellWantsToOpenPoll:(NCMessageParameter *)poll
 {
-    UITableViewStyle style = UITableViewStyleGrouped;
-    if (@available(iOS 13.0, *)) {
-        style = UITableViewStyleInsetGrouped;
-    }
-    PollVotingView *pollVC = [[PollVotingView alloc] initWithStyle:style];
+    PollVotingView *pollVC = [[PollVotingView alloc] initWithStyle:UITableViewStyleInsetGrouped];
     pollVC.room = _room;
     NCNavigationController *pollNC = [[NCNavigationController alloc] initWithRootViewController:pollVC];
     [self presentViewController:pollNC animated:YES completion:nil];
@@ -4063,15 +3865,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         preview.navigationController.navigationBar.barTintColor = themeColor;
         preview.tabBarController.tabBar.tintColor = themeColor;
 
-        if (@available(iOS 13.0, *)) {
-            UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-            [appearance configureWithOpaqueBackground];
-            appearance.backgroundColor = themeColor;
-            appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-            preview.navigationItem.standardAppearance = appearance;
-            preview.navigationItem.compactAppearance = appearance;
-            preview.navigationItem.scrollEdgeAppearance = appearance;
-        }
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        appearance.backgroundColor = themeColor;
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+        preview.navigationItem.standardAppearance = appearance;
+        preview.navigationItem.compactAppearance = appearance;
+        preview.navigationItem.scrollEdgeAppearance = appearance;
 
         [self presentViewController:preview animated:YES completion:nil];
     });

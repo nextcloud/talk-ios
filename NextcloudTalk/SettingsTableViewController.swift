@@ -74,18 +74,16 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         readStatusSwitch.frame = .zero
         readStatusSwitch.addTarget(self, action: #selector(readStatusValueChanged(_:)), for: .valueChanged)
 
-        if #available(iOS 13.0, *) {
-            let themeColor: UIColor = NCAppBranding.themeColor()
-            let themeTextColor: UIColor = NCAppBranding.themeTextColor()
+        let themeColor: UIColor = NCAppBranding.themeColor()
+        let themeTextColor: UIColor = NCAppBranding.themeTextColor()
 
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.titleTextAttributes = [.foregroundColor: themeTextColor]
-            appearance.backgroundColor = themeColor
-            self.navigationItem.standardAppearance = appearance
-            self.navigationItem.compactAppearance = appearance
-            self.navigationItem.scrollEdgeAppearance = appearance
-        }
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.titleTextAttributes = [.foregroundColor: themeTextColor]
+        appearance.backgroundColor = themeColor
+        self.navigationItem.standardAppearance = appearance
+        self.navigationItem.compactAppearance = appearance
+        self.navigationItem.scrollEdgeAppearance = appearance
 
         tableView.register(UINib(nibName: kUserSettingsTableCellNibName, bundle: nil), forCellReuseIdentifier: kUserSettingsCellIdentifier)
 

@@ -41,13 +41,9 @@
         [self addSubview:self.contentView];
         
         self.contentView.frame = self.bounds;
-        
-        self.contentView.backgroundColor = [UIColor whiteColor];
-        self.leftBackgroundView.backgroundColor = [UIColor whiteColor];
-        if (@available(iOS 13.0, *)) {
-            self.contentView.backgroundColor = [UIColor systemBackgroundColor];
-            self.leftBackgroundView.backgroundColor = [UIColor systemBackgroundColor];
-        }
+
+        self.contentView.backgroundColor = [UIColor systemBackgroundColor];
+        self.leftBackgroundView.backgroundColor = [UIColor systemBackgroundColor];
         
         [self.recordingTimeLabel setTimerType:MZTimerLabelTypeStopWatch];
         [self.recordingTimeLabel setTimeFormat:@"mm:ss"];

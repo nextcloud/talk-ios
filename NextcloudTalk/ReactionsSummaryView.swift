@@ -46,15 +46,13 @@ import UIKit
         self.navigationController?.navigationBar.isTranslucent = false
         self.navigationItem.title = NSLocalizedString("Reactions", comment: "")
 
-        if #available(iOS 13.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-            appearance.backgroundColor = NCAppBranding.themeColor()
-            self.navigationItem.standardAppearance = appearance
-            self.navigationItem.compactAppearance = appearance
-            self.navigationItem.scrollEdgeAppearance = appearance
-        }
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
+        appearance.backgroundColor = NCAppBranding.themeColor()
+        self.navigationItem.standardAppearance = appearance
+        self.navigationItem.compactAppearance = appearance
+        self.navigationItem.scrollEdgeAppearance = appearance
 
         reactionsBackgroundView.placeholderView.isHidden = true
         reactionsBackgroundView.loadingView.startAnimating()

@@ -200,10 +200,7 @@
                                      placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
         
                                        //TODO: How to adjust for dark mode?
-                                       weakSelf.previewImageView.layer.borderColor = [[UIColor colorWithWhite:0.9 alpha:1.0] CGColor];
-                                       if (@available(iOS 13.0, *)) {
-                                           weakSelf.previewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
-                                       }
+                                       weakSelf.previewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
                                        weakSelf.previewImageView.layer.borderWidth = 1.0f;
                     
                                        dispatch_async(dispatch_get_main_queue(), ^(void){
@@ -385,12 +382,8 @@
         _titleLabel.backgroundColor = [UIColor clearColor];
         _titleLabel.userInteractionEnabled = NO;
         _titleLabel.numberOfLines = 1;
-        _titleLabel.textColor = [UIColor lightGrayColor];
         _titleLabel.font = [UIFont systemFontOfSize:[FileMessageTableViewCell defaultFontSize]];
-        
-        if (@available(iOS 13.0, *)) {
-            _titleLabel.textColor = [UIColor secondaryLabelColor];
-        }
+        _titleLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _titleLabel;
 }
@@ -404,12 +397,8 @@
         _dateLabel.backgroundColor = [UIColor clearColor];
         _dateLabel.userInteractionEnabled = NO;
         _dateLabel.numberOfLines = 1;
-        _dateLabel.textColor = [UIColor lightGrayColor];
         _dateLabel.font = [UIFont systemFontOfSize:12.0];
-        
-        if (@available(iOS 13.0, *)) {
-            _dateLabel.textColor = [UIColor secondaryLabelColor];
-        }
+        _dateLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _dateLabel;
 }

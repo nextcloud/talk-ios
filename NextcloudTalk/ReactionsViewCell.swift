@@ -42,10 +42,7 @@ import UIKit
     }
 
     func borderColor() -> CGColor {
-        if #available(iOS 13.0, *) {
-            return UIColor.tertiaryLabel.cgColor
-        }
-        return UIColor.lightGray.cgColor
+        return UIColor.tertiaryLabel.cgColor
     }
 
     func sizeForReaction(reaction: NCChatReaction) -> CGSize {

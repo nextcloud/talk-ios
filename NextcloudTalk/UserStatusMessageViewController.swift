@@ -64,15 +64,13 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         self.navigationController?.navigationBar.isTranslucent = false
         self.navigationItem.title = NSLocalizedString("Status message", comment: "")
 
-        if #available(iOS 13.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-            appearance.backgroundColor = NCAppBranding.themeColor()
-            self.navigationItem.standardAppearance = appearance
-            self.navigationItem.compactAppearance = appearance
-            self.navigationItem.scrollEdgeAppearance = appearance
-        }
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
+        appearance.backgroundColor = NCAppBranding.themeColor()
+        self.navigationItem.standardAppearance = appearance
+        self.navigationItem.compactAppearance = appearance
+        self.navigationItem.scrollEdgeAppearance = appearance
 
         self.navigationController?.navigationBar.topItem?.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
 

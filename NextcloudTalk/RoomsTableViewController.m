@@ -172,47 +172,36 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.addButton.tintColor = [NCAppBranding themeTextColor];
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
-    
-    if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding themeColor];
-        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-        [appearance configureWithOpaqueBackground];
-        appearance.backgroundColor = themeColor;
-        self.navigationItem.standardAppearance = appearance;
-        self.navigationItem.compactAppearance = appearance;
-        self.navigationItem.scrollEdgeAppearance = appearance;
 
-        self.navigationItem.searchController = _searchController;
-        self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
-        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
-        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
-        searchTextField.tintColor = [NCAppBranding themeTextColor];
-        searchTextField.textColor = [NCAppBranding themeTextColor];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // Search bar placeholder
-            searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
-            // Search bar search icon
-            UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
-            searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-            [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
-            // Search bar search clear button
-            UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-            [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
-            [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
-            [clearButton setTintColor:[NCAppBranding themeTextColor]];
-        });
-    } else {
-        self.navigationItem.searchController = _searchController;
-        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
-        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        searchTextField.tintColor = [NCAppBranding themeColor];
-        UIView *backgroundview = [searchTextField.subviews firstObject];
-        backgroundview.backgroundColor = [NCAppBranding backgroundColor];
-        backgroundview.layer.cornerRadius = 8;
-        backgroundview.clipsToBounds = YES;
-    }
+    UIColor *themeColor = [NCAppBranding themeColor];
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = themeColor;
+    self.navigationItem.standardAppearance = appearance;
+    self.navigationItem.compactAppearance = appearance;
+    self.navigationItem.scrollEdgeAppearance = appearance;
+
+    self.navigationItem.searchController = _searchController;
+    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
+    _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
+    UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+    UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
+    searchTextField.tintColor = [NCAppBranding themeTextColor];
+    searchTextField.textColor = [NCAppBranding themeTextColor];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Search bar placeholder
+        searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
+        attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
+        // Search bar search icon
+        UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
+        searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
+        // Search bar search clear button
+        UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
+        [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
+        [clearButton setTintColor:[NCAppBranding themeTextColor]];
+    });
     
     [self setNeedsStatusBarAppearanceUpdate];
 }
@@ -414,12 +403,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     menuConfiguration.borderColor = [NCAppBranding placeholderColor];
     menuConfiguration.backgroundColor = [NCAppBranding backgroundColor];
     menuConfiguration.separatorColor = [NCAppBranding placeholderColor];
-    menuConfiguration.textColor = [UIColor darkTextColor];
-    
-    if (@available(iOS 13.0, *)) {
-        menuConfiguration.textColor = [UIColor labelColor];
-        menuConfiguration.shadowColor = [UIColor secondaryLabelColor];
-    }
+    menuConfiguration.textColor = [UIColor labelColor];
+    menuConfiguration.shadowColor = [UIColor secondaryLabelColor];
 
     [FTPopOverMenu showForSender:sender
                    withMenuArray:menuArray

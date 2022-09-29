@@ -101,16 +101,12 @@
     if (forceDomain && domain) {
         _authViewController = [[AuthenticationViewController alloc] initWithServerUrl:domain];
         _authViewController.delegate = self;
-        if (@available(iOS 13.0, *)) {
-            _authViewController.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
-        }
+        _authViewController.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
         [_mainNavigationController presentViewController:_authViewController animated:YES completion:nil];
     } else {
         _loginViewController = [[LoginViewController alloc] init];
         _loginViewController.delegate = self;
-        if (@available(iOS 13.0, *)) {
-            _loginViewController.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
-        }
+        _loginViewController.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
         [_mainNavigationController presentViewController:_loginViewController animated:YES completion:nil];
     }
 }
