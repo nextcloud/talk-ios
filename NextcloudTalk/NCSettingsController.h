@@ -67,7 +67,6 @@ typedef enum NCPreferredFileSorting {
 @property (nonatomic, copy) NSString *ncPushToken;
 @property (nonatomic, copy) NSString *ncNormalPushToken;
 @property (nonatomic, copy) NSString *ncPushKitToken;
-@property (nonatomic, copy) NSString *pushNotificationSubscribed;
 @property (nonatomic, copy) NSData *ncPNPublicKey;
 @property (nonatomic, copy) NSData *ncPNPrivateKey;
 @property (nonatomic, copy) NSString *ncDeviceIdentifier;

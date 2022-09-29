@@ -191,16 +191,7 @@
     BOOL isAppInBackground = [[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground;
     // Subscribe only if both tokens have been generated and app is not running in the background (do not try to subscribe
     // when the app is running in background e.g. when the app is launched due to a VoIP push notification)
-
     if (!isAppInBackground) {
-        // Remove subscribed flag for all accounts
-        RLMRealm *realm = [RLMRealm defaultRealm];
-        [realm beginWriteTransaction];
-        for (TalkAccount *account in [TalkAccount allObjects]) {
-            account.pushNotificationSubscribed = NO;
-        }
-        [realm commitWriteTransaction];
-
         // Try to subscribe for push notifications in all accounts
         for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
             [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId];
