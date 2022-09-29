@@ -555,21 +555,21 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     NCPushNotificationKeyPair *keyPair = [self generatePushNotificationsKeyPairForAccountId:accountId];
 
     if (!keyPair) {
-        NSLog(@"Error while subscribing: Unable to generate push notifications key pair.");
+        [NCUtils log:@"Error while subscribing: Unable to generate push notifications key pair."];
         return;
     }
 
     NSString *pushToken = [[NCKeyChainController sharedInstance] combinedPushToken];
 
     if (!pushToken) {
-        NSLog(@"Error while subscribing: Push token is not available.");
+        [NCUtils log:@"Error while subscribing: Push token is not available."];
         return;
     }
 
 
     [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId] withPublicKey:keyPair.publicKey toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
         if (!error) {
-            NSLog(@"Subscribed to NC server successfully.");
+            [NCUtils log:@"Subscribed to NC server successfully."];
 
             NSString *publicKey = [responseDict objectForKey:@"publicKey"];
             NSString *deviceIdentifier = [responseDict objectForKey:@"deviceIdentifier"];
@@ -594,13 +594,13 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
                     managedAccount.lastPushSubscription = [[NSDate date] timeIntervalSince1970];
                     [realm commitWriteTransaction];
                     [[NCKeyChainController sharedInstance] setPushNotificationPrivateKey:keyPair.privateKey forAccountId:accountId];
-                    NSLog(@"Subscribed to Push Notification server successfully.");
+                    [NCUtils log:@"Subscribed to Push Notification server successfully."];
                 } else {
-                    NSLog(@"Error while subscribing to Push Notification server.");
+                    [NCUtils log:@"Error while subscribing to Push Notification server."];
                 }
             }];
         } else {
-            NSLog(@"Error while subscribing to NC server.");
+            [NCUtils log:@"Error while subscribing to NC server."];
         }
     }];
 #endif
