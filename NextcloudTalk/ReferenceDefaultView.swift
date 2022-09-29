@@ -92,7 +92,7 @@ import Foundation
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         if let thumbUrlString = reference["thumb"] as? String,
-           let request = NCAPIController.sharedInstance().createReferenceThumbnailRequest(forUrl: thumbUrlString, using: activeAccount) {
+           let request = NCAPIController.sharedInstance().createReferenceThumbnailRequest(forUrl: thumbUrlString) {
 
             referenceThumbnailView.setImageWith(request, placeholderImage: nil, success: nil) { _, _, _ in
                 self.setPlaceholderThumbnail()

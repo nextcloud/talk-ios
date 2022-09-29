@@ -2442,11 +2442,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url usingAccount:(TalkAccount *)account
+- (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url
 {
-    NSString *urlString = [NSString stringWithFormat:url, account.server];
-    NSMutableURLRequest *thumbnailRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
-    [thumbnailRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
+    NSMutableURLRequest *thumbnailRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
     return thumbnailRequest;
 }
 

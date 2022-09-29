@@ -249,6 +249,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 
 - (NSURLSessionDataTask *)getReferencesForText:(NSString *)text forAccount:(TalkAccount *)account withLimit:(NSInteger)limit withCompletionBlock:(GetReferencesForTextCompletionBlock)block;
-- (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url usingAccount:(TalkAccount *)account;
+- (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url;
 
 @end
