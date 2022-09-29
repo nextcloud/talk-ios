@@ -608,10 +608,8 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
 
 - (NCPushNotificationKeyPair *)generatePushNotificationsKeyPairForAccountId:(NSString *)accountId
 {
-    EVP_PKEY *pkey;
-    NSError *keyError;
-    pkey = [self generateRSAKey:&keyError];
-    if (keyError) {
+    EVP_PKEY *pkey = [self generateRSAKey];
+    if (!pkey) {
         return nil;
     }
     
@@ -648,7 +646,7 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     return keyPair;
 }
 
-- (EVP_PKEY *)generateRSAKey:(NSError **)error
+- (EVP_PKEY *)generateRSAKey
 {
     EVP_PKEY *pkey = EVP_PKEY_new();
     if (!pkey) {
@@ -659,11 +657,11 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     int exponent = RSA_F4;
     RSA *rsa = RSA_new();
     
-    if (BN_set_word(bigNumber, exponent) < 0) {
+    if (BN_set_word(bigNumber, exponent) == 0) {
         goto cleanup;
     }
     
-    if (RSA_generate_key_ex(rsa, 2048, bigNumber, NULL) < 0) {
+    if (RSA_generate_key_ex(rsa, 2048, bigNumber, NULL) == 0) {
         goto cleanup;
     }
     
@@ -675,7 +673,7 @@ cleanup:
     RSA_free(rsa);
     BN_free(bigNumber);
     
-    return pkey;
+    return NULL;
 }
 
 @end
