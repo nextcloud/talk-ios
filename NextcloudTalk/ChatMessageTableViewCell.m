@@ -41,6 +41,7 @@
 @property (nonatomic, strong) ReactionsView *reactionsView;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vConstraintNormal;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vConstraintReply;
+@property (nonatomic, strong) ReferenceView *referenceView;
 @end
 
 @implementation ChatMessageTableViewCell
@@ -90,6 +91,7 @@
     }
     
     [self.contentView addSubview:self.reactionsView];
+    [self.contentView addSubview:self.referenceView];
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"userStatusImageView": self.userStatusImageView,
@@ -99,7 +101,8 @@
                             @"bodyTextView": self.bodyTextView,
                             @"quoteContainerView": self.quoteContainerView,
                             @"quotedMessageView": self.quotedMessageView,
-                            @"reactionsView": self.reactionsView
+                            @"reactionsView": self.reactionsView,
+                            @"referenceView": self.referenceView
                             };
     
     NSDictionary *metrics = @{@"avatarSize": @(kChatCellAvatarHeight),
@@ -114,8 +117,9 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(>=dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[referenceView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        _vConstraintNormal = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
+        _vConstraintNormal = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[bodyTextView(>=0@999)]-0-[referenceView(0)]-0-[reactionsView(0)]-(>=left)-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:_vConstraintNormal];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
@@ -123,10 +127,11 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(>=dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[referenceView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[quoteContainerView(bodyTextView)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
-        _vConstraintReply = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[quoteContainerView]-left-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
+        _vConstraintReply = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[quoteContainerView]-left-[bodyTextView(>=0@999)]-0-[referenceView(0)]-0-[reactionsView(0)]-(>=left)-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:_vConstraintReply];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
@@ -160,8 +165,20 @@
     self.quotedMessageView.messageLabel.text = @"";
     
     self.reactionsView.reactions = @[];
-    if (_vConstraintNormal) {_vConstraintNormal[5].constant = 0;}
-    if (_vConstraintReply) {_vConstraintReply[6].constant = 0;}
+
+    if (_vConstraintNormal) {
+        _vConstraintNormal[4].constant = 0;
+        _vConstraintNormal[5].constant = 0;
+        _vConstraintNormal[7].constant = 0;
+    }
+
+    if (_vConstraintReply) {
+        _vConstraintReply[5].constant = 0;
+        _vConstraintReply[6].constant = 0;
+        _vConstraintReply[8].constant = 0;
+    }
+
+    [_referenceView prepareForReuse];
     
     [self.avatarView cancelImageDownloadTask];
     self.avatarView.image = nil;
@@ -240,6 +257,15 @@
         _reactionsView.reactionsDelegate = self;
     }
     return _reactionsView;
+}
+
+- (ReferenceView *)referenceView
+{
+    if (!_referenceView) {
+        _referenceView = [[ReferenceView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+        _referenceView.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    return _referenceView;
 }
 
 - (UIView *)quoteContainerView
@@ -330,8 +356,29 @@
     
     [self.reactionsView updateReactionsWithReactions:message.reactionsArray];
     if (message.reactionsArray.count > 0) {
-        if (_vConstraintNormal) {_vConstraintNormal[5].constant = 40;}
-        if (_vConstraintReply) {_vConstraintReply[6].constant = 40;}
+        if (_vConstraintNormal) {
+            _vConstraintNormal[7].constant = 40;
+        }
+
+        if (_vConstraintReply) {
+            _vConstraintReply[8].constant = 40;
+        }
+    }
+
+    if (message.containsURL) {
+        if (_vConstraintNormal) {
+            _vConstraintNormal[4].constant = 5;
+            _vConstraintNormal[5].constant = 100;
+        }
+
+        if (_vConstraintReply) {
+            _vConstraintReply[5].constant = 5;
+            _vConstraintReply[6].constant = 100;
+        }
+
+        [message getReferenceDataWithCompletionBlock:^(NSDictionary *referenceData, NSString *url) {
+            [self.referenceView updateFor:referenceData and:url];
+        }];
     }
 }
 

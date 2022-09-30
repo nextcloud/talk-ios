@@ -57,5 +57,6 @@
 #import "UIImageView+AFNetworking.h"
 #import "UIImage+CropRotate.h"
 #import "UIImageView+Letters.h"
+#import "MaterialActivityIndicator.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */

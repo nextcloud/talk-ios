@@ -3366,14 +3366,14 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (message.isGroupMessage) {
         GroupedChatMessageTableViewCell *groupedCell = (GroupedChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:GroupedChatMessageCellIdentifier];
         groupedCell.delegate = self;
-        
+
         [groupedCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
         
         return groupedCell;
     } else {
         ChatMessageTableViewCell *normalCell = (ChatMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:ChatMessageCellIdentifier];
         normalCell.delegate = self;
-        
+
         [normalCell setupForMessage:message withLastCommonReadMessage:_room.lastCommonReadMessage];
         
         return normalCell;
@@ -3432,6 +3432,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (message.reactionsArray.count > 0) {
         height += 40; // reactionsView(40)
     }
+
+    if (message.containsURL) {
+        height += 105;
+    }
     
     if (message.parent) {
         height += 55; // left(5) + quoteView(50)
@@ -3447,6 +3451,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         
         if (message.reactionsArray.count > 0) {
             height += 40; // reactionsView(40)
+        }
+
+        if (message.containsURL) {
+            height += 105;
         }
     }
     
