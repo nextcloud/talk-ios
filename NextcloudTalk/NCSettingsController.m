@@ -104,7 +104,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
         _signalingConfigutations = [NSMutableDictionary new];
         _externalSignalingControllers = [NSMutableDictionary new];
         
-        [self readValuesFromKeyChain];
         [self configureDatabase];
         [self checkStoredDataInKechain];
         [self configureAppSettings];
@@ -121,31 +120,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
 {
     // Init database
     [NCDatabaseManager sharedInstance];
-    
-    // Check possible account migration to database
-    if (_ncUser && _ncServer) {
-        NSLog(@"Migrating user to the database");
-        TalkAccount *account =  [[TalkAccount alloc] init];
-        account.accountId = [NSString stringWithFormat:@"%@@%@", _ncUser, _ncServer];
-        account.server = _ncServer;
-        account.user = _ncUser;
-        account.pushNotificationPublicKey = _ncPNPublicKey;
-        account.pushNotificationPublicKey = _ncPNPublicKey;
-        account.deviceIdentifier = _ncDeviceIdentifier;
-        account.deviceSignature = _ncDeviceSignature;
-        account.userPublicKey = _ncUserPublicKey;
-        account.active = YES;
-        
-        [[NCKeyChainController sharedInstance] setToken:_ncToken forAccountId:account.accountId];
-        [[NCKeyChainController sharedInstance] setPushNotificationPrivateKey:_ncPNPrivateKey forAccountId:account.accountId];
-        
-        RLMRealm *realm = [RLMRealm defaultRealm];
-        [realm transactionWithBlock:^{
-            [realm addObject:account];
-        }];
-        
-        [self cleanUserAndServerStoredValues];
-    }
 }
 
 - (void)checkStoredDataInKechain
@@ -154,7 +128,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     // This step should be always done before the possible account migration
     if ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) {
         NSLog(@"Removing all data stored in Keychain");
-        [self cleanUserAndServerStoredValues];
         [[NCKeyChainController sharedInstance] removeAllItems];
     }
 }
@@ -273,49 +246,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     [realm commitWriteTransaction];
 }
 
-#pragma mark - KeyChain
-
-- (void)readValuesFromKeyChain
-{
-    _ncServer = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCServerKey];
-    _ncUser = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserKey];
-    _ncUserId = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserIdKey];
-    _ncUserDisplayName = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserDisplayNameKey];
-    _ncToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCTokenKey];
-    _ncPushToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCPushTokenKey];
-    _ncNormalPushToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCNormalPushTokenKey];
-    _ncPushKitToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCPushKitTokenKey];
-    _ncPNPublicKey = [[NCKeyChainController sharedInstance].keychain dataForKey:kNCPNPublicKey];
-    _ncPNPrivateKey = [[NCKeyChainController sharedInstance].keychain dataForKey:kNCPNPrivateKey];
-    _ncDeviceIdentifier = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCDeviceIdentifier];
-    _ncDeviceSignature = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCDeviceSignature];
-    _ncUserPublicKey = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserPublicKey];
-}
-
-- (void)cleanUserAndServerStoredValues
-{
-    _ncServer = nil;
-    _ncUser = nil;
-    _ncUserDisplayName = nil;
-    _ncToken = nil;
-    _ncPNPublicKey = nil;
-    _ncPNPrivateKey = nil;
-    _ncUserPublicKey = nil;
-    _ncDeviceIdentifier = nil;
-    _ncDeviceSignature = nil;
-    
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCServerKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCUserKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCUserDisplayNameKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCTokenKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCPushSubscribedKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCPNPublicKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCPNPrivateKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCDeviceIdentifier];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCDeviceSignature];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCUserPublicKey];
-}
-
 #pragma mark - User Profile
 
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block
@@ -377,7 +307,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     }
     NCExternalSignalingController *extSignalingController = [self externalSignalingControllerForAccountId:removingAccount.accountId];
     [extSignalingController disconnect];
-    [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
     [[NCAPIController sharedInstance] removeProfileImageForAccount:removingAccount];
     [[NCDatabaseManager sharedInstance] removeAccountWithAccountId:removingAccount.accountId];
     [[[NCChatFileController alloc] init] deleteDownloadDirectoryForAccount:removingAccount];

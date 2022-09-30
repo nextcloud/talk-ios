@@ -25,20 +25,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const kNCServerKey;
-extern NSString * const kNCUserKey;
-extern NSString * const kNCUserIdKey;
-extern NSString * const kNCUserDisplayNameKey;
-extern NSString * const kNCTokenKey;
-extern NSString * const kNCPushTokenKey;
 extern NSString * const kNCNormalPushTokenKey;
 extern NSString * const kNCPushKitTokenKey;
-extern NSString * const kNCPushSubscribedKey;
-extern NSString * const kNCPNPublicKey;
-extern NSString * const kNCPNPrivateKey;
-extern NSString * const kNCDeviceIdentifier;
-extern NSString * const kNCDeviceSignature;
-extern NSString * const kNCUserPublicKey;
 
 @interface NCKeyChainController : NSObject
 

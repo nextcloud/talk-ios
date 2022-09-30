@@ -28,20 +28,10 @@
 
 @implementation NCKeyChainController
 
-NSString * const kNCServerKey                   = @"ncServer";
-NSString * const kNCUserKey                     = @"ncUser";
-NSString * const kNCUserIdKey                   = @"ncUserId";
-NSString * const kNCUserDisplayNameKey          = @"ncUserDisplayName";
 NSString * const kNCTokenKey                    = @"ncToken";
-NSString * const kNCPushTokenKey                = @"ncPushToken";
 NSString * const kNCNormalPushTokenKey          = @"ncNormalPushToken";
 NSString * const kNCPushKitTokenKey             = @"ncPushKitToken";
-NSString * const kNCPushSubscribedKey           = @"ncPushSubscribed";
-NSString * const kNCPNPublicKey                 = @"ncPNPublicKey";
 NSString * const kNCPNPrivateKey                = @"ncPNPrivateKey";
-NSString * const kNCDeviceIdentifier            = @"ncDeviceIdentifier";
-NSString * const kNCDeviceSignature             = @"ncDeviceSignature";
-NSString * const kNCUserPublicKey               = @"ncUserPublicKey";
 
 + (NCKeyChainController *)sharedInstance
 {

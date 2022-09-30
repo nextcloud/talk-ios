@@ -183,9 +183,7 @@
 
     // Store new Normal Push & PushKit tokens in Keychain
     UICKeyChainStore *keychain = [UICKeyChainStore keyChainStoreWithService:bundleIdentifier accessGroup:groupIdentifier];
-    [NCSettingsController sharedInstance].ncNormalPushToken = normalPushToken;
     [keychain setString:normalPushToken forKey:kNCNormalPushTokenKey];
-    [NCSettingsController sharedInstance].ncPushKitToken = pushKitToken;
     [keychain setString:pushKitToken forKey:kNCPushKitTokenKey];
 
     BOOL isAppInBackground = [[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground;
