@@ -107,6 +107,16 @@
 
             referenceView.addSubview(githubView)
             foundReferenceView = true
+        } else if richObjectType == "deck-card",
+                  let reference = firstReference["richObject"] as? [String: AnyObject] {
+
+            let deckView = ReferenceDeckView(frame: self.frame)
+            deckView.update(for: reference, and: url)
+            deckView.frame = self.bounds
+            deckView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+            referenceView.addSubview(deckView)
+            foundReferenceView = true
         } else if let reference = firstReference["openGraphObject"] as? [String: String?] {
             let defaultView = ReferenceDefaultView(frame: self.frame)
             defaultView.update(for: reference, and: url)
