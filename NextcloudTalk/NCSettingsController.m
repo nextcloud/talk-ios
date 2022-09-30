@@ -481,8 +481,18 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId
 {
 #if !TARGET_IPHONE_SIMULATOR
-    NCPushNotificationKeyPair *keyPair = [self generatePushNotificationsKeyPairForAccountId:accountId];
-
+    NCPushNotificationKeyPair *keyPair = nil;
+    NSData *pushNotificationPublicKey = [[NCKeyChainController sharedInstance] pushNotificationPublicKeyForAccountId:accountId];
+    NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:accountId];
+    
+    if (pushNotificationPublicKey && pushNotificationPrivateKey) {
+        keyPair = [[NCPushNotificationKeyPair alloc] init];
+        keyPair.publicKey = pushNotificationPublicKey;
+        keyPair.privateKey = pushNotificationPrivateKey;
+    } else {
+        keyPair = [self generatePushNotificationsKeyPairForAccountId:accountId];
+    }
+    
     if (!keyPair) {
         [NCUtils log:@"Error while subscribing: Unable to generate push notifications key pair."];
         return;
@@ -522,6 +532,7 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
                     managedAccount.pushNotificationPublicKey = keyPair.publicKey;
                     managedAccount.lastPushSubscription = [[NSDate date] timeIntervalSince1970];
                     [realm commitWriteTransaction];
+                    [[NCKeyChainController sharedInstance] setPushNotificationPublicKey:keyPair.publicKey forAccountId:accountId];
                     [[NCKeyChainController sharedInstance] setPushNotificationPrivateKey:keyPair.privateKey forAccountId:accountId];
                     [NCUtils log:@"Subscribed to Push Notification server successfully."];
                 } else {

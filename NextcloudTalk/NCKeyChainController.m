@@ -31,6 +31,7 @@
 NSString * const kNCTokenKey                    = @"ncToken";
 NSString * const kNCNormalPushTokenKey          = @"ncNormalPushToken";
 NSString * const kNCPushKitTokenKey             = @"ncPushKitToken";
+NSString * const kNCPNPublicKey                 = @"ncPNPublicKey";
 NSString * const kNCPNPrivateKey                = @"ncPNPrivateKey";
 
 + (NCKeyChainController *)sharedInstance
@@ -60,6 +61,16 @@ NSString * const kNCPNPrivateKey                = @"ncPNPrivateKey";
 - (NSString *)tokenForAccountId:(NSString *)accountId
 {
     return [_keychain stringForKey:[NSString stringWithFormat:@"%@-%@", kNCTokenKey, accountId]];
+}
+
+- (void)setPushNotificationPublicKey:(NSData *)privateKey forAccountId:(NSString *)accountId
+{
+    [_keychain setData:privateKey forKey:[NSString stringWithFormat:@"%@-%@", kNCPNPublicKey, accountId]];
+}
+
+- (NSData *)pushNotificationPublicKeyForAccountId:(NSString *)accountId
+{
+    return [_keychain dataForKey:[NSString stringWithFormat:@"%@-%@", kNCPNPublicKey, accountId]];
 }
 
 - (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccountId:(NSString *)accountId
