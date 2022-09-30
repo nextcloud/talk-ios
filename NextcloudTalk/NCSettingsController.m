@@ -587,14 +587,17 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     RSA *rsa = RSA_new();
     
     if (BN_set_word(bigNumber, exponent) == 0) {
+        pkey = NULL;
         goto cleanup;
     }
     
     if (RSA_generate_key_ex(rsa, 2048, bigNumber, NULL) == 0) {
+        pkey = NULL;
         goto cleanup;
     }
     
     if (!EVP_PKEY_set1_RSA(pkey, rsa)) {
+        pkey = NULL;
         goto cleanup;
     }
     
@@ -602,7 +605,7 @@ cleanup:
     RSA_free(rsa);
     BN_free(bigNumber);
     
-    return NULL;
+    return pkey;
 }
 
 @end
