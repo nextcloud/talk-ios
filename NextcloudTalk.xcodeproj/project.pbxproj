@@ -41,6 +41,7 @@
 		2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C06BF6320AC64370031EB46 /* DateHeaderView.xib */; };
 		2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
 		2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */; };
+		2C16A82C28E7284D00EDE523 /* NCButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C16A82B28E7284D00EDE523 /* NCButton.swift */; };
 		2C1ABD8625769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8025769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m */; };
 		2C1ABD8725769E7D00AEDFB6 /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
 		2C1ABD8825769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */; };
@@ -389,6 +390,7 @@
 		2C06BF6620AC647A0031EB46 /* DateHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateHeaderView.m; sourceTree = "<group>"; };
 		2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedNumberView.m; sourceTree = "<group>"; };
 		2C06BF6B20AEB0030031EB46 /* RoundedNumberView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedNumberView.h; sourceTree = "<group>"; };
+		2C16A82B28E7284D00EDE523 /* NCButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCButton.swift; sourceTree = "<group>"; };
 		2C1ABD7F25769E7C00AEDFB6 /* ShareItemController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareItemController.h; sourceTree = "<group>"; };
 		2C1ABD8025769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareConfirmationCollectionViewCell.m; sourceTree = "<group>"; };
 		2C1ABD8125769E7D00AEDFB6 /* ShareItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareItem.h; sourceTree = "<group>"; };
@@ -931,6 +933,7 @@
 				1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */,
 				1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */,
 				1F468E7728DCC7310099597B /* EmojiTextField.swift */,
+				2C16A82B28E7284D00EDE523 /* NCButton.swift */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -1908,6 +1911,7 @@
 				2C5BFBED28895E6B00E75118 /* ObjectShareMessageTableViewCell.m in Sources */,
 				2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */,
 				DA8801A227A2DA00009EF248 /* UserProfileTableViewController.swift in Sources */,
+				2C16A82C28E7284D00EDE523 /* NCButton.swift in Sources */,
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
 				2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
