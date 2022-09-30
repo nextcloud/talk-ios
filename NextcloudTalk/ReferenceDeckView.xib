@@ -11,7 +11,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ReferenceDeckView" customModule="NextcloudTalk" customModuleProvider="target">
             <connections>
                 <outlet property="contentView" destination="iN0-l3-epB" id="I1C-wk-7lp"/>
-                <outlet property="referenceBody" destination="PAt-pa-feD" id="TR8-w0-2bX"/>
+                <outlet property="referenceDescription" destination="PAt-pa-feD" id="5Vf-EF-IsR"/>
                 <outlet property="referenceDueDate" destination="WRq-4l-Gy5" id="Qol-5i-5g2"/>
                 <outlet property="referenceDueDateIcon" destination="0Ho-aZ-xOH" id="g13-yA-huU"/>
                 <outlet property="referenceTitle" destination="Iby-r5-06p" id="aI4-Yi-Bp4"/>
@@ -36,7 +36,7 @@
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" editable="NO" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PAt-pa-feD" userLabel="Body">
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" editable="NO" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PAt-pa-feD" userLabel="Description">
                     <rect key="frame" x="40" y="30" width="565" height="40"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>

@@ -26,7 +26,7 @@ import Foundation
     @IBOutlet var contentView: UIView!
     @IBOutlet weak var referenceTypeIcon: UIImageView!
     @IBOutlet weak var referenceTitle: UILabel!
-    @IBOutlet weak var referenceBody: UITextView!
+    @IBOutlet weak var referenceDescription: UITextView!
     @IBOutlet weak var referenceDueDate: UILabel!
     @IBOutlet weak var referenceDueDateIcon: UIImageView!
 
@@ -48,13 +48,14 @@ import Foundation
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
         referenceTitle.text = ""
-        referenceBody.text = ""
+        referenceDescription.text = ""
+        referenceDueDate.text = ""
         referenceTypeIcon.image = nil
 
         // Remove padding from textView and adjust lineBreakMode
-        referenceBody.textContainerInset = .zero
-        referenceBody.textContainer.lineFragmentPadding = .zero
-        referenceBody.textContainer.lineBreakMode = .byTruncatingTail
+        referenceDescription.textContainerInset = .zero
+        referenceDescription.textContainer.lineFragmentPadding = .zero
+        referenceDescription.textContainer.lineBreakMode = .byTruncatingTail
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(self.handleTap))
         contentView.addGestureRecognizer(tap)
@@ -75,6 +76,7 @@ import Foundation
 
         guard let card = reference["card"] as? [String: AnyObject] else {
             referenceTitle.text = url
+            referenceDescription.isHidden = true
             referenceDueDate.isHidden = true
             referenceDueDateIcon.isHidden = true
             return
@@ -83,11 +85,9 @@ import Foundation
         if let dueDateString = card["duedate"] as? String {
 
             let dateFormatter = DateFormatter()
-              dateFormatter.locale = Locale(identifier: "en_US_POSIX") // set locale to reliable US_POSIX
-              dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-              let date = dateFormatter.date(from:dueDateString)!
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            let date = dateFormatter.date(from: dueDateString)!
 
-           //let dueDate = NSDate(timeIntervalSince1970: TimeInterval(duedate))
             referenceDueDate.text = NCUtils.readableDateTime(from: date)
         } else {
             referenceDueDate.isHidden = true
@@ -99,9 +99,9 @@ import Foundation
         }
 
         if let body = card["description"] as? String {
-            referenceBody.text = body
+            referenceDescription.text = body
         } else {
-            referenceBody.text = NSLocalizedString("No description provided", comment: "")
+            referenceDescription.text = NSLocalizedString("No description provided", comment: "")
         }
     }
 }
