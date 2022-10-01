@@ -34,8 +34,9 @@
 
 @property (nonatomic, weak) id<AuthenticationViewControllerDelegate> delegate;
 
-@property(strong,nonatomic) WKWebView *webView;
+@property(strong, nonatomic) WKWebView *webView;
 @property(strong, nonatomic) NSString *serverUrl;
+@property(strong, nonatomic) NSString *user;
 
 - (id)initWithServerUrl:(NSString *)serverUrl;
 

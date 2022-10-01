@@ -40,4 +40,6 @@
 @property (nonatomic, weak) IBOutlet UIButton *cancel;
 @property (nonatomic, weak) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 
+- (void)startLoginProcessWithServerURL:(NSString *)serverURL withUser:(NSString *)user;
+
 @end

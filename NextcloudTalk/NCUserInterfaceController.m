@@ -98,16 +98,38 @@
 
 - (void)presentLoginViewController
 {
+    [self presentLoginViewControllerForServerURL:nil withUser:nil];
+}
+
+- (void)presentLoginViewControllerForServerURL:(NSString *)serverURL withUser:(NSString *)user
+{
     if (forceDomain && domain) {
         _authViewController = [[AuthenticationViewController alloc] initWithServerUrl:domain];
         _authViewController.delegate = self;
         _authViewController.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
         [_mainNavigationController presentViewController:_authViewController animated:YES completion:nil];
     } else {
-        _loginViewController = [[LoginViewController alloc] init];
-        _loginViewController.delegate = self;
-        _loginViewController.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
-        [_mainNavigationController presentViewController:_loginViewController animated:YES completion:nil];
+        // Don't open a login if we're in a call
+        if ([[NCRoomsManager sharedInstance] callViewController]) {
+            return;
+        }
+        
+        // Leave chat if we're currently in one
+        if ([[NCRoomsManager sharedInstance] chatViewController]) {
+            [self presentConversationsList];
+        }
+        
+        if (!_loginViewController || [_mainNavigationController presentedViewController] != _loginViewController) {
+            _loginViewController = [[LoginViewController alloc] init];
+            _loginViewController.delegate = self;
+            _loginViewController.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
+            
+            [_mainNavigationController presentViewController:_loginViewController animated:YES completion:nil];
+        }
+        
+        if (serverURL) {
+            [_loginViewController startLoginProcessWithServerURL:serverURL withUser:user];
+        }
     }
 }
 

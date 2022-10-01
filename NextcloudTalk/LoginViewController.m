@@ -31,7 +31,6 @@
 @interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate>
 {
     AuthenticationViewController *_authenticationViewController;
-    NSString *_serverURL;
 }
 
 @end
@@ -102,32 +101,7 @@
         return;
     }
     
-    _serverURL = serverInputText;
-    
-    // Check whether baseUrl contain protocol. If not add https:// by default.
-    if(![_serverURL hasPrefix:@"https"] && ![_serverURL hasPrefix:@"http"]) {
-        _serverURL = [NSString stringWithFormat:@"https://%@",_serverURL];
-    }
-    
-    // Remove trailing slash
-    if([_serverURL hasSuffix:@"/"]) {
-        _serverURL = [_serverURL substringToIndex:[_serverURL length] - 1];
-    }
-    
-    // Remove stored cookies
-    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    for (NSHTTPCookie *cookie in [storage cookies])
-    {
-        [storage deleteCookie:cookie];
-    }
-    
-    // Check if valid URL
-    NSURL *serverURL = [NSURL URLWithString:_serverURL];
-    if (serverURL) {
-        [self startLoginProcess];
-    } else {
-        [self showAlertWithTitle:NSLocalizedString(@"Invalid server address", nil) andMessage:NSLocalizedString(@"Please check that you entered a valid server address.", nil)];
-    }
+    [self startLoginProcessWithServerURL:serverInputText withUser:nil];
 }
 
 - (IBAction)cancel:(id)sender
@@ -148,18 +122,44 @@
 
 #pragma mark - Login
 
-- (void)startLoginProcess
+- (void)startLoginProcessWithServerURL:(NSString *)serverURL withUser:(NSString *)user
 {
+    // Check whether baseUrl contain protocol. If not add https:// by default.
+    if(![serverURL hasPrefix:@"https"] && ![serverURL hasPrefix:@"http"]) {
+        serverURL = [NSString stringWithFormat:@"https://%@",serverURL];
+    }
+    
+    // Remove trailing slash
+    if([serverURL hasSuffix:@"/"]) {
+        serverURL = [serverURL substringToIndex:[serverURL length] - 1];
+    }
+        
+    // Check if valid URL
+    NSURL *validServerURL = [NSURL URLWithString:serverURL];
+    if (!validServerURL) {
+        [self showAlertWithTitle:NSLocalizedString(@"Invalid server address", nil) andMessage:NSLocalizedString(@"Please check that you entered a valid server address.", nil)];
+        return;
+    }
+    
+    [self.serverUrl setText:serverURL];
+    
+    // Remove stored cookies
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (NSHTTPCookie *cookie in [storage cookies])
+    {
+        [storage deleteCookie:cookie];
+    }
+    
     [self.activityIndicatorView startAnimating];
     self.activityIndicatorView.hidden = NO;
-    [[NCAPIController sharedInstance] getServerCapabilitiesForServer:_serverURL withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
+    [[NCAPIController sharedInstance] getServerCapabilitiesForServer:serverURL withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
         [self.activityIndicatorView stopAnimating];
         self.activityIndicatorView.hidden = YES;
         if (!error) {
             NSArray *talkFeatures = [[[serverCapabilities objectForKey:@"capabilities"] objectForKey:@"spreed"] objectForKey:@"features"];
             // Check minimum required version
             if ([talkFeatures containsObject:kMinimumRequiredTalkCapability]) {
-                [self presentAuthenticationView];
+                [self presentAuthenticationViewWithServerURL:serverURL withUser:user];
             } else if (talkFeatures.count == 0) {
                 NSString *title = [NSString stringWithFormat:NSLocalizedString(@"%@ not installed", @"{app name} is not installed"), talkAppName];
                 NSString *message = [NSString stringWithFormat:NSLocalizedString(@"It seems that %@ is not installed in your server.", @"It seems that {app name} is not installed in your server."), talkAppName];
@@ -175,29 +175,23 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
                 });
-            } else if ([error code] == NSURLErrorAppTransportSecurityRequiresSecureConnection ||
-                       [error code] == NSURLErrorBadServerResponse ||
-                       [error code] == NSURLErrorCannotConnectToHost ||
-                       [error code] == NSURLErrorCannotFindHost ||
-                       [error code] == NSURLErrorClientCertificateRejected ||
-                       [error code] == NSURLErrorHTTPTooManyRedirects ||
-                       [error code] == NSURLErrorNetworkConnectionLost ||
-                       [error code] == NSURLErrorServerCertificateHasBadDate ||
-                       [error code] == NSURLErrorServerCertificateHasUnknownRoot ||
-                       [error code] == NSURLErrorTimedOut) {
+            } else {
                 NSString *errorMessage = [NSString stringWithFormat:@"%@\n%@", [error localizedDescription], NSLocalizedString(@"Please check that you entered the correct Nextcloud server address.", nil)];
                 [self showAlertWithTitle:NSLocalizedString(@"Nextcloud server not found", nil) andMessage:errorMessage];
-            } else {
-                [self showAlertWithTitle:NSLocalizedString(@"Nextcloud server not found", nil) andMessage:NSLocalizedString(@"Please check that you entered the correct Nextcloud server address.", nil)];
             }
         }
     }];
 }
 
-- (void)presentAuthenticationView
+- (void)presentAuthenticationViewWithServerURL:(NSString *)serverURL withUser:(NSString *)user
 {
-    _authenticationViewController = [[AuthenticationViewController alloc] initWithServerUrl:_serverURL];
+    _authenticationViewController = [[AuthenticationViewController alloc] initWithServerUrl:serverURL];
     _authenticationViewController.delegate = self;
+    
+    if (user) {
+        _authenticationViewController.user = user;
+    }
+    
     [self presentViewController:_authenticationViewController animated:YES completion:nil];
 }
 
