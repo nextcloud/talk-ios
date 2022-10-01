@@ -104,7 +104,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
         _signalingConfigutations = [NSMutableDictionary new];
         _externalSignalingControllers = [NSMutableDictionary new];
         
-        [self readValuesFromKeyChain];
         [self configureDatabase];
         [self checkStoredDataInKechain];
         [self configureAppSettings];
@@ -121,32 +120,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
 {
     // Init database
     [NCDatabaseManager sharedInstance];
-    
-    // Check possible account migration to database
-    if (_ncUser && _ncServer) {
-        NSLog(@"Migrating user to the database");
-        TalkAccount *account =  [[TalkAccount alloc] init];
-        account.accountId = [NSString stringWithFormat:@"%@@%@", _ncUser, _ncServer];
-        account.server = _ncServer;
-        account.user = _ncUser;
-        account.pushNotificationSubscribed = _pushNotificationSubscribed;
-        account.pushNotificationPublicKey = _ncPNPublicKey;
-        account.pushNotificationPublicKey = _ncPNPublicKey;
-        account.deviceIdentifier = _ncDeviceIdentifier;
-        account.deviceSignature = _ncDeviceSignature;
-        account.userPublicKey = _ncUserPublicKey;
-        account.active = YES;
-        
-        [[NCKeyChainController sharedInstance] setToken:_ncToken forAccountId:account.accountId];
-        [[NCKeyChainController sharedInstance] setPushNotificationPrivateKey:_ncPNPrivateKey forAccountId:account.accountId];
-        
-        RLMRealm *realm = [RLMRealm defaultRealm];
-        [realm transactionWithBlock:^{
-            [realm addObject:account];
-        }];
-        
-        [self cleanUserAndServerStoredValues];
-    }
 }
 
 - (void)checkStoredDataInKechain
@@ -155,7 +128,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     // This step should be always done before the possible account migration
     if ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) {
         NSLog(@"Removing all data stored in Keychain");
-        [self cleanUserAndServerStoredValues];
         [[NCKeyChainController sharedInstance] removeAllItems];
     }
 }
@@ -274,51 +246,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     [realm commitWriteTransaction];
 }
 
-#pragma mark - KeyChain
-
-- (void)readValuesFromKeyChain
-{
-    _ncServer = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCServerKey];
-    _ncUser = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserKey];
-    _ncUserId = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserIdKey];
-    _ncUserDisplayName = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserDisplayNameKey];
-    _ncToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCTokenKey];
-    _ncPushToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCPushTokenKey];
-    _ncNormalPushToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCNormalPushTokenKey];
-    _ncPushKitToken = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCPushKitTokenKey];
-    _pushNotificationSubscribed = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCPushSubscribedKey];
-    _ncPNPublicKey = [[NCKeyChainController sharedInstance].keychain dataForKey:kNCPNPublicKey];
-    _ncPNPrivateKey = [[NCKeyChainController sharedInstance].keychain dataForKey:kNCPNPrivateKey];
-    _ncDeviceIdentifier = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCDeviceIdentifier];
-    _ncDeviceSignature = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCDeviceSignature];
-    _ncUserPublicKey = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserPublicKey];
-}
-
-- (void)cleanUserAndServerStoredValues
-{
-    _ncServer = nil;
-    _ncUser = nil;
-    _ncUserDisplayName = nil;
-    _ncToken = nil;
-    _ncPNPublicKey = nil;
-    _ncPNPrivateKey = nil;
-    _ncUserPublicKey = nil;
-    _ncDeviceIdentifier = nil;
-    _ncDeviceSignature = nil;
-    _pushNotificationSubscribed = nil;
-    
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCServerKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCUserKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCUserDisplayNameKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCTokenKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCPushSubscribedKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCPNPublicKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCPNPrivateKey];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCDeviceIdentifier];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCDeviceSignature];
-    [[NCKeyChainController sharedInstance].keychain removeItemForKey:kNCUserPublicKey];
-}
-
 #pragma mark - User Profile
 
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block
@@ -380,7 +307,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     }
     NCExternalSignalingController *extSignalingController = [self externalSignalingControllerForAccountId:removingAccount.accountId];
     [extSignalingController disconnect];
-    [[NCSettingsController sharedInstance] cleanUserAndServerStoredValues];
     [[NCAPIController sharedInstance] removeProfileImageForAccount:removingAccount];
     [[NCDatabaseManager sharedInstance] removeAccountWithAccountId:removingAccount.accountId];
     [[[NCChatFileController alloc] init] deleteDownloadDirectoryForAccount:removingAccount];
@@ -555,24 +481,34 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId
 {
 #if !TARGET_IPHONE_SIMULATOR
-    NCPushNotificationKeyPair *keyPair = [self generatePushNotificationsKeyPairForAccountId:accountId];
-
+    NCPushNotificationKeyPair *keyPair = nil;
+    NSData *pushNotificationPublicKey = [[NCKeyChainController sharedInstance] pushNotificationPublicKeyForAccountId:accountId];
+    NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:accountId];
+    
+    if (pushNotificationPublicKey && pushNotificationPrivateKey) {
+        keyPair = [[NCPushNotificationKeyPair alloc] init];
+        keyPair.publicKey = pushNotificationPublicKey;
+        keyPair.privateKey = pushNotificationPrivateKey;
+    } else {
+        keyPair = [self generatePushNotificationsKeyPairForAccountId:accountId];
+    }
+    
     if (!keyPair) {
-        NSLog(@"Error while subscribing: Unable to generate push notifications key pair.");
+        [NCUtils log:@"Error while subscribing: Unable to generate push notifications key pair."];
         return;
     }
 
     NSString *pushToken = [[NCKeyChainController sharedInstance] combinedPushToken];
 
     if (!pushToken) {
-        NSLog(@"Error while subscribing: Push token is not available.");
+        [NCUtils log:@"Error while subscribing: Push token is not available."];
         return;
     }
 
 
     [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId] withPublicKey:keyPair.publicKey toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
         if (!error) {
-            NSLog(@"Subscribed to NC server successfully.");
+            [NCUtils log:@"Subscribed to NC server successfully."];
 
             NSString *publicKey = [responseDict objectForKey:@"publicKey"];
             NSString *deviceIdentifier = [responseDict objectForKey:@"deviceIdentifier"];
@@ -593,17 +529,17 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
                     [realm beginWriteTransaction];
                     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
                     TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
-                    managedAccount.pushNotificationPublicKey = keyPair.publicKey;
-                    managedAccount.pushNotificationSubscribed = YES;
+                    managedAccount.lastPushSubscription = [[NSDate date] timeIntervalSince1970];
                     [realm commitWriteTransaction];
+                    [[NCKeyChainController sharedInstance] setPushNotificationPublicKey:keyPair.publicKey forAccountId:accountId];
                     [[NCKeyChainController sharedInstance] setPushNotificationPrivateKey:keyPair.privateKey forAccountId:accountId];
-                    NSLog(@"Subscribed to Push Notification server successfully.");
+                    [NCUtils log:@"Subscribed to Push Notification server successfully."];
                 } else {
-                    NSLog(@"Error while subscribing to Push Notification server.");
+                    [NCUtils log:@"Error while subscribing to Push Notification server."];
                 }
             }];
         } else {
-            NSLog(@"Error while subscribing to NC server.");
+            [NCUtils log:@"Error while subscribing to NC server."];
         }
     }];
 #endif
@@ -611,10 +547,8 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
 
 - (NCPushNotificationKeyPair *)generatePushNotificationsKeyPairForAccountId:(NSString *)accountId
 {
-    EVP_PKEY *pkey;
-    NSError *keyError;
-    pkey = [self generateRSAKey:&keyError];
-    if (keyError) {
+    EVP_PKEY *pkey = [self generateRSAKey];
+    if (!pkey) {
         return nil;
     }
     
@@ -651,7 +585,7 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     return keyPair;
 }
 
-- (EVP_PKEY *)generateRSAKey:(NSError **)error
+- (EVP_PKEY *)generateRSAKey
 {
     EVP_PKEY *pkey = EVP_PKEY_new();
     if (!pkey) {
@@ -662,15 +596,18 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     int exponent = RSA_F4;
     RSA *rsa = RSA_new();
     
-    if (BN_set_word(bigNumber, exponent) < 0) {
+    if (BN_set_word(bigNumber, exponent) == 0) {
+        pkey = NULL;
         goto cleanup;
     }
     
-    if (RSA_generate_key_ex(rsa, 2048, bigNumber, NULL) < 0) {
+    if (RSA_generate_key_ex(rsa, 2048, bigNumber, NULL) == 0) {
+        pkey = NULL;
         goto cleanup;
     }
     
     if (!EVP_PKEY_set1_RSA(pkey, rsa)) {
+        pkey = NULL;
         goto cleanup;
     }
     

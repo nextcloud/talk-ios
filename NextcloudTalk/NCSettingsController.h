@@ -59,20 +59,6 @@ typedef enum NCPreferredFileSorting {
 
 @interface NCSettingsController : NSObject
 
-@property (nonatomic, copy) NSString *ncServer;
-@property (nonatomic, copy) NSString *ncUser;
-@property (nonatomic, copy) NSString *ncUserId;
-@property (nonatomic, copy) NSString *ncUserDisplayName;
-@property (nonatomic, copy) NSString *ncToken;
-@property (nonatomic, copy) NSString *ncPushToken;
-@property (nonatomic, copy) NSString *ncNormalPushToken;
-@property (nonatomic, copy) NSString *ncPushKitToken;
-@property (nonatomic, copy) NSString *pushNotificationSubscribed;
-@property (nonatomic, copy) NSData *ncPNPublicKey;
-@property (nonatomic, copy) NSData *ncPNPrivateKey;
-@property (nonatomic, copy) NSString *ncDeviceIdentifier;
-@property (nonatomic, copy) NSString *ncDeviceSignature;
-@property (nonatomic, copy) NSString *ncUserPublicKey;
 @property (nonatomic, strong) NSMutableArray *supportedBrowsers;
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
 @property (nonatomic, strong) NSMutableDictionary *signalingConfigutations; // accountId -> signalingConfigutation
@@ -81,7 +67,6 @@ typedef enum NCPreferredFileSorting {
 + (instancetype)sharedInstance;
 - (void)addNewAccountForUser:(NSString *)user withToken:(NSString *)token inServer:(NSString *)server;
 - (void)setActiveAccountWithAccountId:(NSString *)accountId;
-- (void)cleanUserAndServerStoredValues;
 - (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
 - (void)logoutAccountWithAccountId:(NSString *)accountId withCompletionBlock:(LogoutCompletionBlock)block;
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;

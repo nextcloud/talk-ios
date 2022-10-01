@@ -43,8 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *websiteScope;
 @property NSString *twitter;
 @property NSString *twitterScope;
-@property BOOL pushNotificationSubscribed;
-@property NSData *pushNotificationPublicKey;
+@property NSInteger lastPushSubscription;
 @property NSString *deviceIdentifier;
 @property NSString *deviceSignature;
 @property NSString *userPublicKey;
