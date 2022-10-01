@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="dark"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ReferenceDeckView" customModule="NextcloudTalk" customModuleProvider="target">
+            <connections>
+                <outlet property="contentView" destination="iN0-l3-epB" id="I1C-wk-7lp"/>
+                <outlet property="referenceDescription" destination="PAt-pa-feD" id="5Vf-EF-IsR"/>
+                <outlet property="referenceDueDate" destination="WRq-4l-Gy5" id="Qol-5i-5g2"/>
+                <outlet property="referenceDueDateIcon" destination="0Ho-aZ-xOH" id="g13-yA-huU"/>
+                <outlet property="referenceTitle" destination="Iby-r5-06p" id="aI4-Yi-Bp4"/>
+                <outlet property="referenceTypeIcon" destination="2GP-6u-K9h" id="9Rb-Cj-1Rs"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="615" height="100"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="2GP-6u-K9h" userLabel="TypeIcon">
+                    <rect key="frame" x="10" y="10" width="20" height="20"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Iby-r5-06p">
+                    <rect key="frame" x="40" y="10" width="33" height="20"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="20" id="tUH-q0-bIR"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" editable="NO" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PAt-pa-feD" userLabel="Description">
+                    <rect key="frame" x="40" y="30" width="565" height="40"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="10" id="3Gz-7A-Zcl"/>
+                    </constraints>
+                    <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                    <color key="textColor" systemColor="secondaryLabelColor"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                </textView>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="252" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" image="calendar" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="0Ho-aZ-xOH" userLabel="DueDateIcon">
+                    <rect key="frame" x="10" y="71" width="21" height="17.5"/>
+                    <color key="tintColor" systemColor="secondaryLabelColor"/>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="1234" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WRq-4l-Gy5" userLabel="DueDate">
+                    <rect key="frame" x="41" y="70" width="34.5" height="20"/>
+                    <constraints>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="1" id="r6q-i4-XD9"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                    <color key="textColor" systemColor="secondaryLabelColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="WRq-4l-Gy5" firstAttribute="top" secondItem="PAt-pa-feD" secondAttribute="bottom" id="3LN-KC-waZ"/>
+                <constraint firstItem="Iby-r5-06p" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="10" id="BrA-8P-nYn"/>
+                <constraint firstAttribute="bottom" secondItem="WRq-4l-Gy5" secondAttribute="bottom" constant="10" id="DLq-dI-may"/>
+                <constraint firstItem="0Ho-aZ-xOH" firstAttribute="top" secondItem="PAt-pa-feD" secondAttribute="bottom" id="GS1-i7-n3P"/>
+                <constraint firstItem="PAt-pa-feD" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="40" id="TWM-qw-eBP"/>
+                <constraint firstItem="WRq-4l-Gy5" firstAttribute="leading" secondItem="0Ho-aZ-xOH" secondAttribute="trailing" constant="10" id="ThS-Wa-bjq"/>
+                <constraint firstAttribute="bottom" secondItem="0Ho-aZ-xOH" secondAttribute="bottom" constant="10" id="c09-Ka-iZ0"/>
+                <constraint firstItem="PAt-pa-feD" firstAttribute="top" secondItem="Iby-r5-06p" secondAttribute="bottom" id="fRW-Ys-k9q"/>
+                <constraint firstItem="0Ho-aZ-xOH" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="10" id="lQc-87-EEi"/>
+                <constraint firstItem="Iby-r5-06p" firstAttribute="leading" secondItem="2GP-6u-K9h" secondAttribute="trailing" constant="10" id="w74-ha-ONw"/>
+                <constraint firstAttribute="trailing" secondItem="PAt-pa-feD" secondAttribute="trailing" constant="10" id="zSQ-v8-aFT"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="-96.376811594202906" y="-16.071428571428569"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="calendar" catalog="system" width="128" height="107"/>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>
