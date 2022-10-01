@@ -666,6 +666,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Update unread mentions indicator visibility
     if (_lastRoomWithMentionIndexPath) {
         _unreadMentionsBottomButton.hidden = [visibleRows containsObject:_lastRoomWithMentionIndexPath] || lastVisibleRowIndexPath.row > _lastRoomWithMentionIndexPath.row;
+
+        // Make sure the style is adjusted to current accounts theme
+        _unreadMentionsBottomButton.backgroundColor = [NCAppBranding themeColor];
+        [_unreadMentionsBottomButton setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
     }
 }
 
