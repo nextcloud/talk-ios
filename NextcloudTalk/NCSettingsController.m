@@ -529,7 +529,6 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
                     [realm beginWriteTransaction];
                     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
                     TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
-                    managedAccount.pushNotificationPublicKey = keyPair.publicKey;
                     managedAccount.lastPushSubscription = [[NSDate date] timeIntervalSince1970];
                     [realm commitWriteTransaction];
                     [[NCKeyChainController sharedInstance] setPushNotificationPublicKey:keyPair.publicKey forAccountId:accountId];
