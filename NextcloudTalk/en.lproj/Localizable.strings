@@ -724,6 +724,9 @@
 /* No comment provided by engineer. */
 "Join the conversation at" = "Join the conversation at";
 
+/* Last subscription to the push notification server */
+"Last subscription" = "Last subscription";
+
 /* No comment provided by engineer. */
 "Last sync" = "Last sync";
 
@@ -880,6 +883,9 @@
 /* No comment provided by engineer. */
 "Network not available" = "Network not available";
 
+/* Never subscribed to the push notification server */
+"Never subscribed" = "Never subscribed";
+
 /* No comment provided by engineer. */
 "New conversation" = "New conversation";
 
@@ -900,6 +906,9 @@
 
 /* No comment provided by engineer. */
 "No" = "No";
+
+/* No comment provided by engineer. */
+"No description provided" = "No description provided";
 
 /* No comment provided by engineer. */
 "No files in here" = "No files in here";
@@ -924,6 +933,9 @@
 
 /* '{Microphone, Camera, ...} access was not requested' */
 "Not requested" = "Not requested";
+
+/* No comment provided by engineer. */
+"Not supported" = "Not supported";
 
 /* No comment provided by engineer. */
 "Notifications" = "Notifications";
@@ -1049,6 +1061,9 @@
 "Published" = "Published";
 
 /* No comment provided by engineer. */
+"Push notifications" = "Push notifications";
+
+/* No comment provided by engineer. */
 "Question" = "Question";
 
 /* No comment provided by engineer. */
@@ -1110,6 +1125,9 @@
 
 /* No comment provided by engineer. */
 "Save" = "Save";
+
+/* No comment provided by engineer. */
+"Scanning QR Codes is not supported on this device." = "Scanning QR Codes is not supported on this device.";
 
 /* No comment provided by engineer. */
 "Search" = "Search";
@@ -1227,9 +1245,6 @@
 
 /* No comment provided by engineer. */
 "STUN servers" = "STUN servers";
-
-/* No comment provided by engineer. */
-"Subscribed to push server?" = "Subscribed to push server?";
 
 /* No comment provided by engineer. */
 "Sync contacts" = "Sync contacts";
