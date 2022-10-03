@@ -233,6 +233,9 @@
 "bot" = "bot";
 
 /* No comment provided by engineer. */
+"Call notification sent" = "Call notification sent";
+
+/* No comment provided by engineer. */
 "Call options" = "Call options";
 
 /* No comment provided by engineer. */
@@ -411,6 +414,9 @@
 
 /* No comment provided by engineer. */
 "Could not resend email invitations" = "Could not resend email invitations";
+
+/* No comment provided by engineer. */
+"Could not send call notification" = "Could not send call notification";
 
 /* No comment provided by engineer. */
 "Could not send the message" = "Could not send the message";
@@ -1137,6 +1143,9 @@
 
 /* No comment provided by engineer. */
 "Send" = "Send";
+
+/* No comment provided by engineer. */
+"Send call notification" = "Send call notification";
 
 /* No comment provided by engineer. */
 "Send message" = "Send message";
