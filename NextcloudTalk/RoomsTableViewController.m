@@ -145,7 +145,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [_unreadMentionsBottomButton setTitle:buttonText forState:UIControlStateNormal];
     
     [self.view addSubview:_unreadMentionsBottomButton];
-    
+
+    // Set selection color for selected cells
+    [self.tableView setTintColor:UIColor.systemGray4Color];
+
     NSDictionary *views = @{@"unreadMentionsButton": _unreadMentionsBottomButton};
     NSDictionary *metrics = @{@"buttonWidth": @(buttonWidth)};
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[unreadMentionsButton(28)]-30-|" options:0 metrics:nil views:views]];
@@ -227,7 +230,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     self.clearsSelectionOnViewWillAppear = self.splitViewController.isCollapsed;
 
-    if (self.splitViewController.isCollapsed) {
+    if (@available(iOS 14.0, *)) {
+        if (self.splitViewController.isCollapsed) {
+            [self setSelectedRoomToken:nil];
+        }
+    } else {
         [self setSelectedRoomToken:nil];
     }
 }
@@ -557,6 +564,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     // Update unread mentions indicator
     [self updateMentionsIndicator];
+
+    [self highlightSelectedRoom];
 }
 
 - (void)adaptInterfaceForAppState:(AppState)appState
@@ -1192,12 +1201,15 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     if (room.isFavorite) {
         [cell.favoriteImage setImage:[UIImage imageNamed:@"favorite-room"]];
     }
+
+    cell.roomToken = room.token;
         
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    [self setSelectedRoomToken:nil];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     // Present searched messages
@@ -1218,12 +1230,41 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
     
     // Present room chat
-<<<<<<< HEAD
-=======
-    [self setSelectedRoomToken:[self roomForIndexPath:indexPath].token];
->>>>>>> 08997027 (Add conversation list as sidebar in Talk UI for iPads and Macs)
     [self presentChatForRoomAtIndexPath:indexPath];
+    [self setSelectedRoomToken:[self roomForIndexPath:indexPath].token];
 }
 
+- (void)setSelectedRoomToken:(NSString *)selectedRoomToken
+{
+    _selectedRoomToken = selectedRoomToken;
+    [self highlightSelectedRoom];
+}
+
+- (void)removeRoomSelection {
+    [self setSelectedRoomToken:nil];
+}
+
+- (void)highlightSelectedRoom
+{
+    if(_selectedRoomToken != nil) {
+        NSUInteger idx = [_rooms indexOfObjectPassingTest:^(id obj, NSUInteger idx, BOOL *stop){
+            NCRoom* room = (NCRoom*)obj;
+            return [room.token isEqualToString:_selectedRoomToken];
+        }];
+        
+        if (idx != NSNotFound) {
+            NSIndexPath* indexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+            [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
+        }
+    } else {
+        NSIndexPath *selectedRow = [self.tableView indexPathForSelectedRow];
+        if (selectedRow != nil) {
+            [self.tableView deselectRowAtIndexPath:selectedRow animated:YES];
+
+            // Needed to make sure the highlight is really removed
+            [self.tableView reloadRowsAtIndexPaths:@[selectedRow] withRowAnimation:UITableViewRowAnimationNone];
+        }
+    }
+}
 
 @end

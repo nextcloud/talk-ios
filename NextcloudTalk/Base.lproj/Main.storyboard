@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="ecK-na-6ig">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="ecK-na-6ig">
     <device id="ipad12_9rounded" orientation="landscape" layout="fullscreen" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -18,7 +18,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="lNr-59-sMg">
-                                <rect key="frame" x="0.0" y="44.5" width="420" height="52"/>
+                                <rect key="frame" x="0.0" y="50" width="420" height="52"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="lNr-59-sMg" id="WiD-wD-jK1">
                                     <rect key="frame" x="100" y="0.0" width="320" height="52"/>
@@ -60,19 +60,19 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" axis="vertical" distribution="fillProportionally" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="4je-R6-T4G">
-                                <rect key="frame" x="40" y="466" width="985.5" height="92.5"/>
+                                <rect key="frame" x="40" y="466" width="965.5" height="92.5"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="navigationLogoOffline" translatesAutoresizingMaskIntoConstraints="NO" id="p23-aq-R5e">
-                                        <rect key="frame" x="481" y="0.0" width="24" height="24"/>
+                                        <rect key="frame" x="471" y="0.0" width="24" height="24"/>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Join a conversation or start a new one" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pLM-th-fh4">
-                                        <rect key="frame" x="282.5" y="34" width="421" height="29"/>
+                                        <rect key="frame" x="272.5" y="34" width="421" height="29"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Say hi to your friends and colleagues!" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rFf-QX-ZN4">
-                                        <rect key="frame" x="357.5" y="73" width="271" height="19.5"/>
+                                        <rect key="frame" x="347.5" y="73" width="271" height="19.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                         <color key="textColor" systemColor="secondaryLabelColor"/>
                                         <nil key="highlightedColor"/>
@@ -82,7 +82,6 @@
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstAttribute="trailingMargin" secondItem="4je-R6-T4G" secondAttribute="trailing" constant="20" id="AHn-Ik-4kR"/>
                             <constraint firstItem="4je-R6-T4G" firstAttribute="leading" secondItem="ufw-Yg-V9l" secondAttribute="leadingMargin" constant="20" id="IG1-bN-NoI"/>
                             <constraint firstItem="4je-R6-T4G" firstAttribute="centerY" secondItem="ufw-Yg-V9l" secondAttribute="centerY" id="Jvy-Ac-6TQ"/>
                             <constraint firstItem="4je-R6-T4G" firstAttribute="centerX" secondItem="ufw-Yg-V9l" secondAttribute="centerX" id="KTw-qM-i9Y"/>
@@ -162,7 +161,7 @@
                         <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="y90-mb-BxJ">
-                                <rect key="frame" x="0.0" y="49.5" width="1366" height="51.5"/>
+                                <rect key="frame" x="0.0" y="55.5" width="1366" height="51.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="y90-mb-BxJ" id="XO0-Yu-aVx">
                                     <rect key="frame" x="0.0" y="0.0" width="1366" height="51.5"/>

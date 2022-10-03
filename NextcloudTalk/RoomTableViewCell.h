@@ -39,6 +39,7 @@ extern CGFloat const kRoomTableCellHeight;
 @property (weak, nonatomic) IBOutlet UILabel *userStatusLabel;
 
 @property (nonatomic, assign) BOOL titleOnly;
+@property NSString *roomToken;
 
 - (void)setUnreadMessages:(NSInteger)number mentioned:(BOOL)mentioned groupMentioned:(BOOL)groupMentioned;
 - (void)setUserStatus:(NSString *)userStatus;

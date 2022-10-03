@@ -26,5 +26,10 @@
 @interface RoomsTableViewController : UITableViewController
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *addButton;
+@property (nonatomic) NSString *selectedRoomToken;
+
+- (void)setSelectedRoomToken:(NSString *)selectedRoomToken;
+- (void)highlightSelectedRoom;
+- (void)removeRoomSelection;
 
 @end

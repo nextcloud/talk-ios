@@ -199,6 +199,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    NSLog(@"Dealloc NCChatViewController");
 }
 
 #pragma mark - View lifecycle
@@ -459,7 +460,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (self.isMovingFromParentViewController) {
         [self leaveChat];
     }
-    
+
     [_videoCallButton hideActivityIndicator];
     [_voiceCallButton hideActivityIndicator];
 }
@@ -1098,7 +1099,15 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)titleButtonPressed:(id)sender
 {
     RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room fromChatViewController:self];
-    [self.navigationController pushViewController:roomInfoVC animated:YES];
+    NCSplitViewController *splitViewController = [NCUserInterfaceController sharedInstance].mainSplitViewController;
+
+    if (splitViewController != nil && !splitViewController.isCollapsed) {
+        roomInfoVC.modalPresentationStyle = UIModalPresentationPageSheet;
+        UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:roomInfoVC];
+        [self presentViewController:navController animated:YES completion:nil];
+    } else {
+        [self.navigationController pushViewController:roomInfoVC animated:YES];
+    }
     
     // When returning from RoomInfoTableViewController the default keyboard will be shown, so the height might be wrong -> make sure the keyboard is hidden
     [self dismissKeyboard:YES];

@@ -247,7 +247,7 @@ typedef enum FileAction {
     tap.delegate = self;
     [self.view addGestureRecognizer:tap];
     
-    if (!_chatViewController) {
+    if (!_chatViewController || [self.navigationController.viewControllers count] == 1) {
         UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                       target:self action:@selector(cancelButtonPressed)];
         self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
