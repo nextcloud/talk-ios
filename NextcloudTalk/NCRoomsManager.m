@@ -554,7 +554,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         }
         [[NCUserInterfaceController sharedInstance] presentChatViewController:_chatViewController];
     } else {
-        NSLog(@"Not starting chat: chatViewController for room %@ does already exist.", room.token);
+        NSLog(@"Not creating new chat room: chatViewController for room %@ does already exist.", room.token);
     }
 }
 

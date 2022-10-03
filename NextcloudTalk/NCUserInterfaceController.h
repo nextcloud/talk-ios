@@ -26,11 +26,20 @@
 #import "CallViewController.h"
 #import "NCChatViewController.h"
 #import "NCNotificationController.h"
+#import "NCNavigationController.h"
 #import "NCPushNotification.h"
+#import "RoomsTableViewController.h"
+
+@class NCSplitViewController;
 
 @interface NCUserInterfaceController : NSObject
 
-@property (nonatomic, strong) UINavigationController *mainNavigationController;
+// Will be of type NCSplitViewController on iOS >= 14
+// and NCNavigationController on iOS < 13
+@property (nonatomic, strong) UIViewController *mainViewController;
+
+@property (nonatomic, strong) NCSplitViewController *mainSplitViewController;
+@property (nonatomic, strong) RoomsTableViewController *roomsTableViewController;
 
 + (instancetype)sharedInstance;
 - (void)presentConversationsList;

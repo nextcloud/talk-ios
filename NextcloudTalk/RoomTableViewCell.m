@@ -25,6 +25,7 @@
 #import "UIImageView+AFNetworking.h"
 
 #import "NCAppBranding.h"
+#import "NCUserInterfaceController.h"
 #import "RoundedNumberView.h"
 
 #define kTitleOriginY       12
@@ -44,6 +45,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
 @end
 
 @implementation RoomTableViewCell
+
+@synthesize roomToken;
 
 - (void)awakeFromNib {
     [super awakeFromNib];
@@ -82,9 +85,13 @@ CGFloat const kRoomTableCellHeight = 74.0f;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    // Ignore deselection if this is the cell for the currently selected room
+     // E.g. prevent automatic deselection when bringing up swipe actions of cell
+     if(!selected && [[NCUserInterfaceController sharedInstance].roomsTableViewController.selectedRoomToken isEqualToString:roomToken]) {
+         return;
+     }
+    
     [super setSelected:selected animated:animated];
-
-    // Configure the view for the selected state
 }
 
 - (void)prepareForReuse
