@@ -645,11 +645,17 @@ NSString * const kSharedItemTypeVoice       = @"voice";
 
     _urlDetectionDone = YES;
 
-    if (urlMatches.count > 0) {
-        _urlDetected = [[[urlMatches objectAtIndex:0] URL] absoluteString];
+    for (NSTextCheckingResult *match in urlMatches) {
+        NSURL *url = [match URL];
+        NSString *scheme = [url scheme];
+
+        if ([scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"]) {
+            _urlDetected = [url absoluteString];
+            return true;
+        }
     }
 
-    return (urlMatches.count > 0);
+    return false;
 }
 
 - (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock)block
