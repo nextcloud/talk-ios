@@ -1250,7 +1250,13 @@ typedef enum FileAction {
     
     BOOL canParticipantBeModerated = participant.participantType != kNCParticipantTypeOwner && ![self isAppUser:participant] && _room.canModerate;
     
-    BOOL canParticipantBeNotifiedAboutCall = [participant.actorType isEqualToString:NCAttendeeTypeUser] && ![self isAppUser:participant] && (_room.permissions & NCPermissionStartCall) && _room.participantFlags > CallFlagDisconnected && participant.inCall == CallFlagDisconnected && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySendCallNotification];
+    BOOL canParticipantBeNotifiedAboutCall =
+    ![self isAppUser:participant] &&
+    (_room.permissions & NCPermissionStartCall) &&
+    _room.participantFlags > CallFlagDisconnected &&
+    participant.inCall == CallFlagDisconnected &&
+    [participant.actorType isEqualToString:NCAttendeeTypeUser] &&
+    [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySendCallNotification];
     
     UIAlertController *optionsActionSheet =
     [UIAlertController alertControllerWithTitle:participant.detailedName
