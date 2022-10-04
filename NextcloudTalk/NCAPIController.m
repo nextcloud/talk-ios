@@ -2430,7 +2430,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         NSDictionary *responseReferences = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"references"];
         if (block) {
             // When there's no data, the server returns an empty array instead of a dictionary
-            if (![responseReferences isKindOfClass:[NSDictionary class]]) {
+            // Also we don't want to have a dictionary with NSNull values in it
+            if (![responseReferences isKindOfClass:[NSDictionary class]] || [[responseReferences objectForKey:url] isKindOfClass:[NSNull class]]) {
                 block(@{}, nil);
             } else {
                 block(responseReferences, nil);
