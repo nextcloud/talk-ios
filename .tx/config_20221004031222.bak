@@ -1,0 +1,24 @@
+[main]
+host = https://www.transifex.com
+
+[o:nextcloud:p:nextcloud:r:talk-ios]
+file_filter = NextcloudTalk/<lang>.lproj/Localizable.strings
+source_file = NextcloudTalk/en.lproj/Localizable.strings
+source_lang = en
+type        = STRINGS
+lang_map    = es_PE: es-PE, es_419: es-419, es_MX: es-MX, cs_CZ: cs, es_DO: es-DO, es_HN: es-HN, es_PY: es-PY, es_SV: es-SV, es_CR: es-CR, pt_BR: pt-BR, nb_NO: nb-NO, es_CL: es-CL, es_GT: es-GT, ja_JP: ja, en_GB: en-GB, es_AR: es-AR, es_NI: es-NI, sk_SK: sk-SK, ka_GE: ka-GE, es_CO: es-CO, es_PR: es-PR, hu_HU: hu, zh_TW: zh-Hant-TW, es_PA: es-PA, pt_PT: pt-PT, zh_CN: zh-Hans, fi_FI: fi-FI, es_EC: es-EC, es_UY: es-UY
+
+[o:nextcloud:p:nextcloud:r:talk-ios-info]
+file_filter = NextcloudTalk/<lang>.lproj/InfoPlist.strings
+source_file = NextcloudTalk/en.lproj/InfoPlist.strings
+source_lang = en
+type        = STRINGS
+lang_map    = es_GT: es-GT, es_PA: es-PA, ja_JP: ja, fi_FI: fi-FI, es_AR: es-AR, es_CL: es-CL, es_NI: es-NI, es_SV: es-SV, pt_BR: pt-BR, es_MX: es-MX, nb_NO: nb-NO, hu_HU: hu, es_DO: es-DO, es_UY: es-UY, en_GB: en-GB, ka_GE: ka-GE, es_PE: es-PE, es_PY: es-PY, pt_PT: pt-PT, zh_CN: zh-Hans, sk_SK: sk-SK, es_CO: es-CO, es_PR: es-PR, es_419: es-419, cs_CZ: cs, zh_TW: zh-Hant-TW, es_CR: es-CR, es_EC: es-EC, es_HN: es-HN
+
+[o:nextcloud:p:nextcloud:r:talk-ios-plurals]
+file_filter = NextcloudTalk/<lang>.lproj/Localizable.stringsdict
+source_file = NextcloudTalk/en.lproj/Localizable.stringsdict
+source_lang = en
+type        = STRINGSDICT
+lang_map    = nb_NO: nb-NO, en_GB: en-GB, es_PE: es-PE, es_PR: es-PR, pt_PT: pt-PT, ja_JP: ja, fi_FI: fi-FI, sk_SK: sk-SK, es_GT: es-GT, es_NI: es-NI, zh_CN: zh-Hans, ka_GE: ka-GE, es_419: es-419, es_CL: es-CL, es_UY: es-UY, es_CO: es-CO, es_PA: es-PA, cs_CZ: cs, es_EC: es-EC, es_HN: es-HN, pt_BR: pt-BR, hu_HU: hu, es_CR: es-CR, es_DO: es-DO, es_SV: es-SV, es_MX: es-MX, es_AR: es-AR, zh_TW: zh-Hant-TW, es_PY: es-PY
+
