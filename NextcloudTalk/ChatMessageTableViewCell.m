@@ -377,7 +377,9 @@
         }
 
         [message getReferenceDataWithCompletionBlock:^(NSDictionary *referenceData, NSString *url) {
-            [self.referenceView updateFor:referenceData and:url];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.referenceView updateFor:referenceData and:url];
+            });
         }];
     }
 }
