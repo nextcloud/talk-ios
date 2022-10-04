@@ -174,6 +174,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     self.addButton.tintColor = [NCAppBranding themeTextColor];
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
 
     UIColor *themeColor = [NCAppBranding themeColor];
