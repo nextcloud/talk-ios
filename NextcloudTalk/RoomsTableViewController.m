@@ -49,6 +49,7 @@
 #import "NewRoomTableViewController.h"
 #import "NotificationCenterNotifications.h"
 #import "PlaceholderView.h"
+#import "RoomCreation2TableViewController.h"
 #import "RoomInfoTableViewController.h"
 #import "RoomSearchTableViewController.h"
 #import "RoomTableViewCell.h"
@@ -165,6 +166,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userProfileImageUpdated:) name:NCUserProfileImageUpdatedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCSelectedContactForChatNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
 }
 
 - (void)setupNavigationBar
@@ -314,6 +317,15 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)appWillResignActive:(NSNotification *)notification
 {
     [self stopRefreshRoomsTimer];
+}
+
+- (void)roomCreated:(NSNotification *)notification
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self refreshRooms];
+        NSString *roomToken = [notification.userInfo objectForKey:@"token"];
+        [self setSelectedRoomToken:roomToken];
+    });
 }
 
 #pragma mark - Interface Builder Actions
