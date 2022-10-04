@@ -43,7 +43,7 @@ NSString * const pushNotificationServer = @"https://push-notifications.nextcloud
 BOOL const multiAccountEnabled = YES;
 BOOL const forceDomain = NO;
 NSString * const domain = nil;
-NSString * const appAlternateVersion = @"15.0.0 (beta 3)";
+NSString * const appAlternateVersion = @"15.0.0 (beta 4)";
 
 + (NSString *)getAppVersionString
 {
