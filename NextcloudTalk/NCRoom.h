@@ -133,6 +133,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, copy) NSString *status;
 @property (nonatomic, copy) NSString *statusIcon;
 @property (nonatomic, copy) NSString *statusMessage;
+@property (nonatomic, assign) NSInteger participantFlags;
 @property (nonatomic, assign) NSInteger permissions;
 @property (nonatomic, assign) NSInteger attendeePermissions;
 @property (nonatomic, assign) NSInteger callPermissions;

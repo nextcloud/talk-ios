@@ -33,6 +33,7 @@
 #import "NextcloudTalk-Swift.h"
 
 #import "AddParticipantsTableViewController.h"
+#import "CallConstants.h"
 #import "ContactsTableViewCell.h"
 #import "HeaderWithButton.h"
 #import "NCAPIController.h"
@@ -109,6 +110,7 @@ typedef enum ModificationError {
     kModificationErrorShare,
     kModificationErrorPassword,
     kModificationErrorResendInvitations,
+    kModificationErrorSendCallNotification,
     kModificationErrorLobby,
     kModificationErrorSIP,
     kModificationErrorModeration,
@@ -550,6 +552,10 @@ typedef enum FileAction {
             errorDescription = NSLocalizedString(@"Could not resend email invitations", nil);
             break;
             
+        case kModificationErrorSendCallNotification:
+            errorDescription = NSLocalizedString(@"Could not send call notification", nil);
+            break;
+            
         case kModificationErrorLobby:
             errorDescription = NSLocalizedString(@"Could not change lobby state of the conversation", nil);
             break;
@@ -896,6 +902,23 @@ typedef enum FileAction {
     }];
 }
 
+- (void)sendCallNotificationToParticipant:(NSString *)participant fromIndexPath:(NSIndexPath *)indexPath
+{
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] sendCallNotificationToParticipant:participant inRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+            CGPoint toastPosition = CGPointMake(cell.center.x, cell.center.y);
+            [self.view makeToast:NSLocalizedString(@"Call notification sent", nil) duration:1.5 position:@(toastPosition)];
+        } else {
+            NSLog(@"Error sending call notification: %@", error.description);
+            [self.tableView reloadData];
+            [self showRoomModificationError:kModificationErrorSendCallNotification];
+        }
+    }];
+}
+
 - (void)makeRoomPublic
 {
     [self setModifyingRoomUI];
@@ -1221,16 +1244,26 @@ typedef enum FileAction {
     [self getRoomParticipants];
 }
 
-- (void)showModerationOptionsForParticipantAtIndexPath:(NSIndexPath *)indexPath
+- (void)showOptionsForParticipantAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
+    
+    BOOL canParticipantBeModerated = participant.participantType != kNCParticipantTypeOwner && ![self isAppUser:participant] && _room.canModerate;
+    
+    BOOL canParticipantBeNotifiedAboutCall =
+    ![self isAppUser:participant] &&
+    (_room.permissions & NCPermissionStartCall) &&
+    _room.participantFlags > CallFlagDisconnected &&
+    participant.inCall == CallFlagDisconnected &&
+    [participant.actorType isEqualToString:NCAttendeeTypeUser] &&
+    [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySendCallNotification];
     
     UIAlertController *optionsActionSheet =
     [UIAlertController alertControllerWithTitle:participant.detailedName
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
-    if (participant.canBeDemoted) {
+    if (canParticipantBeModerated && participant.canBeDemoted) {
         UIAlertAction *demoteFromModerator = [UIAlertAction actionWithTitle:NSLocalizedString(@"Demote from moderator", nil)
                                                                       style:UIAlertActionStyleDefault
                                                                     handler:^void (UIAlertAction *action) {
@@ -1238,7 +1271,7 @@ typedef enum FileAction {
                                                                     }];
         [demoteFromModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:demoteFromModerator];
-    } else if (participant.canBePromoted) {
+    } else if (canParticipantBeModerated && participant.canBePromoted) {
         UIAlertAction *promoteToModerator = [UIAlertAction actionWithTitle:NSLocalizedString(@"Promote to moderator", nil)
                                                                      style:UIAlertActionStyleDefault
                                                                    handler:^void (UIAlertAction *action) {
@@ -1246,6 +1279,16 @@ typedef enum FileAction {
                                                                    }];
         [promoteToModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:promoteToModerator];
+    }
+    
+    if (canParticipantBeNotifiedAboutCall) {
+        UIAlertAction *sendCallNotification = [UIAlertAction actionWithTitle:NSLocalizedString(@"Send call notification", nil)
+                                                                   style:UIAlertActionStyleDefault
+                                                                 handler:^void (UIAlertAction *action) {
+                                                                    [self sendCallNotificationToParticipant:[NSString stringWithFormat:@"%ld", (long)participant.attendeeId] fromIndexPath:indexPath];
+                                                                }];
+        [sendCallNotification setValue:[[UIImage imageNamed:@"notifications"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [optionsActionSheet addAction:sendCallNotification];
     }
     
     if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
@@ -1258,21 +1301,34 @@ typedef enum FileAction {
         [optionsActionSheet addAction:resendInvitation];
     }
     
-    // Remove participant
-    NSString *title = NSLocalizedString(@"Remove participant", nil);
-    if (participant.isGroup) {
-        title = NSLocalizedString(@"Remove group and members", nil);
-    } else if (participant.isCircle) {
-        title = NSLocalizedString(@"Remove circle and members", nil);
+    if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
+        UIAlertAction *resendInvitation = [UIAlertAction actionWithTitle:NSLocalizedString(@"Resend invitation", nil)
+                                                                   style:UIAlertActionStyleDefault
+                                                                 handler:^void (UIAlertAction *action) {
+                                                                    [self resendInvitationToParticipant:[NSString stringWithFormat:@"%ld", (long)participant.attendeeId] fromIndexPath:indexPath];
+                                                                }];
+        [resendInvitation setValue:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [optionsActionSheet addAction:resendInvitation];
     }
-    UIAlertAction *removeParticipant = [UIAlertAction actionWithTitle:title
-                                                                style:UIAlertActionStyleDestructive
-                                                              handler:^void (UIAlertAction *action) {
-                                                                  [self removeParticipant:participant];
-                                                              }];
-    [removeParticipant setValue:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    [optionsActionSheet addAction:removeParticipant];
     
+    if (canParticipantBeModerated) {
+        // Remove participant
+        NSString *title = NSLocalizedString(@"Remove participant", nil);
+        if (participant.isGroup) {
+            title = NSLocalizedString(@"Remove group and members", nil);
+        } else if (participant.isCircle) {
+            title = NSLocalizedString(@"Remove circle and members", nil);
+        }
+        UIAlertAction *removeParticipant = [UIAlertAction actionWithTitle:title
+                                                                    style:UIAlertActionStyleDestructive
+                                                                  handler:^void (UIAlertAction *action) {
+                                                                      [self removeParticipant:participant];
+                                                                  }];
+        [removeParticipant setValue:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [optionsActionSheet addAction:removeParticipant];
+    }
+    
+    if (optionsActionSheet.actions.count == 0) {return;}
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
     
@@ -2350,10 +2406,7 @@ typedef enum FileAction {
             break;
         case kRoomInfoSectionParticipants:
         {
-            NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
-            if (participant.participantType != kNCParticipantTypeOwner && ![self isAppUser:participant] && _room.canModerate) {
-                [self showModerationOptionsForParticipantAtIndexPath:indexPath];
-            }
+            [self showOptionsForParticipantAtIndexPath:indexPath];
         }
             break;
         case kRoomInfoSectionDestructive:
