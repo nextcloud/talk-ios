@@ -60,19 +60,19 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" axis="vertical" distribution="fillProportionally" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="4je-R6-T4G">
-                                <rect key="frame" x="40" y="466" width="965.5" height="92.5"/>
+                                <rect key="frame" x="40" y="460.5" width="965.5" height="103.5"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="navigationLogoOffline" translatesAutoresizingMaskIntoConstraints="NO" id="p23-aq-R5e">
-                                        <rect key="frame" x="471" y="0.0" width="24" height="24"/>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="app-logo-callkit" translatesAutoresizingMaskIntoConstraints="NO" id="p23-aq-R5e">
+                                        <rect key="frame" x="463" y="0.0" width="40" height="40"/>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Join a conversation or start a new one" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pLM-th-fh4">
-                                        <rect key="frame" x="272.5" y="34" width="421" height="29"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
+                                        <rect key="frame" x="306" y="50" width="354" height="24"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Say hi to your friends and colleagues!" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rFf-QX-ZN4">
-                                        <rect key="frame" x="347.5" y="73" width="271" height="19.5"/>
+                                        <rect key="frame" x="347.5" y="84" width="271" height="19.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                         <color key="textColor" systemColor="secondaryLabelColor"/>
                                         <nil key="highlightedColor"/>
@@ -89,6 +89,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="dMP-bU-p4J"/>
                     <connections>
+                        <outlet property="logoImage" destination="p23-aq-R5e" id="cTb-t2-hcu"/>
                         <outlet property="subtitleLabel" destination="rFf-QX-ZN4" id="57g-Fb-Klw"/>
                         <outlet property="titleLabel" destination="pLM-th-fh4" id="NPE-0i-u1e"/>
                     </connections>
@@ -208,7 +209,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="navigationLogoOffline" width="24" height="24"/>
+        <image name="app-logo-callkit" width="40" height="40"/>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

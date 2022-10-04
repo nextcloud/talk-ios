@@ -25,12 +25,14 @@ import UIKit
 
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!
+    @IBOutlet weak var logoImage: UIImageView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         titleLabel.text = NSLocalizedString("Join a conversation or start a new one", comment: "")
         subtitleLabel.text = NSLocalizedString("Say hi to your friends and colleagues!", comment: "")
+        logoImage.image = UIImage(named: "app-logo-callkit")?.withTintColor(UIColor.systemGray)
 
         adjustTheming()
 
