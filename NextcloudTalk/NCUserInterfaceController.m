@@ -121,7 +121,7 @@
             _loginViewController.delegate = self;
             _loginViewController.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
             
-            [_mainViewController presentViewController:_authViewController animated:YES completion:nil];
+            [_mainViewController presentViewController:_loginViewController animated:YES completion:nil];
         }
         
         if (serverURL) {
