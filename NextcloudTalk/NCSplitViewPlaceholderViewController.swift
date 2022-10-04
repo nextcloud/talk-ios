@@ -28,9 +28,21 @@ import UIKit
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         titleLabel.text = NSLocalizedString("Join a conversation or start a new one", comment: "")
         subtitleLabel.text = NSLocalizedString("Say hi to your friends and colleagues!", comment: "")
 
+        adjustTheming()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(self.appStateChanged(notification:)), name: NSNotification.Name.NCAppStateHasChanged, object: nil)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        let roomsTableViewController = NCUserInterfaceController.sharedInstance().roomsTableViewController
+        roomsTableViewController?.removeRoomSelection()
+    }
+
+    func adjustTheming() {
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
         self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
@@ -45,8 +57,7 @@ import UIKit
         self.navigationItem.scrollEdgeAppearance = appearance
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        let roomsTableViewController = NCUserInterfaceController.sharedInstance().roomsTableViewController
-        roomsTableViewController?.removeRoomSelection()
+    func appStateChanged(notification: Notification) {
+        adjustTheming()
     }
 }
