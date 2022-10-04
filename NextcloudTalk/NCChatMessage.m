@@ -645,11 +645,17 @@ NSString * const kSharedItemTypeVoice       = @"voice";
 
     _urlDetectionDone = YES;
 
-    if (urlMatches.count > 0) {
-        _urlDetected = [[[urlMatches objectAtIndex:0] URL] absoluteString];
+    for (NSTextCheckingResult *match in urlMatches) {
+        NSURL *url = [match URL];
+        NSString *scheme = [url scheme];
+
+        if ([scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"]) {
+            _urlDetected = [url absoluteString];
+            return true;
+        }
     }
 
-    return (urlMatches.count > 0);
+    return false;
 }
 
 - (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock)block
@@ -661,7 +667,7 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     } else {
         TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_accountId];
 
-        [[NCAPIController sharedInstance] getReferencesForText:_message forAccount:account withLimit:1 withCompletionBlock:^(NSDictionary *references, NSError *error) {
+        [[NCAPIController sharedInstance] getReferenceForUrlString:_urlDetected forAccount:account withCompletionBlock:^(NSDictionary *references, NSError *error) {
             if (block) {
                 block(references, self->_urlDetected);
             }

@@ -2420,18 +2420,22 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Reference handling
 
-- (NSURLSessionDataTask *)getReferencesForText:(NSString *)text forAccount:(TalkAccount *)account withLimit:(NSInteger)limit withCompletionBlock:(GetReferencesForTextCompletionBlock)block
+- (NSURLSessionDataTask *)getReferenceForUrlString:(NSString *)url forAccount:(TalkAccount *)account withCompletionBlock:(GetReferenceForUrlStringCompletionBlock)block
 {
-    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/references/extract", account.server];
-    NSDictionary *parameters = @{@"text" : text,
-                                 @"resolve": @(true),
-                                 @"limit" : @(limit)};
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/references/resolve", account.server];
+    NSDictionary *parameters = @{@"reference" : url};
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseReferences = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"references"];
         if (block) {
-            block(responseReferences, nil);
+            // When there's no data, the server returns an empty array instead of a dictionary
+            // Also we don't want to have a dictionary with NSNull values in it
+            if (![responseReferences isKindOfClass:[NSDictionary class]] || [[responseReferences objectForKey:url] isKindOfClass:[NSNull class]]) {
+                block(@{}, nil);
+            } else {
+                block(responseReferences, nil);
+            }
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {

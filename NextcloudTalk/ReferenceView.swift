@@ -84,7 +84,9 @@
     func update(for references: [String: [String: AnyObject]]?, and url: String) {
         referenceView.subviews.forEach({ $0.removeFromSuperview() })
 
-        guard let references = references else {
+        guard let references = references,
+              !references.isEmpty else {
+
             showErrorView(for: url)
             hideIndicatorView()
             return
