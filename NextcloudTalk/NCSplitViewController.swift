@@ -166,4 +166,11 @@
             }
         }
     }
+
+    @available(iOS 14.0, *)
+    func popSecondaryColumnToRootViewController() {
+        if let navController = self.viewController(for: .secondary) as? UINavigationController {
+            navController.popToRootViewController(animated: true)
+        }
+    }
 }
