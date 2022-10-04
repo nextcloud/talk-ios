@@ -191,6 +191,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didFailRequestingCallTransaction:) name:CallKitManagerDidFailRequestingCallTransaction object:nil];
+
+        // Notifications when runing on Mac 
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:@"NSApplicationDidBecomeActiveNotification" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:@"NSApplicationDidResignActiveNotification" object:nil];
     }
     
     return self;
