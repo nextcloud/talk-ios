@@ -170,7 +170,15 @@
     @available(iOS 14.0, *)
     func popSecondaryColumnToRootViewController() {
         if let navController = self.viewController(for: .secondary) as? UINavigationController {
+            if let chatViewController = getActiveChatViewController() {
+                chatViewController.leaveChat()
+            }
+
             navController.popToRootViewController(animated: true)
+
+            // Make sure the chatViewController gets properly deallocated
+            setViewController(placeholderViewController, for: .secondary)
+            navController.setViewControllers([placeholderViewController], animated: false)
         }
     }
 }
