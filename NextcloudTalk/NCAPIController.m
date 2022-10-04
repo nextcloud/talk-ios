@@ -2430,6 +2430,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseReferences = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"references"];
+        if (![responseReferences isKindOfClass:[NSDictionary class]]) {
+            responseReferences = nil;
+        }
         if (block) {
             block(responseReferences, nil);
         }
