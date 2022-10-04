@@ -413,4 +413,22 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return false;
 }
 
++ (NSString *)removeHTMLFromString:(NSString *)string
+{
+    NSData *stringData = [string dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error = nil;
+    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:stringData
+                                                                            options:@{NSDocumentTypeDocumentAttribute:NSHTMLTextDocumentType,
+                                                                                      NSCharacterEncodingDocumentAttribute:@(NSUTF8StringEncoding)
+                                                                                    }
+                                                                 documentAttributes:nil
+                                                                              error:&error];
+
+    if (error) {
+        return string;
+    }
+
+    return [attributedString string];
+}
+
 @end
