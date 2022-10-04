@@ -174,7 +174,8 @@
                 chatViewController.leaveChat()
             }
 
-            navController.popToRootViewController(animated: true)
+            // No animation -> animated would interfere with room highlighting
+            navController.popToRootViewController(animated: false)
 
             // Make sure the chatViewController gets properly deallocated
             setViewController(placeholderViewController, for: .secondary)
