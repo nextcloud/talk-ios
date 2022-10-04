@@ -415,6 +415,8 @@ static NSString *const nextcloudScheme = @"nextcloud:";
 
 + (NSString *)removeHTMLFromString:(NSString *)string
 {
+    // Preserve newlines
+    string = [string stringByReplacingOccurrencesOfString:@"\n" withString:@"<br>"];
     NSData *stringData = [string dataUsingEncoding:NSUTF8StringEncoding];
     NSError *error = nil;
     NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:stringData

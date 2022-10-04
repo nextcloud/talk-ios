@@ -134,9 +134,7 @@
         _vConstraint[3].constant = 100;
 
         [message getReferenceDataWithCompletionBlock:^(NSDictionary *referenceData, NSString *url) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.referenceView updateFor:referenceData and:url];
-            });
+            [self.referenceView updateFor:referenceData and:url];
         }];
     }
 }
