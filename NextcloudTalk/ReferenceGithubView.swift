@@ -28,6 +28,7 @@ import Foundation
     @IBOutlet weak var referenceTitle: UILabel!
     @IBOutlet weak var referenceBody: UITextView!
     @IBOutlet weak var referenceCommentCount: UILabel!
+    @IBOutlet weak var referenceCommentIcon: UIImageView!
 
     var url: String?
 
@@ -106,7 +107,32 @@ import Foundation
 
     func update(for reference: [String: AnyObject], and url: String) {
         self.url = url
+
+        if let type = reference["github_type"] as? String {
+            if type == "pr-error" || type == "issue-error" {
+                referenceTitle.text = NSLocalizedString("GitHub API error", comment: "")
+
+                if let bodyDict = reference["body"] as? [String: String],
+                    let body = bodyDict["message"] {
+
+                    referenceBody.text = body
+                } else {
+                    referenceBody.text = NSLocalizedString("Unknown error", comment: "")
+                }
+
+                referenceCommentCount.isHidden = true
+                referenceCommentIcon.isHidden = true
+
+                referenceTypeIcon.image = UIImage(named: "github")?.withTintColor(UIColor.systemGray)
+
+                return
+            }
+        }
+
         setIcon(for: reference)
+
+        referenceCommentCount.isHidden = false
+        referenceCommentIcon.isHidden = false
 
         if let comments = reference["comments"] as? Int {
             referenceCommentCount.text = String(comments)

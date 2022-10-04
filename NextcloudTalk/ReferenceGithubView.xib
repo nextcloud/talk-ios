@@ -13,6 +13,7 @@
                 <outlet property="contentView" destination="iN0-l3-epB" id="I1C-wk-7lp"/>
                 <outlet property="referenceBody" destination="PAt-pa-feD" id="TR8-w0-2bX"/>
                 <outlet property="referenceCommentCount" destination="WRq-4l-Gy5" id="LXf-91-NcO"/>
+                <outlet property="referenceCommentIcon" destination="0Ho-aZ-xOH" id="wRJ-1j-Zdo"/>
                 <outlet property="referenceTitle" destination="Iby-r5-06p" id="aI4-Yi-Bp4"/>
                 <outlet property="referenceTypeIcon" destination="2GP-6u-K9h" id="9Rb-Cj-1Rs"/>
             </connections>
