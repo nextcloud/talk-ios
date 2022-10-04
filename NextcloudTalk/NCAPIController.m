@@ -2431,7 +2431,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseReferences = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"references"];
         if (block) {
-            block(responseReferences, nil);
+            // When there's no data, the server returns an empty array instead of a dictionary
+            if (![responseReferences isKindOfClass:[NSDictionary class]]) {
+                block(@{}, nil);
+            } else {
+                block(responseReferences, nil);
+            }
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (block) {
