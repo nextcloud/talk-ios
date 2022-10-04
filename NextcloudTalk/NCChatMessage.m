@@ -667,7 +667,7 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     } else {
         TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_accountId];
 
-        [[NCAPIController sharedInstance] getReferencesForText:_message forAccount:account withLimit:1 withCompletionBlock:^(NSDictionary *references, NSError *error) {
+        [[NCAPIController sharedInstance] getReferenceForUrlString:_urlDetected forAccount:account withCompletionBlock:^(NSDictionary *references, NSError *error) {
             if (block) {
                 block(references, self->_urlDetected);
             }
