@@ -8,7 +8,7 @@ pod 'JDStatusBarNotification'
 pod 'SocketRocket'
 pod 'DBImageColorPicker'
 pod 'UICKeyChainStore'
-pod 'Realm', '10.18.0'
+pod 'Realm', '10.30.0'
 pod 'MaterialComponents/ActivityIndicator'
 pod 'Toast', '~> 4.0.0'
 pod "PulsingHalo"
@@ -21,13 +21,13 @@ end
 target "NotificationServiceExtension" do
 pod 'AFNetworking', "3.1.0"
 pod 'UICKeyChainStore'
-pod 'Realm', '10.18.0'
+pod 'Realm', '10.30.0'
 end
 
 target "ShareExtension" do
 pod 'AFNetworking', "3.1.0"
 pod 'UICKeyChainStore'
-pod 'Realm', '10.18.0'
+pod 'Realm', '10.30.0'
 pod 'MBProgressHUD', '~> 1.2.0'
 pod 'TOCropViewController', '~> 2.6.0'
 end
