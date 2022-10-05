@@ -90,8 +90,10 @@
         [self.quoteContainerView addGestureRecognizer:quoteTap];
     }
     
-    [self.contentView addSubview:self.reactionsView];
-    [self.contentView addSubview:self.referenceView];
+    if (![self.reuseIdentifier isEqualToString:AutoCompletionCellIdentifier]) {
+        [self.contentView addSubview:self.reactionsView];
+        [self.contentView addSubview:self.referenceView];
+    }
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
                             @"userStatusImageView": self.userStatusImageView,
