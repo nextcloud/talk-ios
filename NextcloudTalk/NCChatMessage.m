@@ -649,7 +649,8 @@ NSString * const kSharedItemTypeVoice       = @"voice";
         NSURL *url = [match URL];
         NSString *scheme = [url scheme];
 
-        if ([scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"]) {
+        // Check that the scheme is either https or http, because other schemes (like mailto) would be recognized as well
+        if ([[scheme lowercaseString] isEqualToString:@"http"] || [[scheme lowercaseString] isEqualToString:@"https"]) {
             _urlDetected = [url absoluteString];
             return true;
         }
