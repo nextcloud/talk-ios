@@ -35,8 +35,8 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var statusTableView: UITableView!
     @IBOutlet weak var clearStatusLabel: UILabel!
     @IBOutlet weak var clearAtLabel: UILabel!
-    @IBOutlet weak var clearStatusButton: UIButton!
-    @IBOutlet weak var setStatusButton: UIButton!
+    @IBOutlet weak var clearStatusButton: NCButton!
+    @IBOutlet weak var setStatusButton: NCButton!
 
     public var userStatus: NCUserStatus?
     @objc public weak var delegate: UserStatusMessageViewControllerDelegate?
@@ -94,15 +94,10 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         clearAtLabel.addGestureRecognizer(tap)
 
         clearStatusButton.setTitle(NSLocalizedString("Clear status message", comment: ""), for: .normal)
-        clearStatusButton.layer.cornerRadius = 20.0
-        clearStatusButton.layer.masksToBounds = true
+        clearStatusButton.setButtonStyle(style: .tertiary)
 
         setStatusButton.setTitle(NSLocalizedString("Set status message", comment: ""), for: .normal)
-        setStatusButton.backgroundColor = NCAppBranding.themeColor()
-        setStatusButton.setTitleColor(NCAppBranding.themeTextColor(), for: .normal)
-        setStatusButton.setTitleColor(NCAppBranding.themeTextColor().withAlphaComponent(0.5), for: .disabled)
-        setStatusButton.layer.cornerRadius = 20.0
-        setStatusButton.layer.masksToBounds = true
+        setStatusButton.setButtonStyle(style: .primary)
 
         let clearAtDate = NSDate(timeIntervalSince1970: Double(self.userStatus?.clearAt ?? 0))
         self.setCustomStatusInView(icon: self.userStatus?.icon, message: self.userStatus?.message, clearAt: clearAtDate)
@@ -206,11 +201,9 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
 
     func checkSetUserStatusButtonState() {
         if statusMessageTextField.text!.isEmpty == true {
-            setStatusButton.backgroundColor = NCAppBranding.themeColor().withAlphaComponent(0.5)
-            setStatusButton.isEnabled = false
+            setStatusButton.setButtonEnabled(enabled: false)
         } else {
-            setStatusButton.backgroundColor = NCAppBranding.themeColor()
-            setStatusButton.isEnabled = true
+            setStatusButton.setButtonEnabled(enabled: true)
         }
     }
 

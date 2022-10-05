@@ -97,7 +97,7 @@ import UIKit
 
     func pollFooterView() -> UIView {
         footerView.primaryButton.setTitle(NSLocalizedString("Create poll", comment: ""), for: .normal)
-        footerView.setPrimaryButtonAction(target: self, selector: #selector(createPollButtonPressed))
+        footerView.primaryButton.setButtonAction(target: self, selector: #selector(createPollButtonPressed))
         footerView.frame = CGRect(x: 0, y: 0, width: 0, height: PollFooterView.heightForOption)
         footerView.secondaryButtonContainerView.isHidden = true
         checkIfPollIsReadyToCreate()
@@ -111,9 +111,9 @@ import UIKit
     }
 
     func checkIfPollIsReadyToCreate() {
-        footerView.primaryButton.isEnabled = false
+        footerView.primaryButton.setButtonEnabled(enabled: false)
         if !question.isEmpty && options.filter({!$0.isEmpty}).count >= 2 {
-            footerView.primaryButton.isEnabled = true
+            footerView.primaryButton.setButtonEnabled(enabled: true)
         }
     }
 
