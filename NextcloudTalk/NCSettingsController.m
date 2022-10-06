@@ -422,12 +422,11 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     if (serverCapabilities) {
         NSArray *talkFeatures = [serverCapabilities.talkCapabilities valueForKey:@"self"];
-        if (!talkFeatures) {
+        if (!talkFeatures || [talkFeatures count] == 0) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NCTalkNotInstalledNotification
                                                                 object:self
                                                               userInfo:nil];
-        }
-        if (![talkFeatures containsObject:kMinimumRequiredTalkCapability]) {
+        } else if (![talkFeatures containsObject:kMinimumRequiredTalkCapability]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NCOutdatedTalkVersionNotification
                                                                 object:self
                                                               userInfo:nil];
