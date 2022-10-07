@@ -2274,9 +2274,15 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             NCMessageParameter *mentionParameter = [_mentionsDict objectForKey:mentionKey];
             if ([lastPossibleMention isEqualToString:mentionParameter.mentionDisplayName]) {
                 // Delete mention
-                textView.text =  [[self.textView text] stringByReplacingOccurrencesOfString:lastPossibleMention withString:@""];
-                [_mentionsDict removeObjectForKey:mentionKey];
-                return NO;
+                NSRange range = NSMakeRange(cursorOffset - lastPossibleMention.length, lastPossibleMention.length);
+                textView.text = [[self.textView text] stringByReplacingCharactersInRange:range withString:@""];
+                // Only delete it from mentionsDict if there are no more mentions for that user/room
+                // User could have manually added the mention without selecting it from autocompletion
+                // so no mention was added to the mentionsDict
+                if ([textView.text rangeOfString:lastPossibleMention].location != NSNotFound) {
+                    [_mentionsDict removeObjectForKey:mentionKey];
+                }
+                return YES;
             }
         }
     }
