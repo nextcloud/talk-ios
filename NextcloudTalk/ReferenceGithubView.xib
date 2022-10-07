@@ -28,7 +28,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Iby-r5-06p">
-                    <rect key="frame" x="40" y="10" width="457.5" height="18"/>
+                    <rect key="frame" x="40" y="10" width="492.5" height="18"/>
                     <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
@@ -57,7 +57,7 @@
             </subviews>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="0Ho-aZ-xOH" firstAttribute="leading" secondItem="Iby-r5-06p" secondAttribute="trailing" constant="40" id="11S-43-a43"/>
+                <constraint firstItem="0Ho-aZ-xOH" firstAttribute="leading" secondItem="Iby-r5-06p" secondAttribute="trailing" constant="5" id="11S-43-a43"/>
                 <constraint firstAttribute="trailing" secondItem="0Ho-aZ-xOH" secondAttribute="trailing" priority="750" constant="29" id="2t1-6s-XbH"/>
                 <constraint firstItem="Iby-r5-06p" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="10" id="BrA-8P-nYn"/>
                 <constraint firstAttribute="trailing" secondItem="WRq-4l-Gy5" secondAttribute="trailing" constant="10" id="Mov-JW-ht7"/>
