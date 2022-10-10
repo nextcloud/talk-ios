@@ -56,7 +56,7 @@
 
                 // Make sure the chatViewController gets properly deallocated
                 setViewController(placeholderViewController, for: .secondary)
-                navController.setViewControllers([], animated: false)
+                navController.setViewControllers([placeholderViewController], animated: false)
             }
         }
     }
