@@ -41,6 +41,7 @@ NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManag
 NSString * const CallKitManagerDidFailRequestingCallTransaction = @"CallKitManagerDidFailRequestingCallTransaction";
 
 NSTimeInterval const kCallKitManagerMaxRingingTimeSeconds       = 45.0;
+NSTimeInterval const kCallKitManagerMaxWaitToUnlockSeconds      = 45.0;
 NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 
 @interface CallKitManager () <CXProviderDelegate>
@@ -501,19 +502,42 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 {
     CallKitCall *call = [_calls objectForKey:action.callUUID];
     if (call) {
-        call.isRinging = NO;
         [self stopCallStateTimerForCallUUID:call.uuid];
-        
         [self stopHangUpTimerForCallUUID:call.uuid];
+
+        [self answerCallAfterPhoneIsUnlocked:action withCounter:0 withCall:call];
+    } else {
+        [action fail];
+    }
+}
+
+- (void)answerCallAfterPhoneIsUnlocked:(CXAnswerCallAction *)action withCounter:(NSInteger)counter withCall:(CallKitCall *)call {
+    // Workaround for iOS 16, see https://developer.apple.com/forums/thread/712817
+
+    NSLog(@"Trying to answer callkit call: %ld", (long)counter);
+
+    if (!call.isRinging) {
+        // Don't try to answer a call which was ended in CallKit already
+        return;
+    }
+    
+    if ([[UIApplication sharedApplication] isProtectedDataAvailable]) {
+        call.isRinging = NO;
+
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
         [userInfo setValue:@(call.update.hasVideo) forKey:@"hasVideo"];
         [userInfo setValue:@(call.reportedWhileInCall) forKey:@"waitForCallEnd"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidAnswerCallNotification
                                                             object:self
                                                           userInfo:userInfo];
+        [action fulfill];
+    } else if (counter > kCallKitManagerMaxWaitToUnlockSeconds) {
+        [action fail];
+    } else {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self answerCallAfterPhoneIsUnlocked:action withCounter:(counter + 1) withCall:call];
+        });
     }
-    
-    [action fulfill];
 }
 
 - (void)provider:(CXProvider *)provider performEndCallAction:(CXEndCallAction *)action
