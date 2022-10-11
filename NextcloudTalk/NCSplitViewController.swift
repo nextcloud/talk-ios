@@ -82,8 +82,6 @@
                     navController.setViewControllers([vc], animated: false)
                 }
             }
-        } else {
-            super.showDetailViewController(vc, sender: sender)
         }
     }
 
@@ -96,17 +94,6 @@
     }
 
     func getActiveViewController<T: UIViewController>() -> T? {
-        // Try to get the viewController from the navigationController
-        for viewController in self.viewControllers {
-            if let navController = viewController as? UINavigationController {
-                for secondaryViewController in navController.viewControllers {
-                    if let activeViewController = secondaryViewController as? T {
-                        return activeViewController
-                    }
-                }
-            }
-        }
-
         if #available(iOS 14.0, *) {
             // In case we have a collapsed view, we need to retrieve the viewController this way
             if let navController = self.viewController(for: .secondary) as? UINavigationController {
@@ -118,8 +105,8 @@
             }
 
             if let navController = self.viewController(for: .primary) as? UINavigationController {
-                for secondaryViewController in navController.viewControllers {
-                    if let activeViewController = secondaryViewController as? T {
+                for primaryViewController in navController.viewControllers {
+                    if let activeViewController = primaryViewController as? T {
                         return activeViewController
                     }
                 }
