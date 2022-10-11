@@ -36,6 +36,8 @@
 #import "NCUtils.h"
 #import "NotificationCenterNotifications.h"
 
+#import "NextcloudTalk-Swift.h"
+
 @interface NCUserInterfaceController () <LoginViewControllerDelegate, AuthenticationViewControllerDelegate>
 {
     LoginViewController *_loginViewController;
@@ -90,11 +92,6 @@
     [CSToastManager setSharedStyle:style];
 }
 
-- (void)presentConversationsList
-{
-    [_mainNavigationController dismissViewControllerAnimated:NO completion:nil];
-    [_mainNavigationController popToRootViewControllerAnimated:NO];
-}
 
 - (void)presentLoginViewController
 {
@@ -107,7 +104,7 @@
         _authViewController = [[AuthenticationViewController alloc] initWithServerUrl:domain];
         _authViewController.delegate = self;
         _authViewController.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
-        [_mainNavigationController presentViewController:_authViewController animated:YES completion:nil];
+        [_mainViewController presentViewController:_authViewController animated:YES completion:nil];
     } else {
         // Don't open a login if we're in a call
         if ([[NCRoomsManager sharedInstance] callViewController]) {
@@ -119,12 +116,12 @@
             [self presentConversationsList];
         }
         
-        if (!_loginViewController || [_mainNavigationController presentedViewController] != _loginViewController) {
+        if (!_loginViewController || [_mainViewController presentedViewController] != _loginViewController) {
             _loginViewController = [[LoginViewController alloc] init];
             _loginViewController.delegate = self;
             _loginViewController.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
             
-            [_mainNavigationController presentViewController:_loginViewController animated:YES completion:nil];
+            [_mainViewController presentViewController:_loginViewController animated:YES completion:nil];
         }
         
         if (serverURL) {
@@ -146,8 +143,8 @@
                                handler:nil];
     
     [alert addAction:okButton];
-    
-    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+
+    [_mainViewController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)presentOfflineWarningAlert
@@ -163,8 +160,8 @@
                                handler:nil];
     
     [alert addAction:okButton];
-    
-    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+
+    [_mainViewController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)presentTalkNotInstalledWarningAlert
@@ -182,8 +179,8 @@
                                }];
     
     [alert addAction:okButton];
-    
-    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+
+    [_mainViewController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)presentTalkOutdatedWarningAlert
@@ -201,8 +198,8 @@
                                }];
     
     [alert addAction:okButton];
-    
-    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+
+    [_mainViewController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)presentAccountNotConfiguredAlertForUser:(NSString *)user inServer:(NSString *)server
@@ -218,8 +215,8 @@
                                handler:nil];
     
     [alert addAction:okButton];
-    
-    [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+
+    [_mainViewController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)presentServerMaintenanceModeWarning:(NSNotification *)notification
@@ -312,8 +309,8 @@
     
     // Do not show join call dialog until we don't handle 'hangup current call'/'join new one' properly.
     if (![NCRoomsManager sharedInstance].callViewController) {
-        [_mainNavigationController dismissViewControllerAnimated:NO completion:nil];
-        [_mainNavigationController presentViewController:alert animated:YES completion:nil];
+        [_mainViewController dismissViewControllerAnimated:NO completion:nil];
+        [_mainViewController presentViewController:alert animated:YES completion:nil];
     } else {
         NSLog(@"Not showing join call dialog due to in a call.");
     }
@@ -321,19 +318,37 @@
 
 - (void)presentAlertViewController:(UIAlertController *)alertViewController
 {
-    [_mainNavigationController presentViewController:alertViewController animated:YES completion:nil];
+    [_mainViewController presentViewController:alertViewController animated:YES completion:nil];
 }
+
+- (void)presentConversationsList
+{
+    [_mainViewController dismissViewControllerAnimated:YES completion:nil];
+
+    if (@available(iOS 14.0, *)) {
+        [_mainSplitViewController popSecondaryColumnToRootViewController];
+        [_mainSplitViewController showColumn:UISplitViewControllerColumnPrimary];
+    }
+}
+
 
 - (void)presentChatViewController:(NCChatViewController *)chatViewController
 {
     [self presentConversationsList];
-    [_mainNavigationController pushViewController:chatViewController animated:YES];
+
+    if (@available(iOS 14.0, *)) {
+        [_mainSplitViewController showDetailViewController:chatViewController sender:self];
+    } else {
+        [(UINavigationController *)_mainViewController pushViewController:chatViewController animated:YES];
+    }
+
+    [_roomsTableViewController highlightSelectedRoom];
 }
 
 - (void)presentCallViewController:(CallViewController *)callViewController
 {
-    [_mainNavigationController dismissViewControllerAnimated:NO completion:nil];
-    [_mainNavigationController presentViewController:callViewController animated:YES completion:nil];
+    [_mainViewController dismissViewControllerAnimated:NO completion:nil];
+    [_mainViewController presentViewController:callViewController animated:YES completion:nil];
 }
 
 - (void)presentCallKitCallInRoom:(NSString *)token withVideoEnabled:(BOOL)video
@@ -429,7 +444,7 @@
 
 - (void)loginViewControllerDidFinish:(LoginViewController *)viewController
 {
-    [_mainNavigationController dismissViewControllerAnimated:YES completion:^{
+    [_mainViewController dismissViewControllerAnimated:YES completion:^{
         [[NCConnectionController sharedInstance] checkAppState];
         // Get server capabilities again to check if user is allowed to use Nextcloud Talk
         [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:nil];
@@ -440,7 +455,7 @@
 
 - (void)authenticationViewControllerDidFinish:(AuthenticationViewController *)viewController
 {
-    [_mainNavigationController dismissViewControllerAnimated:YES completion:^{
+    [_mainViewController dismissViewControllerAnimated:YES completion:^{
         [[NCConnectionController sharedInstance] checkAppState];
         // Get server capabilities again to check if user is allowed to use Nextcloud Talk
         [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:nil];

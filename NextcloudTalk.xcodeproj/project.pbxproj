@@ -17,6 +17,8 @@
 		1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
+		1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */; };
+		1F5813F928EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */; };
 		1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
@@ -26,6 +28,7 @@
 		1F98DF9C28E7484700E05174 /* ReferenceDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F98DF9B28E7484700E05174 /* ReferenceDeckView.swift */; };
 		1F98DF9E28E7485000E05174 /* ReferenceDeckView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F98DF9D28E7485000E05174 /* ReferenceDeckView.xib */; };
 		1FA20C8A284001D80062B4F3 /* DebounceWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA20C89284001D80062B4F3 /* DebounceWebView.swift */; };
+		1FADF2E528EAE28F0074A532 /* iOS13Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FADF2E428EAE28F0074A532 /* iOS13Main.storyboard */; };
 		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
 		1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
@@ -363,6 +366,8 @@
 		1F46CE2828E05B3200E7D88E /* ReferenceDefaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceDefaultView.swift; sourceTree = "<group>"; };
 		1F46CE2A28E05B3C00E7D88E /* ReferenceDefaultView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceDefaultView.xib; sourceTree = "<group>"; };
 		1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiUtils.swift; sourceTree = "<group>"; };
+		1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewController.swift; sourceTree = "<group>"; };
+		1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewPlaceholderViewController.swift; sourceTree = "<group>"; };
 		1F5CDF622584E78900B0026E /* NCChatFileStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatFileStatus.h; sourceTree = "<group>"; };
 		1F5CDF632584E78900B0026E /* NCChatFileStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatFileStatus.m; sourceTree = "<group>"; };
 		1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsTableViewController.swift; sourceTree = "<group>"; };
@@ -370,6 +375,7 @@
 		1F98DF9B28E7484700E05174 /* ReferenceDeckView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceDeckView.swift; sourceTree = "<group>"; };
 		1F98DF9D28E7485000E05174 /* ReferenceDeckView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceDeckView.xib; sourceTree = "<group>"; };
 		1FA20C89284001D80062B4F3 /* DebounceWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebounceWebView.swift; sourceTree = "<group>"; };
+		1FADF2E428EAE28F0074A532 /* iOS13Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = iOS13Main.storyboard; sourceTree = "<group>"; };
 		1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeLoginController.swift; sourceTree = "<group>"; };
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
 		1FD9182828C55A73009092AB /* BGTaskHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGTaskHelper.swift; sourceTree = "<group>"; };
@@ -885,6 +891,7 @@
 				2C6085C11FB1063700B36A6E /* NextcloudTalk.entitlements */,
 				2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */,
 				2C0574941EDD9E8E00D9E7F2 /* Info.plist */,
+				1FADF2E428EAE28F0074A532 /* iOS13Main.storyboard */,
 				2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */,
 				2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */,
 				2C7F47AC20289B9600081CC7 /* Localizable.strings */,
@@ -920,6 +927,8 @@
 		2C0633102046CCA60043481A /* User Interface */ = {
 			isa = PBXGroup;
 			children = (
+				1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */,
+				1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */,
 				2C06330D2046CC8B0043481A /* NCUserInterfaceController.h */,
 				2C06330E2046CC8B0043481A /* NCUserInterfaceController.m */,
 				2C3780C1210F49DC003F9AE8 /* HeaderWithButton.h */,
@@ -944,6 +953,7 @@
 				1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */,
 				1F468E7728DCC7310099597B /* EmojiTextField.swift */,
 				2C16A82B28E7284D00EDE523 /* NCButton.swift */,
+				53D7E485280B3CA10036F0F5 /* NCSplitViewController.swift */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -1601,6 +1611,7 @@
 				2CC007BE20D8F24B0096D91F /* RoomCreation2TableViewController.xib in Resources */,
 				2CC32E9327F45AE000BB8C39 /* ReactionsViewCell.xib in Resources */,
 				2C330372255E6EBC00BDB4E4 /* InfoPlist.strings in Resources */,
+				1FADF2E528EAE28F0074A532 /* iOS13Main.storyboard in Resources */,
 				2C78EFA11F828C41008AFA74 /* CallViewController.xib in Resources */,
 				2C3780C5210F4A26003F9AE8 /* HeaderWithButton.xib in Resources */,
 				2CC007B920D8139D0096D91F /* RoomCreationTableViewController.xib in Resources */,
@@ -1840,6 +1851,7 @@
 				2C5BFBF628902E0300E75118 /* PollFooterView.swift in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
 				2CB6ACE92641954700D3D641 /* MapViewController.m in Sources */,
+				1F5813F928EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift in Sources */,
 				2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */,
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
@@ -1877,6 +1889,7 @@
 				1FDE7C9A28DE14A200CB718E /* ReferenceView.swift in Sources */,
 				2CC32E9827F5D9BD00BB8C39 /* NCChatReaction.m in Sources */,
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
+				1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */,
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */,
 				2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */,
