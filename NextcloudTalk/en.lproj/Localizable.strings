@@ -284,6 +284,9 @@
 "Change password" = "Change password";
 
 /* No comment provided by engineer. */
+"Change your vote" = "Change your vote";
+
+/* No comment provided by engineer. */
 "Chat" = "Chat";
 
 /* No comment provided by engineer. */
@@ -605,9 +608,6 @@
 "Edit" = "Edit";
 
 /* No comment provided by engineer. */
-"Edit vote" = "Edit vote";
-
-/* No comment provided by engineer. */
 "Editing Message" = "Editing Message";
 
 /* No comment provided by engineer. */
@@ -660,6 +660,9 @@
 
 /* No comment provided by engineer. */
 "Get source code" = "Get source code";
+
+/* No comment provided by engineer. */
+"GitHub API error" = "GitHub API error";
 
 /* No comment provided by engineer. */
 "Group conversation" = "Group conversation";
@@ -717,6 +720,9 @@
 
 /* No comment provided by engineer. */
 "It seems that there is no internet connection." = "It seems that there is no internet connection.";
+
+/* No comment provided by engineer. */
+"Join a conversation or start a new one" = "Join a conversation or start a new one";
 
 /* No comment provided by engineer. */
 "Join call (audio only)" = "Join call (audio only)";
@@ -1133,6 +1139,9 @@
 "Save" = "Save";
 
 /* No comment provided by engineer. */
+"Say hi to your friends and colleagues!" = "Say hi to your friends and colleagues!";
+
+/* No comment provided by engineer. */
 "Scanning QR Codes is not supported on this device." = "Scanning QR Codes is not supported on this device.";
 
 /* No comment provided by engineer. */
@@ -1256,6 +1265,9 @@
 "STUN servers" = "STUN servers";
 
 /* No comment provided by engineer. */
+"Submit vote" = "Submit vote";
+
+/* No comment provided by engineer. */
 "Sync contacts" = "Sync contacts";
 
 /* No comment provided by engineer. */
@@ -1322,6 +1334,9 @@
 "Unknown" = "Unknown";
 
 /* No comment provided by engineer. */
+"Unknown error" = "Unknown error";
+
+/* No comment provided by engineer. */
 "Unknown error occurred" = "Unknown error occurred";
 
 /* No comment provided by engineer. */
@@ -1362,9 +1377,6 @@
 
 /* No comment provided by engineer. */
 "Voice messages" = "Voice messages";
-
-/* No comment provided by engineer. */
-"Vote" = "Vote";
 
 /* No comment provided by engineer. */
 "Waiting for %@ to join call …" = "Waiting for %@ to join call …";
