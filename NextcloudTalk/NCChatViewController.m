@@ -100,7 +100,7 @@ typedef enum NCChatMessageAction {
 @property (nonatomic, strong) PlaceholderView *chatBackgroundView;
 @property (nonatomic, strong) NSMutableDictionary *messages;
 @property (nonatomic, strong) NSMutableArray *dateSections;
-@property (nonatomic, strong) NSMutableArray *mentions;
+@property (nonatomic, strong) NSMutableDictionary *mentionsDict;
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
 @property (nonatomic, assign) BOOL hasRequestedInitialHistory;
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
@@ -219,7 +219,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self disableRoomControls];
     
     self.messages = [[NSMutableDictionary alloc] init];
-    self.mentions = [[NSMutableArray alloc] init];
+    self.mentionsDict = [[NSMutableDictionary alloc] init];
     self.dateSections = [[NSMutableArray alloc] init];
     
     self.bounces = NO;
@@ -902,13 +902,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     return [formatter stringFromDate:date];
 }
 
-- (NSString *)createSendingMessage:(NSString *)text
+- (NSString *)createSendingMessage:(NSString *)text withMessageParameters:(NSDictionary *)messageParameters
 {
     NSString *sendingMessage = [text copy];
-    for (NCMessageParameter *mention in _mentions) {
-        sendingMessage = [sendingMessage stringByReplacingOccurrencesOfString:mention.name withString:mention.parameterId];
+    for (NSString *parameterKey in messageParameters.allKeys) {
+        NCMessageParameter *parameter = [messageParameters objectForKey:parameterKey];
+        sendingMessage = [sendingMessage stringByReplacingOccurrencesOfString:parameter.mentionDisplayName withString:parameter.mentionId];
     }
-    _mentions = [[NSMutableArray alloc] init];
     return sendingMessage;
 }
 
@@ -932,7 +932,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 #pragma mark - Temporary messages
 
-- (NCChatMessage *)createTemporaryMessage:(NSString *)text replyToMessage:(NCChatMessage *)parentMessage
+- (NCChatMessage *)createTemporaryMessage:(NSString *)message replyToMessage:(NCChatMessage *)parentMessage withMessageParameters:(NSString *)messageParameters
 {
     NCChatMessage *temporaryMessage = [[NCChatMessage alloc] init];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -941,13 +941,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     temporaryMessage.actorId = activeAccount.userId;
     temporaryMessage.timestamp = [[NSDate date] timeIntervalSince1970];
     temporaryMessage.token = _room.token;
-    NSString *sendingMessage = [[text copy] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    temporaryMessage.message = sendingMessage;
+    temporaryMessage.message = [self replaceMentionsDisplayNamesWithMentionsKeysInMessage:message usingMessageParameters:messageParameters];
     NSString * referenceId = [NSString stringWithFormat:@"temp-%f",[[NSDate date] timeIntervalSince1970] * 1000];
     temporaryMessage.referenceId = [NCUtils sha1FromString:referenceId];
     temporaryMessage.internalId = referenceId;
     temporaryMessage.isTemporary = YES;
     temporaryMessage.parentId = parentMessage.internalId;
+    temporaryMessage.messageParametersJSONString = messageParameters;
 
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
@@ -956,6 +956,30 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     NCChatMessage *unmanagedTemporaryMessage = [[NCChatMessage alloc] initWithValue:temporaryMessage];
     return unmanagedTemporaryMessage;
+}
+
+- (NSString *)replaceMentionsDisplayNamesWithMentionsKeysInMessage:(NSString *)message usingMessageParameters:(NSString *)messageParameters
+{
+    NSString *resultMessage = [[message copy] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSDictionary *messageParametersDict = [NCMessageParameter messageParametersDictFromJSONString:messageParameters];
+    for (NSString *parameterKey in messageParametersDict.allKeys) {
+        NCMessageParameter *parameter = [messageParametersDict objectForKey:parameterKey];
+        NSString *parameterKeyString = [[NSString alloc] initWithFormat:@"{%@}", parameterKey];
+        resultMessage = [resultMessage stringByReplacingOccurrencesOfString:parameter.mentionDisplayName withString:parameterKeyString];
+    }
+    return resultMessage;
+}
+
+- (NSString *)replaceMessageMentionsKeysWithMentionsDisplayNames:(NSString *)message usingMessageParameters:(NSString *)messageParameters
+{
+    NSString *resultMessage = [[message copy] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSDictionary *messageParametersDict = [NCMessageParameter messageParametersDictFromJSONString:messageParameters];
+    for (NSString *parameterKey in messageParametersDict.allKeys) {
+        NCMessageParameter *parameter = [messageParametersDict objectForKey:parameterKey];
+        NSString *parameterKeyString = [[NSString alloc] initWithFormat:@"{%@}", parameterKey];
+        resultMessage = [resultMessage stringByReplacingOccurrencesOfString:parameterKeyString withString:parameter.mentionDisplayName];
+    }
+    return resultMessage;
 }
 
 - (void)appendTemporaryMessage:(NCChatMessage *)temporaryMessage
@@ -1172,19 +1196,20 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
-- (void)sendChatMessage:(NSString *)message withParentMessage:(NCChatMessage *)parentMessage silently:(BOOL)silently
+- (void)sendChatMessage:(NSString *)message withParentMessage:(NCChatMessage *)parentMessage messageParameters:(NSString *)messageParameters silently:(BOOL)silently
 {
     // Create temporary message
     NSString *referenceId = nil;
     
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
-        NCChatMessage *temporaryMessage = [self createTemporaryMessage:message replyToMessage:parentMessage];
+        NCChatMessage *temporaryMessage = [self createTemporaryMessage:message replyToMessage:parentMessage withMessageParameters:messageParameters];
         referenceId = temporaryMessage.referenceId;
         [self appendTemporaryMessage:temporaryMessage];
     }
     
     // Send message
-    NSString *sendingText = [self createSendingMessage:message];
+    NSDictionary *messageParametersDict = [NCMessageParameter messageParametersDictFromJSONString:messageParameters];
+    NSString *sendingText = [self createSendingMessage:message withMessageParameters:messageParametersDict];
     NSInteger replyTo = parentMessage ? parentMessage.messageId : -1;
     [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId silently:silently];
 }
@@ -1216,8 +1241,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)sendCurrentMessageSilently:(BOOL)silently
 {
     NCChatMessage *replyToMessage = _replyMessageView.isVisible ? _replyMessageView.message : nil;
-    [self sendChatMessage:self.textView.text withParentMessage:replyToMessage silently:silently];
+    NSString *messageParameters = [NCMessageParameter messageParametersJSONStringFromDictionary:_mentionsDict];
+    [self sendChatMessage:self.textView.text withParentMessage:replyToMessage messageParameters:messageParameters silently:silently];
     
+    [_mentionsDict removeAllObjects];
     [_replyMessageView dismiss];
     [super didPressRightButton:self];
     [self clearPendingMessage];
@@ -1498,7 +1525,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self removeUnreadMessagesSeparator];
     
     [self removePermanentlyTemporaryMessage:message];
-    [self sendChatMessage:message.message withParentMessage:message.parent silently:NO];
+    NSString *sendingMessage = [self replaceMessageMentionsKeysWithMentionsDisplayNames:message.message usingMessageParameters:message.messageParametersJSONString];
+    [self sendChatMessage:sendingMessage withParentMessage:message.parent messageParameters:message.messageParametersJSONString silently:NO];
 }
 
 - (void)didPressCopy:(NCChatMessage *)message {
@@ -2255,12 +2283,19 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NSString *substring = [text substringToIndex:cursorOffset];
         NSMutableString *lastPossibleMention = [[[substring componentsSeparatedByString:@"@"] lastObject] mutableCopy];
         [lastPossibleMention insertString:@"@" atIndex:0];
-        for (NCMessageParameter *mention in _mentions) {
-            if ([lastPossibleMention isEqualToString:mention.name]) {
+        for (NSString *mentionKey in _mentionsDict.allKeys) {
+            NCMessageParameter *mentionParameter = [_mentionsDict objectForKey:mentionKey];
+            if ([lastPossibleMention isEqualToString:mentionParameter.mentionDisplayName]) {
                 // Delete mention
-                textView.text =  [[self.textView text] stringByReplacingOccurrencesOfString:lastPossibleMention withString:@""];
-                [_mentions removeObject:mention];
-                return NO;
+                NSRange range = NSMakeRange(cursorOffset - lastPossibleMention.length, lastPossibleMention.length);
+                textView.text = [[self.textView text] stringByReplacingCharactersInRange:range withString:@""];
+                // Only delete it from mentionsDict if there are no more mentions for that user/room
+                // User could have manually added the mention without selecting it from autocompletion
+                // so no mention was added to the mentionsDict
+                if ([textView.text rangeOfString:lastPossibleMention].location != NSNotFound) {
+                    [_mentionsDict removeObjectForKey:mentionKey];
+                }
+                return YES;
             }
         }
     }
@@ -3496,22 +3531,31 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     if ([tableView isEqual:self.autoCompletionView]) {
         NCMessageParameter *mention = [[NCMessageParameter alloc] init];
-        mention.parameterId = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
-        mention.name = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"label"]];
+        mention.parameterId = [self.autocompletionUsers[indexPath.row] objectForKey:@"id"];
+        mention.name = [self.autocompletionUsers[indexPath.row] objectForKey:@"label"];
+        mention.mentionDisplayName = [NSString stringWithFormat:@"@%@", mention.name];
+        mention.mentionId = [NSString stringWithFormat:@"@%@", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
         // Guest mentions are wrapped with double quotes @"guest/<sha1(webrtc session id)>"
         if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"guests"]) {
-            mention.parameterId = [NSString stringWithFormat:@"@\"%@\"", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
+            mention.mentionId = [NSString stringWithFormat:@"@\"%@\"", mention.parameterId];
         }
         // User-ids with a space should be wrapped in double quoutes
         NSRange whiteSpaceRange = [mention.parameterId rangeOfCharacterFromSet:[NSCharacterSet whitespaceCharacterSet]];
         if (whiteSpaceRange.location != NSNotFound) {
-            mention.parameterId = [NSString stringWithFormat:@"@\"%@\"", [self.autocompletionUsers[indexPath.row] objectForKey:@"id"]];
+            mention.mentionId = [NSString stringWithFormat:@"@\"%@\"", mention.parameterId];
         }
-        [_mentions addObject:mention];
+        // Set parameter type
+        if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"calls"]) {
+            mention.type = @"call";
+        } else if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"users"]) {
+            mention.type = @"user";
+        }
         
-        NSMutableString *mentionString = [[self.autocompletionUsers[indexPath.row] objectForKey:@"label"] mutableCopy];
-        [mentionString appendString:@" "];
-        [self acceptAutoCompletionWithString:mentionString keepPrefix:YES];
+        NSString *mentionKey = [NSString stringWithFormat:@"mention-%ld", _mentionsDict.allKeys.count];
+        [_mentionsDict setObject:mention forKey:mentionKey];
+        
+        NSString *mentionWithWhiteSpace = [NSString stringWithFormat:@"%@ ", mention.name];
+        [self acceptAutoCompletionWithString:mentionWithWhiteSpace keepPrefix:YES];
     } else {
         [self.emojiTextField resignFirstResponder];
         [self.tableView deselectRowAtIndexPath:indexPath animated:YES];

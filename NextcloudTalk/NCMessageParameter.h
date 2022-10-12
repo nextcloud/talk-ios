@@ -32,9 +32,16 @@
 @property (nonatomic, assign) NSRange range;
 @property (nonatomic, strong) NSString *contactName;
 @property (nonatomic, strong) NSString *contactPhoto;
+// Helper property for mentions created using the app
+@property (nonatomic, strong) NSString *mentionId;
+@property (nonatomic, strong) NSString *mentionDisplayName;
 
 - (instancetype)initWithDictionary:(NSDictionary *)parameterDict;
 - (BOOL)shouldBeHighlighted;
 - (UIImage *)contactPhotoImage;
+
+// parametersDict as [NSString:NCMessageParameter]
++ (NSString *)messageParametersJSONStringFromDictionary:(NSDictionary *)parametersDict;
++ (NSDictionary *)messageParametersDictFromJSONString:(NSString *)parametersJSONString;
 
 @end
