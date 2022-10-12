@@ -16,6 +16,8 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 
 ## Development setup
 
+Clone this repository and download the [WebRTC library](#webrtc-library)
+
 ```
 $ pod install
 
@@ -26,10 +28,40 @@ $ open NextcloudTalk.xcworkspace
 
 Pull Requests will be checked with [SwiftLint](https://github.com/realm/SwiftLint). We strongly encourage the installation of SwiftLint to detect issues as early as possible.
 
+## Run the project
+
+Depending on how you try to run the project, you'll notice that it's not running "as-is". There are a few steps to make it work with your developer account:
+
+1. The project contains multiple targets (currently `NextcloudTalk`, `ShareExtension` and `NotificationServiceExtension`). The bundle ids of those targets start with `com.nextcloud.Talk` which can't be used outside of Nextcloud GmbH. To run the project, change all bundle ids to something that's allowed for your developer account: `com.<yourname>.Talk`.
+2. To communicate between the main app and its extensions, app groups are used. The group identifier for NextcloudTalk is set to `group.com.nextcloud.Talk`, with the same restriction as above. Change the group identifier of all targets to `group.com.<yourname>.Talk`.
+3. Open the file `NCAppBranding.m` (can be found in XCode under NextcloudTalk -> Settings) and change `bundleIdentifier` and `groupIdentifier` to the same values you used in 1. and 2.
+4. Run the project
+
+## Contributing to Source Code
+
+Thanks for wanting to contribute source code to the Talk iOS app. That's great! 🎉
+
+Please read the [Code of Conduct](https://nextcloud.com/community/code-of-conduct/). This document offers some guidance to ensure Nextcloud participants can cooperate effectively in a positive and inspiring atmosphere, and to explain how together we can strengthen and support each other.
+
+For more information please review the [guidelines for contributing](https://github.com/nextcloud/server/blob/master/.github/CONTRIBUTING.md) to this repository.
+
+## How to contribute
+
+1. 🐛 [Pick a good first issue](https://github.com/nextcloud/talk-ios/labels/good%20first%20issue) or any issue/feature you like to work on
+2. 👩‍🔧 Create a branch and make your changes. Remember to sign off your commits using `git commit -sm "Your commit message"`
+3. ⬆ Create a [pull request](https://opensource.guide/how-to-contribute/#opening-a-pull-request) and `@mention` the people from the issue to review
+4. 👍 Fix things that come up during a review
+5. 🎉 Wait for it to get merged!
+
+You got stuck while working on a issue or need some pointers? Feel free to ask in the corresponding issue or in [our public Talk team conversation](https://cloud.nextcloud.com/call/c7fz9qpr), we're happy to help.
+
 ## WebRTC library
 
-We are using our own builds of the WebRTC library. They can be found in this [repository](https://github.com/nextcloud-releases/talk-clients-webrtc)
-Current version: [96.4664.0](https://github.com/nextcloud-releases/talk-clients-webrtc/releases/tag/96.4664.0-RC1)
+We are using our own builds of the WebRTC library. They can be found in this [repository](https://github.com/nextcloud-releases/talk-clients-webrtc).
+
+Current version: [96.4664.0](https://github.com/nextcloud-releases/talk-clients-webrtc/releases/tag/96.4664.0-RC1).
+\
+Download `WebRTC.xcframework.zip`, unzip it and place it in the `ThirdParty` folder of the project.
 
 ## Push notifications
 
