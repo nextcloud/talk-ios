@@ -78,6 +78,7 @@ typedef enum NCPreferredFileSorting {
 - (BOOL)canCreateGroupAndPublicRooms;
 - (BOOL)callsEnabledCapability;
 - (BOOL)isGuestsAppEnabled;
+- (BOOL)isReferenceApiSupported;
 - (NCPreferredFileSorting)getPreferredFileSorting;
 - (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting;
 - (BOOL)isContactSyncEnabled;

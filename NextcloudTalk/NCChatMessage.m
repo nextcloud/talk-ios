@@ -640,6 +640,19 @@ NSString * const kSharedItemTypeVoice       = @"voice";
         return ([_urlDetected length] != 0);
     }
 
+    // Check if the message is a shared deck card and a reference provider can be used to retrieve details
+    if (self.deckCard != nil && self.deckCard.link != nil && [self.deckCard.link length] > 0) {
+        // Check capabilities directly, otherwise NCSettingsController introduces new dependencies in NotificationServiceExtension
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+
+        if (serverCapabilities && serverCapabilities.referenceApiSupported) {
+            _urlDetectionDone = YES;
+            _urlDetected = _deckCardParameter.link;
+            return true;
+        }
+    }
+
     NSDataDetector *dataDetector = [[NSDataDetector alloc] initWithTypes:NSTextCheckingTypeLink error:nil];
     NSArray *urlMatches = [dataDetector matchesInString:self.message options:0 range:NSMakeRange(0, [self.message length])];
 

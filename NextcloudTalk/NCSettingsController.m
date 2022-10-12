@@ -475,6 +475,16 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     return NO;
 }
 
+- (BOOL)isReferenceApiSupported
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    if (serverCapabilities) {
+        return serverCapabilities.referenceApiSupported;
+    }
+    return NO;
+}
+
 #pragma mark - Push Notifications
 
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId
