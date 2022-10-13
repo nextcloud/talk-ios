@@ -570,6 +570,10 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
             [bgTask stopBackgroundTask];
         }
     }];
+#else
+    if (block) {
+        block(YES);
+    }
 #endif
 }
 
