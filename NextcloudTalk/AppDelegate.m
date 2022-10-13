@@ -216,7 +216,7 @@
     if (!isAppInBackground) {
         // Try to subscribe for push notifications in all accounts
         for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
-            [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId];
+            [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId withCompletionBlock:nil];
         }
     }
 }

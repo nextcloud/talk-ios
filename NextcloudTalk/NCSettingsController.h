@@ -49,6 +49,7 @@ typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
 typedef void (^GetSignalingConfigCompletionBlock)(NSError *error);
+typedef void (^SubscribeForPushNotificationsCompletionBlock)(BOOL success);
 
 typedef enum NCPreferredFileSorting {
     NCAlphabeticalSorting = 1,
@@ -73,7 +74,7 @@ typedef enum NCPreferredFileSorting {
 - (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block;
 - (void)setSignalingConfigurationForAccountId:(NSString *)accountId;
 - (NCExternalSignalingController *)externalSignalingControllerForAccountId:(NSString *)accountId;
-- (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId;
+- (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId withCompletionBlock:(SubscribeForPushNotificationsCompletionBlock)block;
 - (NSInteger)chatMaxLengthConfigCapability;
 - (BOOL)canCreateGroupAndPublicRooms;
 - (BOOL)callsEnabledCapability;
