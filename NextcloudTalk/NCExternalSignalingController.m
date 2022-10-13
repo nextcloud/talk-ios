@@ -472,9 +472,11 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
                 [self messageReceived:[messageDict objectForKey:@"control"]];
             }
 
+            [weakSelf receiveMessage];
+        } else {
+            NSLog(@"WebSocket receiveMessageWithCompletionHandler error %@", error.description);
+            [self reconnect];
         }
-
-        [weakSelf receiveMessage];
     }];
 }
 
