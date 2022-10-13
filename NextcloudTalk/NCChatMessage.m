@@ -374,9 +374,22 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return messageParametersDict;
 }
 
-- (NSMutableAttributedString *)parsedMessage
+- (BOOL)shouldHideParsedMessage
 {
     if (!self.message) {
+        return YES;
+    }
+
+    if ([self getDeckCardUrlForReferenceProvider]) {
+        return YES;
+    }
+
+    return NO;
+}
+
+- (NSMutableAttributedString *)parsedMessage
+{
+    if ([self shouldHideParsedMessage]) {
         return nil;
     }
     
@@ -634,12 +647,8 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return reactionsArray;
 }
 
-- (BOOL)containsURL
+- (NSString *)getDeckCardUrlForReferenceProvider
 {
-    if (_urlDetectionDone) {
-        return ([_urlDetected length] != 0);
-    }
-
     // Check if the message is a shared deck card and a reference provider can be used to retrieve details
     if (self.deckCard != nil && self.deckCard.link != nil && [self.deckCard.link length] > 0) {
         // Check capabilities directly, otherwise NCSettingsController introduces new dependencies in NotificationServiceExtension
@@ -647,10 +656,25 @@ NSString * const kSharedItemTypeVoice       = @"voice";
         ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
 
         if (serverCapabilities && serverCapabilities.referenceApiSupported) {
-            _urlDetectionDone = YES;
-            _urlDetected = _deckCardParameter.link;
-            return true;
+            return _deckCardParameter.link;
         }
+    }
+
+    return nil;
+}
+
+- (BOOL)containsURL
+{
+    if (_urlDetectionDone) {
+        return ([_urlDetected length] != 0);
+    }
+
+    NSString *deckCardUrl = [self getDeckCardUrlForReferenceProvider];
+
+    if (deckCardUrl != nil) {
+        _urlDetectionDone = YES;
+        _urlDetected = deckCardUrl;
+        return YES;
     }
 
     NSDataDetector *dataDetector = [[NSDataDetector alloc] initWithTypes:NSTextCheckingTypeLink error:nil];
