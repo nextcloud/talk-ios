@@ -47,7 +47,9 @@ extern NSString * const kSharedItemTypeMedia;
 extern NSString * const kSharedItemTypeOther;
 extern NSString * const kSharedItemTypeVoice;
 
-typedef void (^GetReferenceDataCompletionBlock)(NSDictionary *referenceData, NSString *url);
+@class NCChatMessage;
+
+typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictionary *referenceData, NSString *url);
 
 @interface NCChatMessage : RLMObject <NSCopying>
 
@@ -103,5 +105,6 @@ typedef void (^GetReferenceDataCompletionBlock)(NSDictionary *referenceData, NSS
 - (void)removeReactionFromTemporayReactions:(NSString *)reaction;
 - (BOOL)containsURL;
 - (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock)block;
+- (BOOL)isSameMessage:(NCChatMessage *)message;
 
 @end
