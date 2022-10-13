@@ -953,7 +953,6 @@
 				1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */,
 				1F468E7728DCC7310099597B /* EmojiTextField.swift */,
 				2C16A82B28E7284D00EDE523 /* NCButton.swift */,
-				53D7E485280B3CA10036F0F5 /* NCSplitViewController.swift */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -2324,7 +2323,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
 				);
-				MARKETING_VERSION = 14.99.4;
+				MARKETING_VERSION = 14.99.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2372,7 +2371,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
 				);
-				MARKETING_VERSION = 14.99.4;
+				MARKETING_VERSION = 14.99.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2460,7 +2459,7 @@
 					"\"${PODS_ROOT}/Realm/core\"",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
 				);
-				MARKETING_VERSION = 14.99.4;
+				MARKETING_VERSION = 14.99.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
@@ -2553,7 +2552,7 @@
 					"\"${PODS_ROOT}/Realm/core\"",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
 				);
-				MARKETING_VERSION = 14.99.4;
+				MARKETING_VERSION = 14.99.5;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
 				PRODUCT_NAME = ShareExtension;
@@ -2627,7 +2626,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
 				);
-				MARKETING_VERSION = 14.99.4;
+				MARKETING_VERSION = 14.99.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
@@ -2702,7 +2701,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/openssl",
 				);
-				MARKETING_VERSION = 14.99.4;
+				MARKETING_VERSION = 14.99.5;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
