@@ -22,8 +22,6 @@
 
 #import "NCExternalSignalingController.h"
 
-#import "SRWebSocket.h"
-
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
@@ -34,10 +32,9 @@
 static NSTimeInterval kInitialReconnectInterval = 1;
 static NSTimeInterval kMaxReconnectInterval     = 16;
 
-@interface NCExternalSignalingController () <SRWebSocketDelegate>
+@interface NCExternalSignalingController () <NSURLSessionWebSocketDelegate>
 
-@property (nonatomic, strong) SRWebSocket *webSocket;
-@property (nonatomic, strong) dispatch_queue_t processingQueue;
+@property (nonatomic, strong) NSURLSessionWebSocketTask *webSocket;
 @property (nonatomic, strong) NSString* serverUrl;
 @property (nonatomic, strong) NSString* ticket;
 @property (nonatomic, strong) NSString* resumeId;
@@ -98,7 +95,6 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 {
     _serverUrl = [self getWebSocketUrlForServer:serverUrl];
     _ticket = ticket;
-    _processingQueue = dispatch_queue_create("com.nextcloud.Talk.websocket.processing", DISPATCH_QUEUE_SERIAL);
     _reconnectInterval = kInitialReconnectInterval;
     _pendingMessages = [NSMutableArray new];
     
@@ -130,13 +126,15 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     _connected = NO;
     NSLog(@"Connecting to: %@",  _serverUrl);
     NSURL *url = [NSURL URLWithString:_serverUrl];
+    NSURLSession *wsSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
     NSURLRequest *wsRequest = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60];
-    SRWebSocket *webSocket = [[SRWebSocket alloc] initWithURLRequest:wsRequest protocols:@[] allowsUntrustedSSLCertificates:YES];
-    [webSocket setDelegateDispatchQueue:self.processingQueue];
-    webSocket.delegate = self;
+    NSURLSessionWebSocketTask *webSocket = [wsSession webSocketTaskWithRequest:wsRequest];
+
     _webSocket = webSocket;
     
-    [_webSocket open];
+    [_webSocket resume];
+
+    [self receiveMessage];
 }
 
 - (void)reconnect
@@ -145,12 +143,13 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
         return;
     }
     
-    [_webSocket close];
+    [_webSocket cancel];
     _webSocket = nil;
     _reconnecting = YES;
     
     [self setReconnectionTimer];
 }
+
 - (void)forceReconnect
 {
     _resumeId = nil;
@@ -160,7 +159,7 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 - (void)disconnect
 {
     [self invalidateReconnectionTimer];
-    [_webSocket close];
+    [_webSocket cancel];
     _webSocket = nil;
 }
 
@@ -202,7 +201,8 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     }
     
     NSLog(@"Sending: %@", jsonString);
-    [_webSocket sendString:jsonString error:nil];
+    NSURLSessionWebSocketMessage *message = [[NSURLSessionWebSocketMessage alloc] initWithString:jsonString];
+    [_webSocket sendMessage:message completionHandler:^(NSError * _Nullable error) {}];
 }
 
 - (void)sendHello
@@ -420,53 +420,73 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     [self.delegate externalSignalingController:self didReceivedSignalingMessage:messageDict];
 }
 
-#pragma mark - SRWebSocketDelegate
+#pragma mark - NSURLSessionWebSocketDelegate
 
-- (void)webSocketDidOpen:(SRWebSocket *)webSocket
+- (void)URLSession:(NSURLSession *)session webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask didOpenWithProtocol:(NSString *)protocol
 {
-    if (webSocket == _webSocket) {
+    if (webSocketTask == _webSocket) {
         NSLog(@"WebSocket Connected!");
         _reconnectInterval = kInitialReconnectInterval;
         [self sendHello];
     }
 }
 
-- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)messageData
+- (void)URLSession:(NSURLSession *)session webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask didCloseWithCode:(NSURLSessionWebSocketCloseCode)closeCode reason:(NSData *)reason
 {
-    if (webSocket == _webSocket) {
-        NSLog(@"WebSocket didReceiveMessage: %@", messageData);
-        NSData *data = [messageData dataUsingEncoding:NSUTF8StringEncoding];
-        NSDictionary *messageDict = [self getWebSocketMessageFromJSONData:data];
-        NSString *messageType = [messageDict objectForKey:@"type"];
-        if ([messageType isEqualToString:@"hello"]) {
-            [self helloResponseReceived:[messageDict objectForKey:@"hello"]];
-        } else if ([messageType isEqualToString:@"error"]) {
-            [self errorResponseReceived:[messageDict objectForKey:@"error"]];
-        } else if ([messageType isEqualToString:@"room"]) {
-            [self roomMessageReceived:[messageDict objectForKey:@"room"]];
-        } else if ([messageType isEqualToString:@"event"]) {
-            [self eventMessageReceived:[messageDict objectForKey:@"event"]];
-        } else if ([messageType isEqualToString:@"message"]) {
-            [self messageReceived:[messageDict objectForKey:@"message"]];
-        } else if ([messageType isEqualToString:@"control"]) {
-            [self messageReceived:[messageDict objectForKey:@"control"]];
+    if (webSocketTask == _webSocket) {
+        NSLog(@"WebSocket didCloseWithCode:%ld reason:%@", (long)closeCode, reason);
+        [self reconnect];
+    }
+}
+
+- (void)receiveMessage {
+    __weak NCExternalSignalingController *weakSelf = self;
+
+    [_webSocket receiveMessageWithCompletionHandler:^(NSURLSessionWebSocketMessage * _Nullable message, NSError * _Nullable error) {
+        if (!error) {
+            NSData *messageData = message.data;
+            NSString *messageString = message.string;
+
+            if (message.type == NSURLSessionWebSocketMessageTypeString) {
+                messageData = [message.string dataUsingEncoding:NSUTF8StringEncoding];
+            }
+
+            if (message.type == NSURLSessionWebSocketMessageTypeData) {
+                messageString = [[NSString alloc] initWithData:messageData encoding:NSUTF8StringEncoding];
+            }
+
+            NSLog(@"WebSocket didReceiveMessage: %@", messageString);
+            NSDictionary *messageDict = [self getWebSocketMessageFromJSONData:messageData];
+            NSString *messageType = [messageDict objectForKey:@"type"];
+            if ([messageType isEqualToString:@"hello"]) {
+                [self helloResponseReceived:[messageDict objectForKey:@"hello"]];
+            } else if ([messageType isEqualToString:@"error"]) {
+                [self errorResponseReceived:[messageDict objectForKey:@"error"]];
+            } else if ([messageType isEqualToString:@"room"]) {
+                [self roomMessageReceived:[messageDict objectForKey:@"room"]];
+            } else if ([messageType isEqualToString:@"event"]) {
+                [self eventMessageReceived:[messageDict objectForKey:@"event"]];
+            } else if ([messageType isEqualToString:@"message"]) {
+                [self messageReceived:[messageDict objectForKey:@"message"]];
+            } else if ([messageType isEqualToString:@"control"]) {
+                [self messageReceived:[messageDict objectForKey:@"control"]];
+            }
+
+            [weakSelf receiveMessage];
+        } else {
+            NSLog(@"WebSocket receiveMessageWithCompletionHandler error %@", error.description);
+            [self reconnect];
         }
-    }
+    }];
 }
 
-- (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error
+- (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
 {
-    if (webSocket == _webSocket) {
-        NSLog(@"WebSocket didFailWithError: %@", error);
-        [self reconnect];
-    }
-}
-
-- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean
-{
-    if (webSocket == _webSocket) {
-        NSLog(@"WebSocket didCloseWithCode:%ld reason:%@", (long)code, reason);
-        [self reconnect];
+    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+        NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
+        completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+    } else {
+        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
     }
 }
 
