@@ -372,7 +372,7 @@
 
 - (void)performBackgroundFetchWithCompletionHandler:(void (^)(BOOL errorOccurred))completionHandler
 {
-    dispatch_group_t notificationsGroup = dispatch_group_create();
+    dispatch_group_t backgroundRefreshGroup = dispatch_group_create();
     __block BOOL errorOccurred = NO;
     __block BOOL expired = NO;
 
@@ -389,7 +389,7 @@
 
     [NCUtils log:@"Start performBackgroundFetchWithCompletionHandler"];
 
-    dispatch_group_enter(notificationsGroup);
+    dispatch_group_enter(backgroundRefreshGroup);
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:^(NSError *error) {
         [NCUtils log:@"CompletionHandler updateRoomsAndChatsUpdatingUserStatus"];
 
@@ -397,7 +397,7 @@
             errorOccurred = YES;
         }
 
-        dispatch_group_leave(notificationsGroup);
+        dispatch_group_leave(backgroundRefreshGroup);
     }];
 
     NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
@@ -410,19 +410,19 @@
     // Check if we reached the threshold and start the subscription process
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         if (account.lastPushSubscription < thresholdTimestamp) {
-            dispatch_group_enter(notificationsGroup);
+            dispatch_group_enter(backgroundRefreshGroup);
 
             [[NCSettingsController sharedInstance] subscribeForPushNotificationsForAccountId:account.accountId withCompletionBlock:^(BOOL success) {
                 if (!success) {
                     errorOccurred = YES;
                 }
 
-                dispatch_group_leave(notificationsGroup);
+                dispatch_group_leave(backgroundRefreshGroup);
             }];
         }
     }
 
-    dispatch_group_notify(notificationsGroup, dispatch_get_main_queue(), ^{
+    dispatch_group_notify(backgroundRefreshGroup, dispatch_get_main_queue(), ^{
          [NCUtils log:@"CompletionHandler performBackgroundFetchWithCompletionHandler dispatch_group_notify"];
 
          if (!expired) {
