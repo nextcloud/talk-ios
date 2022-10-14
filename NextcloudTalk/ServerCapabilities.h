@@ -59,6 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *talkVersion;
 @property NSString *externalSignalingServerVersion;
 @property BOOL guestsAppEnabled;
+@property BOOL referenceApiSupported;
 
 @end
 
