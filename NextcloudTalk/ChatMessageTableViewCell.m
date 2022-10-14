@@ -378,8 +378,10 @@
             _vConstraintReply[6].constant = 100;
         }
 
-        [message getReferenceDataWithCompletionBlock:^(NSDictionary *referenceData, NSString *url) {
-            [self.referenceView updateFor:referenceData and:url];
+        [message getReferenceDataWithCompletionBlock:^(NCChatMessage *message, NSDictionary *referenceData, NSString *url) {
+            if ([self.message isSameMessage:message]) {
+                [self.referenceView updateFor:referenceData and:url];
+            }
         }];
     }
 }

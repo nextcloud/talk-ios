@@ -663,20 +663,35 @@ NSString * const kSharedItemTypeVoice       = @"voice";
 {
     if (_referenceDataDone) {
         if (block) {
-            block(_referenceData, _urlDetected);
+            block(self, _referenceData, _urlDetected);
         }
     } else {
         TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_accountId];
 
         [[NCAPIController sharedInstance] getReferenceForUrlString:_urlDetected forAccount:account withCompletionBlock:^(NSDictionary *references, NSError *error) {
             if (block) {
-                block(references, self->_urlDetected);
+                block(self, references, self->_urlDetected);
             }
 
             self->_referenceData = references;
             self->_referenceDataDone = YES;
         }];
     }
+}
+
+- (BOOL)isSameMessage:(NCChatMessage *)message
+{
+    if (self.isTemporary) {
+        if ([self.referenceId isEqualToString:message.referenceId]) {
+            return YES;
+        }
+    } else {
+        if (self.messageId == message.messageId) {
+            return YES;
+        }
+    }
+
+    return NO;
 }
 
 @end

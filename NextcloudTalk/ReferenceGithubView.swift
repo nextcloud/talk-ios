@@ -81,7 +81,7 @@ import Foundation
                 if stateReason == "not_planned" {
                     image = UIImage(named: "github-issue-notplanned")?.withTintColor(UIColor.systemGray)
                 } else {
-                    image = UIImage(named: "github-issue-closed")?.withTintColor(UIColor.systemRed)
+                    image = UIImage(named: "github-issue-closed")?.withTintColor(UIColor.systemPurple)
                 }
             }
 
