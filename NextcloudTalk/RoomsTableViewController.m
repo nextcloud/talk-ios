@@ -1246,7 +1246,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     // Present room chat
     [self presentChatForRoomAtIndexPath:indexPath];
-    [self setSelectedRoomToken:[self roomForIndexPath:indexPath].token];
 }
 
 - (void)setSelectedRoomToken:(NSString *)selectedRoomToken

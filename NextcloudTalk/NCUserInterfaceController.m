@@ -337,12 +337,27 @@
     [self presentConversationsList];
 
     if (@available(iOS 14.0, *)) {
-        [_mainSplitViewController showDetailViewController:chatViewController sender:self];
+        if (_mainSplitViewController.transitionCoordinator == nil) {
+            // No ongoing animations -> show chatViewController directly
+            [_mainSplitViewController showDetailViewController:chatViewController sender:self];
+        } else {
+            // Wait until the splitViewController finished all it's animations.
+            // Otherwise the chatViewController might end up in the wrong column.
+            // This mainly happens when being in a conversation and tapping a push notification
+            // of another conversation.
+            [_mainSplitViewController.transitionCoordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+                // Nothing to do here, we are only interested in the completion block
+            } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self->_mainSplitViewController showDetailViewController:chatViewController sender:self];
+                });
+            }];
+        }
     } else {
         [(UINavigationController *)_mainViewController pushViewController:chatViewController animated:YES];
     }
 
-    [_roomsTableViewController highlightSelectedRoom];
+    [_roomsTableViewController setSelectedRoomToken:chatViewController.room.token];
 }
 
 - (void)presentCallViewController:(CallViewController *)callViewController
