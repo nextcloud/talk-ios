@@ -155,10 +155,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
     NSDictionary *views = @{@"unreadMentionsButton": _unreadMentionsBottomButton};
     NSDictionary *metrics = @{@"buttonWidth": @(buttonWidth)};
+    UILayoutGuide *margins = self.view.layoutMarginsGuide;
+    
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[unreadMentionsButton(28)]-30-|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[unreadMentionsButton(buttonWidth)]-(>=0)-|" options:0 metrics:metrics views:views]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual
-                                                             toItem:_unreadMentionsBottomButton attribute:NSLayoutAttributeCenterX multiplier:1.f constant:0.f]];
+    [NSLayoutConstraint activateConstraints:@[[_unreadMentionsBottomButton.centerXAnchor constraintEqualToAnchor:margins.centerXAnchor]]];
     [self.view addConstraint:[_unreadMentionsBottomButton.bottomAnchor constraintEqualToAnchor:self.tableView.safeAreaLayoutGuide.bottomAnchor constant:-20]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
