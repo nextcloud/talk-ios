@@ -647,15 +647,22 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return reactionsArray;
 }
 
+- (BOOL)isReferenceApiSupported
+{
+    // Check capabilities directly, otherwise NCSettingsController introduces new dependencies in NotificationServiceExtension
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    if (serverCapabilities) {
+        return serverCapabilities.referenceApiSupported;
+    }
+    return NO;
+}
+
 - (NSString *)getDeckCardUrlForReferenceProvider
 {
     // Check if the message is a shared deck card and a reference provider can be used to retrieve details
     if (self.deckCard != nil && self.deckCard.link != nil && [self.deckCard.link length] > 0) {
-        // Check capabilities directly, otherwise NCSettingsController introduces new dependencies in NotificationServiceExtension
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-
-        if (serverCapabilities && serverCapabilities.referenceApiSupported) {
+        if ([self isReferenceApiSupported]) {
             return _deckCardParameter.link;
         }
     }
@@ -667,6 +674,11 @@ NSString * const kSharedItemTypeVoice       = @"voice";
 {
     if (_urlDetectionDone) {
         return ([_urlDetected length] != 0);
+    }
+
+    if (![self isReferenceApiSupported]) {
+        _urlDetectionDone = YES;
+        return NO;
     }
 
     NSString *deckCardUrl = [self getDeckCardUrlForReferenceProvider];
