@@ -530,6 +530,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 -(void)appDidBecomeActive:(NSNotification*)notification
 {
+    // Don't handle this event if the view is not loaded yet.
+    // Otherwise we try to join the room and receive new messages while
+    // viewDidLoad wasn't called, resulting in uninitialized dictionaries and crashes
+    if (!self.isViewLoaded) {
+        return;
+    }
+
     // Check if new messages were added while the app was inactive (eg. via background-refresh)
     NCChatMessage *lastMessage = [[self->_messages objectForKey:[self->_dateSections lastObject]] lastObject];
     
