@@ -150,6 +150,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Set selection color for selected cells
     [self.tableView setTintColor:UIColor.systemGray4Color];
 
+    // Remove the backButtonTitle, otherwise when we transition to a conversation, "Back" is briefly visible
+    self.navigationItem.backButtonTitle = @"";
+
     NSDictionary *views = @{@"unreadMentionsButton": _unreadMentionsBottomButton};
     NSDictionary *metrics = @{@"buttonWidth": @(buttonWidth)};
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[unreadMentionsButton(28)]-30-|" options:0 metrics:nil views:views]];
