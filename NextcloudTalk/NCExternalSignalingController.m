@@ -47,7 +47,6 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
 @property (nonatomic, strong) NSMutableArray* pendingMessages;
 @property (nonatomic, assign) NSInteger reconnectInterval;
 @property (nonatomic, strong) NSTimer *reconnectTimer;
-@property (nonatomic, assign) BOOL reconnecting;
 @property (nonatomic, assign) BOOL sessionChanged;
 
 @end
@@ -145,7 +144,7 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     
     [_webSocket cancel];
     _webSocket = nil;
-    _reconnecting = YES;
+    _connected = NO;
     
     [self setReconnectionTimer];
 }
@@ -161,6 +160,7 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     [self invalidateReconnectionTimer];
     [_webSocket cancel];
     _webSocket = nil;
+    _connected = NO;
 }
 
 - (void)setReconnectionTimer
@@ -297,6 +297,8 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     if ([_currentRoom isEqualToString:roomId]) {
         _currentRoom = nil;
         [self joinRoom:@"" withSessionId:@""];
+    } else {
+        NSLog(@"External signaling: Not leaving because it's not room we joined");
     }
 }
 
