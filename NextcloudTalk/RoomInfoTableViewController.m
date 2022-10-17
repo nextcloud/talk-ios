@@ -317,21 +317,17 @@ typedef enum FileAction {
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionNotifications]];
     }
+    // Conversation section
+    if ([self getConversationActions].count > 0) {
+        [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionConversation]];
+    }
     // Moderator sections
     if (_room.canModerate) {
         // Guests section
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionGuests]];
-        
-        if (_room.type != kNCRoomTypeOneToOne) {
-            // Conversation section
-            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReadOnlyRooms] || [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
-                [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionConversation]];
-            }
-            
-            // Webinar section
-            if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
-                [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionWebinar]];
-            }
+        // Webinar section
+        if (_room.type != kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
+            [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionWebinar]];
         }
     }
     // SIP section
@@ -426,22 +422,23 @@ typedef enum FileAction {
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     // Message expiration action
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityMessageExpiration]) {
+    if (_room.isUserOwnerOrModerator && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityMessageExpiration]) {
         [actions addObject:[NSNumber numberWithInt:kConversationActionMessageExpiration]];
     }
-    
-    // Listable room action
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
-        [actions addObject:[NSNumber numberWithInt:kConversationActionListable]];
-        
-        if (_room.listable != NCRoomListableScopeParticipantsOnly && [[NCSettingsController sharedInstance] isGuestsAppEnabled]) {
-            [actions addObject:[NSNumber numberWithInt:kConversationActionListableForEveryone]];
+    if (_room.canModerate) {
+        // Listable room action
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
+            [actions addObject:[NSNumber numberWithInt:kConversationActionListable]];
+            
+            if (_room.listable != NCRoomListableScopeParticipantsOnly && [[NCSettingsController sharedInstance] isGuestsAppEnabled]) {
+                [actions addObject:[NSNumber numberWithInt:kConversationActionListableForEveryone]];
+            }
         }
-    }
 
-    // Read only room action
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReadOnlyRooms]) {
-        [actions addObject:[NSNumber numberWithInt:kConversationActionReadOnly]];
+        // Read only room action
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReadOnlyRooms]) {
+            [actions addObject:[NSNumber numberWithInt:kConversationActionReadOnly]];
+        }
     }
     
     return [NSArray arrayWithArray:actions];
