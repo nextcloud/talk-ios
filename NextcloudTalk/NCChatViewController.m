@@ -3649,7 +3649,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Forward option (only normal messages for now)
-    if (!message.file && !message.isDeletedMessage && !_offlineMode) {
+    if (!message.file && !message.poll && !message.isDeletedMessage && !_offlineMode) {
         UIImage *forwardImage = [[UIImage imageNamed:@"forward"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *forwardAction = [UIAction actionWithTitle:NSLocalizedString(@"Forward", nil) image:forwardImage identifier:nil handler:^(UIAction *action){
             
