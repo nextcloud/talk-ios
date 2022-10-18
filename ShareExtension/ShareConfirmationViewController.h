@@ -33,7 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef enum ShareConfirmationType {
     ShareConfirmationTypeText = 0,
-    ShareConfirmationTypeItem
+    ShareConfirmationTypeItem,
+    ShareConfirmationTypeObjectShare
 } ShareConfirmationType;
 
 @class ShareConfirmationViewController;
@@ -71,6 +72,7 @@ typedef enum ShareConfirmationType {
 
 - (id)initWithRoom:(NCRoom *)room account:(TalkAccount *)account serverCapabilities:(ServerCapabilities *)serverCapabilities;
 - (void)shareText:(NSString *)text;
+- (void)shareObjectShareMessage:(NCChatMessage *)objectShareMessage;
 
 @end
 

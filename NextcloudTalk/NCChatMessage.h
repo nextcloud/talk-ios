@@ -88,6 +88,8 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 - (BOOL)isCommandMessage;
 - (BOOL)isMessageFromUser:(NSString *)userId;
 - (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType;
+- (BOOL)isObjectShare;
+- (NSDictionary *)richObjectFromObjectShare;
 - (NCMessageFileParameter *)file;
 - (NCMessageLocationParameter *)geoLocation;
 - (NCDeckCardParameter *)deckCard;

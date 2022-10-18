@@ -48,6 +48,7 @@
     dispatch_group_t _uploadGroup;
     BOOL _uploadFailed;
     NSMutableArray *_uploadErrors;
+    NSDictionary *_objectShareRichObject;
 }
 
 @property (nonatomic, strong) UIImagePickerController *imagePicker;
@@ -189,6 +190,8 @@
 {
     if (_type == ShareConfirmationTypeText) {
         [self sendSharedText];
+    } else if (_type == ShareConfirmationTypeObjectShare) {
+        [self sendObjectShare];
     } else {
         [self uploadAndShareFiles];
     }
@@ -235,6 +238,20 @@
         self.itemToolbar.hidden = YES;
         self.shareTextView.hidden = NO;
         self.shareTextView.text = sharedText;
+    });
+}
+
+- (void)shareObjectShareMessage:(NCChatMessage *)objectShareMessage
+{
+    _type = ShareConfirmationTypeObjectShare;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.shareCollectionView.hidden = YES;
+        self.itemToolbar.hidden = YES;
+        self.shareTextView.hidden = NO;
+        self.shareTextView.userInteractionEnabled = NO;
+        self.shareTextView.text = objectShareMessage.parsedMessage.string;
+        self->_objectShareRichObject = objectShareMessage.richObjectFromObjectShare;
     });
 }
 
@@ -358,6 +375,19 @@
 - (void)sendSharedText
 {
     [[NCAPIController sharedInstance] sendChatMessage:self.shareTextView.text toRoom:_room.token displayName:nil replyTo:-1 referenceId:nil silently:NO forAccount:_account withCompletionBlock:^(NSError *error) {
+        if (error) {
+            [self.delegate shareConfirmationViewControllerDidFailed:self];
+            NSLog(@"Failed to send shared item");
+        } else {
+            [self.delegate shareConfirmationViewControllerDidFinish:self];
+        }
+        [self stopAnimatingSharingIndicator];
+    }];
+}
+
+- (void)sendObjectShare
+{
+    [[NCAPIController sharedInstance] shareRichObject:_objectShareRichObject inRoom:_room.token forAccount:_account withCompletionBlock:^(NSError *error) {
         if (error) {
             [self.delegate shareConfirmationViewControllerDidFailed:self];
             NSLog(@"Failed to send shared item");

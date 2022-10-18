@@ -55,6 +55,19 @@
     if (self) {
         self.chatViewController = chatViewController;
         self.forwardMessage = message;
+        self.forwarding = YES;
+    }
+    
+    return self;
+}
+
+- (id)initToForwardObjectShareMessage:(NCChatMessage *)objectShareMessage fromChatViewController:(UIViewController *)chatViewController
+{
+    self = [super init];
+    if (self) {
+        self.chatViewController = chatViewController;
+        self.forwardObjectShareMessage = objectShareMessage;
+        self.forwarding = YES;
     }
     
     return self;
@@ -137,7 +150,7 @@
     [_searchController.searchBar sizeToFit];
     
     // Configure navigation bar
-    self.navigationItem.title = _forwardMessage ? NSLocalizedString(@"Forward to", nil) : NSLocalizedString(@"Share with", nil);
+    self.navigationItem.title = _forwarding ? NSLocalizedString(@"Forward to", nil) : NSLocalizedString(@"Share with", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
@@ -566,6 +579,10 @@
         shareConfirmationVC.delegate = (id<ShareConfirmationViewControllerDelegate>)_chatViewController;
         shareConfirmationVC.forwardingMessage = YES;
         [shareConfirmationVC shareText:_forwardMessage];
+    } else if (_forwardObjectShareMessage) {
+        shareConfirmationVC.delegate = (id<ShareConfirmationViewControllerDelegate>)_chatViewController;
+        shareConfirmationVC.forwardingMessage = YES;
+        [shareConfirmationVC shareObjectShareMessage:_forwardObjectShareMessage];
     } else {
         [self setSharedItemToShareConfirmationViewController:shareConfirmationVC];
     }

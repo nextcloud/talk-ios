@@ -1522,6 +1522,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)didPressForward:(NCChatMessage *)message {
     ShareViewController *shareViewController = [[ShareViewController alloc] initToForwardMessage:message.parsedMessage.string fromChatViewController:self];
+    if (message.isObjectShare) {
+        shareViewController = [[ShareViewController alloc] initToForwardObjectShareMessage:message fromChatViewController:self];
+    }
     shareViewController.delegate = self;
     NCNavigationController *forwardMessageNC = [[NCNavigationController alloc] initWithRootViewController:shareViewController];
     [self presentViewController:forwardMessageNC animated:YES completion:nil];
