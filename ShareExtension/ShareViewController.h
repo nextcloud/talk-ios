@@ -25,6 +25,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class ShareViewController;
+@class NCChatMessage;
 @protocol ShareViewControllerDelegate <NSObject>
 
 - (void)shareViewControllerDidCancel:(ShareViewController *)viewController;
@@ -37,8 +38,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) UIViewController *chatViewController;
 @property (strong, nonatomic) NSString *forwardMessage;
+@property (strong, nonatomic) NCChatMessage *forwardObjectShareMessage;
+@property (assign, nonatomic) BOOL forwarding;
 
 - (id)initToForwardMessage:(NSString *)message fromChatViewController:(UIViewController *)chatViewController;
+- (id)initToForwardObjectShareMessage:(NCChatMessage *)objectShareMessage fromChatViewController:(UIViewController *)chatViewController;
 
 @end
 

@@ -1521,7 +1521,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 }
 
 - (void)didPressForward:(NCChatMessage *)message {
-    ShareViewController *shareViewController = [[ShareViewController alloc] initToForwardMessage:message.parsedMessage.string fromChatViewController:self];
+    ShareViewController *shareViewController;
+    
+    if (message.isObjectShare) {
+        shareViewController = [[ShareViewController alloc] initToForwardObjectShareMessage:message fromChatViewController:self];
+    } else {
+        shareViewController = [[ShareViewController alloc] initToForwardMessage:message.parsedMessage.string fromChatViewController:self];
+    }
     shareViewController.delegate = self;
     NCNavigationController *forwardMessageNC = [[NCNavigationController alloc] initWithRootViewController:shareViewController];
     [self presentViewController:forwardMessageNC animated:YES completion:nil];
@@ -3649,7 +3655,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Forward option (only normal messages for now)
-    if (!message.file && !message.isDeletedMessage && !_offlineMode) {
+    if (!message.file && !message.poll && !message.isDeletedMessage && !_offlineMode) {
         UIImage *forwardImage = [[UIImage imageNamed:@"forward"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *forwardAction = [UIAction actionWithTitle:NSLocalizedString(@"Forward", nil) image:forwardImage identifier:nil handler:^(UIAction *action){
             

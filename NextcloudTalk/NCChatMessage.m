@@ -272,11 +272,34 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return NO;
 }
 
+- (NSDictionary *)richObjectFromObjectShare
+{
+    NSDictionary *richObjectDict = @{};
+    if ([self isObjectShare]) {
+        NSDictionary *objectDict = [self.messageParameters objectForKey:@"object"];
+        NSError *error;
+        NSString *jsonString = @"";
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:objectDict
+                                                           options:0
+                                                             error:&error];
+        if (!jsonData) {
+            NSLog(@"Got an error: %@", error);
+        } else {
+            jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        }
+        NCMessageParameter *parameter = [[NCMessageParameter alloc] initWithDictionary:objectDict];
+        richObjectDict = @{@"objectType": parameter.type,
+                           @"objectId": parameter.parameterId,
+                           @"metaData": jsonString};
+    }
+    return richObjectDict;
+}
+
 - (NCMessageParameter *)file
 {
     if (!_fileParameter) {
         for (NSDictionary *parameterDict in [[self messageParameters] allValues]) {
-            NCMessageFileParameter *parameter = [[NCMessageFileParameter alloc] initWithDictionary:parameterDict] ;
+            NCMessageFileParameter *parameter = [[NCMessageFileParameter alloc] initWithDictionary:parameterDict];
             if (![parameter.type isEqualToString:@"file"]) {
                 continue;
             }
