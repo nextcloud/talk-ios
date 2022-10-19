@@ -46,61 +46,45 @@
 
 - (void)donateSendMessageIntentForRoom:(NCRoom *)room
 {
-    // Go with iOS 13 here, as we can't access the intent property in a shareExtension with earlier version
-    // See: https://developer.apple.com/documentation/foundation/nsextensioncontext/3180173-intent?language=objc
-    if (@available(iOS 13.0, *)) {
-        INSpeakableString *groupName = [[INSpeakableString alloc] initWithSpokenPhrase:room.displayName];
-        INSendMessageIntent *sendMessageIntent;
-        
-        if (@available(iOS 14.0, *)) {
-            sendMessageIntent = [[INSendMessageIntent alloc] initWithRecipients:nil
-                                                            outgoingMessageType:INOutgoingMessageTypeOutgoingMessageText
-                                                                        content:nil
-                                                             speakableGroupName:groupName
-                                                         conversationIdentifier:room.internalId
-                                                                    serviceName:nil
-                                                                         sender:nil
-                                                                    attachments:nil];
-        } else {
-            sendMessageIntent = [[INSendMessageIntent alloc] initWithRecipients:nil
-                                                                        content:nil
-                                                             speakableGroupName:groupName
-                                                         conversationIdentifier:room.internalId
-                                                                    serviceName:nil
-                                                                         sender:nil];
+    INSpeakableString *groupName = [[INSpeakableString alloc] initWithSpokenPhrase:room.displayName];
+    INSendMessageIntent *sendMessageIntent = [[INSendMessageIntent alloc] initWithRecipients:nil
+                                                                        outgoingMessageType:INOutgoingMessageTypeOutgoingMessageText
+                                                                                    content:nil
+                                                                         speakableGroupName:groupName
+                                                                     conversationIdentifier:room.internalId
+                                                                                serviceName:nil
+                                                                                     sender:nil
+                                                                                attachments:nil];
+    switch (room.type) {
+        case kNCRoomTypeOneToOne:
+        {
+            TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
+            [[NCAPIController sharedInstance] getUserAvatarForUser:room.name andSize:128 usingAccount:account withCompletionBlock:^(UIImage *image, NSError *error) {
+                if (image) {
+                    [sendMessageIntent setImage:[INImage imageWithUIImage:image] forParameterNamed:@"speakableGroupName"];
+                    [self donateMessageSentIntent:sendMessageIntent];
+                }
+            }];
+            break;
+        }
+        case kNCRoomTypeGroup:
+        {
+            UIImage *avatarImage = [self getAvatarWithImage:[UIImage imageNamed:@"group"] withSize:CGSizeMake(128, 128)];
+            [sendMessageIntent setImage:[INImage imageWithUIImage:avatarImage] forParameterNamed:@"speakableGroupName"];
+            [self donateMessageSentIntent:sendMessageIntent];
+            break;
         }
 
-        switch (room.type) {
-            case kNCRoomTypeOneToOne:
-            {
-                TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
-                [[NCAPIController sharedInstance] getUserAvatarForUser:room.name andSize:128 usingAccount:account withCompletionBlock:^(UIImage *image, NSError *error) {
-                    if (image) {
-                        [sendMessageIntent setImage:[INImage imageWithUIImage:image] forParameterNamed:@"speakableGroupName"];
-                        [self donateMessageSentIntent:sendMessageIntent];
-                    }
-                }];
-                break;
-            }
-            case kNCRoomTypeGroup:
-            {
-                UIImage *avatarImage = [self getAvatarWithImage:[UIImage imageNamed:@"group"] withSize:CGSizeMake(128, 128)];
-                [sendMessageIntent setImage:[INImage imageWithUIImage:avatarImage] forParameterNamed:@"speakableGroupName"];
-                [self donateMessageSentIntent:sendMessageIntent];
-                break;
-            }
-
-            case kNCRoomTypePublic:
-            {
-                UIImage *avatarImage = [self getAvatarWithImage:[UIImage imageNamed:@"public"] withSize:CGSizeMake(128, 128)];
-                [sendMessageIntent setImage:[INImage imageWithUIImage:avatarImage] forParameterNamed:@"speakableGroupName"];
-                [self donateMessageSentIntent:sendMessageIntent];
-                break;
-            }
-   
-            default:
-                break;
+        case kNCRoomTypePublic:
+        {
+            UIImage *avatarImage = [self getAvatarWithImage:[UIImage imageNamed:@"public"] withSize:CGSizeMake(128, 128)];
+            [sendMessageIntent setImage:[INImage imageWithUIImage:avatarImage] forParameterNamed:@"speakableGroupName"];
+            [self donateMessageSentIntent:sendMessageIntent];
+            break;
         }
+
+        default:
+            break;
     }
 }
 
@@ -141,7 +125,5 @@
     
     return nil;
 }
-
-
 
 @end
