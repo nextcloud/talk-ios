@@ -29,7 +29,6 @@
 #import <IntentsUI/INImage+IntentsUI.h>
 
 #import "NCIntentController.h"
-#import "NCRoomsManager.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 
@@ -102,15 +101,6 @@
             default:
                 break;
         }
-    }
-}
-
-- (void)donateSendMessageIntentForRoomToken:(NSString *)token withAccountId:(NSString *)accountId
-{
-    NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:token forAccountId:accountId];
-    
-    if (room) {
-        [self donateSendMessageIntentForRoom:room];
     }
 }
 

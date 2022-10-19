@@ -301,7 +301,10 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
                 // We replied to the message, so we can assume, we read it as well
                 [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:pushNotification.accountId];
                 [self updateAppIconBadgeNumber];
-                [[NCIntentController sharedInstance] donateSendMessageIntentForRoomToken:pushNotification.roomToken withAccountId:pushNotification.accountId];
+                NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
+                if (room) {
+                    [[NCIntentController sharedInstance] donateSendMessageIntentForRoom:room];
+                }
             }
             
             [application endBackgroundTask:sendTask];
