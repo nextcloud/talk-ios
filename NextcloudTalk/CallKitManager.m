@@ -32,6 +32,7 @@
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
+#import "NCUtils.h"
 
 NSString * const CallKitManagerDidAnswerCallNotification        = @"CallKitManagerDidAnswerCallNotification";
 NSString * const CallKitManagerDidEndCallNotification           = @"CallKitManagerDidEndCallNotification";
@@ -82,6 +83,13 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 
 + (BOOL)isCallKitAvailable
 {
+    if ([NCUtils isiOSAppOnMac]) {
+        // There's currently no support for CallKit when running on MacOS.
+        // If this is enabled on MacOS, there's no audio, because we fail to retrieve
+        // the streams from CallKit. Tested with MacOS 12 & 13.
+        return NO;
+    }
+
     // CallKit should be deactivated in China as requested by Apple
     return ![NSLocale.currentLocale.countryCode isEqual: @"CN"];
 }
