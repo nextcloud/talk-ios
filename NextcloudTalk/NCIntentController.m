@@ -59,7 +59,7 @@
         case kNCRoomTypeOneToOne:
         {
             TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
-            [[NCAPIController sharedInstance] getUserAvatarForUser:room.name andSize:128 usingAccount:account withCompletionBlock:^(UIImage *image, NSError *error) {
+            [[NCAPIController sharedInstance] getUserAvatarForUser:room.name andSize:512 usingAccount:account withCompletionBlock:^(UIImage *image, NSError *error) {
                 if (image) {
                     [sendMessageIntent setImage:[INImage imageWithUIImage:image] forParameterNamed:@"speakableGroupName"];
                     [self donateMessageSentIntent:sendMessageIntent];
@@ -69,16 +69,14 @@
         }
         case kNCRoomTypeGroup:
         {
-            UIImage *avatarImage = [self getAvatarWithImage:[UIImage imageNamed:@"group"] withSize:CGSizeMake(128, 128)];
-            [sendMessageIntent setImage:[INImage imageWithUIImage:avatarImage] forParameterNamed:@"speakableGroupName"];
+            [sendMessageIntent setImage:[INImage imageWithUIImage:[UIImage imageNamed:@"group-avatar"]] forParameterNamed:@"speakableGroupName"];
             [self donateMessageSentIntent:sendMessageIntent];
             break;
         }
 
         case kNCRoomTypePublic:
         {
-            UIImage *avatarImage = [self getAvatarWithImage:[UIImage imageNamed:@"public"] withSize:CGSizeMake(128, 128)];
-            [sendMessageIntent setImage:[INImage imageWithUIImage:avatarImage] forParameterNamed:@"speakableGroupName"];
+            [sendMessageIntent setImage:[INImage imageWithUIImage:[UIImage imageNamed:@"public-avatar"]] forParameterNamed:@"speakableGroupName"];
             [self donateMessageSentIntent:sendMessageIntent];
             break;
         }
@@ -98,32 +96,6 @@
             NSLog(@"SendMessageIntent successfully donated");
         }
     }];
-}
-
-- (UIImage *)getAvatarWithImage:(UIImage *)image withSize:(CGSize)size
-{
-    if (image) {
-        UIGraphicsBeginImageContext(size);
-        
-        // #d5d5d5 - we can't donate 2 images for dark/light mode, so just be consistent here
-        [[UIColor colorWithRed: 0.84 green: 0.84 blue: 0.84 alpha: 1.00] setFill];
-        UIRectFill(CGRectMake(0, 0, size.width, size.height));
-        
-        CGFloat imageScale = image.scale;
-        CGFloat imageWidth = (image.size.width * imageScale);
-        CGFloat imageHeight = (image.size.height * imageScale);
-        
-        CGFloat positionX = size.width / 2 - imageWidth / 2;
-        CGFloat positionY = size.height / 2 - imageHeight / 2;
-        [image drawInRect:CGRectMake(positionX, positionY, imageWidth, imageHeight)];
-        
-        UIImage *avatarImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-     
-        return avatarImage;
-    }
-    
-    return nil;
 }
 
 @end
