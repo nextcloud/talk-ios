@@ -28,7 +28,7 @@ enum SettingsSection: Int {
     case kSettingsSectionUserStatus
     case kSettingsSectionAccounts
     case kSettingsSectionConfiguration
-    case kSettingsSectionDiagnostics
+    case kSettingsSectionAdvanced
     case kSettingsSectionAbout
 }
 
@@ -130,8 +130,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         // Configuration section
         sections.append(SettingsSection.kSettingsSectionConfiguration.rawValue)
 
-        // Diagnostics section
-        sections.append(SettingsSection.kSettingsSectionDiagnostics.rawValue)
+        // Advanced section
+        sections.append(SettingsSection.kSettingsSectionAdvanced.rawValue)
 
         // About section
         sections.append(SettingsSection.kSettingsSectionAbout.rawValue)
@@ -461,7 +461,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             return 1
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
             return getConfigurationSectionOptions().count
-        case SettingsSection.kSettingsSectionDiagnostics.rawValue:
+        case SettingsSection.kSettingsSectionAdvanced.rawValue:
             return 1
         case SettingsSection.kSettingsSectionAbout.rawValue:
             return AboutSection.kAboutSectionNumber.rawValue
@@ -493,7 +493,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             return NSLocalizedString("Accounts", comment: "")
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
             return NSLocalizedString("Configuration", comment: "")
-        case SettingsSection.kSettingsSectionDiagnostics.rawValue:
+        case SettingsSection.kSettingsSectionAdvanced.rawValue:
             return NSLocalizedString("Advanced", comment: "")
         case SettingsSection.kSettingsSectionAbout.rawValue:
             return NSLocalizedString("About", comment: "")
@@ -556,8 +556,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             cell = userAccountsCell(for: indexPath)
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
             cell = sectionConfigurationCell(for: indexPath)
-        case SettingsSection.kSettingsSectionDiagnostics.rawValue:
-            cell = diagnosticsCell(for: indexPath)
+        case SettingsSection.kSettingsSectionAdvanced.rawValue:
+            cell = advancedCell(for: indexPath)
         case SettingsSection.kSettingsSectionAbout.rawValue:
             cell = sectionAboutCell(for: indexPath)
         default:
@@ -590,7 +590,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             default:
                 break
             }
-        case SettingsSection.kSettingsSectionDiagnostics.rawValue:
+        case SettingsSection.kSettingsSectionAdvanced.rawValue:
             self.diagnosticsPressed()
         case SettingsSection.kSettingsSectionAbout.rawValue:
             switch indexPath.row {
@@ -709,8 +709,8 @@ extension SettingsTableViewController {
         return cell
     }
 
-    func diagnosticsCell(for indexPath: IndexPath) -> UITableViewCell {
-        let userStatusCellIdentifier = "DiagnosticsCellIdentifier"
+    func advancedCell(for indexPath: IndexPath) -> UITableViewCell {
+        let userStatusCellIdentifier = "AdvancedCellIdentifier"
         let cell = UITableViewCell(style: .default, reuseIdentifier: userStatusCellIdentifier)
 
         cell.textLabel?.text = NSLocalizedString("Diagnostics", comment: "")
