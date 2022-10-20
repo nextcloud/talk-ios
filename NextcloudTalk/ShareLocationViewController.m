@@ -106,9 +106,11 @@ typedef enum ShareLocationSection {
     self.navigationItem.searchController = _searchController;
     self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
 
+#if !TARGET_OS_MACCATALYST
     if (@available(iOS 16.0, *)) {
         self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
     }
+#endif
     
     _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
     UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];

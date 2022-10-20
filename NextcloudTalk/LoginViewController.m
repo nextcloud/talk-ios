@@ -30,11 +30,18 @@
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 
+#if !TARGET_OS_MACCATALYST
 @interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate, QRCodeLoginControllerDelegate>
 {
     AuthenticationViewController *_authenticationViewController;
     QRCodeLoginController *_qrCodeLoginController;
 }
+#else
+@interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate>
+{
+    AuthenticationViewController *_authenticationViewController;
+}
+#endif
 
 @end
 
@@ -114,8 +121,10 @@
 
 - (IBAction)qrCodeLogin:(id)sender
 {
+#if !TARGET_OS_MACCATALYST
     _qrCodeLoginController = [[QRCodeLoginController alloc] initWithDelegate:self];
     [_qrCodeLoginController scan];
+#endif
 }
 
 - (void)trustedCerticateAccepted

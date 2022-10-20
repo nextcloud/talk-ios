@@ -82,6 +82,8 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 
 + (BOOL)isCallKitAvailable
 {
+    // TODO: Adjust for Catalyst
+    return NO;
     // CallKit should be deactivated in China as requested by Apple
     return ![NSLocale.currentLocale.countryCode isEqual: @"CN"];
 }
