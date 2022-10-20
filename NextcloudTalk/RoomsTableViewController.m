@@ -61,7 +61,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     RLMNotificationToken *_rlmNotificationToken;
     NSMutableArray *_rooms;
+#if !TARGET_OS_MACCATALYST
     UIRefreshControl *_refreshControl;
+#endif
     BOOL _allowEmptyGroupRooms;
     UISearchController *_searchController;
     NSString *_searchString;
@@ -195,9 +197,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.navigationItem.searchController = _searchController;
     self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
 
+#if !TARGET_OS_MACCATALYST
     if (@available(iOS 16.0, *)) {
         self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
     }
+#endif
     
     _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
     UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
@@ -292,8 +296,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             
         }
     }
-    
+#if !TARGET_OS_MACCATALYST
     [_refreshControl endRefreshing];
+#endif
 }
 
 - (void)notificationWillBePresented:(NSNotification *)notification
@@ -369,16 +374,20 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
 - (void)createRefreshControl
 {
+#if !TARGET_OS_MACCATALYST
     _refreshControl = [UIRefreshControl new];
     _refreshControl.tintColor = [NCAppBranding themeTextColor];
 
     [_refreshControl addTarget:self action:@selector(refreshControlTarget) forControlEvents:UIControlEventValueChanged];
     self.tableView.refreshControl = _refreshControl;
+#endif
 }
 
 - (void)deleteRefreshControl
 {
+#if !TARGET_OS_MACCATALYST
     [_refreshControl endRefreshing];
+#endif
     self.refreshControl = nil;
 }
 

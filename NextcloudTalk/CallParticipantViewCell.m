@@ -258,7 +258,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     }
 }
 
-- (void)setVideoView:(RTCEAGLVideoView *)videoView
+- (void)setVideoView:(RTCMTLVideoView *)videoView
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self->_videoView removeFromSuperview];

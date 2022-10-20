@@ -19,7 +19,9 @@
 //
 
 import Foundation
+#if !targetEnvironment(macCatalyst)
 import QRCodeReader
+
 
 @objc public protocol QRCodeLoginControllerDelegate  {
     @objc func readLoginDetails(serverUrl: String?, user: String?, password: String?)
@@ -131,3 +133,4 @@ import QRCodeReader
         reader.stopScanning()
     }
 }
+#endif

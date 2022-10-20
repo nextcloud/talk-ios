@@ -53,7 +53,7 @@ extern CGFloat const kCallParticipantCellMinHeight;
 @property (weak, nonatomic) IBOutlet UIView *buttonsContainerView;
 
 
-- (void)setVideoView:(RTCEAGLVideoView *)videoView;
+- (void)setVideoView:(RTCMTLVideoView *)videoView;
 - (void)setSpeaking:(BOOL)speaking;
 - (void)setUserAvatar:(NSString *)userId;
 - (void)setRemoteVideoSize:(CGSize)size;

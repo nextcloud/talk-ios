@@ -26,7 +26,7 @@
 
 #import <WebRTC/RTCCameraVideoCapturer.h>
 #import <WebRTC/RTCMediaStream.h>
-#import <WebRTC/RTCEAGLVideoView.h>
+#import <WebRTC/RTCMTLVideoView.h>
 #import <WebRTC/RTCVideoTrack.h>
 
 #import "DBImageColorPicker.h"
@@ -1111,11 +1111,11 @@ typedef NS_ENUM(NSInteger, CallState) {
         dispatch_async(dispatch_get_main_queue(), ^{
             for (NCPeerConnection *peerConnection in self->_peersInCall) {
                 // Video renderers
-                RTCEAGLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peerConnection.peerId];
+                RTCMTLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peerConnection.peerId];
                 [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
                 [self->_videoRenderersDict removeObjectForKey:peerConnection.peerId];
                 // Screen renderers
-                RTCEAGLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peerConnection.peerId];
+                RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peerConnection.peerId];
                 [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
                 [self->_screenRenderersDict removeObjectForKey:peerConnection.peerId];
             }
@@ -1369,7 +1369,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         // Video renderers
-        RTCEAGLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peer.peerId];
+        RTCMTLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peer.peerId];
         [[peer.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
         [self->_videoRenderersDict removeObjectForKey:peer.peerId];
         // Screen renderers
@@ -1413,7 +1413,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callController:(NCCallController *)callController didAddStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        RTCEAGLVideoView *renderView = [[RTCEAGLVideoView alloc] initWithFrame:CGRectZero];
+        RTCMTLVideoView *renderView = [[RTCMTLVideoView alloc] initWithFrame:CGRectZero];
         renderView.delegate = self;
         RTCVideoTrack *remoteVideoTrack = [remotePeer.remoteStream.videoTracks firstObject];
         [remoteVideoTrack addRenderer:renderView];
@@ -1527,7 +1527,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)showScreenOfPeerId:(NSString *)peerId
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        RTCEAGLVideoView *renderView = [self->_screenRenderersDict objectForKey:peerId];
+        RTCMTLVideoView *renderView = [self->_screenRenderersDict objectForKey:peerId];
         [self->_screenView removeFromSuperview];
         self->_screenView = nil;
         self->_screenView = renderView;
@@ -1551,7 +1551,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)removeScreensharingOfPeer:(NCPeerConnection *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        RTCEAGLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerId];
+        RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerId];
         [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
         [self->_screenRenderersDict removeObjectForKey:peer.peerId];
         [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
@@ -1600,10 +1600,10 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 #pragma mark - RTCVideoViewDelegate
 
-- (void)videoView:(RTCEAGLVideoView*)videoView didChangeVideoSize:(CGSize)size
+- (void)videoView:(RTCMTLVideoView*)videoView didChangeVideoSize:(CGSize)size
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        for (RTCEAGLVideoView *rendererView in [self->_videoRenderersDict allValues]) {
+        for (RTCMTLVideoView *rendererView in [self->_videoRenderersDict allValues]) {
             if ([videoView isEqual:rendererView]) {
                 rendererView.frame = CGRectMake(0, 0, size.width, size.height);
                 NSArray *keys = [self->_videoRenderersDict allKeysForObject:videoView];
@@ -1616,7 +1616,7 @@ typedef NS_ENUM(NSInteger, CallState) {
                 }
             }
         }
-        for (RTCEAGLVideoView *rendererView in [self->_screenRenderersDict allValues]) {
+        for (RTCMTLVideoView *rendererView in [self->_screenRenderersDict allValues]) {
             if ([videoView isEqual:rendererView]) {
                 rendererView.frame = CGRectMake(0, 0, size.width, size.height);
                 if ([self->_screenView isEqual:rendererView]) {
