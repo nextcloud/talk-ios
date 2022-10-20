@@ -33,11 +33,12 @@
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCIntentController.h"
 #import "NCKeyChainController.h"
+#import "NCNavigationController.h"
 #import "NCUserDefaults.h"
 #import "NCUtils.h"
 #import "MBProgressHUD.h"
-#import "NCNavigationController.h"
 
 
 @interface ShareConfirmationViewController () <NCCommunicationCommonDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, QLPreviewControllerDataSource, QLPreviewControllerDelegate, ShareItemControllerDelegate, TOCropViewControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, UINavigationControllerDelegate>
@@ -380,6 +381,7 @@
             NSLog(@"Failed to send shared item");
         } else {
             [self.delegate shareConfirmationViewControllerDidFinish:self];
+            [[NCIntentController sharedInstance] donateSendMessageIntentForRoom:self->_room];
         }
         [self stopAnimatingSharingIndicator];
     }];
