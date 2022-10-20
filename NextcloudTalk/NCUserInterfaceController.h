@@ -55,5 +55,6 @@
 - (void)presentCallKitCallInRoom:(NSString *)token withVideoEnabled:(BOOL)video;
 - (void)presentChatForURL:(NSURLComponents *)urlComponents;
 - (void)presentLoginViewControllerForServerURL:(NSString *)serverURL withUser:(NSString *)user;
+- (void)presentSettingsViewController;
 
 @end

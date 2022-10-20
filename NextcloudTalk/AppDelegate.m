@@ -288,17 +288,28 @@
     for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
         TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
         NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
-        if (message && pushNotificationPrivateKey) {
-            NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
-            if (decryptedMessage) {
-                NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
-                if (pushNotification && pushNotification.type == NCPushNotificationTypeCall) {
-                    [[NCNotificationController sharedInstance] showIncomingCallForPushNotification:pushNotification];
-                }
-            }
+
+        if (!message || !pushNotificationPrivateKey) {
+            continue;
+        }
+
+        NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+
+        if (!decryptedMessage) {
+            continue;
+        }
+
+        NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
+
+        if ( pushNotification && pushNotification.type == NCPushNotificationTypeCall) {
+            [[NCNotificationController sharedInstance] showIncomingCallForPushNotification:pushNotification];
+            completion();
+            return;
         }
     }
 
+    [[NCNotificationController sharedInstance] showIncomingCallForOldAccount];
+    [[NCSettingsController sharedInstance] setDidReceiveCallsFromOldAccount:YES];
     completion();
 }
 

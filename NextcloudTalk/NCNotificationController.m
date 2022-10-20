@@ -121,6 +121,14 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             content.userInfo = userInfo;
         }
             break;
+
+        case kNCLocalNotificationTypeCallFromOldAccount:
+        {
+            NSString *receivedCallFromOldAccountString = NSLocalizedString(@"Received call from an old account", nil);
+            content.body = [NSString stringWithFormat:@"%@", receivedCallFromOldAccountString];
+            content.userInfo = userInfo;
+        }
+            break;
             
         default:
             break;
@@ -163,6 +171,11 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     } else {
         [[CallKitManager sharedInstance] reportIncomingCallForNonCallKitDevicesWithPushNotification:pushNotification];
     }
+}
+
+- (void)showIncomingCallForOldAccount
+{
+    [[CallKitManager sharedInstance] reportIncomingCallForOldAccount];
 }
 
 - (void)updateAppIconBadgeNumber
@@ -344,6 +357,11 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             case kNCLocalNotificationTypeFailedSendChat:
             {
                 [[NCUserInterfaceController sharedInstance] presentChatForLocalNotification:notificationUserInfo];
+            }
+                break;
+            case kNCLocalNotificationTypeCallFromOldAccount:
+            {
+                [[NCUserInterfaceController sharedInstance] presentSettingsViewController];
             }
                 break;
             default:

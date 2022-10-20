@@ -25,6 +25,8 @@
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
 		1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F628CB92842BAAF0083A425 /* QRCodeReader */; };
+		1F7625E52901B0DB00834869 /* CallsFromOldAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7625E42901B0DB00834869 /* CallsFromOldAccountViewController.swift */; };
+		1F7625E72901B0E800834869 /* CallsFromOldAccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F7625E62901B0E800834869 /* CallsFromOldAccountViewController.xib */; };
 		1F90EFBC25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
 		1F90EFBD25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
 		1F90EFBE25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
@@ -376,6 +378,8 @@
 		1F5CDF632584E78900B0026E /* NCChatFileStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatFileStatus.m; sourceTree = "<group>"; };
 		1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsTableViewController.swift; sourceTree = "<group>"; };
 		1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleTableViewController.swift; sourceTree = "<group>"; };
+		1F7625E42901B0DB00834869 /* CallsFromOldAccountViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallsFromOldAccountViewController.swift; sourceTree = "<group>"; };
+		1F7625E62901B0E800834869 /* CallsFromOldAccountViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CallsFromOldAccountViewController.xib; sourceTree = "<group>"; };
 		1F90EFBA25FE39F800F3FA55 /* NCIntentController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCIntentController.h; sourceTree = "<group>"; };
 		1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCIntentController.m; sourceTree = "<group>"; };
 		1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
@@ -1150,6 +1154,8 @@
 				2C5E957B227097E0009CA9BE /* NCUtils.m */,
 				DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */,
 				1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */,
+				1F7625E42901B0DB00834869 /* CallsFromOldAccountViewController.swift */,
+				1F7625E62901B0E800834869 /* CallsFromOldAccountViewController.xib */,
 				2C2026A32369F47400DFC89B /* AccountTableViewCell.xib */,
 				DA7558122790D65700A48A1B /* AccountTableViewCell.swift */,
 				2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */,
@@ -1646,6 +1652,7 @@
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
 				2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */,
 				2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */,
+				1F7625E72901B0E800834869 /* CallsFromOldAccountViewController.xib in Resources */,
 				2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */,
 				1F24B5A428E0649200654457 /* ReferenceGithubView.xib in Resources */,
 				2CC1FF4528147F11009F7288 /* RoomSharedItemsTableViewController.xib in Resources */,
@@ -1932,6 +1939,7 @@
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
 				2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */,
 				2C8E2A1B232174C20022BFC9 /* MessageSeparatorTableViewCell.m in Sources */,
+				1F7625E52901B0DB00834869 /* CallsFromOldAccountViewController.swift in Sources */,
 				2CB3041E2264775E0053078A /* SLKTextViewController.m in Sources */,
 				2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */,
 				2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */,

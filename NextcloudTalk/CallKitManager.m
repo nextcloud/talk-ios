@@ -253,6 +253,28 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     }];
 }
 
+- (void)reportIncomingCallForOldAccount
+{
+    CXCallUpdate *update = [self defaultCallUpdate];
+    update.localizedCallerName = NSLocalizedString(@"Old account", @"Will be used as the caller name when a voip notification can't be decrypted");
+
+    NSUUID *callUUID = [NSUUID new];
+    CallKitCall *call = [[CallKitCall alloc] init];
+    call.uuid = callUUID;
+    call.update = update;
+    __weak CallKitManager *weakSelf = self;
+    [self.provider reportNewIncomingCallWithUUID:callUUID update:update completion:^(NSError * _Nullable error) {
+        if (!error) {
+            [weakSelf.calls setObject:call forKey:callUUID];
+            NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:@(kNCLocalNotificationTypeCallFromOldAccount) forKey:@"localNotificationType"];
+            [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeCallFromOldAccount withUserInfo:userInfo];
+            [weakSelf endCallWithUUID:callUUID];
+        } else {
+            NSLog(@"Provider could not present incoming call view.");
+        }
+    }];
+}
+
 - (void)getCallInfoForCall:(CallKitCall *)call
 {
     NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:call.token forAccountId:call.accountId];
@@ -536,10 +558,13 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         [self stopHangUpTimerForCallUUID:call.uuid];
         NSString *leaveCallToken = [call.token copy];
         [_calls removeObjectForKey:action.callUUID];
-        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:leaveCallToken forKey:@"roomToken"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidEndCallNotification
-                                                            object:self
-                                                          userInfo:userInfo];
+
+        if (leaveCallToken) {
+            NSDictionary *userInfo = [NSDictionary dictionaryWithObject:leaveCallToken forKey:@"roomToken"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidEndCallNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+        }
     }
 }
 

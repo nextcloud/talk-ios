@@ -59,6 +59,9 @@
 "[Unknown username]" = "[Unknown username]";
 
 /* No comment provided by engineer. */
+"A call from an old account was received." = "A call from an old account was received.";
+
+/* No comment provided by engineer. */
 "About" = "About";
 
 /* No comment provided by engineer. */
@@ -248,6 +251,9 @@
 "Calls enabled?" = "Calls enabled?";
 
 /* No comment provided by engineer. */
+"Calls from old account" = "Calls from old account";
+
+/* No comment provided by engineer. */
 "Camera" = "Camera";
 
 /* No comment provided by engineer. */
@@ -300,6 +306,9 @@
 
 /* No comment provided by engineer. */
 "Configuration" = "Configuration";
+
+/* No comment provided by engineer. */
+"Confirm and hide warning" = "Confirm and hide warning";
 
 /* No comment provided by engineer. */
 "Connecting to %@ …" = "Connecting to %@ …";
@@ -692,6 +701,9 @@
 "If you enable your camera, this call will be interrupted for a few seconds." = "If you enable your camera, this call will be interrupted for a few seconds.";
 
 /* No comment provided by engineer. */
+"If you're using multiple servers, you need to check all of them." = "If you're using multiple servers, you need to check all of them.";
+
+/* No comment provided by engineer. */
 "Images, files, voice messages…" = "Images, files, voice messages…";
 
 /* No comment provided by engineer. */
@@ -967,6 +979,9 @@
 /* No comment provided by engineer. */
 "OK" = "OK";
 
+/* Will be used as the caller name when a voip notification can't be decrypted */
+"Old account" = "Old account";
+
 /* No comment provided by engineer. */
 "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time." = "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.";
 
@@ -1088,6 +1103,9 @@
 "Read status" = "Read status";
 
 /* No comment provided by engineer. */
+"Received call from an old account" = "Received call from an old account";
+
+/* No comment provided by engineer. */
 "Record voice message" = "Record voice message";
 
 /* No comment provided by engineer. */
@@ -1107,6 +1125,9 @@
 
 /* No comment provided by engineer. */
 "Remove group and members" = "Remove group and members";
+
+/* No comment provided by engineer. */
+"Remove old duplicate entries and leave just the most recent entries." = "Remove old duplicate entries and leave just the most recent entries.";
 
 /* No comment provided by engineer. */
 "Remove participant" = "Remove participant";
@@ -1295,10 +1316,16 @@
 "This meeting is scheduled for" = "This meeting is scheduled for";
 
 /* No comment provided by engineer. */
+"This usually indicates that this device was previously used for an account, which was not properly removed from the server." = "This usually indicates that this device was previously used for an account, which was not properly removed from the server.";
+
+/* No comment provided by engineer. */
 "This week" = "This week";
 
 /* No comment provided by engineer. */
 "This will impact the functionality of this app. Please review your settings." = "This will impact the functionality of this app. Please review your settings.";
+
+/* No comment provided by engineer. */
+"To resolve this issue, use the web interface and go to 'Settings' -> 'Security'." = "To resolve this issue, use the web interface and go to 'Settings' -> 'Security'.";
 
 /* TRANSLATORS this is for sending something 'to' a user. Eg. 'To: John Doe' */
 "To:" = "To:";
@@ -1323,6 +1350,9 @@
 
 /* No comment provided by engineer. */
 "Unavailable" = "Unavailable";
+
+/* No comment provided by engineer. */
+"Under 'Devices & sessions' check if there are duplicated entries for the same device." = "Under 'Devices & sessions' check if there are duplicated entries for the same device.";
 
 /* No comment provided by engineer. */
 "Undo" = "Undo";

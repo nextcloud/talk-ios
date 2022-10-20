@@ -39,6 +39,11 @@ enum ConfigurationSectionOption: Int {
     case kConfigurationSectionOptionContactsSync
 }
 
+enum AdvancedSectionOption: Int {
+    case kAdvancedSectionOptionDiagnostics = 0
+    case kAdvancedSectionOptionCallFromOldAccount
+}
+
 enum AboutSection: Int {
     case kAboutSectionPrivacy = 0
     case kAboutSectionSourceCode
@@ -158,6 +163,20 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityPhonebookSearch) {
             options.append(ConfigurationSectionOption.kConfigurationSectionOptionContactsSync.rawValue)
         }
+        return options
+    }
+
+    func getAdvancedSectionOptions() -> [Int] {
+        var options = [Int]()
+
+        // Diagnostics
+        options.append(AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue)
+
+        // Received calls from old accounts
+        if NCSettingsController.sharedInstance().didReceiveCallsFromOldAccount() {
+            options.append(AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue)
+        }
+
         return options
     }
 
@@ -437,13 +456,19 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         self.present(errorDialog, animated: true, completion: nil)
     }
 
-    // MARK: Diagnostics actions
+    // MARK: Advanced actions
 
     func diagnosticsPressed() {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let diagnosticsVC = DiagnosticsTableViewController(withAccount: activeAccount)
 
         self.navigationController?.pushViewController(diagnosticsVC, animated: true)
+    }
+
+    func callsFromOldAccountPressed() {
+        let vc = CallsFromOldAccountViewController()
+
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 
     // MARK: Table view data source
@@ -462,7 +487,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
             return getConfigurationSectionOptions().count
         case SettingsSection.kSettingsSectionAdvanced.rawValue:
-            return 1
+            return getAdvancedSectionOptions().count
         case SettingsSection.kSettingsSectionAbout.rawValue:
             return AboutSection.kAboutSectionNumber.rawValue
         case SettingsSection.kSettingsSectionAccounts.rawValue:
@@ -591,7 +616,16 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                 break
             }
         case SettingsSection.kSettingsSectionAdvanced.rawValue:
-            self.diagnosticsPressed()
+            let options = getAdvancedSectionOptions()
+            let option = options[indexPath.row]
+            switch option {
+            case AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue:
+                self.diagnosticsPressed()
+            case AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue:
+                self.callsFromOldAccountPressed()
+            default:
+                break
+            }
         case SettingsSection.kSettingsSectionAbout.rawValue:
             switch indexPath.row {
             case AboutSection.kAboutSectionPrivacy.rawValue:
@@ -710,13 +744,24 @@ extension SettingsTableViewController {
     }
 
     func advancedCell(for indexPath: IndexPath) -> UITableViewCell {
-        let userStatusCellIdentifier = "AdvancedCellIdentifier"
-        let cell = UITableViewCell(style: .default, reuseIdentifier: userStatusCellIdentifier)
+        let advancedCellIdentifier = "AdvancedCellIdentifier"
+        let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellIdentifier)
 
-        cell.textLabel?.text = NSLocalizedString("Diagnostics", comment: "")
-        cell.imageView?.image = UIImage(named: "settings")?.withRenderingMode(.alwaysTemplate)
-        cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
-        cell.accessoryType = .disclosureIndicator
+        switch indexPath.row {
+        case AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue:
+            cell.textLabel?.text = NSLocalizedString("Diagnostics", comment: "")
+            cell.imageView?.image = UIImage(named: "settings")?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
+            cell.accessoryType = .disclosureIndicator
+
+        case AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue:
+            cell.textLabel?.text = NSLocalizedString("Calls from old account", comment: "")
+            cell.imageView?.image = UIImage(systemName: "exclamationmark.triangle.fill")?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.tintColor = UIColor.systemOrange
+            cell.accessoryType = .disclosureIndicator
+        default:
+            break
+        }
 
         return cell
     }
