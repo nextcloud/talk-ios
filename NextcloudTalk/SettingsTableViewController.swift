@@ -755,7 +755,7 @@ extension SettingsTableViewController {
             cell.accessoryType = .disclosureIndicator
 
         case AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue:
-            cell.textLabel?.text = NSLocalizedString("Calls from old account", comment: "")
+            cell.textLabel?.text = NSLocalizedString("Calls from old accounts", comment: "")
             cell.imageView?.image = UIImage(systemName: "exclamationmark.triangle.fill")?.withRenderingMode(.alwaysTemplate)
             cell.imageView?.tintColor = UIColor.systemOrange
             cell.accessoryType = .disclosureIndicator

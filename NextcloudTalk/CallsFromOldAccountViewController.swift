@@ -33,7 +33,7 @@ class CallsFromOldAccountViewController: UIViewController {
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
         self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
         self.navigationController?.navigationBar.isTranslucent = false
-        self.navigationItem.title = NSLocalizedString("Calls from old account", comment: "")
+        self.navigationItem.title = NSLocalizedString("Calls from old accounts", comment: "")
 
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -46,7 +46,7 @@ class CallsFromOldAccountViewController: UIViewController {
         acknowledgeWarningButton.setTitle(NSLocalizedString("Confirm and hide warning", comment: ""), for: .normal)
         acknowledgeWarningButton.setButtonStyle(style: .primary)
 
-        let warning1 = NSLocalizedString("A call from an old account was received.", comment: "")
+        let warning1 = NSLocalizedString("Calls from an old account were received.", comment: "")
         let warning2 = NSLocalizedString("This usually indicates that this device was previously used for an account, which was not properly removed from the server.", comment: "")
         let warning3 = NSLocalizedString("To resolve this issue, use the web interface and go to 'Settings' -> 'Security'.", comment: "")
         let warning4 = NSLocalizedString("Under 'Devices & sessions' check if there are duplicated entries for the same device.", comment: "")

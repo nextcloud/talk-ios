@@ -59,9 +59,6 @@
 "[Unknown username]" = "[Unknown username]";
 
 /* No comment provided by engineer. */
-"A call from an old account was received." = "A call from an old account was received.";
-
-/* No comment provided by engineer. */
 "About" = "About";
 
 /* No comment provided by engineer. */
@@ -251,7 +248,10 @@
 "Calls enabled?" = "Calls enabled?";
 
 /* No comment provided by engineer. */
-"Calls from old account" = "Calls from old account";
+"Calls from an old account were received." = "Calls from an old account were received.";
+
+/* No comment provided by engineer. */
+"Calls from old accounts" = "Calls from old accounts";
 
 /* No comment provided by engineer. */
 "Camera" = "Camera";
