@@ -25,6 +25,7 @@
 #import <CommonCrypto/CommonDigest.h>
 
 #import "NCAppBranding.h"
+#import "NCUtils.h"
 
 @implementation NCKeyChainController
 
@@ -101,6 +102,12 @@ NSString * const kNCPNPrivateKey                = @"ncPNPrivateKey";
 
     if (!normalPushToken || !pushKitToken) {
         return nil;
+    }
+
+    if ([NCUtils isiOSAppOnMac]) {
+        // As CallKit is not supported on MacOS, we only supply the
+        // normal push token, to generate local notifications for calls
+        return normalPushToken;
     }
 
     return [NSString stringWithFormat:@"%@ %@", normalPushToken, pushKitToken];
