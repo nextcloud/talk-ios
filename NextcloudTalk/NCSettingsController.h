@@ -83,5 +83,7 @@ typedef enum NCPreferredFileSorting {
 - (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting;
 - (BOOL)isContactSyncEnabled;
 - (void)setContactSync:(BOOL)enabled;
+- (BOOL)didReceiveCallsFromOldAccount;
+- (void)setDidReceiveCallsFromOldAccount:(BOOL)receivedOldCalls;
 
 @end

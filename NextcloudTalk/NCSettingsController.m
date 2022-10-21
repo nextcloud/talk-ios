@@ -83,8 +83,10 @@ NSString * const kUserProfileScopePublished     = @"v2-published";
 
 NSInteger const kDefaultChatMaxLength           = 1000;
 
-NSString * const kPreferredFileSorting  = @"preferredFileSorting";
-NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
+NSString * const kPreferredFileSorting          = @"preferredFileSorting";
+NSString * const kContactSyncEnabled            = @"contactSyncEnabled";
+
+NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount";
 
 + (NCSettingsController *)sharedInstance
 {
@@ -244,6 +246,18 @@ NSString * const kContactSyncEnabled  = @"contactSyncEnabled";
     TalkAccount *account = [TalkAccount objectsWhere:(@"active = true")].firstObject;
     account.hasContactSyncEnabled = enabled;
     [realm commitWriteTransaction];
+}
+
+- (BOOL)didReceiveCallsFromOldAccount
+{
+    BOOL didReceiveCallsFromOldAccount = [[[NSUserDefaults standardUserDefaults] objectForKey:kDidReceiveCallsFromOldAccount] boolValue];
+
+    return didReceiveCallsFromOldAccount;
+}
+
+- (void)setDidReceiveCallsFromOldAccount:(BOOL)receivedOldCalls
+{
+    [[NSUserDefaults standardUserDefaults] setObject:@(receivedOldCalls) forKey:kDidReceiveCallsFromOldAccount];
 }
 
 #pragma mark - User Profile

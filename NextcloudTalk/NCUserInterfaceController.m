@@ -417,6 +417,14 @@
                                                       userInfo:userInfo];
 }
 
+- (void)presentSettingsViewController
+{
+    [self presentConversationsList];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    NCNavigationController *settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
+    [self.mainViewController presentViewController:settingsNC animated:YES completion:nil];
+}
+
 #pragma mark - Notifications
 
 - (void)appStateHasChanged:(NSNotification *)notification

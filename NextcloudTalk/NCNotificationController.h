@@ -30,7 +30,8 @@ extern NSString * const NCLocalNotificationJoinChatNotification;
 typedef enum {
     kNCLocalNotificationTypeMissedCall = 1,
     kNCLocalNotificationTypeCancelledCall,
-    kNCLocalNotificationTypeFailedSendChat
+    kNCLocalNotificationTypeFailedSendChat,
+    kNCLocalNotificationTypeCallFromOldAccount
 } NCLocalNotificationType;
 
 @interface NCNotificationController : NSObject
@@ -41,6 +42,7 @@ typedef enum {
 - (void)showLocalNotification:(NCLocalNotificationType)type withUserInfo:(NSDictionary *)userInfo;
 - (void)showLocalNotificationForIncomingCallWithPushNotificaion:(NCPushNotification *)pushNotification;
 - (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification;
+- (void)showIncomingCallForOldAccount;
 - (void)removeAllNotificationsForAccountId:(NSString *)accountId;
 
 @end
