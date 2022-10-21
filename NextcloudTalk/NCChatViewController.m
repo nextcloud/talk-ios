@@ -651,7 +651,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         case kNCRoomTypeOneToOne:
         {
             // Request user avatar to the server and set it if exist
-            [_titleView.image setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+            [_titleView.image setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                     placeholderImage:nil success:nil failure:nil];
         }
             break;
@@ -3366,7 +3366,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             NSString *name = ([suggestionName isEqualToString:@"Guest"]) ? @"?" : suggestionName;
             [suggestionCell.avatarView setImageWithString:name color:guestAvatarColor circular:true];
         } else {
-            [suggestionCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:suggestionId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+            [suggestionCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:suggestionId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                              placeholderImage:nil success:nil failure:nil];
         }
         return suggestionCell;

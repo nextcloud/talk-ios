@@ -201,7 +201,7 @@
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [self.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId andSize:96 usingAccount:activeAccount]
+    [self.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:activeAccount]
                                placeholderImage:nil success:nil failure:nil];
     
     if (message.sendingFailed) {

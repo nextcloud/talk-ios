@@ -1770,7 +1770,7 @@ typedef enum FileAction {
                 case kNCRoomTypeOneToOne:
                 {
                     cell.roomNameTextField.text = _room.displayName;
-                    [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                    [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                           placeholderImage:nil success:nil failure:nil];
                     [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
                 }
@@ -2230,7 +2230,7 @@ typedef enum FileAction {
                 NSString *avatarName = ([participant.displayName isEqualToString:@""]) ? @"?" : participant.displayName;
                 [cell.contactImage setImageWithString:avatarName color:guestAvatarColor circular:true];
             } else {
-                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.participantId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.participantId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                          placeholderImage:nil success:nil failure:nil];
                 [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
             }

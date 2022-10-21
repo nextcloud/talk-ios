@@ -533,7 +533,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     if (_room.type == kNCRoomTypeOneToOne) {
         __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
-        [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+        [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                               placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
                                                   NSDictionary *headers = [response allHeaderFields];
                                                   id customAvatarHeader = [headers objectForKey:@"X-NC-IsCustomAvatar"];

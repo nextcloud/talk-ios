@@ -102,7 +102,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
         _backgroundImageView = [[AvatarBackgroundImageView alloc] initWithFrame:self.bounds];
         __weak UIImageView *weakBGView = _backgroundImageView;
         self.backgroundView = _backgroundImageView;
-        [_backgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+        [_backgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                     placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
                                         NSDictionary *headers = [response allHeaderFields];
                                         id customAvatarHeader = [headers objectForKey:@"X-NC-IsCustomAvatar"];
@@ -130,7 +130,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     }
     
     if (userId && userId.length > 0) {
-        [self.peerAvatarImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId andSize:256 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+        [self.peerAvatarImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId withStyle:self.traitCollection.userInterfaceStyle andSize:256 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                         placeholderImage:nil success:nil failure:nil];
     } else {
         UIColor *guestAvatarColor = [UIColor colorWithRed:0.73 green:0.73 blue:0.73 alpha:1.0]; /*#b9b9b9*/

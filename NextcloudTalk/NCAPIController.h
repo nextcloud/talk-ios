@@ -214,7 +214,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (void)checkOrCreateAttachmentFolderForAccount:(TalkAccount *)account withCompletionBlock:(CheckAttachmentFolderCompletionBlock)block;
 
 // User avatars
-- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account;
+- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId withStyle:(UIUserInterfaceStyle) style andSize:(NSInteger)size usingAccount:(TalkAccount *)account;
 - (void)getUserAvatarForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block;
 
 // User actions
@@ -231,7 +231,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)removeUserProfileImageForAccount:(TalkAccount *)account withCompletionBlock:(SetUserProfileFieldCompletionBlock)block;
 - (NSURLSessionDataTask *)setUserProfileImage:(UIImage *)image forAccount:(TalkAccount *)account withCompletionBlock:(SetUserProfileFieldCompletionBlock)block;
 - (void)saveProfileImageForAccount:(TalkAccount *)account;
-- (UIImage *)userProfileImageForAccount:(TalkAccount *)account withSize:(CGSize)size;
+- (UIImage *)userProfileImageForAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style andSize:(CGSize)size;
 - (void)removeProfileImageForAccount:(TalkAccount *)account;
 
 // User Status

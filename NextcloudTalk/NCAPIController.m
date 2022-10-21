@@ -1995,15 +1995,21 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - User avatars
 
-- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account
+- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId withStyle:(UIUserInterfaceStyle)style andSize:(NSInteger)size usingAccount:(TalkAccount *)account
 {
-    return [self createAvatarRequestForUser:userId withCachePolicy:NSURLRequestReturnCacheDataElseLoad andSize:size usingAccount:account];
+    return [self createAvatarRequestForUser:userId withCachePolicy:NSURLRequestReturnCacheDataElseLoad style:style andSize:size usingAccount:account];
 }
 
-- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId withCachePolicy:(NSURLRequestCachePolicy)cachePolicy andSize:(NSInteger)size usingAccount:(TalkAccount *)account
+- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId withCachePolicy:(NSURLRequestCachePolicy)cachePolicy style:(UIUserInterfaceStyle)style andSize:(NSInteger)size usingAccount:(TalkAccount *)account
 {
     NSString *encodedUser = [userId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/%ld", account.server, encodedUser, (long)size];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
+    NSString *urlString;
+    if (style == UIUserInterfaceStyleDark && serverCapabilities.versionMajor >= 25) {
+        urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/%ld/dark", account.server, encodedUser, (long)size];
+    } else {
+        urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/%ld", account.server, encodedUser, (long)size];
+    }
     NSMutableURLRequest *avatarRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:cachePolicy timeoutInterval:60];
     [avatarRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
     return avatarRequest;
@@ -2011,7 +2017,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)getUserAvatarForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block
 {
-    NSURLRequest *request = [self createAvatarRequestForUser:userId andSize:size usingAccount:account];
+    NSURLRequest *request = [self createAvatarRequestForUser:userId withStyle:UIUserInterfaceStyleLight andSize:size usingAccount:account];
     [_imageDownloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull responseObject) {
         NSData *pngData = UIImagePNGRepresentation(responseObject);
         UIImage *image = [UIImage imageWithData:pngData];
@@ -2184,7 +2190,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)saveProfileImageForAccount:(TalkAccount *)account
 {
-    NSURLRequest *request = [self createAvatarRequestForUser:account.userId withCachePolicy:NSURLRequestReloadIgnoringCacheData andSize:160 usingAccount:account];
+    [self getAndStoreProfileImageForAccount:account withStyle:UIUserInterfaceStyleLight];
+}
+
+- (void)getAndStoreProfileImageForAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style
+{
+    NSURLRequest *request = [self createAvatarRequestForUser:account.userId withCachePolicy:NSURLRequestReloadIgnoringCacheData style:style andSize:160 usingAccount:account];
     [_imageDownloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull responseObject) {
         
         NSDictionary *headers = [response allHeaderFields];
@@ -2197,20 +2208,38 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         
         NSData *pngData = UIImagePNGRepresentation(responseObject);
         NSString *documentsPath = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] path];
-        NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
+        NSString *fileName;
+        if (style == UIUserInterfaceStyleDark) {
+            fileName = [NSString stringWithFormat:@"%@-%@-dark.png", account.userId, [[NSURL URLWithString:account.server] host]];
+        } else {
+            fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
+        }
         NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
         [pngData writeToFile:filePath atomically:YES];
+        
+        ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
+        if (style == UIUserInterfaceStyleLight && !managedAccount.hasCustomAvatar && serverCapabilities.versionMajor >= 25) {
+            [self getAndStoreProfileImageForAccount:account withStyle:UIUserInterfaceStyleDark];
+            return;
+        }
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:NCUserProfileImageUpdatedNotification object:self userInfo:nil];
     } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
         NSLog(@"Could not download user profile image");
     }];
 }
 
-- (UIImage *)userProfileImageForAccount:(TalkAccount *)account withSize:(CGSize)size
+- (UIImage *)userProfileImageForAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style andSize:(CGSize)size
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *documentsPath = [[fileManager containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] path];
-    NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
+    NSString *fileName;
+    if (style == UIUserInterfaceStyleDark && !account.hasCustomAvatar && serverCapabilities.versionMajor >= 25) {
+        fileName = [NSString stringWithFormat:@"%@-%@-dark.png", account.userId, [[NSURL URLWithString:account.server] host]];
+    } else {
+        fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
+    }
     NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
     
     // Migrate to app group directory
@@ -2232,6 +2261,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *documentsPath = [[fileManager containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] path];
     NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
     NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
+    [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
+    fileName = [NSString stringWithFormat:@"%@-%@-dark.png", account.userId, [[NSURL URLWithString:account.server] host]];
+    filePath = [documentsPath stringByAppendingPathComponent:fileName];
     [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
     // Legacy
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
