@@ -86,9 +86,19 @@ import Foundation
 
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-            let date = dateFormatter.date(from: dueDateString)!
 
-            referenceDueDate.text = NCUtils.readableDateTime(from: date)
+            if let date = dateFormatter.date(from: dueDateString) {
+                referenceDueDate.text = NCUtils.readableDateTime(from: date)
+            }
+
+            // Date format was fixed in https://github.com/nextcloud/deck/pull/4115
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+
+            if let date = dateFormatter.date(from: dueDateString) {
+                referenceDueDate.text = NCUtils.readableDateTime(from: date)
+            }
+
         } else {
             referenceDueDate.isHidden = true
             referenceDueDateIcon.isHidden = true
