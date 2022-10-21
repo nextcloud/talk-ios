@@ -76,6 +76,7 @@
 #import "ShareLocationViewController.h"
 #import "VoiceMessageRecordingView.h"
 #import "VoiceMessageTableViewCell.h"
+#import "VoiceMessageTranscribeViewController.h"
 #import "NextcloudTalk-Swift.h"
 
 
@@ -92,6 +93,8 @@ typedef enum NCChatMessageAction {
     kNCChatMessageActionOpenFileInNextcloud,
     kNCChatMessageActionAddReaction
 } NCChatMessageAction;
+
+NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-message";
 
 @interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, ObjectShareMessageTableViewCellDelegate, PollCreationViewControllerDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
 
@@ -1548,6 +1551,14 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self.view makeToast:NSLocalizedString(@"Message copied", nil) duration:1.5 position:CSToastPositionCenter];
 }
 
+- (void) didPressTranscribeVoiceMessage:(NCChatMessage *) message {
+    NCChatFileController *downloader = [[NCChatFileController alloc] init];
+    downloader.delegate = self;
+    downloader.messageType = kMessageTypeVoiceMessage;
+    downloader.actionType = kActionTypeTranscribeVoiceMessage;
+    [downloader downloadFileFromMessage:message.file];
+}
+
 - (void)didPressDelete:(NCChatMessage *)message {
     if (message.sendingFailed) {
         [self removePermanentlyTemporaryMessage:message];
@@ -2020,6 +2031,19 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (flag && recorder == _recorder && !_recordCancelled) {
         [self shareVoiceMessage];
     }
+}
+
+#pragma mark - Voice Messages Transcribe
+
+- (void) transcribeVoiceMessageWithAudioFileStatus:(NCChatFileStatus *)fileStatus
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSURL *audioFileUrl = [[NSURL alloc] initFileURLWithPath:fileStatus.fileLocalPath];
+        VoiceMessageTranscribeViewController *viewController = [[VoiceMessageTranscribeViewController alloc] initWithAudiofileUrl:audioFileUrl];
+        NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:viewController];
+
+        [self presentViewController:navigationController animated:YES completion:nil];
+    });
 }
 
 #pragma mark - Voice Messages Player
@@ -3697,6 +3721,17 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [actions addObject:openInNextcloudAction];
     }
     
+    // Transcribe voice-message
+    if ([message.messageType isEqualToString:kMessageTypeVoiceMessage]) {
+        UIImage *transcribeActionImage = [[UIImage imageNamed:@"transcribe-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIAction *transcribeAction = [UIAction actionWithTitle:NSLocalizedString(@"Transcribe", @"TRANSLATORS this is for transcribing a voicemessage to text") image:transcribeActionImage identifier:nil handler:^(UIAction *action){
+            
+            [self didPressTranscribeVoiceMessage:message];
+        }];
+
+        [actions addObject:transcribeAction];
+    }
+    
 
     // Delete option
     if (message.sendingFailed || ([message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType] && hasChatPermission)) {
@@ -3900,7 +3935,12 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)fileControllerDidLoadFile:(NCChatFileController *)fileController withFileStatus:(NCChatFileStatus *)fileStatus
 {
     if ([fileController.messageType isEqualToString:kMessageTypeVoiceMessage]) {
-        [self setupVoiceMessagePlayerWithAudioFileStatus:fileStatus];
+        if ([fileController.actionType isEqualToString:kActionTypeTranscribeVoiceMessage]) {
+            [self transcribeVoiceMessageWithAudioFileStatus:fileStatus];
+        } else {
+            [self setupVoiceMessagePlayerWithAudioFileStatus:fileStatus];
+        }
+        
         return;
     }
     
