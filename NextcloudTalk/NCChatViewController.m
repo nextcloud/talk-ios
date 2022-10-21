@@ -3567,6 +3567,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([tableView isEqual:self.autoCompletionView]) {
+        if (!self.autocompletionUsers || !self.autocompletionUsers[indexPath.row]) {
+            return;
+        }
+
         NCMessageParameter *mention = [[NCMessageParameter alloc] init];
         mention.parameterId = [self.autocompletionUsers[indexPath.row] objectForKey:@"id"];
         mention.name = [self.autocompletionUsers[indexPath.row] objectForKey:@"label"];
