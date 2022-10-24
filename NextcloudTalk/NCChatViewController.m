@@ -3350,6 +3350,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([tableView isEqual:self.autoCompletionView]) {
+        if (!_autocompletionUsers || indexPath.row >= [_autocompletionUsers count]) {
+            return [self.autoCompletionView dequeueReusableCellWithIdentifier:AutoCompletionCellIdentifier];
+        }
+
         NSDictionary *suggestion = [_autocompletionUsers objectAtIndex:indexPath.row];
         NSString *suggestionId = [suggestion objectForKey:@"id"];
         NSString *suggestionName = [suggestion objectForKey:@"label"];
