@@ -317,7 +317,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
         [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES withCompletionBlock:nil];
         [self startRefreshRoomsTimer];
-        [self setUnreadMessageForInactiveAccountsIndicator];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
+            [self setProfileButton];
+            [self setUnreadMessageForInactiveAccountsIndicator];
+        });
     }
     
     [FTPopOverMenu dismiss];
@@ -363,6 +368,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)refreshRooms
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES withCompletionBlock:nil];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
+        [self setProfileButton];
+        [self setUnreadMessageForInactiveAccountsIndicator];
+    });
 }
 
 #pragma mark - Refresh Control
