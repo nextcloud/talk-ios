@@ -3350,6 +3350,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([tableView isEqual:self.autoCompletionView]) {
+        if (!_autocompletionUsers || indexPath.row >= [_autocompletionUsers count] || !_autocompletionUsers[indexPath.row]) {
+            return [self.autoCompletionView dequeueReusableCellWithIdentifier:AutoCompletionCellIdentifier];
+        }
+
         NSDictionary *suggestion = [_autocompletionUsers objectAtIndex:indexPath.row];
         NSString *suggestionId = [suggestion objectForKey:@"id"];
         NSString *suggestionName = [suggestion objectForKey:@"label"];
@@ -3567,6 +3571,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([tableView isEqual:self.autoCompletionView]) {
+        if (!_autocompletionUsers || indexPath.row >= [_autocompletionUsers count] || !_autocompletionUsers[indexPath.row]) {
+            return;
+        }
+
         NCMessageParameter *mention = [[NCMessageParameter alloc] init];
         mention.parameterId = [self.autocompletionUsers[indexPath.row] objectForKey:@"id"];
         mention.name = [self.autocompletionUsers[indexPath.row] objectForKey:@"label"];
