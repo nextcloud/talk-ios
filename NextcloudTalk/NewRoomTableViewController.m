@@ -414,7 +414,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     cell.labelTitle.accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Create a conversation with %@", nil), contact.name];
     cell.labelTitle.accessibilityHint = [NSString stringWithFormat:NSLocalizedString(@"Double tap to create a conversation with %@", nil), contact.name];
     
-    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                              placeholderImage:nil success:nil failure:nil];
     [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
     

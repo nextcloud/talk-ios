@@ -279,7 +279,7 @@
     profileButton.accessibilityLabel = NSLocalizedString(@"User profile and settings", nil);
     profileButton.accessibilityHint = NSLocalizedString(@"Double tap to go to user profile and application settings", nil);
     
-    UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(90, 90)];
+    UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle andSize:CGSizeMake(90, 90)];
     if (profileImage) {
         UIGraphicsBeginImageContextWithOptions(profileButton.bounds.size, NO, 3.0);
         [[UIBezierPath bezierPathWithRoundedRect:profileButton.bounds cornerRadius:profileButton.bounds.size.height] addClip];
@@ -558,7 +558,7 @@
     switch (room.type) {
         case kNCRoomTypeOneToOne:
         {
-            NSURLRequest *request = [[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:_shareAccount];
+            NSURLRequest *request = [[NCAPIController sharedInstance] createAvatarRequestForUser:room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:_shareAccount];
             [cell.avatarImageView setImageWithURLRequest:request placeholderImage:nil success:nil failure:nil];
             [cell.avatarImageView setContentMode:UIViewContentModeScaleToFill];
         }

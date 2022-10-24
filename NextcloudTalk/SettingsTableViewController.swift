@@ -651,7 +651,7 @@ extension SettingsTableViewController {
         cell.userDisplayNameLabel.text = activeAccount.userDisplayName
         let accountServer = activeAccount.server
         cell.serverAddressLabel.text = accountServer.replacingOccurrences(of: "https://", with: "")
-        cell.userImageView.image = NCAPIController.sharedInstance().userProfileImage(for: activeAccount, with: CGSize(width: 160, height: 160))
+        cell.userImageView.image = NCAPIController.sharedInstance().userProfileImage(for: activeAccount, with: self.traitCollection.userInterfaceStyle, andSize: CGSize(width: 160, height: 160))
         cell.accessoryType = .disclosureIndicator
         return cell
     }
@@ -682,7 +682,7 @@ extension SettingsTableViewController {
             cell.accountNameLabel.text = account.userDisplayName
             let accountServer = account.server.replacingOccurrences(of: "https://", with: "")
             cell.accountServerLabel.text = accountServer
-            cell.accountImageView.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: CGSize(width: 90, height: 90))
+            cell.accountImageView.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle, andSize: CGSize(width: 90, height: 90))
             cell.accessoryView = nil
             if account.unreadBadgeNumber > 0 {
                 let badgeView = RoundedNumberView()

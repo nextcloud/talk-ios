@@ -377,7 +377,7 @@
     cell.labelTitle.text = participant.name;
     
     if ([participant.source isEqualToString:kParticipantTypeUser]) {
-        [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+        [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                  placeholderImage:nil success:nil failure:nil];
         [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
     } else if ([participant.source isEqualToString:kParticipantTypeEmail]) {

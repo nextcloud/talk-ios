@@ -28,7 +28,7 @@ extension UserProfileTableViewController {
         headerView.frame = CGRect(x: 0, y: 0, width: 200, height: 150)
         headerView.avatarImageView?.layer.cornerRadius = 40.0
         headerView.avatarImageView?.layer.masksToBounds = true
-        headerView.avatarImageView?.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: CGSize(width: 160, height: 160))
+        headerView.avatarImageView?.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle, andSize: CGSize(width: 160, height: 160))
         headerView.nameLabel?.text = account.userDisplayName
         headerView.nameLabel?.isHidden = self.isEditable
         headerView.scopeButton?.tag = kAvatarScopeButtonTag

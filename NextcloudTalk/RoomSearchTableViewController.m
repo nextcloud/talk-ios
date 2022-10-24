@@ -199,7 +199,7 @@ typedef enum RoomSearchSection {
     NSString *actorType = [messageEntry.attributes objectForKey:@"actorType"];
     if ([actorType isEqualToString:@"users"] && actorId) {
         [cell.roomImage setImageWithURLRequest:
-         [[NCAPIController sharedInstance] createAvatarRequestForUser:actorId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+         [[NCAPIController sharedInstance] createAvatarRequestForUser:actorId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                               placeholderImage:nil success:nil failure:nil];
         cell.roomImage.contentMode = UIViewContentModeScaleToFill;
     } else if ([actorType isEqualToString:@"guests"]) {
@@ -309,7 +309,7 @@ typedef enum RoomSearchSection {
     // Set room image
     switch (room.type) {
         case kNCRoomTypeOneToOne:
-            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                   placeholderImage:nil success:nil failure:nil];
             [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
             break;

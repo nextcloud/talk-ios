@@ -132,7 +132,7 @@ import UIKit
         // Actor avatar
         if detail.actorType == "users" {
             let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            if let request = NCAPIController.sharedInstance().createAvatarRequest(forUser: detail.actorId, andSize: 96, using: activeAccount) {
+            if let request = NCAPIController.sharedInstance().createAvatarRequest(forUser: detail.actorId, with: self.traitCollection.userInterfaceStyle, andSize: 96, using: activeAccount) {
                 cell.avatarImageView.setImageWith(request, placeholderImage: nil, success: nil, failure: nil)
                 cell.avatarImageView.contentMode = .scaleToFill
             }

@@ -317,7 +317,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
         [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES withCompletionBlock:nil];
         [self startRefreshRoomsTimer];
-        [self setUnreadMessageForInactiveAccountsIndicator];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
+            [self setProfileButton];
+            [self setUnreadMessageForInactiveAccountsIndicator];
+        });
     }
     
     [FTPopOverMenu dismiss];
@@ -363,6 +368,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)refreshRooms
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES withCompletionBlock:nil];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
+        [self setProfileButton];
+        [self setUnreadMessageForInactiveAccountsIndicator];
+    });
 }
 
 #pragma mark - Refresh Control
@@ -413,7 +424,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
         TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
         NSString *accountName = account.userDisplayName;
-        UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withSize:CGSizeMake(72, 72)];
+        UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle andSize:CGSizeMake(72, 72)];
         UIImageView *accessoryImageView = (account.active) ? [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]] : nil;
         FTPopOverMenuModel *accountModel = [[FTPopOverMenuModel alloc] initWithTitle:accountName image:accountImage selected:NO accessoryView:accessoryImageView];
         [menuArray addObject:accountModel];
@@ -728,7 +739,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     profileButton.accessibilityHint = NSLocalizedString(@"Double tap to go to user profile and application settings", nil);
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withSize:CGSizeMake(90, 90)];
+    UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withStyle:self.traitCollection.userInterfaceStyle andSize:CGSizeMake(90, 90)];
     if (profileImage) {
         UIGraphicsBeginImageContextWithOptions(profileButton.bounds.size, NO, 3.0);
         [[UIBezierPath bezierPathWithRoundedRect:profileButton.bounds cornerRadius:profileButton.bounds.size.height] addClip];
@@ -1183,7 +1194,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     // Set room image
     switch (room.type) {
         case kNCRoomTypeOneToOne:
-            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                   placeholderImage:nil success:nil failure:nil];
             [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
             break;

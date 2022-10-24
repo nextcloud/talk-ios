@@ -120,7 +120,7 @@
     cell.labelTitle.text = contact.name;
     
     if ([contact.source isEqualToString:kParticipantTypeUser]) {
-        [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+        [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                  placeholderImage:nil success:nil failure:nil];
         [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
     } else if ([contact.source isEqualToString:kParticipantTypeEmail]) {
