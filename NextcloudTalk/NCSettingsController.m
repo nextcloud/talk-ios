@@ -146,7 +146,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         [[NCKeyChainController sharedInstance] setToken:token forAccountId:accountId];
         TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
         [[NCAPIController sharedInstance] createAPISessionManagerForAccount:talkAccount];
-        [self subscribeForPushNotificationsForAccountId:accountId];
+        [self subscribeForPushNotificationsForAccountId:accountId withCompletionBlock:nil];
     } else {
         [self setActiveAccountWithAccountId:accountId];
         [JDStatusBarNotification showWithStatus:@"Account already added" dismissAfter:4.0f styleName:JDStatusBarStyleSuccess];
@@ -501,7 +501,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
 #pragma mark - Push Notifications
 
-- (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId
+- (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId withCompletionBlock:(SubscribeForPushNotificationsCompletionBlock)block;
 {
 #if !TARGET_IPHONE_SIMULATOR
     NCPushNotificationKeyPair *keyPair = nil;
@@ -518,6 +518,11 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     
     if (!keyPair) {
         [NCUtils log:@"Error while subscribing: Unable to generate push notifications key pair."];
+
+        if (block) {
+            block(NO);
+        }
+
         return;
     }
 
@@ -525,9 +530,15 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
     if (!pushToken) {
         [NCUtils log:@"Error while subscribing: Push token is not available."];
+
+        if (block) {
+            block(NO);
+        }
+
         return;
     }
 
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"PushProxySubscription" expirationHandler:nil];
 
     [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId] withPublicKey:keyPair.publicKey toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
         if (!error) {
@@ -557,14 +568,36 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
                     [[NCKeyChainController sharedInstance] setPushNotificationPublicKey:keyPair.publicKey forAccountId:accountId];
                     [[NCKeyChainController sharedInstance] setPushNotificationPrivateKey:keyPair.privateKey forAccountId:accountId];
                     [NCUtils log:@"Subscribed to Push Notification server successfully."];
+
+                    if (block) {
+                        block(YES);
+                    }
+
+                    [bgTask stopBackgroundTask];
                 } else {
                     [NCUtils log:@"Error while subscribing to Push Notification server."];
+
+                    if (block) {
+                        block(NO);
+                    }
+
+                    [bgTask stopBackgroundTask];
                 }
             }];
         } else {
             [NCUtils log:@"Error while subscribing to NC server."];
+
+            if (block) {
+                block(NO);
+            }
+
+            [bgTask stopBackgroundTask];
         }
     }];
+#else
+    if (block) {
+        block(YES);
+    }
 #endif
 }
 
