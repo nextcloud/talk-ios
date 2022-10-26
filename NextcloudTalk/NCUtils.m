@@ -87,6 +87,21 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return previewImage;
 }
 
++ (BOOL)isImageOrVideoFileType:(NSString *)fileMIMEType
+{
+    BOOL result = NO;
+    CFStringRef fileMIMETypeSR = (__bridge CFStringRef)fileMIMEType;
+    CFStringRef fileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, fileMIMETypeSR, NULL);
+    
+    if (UTTypeIsDeclared(fileUTI) && fileUTI) {
+        result = UTTypeConformsTo(fileUTI, kUTTypeMovie) || UTTypeConformsTo(fileUTI, kUTTypeImage);
+    }
+    
+    CFRelease(fileUTI);
+    
+    return result;
+}
+
  + (BOOL)isNextcloudAppInstalled
 {
     BOOL isInstalled = NO;
