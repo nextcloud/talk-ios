@@ -3732,7 +3732,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     // Transcribe voice-message
     if ([message.messageType isEqualToString:kMessageTypeVoiceMessage]) {
         UIImage *transcribeActionImage = [[UIImage imageNamed:@"transcribe-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        UIAction *transcribeAction = [UIAction actionWithTitle:NSLocalizedString(@"Transcribe", @"TRANSLATORS this is for transcribing a voicemessage to text") image:transcribeActionImage identifier:nil handler:^(UIAction *action){
+        UIAction *transcribeAction = [UIAction actionWithTitle:NSLocalizedString(@"Transcribe", @"TRANSLATORS this is for transcribing a voice message to text") image:transcribeActionImage identifier:nil handler:^(UIAction *action){
             
             [self didPressTranscribeVoiceMessage:message];
         }];
