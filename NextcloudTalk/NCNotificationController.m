@@ -194,7 +194,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
         for (UNNotificationRequest *notificationRequest in requests) {
             NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
             if (notificationAccountId && [notificationAccountId isEqualToString:accountId]) {
-                [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notificationRequest.identifier]];
+                [self->_notificationCenter removePendingNotificationRequestsWithIdentifiers:@[notificationRequest.identifier]];
             }
         }
     }];
@@ -218,7 +218,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
         return;
     }
     
-    void(^removeNotification)(UNNotificationRequest *) = ^(UNNotificationRequest *notificationRequest) {
+    void(^removeNotification)(UNNotificationRequest *, BOOL) = ^(UNNotificationRequest *notificationRequest, BOOL isPending) {
         NSString *notificationString = [notificationRequest.content.userInfo objectForKey:@"pushNotification"];
         NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
         NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
@@ -228,7 +228,12 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
         }
 
         if ([notificationIds containsObject:@(pushNotification.notificationId)]) {
-            [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notificationRequest.identifier]];
+            if (isPending) {
+                [self->_notificationCenter removePendingNotificationRequestsWithIdentifiers:@[notificationRequest.identifier]];
+            } else {
+                [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notificationRequest.identifier]];
+            }
+
             [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:accountId];
         }
     };
@@ -236,14 +241,14 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     // Check in pending notifications
     [_notificationCenter getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> * _Nonnull requests) {
         for (UNNotificationRequest *notificationRequest in requests) {
-            removeNotification(notificationRequest);
+            removeNotification(notificationRequest, YES);
         }
     }];
 
     // Check in delivered notifications
     [_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
         for (UNNotification *notification in notifications) {
-            removeNotification(notification.request);
+            removeNotification(notification.request, NO);
         }
     }];
     
