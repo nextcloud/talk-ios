@@ -30,11 +30,13 @@ NSString * const kNCPNTypeKey                   = @"type";
 NSString * const kNCPNSubjectKey                = @"subject";
 NSString * const kNCPNIdKey                     = @"id";
 NSString * const kNCPNNotifIdKey                = @"nid";
+NSString * const kNCPNNotifIdsKey               = @"nids";
 NSString * const kNCPNTypeCallKey               = @"call";
 NSString * const kNCPNTypeRoomKey               = @"room";
 NSString * const kNCPNTypeChatKey               = @"chat";
 NSString * const kNCPNTypeDeleteKey             = @"delete";
 NSString * const kNCPNTypeDeleteAllKey          = @"delete-all";
+NSString * const kNCPNTypeDeleteMultipleKey     = @"delete-multiple";
 NSString * const kNCPNAppIdAdminNotificationKey = @"admin_notification_talk";
 
 NSString * const NCPushNotificationJoinChatNotification                 = @"NCPushNotificationJoinChatNotification";
@@ -87,6 +89,9 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
         pushNotification.type = NCPushNotificationTypeDelete;
     } else if ([jsonNotification objectForKey:kNCPNTypeDeleteAllKey]) {
         pushNotification.type = NCPushNotificationTypeDeleteAll;
+    } else if ([jsonNotification objectForKey:kNCPNTypeDeleteMultipleKey]) {
+        pushNotification.notificationIds = [jsonNotification objectForKey:kNCPNNotifIdsKey];
+        pushNotification.type = NCPushNotificationTypeDeleteMultiple;
     } else {
         NSString *app = [jsonNotification objectForKey:kNCPNAppKey];
         

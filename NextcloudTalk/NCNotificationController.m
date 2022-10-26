@@ -82,11 +82,13 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 - (void)processBackgroundPushNotification:(NCPushNotification *)pushNotification
 {
     if (pushNotification) {
-        NSInteger notificationId = pushNotification.notificationId;
         if (pushNotification.type == NCPushNotificationTypeDelete) {
-            [self removeNotificationWithNotificationId:notificationId forAccountId:pushNotification.accountId];
+            NSNumber *notificationId = @(pushNotification.notificationId);
+            [self removeNotificationWithNotificationIds:@[notificationId] forAccountId:pushNotification.accountId];
         } else if (pushNotification.type == NCPushNotificationTypeDeleteAll) {
             [self removeAllNotificationsForAccountId:pushNotification.accountId];
+        } else if (pushNotification.type == NCPushNotificationTypeDeleteMultiple) {
+            [self removeNotificationWithNotificationIds:pushNotification.notificationIds forAccountId:pushNotification.accountId];
         } else {
             NSLog(@"Push Notification of an unknown type received");
         }
@@ -192,7 +194,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
         for (UNNotificationRequest *notificationRequest in requests) {
             NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
             if (notificationAccountId && [notificationAccountId isEqualToString:accountId]) {
-                [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notificationRequest.identifier]];
+                [self->_notificationCenter removePendingNotificationRequestsWithIdentifiers:@[notificationRequest.identifier]];
             }
         }
     }];
@@ -210,30 +212,43 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     [self updateAppIconBadgeNumber];
 }
 
-- (void)removeNotificationWithNotificationId:(NSInteger)notificationId forAccountId:(NSString *)accountId
+- (void)removeNotificationWithNotificationIds:(NSArray *)notificationIds forAccountId:(NSString *)accountId
 {
+    if (!notificationIds) {
+        return;
+    }
+    
+    void(^removeNotification)(UNNotificationRequest *, BOOL) = ^(UNNotificationRequest *notificationRequest, BOOL isPending) {
+        NSString *notificationString = [notificationRequest.content.userInfo objectForKey:@"pushNotification"];
+        NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
+        NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
+
+        if (!pushNotification || ![pushNotification.accountId isEqualToString:accountId]) {
+            return;
+        }
+
+        if ([notificationIds containsObject:@(pushNotification.notificationId)]) {
+            if (isPending) {
+                [self->_notificationCenter removePendingNotificationRequestsWithIdentifiers:@[notificationRequest.identifier]];
+            } else {
+                [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notificationRequest.identifier]];
+            }
+
+            [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:accountId];
+        }
+    };
+
     // Check in pending notifications
     [_notificationCenter getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> * _Nonnull requests) {
         for (UNNotificationRequest *notificationRequest in requests) {
-            NSString *notificationString = [notificationRequest.content.userInfo objectForKey:@"pushNotification"];
-            NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
-            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
-            if (pushNotification && [pushNotification.accountId isEqualToString:accountId] && pushNotification.notificationId == notificationId) {
-                [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notificationRequest.identifier]];
-                [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:accountId];
-            }
+            removeNotification(notificationRequest, YES);
         }
     }];
+
     // Check in delivered notifications
     [_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
         for (UNNotification *notification in notifications) {
-            NSString *notificationString = [notification.request.content.userInfo objectForKey:@"pushNotification"];
-            NSString *notificationAccountId = [notification.request.content.userInfo objectForKey:@"accountId"];
-            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
-            if (pushNotification && [pushNotification.accountId isEqualToString:accountId] && pushNotification.notificationId == notificationId) {
-                [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notification.request.identifier]];
-                [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:accountId];
-            }
+            removeNotification(notification.request, NO);
         }
     }];
     
