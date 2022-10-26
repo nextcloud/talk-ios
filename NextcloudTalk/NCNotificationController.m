@@ -194,6 +194,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:notification.roomToken forKey:@"roomToken"];
     [userInfo setObject:accountId forKey:@"accountId"];
+    [userInfo setObject:@(notification.notificationId) forKey:@"notificationId"];
     [userInfo setValue:@(kNCLocalNotificationTypeChatNotification) forKey:@"localNotificationType"];
     content.userInfo = userInfo;
 
@@ -284,7 +285,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 {
     dispatch_group_t notificationsGroup = dispatch_group_create();
 
-    for (TalkAccount *account in [TalkAccount allObjects]) {
+    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
 
         if (!serverCapabilities || !serverCapabilities.notificationsAppEnabled) {
@@ -300,9 +301,13 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             }
 
             NSInteger lastNotificationId = 0;
+            NSMutableArray *newNotificationsIds = [NSMutableArray new];
 
             for (NSDictionary *notification in notifications) {
                 NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
+
+                // Add notificationId before filtering chat only ones
+                [newNotificationsIds addObject:@(serverNotification.notificationId)];
 
                 // Only process chat notifications from Talk
                 if (!serverNotification || ![serverNotification.app isEqualToString:kNCPNAppIdKey] || serverNotification.notificationType != kNCNotificationTypeChat) {
@@ -332,7 +337,22 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
                 }
             }];
 
-            dispatch_group_leave(notificationsGroup);
+            // Remove notifications that have been treated for the server
+            [self->_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+                for (UNNotification *notification in notifications) {
+                    NSString *notificationAccountId = [notification.request.content.userInfo objectForKey:@"accountId"];
+                    NSInteger notificationIdentifier = [[notification.request.content.userInfo objectForKey:@"notificationId"]
+                                                        integerValue];
+                    NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notification.request.content.userInfo objectForKey:@"localNotificationType"] integerValue];
+
+                    if ([notificationAccountId isEqualToString:account.accountId] && ![newNotificationsIds containsObject:@(notificationIdentifier)] && (localNotificationType == 0 || localNotificationType == kNCLocalNotificationTypeChatNotification)) {
+                        [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notification.request.identifier]];
+                        [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:account.accountId];
+                    }
+                }
+                [self updateAppIconBadgeNumber];
+                dispatch_group_leave(notificationsGroup);
+            }];
         }];
     }
 
