@@ -365,10 +365,23 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 {
     [[NCAPIController sharedInstance] getSignalingSettingsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *settings, NSError *error) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
         if (!error) {
             NSDictionary *signalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
-            [self->_signalingConfigutations setObject:signalingConfiguration forKey:activeAccount.accountId];
-            if (block) block(nil);
+
+            if (signalingConfiguration && activeAccount && activeAccount.accountId) {
+                [self->_signalingConfigutations setObject:signalingConfiguration forKey:activeAccount.accountId];
+
+                if (block) {
+                    block(nil);
+                }
+            } else {
+                NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+
+                if (block) {
+                    block(error);
+                }
+            }
         } else {
             NSLog(@"Error while getting signaling configuration");
             if (block) block(error);
