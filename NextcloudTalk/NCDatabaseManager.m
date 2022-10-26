@@ -29,6 +29,8 @@
 #import "NCContact.h"
 #import "NCRoom.h"
 
+#import "NextcloudTalk-Swift.h"
+
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
 uint64_t const kTalkDatabaseSchemaVersion           = 41;
@@ -261,6 +263,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
 
 - (void)resetUnreadBadgeNumberForAccountId:(NSString *)accountId
 {
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"resetUnreadBadgeNumberForAccountId" expirationHandler:nil];
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm beginWriteTransaction];
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
@@ -268,6 +271,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     account.unreadBadgeNumber = 0;
     account.unreadNotification = NO;
     [realm commitWriteTransaction];
+    [bgTask stopBackgroundTask];
 }
 
 - (NSInteger)numberOfInactiveAccountsWithUnreadNotifications
