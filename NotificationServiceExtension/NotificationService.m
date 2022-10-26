@@ -145,6 +145,7 @@
                     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
                     [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
                     [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
+                    [userInfo setObject:@(pushNotification.notificationId) forKey:@"notificationId"];
                     self.bestAttemptContent.userInfo = userInfo;
                     // Create title and body structure if there is a new line in the subject
                     NSArray* components = [pushNotification.subject componentsSeparatedByString:@"\n"];

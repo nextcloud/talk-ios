@@ -245,15 +245,14 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     }
     
     void(^removeNotification)(UNNotificationRequest *, BOOL) = ^(UNNotificationRequest *notificationRequest, BOOL isPending) {
-        NSString *notificationString = [notificationRequest.content.userInfo objectForKey:@"pushNotification"];
         NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
-        NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
+        NSInteger notificationId = [[notificationRequest.content.userInfo objectForKey:@"notificationId"] integerValue];
 
-        if (!pushNotification || ![pushNotification.accountId isEqualToString:accountId]) {
+        if (![notificationAccountId isEqualToString:accountId]) {
             return;
         }
 
-        if ([notificationIds containsObject:@(pushNotification.notificationId)]) {
+        if ([notificationIds containsObject:@(notificationId)]) {
             if (isPending) {
                 [self->_notificationCenter removePendingNotificationRequestsWithIdentifiers:@[notificationRequest.identifier]];
             } else {
