@@ -306,11 +306,15 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             for (NSDictionary *notification in notifications) {
                 NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
 
+                if (!serverNotification || ![serverNotification.app isEqualToString:kNCPNAppIdKey]) {
+                    continue;
+                }
+
                 // Add notificationId before filtering chat only ones
                 [newNotificationsIds addObject:@(serverNotification.notificationId)];
 
                 // Only process chat notifications from Talk
-                if (!serverNotification || ![serverNotification.app isEqualToString:kNCPNAppIdKey] || serverNotification.notificationType != kNCNotificationTypeChat) {
+                if (serverNotification.notificationType != kNCNotificationTypeChat) {
                     continue;
                 }
 
