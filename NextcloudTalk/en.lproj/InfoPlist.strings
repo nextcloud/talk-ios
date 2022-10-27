@@ -3,4 +3,4 @@ NSMicrophoneUsageDescription = "Microphone is used in voice and video calls";
 NSPhotoLibraryUsageDescription = "Photo Library access is needed to share pictures and videos from your device";
 NSContactsUsageDescription = "Contacts access is needed to match your address book contacts with contacts in your server";
 NSLocationWhenInUseUsageDescription = "It is needed to share your location with others";
-NSSpeechRecognitionUsageDescription = "Speech Recognition access is needed to transcribe a voicemessage to text using on-device recognition";
+NSSpeechRecognitionUsageDescription = "Speech Recognition access is needed to transcribe a voice message to text using on-device recognition";

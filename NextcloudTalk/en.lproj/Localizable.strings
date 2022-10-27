@@ -359,6 +359,9 @@
 "Could not access microphone" = "Could not access microphone";
 
 /* No comment provided by engineer. */
+"Could not access speech recognition" = "Could not access speech recognition";
+
+/* No comment provided by engineer. */
 "Could not access your location" = "Could not access your location";
 
 /* No comment provided by engineer. */
@@ -1274,6 +1277,12 @@
 "Speaker enabled" = "Speaker enabled";
 
 /* No comment provided by engineer. */
+"Speech recognition access is not allowed. Check your settings." = "Speech recognition access is not allowed. Check your settings.";
+
+/* No comment provided by engineer. */
+"Speech recognition failed" = "Speech recognition failed";
+
+/* No comment provided by engineer. */
 "Start time" = "Start time";
 
 /* No comment provided by engineer. */
@@ -1332,6 +1341,12 @@
 
 /* No comment provided by engineer. */
 "Today" = "Today";
+
+/* TRANSLATORS this is for transcribing a voice message to text */
+"Transcribe" = "Transcribe";
+
+/* TRANSLATORS transcript of a voice-message */
+"Transcript" = "Transcript";
 
 /* No comment provided by engineer. */
 "TURN servers" = "TURN servers";

@@ -62,7 +62,7 @@
 		<string>INSendMessageIntent</string>
 	</array>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Speech Recognition access is needed to transcribe a voicemessage to text using on-device recognition</string>
+	<string>Speech Recognition access is needed to transcribe a voice message to text using on-device recognition</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
