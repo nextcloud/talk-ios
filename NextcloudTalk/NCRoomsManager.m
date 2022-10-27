@@ -602,22 +602,34 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
         _callViewController.silentCall = silently;
         [_callViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
         _callViewController.delegate = self;
+
+        NSString *chatViewControllerRoomToken = _chatViewController.room.token;
+        NSString *joiningRoomToken = room.token;
+
         // Workaround until external signaling supports multi-room
         NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
         if ([extSignalingController isEnabled]) {
-            NSString *currentRoom = extSignalingController.currentRoom;
-            if (![currentRoom isEqualToString:room.token] && [_chatViewController.room.token isEqualToString:currentRoom]) {
+            NSString *extSignalingRoomToken = extSignalingController.currentRoom;
+
+            if (![extSignalingRoomToken isEqualToString:joiningRoomToken]) {
                 // Since we are going to join another conversation, we don't need to leaveRoom() in extSignalingController.
                 // That's why we set currentRoom = nil, so when leaveRoom() is called in extSignalingController the currentRoom
                 // is no longer the room we want to leave (so no message is sent to the external signaling server).
                 extSignalingController.currentRoom = nil;
+            }
+        }
+
+        if (_chatViewController) {
+            if ([chatViewControllerRoomToken isEqualToString:joiningRoomToken]) {
+                // We're in the chat of the room we want to start a call, so stop chat for now
+                [_chatViewController stopChat];
+            } else {
+                // We're in a different chat, so make sure we leave the chat and go back to the conversation list
                 [_chatViewController leaveChat];
                 [[NCUserInterfaceController sharedInstance] presentConversationsList];
             }
         }
-        if ([_chatViewController.room.token isEqualToString:room.token]) {
-            [_chatViewController stopChat];
-        }
+
         [[NCUserInterfaceController sharedInstance] presentCallViewController:_callViewController];
         [self joinRoom:room.token forCall:YES];
     } else {
