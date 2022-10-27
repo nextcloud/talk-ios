@@ -55,6 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL hasContactSyncEnabled;
 @property BOOL active;
 @property NSString *lastReceivedConfigurationHash;
+@property NSInteger lastNotificationId;
+@property NSString *lastNotificationETag;
 
 @end
 

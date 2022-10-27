@@ -60,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *externalSignalingServerVersion;
 @property BOOL guestsAppEnabled;
 @property BOOL referenceApiSupported;
+@property BOOL notificationsAppEnabled;
 
 @end
 

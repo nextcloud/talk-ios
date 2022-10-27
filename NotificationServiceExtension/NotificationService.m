@@ -111,14 +111,20 @@
                     }
                     
                     foundDecryptableMessage = YES;
-                    
-                    // Update unread notifications counter for push notification account
-                    [realm beginWriteTransaction];
-                    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
-                    TalkAccount *managedAccount = [TalkAccount objectsInRealm:realm withPredicate:query].firstObject;
-                    managedAccount.unreadBadgeNumber += 1;
-                    managedAccount.unreadNotification = (managedAccount.active) ? NO : YES;
-                    [realm commitWriteTransaction];
+
+                    [realm transactionWithBlock:^{
+                        NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+                        TalkAccount *managedAccount = [TalkAccount objectsInRealm:realm withPredicate:query].firstObject;
+
+                        // Update unread notifications counter for push notification account
+                        managedAccount.unreadBadgeNumber += 1;
+                        managedAccount.unreadNotification = (managedAccount.active) ? NO : YES;
+
+                        // Make sure we don't accidentally show a notification again, when we check for notifications in the background
+                        if (managedAccount.lastNotificationId < pushNotification.notificationId) {
+                            managedAccount.lastNotificationId = pushNotification.notificationId;
+                        }
+                    }];
                     
                     // Get the total number of unread notifications
                     NSInteger unreadNotifications = 0;
@@ -139,6 +145,7 @@
                     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
                     [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
                     [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
+                    [userInfo setObject:@(pushNotification.notificationId) forKey:@"notificationId"];
                     self.bestAttemptContent.userInfo = userInfo;
                     // Create title and body structure if there is a new line in the subject
                     NSArray* components = [pushNotification.subject componentsSeparatedByString:@"\n"];

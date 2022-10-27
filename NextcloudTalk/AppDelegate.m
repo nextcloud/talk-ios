@@ -361,8 +361,8 @@
     [self scheduleAppRefresh];
 
     [self performBackgroundFetchWithCompletionHandler:^(BOOL errorOccurred) {
-         [task setTaskCompletedWithSuccess:!errorOccurred];
-     }];
+        [task setTaskCompletedWithSuccess:!errorOccurred];
+    }];
 }
 
 // This method is called when you simulate a background fetch from the debug menu in XCode
@@ -399,6 +399,17 @@
     }];
 
     [NCUtils log:@"Start performBackgroundFetchWithCompletionHandler"];
+
+    dispatch_group_enter(backgroundRefreshGroup);
+    [[NCNotificationController sharedInstance] checkForNewNotificationsWithCompletionBlock:^(NSError *error) {
+        [NCUtils log:@"CompletionHandler checkForNewNotificationsWithCompletionBlock"];
+
+        if (error) {
+            errorOccurred = YES;
+        }
+
+        dispatch_group_leave(backgroundRefreshGroup);
+    }];
 
     dispatch_group_enter(backgroundRefreshGroup);
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:^(NSError *error) {

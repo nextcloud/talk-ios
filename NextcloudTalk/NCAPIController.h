@@ -96,6 +96,7 @@ typedef void (^SetUserStatusCompletionBlock)(NSError *error);
 
 typedef void (^GetServerCapabilitiesCompletionBlock)(NSDictionary *serverCapabilities, NSError *error);
 typedef void (^GetServerNotificationCompletionBlock)(NSDictionary *notification, NSError *error, NSInteger statusCode);
+typedef void (^GetServerNotificationsCompletionBlock)(NSArray *notifications, NSString *ETag, NSError *error);
 
 typedef void (^SubscribeToNextcloudServerCompletionBlock)(NSDictionary *responseDict, NSError *error);
 typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
@@ -244,6 +245,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 // Server notifications
 - (NSURLSessionDataTask *)getServerNotification:(NSInteger)notificationId forAccount:(TalkAccount *)account withCompletionBlock:(GetServerNotificationCompletionBlock)block;
+- (NSURLSessionDataTask *)getServerNotificationsForAccount:(TalkAccount *)account withLastETag:(NSString *)lastETag withCompletionBlock:(GetServerNotificationsCompletionBlock)block;
 
 // Push Notifications
 - (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account withPublicKey:(NSData *)publicKey toNextcloudServerWithCompletionBlock:(SubscribeToNextcloudServerCompletionBlock)block;
