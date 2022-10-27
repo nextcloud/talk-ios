@@ -155,6 +155,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
     [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
     [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
+    [userInfo setObject:@(pushNotification.notificationId) forKey:@"notificationId"];
     content.userInfo = userInfo;
     
     NSString *identifier = [NSString stringWithFormat:@"Notification-%f", [[NSDate date] timeIntervalSince1970]];
