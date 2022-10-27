@@ -302,28 +302,23 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             }
 
             NSInteger lastNotificationId = 0;
-            NSMutableArray *newNotificationsIds = [NSMutableArray new];
+            NSMutableArray *activeServerNotificationsIds = [NSMutableArray new];
 
             for (NSDictionary *notification in notifications) {
                 NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
-
+                
+                // Only process Talk notifications
                 if (!serverNotification || ![serverNotification.app isEqualToString:kNCPNAppIdKey]) {
                     continue;
                 }
 
-                // Add notificationId before filtering chat only ones
-                [newNotificationsIds addObject:@(serverNotification.notificationId)];
-
-                // Only process chat notifications from Talk
-                if (serverNotification.notificationType != kNCNotificationTypeChat) {
-                    continue;
-                }
+                [activeServerNotificationsIds addObject:@(serverNotification.notificationId)];
 
                 if (lastNotificationId < serverNotification.notificationId) {
                     lastNotificationId = serverNotification.notificationId;
                 }
 
-                if (account.lastNotificationId != 0 && serverNotification.notificationId > account.lastNotificationId) {
+                if (account.lastNotificationId != 0 && serverNotification.notificationId > account.lastNotificationId && serverNotification.notificationType != kNCNotificationTypeChat) {
                     // Don't show notifications if this is the first time we retrieve notifications for this account
                     // Otherwise after adding a new account all unread notifications from the server would be shown
 
@@ -350,7 +345,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
                                                         integerValue];
                     NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notification.request.content.userInfo objectForKey:@"localNotificationType"] integerValue];
 
-                    if ([notificationAccountId isEqualToString:account.accountId] && ![newNotificationsIds containsObject:@(notificationIdentifier)] && (localNotificationType == 0 || localNotificationType == kNCLocalNotificationTypeChatNotification)) {
+                    if ([notificationAccountId isEqualToString:account.accountId] && ![activeServerNotificationsIds containsObject:@(notificationIdentifier)] && (localNotificationType == 0 || localNotificationType == kNCLocalNotificationTypeChatNotification)) {
                         [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notification.request.identifier]];
                         [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:account.accountId];
                     }
