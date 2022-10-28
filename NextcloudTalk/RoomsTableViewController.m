@@ -421,8 +421,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     NSMutableArray *menuArray = [NSMutableArray new];
     NSMutableArray *actionsArray = [NSMutableArray new];
-    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
-        TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
+    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         NSString *accountName = account.userDisplayName;
         UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle andSize:CGSizeMake(72, 72)];
         UIImageView *accessoryImageView = (account.active) ? [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]] : nil;
