@@ -34,6 +34,7 @@ static CGFloat kFileMessageCellMediaFilePreviewHeight       = 230.0;
 static CGFloat kFileMessageCellMediaFileMaxPreviewWidth     = 230.0;
 static CGFloat kFileMessageCellFilePreviewCornerRadius      = 8.0;
 static CGFloat kFileMessageCellMediaFilePreviewCornerRadius = 16.0;
+static CGFloat kFileMessageCellVideoPlayIconSize            = 48.0;
 
 static NSString *FileMessageCellIdentifier          = @"FileMessageCellIdentifier";
 static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellIdentifier";
@@ -57,6 +58,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *dateLabel;
 @property (nonatomic, strong) FilePreviewImageView *previewImageView;
+@property (nonatomic, strong) UIImageView *playIconImageView;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 @property (nonatomic, strong) UIImageView *avatarView;
 @property (nonatomic, strong) UIView *statusView;

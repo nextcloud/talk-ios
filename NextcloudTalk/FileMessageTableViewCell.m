@@ -68,12 +68,19 @@
     UITapGestureRecognizer *avatarTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarTapped:)];
     [_avatarView addGestureRecognizer:avatarTap];
     
+    _playIconImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellVideoPlayIconSize, kFileMessageCellVideoPlayIconSize)];
+    _playIconImageView.hidden = YES;
+    [_playIconImageView setTintColor:[UIColor colorWithWhite:1.0 alpha:0.8]];
+    [_playIconImageView setImage:[UIImage systemImageNamed:@"play.fill" withConfiguration:[UIImageSymbolConfiguration configurationWithWeight:UIImageSymbolWeightBlack]]];
+    
     _previewImageView = [[FilePreviewImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellFilePreviewHeight, kFileMessageCellFilePreviewHeight)];
     _previewImageView.translatesAutoresizingMaskIntoConstraints = NO;
     _previewImageView.userInteractionEnabled = NO;
     _previewImageView.layer.cornerRadius = kFileMessageCellFilePreviewCornerRadius;
     _previewImageView.layer.masksToBounds = YES;
     [_previewImageView setImage:[UIImage imageNamed:@"file-chat-preview"]];
+    [_previewImageView addSubview:_playIconImageView];
+    [_previewImageView bringSubviewToFront:_playIconImageView];
     
     UITapGestureRecognizer *previewTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
     [_previewImageView addGestureRecognizer:previewTap];
@@ -166,6 +173,7 @@
     [self.previewImageView cancelImageDownloadTask];
     self.previewImageView.layer.borderWidth = 0.0f;
     self.previewImageView.image = nil;
+    self.playIconImageView.hidden = YES;
     
     self.vPreviewSize[3].constant = kFileMessageCellFilePreviewHeight;
     self.hPreviewSize[3].constant = kFileMessageCellFilePreviewHeight;
@@ -188,8 +196,7 @@
     
     BOOL isMediaFile = [NCUtils isImageOrVideoFileType:message.file.mimetype];
     // NSLog(@"%@", [NSString stringWithFormat: @"FileMessageTableViewCell.setupForMessage: %@ is %@a media file", message.file.name, isMediaFile ? @"" : @"not "]);
-    
-    // TODO: if isMediaFile and isVideo, superimpose a play icon such that the user knows that  it's a video and not a photo
+    BOOL isVideoFile = [NCUtils isVideoFileType:message.file.mimetype];
     
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
@@ -237,10 +244,15 @@
                                            else {
                                                weakSelf.previewImageView.layer.cornerRadius = isMediaFile ?  kFileMessageCellMediaFilePreviewCornerRadius : kFileMessageCellFilePreviewCornerRadius;
                                            }
+                                           // only show the play icon if there is an image preview (not on top of the default video placeholder)
+                                           weakSelf.playIconImageView.hidden = !isVideoFile;
+                                           if (isVideoFile) {
+                                               weakSelf.playIconImageView.center = CGPointMake(width / 2.0, height / 2.0);
+                                           }
                                            [weakSelf.previewImageView setImage:image];
                                            [weakSelf setNeedsLayout];
                                            [weakSelf layoutIfNeeded];
-                                            
+                                           
                                            if (weakSelf.delegate) {
                                                [weakSelf.delegate cellHasDownloadedImagePreviewWithHeight:height forMessage:message];
                                            }

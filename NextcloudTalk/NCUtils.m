@@ -89,16 +89,35 @@ static NSString *const nextcloudScheme = @"nextcloud:";
 
 + (BOOL)isImageOrVideoFileType:(NSString *)fileMIMEType
 {
+    return [self isMediaFileType:fileMIMEType inTypes:[NSArray arrayWithObjects:@"image", @"movie", nil]];
+}
+
++ (BOOL)isVideoFileType:(NSString *)fileMIMEType
+{
+    return [self isMediaFileType:fileMIMEType inTypes:[NSArray arrayWithObjects:@"movie", nil]];
+}
+
++ (BOOL)isMediaFileType:(NSString *)fileMIMEType inTypes:(NSArray *)types
+{
     BOOL result = NO;
     CFStringRef fileMIMETypeSR = (__bridge CFStringRef)fileMIMEType;
     CFStringRef fileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, fileMIMETypeSR, NULL);
     
-    if (UTTypeIsDeclared(fileUTI) && fileUTI) {
-        result = UTTypeConformsTo(fileUTI, kUTTypeMovie) || UTTypeConformsTo(fileUTI, kUTTypeImage);
+    for (NSString* type in types) {
+        if (UTTypeIsDeclared(fileUTI) && fileUTI) {
+            if ([type isEqual: @"image"]) {
+                result = result || UTTypeConformsTo(fileUTI, kUTTypeImage);
+            }
+            else if ([type isEqual: @"movie"]) {
+                result = result || UTTypeConformsTo(fileUTI, kUTTypeMovie);
+            }
+        }
+        if (result) {
+            break;
+        }
     }
     
     CFRelease(fileUTI);
-    
     return result;
 }
 
