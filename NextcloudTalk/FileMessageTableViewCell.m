@@ -247,6 +247,8 @@
                                            // only show the play icon if there is an image preview (not on top of the default video placeholder)
                                            weakSelf.playIconImageView.hidden = !isVideoFile;
                                            if (isVideoFile) {
+                                               // if the video preview is very narrow, make the play icon fit inside
+                                               weakSelf.playIconImageView.frame = CGRectMake(0, 0, MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize), MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize));
                                                weakSelf.playIconImageView.center = CGPointMake(width / 2.0, height / 2.0);
                                            }
                                            [weakSelf.previewImageView setImage:image];
