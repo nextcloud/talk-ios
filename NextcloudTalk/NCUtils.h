@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSString *)previewImageForFileExtension:(NSString *)fileExtension;
 + (NSString *)previewImageForFileMIMEType:(NSString *)fileMIMEType;
-+ (BOOL)isImageOrVideoFileType:(NSString *)fileMIMEType;
++ (BOOL)isImageFileType:(NSString *)fileMIMEType;
 + (BOOL)isVideoFileType:(NSString *)fileMIMEType;
 
 + (BOOL)isNextcloudAppInstalled;
