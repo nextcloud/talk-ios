@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>%d votes</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@votes@</string>
+        <key>votes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d balsas</string>
+            <key>few</key>
+            <string>%d balsai</string>
+            <key>many</key>
+            <string>%d balsų</string>
+            <key>other</key>
+            <string>%d balsas</string>
+        </dict>
+    </dict>
+    
+    <key>%ld participants</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@participants@</string>
+        <key>participants</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>ld</string>
+            <key>one</key>
+            <string>%ld dalyvis</string>
+            <key>few</key>
+            <string>%ld dalyviai</string>
+            <key>many</key>
+            <string>%ld dalyvių</string>
+            <key>other</key>
+            <string>%ld dalyvis</string>
+        </dict>
+    </dict>
+    
+    <key>%d minutes ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@minutes@</string>
+        <key>minutes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>prieš %d minutę</string>
+            <key>few</key>
+            <string>prieš %d minutes</string>
+            <key>many</key>
+            <string>prieš %d minučių</string>
+            <key>other</key>
+            <string>prieš %d minutę</string>
+        </dict>
+    </dict>
+    
+    <key>%d hours ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@hours@</string>
+        <key>hours</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>prieš %d valandą</string>
+            <key>few</key>
+            <string>prieš %d valandas</string>
+            <key>many</key>
+            <string>prieš %d valandų</string>
+            <key>other</key>
+            <string>prieš %d valandą</string>
+        </dict>
+    </dict>
+    
+    <key>%d days ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>prieš %d dieną</string>
+            <key>few</key>
+            <string>prieš %d dienas</string>
+            <key>many</key>
+            <string>prieš %d dienų</string>
+            <key>other</key>
+            <string>prieš %d dieną</string>
+        </dict>
+    </dict>
+</dict>
+</plist>
