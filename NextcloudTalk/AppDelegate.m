@@ -84,22 +84,12 @@
     
     [self registerBackgroundFetchTask];
 
-    if (@available(iOS 14.0, *)) {
-        [NCUserInterfaceController sharedInstance].mainSplitViewController = (NCSplitViewController *) self.window.rootViewController;
-        [NCUserInterfaceController sharedInstance].mainViewController = (NCSplitViewController *) self.window.rootViewController;
-        [NCUserInterfaceController sharedInstance].roomsTableViewController = [NCUserInterfaceController sharedInstance].mainSplitViewController.viewControllers.firstObject.childViewControllers.firstObject;
-        
-        if (@available(iOS 14.5, *)) {
-            [NCUserInterfaceController sharedInstance].mainSplitViewController.displayModeButtonVisibility = UISplitViewControllerDisplayModeButtonVisibilityNever;
-        }
-    } else {
-        // We're using iOS 14 specific APIs for splitView, so fall back in case they're not supported
-        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"iOS13Main" bundle:[NSBundle mainBundle]];
-        UIViewController *vc = [storyboard instantiateInitialViewController];
+    [NCUserInterfaceController sharedInstance].mainSplitViewController = (NCSplitViewController *) self.window.rootViewController;
+    [NCUserInterfaceController sharedInstance].mainViewController = (NCSplitViewController *) self.window.rootViewController;
+    [NCUserInterfaceController sharedInstance].roomsTableViewController = [NCUserInterfaceController sharedInstance].mainSplitViewController.viewControllers.firstObject.childViewControllers.firstObject;
 
-        self.window.rootViewController = vc;
-
-        [NCUserInterfaceController sharedInstance].mainViewController = (NCNavigationController *) self.window.rootViewController;
+    if (@available(iOS 14.5, *)) {
+        [NCUserInterfaceController sharedInstance].mainSplitViewController.displayModeButtonVisibility = UISplitViewControllerDisplayModeButtonVisibilityNever;
     }
     
     return YES;

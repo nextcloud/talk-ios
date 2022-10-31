@@ -99,7 +99,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 - (CXProvider *)provider
 {
     if (!_provider) {
-        CXProviderConfiguration *configuration = [[CXProviderConfiguration alloc] initWithLocalizedName:talkAppName];
+        CXProviderConfiguration *configuration = [[CXProviderConfiguration alloc] init];
         configuration.supportsVideo = YES;
         configuration.maximumCallGroups = 1;
         configuration.maximumCallsPerCallGroup = 1;

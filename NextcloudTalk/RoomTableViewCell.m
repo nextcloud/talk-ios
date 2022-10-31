@@ -173,11 +173,9 @@ CGFloat const kRoomTableCellHeight = 74.0f;
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 10;
         _userStatusImageView.clipsToBounds = YES;
-        _userStatusImageView.backgroundColor = self.backgroundColor;
-        if (@available(iOS 14.0, *)) {
-            // When a background color is set directly to the cell it seems that there is no background configuration.
-            _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
-        }
+
+        // When a background color is set directly to the cell it seems that there is no background configuration.
+        _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
     }
 }
 

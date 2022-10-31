@@ -53,33 +53,31 @@
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+
+    UIColor *themeColor = [NCAppBranding themeColor];
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = themeColor;
+    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+    self.navigationItem.standardAppearance = appearance;
+    self.navigationItem.compactAppearance = appearance;
+    self.navigationItem.scrollEdgeAppearance = appearance;
+
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                  target:self action:@selector(closeViewController)];
     
-    if (@available(iOS 13.0, *)) {
-        UIColor *themeColor = [NCAppBranding themeColor];
-        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-        [appearance configureWithOpaqueBackground];
-        appearance.backgroundColor = themeColor;
-        appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-        self.navigationItem.standardAppearance = appearance;
-        self.navigationItem.compactAppearance = appearance;
-        self.navigationItem.scrollEdgeAppearance = appearance;
+    self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     
-        UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                                                                                      target:self action:@selector(closeViewController)];
-        
-        self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
-        
-        _activityIndicator = [[UIActivityIndicatorView alloc] init];
-        _activityIndicator.color = [NCAppBranding themeTextColor];
-        
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self->_activityIndicator];
-        
-        [_activityIndicator startAnimating];
-        
-        _supportedLocales = @[@"de", @"it", @"en", @"fr", @"es"];
-        
-        [self checkPermissionAndStartTranscription];
-    }
+    _activityIndicator = [[UIActivityIndicatorView alloc] init];
+    _activityIndicator.color = [NCAppBranding themeTextColor];
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self->_activityIndicator];
+    
+    [_activityIndicator startAnimating];
+    
+    _supportedLocales = @[@"de", @"it", @"en", @"fr", @"es"];
+    
+    [self checkPermissionAndStartTranscription];
 }
 
 - (void)closeViewController
@@ -87,7 +85,7 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)checkPermissionAndStartTranscription API_AVAILABLE(ios(13.0))
+- (void)checkPermissionAndStartTranscription
 {
     [SFSpeechRecognizer requestAuthorization:^(SFSpeechRecognizerAuthorizationStatus status){
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -101,7 +99,7 @@
     }];
 }
 
-- (void)showLocaleSelection API_AVAILABLE(ios(13.0))
+- (void)showLocaleSelection
 {
     UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:nil
                                                                                 message:nil
@@ -137,7 +135,7 @@
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
-- (void)transcribeWithLocale:(NSLocale *)locale API_AVAILABLE(ios(13.0))
+- (void)transcribeWithLocale:(NSLocale *)locale
 {
     SFSpeechRecognizer *speechRecognizer = [[SFSpeechRecognizer alloc] initWithLocale:locale];
     SFSpeechURLRecognitionRequest *speechRecognitionRequest = [[SFSpeechURLRecognitionRequest alloc] initWithURL:_audioFileUrl];

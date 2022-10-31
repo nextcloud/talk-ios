@@ -450,12 +450,10 @@
         _userStatusImageView.contentMode = UIViewContentModeCenter;
         _userStatusImageView.layer.cornerRadius = 6;
         _userStatusImageView.clipsToBounds = YES;
-        _userStatusImageView.backgroundColor = self.backgroundColor;
-        if (@available(iOS 14.0, *)) {
-            // When a background color is set directly to the cell it seems that there is no background configuration.
-            // In this class, even when no background color is set, the background configuration is nil.
-            _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
-        }
+
+        // When a background color is set directly to the cell it seems that there is no background configuration.
+        // In this class, even when no background color is set, the background configuration is nil.
+        _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
     }
 }
 

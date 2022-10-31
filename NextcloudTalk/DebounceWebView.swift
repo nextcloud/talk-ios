@@ -35,7 +35,7 @@ class DebounceWebView: WKWebView {
 
             previousPasteTimestamp = currentPasteTimestamp
         }
-        
+
         super.paste(sender)
     }
 }

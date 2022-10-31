@@ -183,16 +183,14 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
 
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField is EmojiTextField {
-            if #available(iOS 10.2, *) {
-                if string.isSingleEmoji == false {
-                    self.setStatusIconInView(icon: nil)
-                } else {
-                    self.setStatusIconInView(icon: string)
-                }
-            } else {
+            if string.isSingleEmoji == false {
                 self.setStatusIconInView(icon: nil)
+            } else {
+                self.setStatusIconInView(icon: string)
             }
+
             textField.endEditing(true)
+
             return false
         }
 

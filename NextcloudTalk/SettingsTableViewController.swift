@@ -369,7 +369,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             }
 
             if isStoredResolution {
-                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_:.alwaysOriginal), forKey: "image")
+                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_: .alwaysOriginal), forKey: "image")
             }
             optionsActionSheet.addAction(action)
         }
@@ -395,7 +395,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                 self.tableView.reloadData()
             }
             if browser == defaultBrowser {
-                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_:.alwaysOriginal), forKey: "image")
+                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_: .alwaysOriginal), forKey: "image")
             }
             optionsActionSheet.addAction(action)
         }

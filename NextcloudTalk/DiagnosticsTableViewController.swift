@@ -396,7 +396,7 @@ class DiagnosticsTableViewController: UITableViewController {
         cell.textLabel?.text = NSLocalizedString("Location access", comment: "")
 
         if CLLocationManager.locationServicesEnabled() {
-            switch CLLocationManager.authorizationStatus() {
+            switch CLLocationManager().authorizationStatus {
             case .authorizedAlways, .authorizedWhenInUse:
                 cell.detailTextLabel?.text = allowedString
 
