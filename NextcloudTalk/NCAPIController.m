@@ -2417,11 +2417,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
             NSDictionary *headers = [self getResponseHeaders:response];
 
             if (block) {
-                block(notifications, [headers objectForKey:@"ETag"], nil);
+                block(notifications, [headers objectForKey:@"ETag"], [headers objectForKey:@"x-nextcloud-user-status"], nil);
             }
         } else {
             if (block) {
-                block(nil, nil, error);
+                block(nil, nil, nil, error);
             }
         }
     }];

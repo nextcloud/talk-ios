@@ -96,7 +96,7 @@ typedef void (^SetUserStatusCompletionBlock)(NSError *error);
 
 typedef void (^GetServerCapabilitiesCompletionBlock)(NSDictionary *serverCapabilities, NSError *error);
 typedef void (^GetServerNotificationCompletionBlock)(NSDictionary *notification, NSError *error, NSInteger statusCode);
-typedef void (^GetServerNotificationsCompletionBlock)(NSArray *notifications, NSString *ETag, NSError *error);
+typedef void (^GetServerNotificationsCompletionBlock)(NSArray *notifications, NSString *ETag, NSString *userStatus, NSError *error);
 
 typedef void (^SubscribeToNextcloudServerCompletionBlock)(NSDictionary *responseDict, NSError *error);
 typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
