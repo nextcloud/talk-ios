@@ -254,8 +254,7 @@
 {
     // Called when a background notification is delivered.
     NSString *message = [userInfo objectForKey:@"subject"];
-    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
-        TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
+    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
         if (message && pushNotificationPrivateKey) {
             NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
@@ -285,8 +284,7 @@
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(PKPushType)type withCompletionHandler:(void (^)(void))completion
 {
     NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
-    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
-        TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
+    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
 
         if (!message || !pushNotificationPrivateKey) {

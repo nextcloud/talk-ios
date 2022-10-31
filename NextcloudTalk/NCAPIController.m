@@ -81,8 +81,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     
     _apiSessionManagers = [NSMutableDictionary new];
     
-    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
-        TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
+    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         [self createAPISessionManagerForAccount:account];
     }
 }
