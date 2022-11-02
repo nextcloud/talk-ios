@@ -59,6 +59,7 @@ class DiagnosticsTableViewController: UITableViewController {
         case kServerSectionName = 0
         case kServerSectionVersion
         case kServerSectionUserStatusSupported
+        case kServerSectionNotificationsAppEnabled
         case kServerSectionReachable
         case kServerSectionCount
     }
@@ -503,6 +504,10 @@ class DiagnosticsTableViewController: UITableViewController {
         case ServerSections.kServerSectionUserStatusSupported.rawValue:
             cell.textLabel?.text = NSLocalizedString("User status supported?", comment: "")
             cell.detailTextLabel?.text = readableBool(for: serverCapabilities.userStatus)
+
+        case ServerSections.kServerSectionNotificationsAppEnabled.rawValue:
+            cell.textLabel?.text = NSLocalizedString("Notifications app enabled?", comment: "")
+            cell.detailTextLabel?.text = readableBool(for: serverCapabilities.notificationsAppEnabled)
 
         case ServerSections.kServerSectionReachable.rawValue:
             cell.textLabel?.text = NSLocalizedString("Reachable?", comment: "")
