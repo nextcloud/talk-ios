@@ -221,9 +221,8 @@ typedef enum FileAction {
     
     _lobbyDatePicker = [[UIDatePicker alloc] init];
     _lobbyDatePicker.datePickerMode = UIDatePickerModeDateAndTime;
-    if (@available(iOS 13.4, *)) {
-        _lobbyDatePicker.preferredDatePickerStyle = UIDatePickerStyleWheels;
-    }
+    _lobbyDatePicker.preferredDatePickerStyle = UIDatePickerStyleWheels;
+    
     _lobbyDateTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 00, 150, 30)];
     _lobbyDateTextField.textAlignment = NSTextAlignmentRight;
     _lobbyDateTextField.placeholder = NSLocalizedString(@"Manual", @"TRANSLATORS this is used when no meeting start time is set and the meeting will be started manually");

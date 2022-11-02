@@ -89,8 +89,6 @@ import Foundation
             referenceDescription.isHidden = true
         }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
         if let thumbUrlString = reference["thumb"] as? String,
            let request = NCAPIController.sharedInstance().createReferenceThumbnailRequest(forUrl: thumbUrlString) {
 

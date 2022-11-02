@@ -243,11 +243,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     self.clearsSelectionOnViewWillAppear = self.splitViewController.isCollapsed;
 
-    if (@available(iOS 14.0, *)) {
-        if (self.splitViewController.isCollapsed) {
-            [self setSelectedRoomToken:nil];
-        }
-    } else {
+    if (self.splitViewController.isCollapsed) {
         [self setSelectedRoomToken:nil];
     }
 }

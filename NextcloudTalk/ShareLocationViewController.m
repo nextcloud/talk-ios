@@ -136,8 +136,10 @@ typedef enum ShareLocationSection {
 
 #pragma mark - CLLocationManagerDelegate
 
-- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+- (void)locationManagerDidChangeAuthorization:(CLLocationManager *)manager
 {
+    CLAuthorizationStatus status = manager.authorizationStatus;
+
     _myLocationButton.hidden = YES;
     if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways) {
         _myLocationButton.hidden = NO;
@@ -274,18 +276,16 @@ typedef enum ShareLocationSection {
 
 - (void)searchForNearbyPlaces
 {
-    if (@available(iOS 14.0, *)) {
-        MKLocalPointsOfInterestRequest *request = [[MKLocalPointsOfInterestRequest alloc] initWithCoordinateRegion:self.mapView.region];
-        MKLocalSearch *search = [[MKLocalSearch alloc] initWithPointsOfInterestRequest:request];
-        [search startWithCompletionHandler:^(MKLocalSearchResponse * _Nullable response, NSError * _Nullable error) {
-            if (response) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self->_nearbyPlaces = response.mapItems;
-                    [self.tableView reloadSections:[[NSIndexSet alloc] initWithIndex:kShareLocationSectionNearby] withRowAnimation:UITableViewRowAnimationNone];
-                });
-            }
-        }];
-    }
+    MKLocalPointsOfInterestRequest *request = [[MKLocalPointsOfInterestRequest alloc] initWithCoordinateRegion:self.mapView.region];
+    MKLocalSearch *search = [[MKLocalSearch alloc] initWithPointsOfInterestRequest:request];
+    [search startWithCompletionHandler:^(MKLocalSearchResponse * _Nullable response, NSError * _Nullable error) {
+        if (response) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self->_nearbyPlaces = response.mapItems;
+                [self.tableView reloadSections:[[NSIndexSet alloc] initWithIndex:kShareLocationSectionNearby] withRowAnimation:UITableViewRowAnimationNone];
+            });
+        }
+    }];
 }
 
 - (void)searchForPlacesWithString:(NSString *)searchString

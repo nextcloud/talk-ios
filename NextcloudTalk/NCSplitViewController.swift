@@ -27,7 +27,7 @@
     override func viewDidLoad() {
         super.viewDidLoad()
         self.delegate = self
-        self.preferredDisplayMode = .allVisible
+        self.preferredDisplayMode = .oneBesideSecondary
 
         // As we always show the columns on iPads, we don't need gesture support
         self.presentsWithGesture = false
@@ -46,48 +46,44 @@
             return
         }
 
-        if #available(iOS 14.0, *) {
-            if let navController = self.viewController(for: .secondary) as? UINavigationController,
-               viewController is RoomsTableViewController {
+        if let navController = self.viewController(for: .secondary) as? UINavigationController,
+           viewController is RoomsTableViewController {
 
-                // MovingFromParentViewController is always false in case of a rootViewController,
-                // because of this, the chat will never be left in NCChatViewController
-                // (see viewDidDisappear). So we have to leave the chat here, if collapsed
-                if let chatViewController = getActiveChatViewController() {
-                    chatViewController.leaveChat()
-                }
-
-                // Make sure the chatViewController gets properly deallocated
-                setViewController(placeholderViewController, for: .secondary)
-                navController.setViewControllers([placeholderViewController], animated: false)
+            // MovingFromParentViewController is always false in case of a rootViewController,
+            // because of this, the chat will never be left in NCChatViewController
+            // (see viewDidDisappear). So we have to leave the chat here, if collapsed
+            if let chatViewController = getActiveChatViewController() {
+                chatViewController.leaveChat()
             }
+
+            // Make sure the chatViewController gets properly deallocated
+            setViewController(placeholderViewController, for: .secondary)
+            navController.setViewControllers([placeholderViewController], animated: false)
         }
     }
 
     override func showDetailViewController(_ vc: UIViewController, sender: Any?) {
-        if #available(iOS 14.0, *) {
-            if !isCollapsed {
-                // When another room is selected while there's still an active chatViewController
-                // we need to make sure the active one is removed (applies to expanded mode only)
-                if let navController = self.viewController(for: .secondary) as? UINavigationController {
-                    navController.popToRootViewController(animated: false)
-                }
+        if !isCollapsed {
+            // When another room is selected while there's still an active chatViewController
+            // we need to make sure the active one is removed (applies to expanded mode only)
+            if let navController = self.viewController(for: .secondary) as? UINavigationController {
+                navController.popToRootViewController(animated: false)
             }
+        }
 
-            super.showDetailViewController(vc, sender: sender)
+        super.showDetailViewController(vc, sender: sender)
 
-            if isCollapsed {
-                // Make sure we don't have accidentally a placeholderView in our navigation
-                // while in collapsed mode
-                if let navController = self.viewController(for: .secondary) as? UINavigationController,
-                   vc is NCChatViewController {
+        if isCollapsed {
+            // Make sure we don't have accidentally a placeholderView in our navigation
+            // while in collapsed mode
+            if let navController = self.viewController(for: .secondary) as? UINavigationController,
+               vc is NCChatViewController {
 
-                    // Only set the viewController if there's actually an active one shown by showDetailViewController
-                    // Otherwise UI might break or crash (view not loaded correctly)
-                    // This might happen if a chatViewController is shown by a push notification
-                    if self.hasActiveChatViewController() {
-                        navController.setViewControllers([vc], animated: false)
-                    }
+                // Only set the viewController if there's actually an active one shown by showDetailViewController
+                // Otherwise UI might break or crash (view not loaded correctly)
+                // This might happen if a chatViewController is shown by a push notification
+                if self.hasActiveChatViewController() {
+                    navController.setViewControllers([vc], animated: false)
                 }
             }
         }
@@ -102,21 +98,19 @@
     }
 
     func getActiveViewController<T: UIViewController>() -> T? {
-        if #available(iOS 14.0, *) {
-            // In case we have a collapsed view, we need to retrieve the viewController this way
-            if let navController = self.viewController(for: .secondary) as? UINavigationController {
-                for secondaryViewController in navController.viewControllers {
-                    if let activeViewController = secondaryViewController as? T {
-                        return activeViewController
-                    }
+        // In case we have a collapsed view, we need to retrieve the viewController this way
+        if let navController = self.viewController(for: .secondary) as? UINavigationController {
+            for secondaryViewController in navController.viewControllers {
+                if let activeViewController = secondaryViewController as? T {
+                    return activeViewController
                 }
             }
+        }
 
-            if let navController = self.viewController(for: .primary) as? UINavigationController {
-                for primaryViewController in navController.viewControllers {
-                    if let activeViewController = primaryViewController as? T {
-                        return activeViewController
-                    }
+        if let navController = self.viewController(for: .primary) as? UINavigationController {
+            for primaryViewController in navController.viewControllers {
+                if let activeViewController = primaryViewController as? T {
+                    return activeViewController
                 }
             }
         }
@@ -124,7 +118,6 @@
         return nil
     }
 
-    @available(iOS 14.0, *)
     func splitViewController(_ svc: UISplitViewController, topColumnForCollapsingToProposedTopColumn proposedTopColumn: UISplitViewController.Column) -> UISplitViewController.Column {
         // When we rotate the device and the splitViewController gets collapsed
         // we need to determine if we're still in a chat or not.
@@ -136,7 +129,6 @@
         return .primary
     }
 
-    @available(iOS 14.0, *)
     func splitViewControllerDidExpand(_ svc: UISplitViewController) {
         if let navController = self.viewController(for: .secondary) as? UINavigationController {
             if hasActiveChatViewController() {
@@ -151,7 +143,6 @@
         }
     }
 
-    @available(iOS 14.0, *)
     func splitViewControllerDidCollapse(_ svc: UISplitViewController) {
         if hasActiveChatViewController() {
             // If we collapse (only show one column) and there's a active chatViewController
@@ -162,7 +153,6 @@
         }
     }
 
-    @available(iOS 14.0, *)
     func popSecondaryColumnToRootViewController() {
         if let navController = self.viewController(for: .secondary) as? UINavigationController {
             if let chatViewController = getActiveChatViewController() {
