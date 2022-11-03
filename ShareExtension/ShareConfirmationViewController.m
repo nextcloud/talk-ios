@@ -870,7 +870,7 @@
     [cropViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
-#pragma mark - NCCommunicationCommon Delegate
+#pragma mark - NKCommon Delegate
 
 - (void)authenticationChallenge:(NSURLSession *)session didReceive:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
 {
