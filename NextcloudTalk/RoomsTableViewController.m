@@ -22,7 +22,7 @@
 
 #import "RoomsTableViewController.h"
 
-@import NCCommunication;
+@import NextcloudKit;
 #import <Realm/Realm.h>
 
 #import "AFNetworking.h"
@@ -1244,7 +1244,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     // Present searched messages
     if (tableView == _resultTableViewController.tableView) {
-        NCCSearchEntry *searchMessage = [_resultTableViewController messageForIndexPath:indexPath];
+        NKSearchEntry *searchMessage = [_resultTableViewController messageForIndexPath:indexPath];
         NSString *roomToken = [searchMessage.attributes objectForKey:@"conversation"];
         NSString *messageId = [searchMessage.attributes objectForKey:@"messageId"];
         if (roomToken && messageId) {

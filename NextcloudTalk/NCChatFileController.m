@@ -22,7 +22,7 @@
 
 #import "NCChatFileController.h"
 
-@import NCCommunication;
+@import NextcloudKit;
 
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
@@ -146,7 +146,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     
-    [[NCAPIController sharedInstance] getFileByFileId:activeAccount fileId:fileId withCompletionBlock:^(NCCommunicationFile *file, NSInteger error, NSString *errorDescription) {
+    [[NCAPIController sharedInstance] getFileByFileId:activeAccount fileId:fileId withCompletionBlock:^(NKFile *file, NSInteger error, NSString *errorDescription) {
         if (file) {
             NSString *remoteDavPrefix = [NSString stringWithFormat:@"/remote.php/dav/files/%@/", activeAccount.userId];
             NSString *directoryPath = [file.path componentsSeparatedByString:remoteDavPrefix].lastObject;
@@ -176,10 +176,11 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
     [self didChangeIsDownloadingNotification:YES];
     
     // First read metadata from the file and check if we already downloaded it
-    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:serverUrlFileName depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil timeout:60 queue:dispatch_get_main_queue() completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
-        if (errorCode == 0 && files.count == 1) {
+    NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
+    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:serverUrlFileName depth:@"0" showHiddenFiles:NO requestBody:nil options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *responseDates, NKError *error) {
+        if (error.errorCode == 0 && files.count == 1) {
             // File exists on server -> check our cache
-            NCCommunicationFile *file = files.firstObject;
+            NKFile *file = files.firstObject;
         
             if ([self isFileInCache:self->_fileStatus.fileLocalPath withModificationDate:file.date withSize:file.size]) {
                 NSLog(@"Found file in cache: %@", self->_fileStatus.fileLocalPath);
@@ -189,22 +190,22 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
                 
                 return;
             }
-            [[NCCommunication shared] downloadWithServerUrlFileName:serverUrlFileName fileNameLocalPath:self->_fileStatus.fileLocalPath customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() taskHandler:^(NSURLSessionTask *task) {
+            [[NextcloudKit shared] downloadWithServerUrlFileName:serverUrlFileName fileNameLocalPath:self->_fileStatus.fileLocalPath customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() taskHandler:^(NSURLSessionTask *task) {
                 NSLog(@"Download task");
             } progressHandler:^(NSProgress *progress) {
                 [self didChangeDownloadProgressNotification:progress.fractionCompleted];
-            } completionHandler:^(NSString *account, NSString *etag, NSDate *date, int64_t length, NSDictionary *allHeaderFields, NSInteger errorCode, NSString *errorDescription) {
-                if (errorCode == 0) {
+            } completionHandler:^(NSString *account, NSString *etag, NSDate *date, int64_t length, NSDictionary *allHeaderFields, NKError *error) {
+                if (error.errorCode == 0) {
                     // Set modification date to invalidate our cache
                     [self setModificationDateOnFile:self->_fileStatus.fileLocalPath withModificationDate:file.date];
-                    
+
                     // Set creation date to delete older files from cache
                     [self setCreationDateOnFile:self->_fileStatus.fileLocalPath withCreationDate:[NSDate date]];
-                    
+
                     [self.delegate fileControllerDidLoadFile:self withFileStatus:self->_fileStatus];
                 } else {
-                    NSLog(@"Error downloading file: %ld - %@", errorCode, errorDescription);
-                    [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:errorDescription];
+                    NSLog(@"Error downloading file: %ld - %@", error.errorCode, error.errorDescription);
+                    [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:error.errorDescription];
                 }
 
                 [self didChangeIsDownloadingNotification:NO];
@@ -212,8 +213,8 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
         } else {
             [self didChangeIsDownloadingNotification:NO];
             
-            NSLog(@"Error downloading file: %ld - %@", errorCode, errorDescription);
-            [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:errorDescription];
+            NSLog(@"Error downloading file: %ld - %@", error.errorCode, error.errorDescription);
+            [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:error.errorDescription];
         }
     }];
 }

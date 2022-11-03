@@ -24,7 +24,7 @@
 #import <ContactsUI/ContactsUI.h>
 #import <QuickLook/QuickLook.h>
 
-@import NCCommunication;
+@import NextcloudKit;
 
 #import "NCChatViewController.h"
 
@@ -2007,20 +2007,20 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] setupNCCommunicationForAccount:activeAccount];
-    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:localPath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() taskHandler:^(NSURLSessionTask *task) {
+    [[NextcloudKit shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:localPath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() taskHandler:^(NSURLSessionTask *task) {
         NSLog(@"Upload task");
     } progressHandler:^(NSProgress *progress) {
         NSLog(@"Progress:%f", progress.fractionCompleted);
-    } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSDictionary *allHeaderFields, NSInteger errorCode, NSString *errorDescription) {
-        NSLog(@"Upload completed with error code: %ld", (long)errorCode);
+    } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSDictionary *allHeaderFields, NKError *error) {
+        NSLog(@"Upload completed with error code: %ld", (long)error.errorCode);
 
-        if (errorCode == 0) {
+        if (error.errorCode == 0) {
             [[NCAPIController sharedInstance] shareFileOrFolderForAccount:activeAccount atPath:fileServerPath toRoom:self->_room.token talkMetaData:talkMetaData withCompletionBlock:^(NSError *error) {
                 if (error) {
                     NSLog(@"Failed to share voice message");
                 }
             }];
-        } else if (errorCode == 404 || errorCode == 409) {
+        } else if (error.errorCode == 404 || error.errorCode == 409) {
             [[NCAPIController sharedInstance] checkOrCreateAttachmentFolderForAccount:activeAccount withCompletionBlock:^(BOOL created, NSInteger errorCode) {
                 if (created) {
                     [self uploadFileAtPath:localPath withFileServerURL:fileServerURL andFileServerPath:fileServerPath withMetaData:talkMetaData];

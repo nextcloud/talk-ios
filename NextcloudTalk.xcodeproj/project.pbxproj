@@ -31,6 +31,9 @@
 		1F7625E72901B0E800834869 /* CallsFromOldAccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F7625E62901B0E800834869 /* CallsFromOldAccountViewController.xib */; };
 		1F785DDD2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F785DDA2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m */; };
 		1F785DDE2707865F00AC4B40 /* VoiceMessageTranscribeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F785DDB2707865F00AC4B40 /* VoiceMessageTranscribeViewController.xib */; };
+		1F7AE07829142CA1009F72AD /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F7AE07729142CA1009F72AD /* NextcloudKit */; };
+		1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F7AE07929142E62009F72AD /* NextcloudKit */; };
+		1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F7AE07B29142E6A009F72AD /* NextcloudKit */; };
 		1F90EFBC25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
 		1F90EFBD25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
 		1F90EFBE25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
@@ -295,9 +298,6 @@
 		2CC32E9827F5D9BD00BB8C39 /* NCChatReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E9727F5D9BD00BB8C39 /* NCChatReaction.m */; };
 		2CC32E9927F5DADA00BB8C39 /* NCChatReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E9727F5D9BD00BB8C39 /* NCChatReaction.m */; };
 		2CC32E9A27F5DADB00BB8C39 /* NCChatReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E9727F5D9BD00BB8C39 /* NCChatReaction.m */; };
-		2CC5F0982716FF1900DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F0972716FF1900DE1775 /* NCCommunication */; };
-		2CC5F09A2717028B00DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F0992717028B00DE1775 /* NCCommunication */; };
-		2CC5F09C2717198500DE1775 /* NCCommunication in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC5F09B2717198500DE1775 /* NCCommunication */; };
 		2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* PlaceholderView.xib */; };
 		2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
 		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
@@ -794,9 +794,9 @@
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
-				2CC5F0982716FF1900DE1775 /* NCCommunication in Frameworks */,
 				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
 				2C38D4AC27BBAFCC00BAE015 /* WebRTC.xcframework in Frameworks */,
+				1F7AE07829142CA1009F72AD /* NextcloudKit in Frameworks */,
 				9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -805,8 +805,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */,
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
-				2CC5F09A2717028B00DE1775 /* NCCommunication in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -814,7 +814,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CC5F09C2717198500DE1775 /* NCCommunication in Frameworks */,
+				1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */,
 				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1496,10 +1496,10 @@
 			);
 			name = NextcloudTalk;
 			packageProductDependencies = (
-				2CC5F0972716FF1900DE1775 /* NCCommunication */,
 				2CCCD21C2835088F00F076CE /* OpenSSL */,
 				1F468E7528DCC6C60099597B /* Dynamic */,
 				1F628CB92842BAAF0083A425 /* QRCodeReader */,
+				1F7AE07729142CA1009F72AD /* NextcloudKit */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1521,7 +1521,7 @@
 			);
 			name = ShareExtension;
 			packageProductDependencies = (
-				2CC5F0992717028B00DE1775 /* NCCommunication */,
+				1F7AE07B29142E6A009F72AD /* NextcloudKit */,
 			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
@@ -1542,7 +1542,7 @@
 			);
 			name = NotificationServiceExtension;
 			packageProductDependencies = (
-				2CC5F09B2717198500DE1775 /* NCCommunication */,
+				1F7AE07929142E62009F72AD /* NextcloudKit */,
 			);
 			productName = NotificationServiceExtension;
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
@@ -1618,10 +1618,10 @@
 			);
 			mainGroup = 2C0574741EDD9E8E00D9E7F2;
 			packageReferences = (
-				2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */,
 				2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */,
 				1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */,
 				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */,
+				1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -2801,12 +2801,12 @@
 				minimumVersion = 10.1.1;
 			};
 		};
-		2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */ = {
+		1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/nextcloud/ios-communication-library";
+			repositoryURL = "https://github.com/nextcloud/NextcloudKit";
 			requirement = {
 				kind = exactVersion;
-				version = 0.99.9;
+				version = 1.2.0;
 			};
 		};
 		2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */ = {
@@ -2830,20 +2830,20 @@
 			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
 			productName = QRCodeReader;
 		};
-		2CC5F0972716FF1900DE1775 /* NCCommunication */ = {
+		1F7AE07729142CA1009F72AD /* NextcloudKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */;
-			productName = NCCommunication;
+			package = 1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */;
+			productName = NextcloudKit;
 		};
-		2CC5F0992717028B00DE1775 /* NCCommunication */ = {
+		1F7AE07929142E62009F72AD /* NextcloudKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */;
-			productName = NCCommunication;
+			package = 1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */;
+			productName = NextcloudKit;
 		};
-		2CC5F09B2717198500DE1775 /* NCCommunication */ = {
+		1F7AE07B29142E6A009F72AD /* NextcloudKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 2CC5F0962716FF1900DE1775 /* XCRemoteSwiftPackageReference "ios-communication-library" */;
-			productName = NCCommunication;
+			package = 1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */;
+			productName = NextcloudKit;
 		};
 		2CCCD21C2835088F00F076CE /* OpenSSL */ = {
 			isa = XCSwiftPackageProductDependency;

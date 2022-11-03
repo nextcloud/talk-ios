@@ -21,7 +21,7 @@
 
 import UIKit
 
-import NCCommunication
+import NextcloudKit
 
 @objc protocol UserStatusMessageViewControllerDelegate {
     func didClearStatusMessage()
@@ -41,10 +41,10 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     public var userStatus: NCUserStatus?
     @objc public weak var delegate: UserStatusMessageViewControllerDelegate?
 
-    private var predefinedStatusSelected: NCCommunicationUserStatus?
+    private var predefinedStatusSelected: NKUserStatus?
     private var iconSelected: String?
     private var clearAtSelected: Double = 0
-    private var statusPredefinedStatuses: [NCCommunicationUserStatus] = []
+    private var statusPredefinedStatuses: [NKUserStatus] = []
 
     @objc init(userStatus: NCUserStatus) {
         self.userStatus = userStatus
@@ -106,8 +106,8 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
     }
 
     @IBAction func clearStatusButtonPressed(_ sender: Any) {
-        NCCommunication.shared.clearMessage { _, errorCode, _ in
-            if errorCode == 0 {
+        NextcloudKit.shared.clearMessage { _, error in
+            if error.errorCode == 0 {
                 self.delegate?.didClearStatusMessage()
                 self.dismiss(animated: true)
             } else {
@@ -121,8 +121,8 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         guard let message = statusMessageTextField.text else { return }
 
         if predefinedStatusSelected != nil && predefinedStatusSelected?.message == message && predefinedStatusSelected?.icon == statusEmojiTextField.text {
-            NCCommunication.shared.setCustomMessagePredefined(messageId: predefinedStatusSelected!.id!, clearAt: clearAtSelected) { _, errorCode, _ in
-                if errorCode == 0 {
+            NextcloudKit.shared.setCustomMessagePredefined(messageId: predefinedStatusSelected!.id!, clearAt: clearAtSelected) { _, error in
+                if error.errorCode == 0 {
                     let clearAtDate = NSDate(timeIntervalSince1970: self.clearAtSelected)
                     self.delegate?.didSetStatusMessage(icon: self.predefinedStatusSelected?.icon, message: self.predefinedStatusSelected?.message, clearAt: clearAtDate)
                     self.dismiss(animated: true)
@@ -132,8 +132,8 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
                 }
             }
         } else {
-            NCCommunication.shared.setCustomMessageUserDefined(statusIcon: iconSelected, message: message, clearAt: clearAtSelected) { _, errorCode, _ in
-                if errorCode == 0 {
+            NextcloudKit.shared.setCustomMessageUserDefined(statusIcon: iconSelected, message: message, clearAt: clearAtSelected) { _, error in
+                if error.errorCode == 0 {
                     let clearAtDate = NSDate(timeIntervalSince1970: self.clearAtSelected)
                     self.delegate?.didSetStatusMessage(icon: self.iconSelected, message: message, clearAt: clearAtDate)
                     self.dismiss(animated: true)
@@ -216,7 +216,7 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
         self.setStatusInView(icon: icon, message: message, clearAt: clearAtString)
     }
 
-    func setPredefinedStatusInView(predefinedStatus: NCCommunicationUserStatus?) {
+    func setPredefinedStatusInView(predefinedStatus: NKUserStatus?) {
         predefinedStatusSelected = predefinedStatus
         let clearAtString = self.getPredefinedClearStatusText(clearAt: predefinedStatus?.clearAt, clearAtTime: predefinedStatus?.clearAtTime, clearAtType: predefinedStatus?.clearAtType)
         clearAtSelected = self.getClearAt(clearAtString)
@@ -250,13 +250,13 @@ class UserStatusMessageViewController: UIViewController, UITextFieldDelegate {
 
     func getStatus() {
         NCAPIController.sharedInstance().setupNCCommunication(for: NCDatabaseManager.sharedInstance().activeAccount())
-        NCCommunication.shared.getUserStatus { _, clearAt, icon, message, _, _, _, _, _, errorCode, _ in
-            if errorCode == 0 {
+        NextcloudKit.shared.getUserStatus { _, clearAt, icon, message, _, _, _, _, _, _, error in
+            if error.errorCode == 0 {
                 self.setCustomStatusInView(icon: icon, message: message, clearAt: clearAt)
             }
         }
-        NCCommunication.shared.getUserStatusPredefinedStatuses { _, userStatuses, errorCode, _ in
-            if errorCode == 0 {
+        NextcloudKit.shared.getUserStatusPredefinedStatuses { _, userStatuses, _, error in
+            if error.errorCode == 0 {
                 self.statusPredefinedStatuses = userStatuses!
                 self.statusTableView.reloadData()
             }
