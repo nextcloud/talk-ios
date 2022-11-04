@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>%d votes</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@votes@</string>
+        <key>votes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d Stimme</string>
+            <key>other</key>
+            <string>%d Stimmen</string>
+        </dict>
+    </dict>
+    
+    <key>%ld participants</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@participants@</string>
+        <key>participants</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>ld</string>
+            <key>one</key>
+            <string>%ld Teilnehmer</string>
+            <key>other</key>
+            <string>%ld Teilnehmer</string>
+        </dict>
+    </dict>
+    
+    <key>%d minutes ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@minutes@</string>
+        <key>minutes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Vor %d Minute</string>
+            <key>other</key>
+            <string>Vor %d Minuten</string>
+        </dict>
+    </dict>
+    
+    <key>%d hours ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@hours@</string>
+        <key>hours</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Vor %d Stunde</string>
+            <key>other</key>
+            <string>Vor %d Stunden</string>
+        </dict>
+    </dict>
+    
+    <key>%d days ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Vor %d Tag</string>
+            <key>other</key>
+            <string>Vor %d Tagen</string>
+        </dict>
+    </dict>
+</dict>
+</plist>
