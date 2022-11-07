@@ -1419,7 +1419,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
             NSMutableArray *messages = [NSMutableArray new];
             for (NSDictionary *messageDict in responseMessages) {
                 NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict];
-                [messages addObject:message];
+
+                if (message) {
+                    [messages addObject:message];
+                }
             }
             [sharedItems setObject:messages forKey:key];
         }
