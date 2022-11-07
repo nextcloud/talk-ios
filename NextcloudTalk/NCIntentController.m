@@ -58,6 +58,7 @@ typedef void (^GetAvatarForRoomCompletionBlock)(UIImage *image);
                 if (image) {
                     block(image);
                 } else {
+                    NSLog(@"NCIntentController: Unable to get user avatar: %@", error.description);
                     block(nil);
                 }
             }];
@@ -120,6 +121,7 @@ typedef void (^GetAvatarForRoomCompletionBlock)(UIImage *image);
         [interaction donateInteractionWithCompletion:^(NSError * _Nullable error) {
             if (block) {
                 if (error) {
+                    NSLog(@"Interaction donation failed: %@", error.description);
                     block(nil);
                 } else {
                     block(sendMessageIntent);

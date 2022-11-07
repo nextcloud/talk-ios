@@ -191,6 +191,7 @@
                                     if (sendMessageIntent) {
                                         self.contentHandler([self.bestAttemptContent contentByUpdatingWithProvider:sendMessageIntent error:&error]);
                                     } else {
+                                        NSLog(@"Did not receive sendMessageIntent -> showing non-communication notification");
                                         self.contentHandler(self.bestAttemptContent);
                                     }
                                 }];
