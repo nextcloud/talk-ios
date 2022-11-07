@@ -19,6 +19,7 @@
 		1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
+		1F53819129195FA4003DA6B7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
 		1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */; };
 		1F5813F928EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */; };
 		1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
@@ -34,6 +35,7 @@
 		1F7AE07829142CA1009F72AD /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F7AE07729142CA1009F72AD /* NextcloudKit */; };
 		1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F7AE07929142E62009F72AD /* NextcloudKit */; };
 		1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F7AE07B29142E6A009F72AD /* NextcloudKit */; };
+		1F7AE07D29158878009F72AD /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */; };
 		1F90EFBC25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
 		1F90EFBD25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
 		1F90EFBE25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
@@ -815,6 +817,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */,
+				1F7AE07D29158878009F72AD /* IntentsUI.framework in Frameworks */,
 				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1705,6 +1708,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F53819129195FA4003DA6B7 /* Images.xcassets in Resources */,
 				1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */,
 				2CB6ACED2641954700D3D641 /* MapViewController.xib in Resources */,
 			);
