@@ -31,6 +31,7 @@
 
 static NSTimeInterval kInitialReconnectInterval = 1;
 static NSTimeInterval kMaxReconnectInterval     = 16;
+static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 @interface WSMessage : NSObject
 @property NSDictionary *message;
@@ -138,7 +139,7 @@ static NSTimeInterval kMaxReconnectInterval     = 16;
     NSLog(@"Connecting to: %@",  _serverUrl);
     NSURL *url = [NSURL URLWithString:_serverUrl];
     NSURLSession *wsSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
-    NSURLRequest *wsRequest = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60];
+    NSURLRequest *wsRequest = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:kWebSocketTimeoutInterval];
     NSURLSessionWebSocketTask *webSocket = [wsSession webSocketTaskWithRequest:wsRequest];
 
     _webSocket = webSocket;
