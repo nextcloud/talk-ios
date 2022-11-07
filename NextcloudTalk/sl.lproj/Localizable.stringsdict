@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>%d votes</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@votes@</string>
+        <key>votes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d glas</string>
+            <key>two</key>
+            <string>%d glasova</string>
+            <key>few</key>
+            <string>%d glasovi</string>
+            <key>other</key>
+            <string>%d glasov</string>
+        </dict>
+    </dict>
+    
+    <key>%ld participants</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@participants@</string>
+        <key>participants</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>ld</string>
+            <key>one</key>
+            <string>%ld udeleženec</string>
+            <key>two</key>
+            <string>%ld udeleženca</string>
+            <key>few</key>
+            <string>%ld udeleženci</string>
+            <key>other</key>
+            <string>%ld udeležencev</string>
+        </dict>
+    </dict>
+    
+    <key>%d minutes ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@minutes@</string>
+        <key>minutes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>pred %d minuto</string>
+            <key>two</key>
+            <string>pred %d minutama</string>
+            <key>few</key>
+            <string>pred %d minutami</string>
+            <key>other</key>
+            <string>pred %d minutami</string>
+        </dict>
+    </dict>
+    
+    <key>%d hours ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@hours@</string>
+        <key>hours</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>pred %d uro</string>
+            <key>two</key>
+            <string>pred %d urama</string>
+            <key>few</key>
+            <string>pred %d urami</string>
+            <key>other</key>
+            <string>pred %d urami</string>
+        </dict>
+    </dict>
+    
+    <key>%d days ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>pred %d dnevom</string>
+            <key>two</key>
+            <string>pred %d dnevoma</string>
+            <key>few</key>
+            <string>pred %d dnevi</string>
+            <key>other</key>
+            <string>pred %d dnevi</string>
+        </dict>
+    </dict>
+</dict>
+</plist>
