@@ -132,7 +132,16 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 [userInfo setObject:controller forKey:@"roomController"];
                 NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
-                    [extSignalingController joinRoom:token withSessionId:sessionId];
+                    [extSignalingController joinRoom:token withSessionId:sessionId withCompletionBlock:^(NSError *error) {
+                        if (!error) {
+                            self->_joiningRoom = nil;
+                            [userInfo setObject:token forKey:@"token"];
+                            [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
+                                                                                object:self
+                                                                              userInfo:userInfo];
+                        }
+                    }];
+                    return;
                 }
             } else {
                 NSInteger joinAttempts = [[self->_joinRoomAttempts objectForKey:token] integerValue];
@@ -215,7 +224,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 roomController.inChat = YES;
                 NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
-                    [extSignalingController joinRoom:token withSessionId:sessionId];
+                    [extSignalingController joinRoom:token withSessionId:sessionId withCompletionBlock:nil];
                 }
             } else {
                 NSLog(@"Could not re-join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
