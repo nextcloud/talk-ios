@@ -28,7 +28,7 @@
 #import "NCRoom.h"
 #import "NCUser.h"
 
-@class NCCommunicationFile;
+@class NKFile;
 
 typedef void (^GetContactsCompletionBlock)(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error);
 typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contacts, NSError *error);
@@ -79,7 +79,7 @@ typedef void (^SetReadStatusPrivacySettingCompletionBlock)(NSError *error);
 
 typedef void (^ReadFolderCompletionBlock)(NSArray *items, NSError *error);
 typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
-typedef void (^GetFileByFileIdCompletionBlock)(NCCommunicationFile *file, NSInteger error, NSString *errorDescription);
+typedef void (^GetFileByFileIdCompletionBlock)(NKFile *file, NSInteger error, NSString *errorDescription);
 typedef void (^GetFileUniqueNameCompletionBlock)(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription);
 typedef void (^CheckAttachmentFolderCompletionBlock)(BOOL created, NSInteger errorCode);
 

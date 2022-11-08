@@ -22,7 +22,7 @@
 
 #import "RoomInfoTableViewController.h"
 
-@import NCCommunication;
+@import NextcloudKit;
 
 #import <QuickLook/QuickLook.h>
 
@@ -1045,7 +1045,7 @@ typedef enum FileAction {
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     
-    [[NCAPIController sharedInstance] getFileByFileId:activeAccount fileId:_room.objectId withCompletionBlock:^(NCCommunicationFile *file, NSInteger error, NSString *errorDescription) {
+    [[NCAPIController sharedInstance] getFileByFileId:activeAccount fileId:_room.objectId withCompletionBlock:^(NKFile *file, NSInteger error, NSString *errorDescription) {
 
         dispatch_async(dispatch_get_main_queue(), ^{
             [activityIndicator stopAnimating];

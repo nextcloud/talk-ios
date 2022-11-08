@@ -22,7 +22,7 @@
 
 #import "NCAPIController.h"
 
-@import NCCommunication;
+@import NextcloudKit;
 
 #import "CCCertificate.h"
 #import "NCAPISessionManager.h"
@@ -44,7 +44,7 @@ NSString * const kNCSpreedAPIVersionBase    = @"/apps/spreed/api/v";
 
 NSInteger const kReceivedChatMessagesLimit = 100;
 
-@interface NCAPIController () <NSURLSessionTaskDelegate, NSURLSessionDelegate, NCCommunicationCommonDelegate>
+@interface NCAPIController () <NSURLSessionTaskDelegate, NSURLSessionDelegate, NKCommonDelegate>
 
 @property (nonatomic, strong) NCAPISessionManager *defaultAPISessionManager;
 
@@ -101,7 +101,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
     NSString *userToken = [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId];
     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
-    [[NCCommunicationCommon shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken urlBase:account.server userAgent:userAgent webDav:nil nextcloudVersion:serverCapabilities.versionMajor delegate:self];
+    [[NKCommon shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken urlBase:account.server userAgent:userAgent nextcloudVersion:serverCapabilities.versionMajor delegate:self];
 }
 
 - (void)initImageDownloaders
@@ -1793,12 +1793,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 {
     [self setupNCCommunicationForAccount:account];
     NSString *serverUrlString = [NSString stringWithFormat:@"%@%@/%@", account.server, [self filesPathForAccount:account], path ? path : @""];
-    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:serverUrlString depth:depth showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil timeout:60 queue:dispatch_get_main_queue() completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
-        if (errorCode == 0 && block) {
+
+    NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
+    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:serverUrlString depth:depth showHiddenFiles:NO requestBody:nil options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *responseDates, NKError *error) {
+        if (error.errorCode == 0 && block) {
             block(files, nil);
         } else if (block) {
-            NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:errorCode userInfo:nil];
-            block(nil, error);
+            NSError *nsError = [NSError errorWithDomain:NSURLErrorDomain code:error.errorCode userInfo:nil];
+            block(nil, nsError);
         }
     }];
 }
@@ -1888,13 +1890,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     </d:searchrequest>";
     
     NSString *bodyRequest = [NSString stringWithFormat:body, account.userId, fileId];
-    [[NCCommunication shared] searchBodyRequestWithServerUrl:account.server requestBody:bodyRequest showHiddenFiles:YES customUserAgent:nil addCustomHeaders:nil timeout:0 queue:dispatch_get_main_queue() completionHandler:^(NSString *account, NSArray<NCCommunicationFile *> *files, NSInteger error, NSString *errorDescription) {
-        
+    NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
+    [[NextcloudKit shared] searchBodyRequestWithServerUrl:account.server requestBody:bodyRequest showHiddenFiles:YES options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *data, NKError *error) {
         if (block) {
             if ([files count] > 0) {
-                block([files objectAtIndex:0], error, errorDescription);
+                block([files objectAtIndex:0], error.errorCode, error.errorDescription);
             } else {
-                block(nil, error, errorDescription);
+                block(nil, error.errorCode, error.errorDescription);
             }
         }
     }];
@@ -1906,21 +1908,22 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     
     NSString *fileServerPath = [self serverFilePathForFileName:fileName andAccountId:account.accountId];
     NSString *fileServerURL = [self serverFileURLForFilePath:fileServerPath andAccountId:account.accountId];
-    
-    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:fileServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil timeout:60 queue:dispatch_get_main_queue() completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+
+    NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
+    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:fileServerURL depth:@"0" showHiddenFiles:NO requestBody:nil options:options completion:^(NSString *accountId, NSArray<NKFile *> *files, NSData *data, NKError *error) {
         // File already exists
-        if (errorCode == 0 && files.count == 1) {
+        if (error.errorCode == 0 && files.count == 1) {
             NSString *alternativeName = [self alternativeNameForFileName:fileName original:isOriginalName];
             [self uniqueNameForFileUploadWithName:alternativeName originalName:NO forAccount:account withCompletionBlock:block];
         // File does not exist
-        } else if (errorCode == 404) {
+        } else if (error.errorCode == 404) {
             if (block) {
                 block(fileServerURL, fileServerPath, 0, nil);
             }
         } else {
-            NSLog(@"Error checking file name: %@", errorDescription);
+            NSLog(@"Error checking file name: %@", error.errorDescription);
             if (block) {
-                block(nil, nil, errorCode, errorDescription);
+                block(nil, nil, error.errorCode, error.errorDescription);
             }
         }
     }];
@@ -1931,18 +1934,20 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     [self setupNCCommunicationForAccount:account];
     
     NSString *attachmentFolderServerURL = [self attachmentFolderServerURLForAccountId:account.accountId];
-    [[NCCommunication shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO requestBody:nil customUserAgent:nil addCustomHeaders:nil timeout:60 queue:dispatch_get_main_queue() completionHandler:^(NSString *accounts, NSArray<NCCommunicationFile *> *files, NSData *responseData, NSInteger errorCode, NSString *errorDescription) {
+    NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
+
+    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO requestBody:nil options:options completion:^(NSString *accountId, NSArray<NKFile *> *files, NSData *data, NKError *error) {
         // Attachment folder do not exist
-        if (errorCode == 404) {
-            [[NCCommunication shared] createFolder:attachmentFolderServerURL customUserAgent:nil addCustomHeaders:nil timeout:60 queue:dispatch_get_main_queue() completionHandler:^(NSString *account, NSString *ocId, NSDate *date, NSInteger errorCode, NSString *errorDescription) {
+        if (error.errorCode == 404) {
+            [[NextcloudKit shared] createFolder:attachmentFolderServerURL options:options completion:^(NSString *accountId, NSString *ocId, NSDate *data, NKError *error) {
                 if (block) {
-                    block(errorCode == 0, errorCode);
+                    block(error.errorCode == 0, error.errorCode);
                 }
             }];
         } else {
-            NSLog(@"Error checking attachment folder: %@", errorDescription);
+            NSLog(@"Error checking attachment folder: %@", error.errorDescription);
             if (block) {
-                block(NO, errorCode);
+                block(NO, error.errorCode);
             }
         }
     }];
@@ -2624,7 +2629,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
 }
 
-#pragma mark - NCCommunicationCommon Delegate
+#pragma mark - NKCommon Delegate
 
 - (void)authenticationChallenge:(NSURLSession *)session didReceive:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
 {

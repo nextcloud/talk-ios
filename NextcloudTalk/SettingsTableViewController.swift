@@ -20,7 +20,7 @@
 //
 
 import UIKit
-import NCCommunication
+import NextcloudKit
 import SafariServices
 
 enum SettingsSection: Int {

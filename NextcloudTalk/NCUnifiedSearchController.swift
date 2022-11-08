@@ -20,7 +20,7 @@
 //
 
 import UIKit
-import NCCommunication
+import NextcloudKit
 
 @objcMembers class NCUnifiedSearchController: NSObject {
 
@@ -29,16 +29,23 @@ import NCCommunication
     var cursor: Int = 0
     let limit: Int = 10
     var showMore: Bool = false
-    var entries: [NCCSearchEntry] = []
+    var entries: [NKSearchEntry] = []
 
     init(account: TalkAccount, searchTerm: String) {
         self.account = account
         self.searchTerm = searchTerm
     }
 
-    func searchMessages(completionHandler: @escaping ([NCCSearchEntry]?) -> Void) {
+    func searchMessages(completionHandler: @escaping ([NKSearchEntry]?) -> Void) {
         NCAPIController.sharedInstance().setupNCCommunication(for: account)
-        NCCommunication.shared.searchProvider("talk-message", term: searchTerm, limit: limit, cursor: cursor, options: NCCRequestOptions(), timeout: 30) { searchResult, _, _ in
+
+        NextcloudKit.shared.searchProvider("talk-message",
+                                           account: account.accountId,
+                                           term: searchTerm,
+                                           limit: limit,
+                                           cursor: cursor,
+                                           options: NKRequestOptions(),
+                                           timeout: 30) { _, searchResult, _, _ in
             guard let searchResult = searchResult else {
                 completionHandler(nil)
                 return

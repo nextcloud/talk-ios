@@ -22,7 +22,7 @@
 
 #import "RoomSearchTableViewController.h"
 
-@import NCCommunication;
+@import NextcloudKit;
 
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
@@ -172,7 +172,7 @@ typedef enum RoomSearchSection {
     return nil;
 }
 
-- (NCCSearchEntry *)messageForIndexPath:(NSIndexPath *)indexPath
+- (NKSearchEntry *)messageForIndexPath:(NSIndexPath *)indexPath
 {
     NSInteger searchSection = [[[self searchSections] objectAtIndex:indexPath.section] integerValue];
     if (searchSection == RoomSearchSectionMessages && indexPath.row < _messages.count) {
@@ -184,7 +184,7 @@ typedef enum RoomSearchSection {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForMessageAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCCSearchEntry *messageEntry = [_messages objectAtIndex:indexPath.row];
+    NKSearchEntry *messageEntry = [_messages objectAtIndex:indexPath.row];
     RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
     if (!cell) {
         cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];

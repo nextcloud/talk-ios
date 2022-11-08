@@ -23,7 +23,7 @@
 #import "ShareConfirmationViewController.h"
 #import "ShareConfirmationCollectionViewCell.h"
 
-@import NCCommunication;
+@import NextcloudKit;
 
 #import <AVFoundation/AVFoundation.h>
 #import <QuickLook/QuickLook.h>
@@ -41,7 +41,7 @@
 #import "MBProgressHUD.h"
 
 
-@interface ShareConfirmationViewController () <NCCommunicationCommonDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, QLPreviewControllerDataSource, QLPreviewControllerDelegate, ShareItemControllerDelegate, TOCropViewControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, UINavigationControllerDelegate>
+@interface ShareConfirmationViewController () <NKCommonDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, QLPreviewControllerDataSource, QLPreviewControllerDelegate, ShareItemControllerDelegate, TOCropViewControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, UINavigationControllerDelegate>
 {
     UIBarButtonItem *_sendButton;
     UIActivityIndicatorView *_sharingIndicatorView;
@@ -113,8 +113,8 @@
     // Configure communication lib
     NSString *userToken = [[NCKeyChainController sharedInstance] tokenForAccountId:_account.accountId];
     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
-    
-    [[NCCommunicationCommon shared] setupWithAccount:_account.accountId user:_account.user userId:_account.userId password:userToken urlBase:_account.server userAgent:userAgent webDav:nil nextcloudVersion:_serverCapabilities.versionMajor delegate:self];
+
+    [[NKCommon shared] setupWithAccount:_account.accountId user:_account.user userId:_account.userId password:userToken urlBase:_account.server userAgent:userAgent nextcloudVersion:_serverCapabilities.versionMajor delegate:self];
     
     // Set to section
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],
@@ -478,38 +478,36 @@
 
 - (void)uploadFileToServerURL:(NSString *)fileServerURL withFilePath:(NSString *)filePath withItem:(ShareItem *)item
 {
-    [[NCCommunication shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:item.filePath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() taskHandler:^(NSURLSessionTask * _Nonnull) {
+    [[NextcloudKit shared] uploadWithServerUrlFileName:fileServerURL fileNameLocalPath:item.filePath dateCreationFile:nil dateModificationFile:nil customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() taskHandler:^(NSURLSessionTask *task) {
         NSLog(@"Upload task");
     } progressHandler:^(NSProgress *progress) {
         item.uploadProgress = progress.fractionCompleted;
         [self updateHudProgress];
-    } completionHandler:^(NSString *account, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSDictionary *allHeaderFields, NSInteger errorCode, NSString *errorDescription) {
-        NSLog(@"Upload completed with error code: %ld", (long)errorCode);
-
-        if (errorCode == 0) {
+    } completionHandler:^(NSString *accountId, NSString *ocId, NSString *etag, NSDate *date, int64_t size, NSDictionary *allHeaderFields, NKError *error) {
+        if (error.errorCode == 0) {
             [[NCAPIController sharedInstance] shareFileOrFolderForAccount:self->_account atPath:filePath toRoom:self->_room.token talkMetaData:nil withCompletionBlock:^(NSError *error) {
                 if (error) {
                     NSLog(@"Failed to send shared file");
-                    
+
                     self->_uploadFailed = YES;
                     [self->_uploadErrors addObject:error.description];
                 }
-                
+
                 dispatch_group_leave(self->_uploadGroup);
             }];
-        } else if (errorCode == 404 || errorCode == 409) {
+        } else if (error.errorCode == 404 || error.errorCode == 409) {
             [[NCAPIController sharedInstance] checkOrCreateAttachmentFolderForAccount:self->_account withCompletionBlock:^(BOOL created, NSInteger errorCode) {
                 if (created) {
                     [self uploadFileToServerURL:fileServerURL withFilePath:filePath withItem:item];
                 } else {
                     self->_uploadFailed = YES;
-                    [self->_uploadErrors addObject:errorDescription];
+                    [self->_uploadErrors addObject:error.errorDescription];
                     dispatch_group_leave(self->_uploadGroup);
                 }
             }];
         } else {
             self->_uploadFailed = YES;
-            [self->_uploadErrors addObject:errorDescription];
+            [self->_uploadErrors addObject:error.errorDescription];
             dispatch_group_leave(self->_uploadGroup);
         }
     }];
@@ -872,7 +870,7 @@
     [cropViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
-#pragma mark - NCCommunicationCommon Delegate
+#pragma mark - NKCommon Delegate
 
 - (void)authenticationChallenge:(NSURLSession *)session didReceive:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
 {

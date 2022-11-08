@@ -22,7 +22,7 @@
 
 #import "DirectoryTableViewController.h"
 
-@import NCCommunication;
+@import NextcloudKit;
 
 #import "UIImageView+AFNetworking.h"
 
@@ -166,7 +166,7 @@
     [[NCAPIController sharedInstance] readFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:_path depth:@"1" withCompletionBlock:^(NSArray *items, NSError *error) {
         if (!error) {
             NSMutableArray *itemsInDirectory = [NSMutableArray new];
-            for (NCCommunicationFile *item in items) {
+            for (NKFile *item in items) {
                 NSString *currentDirectory = [self->_path isEqualToString:@""] ? @"/" : [self->_path lastPathComponent];
                 NSString *itemPath = [item.path stringByReplacingOccurrencesOfString:self->_userHomePath withString:@""];
                 if ([[itemPath lastPathComponent] isEqualToString:currentDirectory] && !item.e2eEncrypted) {
@@ -309,7 +309,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCCommunicationFile *item = [_itemsInDirectory objectAtIndex:indexPath.row];
+    NKFile *item = [_itemsInDirectory objectAtIndex:indexPath.row];
     DirectoryTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kDirectoryCellIdentifier];
     if (!cell) {
         cell = [[DirectoryTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDirectoryCellIdentifier];
@@ -344,7 +344,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCCommunicationFile *item = [_itemsInDirectory objectAtIndex:indexPath.row];
+    NKFile *item = [_itemsInDirectory objectAtIndex:indexPath.row];
     NSString *selectedItemPath = [NSString stringWithFormat:@"%@/%@", _path, item.fileName];
     
     if (item.directory) {

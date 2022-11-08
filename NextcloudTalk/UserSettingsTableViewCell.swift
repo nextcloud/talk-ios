@@ -20,7 +20,7 @@
 //
 
 import UIKit
-import NCCommunication
+import NextcloudKit
 
 class UserSettingsTableViewCell: UITableViewCell {
 
