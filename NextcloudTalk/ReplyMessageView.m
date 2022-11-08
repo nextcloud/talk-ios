@@ -154,7 +154,7 @@
     
     self.message = message;
     self.quotedMessageView.actorLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
-    self.quotedMessageView.messageLabel.text = message.parsedMessage.string;
+    self.quotedMessageView.messageLabel.text = message.parsedMessageForChat.string;
     self.quotedMessageView.highlighted = [message isMessageFromUser:userId];
     
     self.visible = YES;

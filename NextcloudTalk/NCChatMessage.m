@@ -397,22 +397,9 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return messageParametersDict;
 }
 
-- (BOOL)shouldHideParsedMessage
-{
-    if (!self.message) {
-        return YES;
-    }
-
-    if ([self getDeckCardUrlForReferenceProvider]) {
-        return YES;
-    }
-
-    return NO;
-}
-
 - (NSMutableAttributedString *)parsedMessage
 {
-    if ([self shouldHideParsedMessage]) {
+    if (!self.message) {
         return nil;
     }
     
@@ -483,6 +470,16 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     }
     
     return attributedMessage;
+}
+
+- (NSMutableAttributedString *)parsedMessageForChat
+{
+    // In some circumstances we want/need to hide the message in the chat, but still want to show it in other parts like the conversation list
+    if ([self getDeckCardUrlForReferenceProvider]) {
+        return nil;
+    }
+
+    return self.parsedMessage;
 }
 
 - (NSMutableAttributedString *)systemMessageFormat

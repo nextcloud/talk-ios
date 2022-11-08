@@ -301,7 +301,7 @@
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead
 {
     self.titleLabel.text = message.actorDisplayName;
-    self.bodyTextView.attributedText = message.parsedMessage;
+    self.bodyTextView.attributedText = message.parsedMessageForChat;
     self.messageId = message.messageId;
     self.message = message;
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
@@ -334,7 +334,7 @@
     NCChatMessage *parent = message.parent;
     if (parent.message) {
         self.quotedMessageView.actorLabel.text = ([parent.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : parent.actorDisplayName;
-        self.quotedMessageView.messageLabel.text = parent.parsedMessage.string;
+        self.quotedMessageView.messageLabel.text = parent.parsedMessageForChat.string;
         self.quotedMessageView.highlighted = [parent isMessageFromUser:activeAccount.userId];
     }
     
