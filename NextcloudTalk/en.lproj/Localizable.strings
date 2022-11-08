@@ -1133,7 +1133,7 @@
 "Remove group and members" = "Remove group and members";
 
 /* No comment provided by engineer. */
-"Remove old duplicate entries and leave just the most recent entries." = "Remove old duplicate entries and leave just the most recent entries.";
+"Remove old duplicate entries and leave only the most recent entries." = "Remove old duplicate entries and leave only the most recent entries.";
 
 /* No comment provided by engineer. */
 "Remove participant" = "Remove participant";
@@ -1370,7 +1370,7 @@
 "Unavailable" = "Unavailable";
 
 /* No comment provided by engineer. */
-"Under 'Devices & sessions' check if there are duplicated entries for the same device." = "Under 'Devices & sessions' check if there are duplicated entries for the same device.";
+"Under 'Devices & sessions' check if there are duplicate entries for the same device." = "Under 'Devices & sessions' check if there are duplicate entries for the same device.";
 
 /* No comment provided by engineer. */
 "Undo" = "Undo";
