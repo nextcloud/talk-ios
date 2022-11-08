@@ -48,7 +48,7 @@ class CallsFromOldAccountViewController: UIViewController {
 
         let warning1 = NSLocalizedString("Calls from an old account were received.", comment: "")
         let warning2 = NSLocalizedString("This usually indicates that this device was previously used for an account, which was not properly removed from the server.", comment: "")
-        let warning3 = NSLocalizedString("To resolve this issue, use the web interface and go to Settings -> Security.", comment: "")
+        let warning3 = NSLocalizedString("To resolve this issue, use the web interface and go to \"Settings -> Security\".", comment: "")
         let warning4 = NSLocalizedString("Under \"Devices & sessions\" check if there are duplicate entries for the same device.", comment: "")
         let warning5 = NSLocalizedString("Remove old duplicate entries and leave only the most recent entries.", comment: "")
         let warning6 = NSLocalizedString("If you're using multiple servers, you need to check all of them.", comment: "")
