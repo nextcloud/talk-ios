@@ -22,17 +22,17 @@
 
 #import <Foundation/Foundation.h>
 #import <Intents/INSendMessageIntent.h>
+#import <Intents/INSendMessageIntent+UserNotifications.h>
 
 #import "NCRoom.h"
 
-NS_ASSUME_NONNULL_BEGIN
+typedef void (^GetInteractionForRoomCompletionBlock)(INSendMessageIntent *sendMessageIntent);
 
 @interface NCIntentController : NSObject
 
 + (instancetype)sharedInstance;
 
 - (void)donateSendMessageIntentForRoom:(NCRoom *)room;
+- (void)getInteractionForRoom:(NCRoom *)room withTitle:(NSString *)title withCompletionBlock:(GetInteractionForRoomCompletionBlock)block;
 
 @end
-
-NS_ASSUME_NONNULL_END

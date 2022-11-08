@@ -25,6 +25,8 @@
 #import "NCAPISessionManager.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
+#import "NCIntentController.h"
+#import "NCRoom.h"
 #import "NCKeyChainController.h"
 #import "NCNotification.h"
 #import "NCPushNotification.h"
@@ -81,18 +83,17 @@
     RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
     configuration.fileURL = databaseURL;
     configuration.schemaVersion= kTalkDatabaseSchemaVersion;
-    configuration.objectClasses = @[TalkAccount.class];
+    configuration.objectClasses = @[TalkAccount.class, NCRoom.class, ServerCapabilities.class];
     configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
         // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
     };
-    NSError *error = nil;
-    RLMRealm *realm = [RLMRealm realmWithConfiguration:configuration error:&error];
+    [RLMRealmConfiguration setDefaultConfiguration:configuration];
     
     BOOL foundDecryptableMessage = NO;
     
     // Decrypt message
     NSString *message = [self.bestAttemptContent.userInfo objectForKey:@"subject"];
-    for (TalkAccount *talkAccount in [TalkAccount allObjectsInRealm:realm]) {
+    for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
         TalkAccount *account = [[TalkAccount alloc] initWithValue:talkAccount];
         NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
         if (message && pushNotificationPrivateKey) {
@@ -112,9 +113,9 @@
                     
                     foundDecryptableMessage = YES;
 
-                    [realm transactionWithBlock:^{
+                    [[RLMRealm defaultRealm] transactionWithBlock:^{
                         NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
-                        TalkAccount *managedAccount = [TalkAccount objectsInRealm:realm withPredicate:query].firstObject;
+                        TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
 
                         // Update unread notifications counter for push notification account
                         managedAccount.unreadBadgeNumber += 1;
@@ -128,7 +129,7 @@
                     
                     // Get the total number of unread notifications
                     NSInteger unreadNotifications = 0;
-                    for (TalkAccount *user in [TalkAccount allObjectsInRealm:realm]) {
+                    for (TalkAccount *user in [TalkAccount allObjects]) {
                         unreadNotifications += user.unreadBadgeNumber;
                     }
                     
@@ -147,6 +148,7 @@
                     [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
                     [userInfo setObject:@(pushNotification.notificationId) forKey:@"notificationId"];
                     self.bestAttemptContent.userInfo = userInfo;
+
                     // Create title and body structure if there is a new line in the subject
                     NSArray* components = [pushNotification.subject componentsSeparatedByString:@"\n"];
                     if (components.count > 1) {
@@ -157,6 +159,7 @@
                         self.bestAttemptContent.title = title;
                         self.bestAttemptContent.body = body;
                     }
+
                     // Try to get the notification from the server
                     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/notifications/%ld", account.server, (long)pushNotification.notificationId];
                     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -177,6 +180,26 @@
                             self.bestAttemptContent.body = serverNotification.message;
                             self.bestAttemptContent.summaryArgument = serverNotification.chatMessageAuthor;
                         }
+
+                        if (@available(iOS 15.0, *)) {
+                            NCRoom *room = [self roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
+
+                            if (room) {
+                                [[NCIntentController sharedInstance] getInteractionForRoom:room withTitle:serverNotification.chatMessageTitle withCompletionBlock:^(INSendMessageIntent *sendMessageIntent) {
+                                    __block NSError *error;
+
+                                    if (sendMessageIntent) {
+                                        self.contentHandler([self.bestAttemptContent contentByUpdatingWithProvider:sendMessageIntent error:&error]);
+                                    } else {
+                                        NSLog(@"Did not receive sendMessageIntent -> showing non-communication notification");
+                                        self.contentHandler(self.bestAttemptContent);
+                                    }
+                                }];
+
+                                return;
+                            }
+                        }
+
                         self.contentHandler(self.bestAttemptContent);
                     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                         self.contentHandler(self.bestAttemptContent);
@@ -194,6 +217,19 @@
         // No need to wait for the extension timeout, nothing is happening anymore
         self.contentHandler(self.bestAttemptContent);
     }
+}
+
+- (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
+{
+    NCRoom *unmanagedRoom = nil;
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, accountId];
+    NCRoom *managedRoom = [NCRoom objectsWithPredicate:query].firstObject;
+
+    if (managedRoom) {
+        unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
+    }
+
+    return unmanagedRoom;
 }
 
 - (void)serviceExtensionTimeWillExpire {
