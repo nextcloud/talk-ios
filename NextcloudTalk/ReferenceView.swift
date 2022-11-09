@@ -81,6 +81,16 @@
         referenceView.addSubview(defaultView)
     }
 
+    func update(for sharedDeckCard: NCDeckCardParameter) {
+        let deckView = ReferenceDeckView(frame: self.frame)
+        deckView.update(for: sharedDeckCard)
+        deckView.frame = self.bounds
+        deckView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+        referenceView.addSubview(deckView)
+        self.hideIndicatorView()
+    }
+
     func update(for references: [String: [String: AnyObject]]?, and url: String) {
         referenceView.subviews.forEach({ $0.removeFromSuperview() })
 
