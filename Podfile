@@ -2,7 +2,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '14.0'
 
 target "NextcloudTalk" do
-pod 'AFNetworking', "3.1.0"
+pod 'AFNetworking', "3.2.0"
 pod 'DateTools'
 pod 'JDStatusBarNotification'
 pod 'DBImageColorPicker'
@@ -18,13 +18,13 @@ pod 'MZTimerLabel'
 end
 
 target "NotificationServiceExtension" do
-pod 'AFNetworking', "3.1.0"
+pod 'AFNetworking', "3.2.0"
 pod 'UICKeyChainStore'
 pod 'Realm', '10.30.0'
 end
 
 target "ShareExtension" do
-pod 'AFNetworking', "3.1.0"
+pod 'AFNetworking', "3.2.0"
 pod 'UICKeyChainStore'
 pod 'Realm', '10.30.0'
 pod 'MBProgressHUD', '~> 1.2.0'
