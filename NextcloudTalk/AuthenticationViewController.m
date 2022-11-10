@@ -49,7 +49,6 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
     self = [super init];
     if (self) {
         self.serverUrl = serverUrl;
-        self.modalPresentationStyle = ([[NCDatabaseManager sharedInstance] numberOfAccounts] == 0) ? UIModalPresentationFullScreen : UIModalPresentationAutomatic;
     }
     
     return self;
@@ -60,28 +59,28 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
     [super viewDidLoad];
     WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
     configuration.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
-    
+
     NSString *urlString = [NSString stringWithFormat:@"%@%@", _serverUrl, kNCAuthTokenFlowEndpoint];
-    
+
     if (_user) {
         urlString = [NSString stringWithFormat:@"%@?user=%@", urlString, _user];
     }
-    
+
     NSURL *url = [NSURL URLWithString:urlString];
-    
-    
+
+
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     for (NSHTTPCookie *cookie in [storage cookies])
     {
         [storage deleteCookie:cookie];
     }
-    
+
     NSSet *websiteDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
     NSDate *dateFrom = [NSDate dateWithTimeIntervalSince1970:0];
     [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:websiteDataTypes modifiedSince:dateFrom completionHandler:^{
         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
         [request setValue:@"true" forHTTPHeaderField:@"OCS-APIRequest"];
-        
+
         self->_webView = [[DebounceWebView alloc] initWithFrame:self.view.frame configuration:configuration];
         NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
         NSString *deviceName = [[UIDevice currentDevice] name];
@@ -89,16 +88,46 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
         self->_webView.customUserAgent = [[NSString alloc] initWithCString:[userAgent UTF8String] encoding:NSASCIIStringEncoding];
         self->_webView.navigationDelegate = self;
         self->_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        
+
         [self->_webView loadRequest:request];
         [self.view addSubview:self->_webView];
-        
+
         self->_activityIndicatorView = [[UIActivityIndicatorView alloc] init];
         self->_activityIndicatorView.center = self.view.center;
         self->_activityIndicatorView.color = [NCAppBranding brandColor];
         [self->_activityIndicatorView startAnimating];
         [self.view addSubview:self->_activityIndicatorView];
     }];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    UIColor *themeColor = [NCAppBranding themeColor];
+    [self.view setBackgroundColor:themeColor];
+
+    [self.navigationController.navigationBar setTitleTextAttributes:
+     @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
+    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
+    self.navigationController.navigationBar.translucent = YES;
+    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                  target:self action:@selector(cancelButtonPressed)];
+    cancelButton.accessibilityHint = NSLocalizedString(@"Double tap to dismiss authentication dialog", nil);
+    self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
+
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = themeColor;
+    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+    self.navigationItem.standardAppearance = appearance;
+    self.navigationItem.compactAppearance = appearance;
+    self.navigationItem.scrollEdgeAppearance = appearance;
+}
+
+- (void)cancelButtonPressed
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)didReceiveMemoryWarning
