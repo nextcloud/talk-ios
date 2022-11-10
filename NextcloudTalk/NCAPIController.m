@@ -1794,8 +1794,21 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     [self setupNCCommunicationForAccount:account];
     NSString *serverUrlString = [NSString stringWithFormat:@"%@%@/%@", account.server, [self filesPathForAccount:account], path ? path : @""];
 
+    // We don't need all properties, so we limit the request to the needed ones to reduce size and processing time
+    NSString *body = @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+            <d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">\
+                <d:prop>\
+                    <d:getlastmodified />\
+                    <d:getcontenttype />\
+                    <d:resourcetype />\
+                    <fileid xmlns=\"http://owncloud.org/ns\"/>\
+                    <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>\
+                    <has-preview xmlns=\"http://nextcloud.org/ns\"/>\
+                </d:prop>\
+            </d:propfind>";
+
     NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
-    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:serverUrlString depth:depth showHiddenFiles:NO requestBody:nil options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *responseDates, NKError *error) {
+    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:serverUrlString depth:depth showHiddenFiles:NO requestBody:[body dataUsingEncoding:NSUTF8StringEncoding] options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *responseDates, NKError *error) {
         if (error.errorCode == 0 && block) {
             block(files, nil);
         } else if (block) {
