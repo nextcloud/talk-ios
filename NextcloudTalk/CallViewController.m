@@ -41,7 +41,6 @@
 #import "NCAudioController.h"
 #import "NCCallController.h"
 #import "NCDatabaseManager.h"
-#import "NCImageSessionManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingMessage.h"

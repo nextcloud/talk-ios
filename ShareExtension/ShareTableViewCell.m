@@ -25,7 +25,7 @@
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
 #import "NCAppBranding.h"
-#import "NCImageSessionManager.h"
+#import "NCAvatarSessionManager.h"
 #import "UIImageView+AFNetworking.h"
 
 NSString *const kShareCellIdentifier = @"ShareCellIdentifier";
@@ -47,7 +47,7 @@ CGFloat const kShareTableCellHeight = 56.0f;
     self.avatarImageView.contentMode = UIViewContentModeCenter;
     
     AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
-                                          initWithSessionManager:[NCImageSessionManager sharedInstance]
+                                          initWithSessionManager:[NCAvatarSessionManager sharedInstance]
                                           downloadPrioritization:AFImageDownloadPrioritizationFIFO
                                           maximumActiveDownloads:4
                                           imageCache:[[AFAutoPurgingImageCache alloc] init]];

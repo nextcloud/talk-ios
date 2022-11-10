@@ -38,7 +38,6 @@
 #import "NCAppBranding.h"
 #import "NCChatViewController.h"
 #import "NCDatabaseManager.h"
-#import "NCImageSessionManager.h"
 #import "NCConnectionController.h"
 #import "NCNavigationController.h"
 #import "NCNotificationController.h"
@@ -95,8 +94,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.addButton.accessibilityLabel = NSLocalizedString(@"Create a new conversation", nil);
     self.addButton.accessibilityHint = NSLocalizedString(@"Double tap to create group, public or one to one conversations.", nil);
     
-    [UIImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
-    [UIButton setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
+    [UIImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloaderAvatars]];
+    [UIButton setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloaderAvatars]];
     
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
