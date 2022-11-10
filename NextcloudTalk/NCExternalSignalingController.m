@@ -289,8 +289,8 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     });
     
     // Send pending messages
-    for (NSDictionary *message in _pendingMessages) {
-        [self sendMessage:message];
+    for (WSMessage *wsMessage in _pendingMessages) {
+        [self sendMessage:wsMessage.message withCompletionBlock:wsMessage.completionBlock];
     }
     _pendingMessages = [NSMutableArray new];
     
