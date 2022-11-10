@@ -77,6 +77,9 @@
     self.cancel.hidden = !(multiAccountEnabled && [[NCDatabaseManager sharedInstance] numberOfAccounts] > 0);
     [self.cancel setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
     [self.cancel setTitleColor:[NCAppBranding brandTextColor] forState:UIControlStateNormal];
+
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
+    [self.view addGestureRecognizer:tapGestureRecognizer];
 }
 
 - (void)didReceiveMemoryWarning
@@ -97,14 +100,7 @@
 
 - (IBAction)login:(id)sender
 {
-    NSString *serverInputText = [self.serverUrl.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    
-    if ([serverInputText isEqualToString:@""]) {
-        [self->_serverUrl becomeFirstResponder];
-        return;
-    }
-    
-    [self startLoginProcessWithServerURL:serverInputText withUser:nil];
+    [self startLoginProcess];
 }
 
 - (IBAction)cancel:(id)sender
@@ -123,13 +119,31 @@
     [self login:self];
 }
 
--(BOOL) textFieldShouldReturn:(UITextField *)textField
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     [textField resignFirstResponder];
+    [self startLoginProcess];
+
     return YES;
 }
 
+- (void)dismissKeyboard
+{
+    [self.view endEditing:YES];
+}
+
 #pragma mark - Login
+
+- (void)startLoginProcess {
+    NSString *serverInputText = [self.serverUrl.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+
+    if ([serverInputText isEqualToString:@""]) {
+        [self->_serverUrl becomeFirstResponder];
+        return;
+    }
+
+    [self startLoginProcessWithServerURL:serverInputText withUser:nil];
+}
 
 - (void)startLoginProcessWithServerURL:(NSString *)serverURL withUser:(NSString *)user
 {
