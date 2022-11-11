@@ -136,7 +136,7 @@ static NSInteger kIgnoreStatusCode = 999;
             } else {
                 NSInteger joinAttempts = [[self->_joinRoomAttempts objectForKey:token] integerValue];
                 if (joinAttempts < 3) {
-                    NSLog(@"Error joining room, retrying. %ld", (long)joinAttempts);
+                    [NCUtils log:[NSString stringWithFormat:@"Error joining room, retrying. %ld", (long)joinAttempts]];
                     joinAttempts += 1;
                     [self->_joinRoomAttempts setObject:@(joinAttempts) forKey:token];
                     [self joinRoom:token forCall:call];
@@ -145,7 +145,7 @@ static NSInteger kIgnoreStatusCode = 999;
                 [userInfo setObject:error forKey:@"error"];
                 [userInfo setObject:@(statusCode) forKey:@"statusCode"];
                 [userInfo setObject:[self getJoinRoomErrorReason:statusCode] forKey:@"errorReason"];
-                NSLog(@"Could not join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
+                [NCUtils log:[NSString stringWithFormat:@"Could not join room. Status code: %ld. Error: %@", (long)statusCode, error.description]];
             }
             self->_joiningRoom = nil;
             [userInfo setObject:token forKey:@"token"];
@@ -172,23 +172,23 @@ static NSInteger kIgnoreStatusCode = 999;
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
         if (!self->_joiningRoom) {
-            NSLog(@"Not joining the room any more. Ignore response.");
+            [NCUtils log:@"Not joining the room any more. Ignore response."];
             if (block) {
                 block(nil, nil, kIgnoreStatusCode);
             }
             return;
         }
         if (!error) {
-            NSLog(@"Joined room %@ in NC successfully.", token);
+            [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in NC successfully.", token]];
             NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
             if ([extSignalingController isEnabled]) {
-                NSLog(@"Trying to join room %@ in external signaling server...", token);
+                [NCUtils log:[NSString stringWithFormat:@"Trying to join room %@ in external signaling server...", token]];
                 [extSignalingController joinRoom:token withSessionId:sessionId withCompletionBlock:^(NSError *error) {
                     if (!error) {
-                        NSLog(@"Joined room %@ in external signaling server successfully.", token);
+                        [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in external signaling server successfully.", token]];
                         block(sessionId, nil, 0);
                     } else if (block) {
-                        NSLog(@"Failed joining room %@ in external signaling server.", token);
+                        [NCUtils log:[NSString stringWithFormat:@"Failed joining room %@ in external signaling server.", token]];
                         block(nil, error, statusCode);
                     }
                 }];
