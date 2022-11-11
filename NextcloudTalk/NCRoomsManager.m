@@ -116,7 +116,6 @@ static NSInteger kIgnoreStatusCode = 999;
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     NCRoomController *roomController = [_activeRooms objectForKey:token];
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if (!roomController) {
         _joiningRoom = token;
         [self joinRoomHelper:token forCall:call withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
