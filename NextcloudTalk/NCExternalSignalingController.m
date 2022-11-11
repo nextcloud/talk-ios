@@ -212,10 +212,11 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
         return;
     }
     
+    NSString *messageIdString = nil;
     NSMutableDictionary *messageDict = [[NSMutableDictionary alloc] initWithDictionary:jsonDict];
     if (block) {
         NSInteger messageId = _messageId++;
-        NSString *messageIdString = [NSString stringWithFormat: @"%ld", (long)messageId];
+        messageIdString = [NSString stringWithFormat: @"%ld", (long)messageId];
         [messageDict setObject:messageIdString forKey:@"id"];
         [_completionBlocks setObject:[block copy] forKey:messageIdString];
     }
@@ -228,7 +229,11 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     
     NSLog(@"Sending: %@", jsonString);
     NSURLSessionWebSocketMessage *message = [[NSURLSessionWebSocketMessage alloc] initWithString:jsonString];
-    [_webSocket sendMessage:message completionHandler:^(NSError * _Nullable error) {}];
+    [_webSocket sendMessage:message completionHandler:^(NSError * _Nullable error) {
+        if (error && messageIdString) {
+            [self executeCompletionBlockForMessageId:messageIdString withError:YES];
+        }
+    }];
 }
 
 - (void)sendMessage:(NSDictionary *)jsonDict
