@@ -225,7 +225,7 @@
     NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
     
     if (accountId && [activeAccount.accountId isEqualToString:accountId]) {
-        [JDStatusBarNotification showWithStatus:@"Server is currently in maintenance mode" dismissAfter:4.0f styleName:JDStatusBarStyleError];
+        [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Server is currently in maintenance mode", nil) dismissAfterDelay:4.0f includedStyle:JDStatusBarNotificationIncludedStyleError];
     }
 }
 
@@ -445,11 +445,11 @@
     ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
     switch (connectionState) {
         case kConnectionStateDisconnected:
-            [JDStatusBarNotification showWithStatus:NSLocalizedString(@"Network not available", nil) dismissAfter:4.0f styleName:JDStatusBarStyleError];
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Network not available", nil) dismissAfterDelay:4.0f includedStyle:JDStatusBarNotificationIncludedStyleError];
             break;
             
         case kConnectionStateConnected:
-            [JDStatusBarNotification showWithStatus:NSLocalizedString(@"Network available", nil) dismissAfter:4.0f styleName:JDStatusBarStyleSuccess];
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Network available", nil) dismissAfterDelay:4.0f includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
             break;
             
         default:
