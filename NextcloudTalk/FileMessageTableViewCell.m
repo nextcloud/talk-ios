@@ -244,13 +244,6 @@
                                            weakSelf.hPreviewSize[3].constant = width;
                                            weakSelf.vGroupedPreviewSize[1].constant = height;
                                            weakSelf.hGroupedPreviewSize[1].constant = width;
-                                           // if the image is very narrow, use a very small corner radius
-                                           if (height < 2 * kFileMessageCellMediaFilePreviewCornerRadius || width < 2 * kFileMessageCellMediaFilePreviewCornerRadius) {
-                                               weakSelf.previewImageView.layer.cornerRadius = MIN(height, width) / 2.0;
-                                           } else {
-                                               // use a bigger corner radius for media file previews since their preview is bigger
-                                               weakSelf.previewImageView.layer.cornerRadius = isMediaFile ?  kFileMessageCellMediaFilePreviewCornerRadius : kFileMessageCellFilePreviewCornerRadius;
-                                           }
                                            if (isVideoFile) {
                                                // only show the play icon if there is an image preview (not on top of the default video placeholder)
                                                weakSelf.playIconImageView.hidden = NO;
