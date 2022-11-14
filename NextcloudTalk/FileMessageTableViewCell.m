@@ -68,12 +68,19 @@
     UITapGestureRecognizer *avatarTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarTapped:)];
     [_avatarView addGestureRecognizer:avatarTap];
     
-    _previewImageView = [[FilePreviewImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellFilePreviewHeight, kFileMessageCellFilePreviewHeight)];
+    _playIconImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellVideoPlayIconSize, kFileMessageCellVideoPlayIconSize)];
+    _playIconImageView.hidden = YES;
+    [_playIconImageView setTintColor:[UIColor colorWithWhite:1.0 alpha:0.8]];
+    [_playIconImageView setImage:[UIImage systemImageNamed:@"play.fill" withConfiguration:[UIImageSymbolConfiguration configurationWithWeight:UIImageSymbolWeightBlack]]];
+    
+    _previewImageView = [[FilePreviewImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellFileMaxPreviewHeight, kFileMessageCellFileMaxPreviewHeight)];
     _previewImageView.translatesAutoresizingMaskIntoConstraints = NO;
     _previewImageView.userInteractionEnabled = NO;
-    _previewImageView.layer.cornerRadius = 4.0;
+    _previewImageView.layer.cornerRadius = kFileMessageCellFilePreviewCornerRadius;
     _previewImageView.layer.masksToBounds = YES;
     [_previewImageView setImage:[UIImage imageNamed:@"file-chat-preview"]];
+    [_previewImageView addSubview:_playIconImageView];
+    [_previewImageView bringSubviewToFront:_playIconImageView];
     
     UITapGestureRecognizer *previewTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
     [_previewImageView addGestureRecognizer:previewTap];
@@ -111,7 +118,7 @@
     
     NSDictionary *metrics = @{@"avatarSize": @(kChatCellAvatarHeight),
                               @"dateLabelWidth": @(kChatCellDateLabelWidth),
-                              @"previewSize": @(kFileMessageCellFilePreviewHeight),
+                              @"previewSize": @(kFileMessageCellFileMaxPreviewHeight),
                               @"statusSize": @(kChatCellStatusViewHeight),
                               @"padding": @15,
                               @"avatarGap": @50,
@@ -129,7 +136,7 @@
         self.vPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.vPreviewSize];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[fileStatusView(previewSize)]-(>=0)-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[statusView(statusSize)]-left-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:GroupedFileMessageCellIdentifier]) {
         self.hGroupedPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.hGroupedPreviewSize];
@@ -137,11 +144,11 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         self.vGroupedPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.vGroupedPreviewSize];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[fileStatusView(previewSize)]-(>=0)-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[statusView(statusSize)]-left-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     }
     
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:NSLayoutFormatAlignAllTop metrics:metrics views:views]];
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[fileStatusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[previewImageView(>=0)]-(>=0)-|" options:NSLayoutFormatAlignAllTop metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[fileStatusView(statusSize)]-padding-[previewImageView(>=0)]-(>=0)-|" options:0 metrics:metrics views:views]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeIsDownloading:) name:NCChatFileControllerDidChangeIsDownloadingNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeDownloadProgress:) name:NCChatFileControllerDidChangeDownloadProgressNotification object:nil];
@@ -166,11 +173,12 @@
     [self.previewImageView cancelImageDownloadTask];
     self.previewImageView.layer.borderWidth = 0.0f;
     self.previewImageView.image = nil;
+    self.playIconImageView.hidden = YES;
     
-    self.vPreviewSize[3].constant = kFileMessageCellFilePreviewHeight;
-    self.hPreviewSize[3].constant = kFileMessageCellFilePreviewHeight;
-    self.vGroupedPreviewSize[1].constant = kFileMessageCellFilePreviewHeight;
-    self.hGroupedPreviewSize[1].constant = kFileMessageCellFilePreviewHeight;
+    self.vPreviewSize[3].constant = kFileMessageCellFileMaxPreviewHeight;
+    self.hPreviewSize[3].constant = kFileMessageCellFileMaxPreviewHeight;
+    self.vGroupedPreviewSize[1].constant = kFileMessageCellFileMaxPreviewHeight;
+    self.hGroupedPreviewSize[1].constant = kFileMessageCellFileMaxPreviewHeight;
     
     self.vPreviewSize[7].constant = 0;
     self.vGroupedPreviewSize[5].constant = 0;
@@ -186,6 +194,9 @@
     self.messageId = message.messageId;
     self.message = message;
     
+    BOOL isMediaFile = [NCUtils isImageFileType:message.file.mimetype] || [NCUtils isVideoFileType:message.file.mimetype];
+    BOOL isVideoFile = [NCUtils isVideoFileType:message.file.mimetype];
+    
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     
@@ -196,7 +207,7 @@
     NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
     UIImage *filePreviewImage = [UIImage imageNamed:imageName];
     __weak typeof(self) weakSelf = self;
-    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:kFileMessageCellFilePreviewHeight usingAccount:activeAccount]
+    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:kFileMessageCellFileMaxPreviewHeight usingAccount:activeAccount]
                                      placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
         
                                        //TODO: How to adjust for dark mode?
@@ -206,26 +217,53 @@
                                        dispatch_async(dispatch_get_main_queue(), ^(void){
                                            CGFloat width = image.size.width * image.scale;
                                            CGFloat height = image.size.height * image.scale;
-                                           if (height > kFileMessageCellFilePreviewHeight) {
-                                               CGFloat ratio = kFileMessageCellFilePreviewHeight / height;
+                                           
+                                           CGFloat previewMaxHeight = isMediaFile ? kFileMessageCellMediaFilePreviewHeight : kFileMessageCellFileMaxPreviewHeight;
+                                           CGFloat previewMaxWidth = isMediaFile ? kFileMessageCellMediaFileMaxPreviewWidth : kFileMessageCellFileMaxPreviewWidth;
+                                           
+                                           if (height < kFileMessageCellMinimumHeight) {
+                                               CGFloat ratio = kFileMessageCellMinimumHeight / height;
                                                width = width * ratio;
-                                               height = kFileMessageCellFilePreviewHeight;
-                                           }
-                                           if (width > maxPreviewImageWidth) {
-                                               CGFloat ratio = maxPreviewImageWidth / width;
-                                               width = maxPreviewImageWidth;
-                                               height = height * ratio;
+                                               if (width > previewMaxWidth) {
+                                                   width = previewMaxWidth;
+                                               }
+                                               height = kFileMessageCellMinimumHeight;
+                                           } else {
+                                               if (height > previewMaxHeight) {
+                                                   CGFloat ratio = previewMaxHeight / height;
+                                                   width = width * ratio;
+                                                   height = previewMaxHeight;
+                                               }
+                                               if (width > previewMaxWidth) {
+                                                   CGFloat ratio = previewMaxWidth / width;
+                                                   width = previewMaxWidth;
+                                                   height = height * ratio;
+                                               }
                                            }
                                            weakSelf.vPreviewSize[3].constant = height;
                                            weakSelf.hPreviewSize[3].constant = width;
                                            weakSelf.vGroupedPreviewSize[1].constant = height;
                                            weakSelf.hGroupedPreviewSize[1].constant = width;
+                                           // if the image is very narrow, use a very small corner radius
+                                           if (height < 2 * kFileMessageCellMediaFilePreviewCornerRadius || width < 2 * kFileMessageCellMediaFilePreviewCornerRadius) {
+                                               weakSelf.previewImageView.layer.cornerRadius = MIN(height, width) / 2.0;
+                                           } else {
+                                               // use a bigger corner radius for media file previews since their preview is bigger
+                                               weakSelf.previewImageView.layer.cornerRadius = isMediaFile ?  kFileMessageCellMediaFilePreviewCornerRadius : kFileMessageCellFilePreviewCornerRadius;
+                                           }
+                                           if (isVideoFile) {
+                                               // only show the play icon if there is an image preview (not on top of the default video placeholder)
+                                               weakSelf.playIconImageView.hidden = NO;
+                                               // if the video preview is very narrow, make the play icon fit inside
+                                               weakSelf.playIconImageView.frame = CGRectMake(0, 0, MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize), MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize));
+                                               weakSelf.playIconImageView.center = CGPointMake(width / 2.0, height / 2.0);
+                                           }
                                            [weakSelf.previewImageView setImage:image];
                                            [weakSelf setNeedsLayout];
                                            [weakSelf layoutIfNeeded];
-                                            
+                                           
                                            if (weakSelf.delegate) {
-                                               [weakSelf.delegate cellHasDownloadedImagePreviewWithHeight:height forMessage:message];
+                                               [weakSelf.delegate cellHasDownloadedImagePreviewWithHeight:ceil(height) forMessage:message];
                                            }
                                        });
     } failure:nil];

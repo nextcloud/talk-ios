@@ -87,6 +87,16 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return previewImage;
 }
 
++ (BOOL)isImageFileType:(NSString *)fileMIMEType
+{
+    return [[self previewImageForFileMIMEType:fileMIMEType] isEqual:@"file-image"];
+}
+
++ (BOOL)isVideoFileType:(NSString *)fileMIMEType
+{
+    return [[self previewImageForFileMIMEType:fileMIMEType] isEqual:@"file-video"];
+}
+
  + (BOOL)isNextcloudAppInstalled
 {
     BOOL isInstalled = NO;

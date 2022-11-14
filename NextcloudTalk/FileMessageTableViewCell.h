@@ -26,9 +26,15 @@
 #import "NCMessageFileParameter.h"
 #import "NCChatMessage.h"
 
-static CGFloat kFileMessageCellMinimumHeight        = 50.0;
-static CGFloat kFileMessageCellFilePreviewHeight    = 120.0;
-static CGFloat maxPreviewImageWidth                 = 230.0;
+static CGFloat kFileMessageCellMinimumHeight                = 50.0;
+static CGFloat kFileMessageCellFileMaxPreviewHeight         = 120.0;
+static CGFloat kFileMessageCellFileMaxPreviewWidth          = 230.0;
+static CGFloat kFileMessageCellMediaFilePreviewHeight       = 230.0;
+// the max preview width is the same for media files and for other files: I leave it here for ease of future change
+static CGFloat kFileMessageCellMediaFileMaxPreviewWidth     = 230.0;
+static CGFloat kFileMessageCellFilePreviewCornerRadius      = 8.0;
+static CGFloat kFileMessageCellMediaFilePreviewCornerRadius = 16.0;
+static CGFloat kFileMessageCellVideoPlayIconSize            = 48.0;
 
 static NSString *FileMessageCellIdentifier          = @"FileMessageCellIdentifier";
 static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellIdentifier";
@@ -52,6 +58,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *dateLabel;
 @property (nonatomic, strong) FilePreviewImageView *previewImageView;
+@property (nonatomic, strong) UIImageView *playIconImageView;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 @property (nonatomic, strong) UIImageView *avatarView;
 @property (nonatomic, strong) UIView *statusView;
