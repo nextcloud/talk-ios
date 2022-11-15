@@ -26,20 +26,13 @@
 #import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
+#import "WSMessage.h"
 
 #import "NextcloudTalk-Swift.h"
 
 static NSTimeInterval kInitialReconnectInterval = 1;
 static NSTimeInterval kMaxReconnectInterval     = 16;
 static NSTimeInterval kWebSocketTimeoutInterval = 15;
-
-@interface WSMessage : NSObject
-@property NSDictionary *message;
-@property SendMessageCompletionBlock completionBlock;
-@end
-
-@implementation WSMessage
-@end
 
 @interface NCExternalSignalingController () <NSURLSessionWebSocketDelegate>
 
@@ -55,7 +48,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 @property (nonatomic, strong) NSMutableDictionary* participantsMap;
 @property (nonatomic, strong) NSMutableArray* pendingMessages;
 @property (nonatomic, assign) NSInteger messageId;
-@property (nonatomic, strong) NSMutableDictionary* completionBlocks;
+@property (nonatomic, strong) NSMutableArray* messagesWithCompletionBlocks;
 @property (nonatomic, assign) NSInteger reconnectInterval;
 @property (nonatomic, strong) NSTimer *reconnectTimer;
 @property (nonatomic, assign) BOOL sessionChanged;
@@ -134,7 +127,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 {
     [self invalidateReconnectionTimer];
     _messageId = 1;
-    _completionBlocks = [NSMutableDictionary new];
+    _messagesWithCompletionBlocks = [NSMutableArray new];
     _connected = NO;
     NSLog(@"Connecting to: %@",  _serverUrl);
     NSURL *url = [NSURL URLWithString:_serverUrl];
@@ -204,34 +197,33 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)sendMessage:(NSDictionary *)jsonDict withCompletionBlock:(SendMessageCompletionBlock)block
 {
+    WSMessage *wsMessage = [[WSMessage alloc] initWithMessage:jsonDict withCompletionBlock:block];
+
+    // Add message as pending message if websocket is not connected
     if (!_connected && ![[jsonDict objectForKey:@"type"] isEqualToString:@"hello"]) {
-        WSMessage *pendingMessage = [[WSMessage alloc] init];
-        pendingMessage.message = jsonDict;
-        pendingMessage.completionBlock = block;
-        [_pendingMessages addObject:pendingMessage];
+        [_pendingMessages addObject:wsMessage];
         return;
     }
-    
-    NSString *messageIdString = nil;
-    NSMutableDictionary *messageDict = [[NSMutableDictionary alloc] initWithDictionary:jsonDict];
+
+    // Assign messageId and timeout to messages with completionBlocks
     if (block) {
-        NSInteger messageId = _messageId++;
-        messageIdString = [NSString stringWithFormat: @"%ld", (long)messageId];
-        [messageDict setObject:messageIdString forKey:@"id"];
-        [_completionBlocks setObject:[block copy] forKey:messageIdString];
+        NSString *messageIdString = [NSString stringWithFormat: @"%ld", (long)_messageId++];
+        wsMessage.messageId = messageIdString;
+        [wsMessage setMessageTimeout];
+        [_messagesWithCompletionBlocks addObject:wsMessage];
     }
-    
-    NSString *jsonString = [self createWebSocketMessage:messageDict];
-    if (!jsonString) {
+
+    if (!wsMessage.webSocketMessage) {
         NSLog(@"Error creating websobket message");
+        [wsMessage executeCompletionBlockWithError];
         return;
     }
     
-    NSLog(@"Sending: %@", jsonString);
-    NSURLSessionWebSocketMessage *message = [[NSURLSessionWebSocketMessage alloc] initWithString:jsonString];
+    NSLog(@"Sending: %@", wsMessage.webSocketMessage);
+    NSURLSessionWebSocketMessage *message = [[NSURLSessionWebSocketMessage alloc] initWithString:wsMessage.webSocketMessage];
     [_webSocket sendMessage:message completionHandler:^(NSError * _Nullable error) {
-        if (error && messageIdString) {
-            [self executeCompletionBlockForMessageId:messageIdString withError:YES];
+        if (error && wsMessage.completionBlock) {
+            [wsMessage executeCompletionBlockWithError];
         }
     }];
 }
@@ -470,24 +462,25 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 {
     if (messageId) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            SendMessageCompletionBlock block = [self->_completionBlocks objectForKey:messageId];
-            NSError *error = nil;
-            if (withError) {
-                error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+            for (WSMessage *message in self->_messagesWithCompletionBlocks) {
+                if ([messageId isEqualToString:message.messageId]) {
+                    if (withError) {
+                        [message executeCompletionBlockWithError];
+                    } else {
+                        [message executeCompletionBlockWithSuccess];
+                    }
+                    [self->_messagesWithCompletionBlocks removeObject:message];
+                    break;
+                }
             }
-            if (block) {
-                block(error);
-            }
-
-            [self->_completionBlocks removeObjectForKey:messageId];
         });
     }
 }
 
 - (void)executeAllCompletionBlocksWithError
 {
-    for (NSString *messageId in _completionBlocks.allKeys) {
-        [self executeCompletionBlockForMessageId:messageId withError:YES];
+    for (WSMessage *message in _messagesWithCompletionBlocks) {
+        [message executeCompletionBlockWithError];
     }
 }
 
@@ -555,6 +548,14 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     }];
 }
 
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
+{
+    if (error && task == _webSocket) {
+        NSLog(@"WebSocket session didCompleteWithError: %@", error.description);
+        [self reconnect];
+    }
+}
+
 - (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
 {
     if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
@@ -602,23 +603,6 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     }
     
     return messageDict;
-}
-
-- (NSString *)createWebSocketMessage:(NSDictionary *)message
-{
-    NSError *error;
-    NSString *jsonString = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:message
-                                                       options:0
-                                                         error:&error];
-    
-    if (!jsonData) {
-        NSLog(@"Error creating websocket message: %@", error);
-    } else {
-        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    }
-    
-    return jsonString;
 }
 
 @end
