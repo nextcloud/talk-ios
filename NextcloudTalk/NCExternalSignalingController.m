@@ -233,7 +233,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     [self sendMessage:jsonDict withCompletionBlock:nil];
 }
 
-- (void)sendHello
+- (void)sendHelloWithCompletionBlock:(SendMessageCompletionBlock)block
 {
     NSDictionary *helloDict = @{
                                 @"type": @"hello",
@@ -259,12 +259,17 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
                       };
     }
     
-    [self sendMessage:helloDict];
+    [self sendMessage:helloDict withCompletionBlock:block];
 }
 
-- (void)helloResponseReceived:(NSDictionary *)helloDict
+- (void)helloResponseReceived:(NSDictionary *)messageDict
 {
     _connected = YES;
+
+    NSString *messageId = [messageDict objectForKey:@"id"];
+    [self executeCompletionBlockForMessageId:messageId withError:NO];
+
+    NSDictionary *helloDict = [messageDict objectForKey:@"hello"];
     _resumeId = [helloDict objectForKey:@"resumeid"];
     NSString *newSessionId = [helloDict objectForKey:@"sessionid"];
     _sessionChanged = _sessionId && ![_sessionId isEqualToString:newSessionId];
@@ -479,9 +484,11 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)executeAllCompletionBlocksWithError
 {
-    for (WSMessage *message in _messagesWithCompletionBlocks) {
-        [message executeCompletionBlockWithError];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (WSMessage *message in self->_messagesWithCompletionBlocks) {
+            [message executeCompletionBlockWithError];
+        }
+    });
 }
 
 #pragma mark - NSURLSessionWebSocketDelegate
@@ -491,7 +498,11 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     if (webSocketTask == _webSocket) {
         NSLog(@"WebSocket Connected!");
         _reconnectInterval = kInitialReconnectInterval;
-        [self sendHello];
+        [self sendHelloWithCompletionBlock:^(NSError *error) {
+            if (error) {
+                [self reconnect];
+            }
+        }];
     }
 }
 
@@ -523,7 +534,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
             NSDictionary *messageDict = [self getWebSocketMessageFromJSONData:messageData];
             NSString *messageType = [messageDict objectForKey:@"type"];
             if ([messageType isEqualToString:@"hello"]) {
-                [self helloResponseReceived:[messageDict objectForKey:@"hello"]];
+                [self helloResponseReceived:messageDict];
             } else if ([messageType isEqualToString:@"error"]) {
                 [self errorResponseReceived:messageDict];
             } else if ([messageType isEqualToString:@"room"]) {
