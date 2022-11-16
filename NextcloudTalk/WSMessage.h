@@ -34,6 +34,7 @@
 - (instancetype)initWithMessage:(NSDictionary *)message withCompletionBlock:(SendMessageCompletionBlock)block;
 - (NSString *)webSocketMessage;
 - (void)setMessageTimeout;
+- (void)ignoreCompletionBlock;
 - (void)executeCompletionBlockWithSuccess;
 - (void)executeCompletionBlockWithError;
 

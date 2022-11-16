@@ -48,7 +48,8 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 @property (nonatomic, strong) NSMutableDictionary* participantsMap;
 @property (nonatomic, strong) NSMutableArray* pendingMessages;
 @property (nonatomic, assign) NSInteger messageId;
-@property (nonatomic, strong) NSMutableArray* messagesWithCompletionBlocks;
+@property (nonatomic, strong) WSMessage *helloMessage;
+@property (nonatomic, strong) NSMutableArray *messagesWithCompletionBlocks;
 @property (nonatomic, assign) NSInteger reconnectInterval;
 @property (nonatomic, strong) NSTimer *reconnectTimer;
 @property (nonatomic, assign) BOOL sessionChanged;
@@ -198,9 +199,10 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 - (void)sendMessage:(NSDictionary *)jsonDict withCompletionBlock:(SendMessageCompletionBlock)block
 {
     WSMessage *wsMessage = [[WSMessage alloc] initWithMessage:jsonDict withCompletionBlock:block];
+    BOOL isHelloMessage = [[jsonDict objectForKey:@"type"] isEqualToString:@"hello"];
 
     // Add message as pending message if websocket is not connected
-    if (!_connected && ![[jsonDict objectForKey:@"type"] isEqualToString:@"hello"]) {
+    if (!_connected && !isHelloMessage) {
         [_pendingMessages addObject:wsMessage];
         return;
     }
@@ -210,7 +212,12 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
         NSString *messageIdString = [NSString stringWithFormat: @"%ld", (long)_messageId++];
         wsMessage.messageId = messageIdString;
         [wsMessage setMessageTimeout];
-        [_messagesWithCompletionBlocks addObject:wsMessage];
+        if (isHelloMessage) {
+            [_helloMessage ignoreCompletionBlock];
+            _helloMessage = wsMessage;
+        } else {
+            [_messagesWithCompletionBlocks addObject:wsMessage];
+        }
     }
 
     if (!wsMessage.webSocketMessage) {
@@ -467,18 +474,28 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 {
     if (messageId) {
         dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self->_helloMessage.messageId isEqualToString:messageId]) {
+                [self executeCompletionBlockForMessage:self->_helloMessage withError:withError];
+                self->_helloMessage = nil;
+                return;
+            }
             for (WSMessage *message in self->_messagesWithCompletionBlocks) {
                 if ([messageId isEqualToString:message.messageId]) {
-                    if (withError) {
-                        [message executeCompletionBlockWithError];
-                    } else {
-                        [message executeCompletionBlockWithSuccess];
-                    }
+                    [self executeCompletionBlockForMessage:message withError:withError];
                     [self->_messagesWithCompletionBlocks removeObject:message];
                     break;
                 }
             }
         });
+    }
+}
+
+- (void)executeCompletionBlockForMessage:(WSMessage *)message withError:(BOOL)withError
+{
+    if (withError) {
+        [message executeCompletionBlockWithError];
+    } else {
+        [message executeCompletionBlockWithSuccess];
     }
 }
 

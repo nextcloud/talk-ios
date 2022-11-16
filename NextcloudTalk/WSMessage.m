@@ -73,6 +73,12 @@ static NSTimeInterval kSendMessageTimeoutInterval = 15;
     }
 }
 
+- (void)ignoreCompletionBlock
+{
+    _completionBlock = nil;
+    [_timeoutTimer invalidate];
+}
+
 - (void)executeCompletionBlockWithSuccess
 {
     [self executeCompletionBlock:nil];
