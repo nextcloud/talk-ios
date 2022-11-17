@@ -214,8 +214,9 @@
     if (user) {
         _authenticationViewController.user = user;
     }
-    
-    [self presentViewController:_authenticationViewController animated:YES completion:nil];
+
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:_authenticationViewController];
+    [self presentViewController:navController animated:YES completion:nil];
 }
 
 #pragma mark - Alerts
