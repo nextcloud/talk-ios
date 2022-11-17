@@ -98,6 +98,7 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 - (NSString *)objectShareLink;
 - (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;
+- (NSMutableAttributedString *)parsedMessageForChat;
 - (NSMutableAttributedString *)systemMessageFormat;
 - (NCChatMessage *)parent;
 - (NSMutableArray *)reactionsArray;

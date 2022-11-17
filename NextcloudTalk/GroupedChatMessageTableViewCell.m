@@ -97,7 +97,7 @@
 
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead
 {
-    self.bodyTextView.attributedText = message.parsedMessage;
+    self.bodyTextView.attributedText = message.parsedMessageForChat;
     self.messageId = message.messageId;
     self.message = message;
     
