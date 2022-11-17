@@ -69,6 +69,16 @@ import Foundation
         }
     }
 
+    func update(for sharedDeckCard: NCDeckCardParameter) {
+        referenceTypeIcon.image = UIImage(named: "deck-item")
+
+        self.url = sharedDeckCard.link
+        referenceTitle.text = sharedDeckCard.name ?? ""
+        referenceDescription.isHidden = true
+        referenceDueDate.isHidden = true
+        referenceDueDateIcon.isHidden = true
+    }
+
     func update(for reference: [String: AnyObject], and url: String) {
         self.url = url
 

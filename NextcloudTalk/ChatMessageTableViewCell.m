@@ -380,7 +380,15 @@
         }
 
         [message getReferenceDataWithCompletionBlock:^(NCChatMessage *message, NSDictionary *referenceData, NSString *url) {
-            if ([self.message isSameMessage:message]) {
+            if (![self.message isSameMessage:message]) {
+                return;
+            }
+
+            if (!referenceData && message.deckCard) {
+                // In case we were unable to retrieve reference data (for example if the user has no permissions)
+                // but the message is a shared deck card, we use the shared information to show the deck view
+                [self.referenceView updateFor:message.deckCard];
+            } else {
                 [self.referenceView updateFor:referenceData and:url];
             }
         }];
