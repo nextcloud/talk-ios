@@ -43,7 +43,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 @property (nonatomic, strong) NSString* sessionId;
 @property (nonatomic, strong) NSString* userId;
 @property (nonatomic, strong) NSString* authenticationBackendUrl;
-@property (nonatomic, assign) BOOL connected;
+@property (nonatomic, assign) BOOL helloResponseReceived;
 @property (nonatomic, assign) BOOL mcuSupport;
 @property (nonatomic, strong) NSMutableDictionary* participantsMap;
 @property (nonatomic, strong) NSMutableArray* pendingMessages;
@@ -129,7 +129,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     [self invalidateReconnectionTimer];
     _messageId = 1;
     _messagesWithCompletionBlocks = [NSMutableArray new];
-    _connected = NO;
+    _helloResponseReceived = NO;
     NSLog(@"Connecting to: %@",  _serverUrl);
     NSURL *url = [NSURL URLWithString:_serverUrl];
     NSURLSession *wsSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
@@ -153,7 +153,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
     [_webSocket cancel];
     _webSocket = nil;
-    _connected = NO;
+    _helloResponseReceived = NO;
     
     [self setReconnectionTimer];
 }
@@ -169,7 +169,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     [self invalidateReconnectionTimer];
     [_webSocket cancel];
     _webSocket = nil;
-    _connected = NO;
+    _helloResponseReceived = NO;
 }
 
 - (void)setReconnectionTimer
@@ -202,7 +202,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     BOOL isHelloMessage = [[jsonDict objectForKey:@"type"] isEqualToString:@"hello"];
 
     // Add message as pending message if websocket is not connected
-    if (!_connected && !isHelloMessage) {
+    if (!_helloResponseReceived && !isHelloMessage) {
         [_pendingMessages addObject:wsMessage];
         return;
     }
@@ -271,7 +271,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)helloResponseReceived:(NSDictionary *)messageDict
 {
-    _connected = YES;
+    _helloResponseReceived = YES;
 
     NSString *messageId = [messageDict objectForKey:@"id"];
     [self executeCompletionBlockForMessageId:messageId withError:NO];
