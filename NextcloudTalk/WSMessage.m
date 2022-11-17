@@ -59,6 +59,15 @@ static NSTimeInterval kSendMessageTimeoutInterval = 15;
     _message = newMessageDict;
 }
 
+- (BOOL)isHelloMessage
+{
+    if ([[_message objectForKey:@"type"] isEqualToString:@"hello"]) {
+        return YES;
+    }
+
+    return NO;
+}
+
 - (void)setMessageTimeout
 {
     _timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:kSendMessageTimeoutInterval target:self selector:@selector(executeCompletionBlockWithError) userInfo:nil repeats:NO];

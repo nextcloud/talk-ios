@@ -33,6 +33,7 @@
 - (instancetype)initWithMessage:(NSDictionary *)message;
 - (instancetype)initWithMessage:(NSDictionary *)message withCompletionBlock:(SendMessageCompletionBlock)block;
 - (NSString *)webSocketMessage;
+- (BOOL)isHelloMessage;
 - (void)setMessageTimeout;
 - (void)ignoreCompletionBlock;
 - (void)executeCompletionBlockWithSuccess;
