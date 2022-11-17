@@ -570,6 +570,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     _hasReceiveNewMessages = NO;
     _startReceivingMessagesAfterJoin = YES;
     [self removeUnreadMessagesSeparator];
+    [self savePendingMessage];
     [_chatController stopChatController];
     [_messageExpirationTimer invalidate];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
