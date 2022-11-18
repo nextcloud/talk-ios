@@ -206,8 +206,9 @@
     
     NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
     UIImage *filePreviewImage = [UIImage imageNamed:imageName];
+    NSInteger requestedHeight = 3 * kFileMessageCellFileMaxPreviewHeight;
     __weak typeof(self) weakSelf = self;
-    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:kFileMessageCellFileMaxPreviewHeight usingAccount:activeAccount]
+    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:requestedHeight usingAccount:activeAccount]
                                      placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
         
                                        //TODO: How to adjust for dark mode?
