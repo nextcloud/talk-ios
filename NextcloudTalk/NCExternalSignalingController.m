@@ -549,30 +549,30 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
             }
 
             NSLog(@"WebSocket didReceiveMessage: %@", messageString);
-            NSDictionary *messageDict = [self getWebSocketMessageFromJSONData:messageData];
+            NSDictionary *messageDict = [weakSelf getWebSocketMessageFromJSONData:messageData];
             NSString *messageType = [messageDict objectForKey:@"type"];
             if ([messageType isEqualToString:@"hello"]) {
-                [self helloResponseReceived:messageDict];
+                [weakSelf helloResponseReceived:messageDict];
             } else if ([messageType isEqualToString:@"error"]) {
-                [self errorResponseReceived:messageDict];
+                [weakSelf errorResponseReceived:messageDict];
             } else if ([messageType isEqualToString:@"room"]) {
-                [self roomMessageReceived:messageDict];
+                [weakSelf roomMessageReceived:messageDict];
             } else if ([messageType isEqualToString:@"event"]) {
-                [self eventMessageReceived:[messageDict objectForKey:@"event"]];
+                [weakSelf eventMessageReceived:[messageDict objectForKey:@"event"]];
             } else if ([messageType isEqualToString:@"message"]) {
-                [self messageReceived:[messageDict objectForKey:@"message"]];
+                [weakSelf messageReceived:[messageDict objectForKey:@"message"]];
             } else if ([messageType isEqualToString:@"control"]) {
-                [self messageReceived:[messageDict objectForKey:@"control"]];
+                [weakSelf messageReceived:[messageDict objectForKey:@"control"]];
             }
             
             // Completion block for messageId should have been handled already at this point
             NSString *messageId = [messageDict objectForKey:@"id"];
-            [self executeCompletionBlockForMessageId:messageId withError:YES];
+            [weakSelf executeCompletionBlockForMessageId:messageId withError:YES];
 
             [weakSelf receiveMessage];
         } else {
             NSLog(@"WebSocket receiveMessageWithCompletionHandler error %@", error.description);
-            [self reconnect];
+            [weakSelf reconnect];
         }
     }];
 }
