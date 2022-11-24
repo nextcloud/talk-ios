@@ -10,7 +10,6 @@ pod 'UICKeyChainStore'
 pod 'Realm', '10.30.0'
 pod 'MaterialComponents/ActivityIndicator'
 pod 'Toast', '~> 4.0.0'
-pod "PulsingHalo"
 pod 'MBProgressHUD', '~> 1.2.0'
 pod 'TOCropViewController', '~> 2.6.0'
 pod 'libPhoneNumber-iOS'
