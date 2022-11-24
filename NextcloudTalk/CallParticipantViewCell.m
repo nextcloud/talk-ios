@@ -53,6 +53,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     
     self.audioOffIndicator.hidden = YES;
     self.screensharingIndicator.hidden = YES;
+    self.raisedHandIndicator.hidden = YES;
     
     self.audioOffIndicator.layer.cornerRadius = 4;
     self.audioOffIndicator.clipsToBounds = YES;
@@ -62,6 +63,9 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     self.peerAvatarImageView.hidden = YES;
     self.peerAvatarImageView.layer.cornerRadius = 50;
     self.peerAvatarImageView.layer.masksToBounds = YES;
+
+    self.layer.cornerRadius = 30.0f;
+    [self.layer setMasksToBounds:YES];
     
     _showOriginalSize = NO;
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleZoom)];
@@ -222,16 +226,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 }
 
 - (void)configureParticipantButtons
-{
-    CGRect audioDisabledFrame = _audioOffIndicator.frame;
-    CGRect screenSharedFrame = _screensharingIndicator.frame;
-    
-    audioDisabledFrame.origin.x = (_screenShared) ? 0 : 26;
-    screenSharedFrame.origin.x = (_audioDisabled) ? 52 : 26;
-    
-    self.audioOffIndicator.frame = audioDisabledFrame;
-    self.screensharingIndicator.frame = screenSharedFrame;
-    
+{    
     self.audioOffIndicator.hidden = !_audioDisabled;
     self.screensharingIndicator.hidden = !_screenShared;
 }
@@ -256,6 +251,13 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     } else {
         self.layer.borderWidth = 0.0f;
     }
+}
+
+- (void)setRaiseHand:(BOOL)raised
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.raisedHandIndicator.hidden = !raised;
+    });
 }
 
 - (void)setVideoView:(RTCMTLVideoView *)videoView
