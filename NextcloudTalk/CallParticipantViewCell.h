@@ -50,13 +50,14 @@ extern CGFloat const kCallParticipantCellMinHeight;
 @property (nonatomic, weak) IBOutlet UIImageView *peerAvatarImageView;
 @property (nonatomic, weak) IBOutlet UIButton *audioOffIndicator;
 @property (nonatomic, weak) IBOutlet UIButton *screensharingIndicator;
-@property (weak, nonatomic) IBOutlet UIView *buttonsContainerView;
+@property (nonatomic, weak) IBOutlet UIButton *raisedHandIndicator;
 
 
 - (void)setVideoView:(RTCMTLVideoView *)videoView;
 - (void)setSpeaking:(BOOL)speaking;
 - (void)setUserAvatar:(NSString *)userId;
 - (void)setRemoteVideoSize:(CGSize)size;
+- (void)setRaiseHand:(BOOL)raised;
 - (void)resizeRemoteVideoView;
 
 @end
