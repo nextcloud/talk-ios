@@ -169,6 +169,14 @@
             for (NKFile *item in items) {
                 NSString *currentDirectory = [self->_path isEqualToString:@""] ? @"/" : [self->_path lastPathComponent];
                 NSString *itemPath = [item.path stringByReplacingOccurrencesOfString:self->_userHomePath withString:@""];
+
+                // When nextcloud is installed in a subdirectory, it's not enough to replace the _userHomePath,
+                // because the subdirectory would get a part of the itemPath (see https://github.com/nextcloud/talk-ios/issues/996)
+                NSArray *itemPathParts = [item.path componentsSeparatedByString:self->_userHomePath];
+                if (itemPathParts.count > 1) {
+                    itemPath = itemPathParts[1];
+                }
+
                 if ([[itemPath lastPathComponent] isEqualToString:currentDirectory] && !item.e2eEncrypted) {
                     [itemsInDirectory addObject:item];
                 }
