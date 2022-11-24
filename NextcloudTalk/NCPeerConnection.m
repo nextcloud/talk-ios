@@ -208,6 +208,8 @@
             _isPeerSpeaking = YES;
         } else if ([type isEqualToString:@"stoppedSpeaking"]) {
             _isPeerSpeaking = NO;
+        } else if ([type isEqualToString:@"raiseHand"]) {
+            _isHandRaised = [payload boolValue];
         }
         
         [self.delegate peerConnection:self didReceiveStatusDataChannelMessage:type];
