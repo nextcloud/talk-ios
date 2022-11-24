@@ -70,7 +70,11 @@ static NSTimeInterval kSendMessageTimeoutInterval = 15;
 
 - (void)setMessageTimeout
 {
-    _timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:kSendMessageTimeoutInterval target:self selector:@selector(executeCompletionBlockWithError) userInfo:nil repeats:NO];
+    // NSTimer uses the runloop of the current thread. Only the main thread guarantees a runloop, so make sure we dispatch it to main!
+    // This is mainly a problem for the "hello message", because it's send from a NSURL delegate and the timer sometimes fails to run
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:kSendMessageTimeoutInterval target:self selector:@selector(executeCompletionBlockWithError) userInfo:nil repeats:NO];
+    });
 }
 
 - (void)executeCompletionBlock:(NSError *)error
