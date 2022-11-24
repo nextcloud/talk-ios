@@ -38,5 +38,6 @@
 - (void)ignoreCompletionBlock;
 - (void)executeCompletionBlockWithSuccess;
 - (void)executeCompletionBlockWithError;
+- (void)sendMessageWithWebSocket:(NSURLSessionWebSocketTask *)webSocketTask;
 
 @end

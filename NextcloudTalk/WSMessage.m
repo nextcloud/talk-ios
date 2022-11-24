@@ -27,6 +27,7 @@ static NSTimeInterval kSendMessageTimeoutInterval = 15;
 @interface WSMessage ()
 
 @property NSTimer *timeoutTimer;
+@property NSURLSessionWebSocketTask *webSocketTask;
 
 @end
 
@@ -122,6 +123,23 @@ static NSTimeInterval kSendMessageTimeoutInterval = 15;
     }
 
     return jsonString;
+}
+
+- (void)sendMessageWithWebSocket:(NSURLSessionWebSocketTask *)webSocketTask
+{
+    self.webSocketTask = webSocketTask;
+
+    if (self.completionBlock) {
+        [self setMessageTimeout];
+    }
+
+    NSLog(@"Sending: %@", self.webSocketMessage);
+    NSURLSessionWebSocketMessage *message = [[NSURLSessionWebSocketMessage alloc] initWithString:self.webSocketMessage];
+    [webSocketTask sendMessage:message completionHandler:^(NSError * _Nullable error) {
+        if (error && self.completionBlock) {
+            [self executeCompletionBlockWithError];
+        }
+    }];
 }
 
 @end

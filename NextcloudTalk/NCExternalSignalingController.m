@@ -208,11 +208,16 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
         return;
     }
 
+    [self sendMessage:wsMessage];
+}
+
+- (void)sendMessage:(WSMessage *)wsMessage
+{
     // Assign messageId and timeout to messages with completionBlocks
-    if (block) {
+    if (wsMessage.completionBlock) {
         NSString *messageIdString = [NSString stringWithFormat: @"%ld", (long)_messageId++];
         wsMessage.messageId = messageIdString;
-        [wsMessage setMessageTimeout];
+
         if (wsMessage.isHelloMessage) {
             [_helloMessage ignoreCompletionBlock];
             _helloMessage = wsMessage;
@@ -222,23 +227,12 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     }
 
     if (!wsMessage.webSocketMessage) {
-        NSLog(@"Error creating websobket message");
+        NSLog(@"Error creating websocket message");
         [wsMessage executeCompletionBlockWithError];
         return;
     }
-    
-    NSLog(@"Sending: %@", wsMessage.webSocketMessage);
-    NSURLSessionWebSocketMessage *message = [[NSURLSessionWebSocketMessage alloc] initWithString:wsMessage.webSocketMessage];
-    [_webSocket sendMessage:message completionHandler:^(NSError * _Nullable error) {
-        if (error && wsMessage.completionBlock) {
-            [wsMessage executeCompletionBlockWithError];
-        }
-    }];
-}
 
-- (void)sendMessage:(NSDictionary *)jsonDict
-{
-    [self sendMessage:jsonDict withCompletionBlock:nil];
+    [wsMessage sendMessageWithWebSocket:_webSocket];
 }
 
 - (void)sendHelloWithCompletionBlock:(SendMessageCompletionBlock)block
@@ -300,7 +294,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     
     // Send pending messages
     for (WSMessage *wsMessage in _pendingMessages) {
-        [self sendMessage:wsMessage.message withCompletionBlock:wsMessage.completionBlock];
+        [self sendMessage:wsMessage];
     }
     _pendingMessages = [NSMutableArray new];
     
@@ -322,7 +316,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     }
 }
 
-- (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(SendMessageCompletionBlock)block
+- (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block
 {
     NSDictionary *messageDict = @{
                                   @"type": @"room",
@@ -331,8 +325,17 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
                                           @"sessionid": sessionId
                                           }
                                   };
-    
-    [self sendMessage:messageDict withCompletionBlock:block];
+
+    [self sendMessage:messageDict withCompletionBlock:^(NSURLSessionWebSocketTask *task, NSError *error) {
+        if (error && task == self->_webSocket) {
+            // Reconnect if this is still the same socket we tried to send the message on
+            [self reconnect];
+        }
+
+        if (block) {
+            block(error);
+        }
+    }];
 }
 
 - (void)leaveRoom:(NSString *)roomId
@@ -358,7 +361,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
                                           }
                                   };
     
-    [self sendMessage:messageDict];
+    [self sendMessage:messageDict withCompletionBlock:nil];
 }
 
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType
@@ -377,7 +380,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
                                           }
                                   };
     
-    [self sendMessage:messageDict];
+    [self sendMessage:messageDict withCompletionBlock:nil];
 }
 
 - (void)roomMessageReceived:(NSDictionary *)messageDict
@@ -515,7 +518,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     if (webSocketTask == _webSocket) {
         NSLog(@"WebSocket Connected!");
         _reconnectInterval = kInitialReconnectInterval;
-        [self sendHelloWithCompletionBlock:^(NSError *error) {
+        [self sendHelloWithCompletionBlock:^(NSURLSessionWebSocketTask *task, NSError *error) {
             if (error) {
                 [self reconnect];
             }

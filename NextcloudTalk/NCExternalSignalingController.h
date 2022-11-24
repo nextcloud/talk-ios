@@ -38,7 +38,8 @@
 
 @interface NCExternalSignalingController : NSObject
 
-typedef void (^SendMessageCompletionBlock)(NSError *error);
+typedef void (^SendMessageCompletionBlock)(NSURLSessionWebSocketTask *task, NSError *error);
+typedef void (^JoinRoomExternalSignalingCompletionBlock)(NSError *error);
 
 @property (nonatomic, strong) NSString *currentRoom;
 @property (nonatomic, strong) TalkAccount *account;
@@ -48,7 +49,7 @@ typedef void (^SendMessageCompletionBlock)(NSError *error);
 - (BOOL)isEnabled;
 - (BOOL)hasMCU;
 - (NSString *)sessionId;
-- (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(SendMessageCompletionBlock)block;
+- (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block;
 - (void)leaveRoom:(NSString *)roomId;
 - (void)sendCallMessage:(NCSignalingMessage *)message;
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
