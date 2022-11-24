@@ -105,6 +105,9 @@ typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
 typedef void (^GetReferenceForUrlStringCompletionBlock)(NSDictionary *references, NSError *error);
 
+typedef void (^StartRecordingCompletionBlock)(NSError *error);
+typedef void (^StopRecordingCompletionBlock)(NSError *error);
+
 extern NSInteger const APIv1;
 extern NSInteger const APIv2;
 extern NSInteger const APIv3;
@@ -254,8 +257,12 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account toPushServerWithCompletionBlock:(SubscribeToPushProxyCompletionBlock)block;
 - (NSURLSessionDataTask *)unsubscribeAccount:(TalkAccount *)account fromPushServerWithCompletionBlock:(UnsubscribeToPushProxyCompletionBlock)block;
 
-
+// Reference data
 - (NSURLSessionDataTask *)getReferenceForUrlString:(NSString *)url forAccount:(TalkAccount *)account withCompletionBlock:(GetReferenceForUrlStringCompletionBlock)block;
 - (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url;
+
+// Recording
+- (NSURLSessionDataTask *)startRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StartRecordingCompletionBlock)block;
+- (NSURLSessionDataTask *)stopRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StopRecordingCompletionBlock)block;
 
 @end
