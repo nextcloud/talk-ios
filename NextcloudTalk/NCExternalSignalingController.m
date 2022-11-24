@@ -318,8 +318,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     
     NSString *errorCode = [[messageDict objectForKey:@"error"] objectForKey:@"code"];
     if ([errorCode isEqualToString:@"no_such_session"]) {
-        _resumeId = nil;
-        [self reconnect];
+        [self forceReconnect];
     }
 }
 
