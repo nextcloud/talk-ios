@@ -317,6 +317,9 @@
 "Clear status message after" = "Clear status message after";
 
 /* No comment provided by engineer. */
+"Close" = "Close";
+
+/* No comment provided by engineer. */
 "Configuration" = "Configuration";
 
 /* No comment provided by engineer. */
@@ -602,6 +605,9 @@
 "Double tap to hang up the call" = "Double tap to hang up the call";
 
 /* No comment provided by engineer. */
+"Double tap to lower hand" = "Double tap to lower hand";
+
+/* No comment provided by engineer. */
 "Double tap to open file browser" = "Double tap to open file browser";
 
 /* No comment provided by engineer. */
@@ -612,6 +618,9 @@
 
 /* No comment provided by engineer. */
 "Double tap to share with selected conversations" = "Double tap to share with selected conversations";
+
+/* No comment provided by engineer. */
+"Double tap to show more actions" = "Double tap to show more actions";
 
 /* No comment provided by engineer. */
 "Double tap to show or hide chat view" = "Double tap to show or hide chat view";
@@ -627,6 +636,9 @@
 
 /* No comment provided by engineer. */
 "Double tap to start creating a new public conversation" = "Double tap to start creating a new public conversation";
+
+/* No comment provided by engineer. */
+"Double tap to stop recording" = "Double tap to stop recording";
 
 /* No comment provided by engineer. */
 "Double tap to upgrade this voice call to a video call" = "Double tap to upgrade this voice call to a video call";
@@ -648,6 +660,9 @@
 
 /* No comment provided by engineer. */
 "Enable" = "Enable";
+
+/* No comment provided by engineer. */
+"End call" = "End call";
 
 /* No comment provided by engineer. */
 "End poll" = "End poll";
@@ -832,6 +847,9 @@
 /* No comment provided by engineer. */
 "Logged out" = "Logged out";
 
+/* No comment provided by engineer. */
+"Lower hand" = "Lower hand";
+
 /* TRANSLATORS this is used when no meeting start time is set and the meeting will be started manually */
 "Manual" = "Manual";
 
@@ -906,6 +924,9 @@
 
 /* No comment provided by engineer. */
 "Modification date" = "Modification date";
+
+/* No comment provided by engineer. */
+"More actions" = "More actions";
 
 /* No comment provided by engineer. */
 "More options" = "More options";
@@ -1121,6 +1142,9 @@
 "Question" = "Question";
 
 /* No comment provided by engineer. */
+"Raise hand" = "Raise hand";
+
+/* No comment provided by engineer. */
 "Reachable?" = "Reachable?";
 
 /* No comment provided by engineer. */
@@ -1134,6 +1158,9 @@
 
 /* No comment provided by engineer. */
 "Record voice message" = "Record voice message";
+
+/* No comment provided by engineer. */
+"Recording" = "Recording";
 
 /* No comment provided by engineer. */
 "Redo" = "Redo";
@@ -1307,6 +1334,9 @@
 "Speech recognition failed" = "Speech recognition failed";
 
 /* No comment provided by engineer. */
+"Start recording" = "Start recording";
+
+/* No comment provided by engineer. */
 "Start time" = "Start time";
 
 /* No comment provided by engineer. */
@@ -1314,6 +1344,9 @@
 
 /* No comment provided by engineer. */
 "Status message" = "Status message";
+
+/* No comment provided by engineer. */
+"Stop recording" = "Stop recording";
 
 /* No comment provided by engineer. */
 "STUN servers" = "STUN servers";
