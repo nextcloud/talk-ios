@@ -154,6 +154,8 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     [_webSocket cancel];
     _webSocket = nil;
     _helloResponseReceived = NO;
+    [_helloMessage ignoreCompletionBlock];
+    _helloMessage = nil;
     
     [self setReconnectionTimer];
 }
