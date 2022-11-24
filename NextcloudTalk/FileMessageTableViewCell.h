@@ -61,6 +61,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) UIImageView *avatarView;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) UIView *fileStatusView;
+@property (nonatomic, strong) UIStackView *statusStackView;
 @property (nonatomic, strong) NCMessageFileParameter *fileParameter;
 
 @property (nonatomic, strong) ReactionsView *reactionsView;
