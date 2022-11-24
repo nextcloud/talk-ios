@@ -73,6 +73,9 @@
 - (void)switchCamera;
 - (void)enableVideo:(BOOL)enable;
 - (void)enableAudio:(BOOL)enable;
+- (void)raiseHand:(BOOL)raised;
+- (void)startRecording;
+- (void)stopRecording;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 
 @end
