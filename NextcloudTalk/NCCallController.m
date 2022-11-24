@@ -355,6 +355,47 @@ static NSString * const kNCVideoTrackKind = @"video";
     }
 }
 
+- (void)raiseHand:(BOOL)raised
+{
+    NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
+
+    NSDictionary *payload = @{
+        @"state": @(raised),
+        @"timestamp": [NSString stringWithFormat:@"%.0f", timeStamp]
+    };
+
+    for (NCPeerConnection *peer in [_connectionsDict allValues]) {
+        NCRaiseHandMessage *message = [[NCRaiseHandMessage alloc] initWithFrom:[self signalingSessionId]
+                                                                        sendTo:peer.peerId
+                                                                   withPayload:payload
+                                                                   forRoomType:peer.roomType];
+
+        if ([_externalSignalingController isEnabled]) {
+            [_externalSignalingController sendCallMessage:message];
+        } else {
+            [_signalingController sendSignalingMessage:message];
+        }
+    }
+}
+
+- (void)startRecording
+{
+    [[NCAPIController sharedInstance] startRecording:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (error) {
+            NSLog(@"Could not start call recording. Error: %@", error.description);
+        }
+    }];
+}
+
+- (void)stopRecording
+{
+    [[NCAPIController sharedInstance] stopRecording:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (error) {
+            NSLog(@"Could not stop call recording. Error: %@", error.description);
+        }
+    }];
+}
+
 #pragma mark - Call controller
 
 - (void)cleanCurrentPeerConnections
@@ -817,7 +858,16 @@ static NSString * const kNCVideoTrackKind = @"video";
                 }
                 break;
             }
-            case kNCSignalingMessageTypeUknown:
+            case kNCSignalingMessageTypeRaiseHand:
+            {
+                NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+                if (peerConnectionWrapper) {
+                    BOOL raised = [[signalingMessage.payload objectForKey:@"state"] boolValue];
+                    [peerConnectionWrapper setStatusForDataChannelMessageType:@"raiseHand" withPayload:@(raised)];
+                }
+                break;
+            }
+            case kNCSignalingMessageTypeUnknown:
                 NSLog(@"Received an unknown signaling message: %@", signalingMessage);
                 break;
         }

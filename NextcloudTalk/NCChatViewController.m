@@ -813,8 +813,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     if (_presentedInCall) {
-        // Remove call buttons
-        self.navigationItem.rightBarButtonItems = nil;
+        // Create a close button and remove the call buttons
+        UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Close", nil) style:UIBarButtonItemStylePlain target:self action:@selector(closeWhileInCall)];
+        self.navigationItem.rightBarButtonItems = @[barButtonItem];
+    }
+}
+
+- (void)closeWhileInCall
+{
+    if ([NCRoomsManager sharedInstance].callViewController) {
+        [[NCRoomsManager sharedInstance].callViewController toggleChatView];
     }
 }
 

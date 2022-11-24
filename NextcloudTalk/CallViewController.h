@@ -52,5 +52,6 @@
 @property (nonatomic, strong) IBOutlet UILabel *waitingLabel;
 
 - (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly;
+- (void)toggleChatView;
 
 @end
