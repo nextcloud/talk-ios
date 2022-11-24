@@ -79,17 +79,22 @@ static NSTimeInterval kSendMessageTimeoutInterval = 15;
 
 - (void)executeCompletionBlock:(NSError *)error
 {
-    if (self.completionBlock) {
-        self.completionBlock(error);
-        self.completionBlock = nil;
-        [_timeoutTimer invalidate];
-    }
+    // As the timer was create on the main thread, it needs to be invalidated on the main thread as well
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.completionBlock) {
+            self.completionBlock(self.webSocketTask, error);
+            self.completionBlock = nil;
+            [self->_timeoutTimer invalidate];
+        }
+    });
 }
 
 - (void)ignoreCompletionBlock
 {
-    _completionBlock = nil;
-    [_timeoutTimer invalidate];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.completionBlock = nil;
+        [self->_timeoutTimer invalidate];
+    });
 }
 
 - (void)executeCompletionBlockWithSuccess
