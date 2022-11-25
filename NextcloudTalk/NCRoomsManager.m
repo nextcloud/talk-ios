@@ -127,8 +127,6 @@ static NSInteger kIgnoreStatusCode = 999;
                 [userInfo setObject:controller forKey:@"roomController"];
                 // Set room as active room
                 [self->_activeRooms setObject:controller forKey:token];
-                // Clean up joining room flag and attemps
-                [self->_joinRoomAttempts removeObjectForKey:token];
             } else if (statusCode == kIgnoreStatusCode){
                 // Not joining the room any more. Ignore response.
                 return;
@@ -141,12 +139,16 @@ static NSInteger kIgnoreStatusCode = 999;
                     [self joinRoom:token forCall:call];
                     return;
                 }
+                // Add error to user info
                 [userInfo setObject:error forKey:@"error"];
                 [userInfo setObject:@(statusCode) forKey:@"statusCode"];
                 [userInfo setObject:[self getJoinRoomErrorReason:statusCode] forKey:@"errorReason"];
                 [NCUtils log:[NSString stringWithFormat:@"Could not join room. Status code: %ld. Error: %@", (long)statusCode, error.description]];
             }
+            // Clean up joining room flag and attemps
             self->_joiningRoom = nil;
+            [self->_joinRoomAttempts removeObjectForKey:token];
+            // Send join room notification
             [userInfo setObject:token forKey:@"token"];
             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
                                                                 object:self
