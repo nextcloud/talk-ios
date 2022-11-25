@@ -128,7 +128,8 @@ static NSInteger kIgnoreStatusCode = 999;
                 // Set room as active room
                 [self->_activeRooms setObject:controller forKey:token];
             } else if (statusCode == kIgnoreStatusCode){
-                // Not joining the room any more. Ignore response.
+                // Not joining the room any more. Ignore response and reset attempts.
+                [self->_joinRoomAttempts removeObjectForKey:token];
                 return;
             } else {
                 NSInteger joinAttempts = [[self->_joinRoomAttempts objectForKey:token] integerValue];
