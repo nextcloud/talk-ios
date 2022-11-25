@@ -93,22 +93,28 @@
     }
     [self.contentView addSubview:_previewImageView];
     [self.contentView addSubview:self.bodyTextView];
+
+    _statusStackView = [[UIStackView alloc] init];
+    _statusStackView.translatesAutoresizingMaskIntoConstraints = NO;
+    _statusStackView.axis = UILayoutConstraintAxisVertical;
+    _statusStackView.distribution = UIStackViewDistributionEqualSpacing;
+    _statusStackView.alignment = UIStackViewAlignmentTop;
+    [self.contentView addSubview:self.statusStackView];
     
     _statusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
     _statusView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.contentView addSubview:_statusView];
+    [self.statusStackView addArrangedSubview:_statusView];
     
     _fileStatusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
     _fileStatusView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.contentView addSubview:_fileStatusView];
+    [self.statusStackView addArrangedSubview:_fileStatusView];
     
     [self.contentView addSubview:self.reactionsView];
     
     _previewImageView.contentMode = UIViewContentModeScaleAspectFit;
     
     NSDictionary *views = @{@"avatarView": self.avatarView,
-                            @"statusView": self.statusView,
-                            @"fileStatusView": self.fileStatusView,
+                            @"statusStackView": self.statusStackView,
                             @"titleLabel": self.titleLabel,
                             @"dateLabel": self.dateLabel,
                             @"previewImageView": self.previewImageView,
@@ -119,7 +125,7 @@
     NSDictionary *metrics = @{@"avatarSize": @(kChatCellAvatarHeight),
                               @"dateLabelWidth": @(kChatCellDateLabelWidth),
                               @"previewSize": @(kFileMessageCellFileMaxPreviewHeight),
-                              @"statusSize": @(kChatCellStatusViewHeight),
+                              @"statusStackHeight" : @(kChatCellStatusViewHeight),
                               @"padding": @15,
                               @"avatarGap": @50,
                               @"right": @10,
@@ -136,7 +142,7 @@
         self.vPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.vPreviewSize];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[statusView(statusSize)]-left-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[statusStackView(statusStackHeight)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:GroupedFileMessageCellIdentifier]) {
         self.hGroupedPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.hGroupedPreviewSize];
@@ -144,12 +150,11 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         self.vGroupedPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.vGroupedPreviewSize];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[statusView(statusSize)]-left-[fileStatusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[statusStackView(statusStackHeight)]-(>=0)-|" options:0 metrics:metrics views:views]];
     }
     
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[previewImageView(>=0)]-(>=0)-|" options:NSLayoutFormatAlignAllTop metrics:metrics views:views]];
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[fileStatusView(statusSize)]-padding-[previewImageView(>=0)]-(>=0)-|" options:0 metrics:metrics views:views]];
-    
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusStackView(statusStackHeight)]-padding-[previewImageView(>=0)]-(>=0)-|" options:NSLayoutFormatAlignAllTop metrics:metrics views:views]];
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeIsDownloading:) name:NCChatFileControllerDidChangeIsDownloadingNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeDownloadProgress:) name:NCChatFileControllerDidChangeDownloadProgressNotification object:nil];
 }
@@ -206,8 +211,10 @@
     
     NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
     UIImage *filePreviewImage = [UIImage imageNamed:imageName];
+    NSInteger requestedHeight = 3 * kFileMessageCellFileMaxPreviewHeight;
     __weak typeof(self) weakSelf = self;
-    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:kFileMessageCellFileMaxPreviewHeight usingAccount:activeAccount]
+
+    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:requestedHeight usingAccount:activeAccount]
                                      placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
         
                                        //TODO: How to adjust for dark mode?
@@ -244,13 +251,6 @@
                                            weakSelf.hPreviewSize[3].constant = width;
                                            weakSelf.vGroupedPreviewSize[1].constant = height;
                                            weakSelf.hGroupedPreviewSize[1].constant = width;
-                                           // if the image is very narrow, use a very small corner radius
-                                           if (height < 2 * kFileMessageCellMediaFilePreviewCornerRadius || width < 2 * kFileMessageCellMediaFilePreviewCornerRadius) {
-                                               weakSelf.previewImageView.layer.cornerRadius = MIN(height, width) / 2.0;
-                                           } else {
-                                               // use a bigger corner radius for media file previews since their preview is bigger
-                                               weakSelf.previewImageView.layer.cornerRadius = isMediaFile ?  kFileMessageCellMediaFilePreviewCornerRadius : kFileMessageCellFilePreviewCornerRadius;
-                                           }
                                            if (isVideoFile) {
                                                // only show the play icon if there is an image preview (not on top of the default video placeholder)
                                                weakSelf.playIconImageView.hidden = NO;
@@ -291,7 +291,13 @@
         _vPreviewSize[7].constant = 40;
         _vGroupedPreviewSize[5].constant = 40;
     }
-    
+
+    if ([message.actorId isEqualToString:activeAccount.userId]) {
+        [self.statusView setHidden:NO];
+    } else {
+        [self.statusView setHidden:YES];
+    }
+
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     BOOL shouldShowDeliveryStatus = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     BOOL shouldShowReadStatus = !serverCapabilities.readStatusPrivacy;
@@ -475,7 +481,7 @@
         [_activityIndicator stopAnimating];
         _activityIndicator = nil;
     }
-    
+
     [self.fileStatusView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 

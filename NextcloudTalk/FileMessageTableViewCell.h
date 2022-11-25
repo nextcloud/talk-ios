@@ -30,10 +30,8 @@ static CGFloat kFileMessageCellMinimumHeight                = 50.0;
 static CGFloat kFileMessageCellFileMaxPreviewHeight         = 120.0;
 static CGFloat kFileMessageCellFileMaxPreviewWidth          = 230.0;
 static CGFloat kFileMessageCellMediaFilePreviewHeight       = 230.0;
-// the max preview width is the same for media files and for other files: I leave it here for ease of future change
 static CGFloat kFileMessageCellMediaFileMaxPreviewWidth     = 230.0;
-static CGFloat kFileMessageCellFilePreviewCornerRadius      = 8.0;
-static CGFloat kFileMessageCellMediaFilePreviewCornerRadius = 16.0;
+static CGFloat kFileMessageCellFilePreviewCornerRadius      = 4.0;
 static CGFloat kFileMessageCellVideoPlayIconSize            = 48.0;
 
 static NSString *FileMessageCellIdentifier          = @"FileMessageCellIdentifier";
@@ -63,6 +61,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) UIImageView *avatarView;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) UIView *fileStatusView;
+@property (nonatomic, strong) UIStackView *statusStackView;
 @property (nonatomic, strong) NCMessageFileParameter *fileParameter;
 
 @property (nonatomic, strong) ReactionsView *reactionsView;
