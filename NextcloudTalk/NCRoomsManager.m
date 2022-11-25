@@ -48,6 +48,8 @@ NSString * const NCRoomsManagerDidUpdateRoomNotification            = @"NCRoomsM
 NSString * const NCRoomsManagerDidStartCallNotification             = @"NCRoomsManagerDidStartCallNotification";
 NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMessagesReceivedNotification";
 
+static NSInteger kIgnoreStatusCode = 999;
+
 @interface NCRoomsManager () <CallViewControllerDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
@@ -114,41 +116,39 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     NCRoomController *roomController = [_activeRooms objectForKey:token];
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if (!roomController) {
         _joiningRoom = token;
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
-            if (!self->_joiningRoom) {
-                NSLog(@"Not joining the room any more. Ignore response.");
-                return;
-            }
+        [self joinRoomHelper:token forCall:call withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
             if (!error) {
                 NCRoomController *controller = [[NCRoomController alloc] init];
                 controller.userSessionId = sessionId;
                 controller.inChat = !call;
                 controller.inCall = call;
-                [self->_activeRooms setObject:controller forKey:token];
-                [self->_joinRoomAttempts removeObjectForKey:token];
                 [userInfo setObject:controller forKey:@"roomController"];
-                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
-                if ([extSignalingController isEnabled]) {
-                    [extSignalingController joinRoom:token withSessionId:sessionId];
-                }
+                // Set room as active room
+                [self->_activeRooms setObject:controller forKey:token];
+            } else if (statusCode == kIgnoreStatusCode){
+                // Not joining the room any more. Ignore response.
+                return;
             } else {
                 NSInteger joinAttempts = [[self->_joinRoomAttempts objectForKey:token] integerValue];
                 if (joinAttempts < 3) {
-                    NSLog(@"Error joining room, retrying. %ld", (long)joinAttempts);
+                    [NCUtils log:[NSString stringWithFormat:@"Error joining room, retrying. %ld", (long)joinAttempts]];
                     joinAttempts += 1;
                     [self->_joinRoomAttempts setObject:@(joinAttempts) forKey:token];
                     [self joinRoom:token forCall:call];
                     return;
                 }
+                // Add error to user info
                 [userInfo setObject:error forKey:@"error"];
                 [userInfo setObject:@(statusCode) forKey:@"statusCode"];
                 [userInfo setObject:[self getJoinRoomErrorReason:statusCode] forKey:@"errorReason"];
-                NSLog(@"Could not join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
+                [NCUtils log:[NSString stringWithFormat:@"Could not join room. Status code: %ld. Error: %@", (long)statusCode, error.description]];
             }
+            // Clean up joining room flag and attemps
             self->_joiningRoom = nil;
+            [self->_joinRoomAttempts removeObjectForKey:token];
+            // Send join room notification
             [userInfo setObject:token forKey:@"token"];
             [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
                                                                 object:self
@@ -166,6 +166,42 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                                                             object:self
                                                           userInfo:userInfo];
     }
+}
+
+- (void)joinRoomHelper:(NSString *)token forCall:(BOOL)call withCompletionBlock:(JoinRoomCompletionBlock)block
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+        if (!self->_joiningRoom) {
+            [NCUtils log:@"Not joining the room any more. Ignore response."];
+            if (block) {
+                block(nil, nil, kIgnoreStatusCode);
+            }
+            return;
+        }
+        if (!error) {
+            [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in NC successfully.", token]];
+            NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
+            if ([extSignalingController isEnabled]) {
+                [NCUtils log:[NSString stringWithFormat:@"Trying to join room %@ in external signaling server...", token]];
+                [extSignalingController joinRoom:token withSessionId:sessionId withCompletionBlock:^(NSError *error) {
+                    if (!error) {
+                        [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in external signaling server successfully.", token]];
+                        block(sessionId, nil, 0);
+                    } else if (block) {
+                        [NCUtils log:[NSString stringWithFormat:@"Failed joining room %@ in external signaling server.", token]];
+                        block(nil, error, statusCode);
+                    }
+                }];
+            } else if (block) {
+                // Joined room in NC successfully and no external signaling server configured.
+                block(sessionId, nil, 0);
+            }
+        } else if (block) {
+            // Failed to join room in NC.
+            block(nil, error, statusCode);
+        }
+    }];
 }
 
 - (NSString *)getJoinRoomErrorReason:(NSInteger)statusCode
@@ -215,7 +251,7 @@ NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMess
                 roomController.inChat = YES;
                 NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
                 if ([extSignalingController isEnabled]) {
-                    [extSignalingController joinRoom:token withSessionId:sessionId];
+                    [extSignalingController joinRoom:token withSessionId:sessionId withCompletionBlock:nil];
                 }
             } else {
                 NSLog(@"Could not re-join room. Status code: %ld. Error: %@", (long)statusCode, error.description);

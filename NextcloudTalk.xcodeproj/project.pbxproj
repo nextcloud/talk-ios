@@ -178,6 +178,7 @@
 		2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		2C62B02624C1BDCF007E460A /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
+		2C69323D2923ECAA00017AD2 /* WSMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C69323C2923ECAA00017AD2 /* WSMessage.m */; };
 		2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
 		2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
 		2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
@@ -558,6 +559,8 @@
 		2C62AFB724C1A4E6007E460A /* ShareViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
 		2C62AFB824C1A4E6007E460A /* ShareViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
 		2C67905128D35BEB00762744 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sl; path = sl.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		2C69323B2923ECAA00017AD2 /* WSMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WSMessage.h; sourceTree = "<group>"; };
+		2C69323C2923ECAA00017AD2 /* WSMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WSMessage.m; sourceTree = "<group>"; };
 		2C6E74442386D33200AE396C /* ReplyMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReplyMessageView.h; sourceTree = "<group>"; };
 		2C6E74452386D33200AE396C /* ReplyMessageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReplyMessageView.m; sourceTree = "<group>"; };
 		2C6E7447238C1A0800AE396C /* QuotedMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuotedMessageView.h; sourceTree = "<group>"; };
@@ -1295,6 +1298,8 @@
 				2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */,
 				2CD5F3222142781A006B71BF /* NCExternalSignalingController.h */,
 				2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */,
+				2C69323B2923ECAA00017AD2 /* WSMessage.h */,
+				2C69323C2923ECAA00017AD2 /* WSMessage.m */,
 			);
 			name = WebRTC;
 			sourceTree = "<group>";
@@ -1893,6 +1898,7 @@
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
 				DA66582B27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift in Sources */,
+				2C69323D2923ECAA00017AD2 /* WSMessage.m in Sources */,
 				2C36A038261342220026F04A /* AvatarHeaderView.m in Sources */,
 				2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */,
 				2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */,
