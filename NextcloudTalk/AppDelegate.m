@@ -388,6 +388,7 @@
 
     [NCUtils log:@"Start performBackgroundFetchWithCompletionHandler"];
 
+    /* Disable checking for new messages for now, until we can prevent them from showing twice
     dispatch_group_enter(backgroundRefreshGroup);
     [[NCNotificationController sharedInstance] checkForNewNotificationsWithCompletionBlock:^(NSError *error) {
         [NCUtils log:@"CompletionHandler checkForNewNotificationsWithCompletionBlock"];
@@ -398,6 +399,7 @@
 
         dispatch_group_leave(backgroundRefreshGroup);
     }];
+     */
 
     dispatch_group_enter(backgroundRefreshGroup);
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:^(NSError *error) {
