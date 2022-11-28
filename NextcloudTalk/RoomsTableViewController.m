@@ -95,7 +95,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.addButton.accessibilityHint = NSLocalizedString(@"Double tap to create group, public or one to one conversations.", nil);
     
     [UIImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloaderAvatars]];
-    [UIButton setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloaderAvatars]];
     
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
