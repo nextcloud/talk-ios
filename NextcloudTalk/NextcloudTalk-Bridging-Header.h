@@ -38,6 +38,7 @@
 #import "NCDatabaseManager.h"
 #import "NCChatFileController.h"
 #import "NCExternalSignalingController.h"
+#import "NCImageSessionManager.h"
 #import "NCNavigationController.h"
 #import "NCPoll.h"
 #import "NCSettingsController.h"
