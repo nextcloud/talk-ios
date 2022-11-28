@@ -286,10 +286,8 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     NSString *serverVersion = [[helloDict objectForKey:@"server"] objectForKey:@"version"];
     dispatch_async(dispatch_get_main_queue(), ^{
         BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateSignalingVersionTransaction" expirationHandler:nil];
-        [NCUtils log:@"Start update signaling version transaction"];
         [[NCDatabaseManager sharedInstance] setExternalSignalingServerVersion:serverVersion forAccountId:self->_account.accountId];
         [bgTask stopBackgroundTask];
-        [NCUtils log:@"End update signaling version transaction"];
     });
     
     // Send pending messages
