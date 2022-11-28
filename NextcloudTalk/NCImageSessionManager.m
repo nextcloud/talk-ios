@@ -45,11 +45,11 @@
     // In case of images we want to use the cache and store it on disk
     // As we use the memory cache from AFImageDownloader, we only want disk cache here
     NSURL *imageCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"ImageCache"];
-    NSURLCache *imageCache = [[NSURLCache alloc] initWithMemoryCapacity:0
-                                                           diskCapacity:100 * 1024 * 1024
-                                                           directoryURL:imageCacheURL];
+    self.cache = [[NSURLCache alloc] initWithMemoryCapacity:0
+                                               diskCapacity:100 * 1024 * 1024
+                                               directoryURL:imageCacheURL];
 
-    configuration.URLCache = imageCache;
+    configuration.URLCache = self.cache;
     
     self = [super initWithSessionConfiguration:configuration];
     if (self) {

@@ -46,11 +46,11 @@
     // In case of avatars we want to use the cache and store it on disk
     // As we use the memory cache from AFImageDownloader, we only want disk cache here
     NSURL *avatarCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"AvatarCache"];
-    NSURLCache *avatarCache = [[NSURLCache alloc] initWithMemoryCapacity:0
-                                                            diskCapacity:100 * 1024 * 1024
-                                                            directoryURL:avatarCacheURL];
+    self.cache = [[NSURLCache alloc] initWithMemoryCapacity:0
+                                               diskCapacity:100 * 1024 * 1024
+                                               directoryURL:avatarCacheURL];
 
-    configuration.URLCache = avatarCache;
+    configuration.URLCache = self.cache;
 
     self = [super initWithSessionConfiguration:configuration];
     if (self) {

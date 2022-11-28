@@ -27,6 +27,7 @@
 @interface NCAvatarSessionManager : AFHTTPSessionManager
 
 @property (nonatomic, strong) NSString *userAgent;
+@property (nonatomic, strong) NSURLCache *cache;
 
 + (instancetype)sharedInstance;
 
