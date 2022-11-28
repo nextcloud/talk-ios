@@ -41,6 +41,8 @@ enum ConfigurationSectionOption: Int {
 
 enum AdvancedSectionOption: Int {
     case kAdvancedSectionOptionDiagnostics = 0
+    case kAdvancedSectionOptionCachedImages
+    case kAdvancedSectionOptionCachedFiles
     case kAdvancedSectionOptionCallFromOldAccount
 }
 
@@ -171,6 +173,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
         // Diagnostics
         options.append(AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue)
+
+        // Caches
+        options.append(AdvancedSectionOption.kAdvancedSectionOptionCachedImages.rawValue)
+        options.append(AdvancedSectionOption.kAdvancedSectionOptionCachedFiles.rawValue)
 
         // Received calls from old accounts
         if NCSettingsController.sharedInstance().didReceiveCallsFromOldAccount() {
@@ -465,6 +471,52 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         self.navigationController?.pushViewController(diagnosticsVC, animated: true)
     }
 
+    func cachedImagesPressed() {
+        let clearCacheDialog = UIAlertController(
+            title: NSLocalizedString("Clear cache", comment: ""),
+            message: NSLocalizedString("Do you really want to clear the image cache?", comment: ""),
+            preferredStyle: .alert)
+
+        let clearAction = UIAlertAction(title: NSLocalizedString("Clear cache", comment: ""), style: .destructive) { _ in
+            NCAvatarSessionManager.sharedInstance().cache.removeAllCachedResponses()
+            NCImageSessionManager.sharedInstance().cache.removeAllCachedResponses()
+
+            self.tableView.reloadData()
+        }
+        clearCacheDialog.addAction(clearAction)
+
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil)
+        clearCacheDialog.addAction(cancelAction)
+
+        self.present(clearCacheDialog, animated: true, completion: nil)
+    }
+
+    func cachedFilesPressed() {
+        let clearCacheDialog = UIAlertController(
+            title: NSLocalizedString("Clear cache", comment: ""),
+            message: NSLocalizedString("Do you really want to clear the file cache?", comment: ""),
+            preferredStyle: .alert)
+
+        let clearAction = UIAlertAction(title: NSLocalizedString("Clear cache", comment: ""), style: .destructive) { _ in
+            let fileController = NCChatFileController()
+            let talkAccounts = NCDatabaseManager.sharedInstance().allAccounts()
+
+            if let talkAccounts = talkAccounts as? [TalkAccount] {
+                for account in talkAccounts {
+                    fileController.clearDownloadDirectory(for: account)
+                }
+            }
+
+            self.tableView.reloadData()
+        }
+        clearCacheDialog.addAction(clearAction)
+
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil)
+        clearCacheDialog.addAction(cancelAction)
+
+        self.present(clearCacheDialog, animated: true, completion: nil)
+    }
+
     func callsFromOldAccountPressed() {
         let vc = CallsFromOldAccountViewController()
 
@@ -621,6 +673,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             switch option {
             case AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue:
                 self.diagnosticsPressed()
+            case AdvancedSectionOption.kAdvancedSectionOptionCachedImages.rawValue:
+                self.cachedImagesPressed()
+            case AdvancedSectionOption.kAdvancedSectionOptionCachedFiles.rawValue:
+                self.cachedFilesPressed()
             case AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue:
                 self.callsFromOldAccountPressed()
             default:
@@ -744,26 +800,69 @@ extension SettingsTableViewController {
     }
 
     func advancedCell(for indexPath: IndexPath) -> UITableViewCell {
-        let advancedCellIdentifier = "AdvancedCellIdentifier"
-        let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellIdentifier)
+        let advancedCellDisclosureIdentifier = "AdvancedCellDisclosureIdentifier"
+        let advancedCellValue1Identifier = "AdvancedCellType1Identifier"
 
-        switch indexPath.row {
-        case AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue:
+        if indexPath.row == AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue {
+            let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
             cell.textLabel?.text = NSLocalizedString("Diagnostics", comment: "")
             cell.imageView?.image = UIImage(named: "settings")?.withRenderingMode(.alwaysTemplate)
             cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
             cell.accessoryType = .disclosureIndicator
 
-        case AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue:
+            return cell
+
+        } else if indexPath.row == AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue {
+            let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
             cell.textLabel?.text = NSLocalizedString("Calls from old accounts", comment: "")
             cell.imageView?.image = UIImage(systemName: "exclamationmark.triangle.fill")?.withRenderingMode(.alwaysTemplate)
             cell.imageView?.tintColor = UIColor.systemOrange
             cell.accessoryType = .disclosureIndicator
-        default:
-            break
-        }
 
-        return cell
+            return cell
+
+        } else if indexPath.row == AdvancedSectionOption.kAdvancedSectionOptionCachedImages.rawValue {
+            let avatarCacheSize = NCAvatarSessionManager.sharedInstance().cache.currentDiskUsage
+            let imageCacheSize = NCImageSessionManager.sharedInstance().cache.currentDiskUsage
+            let totalCacheSize = avatarCacheSize + imageCacheSize
+
+            let byteFormatter = ByteCountFormatter()
+            byteFormatter.allowedUnits = [.useMB]
+            byteFormatter.countStyle = .file
+
+            let cell = UITableViewCell(style: .value1, reuseIdentifier: advancedCellValue1Identifier)
+            cell.textLabel?.text = NSLocalizedString("Cached Images", comment: "")
+            cell.imageView?.image = UIImage(named: "settings-image")?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
+            cell.detailTextLabel?.text = byteFormatter.string(fromByteCount: Int64(totalCacheSize))
+
+            return cell
+
+        } else {
+            // AdvancedSectionOption.kAdvancedSectionOptionCachedFiles.rawValue
+
+            var cacheSize = 0
+            let fileController = NCChatFileController()
+            let talkAccounts = NCDatabaseManager.sharedInstance().allAccounts()
+
+            if let talkAccounts = talkAccounts as? [TalkAccount] {
+                for account in talkAccounts {
+                    cacheSize += Int(fileController.getDiskUsage(for: account))
+                }
+            }
+
+            let byteFormatter = ByteCountFormatter()
+            byteFormatter.allowedUnits = [.useMB]
+            byteFormatter.countStyle = .file
+
+            let cell = UITableViewCell(style: .value1, reuseIdentifier: advancedCellValue1Identifier)
+            cell.textLabel?.text = NSLocalizedString("Cached Files", comment: "")
+            cell.imageView?.image = UIImage(named: "settings-file")?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
+            cell.detailTextLabel?.text = byteFormatter.string(fromByteCount: Int64(cacheSize))
+
+            return cell
+        }
     }
 
     func sectionAboutCell(for indexPath: IndexPath) -> UITableViewCell {
