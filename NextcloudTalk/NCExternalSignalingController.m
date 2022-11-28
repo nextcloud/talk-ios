@@ -145,6 +145,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)reconnect
 {
+    // Note: Make sure to call reconnect only from the main-thread!
     if (_reconnectTimer) {
         return;
     }
@@ -156,22 +157,26 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     _helloResponseReceived = NO;
     [_helloMessage ignoreCompletionBlock];
     _helloMessage = nil;
-    
+
     [self setReconnectionTimer];
 }
 
 - (void)forceReconnect
 {
-    _resumeId = nil;
-    [self reconnect];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_resumeId = nil;
+        [self reconnect];
+    });
 }
 
 - (void)disconnect
 {
-    [self invalidateReconnectionTimer];
-    [_webSocket cancel];
-    _webSocket = nil;
-    _helloResponseReceived = NO;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self invalidateReconnectionTimer];
+        [self->_webSocket cancel];
+        self->_webSocket = nil;
+        self->_helloResponseReceived = NO;
+    });
 }
 
 - (void)setReconnectionTimer
@@ -473,22 +478,25 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)executeCompletionBlockForMessageId:(NSString *)messageId withError:(BOOL)withError
 {
-    if (messageId) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if ([self->_helloMessage.messageId isEqualToString:messageId]) {
-                [self executeCompletionBlockForMessage:self->_helloMessage withError:withError];
-                self->_helloMessage = nil;
-                return;
-            }
-            for (WSMessage *message in self->_messagesWithCompletionBlocks) {
-                if ([messageId isEqualToString:message.messageId]) {
-                    [self executeCompletionBlockForMessage:message withError:withError];
-                    [self->_messagesWithCompletionBlocks removeObject:message];
-                    break;
-                }
-            }
-        });
+    if (!messageId) {
+        return;
     }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self->_helloMessage.messageId isEqualToString:messageId]) {
+            [self executeCompletionBlockForMessage:self->_helloMessage withError:withError];
+            self->_helloMessage = nil;
+            return;
+        }
+
+        for (WSMessage *message in self->_messagesWithCompletionBlocks) {
+            if ([messageId isEqualToString:message.messageId]) {
+                [self executeCompletionBlockForMessage:message withError:withError];
+                [self->_messagesWithCompletionBlocks removeObject:message];
+                break;
+            }
+        }
+    });
 }
 
 - (void)executeCompletionBlockForMessage:(WSMessage *)message withError:(BOOL)withError
@@ -513,27 +521,37 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)URLSession:(NSURLSession *)session webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask didOpenWithProtocol:(NSString *)protocol
 {
-    if (webSocketTask == _webSocket) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (webSocketTask != self->_webSocket) {
+            return;
+        }
+
+
         NSLog(@"WebSocket Connected!");
-        _reconnectInterval = kInitialReconnectInterval;
+        self->_reconnectInterval = kInitialReconnectInterval;
         [self sendHelloWithCompletionBlock:^(NSURLSessionWebSocketTask *task, NSError *error) {
-            if (error) {
+            if (error && task == self->_webSocket) {
                 [self reconnect];
             }
         }];
-    }
+    });
 }
 
 - (void)URLSession:(NSURLSession *)session webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask didCloseWithCode:(NSURLSessionWebSocketCloseCode)closeCode reason:(NSData *)reason
 {
-    if (webSocketTask == _webSocket) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (webSocketTask != self->_webSocket) {
+            return;
+        }
+
         NSLog(@"WebSocket didCloseWithCode:%ld reason:%@", (long)closeCode, reason);
         [self reconnect];
-    }
+    });
 }
 
 - (void)receiveMessage {
     __weak NCExternalSignalingController *weakSelf = self;
+    __block NSURLSessionWebSocketTask *receivingWebSocket = _webSocket;
 
     [_webSocket receiveMessageWithCompletionHandler:^(NSURLSessionWebSocketMessage * _Nullable message, NSError * _Nullable error) {
         if (!error) {
@@ -571,18 +589,31 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
             [weakSelf receiveMessage];
         } else {
-            NSLog(@"WebSocket receiveMessageWithCompletionHandler error %@", error.description);
-            [weakSelf reconnect];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // Only try to reconnect if the webSocket is still the one we tried to receive a message on
+                if (receivingWebSocket != weakSelf.webSocket) {
+                    return;
+                }
+
+                NSLog(@"WebSocket receiveMessageWithCompletionHandler error %@", error.description);
+                [weakSelf reconnect];
+            });
         }
     }];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    if (error && task == _webSocket) {
-        NSLog(@"WebSocket session didCompleteWithError: %@", error.description);
-        [self reconnect];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (task != self->_webSocket) {
+            return;
+        }
+
+        if (error) {
+            NSLog(@"WebSocket session didCompleteWithError: %@", error.description);
+            [self reconnect];
+        }
+    });
 }
 
 - (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
