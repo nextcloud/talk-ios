@@ -93,6 +93,31 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
     NSLog(@"Deleted download directory: %@", _tempDirectoryPath);
 }
 
+- (void)clearDownloadDirectoryForAccount:(TalkAccount *)account
+{
+    [self deleteDownloadDirectoryForAccount:account];
+    [self initDownloadDirectoryForAccount:account];
+}
+
+- (NSInteger)getDiskUsageForAccount:(TalkAccount *)account
+{
+    [self initDownloadDirectoryForAccount:account];
+
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtPath:_tempDirectoryPath];
+
+    NSString *file;
+    NSInteger folderSize = 0;
+
+    while (file = [enumerator nextObject])
+    {
+        NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[_tempDirectoryPath stringByAppendingPathComponent:file] error:nil];
+        folderSize += [[fileAttributes objectForKey:NSFileSize] intValue];
+    }
+
+    return folderSize;
+}
+
 - (BOOL)isFileInCache:(NSString *)filePath withModificationDate:(NSDate *)date withSize:(double)size
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];

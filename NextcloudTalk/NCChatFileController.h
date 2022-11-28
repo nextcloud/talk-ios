@@ -48,6 +48,8 @@ extern NSString * const NCChatFileControllerDidChangeDownloadProgressNotificatio
 - (void)downloadFileFromMessage:(NCMessageFileParameter *)fileParameter;
 - (void)downloadFileWithFileId:(NSString *)fileId;
 - (void)deleteDownloadDirectoryForAccount:(TalkAccount *)account;
+- (void)clearDownloadDirectoryForAccount:(TalkAccount *)account;
+- (NSInteger)getDiskUsageForAccount:(TalkAccount *)account;
 
 @end
 
