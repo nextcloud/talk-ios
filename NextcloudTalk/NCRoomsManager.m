@@ -390,18 +390,13 @@ static NSInteger kIgnoreStatusCode = 999;
 
 - (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus withCompletionBlock:(UpdateRoomsCompletionBlock)block
 {
-    [NCUtils log:@"Start updateRoomsUpdatingUserStatus"];
-
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount updateStatus:updateStatus withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         NSMutableArray *roomsWithNewMessages = [NSMutableArray new];
 
-        [NCUtils log:@"Start getRoomsForAccount completionBlock"];
-        
         if (!error) {
             BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateRoomsTransaction" expirationHandler:nil];
-            [NCUtils log:@"Start transaction"];
 
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
@@ -430,7 +425,6 @@ static NSInteger kIgnoreStatusCode = 999;
             }];
 
             [bgTask stopBackgroundTask];
-            [NCUtils log:@"End transaction"];
         } else {
             [userInfo setObject:error forKey:@"error"];
             [NCUtils log:[NSString stringWithFormat:@"Could not update rooms. Error: %@", error.description]];
@@ -443,8 +437,6 @@ static NSInteger kIgnoreStatusCode = 999;
         if (block) {
             block(roomsWithNewMessages, error);
         }
-
-        [NCUtils log:@"End getRoomsForAccount completionBlock"];
     }];
 }
 
