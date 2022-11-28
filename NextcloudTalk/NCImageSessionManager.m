@@ -20,7 +20,9 @@
  *
  */
 
+#import "NCAppBranding.h"
 #import "NCImageSessionManager.h"
+#import "AFImageDownloader.h"
 
 #import "CCCertificate.h"
 
@@ -38,8 +40,17 @@
 
 - (id)init
 {
-    // Set ephemeralSessionConfiguration and just use AFAutoPurgingImageCache for caching images.
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+    NSURLSessionConfiguration *configuration = [AFImageDownloader defaultURLSessionConfiguration];
+
+    // In case of images we want to use the cache and store it on disk
+    // As we use the memory cache from AFImageDownloader, we only want disk cache here
+    NSURL *imageCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"ImageCache"];
+    NSURLCache *imageCache = [[NSURLCache alloc] initWithMemoryCapacity:0
+                                                           diskCapacity:100 * 1024 * 1024
+                                                           directoryURL:imageCacheURL];
+
+    configuration.URLCache = imageCache;
+    
     self = [super initWithSessionConfiguration:configuration];
     if (self) {
         _userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
