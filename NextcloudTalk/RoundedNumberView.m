@@ -28,7 +28,7 @@
 #define kRoundedNumberViewImportantTextColor        [UIColor whiteColor]
 #define kRoundedNumberViewDefaultBackgroundColor    [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0] //#d5d5d5
 #define kRoundedNumberViewDefaultTextColor          [UIColor blackColor]
-#define kRoundedNumberViewCounterLimit              99
+#define kRoundedNumberViewCounterLimit              9999
 
 @interface RoundedNumberView ()
 @property (nonatomic, strong) UILabel *numberLabel;
