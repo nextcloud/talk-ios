@@ -93,10 +93,9 @@
         self.numberLabel.text = [NSString stringWithFormat:@"%d+", kRoundedNumberViewCounterLimit];
     }
     [self.numberLabel sizeToFit];
-    BOOL wider = self.numberLabel.frame.size.width >= self.numberLabel.frame.size.height;
-    CGFloat frameWidth = self.numberLabel.frame.size.width * 5/3;
+    CGFloat frameWidth = self.numberLabel.frame.size.width + 16;
     CGFloat frameHeight = self.numberLabel.frame.size.height + self.numberLabel.frame.size.height / 2;
-    self.frame = CGRectMake(0, 0, (wider) ? frameWidth : frameHeight, frameHeight);
+    self.frame = CGRectMake(0, 0, (frameWidth >= frameHeight) ? frameWidth : frameHeight, frameHeight);
     self.layer.cornerRadius = self.frame.size.height / 2;
     [self.numberLabel setCenter:CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2)];
 }
