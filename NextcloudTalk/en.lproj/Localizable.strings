@@ -236,6 +236,12 @@
 "bot" = "bot";
 
 /* No comment provided by engineer. */
+"Cached Files" = "Cached Files";
+
+/* No comment provided by engineer. */
+"Cached Images" = "Cached Images";
+
+/* No comment provided by engineer. */
 "Call notification sent" = "Call notification sent";
 
 /* No comment provided by engineer. */
@@ -300,6 +306,9 @@
 
 /* No comment provided by engineer. */
 "Chat messages" = "Chat messages";
+
+/* No comment provided by engineer. */
+"Clear cache" = "Clear cache";
 
 /* No comment provided by engineer. */
 "Clear status message" = "Clear status message";
@@ -518,6 +527,12 @@
 "Do not disturb" = "Do not disturb";
 
 /* No comment provided by engineer. */
+"Do you really want to clear the file cache?" = "Do you really want to clear the file cache?";
+
+/* No comment provided by engineer. */
+"Do you really want to clear the image cache?" = "Do you really want to clear the image cache?";
+
+/* No comment provided by engineer. */
 "Do you really want to delete all messages in this conversation?" = "Do you really want to delete all messages in this conversation?";
 
 /* No comment provided by engineer. */
@@ -558,6 +573,9 @@
 
 /* No comment provided by engineer. */
 "Double tap to create the conversation" = "Double tap to create the conversation";
+
+/* No comment provided by engineer. */
+"Double tap to dismiss authentication dialog" = "Double tap to dismiss authentication dialog";
 
 /* No comment provided by engineer. */
 "Double tap to dismiss sharing options" = "Double tap to dismiss sharing options";
