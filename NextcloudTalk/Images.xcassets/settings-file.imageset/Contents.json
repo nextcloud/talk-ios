@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "text_snippet_black_24dp.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

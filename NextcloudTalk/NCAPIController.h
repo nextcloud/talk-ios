@@ -118,6 +118,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 @property (nonatomic, strong) NSMutableDictionary *apiSessionManagers;
 @property (nonatomic, strong) AFImageDownloader *imageDownloader;
+@property (nonatomic, strong) AFImageDownloader *imageDownloaderAvatars;
 @property (nonatomic, strong) AFImageDownloader *imageDownloaderNoCache;
 
 + (instancetype)sharedInstance;

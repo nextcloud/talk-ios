@@ -28,6 +28,7 @@
 #import "NCAPISessionManager.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
+#import "NCAvatarSessionManager.h"
 #import "NCImageSessionManager.h"
 #import "NCPushProxySessionManager.h"
 #import "NCKeyChainController.h"
@@ -111,6 +112,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                         downloadPrioritization:AFImageDownloadPrioritizationFIFO
                         maximumActiveDownloads:4
                                     imageCache:[[AFAutoPurgingImageCache alloc] init]];
+
+    _imageDownloaderAvatars = [[AFImageDownloader alloc]
+                              initWithSessionManager:[NCAvatarSessionManager sharedInstance]
+                              downloadPrioritization:AFImageDownloadPrioritizationFIFO
+                              maximumActiveDownloads:4
+                                          imageCache:[[AFAutoPurgingImageCache alloc] init]];
     
     _imageDownloaderNoCache = [[AFImageDownloader alloc]
                                initWithSessionManager:[NCImageSessionManager sharedInstance]
@@ -2038,7 +2045,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (void)getUserAvatarForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block
 {
     NSURLRequest *request = [self createAvatarRequestForUser:userId withStyle:UIUserInterfaceStyleLight andSize:size usingAccount:account];
-    [_imageDownloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull responseObject) {
+    [_imageDownloaderAvatars downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull responseObject) {
         NSData *pngData = UIImagePNGRepresentation(responseObject);
         UIImage *image = [UIImage imageWithData:pngData];
         if (image && block) {

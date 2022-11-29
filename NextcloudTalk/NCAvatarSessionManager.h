@@ -1,7 +1,8 @@
 /**
- * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
+ * @copyright Copyright (c) 2022 Marcel Müller <marcel.mueller@nextcloud.com>
  *
  * @author Ivan Sein <ivan@nextcloud.com>
+ * @author Marcel Müller <marcel.mueller@nextcloud.com>
  *
  * @license GNU GPL version 3 or any later version
  *
@@ -23,7 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "AFNetworking.h"
 
-@interface NCImageSessionManager : AFHTTPSessionManager
+@interface NCAvatarSessionManager : AFHTTPSessionManager
 
 @property (nonatomic, strong) NSString *userAgent;
 @property (nonatomic, strong) NSURLCache *cache;

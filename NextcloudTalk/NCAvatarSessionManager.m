@@ -1,7 +1,8 @@
 /**
- * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
+ * @copyright Copyright (c) 2022 Marcel Müller <marcel.mueller@nextcloud.com>
  *
  * @author Ivan Sein <ivan@nextcloud.com>
+ * @author Marcel Müller <marcel.mueller@nextcloud.com>
  *
  * @license GNU GPL version 3 or any later version
  *
@@ -21,17 +22,17 @@
  */
 
 #import "NCAppBranding.h"
-#import "NCImageSessionManager.h"
+#import "NCAvatarSessionManager.h"
 #import "AFImageDownloader.h"
 
 #import "CCCertificate.h"
 
-@implementation NCImageSessionManager
+@implementation NCAvatarSessionManager
 
-+ (NCImageSessionManager *)sharedInstance
++ (NCAvatarSessionManager *)sharedInstance
 {
     static dispatch_once_t once;
-    static NCImageSessionManager *sharedInstance;
+    static NCAvatarSessionManager *sharedInstance;
     dispatch_once(&once, ^{
         sharedInstance = [[self alloc] init];
     });
@@ -42,15 +43,15 @@
 {
     NSURLSessionConfiguration *configuration = [AFImageDownloader defaultURLSessionConfiguration];
 
-    // In case of images we want to use the cache and store it on disk
+    // In case of avatars we want to use the cache and store it on disk
     // As we use the memory cache from AFImageDownloader, we only want disk cache here
-    NSURL *imageCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"ImageCache"];
+    NSURL *avatarCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"AvatarCache"];
     self.cache = [[NSURLCache alloc] initWithMemoryCapacity:0
                                                diskCapacity:100 * 1024 * 1024
-                                               directoryURL:imageCacheURL];
+                                               directoryURL:avatarCacheURL];
 
     configuration.URLCache = self.cache;
-    
+
     self = [super initWithSessionConfiguration:configuration];
     if (self) {
         _userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",

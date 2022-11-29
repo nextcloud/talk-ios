@@ -58,7 +58,6 @@
 #import "NCChatTitleView.h"
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
-#import "NCImageSessionManager.h"
 #import "NCMessageParameter.h"
 #import "NCMessageTextView.h"
 #import "NCNavigationController.h"
