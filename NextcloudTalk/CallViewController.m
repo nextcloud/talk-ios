@@ -1186,7 +1186,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 }
 
-- (IBAction)lowerHandButtonPresse:(id)sender
+- (IBAction)lowerHandButtonPressed:(id)sender
 {
     self->_isHandRaised = NO;
     [self->_callController raiseHand:NO];
