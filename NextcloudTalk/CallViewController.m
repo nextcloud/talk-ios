@@ -1193,6 +1193,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self adjustButtons];
 }
 
+- (IBAction)videoRecordingButtonPressed:(id)sender
+{
+    [self->_callController stopRecording];
+}
+
 #pragma mark - CallParticipantViewCell delegate
 
 - (void)cellWantsToPresentScreenSharing:(CallParticipantViewCell *)participantCell
