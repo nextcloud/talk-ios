@@ -46,11 +46,45 @@
         self.image.clipsToBounds = YES;
         self.image.backgroundColor = [NCAppBranding avatarPlaceholderColor];
         self.title.titleLabel.adjustsFontSizeToFitWidth = YES;
-        self.title.titleLabel.minimumScaleFactor = 0.75;
+        self.title.titleLabel.minimumScaleFactor = 0.85;
         [self.title setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
+        [self.subtitle setTextColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.7]];
     }
     
     return self;
+}
+
+- (void)setUserStatus:(NSString *)userStatus
+{
+    UIImage *statusImage = nil;
+    if ([userStatus isEqualToString:@"online"]) {
+        statusImage = [UIImage imageNamed:@"user-status-online-10"];
+    } else if ([userStatus isEqualToString:@"away"]) {
+        statusImage = [UIImage imageNamed:@"user-status-away-10"];
+    } else if ([userStatus isEqualToString:@"dnd"]) {
+        statusImage = [UIImage imageNamed:@"user-status-dnd-10"];
+    }
+
+    if (statusImage) {
+        [_userStatusImage setImage:statusImage];
+        _userStatusImage.contentMode = UIViewContentModeCenter;
+        _userStatusImage.layer.cornerRadius = 6;
+        _userStatusImage.clipsToBounds = YES;
+        _userStatusImage.backgroundColor = [NCAppBranding themeColor];
+    }
+}
+
+- (void)setUserStatusMessage:(NSString *)userStatusMessage withIcon:(NSString*)userStatusIcon
+{
+    if (userStatusMessage && ![userStatusMessage isEqualToString:@""]) {
+        self.subtitle.text = userStatusMessage;
+        if (userStatusIcon && ![userStatusIcon isEqualToString:@""]) {
+            self.subtitle.text = [NSString stringWithFormat:@"%@ %@", userStatusIcon, userStatusMessage];
+        }
+        self.subtitle.hidden = NO;
+    } else {
+        self.subtitle.hidden = YES;
+    }
 }
 
 @end
