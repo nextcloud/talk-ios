@@ -65,6 +65,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     CGSize _screensharingSize;
     UITapGestureRecognizer *_tapGestureForDetailedView;
     NSTimer *_detailedViewTimer;
+    NSTimer *_proximityTimer;
     NSString *_displayName;
     BOOL _isAudioOnly;
     BOOL _isDetailedViewVisible;
@@ -74,6 +75,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     BOOL _hangingUp;
     BOOL _pushToTalkActive;
     BOOL _isHandRaised;
+    BOOL _proximityState;
     UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
     CGPoint _localVideoDragStartingPosition;
     CGPoint _localVideoOriginPosition;
@@ -447,8 +449,24 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)sensorStateChange:(NSNotificationCenter *)notification
 {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_proximityTimer invalidate];
+        self->_proximityTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(adjustProximityState) userInfo:nil repeats:NO];
+    });
+}
+
+- (void)adjustProximityState
+{
+    BOOL currentProximityState = [[UIDevice currentDevice] proximityState];
+
+    if (currentProximityState == _proximityState) {
+        return;
+    }
+
+    _proximityState = currentProximityState;
+
     if (!_isAudioOnly) {
-        if ([[UIDevice currentDevice] proximityState] == YES) {
+        if (_proximityState == YES) {
             [self disableLocalVideo];
             [self disableSpeaker];
         } else {
@@ -461,7 +479,7 @@ typedef NS_ENUM(NSInteger, CallState) {
             }
         }
     }
-    
+
     [self pushToTalkEnd];
 }
 
