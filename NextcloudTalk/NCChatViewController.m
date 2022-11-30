@@ -694,7 +694,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     // User status
     [_titleView setUserStatus:_room.status];
 
-    //User status message
+    // User status message
     [_titleView setUserStatusMessage:_room.statusMessage withIcon:_room.statusIcon];
 
     if (!_room.statusMessage || [_room.statusMessage isEqualToString:@""]) {
@@ -703,6 +703,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         } else if ([_room.status isEqualToString:kUserStatusAway]) {
             [_titleView setUserStatusMessage:NSLocalizedString(@"Away", nil) withIcon:nil];
         }
+    }
+
+    // Show description in group conversations
+    if (_room.type != kNCRoomTypeOneToOne && ![_room.roomDescription isEqualToString:@""]) {
+        [_titleView setUserStatusMessage:_room.roomDescription withIcon:nil];
     }
 
     self.navigationItem.titleView = _titleView;
