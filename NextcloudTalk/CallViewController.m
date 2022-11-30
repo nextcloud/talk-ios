@@ -1265,6 +1265,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self updateParticipantCell:participantCell withPeerConnection:peerConnection];
 }
 
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section
+{
+    return kCallViewParticipantLineSpacing;
+}
+
 #pragma mark - Call Controller delegate
 
 - (void)callControllerDidJoinCall:(NCCallController *)callController

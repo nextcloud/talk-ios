@@ -17,6 +17,8 @@
 
 #import <UIKit/UIKit.h>
 
+extern CGFloat const kCallViewParticipantLineSpacing;
+
 @interface NBMPeersFlowLayout : UICollectionViewFlowLayout
 
 + (CGRect)frameForWithNumberOfItems:(NSUInteger)numberOfItems row:(NSUInteger)row contentSize:(CGSize)contentSize;
