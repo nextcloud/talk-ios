@@ -38,7 +38,8 @@ typedef enum {
     kNCSignalingMessageTypeMute,
     kNCSignalingMessageTypeUnmute,
     kNCSignalingMessageTypeNickChanged,
-    kNCSignalingMessageTypeRaiseHand
+    kNCSignalingMessageTypeRaiseHand,
+    kNCSignalingMessageTypeRecording
 } NCSignalingMessageType;
 
 
@@ -126,6 +127,14 @@ typedef enum {
                       sendTo:(NSString *)to
                  withPayload:(NSDictionary *)payload
                  forRoomType:(NSString *)roomType;
+
+- (instancetype)initWithValues:(NSDictionary *)values;
+
+@end
+
+@interface NCRecordingMessage : NCSignalingMessage
+
+@property(nonatomic, readonly) NSInteger enabled;
 
 - (instancetype)initWithValues:(NSDictionary *)values;
 

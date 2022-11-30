@@ -866,6 +866,14 @@ static NSString * const kNCVideoTrackKind = @"video";
                 }
                 break;
             }
+            case kNCSignalingMessageTypeRecording:
+            {
+                NCRecordingMessage *recordingMessage = (NCRecordingMessage *)signalingMessage;
+                self->_room.callRecording = recordingMessage.enabled;
+                [self.delegate callControllerDidChangeRecording:self];
+
+                break;
+            }
             case kNCSignalingMessageTypeUnknown:
                 NSLog(@"Received an unknown signaling message: %@", signalingMessage);
                 break;
