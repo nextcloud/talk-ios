@@ -692,7 +692,21 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     _titleView.title.accessibilityHint = NSLocalizedString(@"Double tap to go to conversation information", nil);
-    
+
+    // User status
+    [_titleView setUserStatus:_room.status];
+
+    //User status message
+    [_titleView setUserStatusMessage:_room.statusMessage withIcon:_room.statusIcon];
+
+    if (!_room.statusMessage || [_room.statusMessage isEqualToString:@""]) {
+        if ([_room.status isEqualToString: kUserStatusDND]) {
+            [_titleView setUserStatusMessage:NSLocalizedString(@"Do not disturb", nil) withIcon:nil];
+        } else if ([_room.status isEqualToString:kUserStatusAway]) {
+            [_titleView setUserStatusMessage:NSLocalizedString(@"Away", nil) withIcon:nil];
+        }
+    }
+
     self.navigationItem.titleView = _titleView;
 }
 
