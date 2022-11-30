@@ -26,5 +26,10 @@
 
 @property (weak, nonatomic) IBOutlet UIButton *title;
 @property (weak, nonatomic) IBOutlet UIImageView *image;
+@property (weak, nonatomic) IBOutlet UILabel *subtitle;
+@property (weak, nonatomic) IBOutlet UIImageView *userStatusImage;
+
+- (void)setUserStatus:(NSString *)userStatus;
+- (void)setUserStatusMessage:(NSString *)userStatusMessage withIcon:(NSString*)userStatusIcon;
 
 @end
