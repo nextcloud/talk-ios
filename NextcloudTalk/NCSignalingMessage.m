@@ -48,6 +48,7 @@ static NSString * const kNCSignalingMessageActionKey = @"action";
 static NSString * const kNCSignalingMessagePayloadKey = @"payload";
 static NSString * const kNCSignalingMessageRoomTypeKey = @"roomType";
 static NSString * const kNCSignalingMessageNickKey = @"nick";
+static NSString * const kNCSignalingMessageEnabledKey = @"enabled";
 
 static NSString * const kNCSignalingMessageTypeOfferKey = @"offer";
 static NSString * const kNCSignalingMessageTypeAnswerKey = @"answer";
@@ -60,6 +61,7 @@ static NSString * const kNCSignalingMessageTypeMuteKey = @"mute";
 static NSString * const kNCSignalingMessageTypeUnmuteKey = @"unmute";
 static NSString * const kNCSignalingMessageTypeNickChangedKey = @"nickChanged";
 static NSString * const kNCSignalingMessageTypeRaiseHandKey = @"raiseHand";
+static NSString * const kNCSignalingMessageTypeRecordingKey = @"recording";
 
 static NSString * const kNCSignalingMessageSdpKey = @"sdp";
 
@@ -149,6 +151,8 @@ NSString *const kRoomTypeScreen = @"screen";
         return [[NCNickChangedMessage alloc] initWithValues:jsonDict];
     } else if ([dataType isEqualToString:kNCSignalingMessageTypeRaiseHandKey]) {
         return [[NCRaiseHandMessage alloc] initWithValues:jsonDict];
+    } else if ([dataType isEqualToString:kNCSignalingMessageTypeRecordingKey]) {
+        return [[NCRecordingMessage alloc] initWithValues:jsonDict];
     }
     
     NSString *dataAction = [data objectForKey:kNCSignalingMessageActionKey];
@@ -290,7 +294,7 @@ NSString *const kRoomTypeScreen = @"screen";
     }
     
     _candidate = candidate;
-    
+
     return self;
 }
 
@@ -639,6 +643,34 @@ NSString *const kRoomTypeScreen = @"screen";
 
 - (NCSignalingMessageType)messageType {
     return kNCSignalingMessageTypeRaiseHand;
+}
+
+@end
+
+@implementation NCRecordingMessage
+
+@synthesize enabled = _enabled;
+
+- (instancetype)initWithValues:(NSDictionary *)values {
+    NSDictionary *valuesDict = [[NSDictionary alloc] initWithDictionary:values];
+    NSDictionary *dataDict = [valuesDict objectForKey:kNCExternalSignalingMessageDataKey];
+    NSDictionary *recordingDict = [dataDict objectForKey:kNCSignalingMessageTypeRecordingKey];
+
+    self = [super initWithFrom:nil
+                            to:nil
+                           sid:nil
+                          type:kNCSignalingMessageTypeRecordingKey
+                       payload:recordingDict
+                      roomType:nil];
+    if (self) {
+        _enabled = [[recordingDict objectForKey:kNCSignalingMessageEnabledKey] integerValue];
+    }
+
+    return self;
+}
+
+- (NCSignalingMessageType)messageType {
+    return kNCSignalingMessageTypeRecording;
 }
 
 @end

@@ -51,6 +51,7 @@
 - (void)callController:(NCCallController *)callController didReceiveForceMuteActionForPeerId:(NSString *)peerId;
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController;
 - (void)callControllerWantsToHangUpCall:(NCCallController *)callController;
+- (void)callControllerDidChangeRecording:(NCCallController *)callController;
 
 @end
 

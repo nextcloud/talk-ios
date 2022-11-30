@@ -489,6 +489,8 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     NSString *messageType = [[messageDict objectForKey:@"data"] objectForKey:@"type"];
     if ([messageType isEqualToString:@"chat"]) {
         NSLog(@"Chat message received.");
+    } else if ([messageType isEqualToString:@"recording"]) {
+        [self.delegate externalSignalingController:self didReceivedSignalingMessage:messageDict];
     } else {
         NSLog(@"Unknown room message type: %@", messageDict);
     }

@@ -1473,6 +1473,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
+- (void)callControllerDidChangeRecording:(NCCallController *)callController
+{
+    [self adjustButtons];
+}
+
 #pragma mark - Screensharing
 
 - (void)showScreenOfPeerId:(NSString *)peerId
