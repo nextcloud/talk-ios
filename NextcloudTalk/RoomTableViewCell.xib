@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -37,7 +37,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tc2-b5-oRl">
-                        <rect key="frame" x="72" y="40" width="240" height="20"/>
+                        <rect key="frame" x="72" y="40" width="282" height="20"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="20" id="4c9-5c-9Dn"/>
                             <constraint firstAttribute="width" relation="greaterThanOrEqual" id="yNL-xs-wQ5"/>
@@ -47,9 +47,9 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xb6-vq-E0C">
-                        <rect key="frame" x="314" y="35" width="45" height="26"/>
+                        <rect key="frame" x="359" y="35" width="0.0" height="26"/>
                         <constraints>
-                            <constraint firstAttribute="width" constant="45" id="YY6-7s-vjB"/>
+                            <constraint firstAttribute="width" id="YY6-7s-vjB"/>
                             <constraint firstAttribute="height" constant="26" id="bfh-Ed-a0R"/>
                         </constraints>
                     </view>
@@ -97,7 +97,7 @@
                     <constraint firstItem="hTO-u0-vdH" firstAttribute="trailing" secondItem="DEV-Kr-Vlw" secondAttribute="trailing" constant="16" id="FrT-LG-M0H"/>
                     <constraint firstItem="eUE-Vb-afX" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="45" id="H1a-CQ-Rs2"/>
                     <constraint firstItem="Tc2-b5-oRl" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="40" id="J8O-Vc-Fdv"/>
-                    <constraint firstItem="Xb6-vq-E0C" firstAttribute="leading" secondItem="Tc2-b5-oRl" secondAttribute="trailing" constant="2" id="PwU-4t-4q5"/>
+                    <constraint firstItem="Xb6-vq-E0C" firstAttribute="leading" secondItem="Tc2-b5-oRl" secondAttribute="trailing" constant="5" id="PwU-4t-4q5"/>
                     <constraint firstItem="IAW-Df-Q2p" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="48" id="UTs-bM-4rK"/>
                     <constraint firstItem="j70-Qd-IKC" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="12" id="VLJ-ka-a3c"/>
                     <constraint firstItem="Xb6-vq-E0C" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="35" id="Vbn-nE-8gk"/>
@@ -117,6 +117,7 @@
                 <outlet property="roomImage" destination="j70-Qd-IKC" id="YvW-c3-hxL"/>
                 <outlet property="subtitleLabel" destination="Tc2-b5-oRl" id="1mD-EQ-Jhs"/>
                 <outlet property="titleLabel" destination="4oj-Ge-nSq" id="SPq-KL-y2z"/>
+                <outlet property="unreadMessageViewWidth" destination="YY6-7s-vjB" id="JeI-Ch-rdW"/>
                 <outlet property="unreadMessagesView" destination="Xb6-vq-E0C" id="wXP-Vy-8sF"/>
                 <outlet property="userStatusImageView" destination="mxr-4b-6AO" id="MJo-C9-yUh"/>
                 <outlet property="userStatusLabel" destination="IAW-Df-Q2p" id="z9s-DV-2UV"/>

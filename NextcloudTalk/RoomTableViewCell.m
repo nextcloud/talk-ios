@@ -42,6 +42,9 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     NSInteger _unreadMessages;
     HighlightType _highlightType;
 }
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *unreadMessageViewWidth;
+
 @end
 
 @implementation RoomTableViewCell
@@ -72,14 +75,7 @@ CGFloat const kRoomTableCellHeight = 74.0f;
         _unreadMessagesBadge = [[RoundedNumberView alloc] init];
         _unreadMessagesBadge.highlightType = _highlightType;
         _unreadMessagesBadge.number = _unreadMessages;
-        
-        CGFloat badgeXPosition = self.unreadMessagesView.frame.size.width - _unreadMessagesBadge.frame.size.width;
-        if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:_unreadMessagesView.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft) {
-            badgeXPosition = 0;
-        }
-        _unreadMessagesBadge.frame = CGRectMake(badgeXPosition, _unreadMessagesBadge.frame.origin.y,
-                                                _unreadMessagesBadge.frame.size.width, _unreadMessagesBadge.frame.size.height);
-        
+        _unreadMessageViewWidth.constant = _unreadMessages ? _unreadMessagesBadge.frame.size.width : 0;
         [self.unreadMessagesView addSubview:_unreadMessagesBadge];
     }
 }
