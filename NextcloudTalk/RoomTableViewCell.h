@@ -37,7 +37,6 @@ extern CGFloat const kRoomTableCellHeight;
 @property (weak, nonatomic) IBOutlet UIImageView *favoriteImage;
 @property (weak, nonatomic) IBOutlet UIImageView *userStatusImageView;
 @property (weak, nonatomic) IBOutlet UILabel *userStatusLabel;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *unreadMessageViewWidth;
 
 @property (nonatomic, assign) BOOL titleOnly;
 @property NSString *roomToken;

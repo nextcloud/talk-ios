@@ -42,6 +42,9 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     NSInteger _unreadMessages;
     HighlightType _highlightType;
 }
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *unreadMessageViewWidth;
+
 @end
 
 @implementation RoomTableViewCell
