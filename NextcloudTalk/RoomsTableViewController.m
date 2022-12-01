@@ -363,6 +363,10 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES withCompletionBlock:nil];
 
+    if ([NCConnectionController sharedInstance].connectionState == kConnectionStateConnected) {
+        [[NCRoomsManager sharedInstance] resendOfflineMessagesWithCompletionBlock:nil];
+    }
+
     dispatch_async(dispatch_get_main_queue(), ^{
         // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
         [self setProfileButton];

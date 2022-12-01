@@ -23,6 +23,8 @@
 #import <Foundation/Foundation.h>
 #import <Realm/Realm.h>
 
+#import "NCChatMessage.h"
+
 typedef void (^UpdateHistoryInBackgroundCompletionBlock)(NSError *error);
 
 @class NCRoom;
@@ -45,6 +47,7 @@ extern NSString * const NCChatControllerDidReceiveCallEndedMessageNotification;
 
 - (instancetype)initForRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently;
+- (void)sendChatMessage:(NCChatMessage *)message;
 - (NSMutableArray *)getTemporaryMessages;
 - (void)getInitialChatHistory;
 - (void)getInitialChatHistoryForOfflineMode;

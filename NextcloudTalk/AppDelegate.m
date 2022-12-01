@@ -388,6 +388,13 @@
 
     [NCUtils log:@"Start performBackgroundFetchWithCompletionHandler"];
 
+    dispatch_group_enter(backgroundRefreshGroup);
+    [[NCRoomsManager sharedInstance] resendOfflineMessagesWithCompletionBlock:^{
+        [NCUtils log:@"CompletionHandler resendOfflineMessagesWithCompletionBlock"];
+
+        dispatch_group_leave(backgroundRefreshGroup);
+    }];
+
     /* Disable checking for new messages for now, until we can prevent them from showing twice
     dispatch_group_enter(backgroundRefreshGroup);
     [[NCNotificationController sharedInstance] checkForNewNotificationsWithCompletionBlock:^(NSError *error) {

@@ -37,6 +37,7 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 
 typedef void (^UpdateRoomsCompletionBlock)(NSArray *roomsWithNewMessages, NSError *error);
 typedef void (^UpdateRoomsAndChatsCompletionBlock)(NSError *error);
+typedef void (^SendOfflineMessagesCompletionBlock)(void);
 
 @interface NCRoomController : NSObject
 
@@ -64,6 +65,8 @@ typedef void (^UpdateRoomsAndChatsCompletionBlock)(NSError *error);
 - (void)updateLastCommonReadMessage:(NSInteger)messageId forRoom:(NCRoom *)room;
 - (void)joinRoom:(NSString *)token;
 - (void)rejoinRoom:(NSString *)token;
+- (void)resendOfflineMessagesWithCompletionBlock:(SendOfflineMessagesCompletionBlock)block;
+- (void)resendOfflineMessagesForToken:(NSString *)token withCompletionBlock:(SendOfflineMessagesCompletionBlock)block;
 // Chat
 - (void)startChatInRoom:(NCRoom *)room;
 - (void)leaveChatInRoom:(NSString *)token;

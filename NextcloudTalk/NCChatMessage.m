@@ -195,6 +195,8 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     messageCopy.sendingFailed = _sendingFailed;
     messageCopy.isGroupMessage = _isGroupMessage;
     messageCopy.isDeleting = _isDeleting;
+    messageCopy.isOfflineMessage = _isOfflineMessage;
+    messageCopy.isSilent = _isSilent;
     
     return messageCopy;
 }
@@ -492,6 +494,19 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     return message;
 }
 
+- (NSString *)sendingMessage
+{
+    NSString *resultMessage = [[self.message copy] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+    for (NSString *parameterKey in self.messageParameters.allKeys) {
+        NCMessageParameter *parameter = [self.messageParameters objectForKey:parameterKey];
+        NSString *parameterKeyString = [[NSString alloc] initWithFormat:@"{%@}", parameterKey];
+        resultMessage = [resultMessage stringByReplacingOccurrencesOfString:parameterKeyString withString:parameter.mentionDisplayName];
+    }
+    
+    return resultMessage;
+}
+
 - (NCChatMessage *)parent
 {
     if (self.parentId) {
@@ -504,6 +519,12 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     }
     
     return nil;
+}
+
+- (NSInteger)parentMessageId
+{
+    NSInteger messageId = self.parent ? self.parent.messageId : -1;
+    return messageId;
 }
 
 - (NSMutableArray *)temporaryReactions
