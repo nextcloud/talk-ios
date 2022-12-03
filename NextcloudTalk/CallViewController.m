@@ -37,6 +37,7 @@
 #import "CallParticipantViewCell.h"
 #import "NBMPeersFlowLayout.h"
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCAudioController.h"
 #import "NCCallController.h"
 #import "NCDatabaseManager.h"
@@ -530,6 +531,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)createWaitingScreen
 {
+    self.avatarBackgroundImageView.backgroundColor = [NCAppBranding themeColor];
+
     if (_room.type == kNCRoomTypeOneToOne) {
         __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
         [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
@@ -553,8 +556,6 @@ typedef NS_ENUM(NSInteger, CallState) {
                                                       weakBGView.backgroundColor = [weakBGView.backgroundColor colorWithAlphaComponent:0.8];
                                                   }
                                               } failure:nil];
-    } else {
-        self.avatarBackgroundImageView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:1];
     }
     
     [self setWaitingScreenText];
