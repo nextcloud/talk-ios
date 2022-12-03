@@ -785,12 +785,10 @@ typedef NS_ENUM(NSInteger, CallState) {
 
         UIAction *recordingAction = [UIAction actionWithTitle:recordingActionTitle image:recordingImage identifier:nil handler:^(UIAction *action) {
             if (self->_room.callRecording) {
-                [self->_callController stopRecording];
+                [self showStopRecordingConfirmationDialog];
             } else {
                 [self->_callController startRecording];
             }
-
-            [self adjustButtons];
         }];
 
         [items addObject:recordingAction];
@@ -1214,7 +1212,29 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (IBAction)videoRecordingButtonPressed:(id)sender
 {
-    [self->_callController stopRecording];
+    if (![_room canModerate]) {
+        return;
+    }
+
+    [self showStopRecordingConfirmationDialog];
+}
+
+- (void)showStopRecordingConfirmationDialog
+{
+    UIAlertController *confirmDialog =
+    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Stop recording", nil)
+                                        message:NSLocalizedString(@"Do you want to stop the recording?", nil)
+                                 preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction *stopAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Stop", @"Action to 'Stop' a recording") style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        [self->_callController stopRecording];
+    }];
+    [confirmDialog addAction:stopAction];
+
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
+    [confirmDialog addAction:cancelAction];
+
+    [self presentViewController:confirmDialog animated:YES completion:nil];
 }
 
 #pragma mark - CallParticipantViewCell delegate

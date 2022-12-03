@@ -563,6 +563,9 @@
 "Do you want to share '%@' in the conversation?" = "Do you want to share '%@' in the conversation?";
 
 /* No comment provided by engineer. */
+"Do you want to stop the recording?" = "Do you want to stop the recording?";
+
+/* No comment provided by engineer. */
 "Don't clear" = "Don't clear";
 
 /* No comment provided by engineer. */
@@ -1344,6 +1347,9 @@
 
 /* No comment provided by engineer. */
 "Status message" = "Status message";
+
+/* Action to 'Stop' a recording */
+"Stop" = "Stop";
 
 /* No comment provided by engineer. */
 "Stop recording" = "Stop recording";
