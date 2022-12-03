@@ -1147,7 +1147,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)titleButtonPressed:(id)sender
 {
     RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room fromChatViewController:self];
-    NCSplitViewController *splitViewController = [NCUserInterfaceController sharedInstance].mainSplitViewController;
+    NCSplitViewController *splitViewController = [NCUserInterfaceController sharedInstance].mainViewController;
 
     if (splitViewController != nil && !splitViewController.isCollapsed) {
         roomInfoVC.modalPresentationStyle = UIModalPresentationPageSheet;

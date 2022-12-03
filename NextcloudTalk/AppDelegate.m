@@ -84,12 +84,11 @@
     
     [self registerBackgroundFetchTask];
 
-    [NCUserInterfaceController sharedInstance].mainSplitViewController = (NCSplitViewController *) self.window.rootViewController;
     [NCUserInterfaceController sharedInstance].mainViewController = (NCSplitViewController *) self.window.rootViewController;
-    [NCUserInterfaceController sharedInstance].roomsTableViewController = [NCUserInterfaceController sharedInstance].mainSplitViewController.viewControllers.firstObject.childViewControllers.firstObject;
+    [NCUserInterfaceController sharedInstance].roomsTableViewController = [NCUserInterfaceController sharedInstance].mainViewController.viewControllers.firstObject.childViewControllers.firstObject;
 
     if (@available(iOS 14.5, *)) {
-        [NCUserInterfaceController sharedInstance].mainSplitViewController.displayModeButtonVisibility = UISplitViewControllerDisplayModeButtonVisibilityNever;
+        [NCUserInterfaceController sharedInstance].mainViewController.displayModeButtonVisibility = UISplitViewControllerDisplayModeButtonVisibilityNever;
     }
     
     return YES;
