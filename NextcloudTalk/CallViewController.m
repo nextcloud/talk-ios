@@ -725,7 +725,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         }
 
         // When running on iPhone in portrait mode, we don't show the 'End call' text on the button
-        if (currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone && UIDeviceOrientationIsPortrait(currentDevice.orientation)) {
+        if (currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone && self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
             [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
         } else {
             [self->_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
