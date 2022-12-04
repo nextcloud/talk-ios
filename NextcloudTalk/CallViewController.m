@@ -32,7 +32,6 @@
 #import "DBImageColorPicker.h"
 #import "JDStatusBarNotification.h"
 #import "UIImageView+AFNetworking.h"
-#import "UIView+Toast.h"
 
 #import "CallKitManager.h"
 #import "CallParticipantViewCell.h"
@@ -660,10 +659,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
-- (void)setVideoDisableButtonActive:(BOOL)active showInfoToast:(BOOL)showToast
+- (void)setVideoDisableButtonActive:(BOOL)active
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSString *cameraStatusString = nil;
+
         if (active) {
             cameraStatusString = NSLocalizedString(@"Camera enabled", nil);
             [self->_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
@@ -671,10 +671,8 @@ typedef NS_ENUM(NSInteger, CallState) {
             cameraStatusString = NSLocalizedString(@"Camera disabled", nil);
             [self->_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
         }
+
         self->_videoDisableButton.accessibilityValue = cameraStatusString;
-        if (showToast) {
-            [self.view makeToast:cameraStatusString duration:1.5 position:CSToastPositionCenter];
-        }
     });
 }
 
@@ -797,9 +795,9 @@ typedef NS_ENUM(NSInteger, CallState) {
         currentOutput = audioSession.currentRoute.outputs[0];
     }
     if ([currentOutput.portType isEqualToString:AVAudioSessionPortBuiltInSpeaker]) {
-        [self setSpeakerButtonActive:YES showInfoToast:NO];
+        [self setSpeakerButtonActive:YES];
     } else {
-        [self setSpeakerButtonActive:NO showInfoToast:NO];
+        [self setSpeakerButtonActive:NO];
     }
     
     // Show AirPlay button if there are more audio routes available
@@ -987,14 +985,14 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [_callController enableVideo:NO];
     [self setLocalVideoViewHidden:YES];
-    [self setVideoDisableButtonActive:NO showInfoToast:!_isAudioOnly];
+    [self setVideoDisableButtonActive:NO];
 }
 
 - (void)enableLocalVideo
 {
     [_callController enableVideo:YES];
     [self setLocalVideoViewHidden:NO];
-    [self setVideoDisableButtonActive:YES showInfoToast:NO];
+    [self setVideoDisableButtonActive:YES];
 }
 
 - (IBAction)switchCameraButtonPressed:(id)sender
@@ -1035,21 +1033,22 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)disableSpeaker
 {
     [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
-    [self setSpeakerButtonActive:NO showInfoToast:YES];
+    [self setSpeakerButtonActive:NO];
     [self adjustSpeakerButton];
 }
 
 - (void)enableSpeaker
 {
     [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
-    [self setSpeakerButtonActive:YES showInfoToast:YES];
+    [self setSpeakerButtonActive:YES];
     [self adjustSpeakerButton];
 }
 
-- (void)setSpeakerButtonActive:(BOOL)active showInfoToast:(BOOL)showToast
+- (void)setSpeakerButtonActive:(BOOL)active
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSString *speakerStatusString = nil;
+
         if (active) {
             speakerStatusString = NSLocalizedString(@"Speaker enabled", nil);
             [self.speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
@@ -1057,11 +1056,9 @@ typedef NS_ENUM(NSInteger, CallState) {
             speakerStatusString = NSLocalizedString(@"Speaker disabled", nil);
             [self.speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
         }
+
         self.speakerButton.accessibilityValue = speakerStatusString;
         self.speakerButton.accessibilityHint = NSLocalizedString(@"Double tap to enable or disable the speaker", nil);
-        if (showToast) {
-            [self.view makeToast:speakerStatusString duration:1.5 position:CSToastPositionCenter];
-        }
     });
 }
 
@@ -1372,7 +1369,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack *)videoTrack
 {
     [self setLocalVideoViewHidden:!videoTrack.isEnabled];
-    [self setVideoDisableButtonActive:videoTrack.isEnabled showInfoToast:NO];
+    [self setVideoDisableButtonActive:videoTrack.isEnabled];
     
     // We set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
     if (!videoTrack.isEnabled) {
