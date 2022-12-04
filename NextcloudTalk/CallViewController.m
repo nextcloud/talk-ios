@@ -30,6 +30,7 @@
 #import <WebRTC/RTCVideoTrack.h>
 
 #import "DBImageColorPicker.h"
+#import "JDStatusBarNotification.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIView+Toast.h"
 
@@ -635,18 +636,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self invalidateDetailedViewTimer];
 }
 
-- (void)showInfoToastWithTitle:(NSString *)title andMessage:(NSString *)message withDuration:(CGFloat)duration
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIView *toast = [self.view toastViewForMessage:message title:title image:nil style:nil];
-        [self.view showToast:toast duration:duration position:CSToastPositionCenter completion:nil];
-    });
-}
-
-- (void)setAudioMuteButtonActive:(BOOL)active showInfoToast:(BOOL)showToast
+- (void)setAudioMuteButtonActive:(BOOL)active
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSString *micStatusString = nil;
+
         if (active) {
             micStatusString = NSLocalizedString(@"Microphone enabled", nil);
             [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
@@ -654,10 +648,8 @@ typedef NS_ENUM(NSInteger, CallState) {
             micStatusString = NSLocalizedString(@"Microphone disabled", nil);
             [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
         }
+
         self->_audioMuteButton.accessibilityValue = micStatusString;
-        if (showToast) {
-            [self.view makeToast:micStatusString duration:1.5 position:CSToastPositionCenter];
-        }
     });
 }
 
@@ -955,29 +947,27 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)forceMuteAudio
 {
-    NSString *forceMutedString = NSLocalizedString(@"You have been muted by a moderator", nil);
-    [self muteAudioWithReason:forceMutedString];
-}
+    [self muteAudio];
 
--(void)muteAudioWithReason:(NSString*)reason
-{
-    [_callController enableAudio:NO];
-    [self setAudioMuteButtonActive:NO showInfoToast:!reason];
-    if (reason) {
-        NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
-        [self showInfoToastWithTitle:micDisabledString andMessage:reason withDuration:7.0];
-    }
+    NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
+    NSString *forceMutedString = NSLocalizedString(@"You have been muted by a moderator", nil);
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[JDStatusBarNotificationPresenter sharedPresenter] presentWithTitle:micDisabledString subtitle:forceMutedString includedStyle:JDStatusBarNotificationIncludedStyleDark completion:nil];
+        [[JDStatusBarNotificationPresenter sharedPresenter] dismissAfterDelay:7.0];
+    });
 }
 
 - (void)muteAudio
 {
-    [self muteAudioWithReason:nil];
+    [_callController enableAudio:NO];
+    [self setAudioMuteButtonActive:NO];
 }
 
 - (void)unmuteAudio
 {
     [_callController enableAudio:YES];
-    [self setAudioMuteButtonActive:YES showInfoToast:YES];
+    [self setAudioMuteButtonActive:YES];
 }
 
 - (IBAction)videoButtonPressed:(id)sender
@@ -1376,7 +1366,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callController:(NCCallController *)callController didCreateLocalAudioTrack:(RTCAudioTrack *)audioTrack
 {
-    [self setAudioMuteButtonActive:audioTrack.isEnabled showInfoToast:NO];
+    [self setAudioMuteButtonActive:audioTrack.isEnabled];
 }
 
 - (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack *)videoTrack
