@@ -74,5 +74,6 @@
 - (void)enableVideo:(BOOL)enable;
 - (void)enableAudio:(BOOL)enable;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
+- (NSString *)signalingSessionId;
 
 @end
