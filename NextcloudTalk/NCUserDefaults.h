@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)defaultBrowser;
 + (void)setPreferredCameraFlashMode:(NSInteger)flashMode;
 + (NSInteger)preferredCameraFlashMode;
++ (void)setBackgroundBlurEnabled:(BOOL)enabled;
++ (BOOL)backgroundBlurEnabled;
 
 @end
 

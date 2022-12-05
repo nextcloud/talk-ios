@@ -29,6 +29,7 @@
 
 NSString * const kNCUserDefaultBrowser          = @"ncUserDefaultBrowser";
 NSString * const kNCPreferredCameraFlashMode    = @"ncPreferredCameraFlashMode";
+NSString * const kNCBackgroundBlurEnabled       = @"ncBackgroundBlurEnabled";
 
 + (void)setDefaultBrowser:(NSString *)defaultBrowser
 {
@@ -58,6 +59,16 @@ NSString * const kNCPreferredCameraFlashMode    = @"ncPreferredCameraFlashMode";
 + (NSInteger)preferredCameraFlashMode
 {
     return [[[NSUserDefaults standardUserDefaults] objectForKey:kNCPreferredCameraFlashMode] integerValue];
+}
+
++ (void)setBackgroundBlurEnabled:(BOOL)enabled
+{
+    [[NSUserDefaults standardUserDefaults] setObject:@(enabled) forKey:kNCBackgroundBlurEnabled];
+}
+
++ (BOOL)backgroundBlurEnabled
+{
+    return [[[NSUserDefaults standardUserDefaults] objectForKey:kNCBackgroundBlurEnabled] boolValue];
 }
 
 @end
