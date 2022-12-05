@@ -100,6 +100,7 @@ static NSInteger kIgnoreStatusCode = 999;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChat:) name:NCChatViewControllerTalkToUserNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChatWithURL:) name:NCURLWantsToOpenConversationNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChatHighlightingMessage:) name:NCPresentChatHighlightingMessageNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
     }
     
     return self;
@@ -340,6 +341,61 @@ static NSInteger kIgnoreStatusCode = 999;
         unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
     }
     return unmanagedRoom;
+}
+
+- (void)resendOfflineMessagesWithCompletionBlock:(SendOfflineMessagesCompletionBlock)block
+{
+    // Try to send offline messages for all rooms
+    [self resendOfflineMessagesForToken:nil withCompletionBlock:block];
+}
+
+- (void)resendOfflineMessagesForToken:(NSString *)token withCompletionBlock:(SendOfflineMessagesCompletionBlock)block
+{
+    NSPredicate *query;
+
+    if (!token) {
+        query = [NSPredicate predicateWithFormat:@"isOfflineMessage = true"];
+    } else {
+        query = [NSPredicate predicateWithFormat:@"isOfflineMessage = true AND token = %@", token];
+    }
+
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    RLMResults *managedTemporaryMessages = [NCChatMessage objectsWithPredicate:query];
+    NSInteger twelveHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (60 * 60 * 12);
+
+    for (NCChatMessage *offlineMessage in managedTemporaryMessages) {
+        // If we were unable to send a message after 12 hours, mark as failed
+        if (offlineMessage.timestamp < twelveHoursAgoTimestamp) {
+            [realm transactionWithBlock:^{
+                NCChatMessage *managedChatMessage = [NCChatMessage objectsWhere:@"referenceId = %@ AND isTemporary = true", offlineMessage.referenceId].firstObject;
+                managedChatMessage.isOfflineMessage = NO;
+                managedChatMessage.sendingFailed = YES;
+            }];
+
+            NSMutableDictionary *userInfo = [NSMutableDictionary new];
+            [userInfo setObject:offlineMessage forKey:@"message"];
+            [userInfo setObject:@(NO) forKey:@"isOfflineMessage"];
+
+            if (offlineMessage.referenceId) {
+                [userInfo setObject:offlineMessage.referenceId forKey:@"referenceId"];
+            }
+
+            // Inform the callViewController about this change
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidSendChatMessageNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+            return;
+        }
+
+        NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:offlineMessage.token forAccountId:offlineMessage.accountId];
+        NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
+
+        [chatController sendChatMessage:offlineMessage];
+    }
+
+    if (block) {
+        block();
+    }
 }
 
 - (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus
@@ -924,5 +980,14 @@ static NSInteger kIgnoreStatusCode = 999;
     [self startChatWithRoomToken:roomToken];
 }
 
+- (void)connectionStateHasChanged:(NSNotification *)notification
+{
+    ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
+
+    // Try to send offline message when the connection state changes to connected again
+    if (connectionState == kConnectionStateConnected) {
+        [self resendOfflineMessagesWithCompletionBlock:nil];
+    }
+}
 
 @end

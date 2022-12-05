@@ -28,6 +28,8 @@
 #import "NCIntentController.h"
 #import "NCRoomsManager.h"
 
+#import "NextcloudTalk-Swift.h"
+
 NSString * const NCChatControllerDidReceiveInitialChatHistoryNotification           = @"NCChatControllerDidReceiveInitialChatHistoryNotification";
 NSString * const NCChatControllerDidReceiveInitialChatHistoryOfflineNotification    = @"NCChatControllerDidReceiveInitialChatHistoryOfflineNotification";
 NSString * const NCChatControllerDidReceiveChatHistoryNotification                  = @"NCChatControllerDidReceiveChatHistoryNotification";
@@ -286,12 +288,12 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
     }];
 }
 
-- (void)setSendingFailedToMessageWithReferenceId:(NSString *)referenceId
+- (void)transactionForMessageWithReferenceId:(NSString *)referenceId withBlock:(void(^)(NCChatMessage *message))block
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         NCChatMessage *managedChatMessage = [NCChatMessage objectsWhere:@"referenceId = %@ AND isTemporary = true", referenceId].firstObject;
-        managedChatMessage.sendingFailed = YES;
+        block(managedChatMessage);
     }];
 }
 
@@ -317,16 +319,20 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND isTemporary = true", _account.accountId, _room.token];
     RLMResults *managedTemporaryMessages = [NCChatMessage objectsWithPredicate:query];
     RLMResults *managedSortedTemporaryMessages = [managedTemporaryMessages sortedResultsUsingKeyPath:@"timestamp" ascending:YES];
-    // Mark temporary messages sent more than 1 min ago as failed-to-send messages
-    NSInteger oneMinAgoTimestamp = [[NSDate date] timeIntervalSince1970] - 60;
+    
+    // Mark temporary messages sent more than 12 hours ago as failed-to-send messages
+    NSInteger twelveHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (60 * 60 * 12);
+
     for (NCChatMessage *temporaryMessage in managedTemporaryMessages) {
-        if (temporaryMessage.timestamp < oneMinAgoTimestamp) {
+        if (temporaryMessage.timestamp < twelveHoursAgoTimestamp) {
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
+                temporaryMessage.isOfflineMessage = NO;
                 temporaryMessage.sendingFailed = YES;
             }];
         }
     }
+
     // Create an unmanaged copy of the messages
     NSMutableArray *sortedMessages = [NSMutableArray new];
     for (NCChatMessage *managedMessage in managedSortedTemporaryMessages) {
@@ -683,26 +689,67 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
 
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently
 {
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCChatControllerSendMessage" expirationHandler:^(BGTaskHelper *task) {
+        [NCUtils log:@"ExpirationHandler called - sendChatMessage"];
+    }];
+
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:message forKey:@"message"];
+
+    __block NSInteger retryCount;
+
+    if (referenceId) {
+        // Reset offline message flag before retrying to send to prevent race conditions and
+        // possible ending up with multiple identical messages sent
+        [self transactionForMessageWithReferenceId:referenceId withBlock:^(NCChatMessage *message) {
+            message.isOfflineMessage = NO;
+            retryCount = message.offlineMessageRetryCount;
+        }];
+    }
+
     [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token displayName:nil replyTo:replyTo referenceId:referenceId silently:silently forAccount:_account withCompletionBlock:^(NSError *error) {
         if (referenceId) {
             [userInfo setObject:referenceId forKey:@"referenceId"];
         }
+        
         if (error) {
             [userInfo setObject:error forKey:@"error"];
+
             if (referenceId) {
-                [self setSendingFailedToMessageWithReferenceId:referenceId];
+                if (retryCount >= 5) {
+                    // After 5 retries, we assume sending is not possible
+                    [self transactionForMessageWithReferenceId:referenceId withBlock:^(NCChatMessage *message) {
+                        message.sendingFailed = YES;
+                        message.isOfflineMessage = NO;
+                    }];
+
+                } else {
+                    [self transactionForMessageWithReferenceId:referenceId withBlock:^(NCChatMessage *message) {
+                        message.sendingFailed = NO;
+                        message.isOfflineMessage = YES;
+                        message.offlineMessageRetryCount = (++retryCount);
+                    }];
+
+                    [userInfo setObject:@(YES) forKey:@"isOfflineMessage"];
+                }
             }
+
             NSLog(@"Could not send chat message. Error: %@", error.description);
         } else {
             [[NCIntentController sharedInstance] donateSendMessageIntentForRoom:self->_room];
         }
-        
+
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidSendChatMessageNotification
                                                             object:self
                                                           userInfo:userInfo];
+
+        [bgTask stopBackgroundTask];
     }];
+}
+
+- (void)sendChatMessage:(NCChatMessage *)message
+{
+    [self sendChatMessage:message.sendingMessage replyTo:message.parentMessageId referenceId:message.referenceId silently:message.isSilent];
 }
 
 - (void)checkLastCommonReadMessage:(NSInteger)lastCommonReadMessage

@@ -767,24 +767,26 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [_voiceCallButton hideActivityIndicator];
     [_videoCallButton setEnabled:NO];
     [_voiceCallButton setEnabled:NO];
-    
+
     [self.leftButton setEnabled:NO];
     [self.rightButton setEnabled:NO];
-    self.textInputbar.userInteractionEnabled = NO;
 }
 
 - (void)checkRoomControlsAvailability
 {
-    if (_hasJoinedRoom) {
-        // Enable room info, input bar and call buttons
+    if (_hasJoinedRoom && !_offlineMode) {
+        // Enable room info and call buttons when we joined the room
         _titleView.userInteractionEnabled = YES;
         [_videoCallButton setEnabled:YES];
         [_voiceCallButton setEnabled:YES];
-        
-        [self.leftButton setEnabled:YES];
-        [self.rightButton setEnabled:[self canPressRightButton]];
-        self.textInputbar.userInteractionEnabled = YES;
     }
+
+    // Files/objects can only be send when we're not offline
+    [self.leftButton setEnabled:!_offlineMode];
+
+    // Always allow to start writing a message, even if we didn't join the room (yet)
+    [self.rightButton setEnabled:[self canPressRightButton]];
+    self.textInputbar.userInteractionEnabled = YES;
 
     if (![_room userCanStartCall] && !_room.hasCall) {
         // Disable call buttons
@@ -922,16 +924,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     return [formatter stringFromDate:date];
 }
 
-- (NSString *)createSendingMessage:(NSString *)text withMessageParameters:(NSDictionary *)messageParameters
-{
-    NSString *sendingMessage = [text copy];
-    for (NSString *parameterKey in messageParameters.allKeys) {
-        NCMessageParameter *parameter = [messageParameters objectForKey:parameterKey];
-        sendingMessage = [sendingMessage stringByReplacingOccurrencesOfString:parameter.mentionDisplayName withString:parameter.mentionId];
-    }
-    return sendingMessage;
-}
-
 - (void)presentJoinError:(NSString *)alertMessage
 {
     NSString *alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join %@", nil), _room.displayName];
@@ -952,7 +944,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 #pragma mark - Temporary messages
 
-- (NCChatMessage *)createTemporaryMessage:(NSString *)message replyToMessage:(NCChatMessage *)parentMessage withMessageParameters:(NSString *)messageParameters
+- (NCChatMessage *)createTemporaryMessage:(NSString *)message replyToMessage:(NCChatMessage *)parentMessage withMessageParameters:(NSString *)messageParameters silently:(BOOL)silently
 {
     NCChatMessage *temporaryMessage = [[NCChatMessage alloc] init];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -968,16 +960,18 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     temporaryMessage.isTemporary = YES;
     temporaryMessage.parentId = parentMessage.internalId;
     temporaryMessage.messageParametersJSONString = messageParameters;
+    temporaryMessage.isSilent = silently;
 
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         [realm addObject:temporaryMessage];
     }];
-    
+
     NCChatMessage *unmanagedTemporaryMessage = [[NCChatMessage alloc] initWithValue:temporaryMessage];
     return unmanagedTemporaryMessage;
 }
 
+// TODO: Move to NCChatMessage?
 - (NSString *)replaceMentionsDisplayNamesWithMentionsKeysInMessage:(NSString *)message usingMessageParameters:(NSString *)messageParameters
 {
     NSString *resultMessage = [[message copy] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
@@ -986,18 +980,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NCMessageParameter *parameter = [messageParametersDict objectForKey:parameterKey];
         NSString *parameterKeyString = [[NSString alloc] initWithFormat:@"{%@}", parameterKey];
         resultMessage = [resultMessage stringByReplacingOccurrencesOfString:parameter.mentionDisplayName withString:parameterKeyString];
-    }
-    return resultMessage;
-}
-
-- (NSString *)replaceMessageMentionsKeysWithMentionsDisplayNames:(NSString *)message usingMessageParameters:(NSString *)messageParameters
-{
-    NSString *resultMessage = [[message copy] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    NSDictionary *messageParametersDict = [NCMessageParameter messageParametersDictFromJSONString:messageParameters];
-    for (NSString *parameterKey in messageParametersDict.allKeys) {
-        NCMessageParameter *parameter = [messageParametersDict objectForKey:parameterKey];
-        NSString *parameterKeyString = [[NSString alloc] initWithFormat:@"{%@}", parameterKey];
-        resultMessage = [resultMessage stringByReplacingOccurrencesOfString:parameterKeyString withString:parameter.mentionDisplayName];
     }
     return resultMessage;
 }
@@ -1050,20 +1032,20 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     });
 }
 
-- (void)setFailedStatusToMessageWithReferenceId:(NSString *)referenceId
+- (void)modifyMessageWithReferenceId:(NSString *)referenceId withBlock:(void(^)(NCChatMessage *message))block
 {
     NSMutableArray *reloadIndexPaths = [NSMutableArray new];
     NSIndexPath *indexPath = [self indexPathForMessageWithReferenceId:referenceId];
     if (indexPath) {
         [reloadIndexPaths addObject:indexPath];
-        
-        // Set failed status
+
+        // Modify the found temporary message
         NSDate *keyDate = [_dateSections objectAtIndex:indexPath.section];
         NSMutableArray *messages = [_messages objectForKey:keyDate];
-        NCChatMessage *failedMessage = [messages objectAtIndex:indexPath.row];
-        failedMessage.sendingFailed = YES;
+        NCChatMessage *message = [messages objectAtIndex:indexPath.row];
+        block(message);
     }
-    
+
     [self.tableView beginUpdates];
     [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
     [self.tableView endUpdates];
@@ -1219,19 +1201,14 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)sendChatMessage:(NSString *)message withParentMessage:(NCChatMessage *)parentMessage messageParameters:(NSString *)messageParameters silently:(BOOL)silently
 {
     // Create temporary message
-    NSString *referenceId = nil;
-    
+    NCChatMessage *temporaryMessage = [self createTemporaryMessage:message replyToMessage:parentMessage withMessageParameters:messageParameters silently:silently];
+
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReferenceId]) {
-        NCChatMessage *temporaryMessage = [self createTemporaryMessage:message replyToMessage:parentMessage withMessageParameters:messageParameters];
-        referenceId = temporaryMessage.referenceId;
         [self appendTemporaryMessage:temporaryMessage];
     }
-    
+
     // Send message
-    NSDictionary *messageParametersDict = [NCMessageParameter messageParametersDictFromJSONString:messageParameters];
-    NSString *sendingText = [self createSendingMessage:message withMessageParameters:messageParametersDict];
-    NSInteger replyTo = parentMessage ? parentMessage.messageId : -1;
-    [_chatController sendChatMessage:sendingText replyTo:replyTo referenceId:referenceId silently:silently];
+    [_chatController sendChatMessage:temporaryMessage];
 }
 
 - (void)presentSendChatMessageOptions
@@ -1273,8 +1250,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (BOOL)canPressRightButton
 {
     BOOL canPress = [super canPressRightButton];
-    
-    if (!canPress && !_presentedInCall && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityVoiceMessage]) {
+
+    // If in offline mode, we don't want to show the voice button
+    if (!_offlineMode && !canPress && !_presentedInCall && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityVoiceMessage]) {
         [self showVoiceMessageRecordButton];
         return YES;
     }
@@ -1551,8 +1529,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self removeUnreadMessagesSeparator];
     
     [self removePermanentlyTemporaryMessage:message];
-    NSString *sendingMessage = [self replaceMessageMentionsKeysWithMentionsDisplayNames:message.message usingMessageParameters:message.messageParametersJSONString];
-    [self sendChatMessage:sendingMessage withParentMessage:message.parent messageParameters:message.messageParametersJSONString silently:NO];
+    [self sendChatMessage:message.sendingMessage withParentMessage:message.parent messageParameters:message.messageParametersJSONString silently:message.isSilent];
 }
 
 - (void)didPressCopy:(NCChatMessage *)message {
@@ -1570,7 +1547,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 }
 
 - (void)didPressDelete:(NCChatMessage *)message {
-    if (message.sendingFailed) {
+    if (message.sendingFailed || message.isOfflineMessage) {
         [self removePermanentlyTemporaryMessage:message];
     } else {
         // Set deleting state
@@ -2380,6 +2357,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [self setOfflineFooterView];
         [_chatController stopReceivingNewChatMessages];
         [self presentJoinError:[notification.userInfo objectForKey:@"errorReason"]];
+        [self disableRoomControls];
+        [self checkRoomControlsAvailability];
         return;
     }
     
@@ -2397,6 +2376,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         _hasRequestedInitialHistory = YES;
         [_chatController getInitialChatHistory];
     }
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // After we joined a room, check if there are offline messages for this particular room which need to be send
+        [[NCRoomsManager sharedInstance] resendOfflineMessagesForToken:self->_room.token withCompletionBlock:nil];
+    });
 }
 
 - (void)didLeaveRoom:(NSNotification *)notification
@@ -2646,27 +2630,38 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         }
         
         NSError *error = [notification.userInfo objectForKey:@"error"];
+
+        if (!error) {
+            return;
+        }
+
         NSString *message = [notification.userInfo objectForKey:@"message"];
         NSString *referenceId = [notification.userInfo objectForKey:@"referenceId"];
-        if (error) {
-            if (referenceId) {
-                [self setFailedStatusToMessageWithReferenceId:referenceId];
-            } else {
-                self.textView.text = message;
-                UIAlertController * alert = [UIAlertController
-                                             alertControllerWithTitle:NSLocalizedString(@"Could not send the message", nil)
-                                             message:NSLocalizedString(@"An error occurred while sending the message", nil)
-                                             preferredStyle:UIAlertControllerStyleAlert];
-                
-                UIAlertAction* okButton = [UIAlertAction
-                                           actionWithTitle:NSLocalizedString(@"OK", nil)
-                                           style:UIAlertActionStyleDefault
-                                           handler:nil];
-                
-                [alert addAction:okButton];
-                [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
-            }
+
+        if (!referenceId) {
+            self.textView.text = message;
+            UIAlertController * alert = [UIAlertController
+                                         alertControllerWithTitle:NSLocalizedString(@"Could not send the message", nil)
+                                         message:NSLocalizedString(@"An error occurred while sending the message", nil)
+                                         preferredStyle:UIAlertControllerStyleAlert];
+
+            UIAlertAction* okButton = [UIAlertAction
+                                       actionWithTitle:NSLocalizedString(@"OK", nil)
+                                       style:UIAlertActionStyleDefault
+                                       handler:nil];
+
+            [alert addAction:okButton];
+            [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+
+            return;
         }
+
+        BOOL isOfflineMessage = [[notification.userInfo objectForKey:@"isOfflineMessage"] boolValue];
+
+        [self modifyMessageWithReferenceId:referenceId withBlock:^(NCChatMessage *message) {
+            message.sendingFailed = !isOfflineMessage;
+            message.isOfflineMessage = isOfflineMessage;
+        }];
     });
 }
 
@@ -3628,7 +3623,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (BOOL)isMessageReplyable:(NCChatMessage *)message
 {
-    return message.isReplyable && !message.isDeleting && !_offlineMode;
+    return message.isReplyable && !message.isDeleting;
 }
 
 - (BOOL)isMessageReactable:(NCChatMessage *)message
@@ -3704,7 +3699,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Forward option (only normal messages for now)
-    if (!message.file && !message.poll && !message.isDeletedMessage && !_offlineMode) {
+    if (!message.file && !message.poll && !message.isDeletedMessage) {
         UIImage *forwardImage = [[UIImage imageNamed:@"forward"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *forwardAction = [UIAction actionWithTitle:NSLocalizedString(@"Forward", nil) image:forwardImage identifier:nil handler:^(UIAction *action){
             
@@ -3715,7 +3710,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
 
     // Re-send option
-    if (message.sendingFailed && !_offlineMode && hasChatPermission) {
+    if ((message.sendingFailed || message.isOfflineMessage) && hasChatPermission) {
         UIImage *resendImage = [[UIImage imageNamed:@"refresh"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *resendAction = [UIAction actionWithTitle:NSLocalizedString(@"Resend", nil) image:resendImage identifier:nil handler:^(UIAction *action){
             
@@ -3759,7 +3754,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
 
     // Delete option
-    if (message.sendingFailed || ([message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType] && hasChatPermission)) {
+    if (message.sendingFailed || message.isOfflineMessage || ([message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType] && hasChatPermission)) {
         UIImage *deleteImage = [[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
             
@@ -3828,7 +3823,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
-    if (message.isReplyable && !message.isDeleting && !_offlineMode) {
+    if (message.isReplyable && !message.isDeleting) {
         UIContextualAction *replyAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
             [self didPressReply:message];
             completionHandler(true);

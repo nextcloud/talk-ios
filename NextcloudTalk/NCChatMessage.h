@@ -75,6 +75,9 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, assign) BOOL sendingFailed;
 @property (nonatomic, assign) BOOL isGroupMessage;
 @property (nonatomic, assign) BOOL isDeleting;
+@property (nonatomic, assign) BOOL isSilent;
+@property (nonatomic, assign) BOOL isOfflineMessage;
+@property (nonatomic, assign) NSInteger offlineMessageRetryCount;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;
@@ -100,7 +103,9 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)parsedMessageForChat;
 - (NSMutableAttributedString *)systemMessageFormat;
+- (NSString *)sendingMessage;
 - (NCChatMessage *)parent;
+- (NSInteger)parentMessageId;
 - (NSMutableArray *)reactionsArray;
 - (BOOL)isReactionBeingModified:(NSString *)reaction;
 - (void)addTemporaryReaction:(NSString *)reaction;
