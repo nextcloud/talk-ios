@@ -932,6 +932,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     NSString *alertTitle = NSLocalizedString(@"Could not join conversation", nil);
 
     [[JDStatusBarNotificationPresenter sharedPresenter] presentWithTitle:alertTitle subtitle:alertMessage includedStyle:JDStatusBarNotificationIncludedStyleWarning completion:nil];
+    [[JDStatusBarNotificationPresenter sharedPresenter] dismissAfterDelay:8.0];
 }
 
 #pragma mark - Temporary messages
