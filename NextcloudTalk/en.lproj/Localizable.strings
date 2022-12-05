@@ -419,16 +419,13 @@
 "Could not delete conversation" = "Could not delete conversation";
 
 /* No comment provided by engineer. */
-"Could not join %@" = "Could not join %@";
-
-/* No comment provided by engineer. */
 "Could not join %@ call" = "Could not join %@ call";
 
 /* No comment provided by engineer. */
 "Could not join call with %@" = "Could not join call with %@";
 
 /* No comment provided by engineer. */
-"Could not join conversation with %@" = "Could not join conversation with %@";
+"Could not join conversation" = "Could not join conversation";
 
 /* No comment provided by engineer. */
 "Could not leave conversation" = "Could not leave conversation";

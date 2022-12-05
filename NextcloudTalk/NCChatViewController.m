@@ -30,6 +30,7 @@
 
 #import "AFImageDownloader.h"
 #import "FTPopOverMenu.h"
+#import "JDStatusBarNotification.h"
 #import "NSDate+DateTools.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
@@ -454,6 +455,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self savePendingMessage];
     [self saveLastReadMessage];
     [self stopVoiceMessagePlayer];
+
+    [[JDStatusBarNotificationPresenter sharedPresenter] dismiss];
     
     _isVisible = NO;
 }
@@ -926,20 +929,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)presentJoinError:(NSString *)alertMessage
 {
-    NSString *alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join %@", nil), _room.displayName];
-    if (_room.type == kNCRoomTypeOneToOne) {
-        alertTitle = [NSString stringWithFormat:NSLocalizedString(@"Could not join conversation with %@", nil), _room.displayName];
-    }
+    NSString *alertTitle = NSLocalizedString(@"Could not join conversation", nil);
 
-    UIAlertController * alert = [UIAlertController alertControllerWithTitle:alertTitle
-                                                                    message:alertMessage
-                                                             preferredStyle:UIAlertControllerStyleAlert];
-    
-    UIAlertAction* okButton = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
-                                                       style:UIAlertActionStyleDefault
-                                                     handler:nil];
-    [alert addAction:okButton];
-    [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+    [[JDStatusBarNotificationPresenter sharedPresenter] presentWithTitle:alertTitle subtitle:alertMessage includedStyle:JDStatusBarNotificationIncludedStyleWarning completion:nil];
 }
 
 #pragma mark - Temporary messages
