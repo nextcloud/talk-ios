@@ -1502,7 +1502,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callController:(NCCallController *)callController didReceiveForceMuteActionForPeerId:(NSString *)peerId
 {
-    if ([peerId isEqualToString:callController.userSessionId]) {
+    if ([peerId isEqualToString:callController.signalingSessionId]) {
         [self forceMuteAudio];
     } else {
         NSLog(@"Peer was force muted: %@", peerId);
