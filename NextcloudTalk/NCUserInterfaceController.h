@@ -34,11 +34,7 @@
 
 @interface NCUserInterfaceController : NSObject
 
-// Will be of type NCSplitViewController on iOS >= 14
-// and NCNavigationController on iOS < 13
-@property (nonatomic, strong) UIViewController *mainViewController;
-
-@property (nonatomic, strong) NCSplitViewController *mainSplitViewController;
+@property (nonatomic, strong) NCSplitViewController *mainViewController;
 @property (nonatomic, strong) RoomsTableViewController *roomsTableViewController;
 
 + (instancetype)sharedInstance;

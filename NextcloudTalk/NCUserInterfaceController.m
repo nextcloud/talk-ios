@@ -325,32 +325,15 @@
 {
     [_mainViewController dismissViewControllerAnimated:YES completion:nil];
 
-    [_mainSplitViewController popSecondaryColumnToRootViewController];
-    [_mainSplitViewController showColumn:UISplitViewControllerColumnPrimary];
+    [_mainViewController popSecondaryColumnToRootViewController];
+    [_mainViewController showColumn:UISplitViewControllerColumnPrimary];
 }
 
 
 - (void)presentChatViewController:(NCChatViewController *)chatViewController
 {
     [self presentConversationsList];
-
-    if (_mainSplitViewController.transitionCoordinator == nil) {
-        // No ongoing animations -> show chatViewController directly
-        [_mainSplitViewController showDetailViewController:chatViewController sender:self];
-    } else {
-        // Wait until the splitViewController finished all it's animations.
-        // Otherwise the chatViewController might end up in the wrong column.
-        // This mainly happens when being in a conversation and tapping a push notification
-        // of another conversation.
-        [_mainSplitViewController.transitionCoordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-            // Nothing to do here, we are only interested in the completion block
-        } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self->_mainSplitViewController showDetailViewController:chatViewController sender:self];
-            });
-        }];
-    }
-
+    [_mainViewController showDetailViewController:chatViewController sender:self];
     [_roomsTableViewController setSelectedRoomToken:chatViewController.room.token];
 }
 

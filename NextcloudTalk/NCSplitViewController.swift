@@ -62,30 +62,55 @@
         }
     }
 
-    override func showDetailViewController(_ vc: UIViewController, sender: Any?) {
-        if !isCollapsed {
-            // When another room is selected while there's still an active chatViewController
-            // we need to make sure the active one is removed (applies to expanded mode only)
-            if let navController = self.viewController(for: .secondary) as? UINavigationController {
-                navController.popToRootViewController(animated: false)
-            }
+    override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
+        self.internalExecuteAfterTransition {
+            super.present(viewControllerToPresent, animated: flag, completion: completion)
         }
+    }
 
-        super.showDetailViewController(vc, sender: sender)
-
-        if isCollapsed {
-            // Make sure we don't have accidentally a placeholderView in our navigation
-            // while in collapsed mode
-            if let navController = self.viewController(for: .secondary) as? UINavigationController,
-               vc is NCChatViewController {
-
-                // Only set the viewController if there's actually an active one shown by showDetailViewController
-                // Otherwise UI might break or crash (view not loaded correctly)
-                // This might happen if a chatViewController is shown by a push notification
-                if self.hasActiveChatViewController() {
-                    navController.setViewControllers([vc], animated: false)
+    override func showDetailViewController(_ vc: UIViewController, sender: Any?) {
+        self.internalExecuteAfterTransition {
+            if !self.isCollapsed {
+                // When another room is selected while there's still an active chatViewController
+                // we need to make sure the active one is removed (applies to expanded mode only)
+                if let navController = self.viewController(for: .secondary) as? UINavigationController {
+                    navController.popToRootViewController(animated: false)
                 }
             }
+
+            super.showDetailViewController(vc, sender: sender)
+
+            if self.isCollapsed {
+                // Make sure we don't have accidentally a placeholderView in our navigation
+                // while in collapsed mode
+                if let navController = self.viewController(for: .secondary) as? UINavigationController,
+                   vc is NCChatViewController {
+
+                    // Only set the viewController if there's actually an active one shown by showDetailViewController
+                    // Otherwise UI might break or crash (view not loaded correctly)
+                    // This might happen if a chatViewController is shown by a push notification
+                    if self.hasActiveChatViewController() {
+                        navController.setViewControllers([vc], animated: false)
+                    }
+                }
+            }
+        }
+    }
+
+    func internalExecuteAfterTransition(action: @escaping () -> Void) {
+        if self.transitionCoordinator == nil {
+            // No ongoing animations -> execute action directly
+            action()
+        } else {
+            // Wait until the splitViewController finished all it's animations.
+            // Otherwise this can lead to different UI glitches, for example a chatViewController might
+            // end up in the wrong column. This mainly happens when being in a
+            // conversation and tapping a push notification of another conversation.
+            self.transitionCoordinator?.animate(alongsideTransition: nil, completion: { _ in
+                DispatchQueue.main.async {
+                    action()
+                }
+            })
         }
     }
 
