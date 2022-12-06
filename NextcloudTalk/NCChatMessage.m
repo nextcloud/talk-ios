@@ -499,9 +499,9 @@ NSString * const kSharedItemTypeVoice       = @"voice";
     NSString *resultMessage = [[self.message copy] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
     for (NSString *parameterKey in self.messageParameters.allKeys) {
-        NCMessageParameter *parameter = [self.messageParameters objectForKey:parameterKey];
+        NCMessageParameter *parameter = [[NCMessageParameter alloc] initWithDictionary:[self.messageParameters objectForKey:parameterKey]];
         NSString *parameterKeyString = [[NSString alloc] initWithFormat:@"{%@}", parameterKey];
-        resultMessage = [resultMessage stringByReplacingOccurrencesOfString:parameterKeyString withString:parameter.mentionDisplayName];
+        resultMessage = [resultMessage stringByReplacingOccurrencesOfString:parameterKeyString withString:parameter.mentionId];
     }
     
     return resultMessage;
