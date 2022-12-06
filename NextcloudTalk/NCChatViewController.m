@@ -977,6 +977,18 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     return resultMessage;
 }
 
+- (NSString *)replaceMessageMentionsKeysWithMentionsDisplayNames:(NSString *)message usingMessageParameters:(NSString *)messageParameters
+ {
+     NSString *resultMessage = [[message copy] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+     NSDictionary *messageParametersDict = [NCMessageParameter messageParametersDictFromJSONString:messageParameters];
+     for (NSString *parameterKey in messageParametersDict.allKeys) {
+         NCMessageParameter *parameter = [messageParametersDict objectForKey:parameterKey];
+         NSString *parameterKeyString = [[NSString alloc] initWithFormat:@"{%@}", parameterKey];
+         resultMessage = [resultMessage stringByReplacingOccurrencesOfString:parameterKeyString withString:parameter.mentionDisplayName];
+     }
+     return resultMessage;
+ }
+
 - (void)appendTemporaryMessage:(NCChatMessage *)temporaryMessage
 {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -1522,7 +1534,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self removeUnreadMessagesSeparator];
     
     [self removePermanentlyTemporaryMessage:message];
-    [self sendChatMessage:message.sendingMessage withParentMessage:message.parent messageParameters:message.messageParametersJSONString silently:message.isSilent];
+    NSString *originalMessage = [self replaceMessageMentionsKeysWithMentionsDisplayNames:message.message usingMessageParameters:message.messageParametersJSONString];
+    [self sendChatMessage:originalMessage withParentMessage:message.parent messageParameters:message.messageParametersJSONString silently:message.isSilent];
 }
 
 - (void)didPressCopy:(NCChatMessage *)message {
