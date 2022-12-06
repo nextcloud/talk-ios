@@ -497,11 +497,17 @@ NSString * const kSharedItemTypeVoice       = @"voice";
 - (NSString *)sendingMessage
 {
     NSString *resultMessage = [[self.message copy] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSDictionary *messageParametersDict = [NCMessageParameter messageParametersDictFromJSONString:self.messageParametersJSONString];
 
-    for (NSString *parameterKey in self.messageParameters.allKeys) {
-        NCMessageParameter *parameter = [self.messageParameters objectForKey:parameterKey];
+    for (NSString *parameterKey in messageParametersDict.allKeys) {
+        NCMessageParameter *parameter = [messageParametersDict objectForKey:parameterKey];
+
+        // When resending a message, make sure we don't have any parameters in the message left
         NSString *parameterKeyString = [[NSString alloc] initWithFormat:@"{%@}", parameterKey];
         resultMessage = [resultMessage stringByReplacingOccurrencesOfString:parameterKeyString withString:parameter.mentionDisplayName];
+
+        // Make sure all mentionDisplayNames are correctly replaced by their corresponding mentionId
+        resultMessage = [resultMessage stringByReplacingOccurrencesOfString:parameter.mentionDisplayName withString:parameter.mentionId];
     }
     
     return resultMessage;
