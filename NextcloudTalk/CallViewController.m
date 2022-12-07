@@ -698,8 +698,6 @@ typedef NS_ENUM(NSInteger, CallState) {
         self->_switchCameraButton.hidden = self->_isAudioOnly;
         self->_videoCallButton.hidden = !self->_isAudioOnly;
 
-        UIDevice *currentDevice = [UIDevice currentDevice];
-
         self->_lowerHandButton.hidden = !self->_isHandRaised;
         self->_recordingButton.hidden = !self->_room.callRecording;
         self->_speakerButton.hidden = NO;
@@ -714,8 +712,9 @@ typedef NS_ENUM(NSInteger, CallState) {
             self->_speakerButton.hidden = YES;
         }
 
-        // When running on iPhone in portrait mode, we don't show the 'End call' text on the button
-        if (currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone && self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
+        // When the horizontal size is compact (e.g. iPhone portrait) we don't show the 'End call' text on the button
+        // Don't make assumptions about the device here, because with split screen even an iPad can have a compact width
+        if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
             [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
         } else {
             [self->_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
