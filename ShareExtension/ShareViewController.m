@@ -26,6 +26,7 @@
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCAvatarSessionManager.h"
 #import "NCDatabaseManager.h"
 #import "NCIntentController.h"
 #import "NCRoom.h"
@@ -131,6 +132,15 @@
         [RLMRealmConfiguration setDefaultConfiguration:configuration];
     }
     _realm = [RLMRealm realmWithConfiguration:configuration error:&error];
+
+    // Setup image downloader
+    AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
+                                          initWithSessionManager:[NCAvatarSessionManager sharedInstance]
+                                          downloadPrioritization:AFImageDownloadPrioritizationFIFO
+                                          maximumActiveDownloads:4
+                                          imageCache:[[AFAutoPurgingImageCache alloc] init]];
+    
+    [ShareAvatarImageView setSharedImageDownloader:imageDownloader];
     
     if (self.extensionContext && self.extensionContext.intent && [self.extensionContext.intent isKindOfClass:[INSendMessageIntent class]]) {
         INSendMessageIntent *intent = (INSendMessageIntent *)self.extensionContext.intent;

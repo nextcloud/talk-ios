@@ -45,13 +45,6 @@ CGFloat const kShareTableCellHeight = 56.0f;
     self.avatarImageView.layer.masksToBounds = YES;
     self.avatarImageView.backgroundColor = [NCAppBranding placeholderColor];
     self.avatarImageView.contentMode = UIViewContentModeCenter;
-    
-    AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
-                                          initWithSessionManager:[NCAvatarSessionManager sharedInstance]
-                                          downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                                          maximumActiveDownloads:4
-                                          imageCache:[[AFAutoPurgingImageCache alloc] init]];
-    [ShareAvatarImageView setSharedImageDownloader:imageDownloader];
 }
 
 - (void)prepareForReuse
