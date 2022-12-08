@@ -237,7 +237,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         [self setLocalVideoRect];
         [self resizeScreensharingView];
-        [self adjustButtons];
+        [self adjustTopBar];
     } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
     }];
 }
@@ -246,7 +246,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [super viewSafeAreaInsetsDidChange];
     [self setLocalVideoRect];
-    [self adjustButtons];
+    [self adjustTopBar];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -255,7 +255,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
     [self setLocalVideoRect];
     [self adjustSpeakerButton];
-    [self adjustButtons];
+    [self adjustTopBar];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -690,7 +690,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
-- (void)adjustButtons
+- (void)adjustTopBar
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         // Enable/Disable video buttons
@@ -757,7 +757,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         UIAction *raiseHandAction = [UIAction actionWithTitle:raiseHandTitel image:[UIImage imageNamed:@"hand"] identifier:nil handler:^(UIAction *action) {
             [self->_callController raiseHand:!self->_isHandRaised];
             self->_isHandRaised = !self->_isHandRaised;
-            [self adjustButtons];
+            [self adjustTopBar];
         }];
 
         [items addObject:raiseHandAction];
@@ -1193,7 +1193,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     self->_isHandRaised = NO;
     [self->_callController raiseHand:NO];
-    [self adjustButtons];
+    [self adjustTopBar];
 }
 
 - (IBAction)videoRecordingButtonPressed:(id)sender
@@ -1500,7 +1500,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callControllerDidChangeRecording:(NCCallController *)callController
 {
-    [self adjustButtons];
+    [self adjustTopBar];
 }
 
 #pragma mark - Screensharing
