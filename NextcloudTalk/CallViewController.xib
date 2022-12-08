@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <device id="ipad10_5" orientation="portrait" layout="fullscreen" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
@@ -23,6 +23,7 @@
                 <outlet property="screensharingView" destination="Zzc-Pq-hMC" id="kaT-G4-IxS"/>
                 <outlet property="speakerButton" destination="dgz-bL-PRr" id="WdG-PS-8Qa"/>
                 <outlet property="switchCameraButton" destination="Mf3-yk-Olo" id="bJn-Fu-bqF"/>
+                <outlet property="titleView" destination="NY0-IT-mMr" id="TTN-Ws-hgl"/>
                 <outlet property="toggleChatButton" destination="vBI-Mz-P4p" id="PVu-uW-pOJ"/>
                 <outlet property="topBarButtonStackView" destination="FHx-ks-wEy" id="dZG-YF-m0q"/>
                 <outlet property="topBarView" destination="reh-cY-1Qv" id="rBs-Qj-M1A"/>
@@ -35,14 +36,14 @@
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT" userLabel="CallView">
-            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+            <rect key="frame" x="0.0" y="0.0" width="834" height="1112"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="reh-cY-1Qv" userLabel="TopBar">
-                    <rect key="frame" x="0.0" y="0.0" width="393" height="64"/>
+                    <rect key="frame" x="0.0" y="0.0" width="834" height="84"/>
                     <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl8-bS-FJ5" userLabel="HangupButton">
-                            <rect key="frame" x="284" y="8" width="48" height="48"/>
+                        <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl8-bS-FJ5" userLabel="HangupButton">
+                            <rect key="frame" x="725" y="28" width="48" height="48"/>
                             <color key="backgroundColor" systemColor="systemRedColor"/>
                             <constraints>
                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="aZ2-oa-X4M"/>
@@ -56,7 +57,7 @@
                             </connections>
                         </button>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sX5-HH-Bl6" userLabel="Separator">
-                            <rect key="frame" x="340" y="16" width="1" height="32"/>
+                            <rect key="frame" x="781" y="36" width="1" height="32"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="32" id="BU7-Cl-egd"/>
@@ -67,7 +68,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vBI-Mz-P4p" userLabel="ToggleChatButton">
-                            <rect key="frame" x="345" y="4" width="44" height="56"/>
+                            <rect key="frame" x="786" y="24" width="44" height="56"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="44" id="9DJ-Sj-p8R"/>
@@ -79,7 +80,7 @@
                             </connections>
                         </button>
                         <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="FHx-ks-wEy">
-                            <rect key="frame" x="-80" y="4" width="356" height="56"/>
+                            <rect key="frame" x="361" y="24" width="356" height="56"/>
                             <subviews>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aQX-QQ-eLT" userLabel="RecordingButton">
                                     <rect key="frame" x="0.0" y="0.0" width="44" height="56"/>
@@ -160,13 +161,23 @@
                                 </button>
                             </subviews>
                         </stackView>
+                        <view contentMode="scaleToFill" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="NY0-IT-mMr" userLabel="TitleView" customClass="NCChatTitleView">
+                            <rect key="frame" x="8" y="37" width="345" height="30"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="30" id="TeG-Qy-adB"/>
+                                <constraint firstAttribute="width" relation="greaterThanOrEqual" id="eXn-Ro-wDA"/>
+                            </constraints>
+                        </view>
                     </subviews>
                     <viewLayoutGuide key="safeArea" id="U6B-V9-PR8"/>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstItem="vBI-Mz-P4p" firstAttribute="top" secondItem="U6B-V9-PR8" secondAttribute="top" constant="4" id="0QU-Sz-S3Y"/>
                         <constraint firstItem="Rl8-bS-FJ5" firstAttribute="leading" secondItem="FHx-ks-wEy" secondAttribute="trailing" constant="8" id="2FZ-aE-UFv"/>
+                        <constraint firstItem="NY0-IT-mMr" firstAttribute="leading" secondItem="U6B-V9-PR8" secondAttribute="leading" constant="8" id="Fg4-8S-ufG"/>
                         <constraint firstItem="vBI-Mz-P4p" firstAttribute="leading" secondItem="sX5-HH-Bl6" secondAttribute="trailing" constant="4" id="Hwz-5s-8r3"/>
+                        <constraint firstItem="NY0-IT-mMr" firstAttribute="centerY" secondItem="reh-cY-1Qv" secondAttribute="centerYWithinMargins" id="Km8-3x-pGw"/>
                         <constraint firstItem="U6B-V9-PR8" firstAttribute="bottom" secondItem="FHx-ks-wEy" secondAttribute="bottom" constant="4" id="Ml0-KX-CA3"/>
                         <constraint firstItem="FHx-ks-wEy" firstAttribute="top" secondItem="U6B-V9-PR8" secondAttribute="top" constant="4" id="RS5-Em-m6g"/>
                         <constraint firstItem="sX5-HH-Bl6" firstAttribute="top" secondItem="U6B-V9-PR8" secondAttribute="top" constant="16" id="U0s-29-FWP"/>
@@ -174,11 +185,12 @@
                         <constraint firstItem="Rl8-bS-FJ5" firstAttribute="top" secondItem="U6B-V9-PR8" secondAttribute="top" constant="8" id="cCq-ee-a3F"/>
                         <constraint firstItem="U6B-V9-PR8" firstAttribute="bottom" secondItem="vBI-Mz-P4p" secondAttribute="bottom" constant="4" id="e6u-T7-4Mi"/>
                         <constraint firstItem="sX5-HH-Bl6" firstAttribute="leading" secondItem="Rl8-bS-FJ5" secondAttribute="trailing" constant="8" id="rU0-Bc-0MT"/>
+                        <constraint firstItem="FHx-ks-wEy" firstAttribute="leading" secondItem="NY0-IT-mMr" secondAttribute="trailing" constant="8" id="uUY-lE-iwc"/>
                         <constraint firstItem="U6B-V9-PR8" firstAttribute="trailing" secondItem="vBI-Mz-P4p" secondAttribute="trailing" constant="4" id="yGf-lp-FfM"/>
                     </constraints>
                 </view>
                 <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="aUh-Z0-hO6">
-                    <rect key="frame" x="0.0" y="64" width="393" height="788"/>
+                    <rect key="frame" x="0.0" y="84" width="834" height="1028"/>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" sectionInsetReference="safeArea" id="iSf-tu-VMU">
                         <size key="itemSize" width="50" height="50"/>
@@ -192,10 +204,10 @@
                     </connections>
                 </collectionView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zzc-Pq-hMC" userLabel="ScreenshareView">
-                    <rect key="frame" x="0.0" y="64" width="393" height="788"/>
+                    <rect key="frame" x="0.0" y="84" width="834" height="1028"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N0N-Ny-Aeg" userLabel="CloseScreenshareView">
-                            <rect key="frame" x="345" y="16" width="32" height="32"/>
+                            <rect key="frame" x="786" y="16" width="32" height="32"/>
                             <color key="backgroundColor" white="0.5" alpha="0.95060911873318499" colorSpace="calibratedWhite"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="32" id="uMi-V0-B3H"/>
@@ -215,11 +227,11 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TXj-7E-NAa" userLabel="LocalVideo" customClass="RTCCameraPreviewView">
-                    <rect key="frame" x="122" y="235" width="104" height="179"/>
+                    <rect key="frame" x="122" y="235" width="273" height="254"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mf3-yk-Olo">
-                            <rect key="frame" x="32" y="139" width="40" height="40"/>
+                            <rect key="frame" x="117" y="214" width="40" height="40"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <state key="normal" image="switch-camera"/>
                             <connections>
@@ -248,15 +260,15 @@
             <point key="canvasLocation" x="29.439252336448597" y="49.244060475161987"/>
         </view>
         <view contentMode="scaleToFill" id="BF4-kz-lxP">
-            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+            <rect key="frame" x="0.0" y="0.0" width="834" height="1112"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H1v-6g-V21" customClass="AvatarBackgroundImageView">
-                    <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                    <rect key="frame" x="0.0" y="0.0" width="834" height="1112"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 </imageView>
                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Waiting for others to the call..." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="11" translatesAutoresizingMaskIntoConstraints="NO" id="ihe-9I-8ts">
-                    <rect key="frame" x="17" y="32" width="359" height="42"/>
+                    <rect key="frame" x="36" y="32" width="762" height="42"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
