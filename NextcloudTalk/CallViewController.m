@@ -714,16 +714,6 @@ typedef NS_ENUM(NSInteger, CallState) {
         self->_recordingButton.hidden = !self->_room.callRecording;
         self->_speakerButton.hidden = NO;
 
-        // Make sure we get the correct frame for the stack view, after changing the visibility of buttons
-        [self->_topBarView setNeedsLayout];
-        [self->_topBarView layoutIfNeeded];
-
-        // Hide the speaker button to make some more room for higher priority buttons
-        // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
-        if (self->_topBarButtonStackView.frame.origin.x < 0) {
-            self->_speakerButton.hidden = YES;
-        }
-
         // When the horizontal size is compact (e.g. iPhone portrait) we don't show the 'End call' text on the button
         // Don't make assumptions about the device here, because with split screen even an iPad can have a compact width
         if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
@@ -732,6 +722,16 @@ typedef NS_ENUM(NSInteger, CallState) {
         } else {
             [self->_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
             [self->_titleView setHidden:NO];
+        }
+
+        // Make sure we get the correct frame for the stack view, after changing the visibility of buttons
+        [self->_topBarView setNeedsLayout];
+        [self->_topBarView layoutIfNeeded];
+
+        // Hide the speaker button to make some more room for higher priority buttons
+        // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
+        if (self->_topBarButtonStackView.frame.origin.x < 0) {
+            self->_speakerButton.hidden = YES;
         }
 
         [self adjustMoreButtonMenu];
