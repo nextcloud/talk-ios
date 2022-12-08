@@ -192,6 +192,18 @@ typedef NS_ENUM(NSInteger, CallState) {
     self.moreMenuButton.accessibilityHint = NSLocalizedString(@"Double tap to show more actions", nil);
 
     self.moreMenuButton.showsMenuAsPrimaryAction = YES;
+
+    [self.titleView.title setTitle:_room.displayName forState:UIControlStateNormal];
+
+    // User status
+    [self.titleView setUserStatus:_room.status];
+
+    //User status message
+    [self.titleView setUserStatusMessage:_room.statusMessage withIcon:_room.statusIcon];
+
+    if (_room.statusMessage && ![_room.statusMessage isEqualToString:@""]) {
+        [self.titleView.userStatusImage setBackgroundColor:UIColor.blackColor];
+    }
     
     self.collectionView.delegate = self;
     
@@ -716,8 +728,10 @@ typedef NS_ENUM(NSInteger, CallState) {
         // Don't make assumptions about the device here, because with split screen even an iPad can have a compact width
         if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
             [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
+            [self->_titleView setHidden:YES];
         } else {
             [self->_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
+            [self->_titleView setHidden:NO];
         }
 
         [self adjustMoreButtonMenu];
