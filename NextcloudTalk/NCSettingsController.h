@@ -74,6 +74,8 @@ typedef enum NCPreferredFileSorting {
 - (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block;
 - (void)setSignalingConfigurationForAccountId:(NSString *)accountId;
 - (NCExternalSignalingController *)externalSignalingControllerForAccountId:(NSString *)accountId;
+- (void)connectDisconnectedExternalSignalingControllers;
+- (void)disconnectAllExternalSignalingControllers;
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId withCompletionBlock:(SubscribeForPushNotificationsCompletionBlock)block;
 - (NSInteger)chatMaxLengthConfigCapability;
 - (BOOL)canCreateGroupAndPublicRooms;

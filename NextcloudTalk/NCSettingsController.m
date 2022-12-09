@@ -419,6 +419,22 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     return [_externalSignalingControllers objectForKey:accountId];
 }
 
+- (void)connectDisconnectedExternalSignalingControllers
+{
+    for (NCExternalSignalingController *extSignalingController in self->_externalSignalingControllers.allValues) {
+        if (extSignalingController.disconnected) {
+            [extSignalingController connect];
+        }
+    }
+}
+
+- (void)disconnectAllExternalSignalingControllers
+{
+    for (NCExternalSignalingController *extSignalingController in self->_externalSignalingControllers.allValues) {
+        [extSignalingController disconnect];
+    }
+}
+
 #pragma mark - Server Capabilities
 
 - (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;

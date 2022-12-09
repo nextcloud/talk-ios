@@ -126,7 +126,14 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)connect
 {
+    // Do not try to connect if the app is running in the background
+    if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) {
+        [NCUtils log:@"Trying to create websocket connection while app is in the background"];
+        return;
+    }
+
     [self invalidateReconnectionTimer];
+    _disconnected = NO;
     _messageId = 1;
     _messagesWithCompletionBlocks = [NSMutableArray new];
     _helloResponseReceived = NO;
@@ -176,6 +183,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
         [self->_webSocket cancel];
         self->_webSocket = nil;
         self->_helloResponseReceived = NO;
+        self->_disconnected = YES;
     });
 }
 
