@@ -43,6 +43,7 @@ typedef void (^JoinRoomExternalSignalingCompletionBlock)(NSError *error);
 
 @property (nonatomic, strong) NSString *currentRoom;
 @property (nonatomic, strong) TalkAccount *account;
+@property (nonatomic, assign) BOOL disconnected;
 @property (nonatomic, weak) id<NCExternalSignalingControllerDelegate> delegate;
 
 - (instancetype)initWithAccount:(TalkAccount *)account server:(NSString *)serverUrl andTicket:(NSString *)ticket;
@@ -55,6 +56,7 @@ typedef void (^JoinRoomExternalSignalingCompletionBlock)(NSError *error);
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 - (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId;
+- (void)connect;
 - (void)disconnect;
 - (void)forceReconnect;
 

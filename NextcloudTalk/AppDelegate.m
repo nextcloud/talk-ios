@@ -53,6 +53,9 @@
 
 @interface AppDelegate ()
 
+@property (nonatomic, strong) NSTimer *keepAliveTimer;
+@property (nonatomic, strong) BGTaskHelper *keepAliveBGTask;
+
 @end
 
 @implementation AppDelegate
@@ -120,6 +123,7 @@
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 
+    [self keepExternalSignalingConnectionAliveTemporarily];
     [self scheduleAppRefresh];
 }
 
@@ -133,6 +137,9 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+
+    [self checkForDisconnectedExternalSignalingConnection];
+
     [[NCNotificationController sharedInstance] removeAllNotificationsForAccountId:[[NCDatabaseManager sharedInstance] activeAccount].accountId];
 }
 
@@ -449,6 +456,31 @@
 
          [bgTask stopBackgroundTask];
      });
+}
+
+- (void)keepExternalSignalingConnectionAliveTemporarily
+{
+    [_keepAliveTimer invalidate];
+
+    _keepAliveBGTask = [BGTaskHelper startBackgroundTaskWithName:@"NCWebSocketKeepAlive" expirationHandler:nil];
+    _keepAliveTimer = [NSTimer scheduledTimerWithTimeInterval:20 repeats:NO block:^(NSTimer * _Nonnull timer) {
+        // Stop the external signaling connections only if the app keeps in the background
+        if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) {
+            [[NCSettingsController sharedInstance] disconnectAllExternalSignalingControllers];
+        }
+
+        [self->_keepAliveBGTask stopBackgroundTask];
+    }];
+
+    [[NSRunLoop mainRunLoop] addTimer:_keepAliveTimer forMode:NSRunLoopCommonModes];
+}
+
+- (void)checkForDisconnectedExternalSignalingConnection
+{
+    [_keepAliveTimer invalidate];
+    [_keepAliveBGTask stopBackgroundTask];
+
+    [[NCSettingsController sharedInstance] connectDisconnectedExternalSignalingControllers];
 }
 
 
