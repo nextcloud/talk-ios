@@ -53,6 +53,9 @@
 
 @interface AppDelegate ()
 
+@property (nonatomic, strong) NSTimer *keepAliveTimer;
+@property (nonatomic, strong) BGTaskHelper *keepAliveBGTask;
+
 @end
 
 @implementation AppDelegate
@@ -457,20 +460,26 @@
 
 - (void)keepExternalSignalingConnectionAliveTemporarily
 {
-    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCWebSocketKeepAlive" expirationHandler:nil];
+    [_keepAliveTimer invalidate];
 
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void) {
+    _keepAliveBGTask = [BGTaskHelper startBackgroundTaskWithName:@"NCWebSocketKeepAlive" expirationHandler:nil];
+    _keepAliveTimer = [NSTimer scheduledTimerWithTimeInterval:20 repeats:NO block:^(NSTimer * _Nonnull timer) {
         // Stop the external signaling connections only if the app keeps in the background
         if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) {
             [[NCSettingsController sharedInstance] disconnectAllExternalSignalingControllers];
         }
 
-        [bgTask stopBackgroundTask];
-    });
+        [self->_keepAliveBGTask stopBackgroundTask];
+    }];
+
+    [[NSRunLoop mainRunLoop] addTimer:_keepAliveTimer forMode:NSRunLoopCommonModes];
 }
 
 - (void)checkForDisconnectedExternalSignalingConnection
 {
+    [_keepAliveTimer invalidate];
+    [_keepAliveBGTask stopBackgroundTask];
+
     [[NCSettingsController sharedInstance] connectDisconnectedExternalSignalingControllers];
 }
 
