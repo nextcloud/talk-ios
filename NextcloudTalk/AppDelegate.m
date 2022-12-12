@@ -464,8 +464,9 @@
 
     _keepAliveBGTask = [BGTaskHelper startBackgroundTaskWithName:@"NCWebSocketKeepAlive" expirationHandler:nil];
     _keepAliveTimer = [NSTimer scheduledTimerWithTimeInterval:20 repeats:NO block:^(NSTimer * _Nonnull timer) {
-        // Stop the external signaling connections only if the app keeps in the background
-        if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) {
+        // Stop the external signaling connections only if the app keeps in the background and not in a call
+        if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground &&
+            ![NCRoomsManager sharedInstance].callViewController) {
             [[NCSettingsController sharedInstance] disconnectAllExternalSignalingControllers];
         }
 
