@@ -2391,6 +2391,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)didLeaveRoom:(NSNotification *)notification
 {
+    _hasJoinedRoom = NO;
+    
     [self disableRoomControls];
     [self checkRoomControlsAvailability];
 }

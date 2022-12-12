@@ -159,11 +159,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     
     [self executeAllCompletionBlocksWithError];
 
-    [_webSocket cancel];
-    _webSocket = nil;
-    _helloResponseReceived = NO;
-    [_helloMessage ignoreCompletionBlock];
-    _helloMessage = nil;
+    [self resetWebSocket];
 
     [self setReconnectionTimer];
 }
@@ -180,11 +176,18 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self invalidateReconnectionTimer];
-        [self->_webSocket cancel];
-        self->_webSocket = nil;
-        self->_helloResponseReceived = NO;
-        self->_disconnected = YES;
+        [self resetWebSocket];
     });
+}
+
+- (void)resetWebSocket
+{
+    [_webSocket cancel];
+    _webSocket = nil;
+    _helloResponseReceived = NO;
+    [_helloMessage ignoreCompletionBlock];
+    _helloMessage = nil;
+    _disconnected = YES;
 }
 
 - (void)setReconnectionTimer

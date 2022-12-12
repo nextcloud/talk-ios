@@ -33,6 +33,7 @@
 @property (assign, nonatomic) BOOL shouldLockInterfaceOrientation;
 @property (assign, nonatomic) UIInterfaceOrientation lockedInterfaceOrientation;
 
+- (void)keepExternalSignalingConnectionAliveTemporarily;
 
 @end
 

@@ -24,6 +24,7 @@
 
 #import <Realm/Realm.h>
 
+#import "AppDelegate.h"
 #import "CallKitManager.h"
 #import "NCChatViewController.h"
 #import "NCAPIController.h"
@@ -812,6 +813,11 @@ static NSInteger kIgnoreStatusCode = 999;
         NSString *token = [_callViewController.room.token copy];
         _callViewController = nil;
         [self callDidEndInRoomWithToken:token];
+        // Keep connection alive temporarily when a call was finished while the app in the background
+        if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) {
+            AppDelegate *appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
+            [appDelegate keepExternalSignalingConnectionAliveTemporarily];
+        }
     }
 }
 
