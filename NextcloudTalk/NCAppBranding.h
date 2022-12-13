@@ -33,6 +33,7 @@ extern NSString * const filesAppName;
 extern NSString * const copyright;
 extern NSString * const bundleIdentifier;
 extern NSString * const groupIdentifier;
+extern NSString * const appsGroupIdentifier;
 extern NSString * const pushNotificationServer;
 extern BOOL const multiAccountEnabled;
 extern BOOL const forceDomain;

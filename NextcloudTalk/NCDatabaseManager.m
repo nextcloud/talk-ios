@@ -33,6 +33,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
+NSString *const kTalkAccountsFileName               = @"accounts.json";
 uint64_t const kTalkDatabaseSchemaVersion           = 43;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";

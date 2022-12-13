@@ -1959,7 +1959,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO requestBody:nil options:options completion:^(NSString *accountId, NSArray<NKFile *> *files, NSData *data, NKError *error) {
         // Attachment folder do not exist
         if (error.errorCode == 404) {
-            [[NextcloudKit shared] createFolder:attachmentFolderServerURL options:options completion:^(NSString *accountId, NSString *ocId, NSDate *data, NKError *error) {
+            [[NextcloudKit shared] createFolderWithServerUrlFileName:attachmentFolderServerURL options:options completion:^(NSString *accountId, NSString *ocId, NSDate *data, NKError *error) {
                 if (block) {
                     block(error.errorCode == 0, error.errorCode);
                 }

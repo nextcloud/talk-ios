@@ -22,6 +22,8 @@
 
 #import "NCSettingsController.h"
 
+@import NextcloudKit;
+
 #import <openssl/rsa.h>
 #import <openssl/pem.h>
 #import <openssl/bio.h>
@@ -107,6 +109,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         _externalSignalingControllers = [NSMutableDictionary new];
         
         [self configureDatabase];
+        [self createAccountsFile];
         [self checkStoredDataInKechain];
         [self configureAppSettings];
         
@@ -160,6 +163,28 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     [[NCDatabaseManager sharedInstance] resetUnreadBadgeNumberForAccountId:accountId];
     [[NCNotificationController sharedInstance] removeAllNotificationsForAccountId:accountId];
     [[NCConnectionController sharedInstance] checkAppState];
+}
+
+- (void)createAccountsFile
+{
+    NSMutableArray *accounts = [NSMutableArray new];
+    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
+        NKDataAccountFile *accountFileData = [[NKDataAccountFile alloc] initWithUrl:account.server user:account.user alias:nil avatar:nil];
+        [accounts addObject:accountFileData];
+    }
+    
+    if (!accounts.count) {
+        return;
+    }
+    
+    // Create Talk directory in apps group container
+    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appsGroupIdentifier] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    NSURL *accountsFileURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkAccountsFileName];
+    
+    [[NKCommon shared] createDataAccountFileAt:accountsFileURL accounts:accounts];
 }
 
 #pragma mark - Notifications

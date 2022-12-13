@@ -39,6 +39,7 @@ NSString * const filesAppName = @"Nextcloud";
 NSString * const copyright = @"© 2022 Nextcloud GmbH";
 NSString * const bundleIdentifier = @"com.nextcloud.Talk";
 NSString * const groupIdentifier = @"group.com.nextcloud.Talk";
+NSString * const appsGroupIdentifier = @"group.com.nextcloud.apps";
 NSString * const pushNotificationServer = @"https://push-notifications.nextcloud.com";
 BOOL const multiAccountEnabled = YES;
 BOOL const forceDomain = NO;
