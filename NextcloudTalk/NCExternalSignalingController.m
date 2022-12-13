@@ -156,10 +156,10 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     if (_reconnectTimer) {
         return;
     }
-    
-    [self executeAllCompletionBlocksWithError];
 
     [self resetWebSocket];
+
+    [self executeAllCompletionBlocksWithError];
 
     [self setReconnectionTimer];
 }
