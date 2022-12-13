@@ -156,10 +156,10 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     if (_reconnectTimer) {
         return;
     }
-    
-    [self executeAllCompletionBlocksWithError];
 
     [self resetWebSocket];
+
+    [self executeAllCompletionBlocksWithError];
 
     [self setReconnectionTimer];
 }
@@ -321,13 +321,14 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)errorResponseReceived:(NSDictionary *)messageDict
 {
-    NSString *messageId = [messageDict objectForKey:@"id"];
-    [self executeCompletionBlockForMessageId:messageId withError:YES];
-    
     NSString *errorCode = [[messageDict objectForKey:@"error"] objectForKey:@"code"];
     if ([errorCode isEqualToString:@"no_such_session"]) {
         [self forceReconnect];
+        return;
     }
+
+    NSString *messageId = [messageDict objectForKey:@"id"];
+    [self executeCompletionBlockForMessageId:messageId withError:YES];
 }
 
 - (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block
