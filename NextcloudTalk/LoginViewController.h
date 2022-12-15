@@ -40,6 +40,7 @@
 @property (nonatomic, weak) IBOutlet UIButton *cancel;
 @property (nonatomic, weak) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 @property (nonatomic, weak) IBOutlet UIButton *qrCodeLogin;
+@property (weak, nonatomic) IBOutlet UIButton *importButton;
 
 - (void)startLoginProcessWithServerURL:(NSString *)serverURL withUser:(NSString *)user;
 
