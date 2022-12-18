@@ -182,28 +182,33 @@ static NSInteger kIgnoreStatusCode = 999;
             }
             return;
         }
-        
-        if (!error) {
-            [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in NC successfully.", token]];
-            NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
-            if ([extSignalingController isEnabled]) {
-                [NCUtils log:[NSString stringWithFormat:@"Trying to join room %@ in external signaling server...", token]];
-                [extSignalingController joinRoom:token withSessionId:sessionId withCompletionBlock:^(NSError *error) {
-                    if (!error) {
-                        [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in external signaling server successfully.", token]];
-                        block(sessionId, nil, 0);
-                    } else if (block) {
-                        [NCUtils log:[NSString stringWithFormat:@"Failed joining room %@ in external signaling server.", token]];
-                        block(nil, error, statusCode);
-                    }
-                }];
-            } else if (block) {
-                // Joined room in NC successfully and no external signaling server configured.
-                block(sessionId, nil, 0);
+
+        if (error) {
+            if (block) {
+                // Failed to join room in NC.
+                block(nil, error, statusCode);
             }
+
+            return;
+        }
+
+        [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in NC successfully.", token]];
+        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
+        
+        if ([extSignalingController isEnabled]) {
+            [NCUtils log:[NSString stringWithFormat:@"Trying to join room %@ in external signaling server...", token]];
+            [extSignalingController joinRoom:token withSessionId:sessionId withCompletionBlock:^(NSError *error) {
+                if (!error) {
+                    [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in external signaling server successfully.", token]];
+                    block(sessionId, nil, 0);
+                } else if (block) {
+                    [NCUtils log:[NSString stringWithFormat:@"Failed joining room %@ in external signaling server.", token]];
+                    block(nil, error, statusCode);
+                }
+            }];
         } else if (block) {
-            // Failed to join room in NC.
-            block(nil, error, statusCode);
+            // Joined room in NC successfully and no external signaling server configured.
+            block(sessionId, nil, 0);
         }
     }];
 }
