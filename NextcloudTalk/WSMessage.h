@@ -36,8 +36,7 @@
 - (BOOL)isHelloMessage;
 - (void)setMessageTimeout;
 - (void)ignoreCompletionBlock;
-- (void)executeCompletionBlockWithSuccess;
-- (void)executeCompletionBlockWithError;
+- (void)executeCompletionBlockWithStatus:(NCExternalSignalingSendMessageStatus)status;
 - (void)sendMessageWithWebSocket:(NSURLSessionWebSocketTask *)webSocketTask;
 
 @end

@@ -27,6 +27,12 @@
 @class NCExternalSignalingController;
 @class TalkAccount;
 
+typedef enum NCExternalSignalingSendMessageStatus {
+    SendMessageSuccess = 0,
+    SendMessageSocketError,
+    SendMessageApplicationError
+} NCExternalSignalingSendMessageStatus;
+
 @protocol NCExternalSignalingControllerDelegate <NSObject>
 
 - (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedSignalingMessage:(NSDictionary *)signalingMessageDict;
@@ -38,7 +44,7 @@
 
 @interface NCExternalSignalingController : NSObject
 
-typedef void (^SendMessageCompletionBlock)(NSURLSessionWebSocketTask *task, NSError *error);
+typedef void (^SendMessageCompletionBlock)(NSURLSessionWebSocketTask *task, NCExternalSignalingSendMessageStatus status);
 typedef void (^JoinRoomExternalSignalingCompletionBlock)(NSError *error);
 
 @property (nonatomic, strong) NSString *currentRoom;
