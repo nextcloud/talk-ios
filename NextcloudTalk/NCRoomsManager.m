@@ -175,13 +175,14 @@ static NSInteger kIgnoreStatusCode = 999;
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
-        if (!self->_joiningRoomToken) {
+        if (!self->_joiningRoomToken || ![self->_joiningRoomToken isEqualToString:token]) {
             [NCUtils log:@"Not joining the room any more. Ignore response."];
             if (block) {
                 block(nil, nil, kIgnoreStatusCode);
             }
             return;
         }
+        
         if (!error) {
             [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in NC successfully.", token]];
             NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
