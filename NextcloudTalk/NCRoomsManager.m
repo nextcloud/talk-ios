@@ -54,7 +54,7 @@ static NSInteger kIgnoreStatusCode = 999;
 @interface NCRoomsManager () <CallViewControllerDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
-@property (nonatomic, strong) NSString *joiningRoom;
+@property (nonatomic, strong) NSString *joiningRoomToken;
 @property (nonatomic, strong) NSURLSessionTask *joinRoomTask;
 @property (nonatomic, strong) NSURLSessionTask *leaveRoomTask;
 @property (nonatomic, strong) NSMutableDictionary *joinRoomAttempts; //roomToken -> attempts
@@ -119,7 +119,7 @@ static NSInteger kIgnoreStatusCode = 999;
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (!roomController) {
-        _joiningRoom = token;
+        _joiningRoomToken = token;
         [self joinRoomHelper:token forCall:call withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
             if (!error) {
                 NCRoomController *controller = [[NCRoomController alloc] init];
@@ -149,7 +149,7 @@ static NSInteger kIgnoreStatusCode = 999;
                 [NCUtils log:[NSString stringWithFormat:@"Could not join room. Status code: %ld. Error: %@", (long)statusCode, error.description]];
             }
             // Clean up joining room flag and attemps
-            self->_joiningRoom = nil;
+            self->_joiningRoomToken = nil;
             [self->_joinRoomAttempts removeObjectForKey:token];
             // Send join room notification
             [userInfo setObject:token forKey:@"token"];
@@ -175,7 +175,7 @@ static NSInteger kIgnoreStatusCode = 999;
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
-        if (!self->_joiningRoom) {
+        if (!self->_joiningRoomToken) {
             [NCUtils log:@"Not joining the room any more. Ignore response."];
             if (block) {
                 block(nil, nil, kIgnoreStatusCode);
@@ -247,7 +247,7 @@ static NSInteger kIgnoreStatusCode = 999;
     NCRoomController *roomController = [_activeRooms objectForKey:token];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if (roomController) {
-        _joiningRoom = [token copy];
+        _joiningRoomToken = [token copy];
         _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
             if (!error) {
                 roomController.userSessionId = sessionId;
@@ -259,7 +259,7 @@ static NSInteger kIgnoreStatusCode = 999;
             } else {
                 NSLog(@"Could not re-join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
             }
-            self->_joiningRoom = nil;
+            self->_joiningRoomToken = nil;
         }];
     }
 }
@@ -267,8 +267,8 @@ static NSInteger kIgnoreStatusCode = 999;
 - (void)leaveRoom:(NSString *)token
 {
     // Check if leaving the room we are joining
-    if ([_joiningRoom isEqualToString:token]) {
-        _joiningRoom = nil;
+    if ([_joiningRoomToken isEqualToString:token]) {
+        _joiningRoomToken = nil;
         [_joinRoomTask cancel];
     }
     
