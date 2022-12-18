@@ -251,7 +251,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     [wsMessage sendMessageWithWebSocket:_webSocket];
 }
 
-- (void)sendHelloWithCompletionBlock:(SendMessageCompletionBlock)block
+- (void)sendHelloMessage
 {
     NSDictionary *helloDict = @{
                                 @"type": @"hello",
@@ -277,7 +277,12 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
                       };
     }
     
-    [self sendMessage:helloDict withCompletionBlock:block];
+    [self sendMessage:helloDict withCompletionBlock:^(NSURLSessionWebSocketTask *task, NSError *error) {
+        if (error && task == self->_webSocket) {
+            [NCUtils log:[NSString stringWithFormat:@"Reconnecting from sendHelloMessage %@", error.description]];
+            [self reconnect];
+        }
+    }];
 }
 
 - (void)helloResponseReceived:(NSDictionary *)messageDict
@@ -322,8 +327,14 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 - (void)errorResponseReceived:(NSDictionary *)messageDict
 {
     NSString *errorCode = [[messageDict objectForKey:@"error"] objectForKey:@"code"];
+
+    [NCUtils log:[NSString stringWithFormat:@"Received error response %@", errorCode]];
+
     if ([errorCode isEqualToString:@"no_such_session"]) {
-        [self forceReconnect];
+        // We could not resume the previous session, but the websocket is still alive -> resend the hello message without a resumeId
+        _resumeId = nil;
+        [self sendHelloMessage];
+
         return;
     }
 
@@ -541,11 +552,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
         NSLog(@"WebSocket Connected!");
         self->_reconnectInterval = kInitialReconnectInterval;
-        [self sendHelloWithCompletionBlock:^(NSURLSessionWebSocketTask *task, NSError *error) {
-            if (error && task == self->_webSocket) {
-                [self reconnect];
-            }
-        }];
+        [self sendHelloMessage];
     });
 }
 
