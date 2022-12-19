@@ -223,6 +223,11 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
     // Add message as pending message if websocket is not connected
     if (!_helloResponseReceived && !wsMessage.isHelloMessage) {
+        if (wsMessage.isJoinMessage) {
+            // We join a new room, so any message which wasn't send by now is not relevant for the new room anymore
+            _pendingMessages = [NSMutableArray new];
+        }
+
         [_pendingMessages addObject:wsMessage];
         return;
     }

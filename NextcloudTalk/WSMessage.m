@@ -70,6 +70,15 @@ static NSTimeInterval kSendMessageTimeoutInterval = 15;
     return NO;
 }
 
+- (BOOL)isJoinMessage
+{
+    if ([[_message objectForKey:@"type"] isEqualToString:@"room"]) {
+        return YES;
+    }
+
+    return NO;
+}
+
 - (void)setMessageTimeout
 {
     // NSTimer uses the runloop of the current thread. Only the main thread guarantees a runloop, so make sure we dispatch it to main!
