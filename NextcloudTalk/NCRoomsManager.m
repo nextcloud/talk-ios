@@ -120,6 +120,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     _joiningRoomToken = nil;
     _joiningSessionId = nil;
     _joiningAttempts = 0;
+    [_joinRoomTask cancel];
 
     [self joinRoomHelper:token forCall:call];
 }
