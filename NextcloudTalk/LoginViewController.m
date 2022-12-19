@@ -275,15 +275,18 @@
 
 - (void)presentImportedAccountsSelector
 {
-    NSMutableArray *importedAccountsOptions = [NSMutableArray new];
+    NSMutableArray *importedAccounts = [NSMutableArray new];
     for (NKDataAccountFile *filesAccount in _importedFilesAccount) {
         DetailedOption *option = [[DetailedOption alloc] init];
         option.title = filesAccount.user;
         option.subtitle = filesAccount.url;
-        [importedAccountsOptions addObject:option];
+        NSData *imageData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filesAccount.avatar]];
+        option.image = [UIImage imageWithData:imageData];
+        [importedAccounts addObject:option];
     }
 
-    DetailedOptionsSelectorTableViewController *accountSelectorVC = [[DetailedOptionsSelectorTableViewController alloc] initWithOptions:importedAccountsOptions forSenderIdentifier:nil andTitle:NSLocalizedString(@"Import account", nil)];
+    DetailedOptionsSelectorTableViewController *accountSelectorVC = [[DetailedOptionsSelectorTableViewController alloc] initWithAccounts:importedAccounts];
+    accountSelectorVC.title = NSLocalizedString(@"Import account", nil);
     accountSelectorVC.delegate = self;
     NCNavigationController *accountSelectorNC = [[NCNavigationController alloc] initWithRootViewController:accountSelectorVC];
     [self presentViewController:accountSelectorNC animated:YES completion:nil];

@@ -102,8 +102,9 @@ class UserStatusTableViewController: UITableViewController, DetailedOptionsSelec
         options.append(dndOption)
         options.append(invisibleOption)
 
-        let optionSelectorVC = DetailedOptionsSelectorTableViewController(options: options, forSenderIdentifier: nil, andTitle: NSLocalizedString("Online status", comment: ""))
+        let optionSelectorVC = DetailedOptionsSelectorTableViewController(options: options, forSenderIdentifier: nil)
         if let optionSelectorVC = optionSelectorVC {
+            optionSelectorVC.title = NSLocalizedString("Online status", comment: "")
             optionSelectorVC.delegate = self
             let optionSelectorNC = NCNavigationController(rootViewController: optionSelectorVC)
             self.present(optionSelectorNC, animated: true, completion: nil)

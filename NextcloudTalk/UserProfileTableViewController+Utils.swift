@@ -244,8 +244,9 @@ extension UserProfileTableViewController {
             options.append(publishedOption)
         }
 
-        let optionSelectorVC = DetailedOptionsSelectorTableViewController(options: options, forSenderIdentifier: field, andTitle: title)
+        let optionSelectorVC = DetailedOptionsSelectorTableViewController(options: options, forSenderIdentifier: field)
         if let optionSelectorVC = optionSelectorVC {
+            optionSelectorVC.title = title
             optionSelectorVC.delegate = self
             let optionSelectorNC = UINavigationController(rootViewController: optionSelectorVC)
             self.present(optionSelectorNC, animated: true, completion: nil)
