@@ -278,7 +278,7 @@
     NSMutableArray *importedAccounts = [NSMutableArray new];
     for (NKDataAccountFile *filesAccount in _importedFilesAccount) {
         DetailedOption *option = [[DetailedOption alloc] init];
-        option.title = filesAccount.user;
+        option.title = (!filesAccount.alias || [filesAccount.alias isEqualToString:@""]) ? filesAccount.user : filesAccount.alias;
         option.subtitle = filesAccount.url;
         NSData *imageData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filesAccount.avatar]];
         option.image = [UIImage imageWithData:imageData];
