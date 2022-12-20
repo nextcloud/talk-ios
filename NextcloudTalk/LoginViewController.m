@@ -249,6 +249,7 @@
 - (void)checkForFilesAppAccounts
 {
     if (![NCUtils isNextcloudAppInstalled]) {
+        self.importButton.hidden = YES;
         return;
     }
 
