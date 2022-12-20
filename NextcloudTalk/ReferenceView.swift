@@ -109,7 +109,7 @@
 
         var foundReferenceView = false
 
-        if richObjectType == "integration_github",
+        if richObjectType == "integration_github" || richObjectType == "integration_github_issue_pr",
            let reference = firstReference["richObject"] as? [String: AnyObject] {
 
             let githubView = ReferenceGithubView(frame: self.frame)
