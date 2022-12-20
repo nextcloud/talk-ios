@@ -167,24 +167,44 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
 - (void)createAccountsFile
 {
-    NSMutableArray *accounts = [NSMutableArray new];
-    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
-        NKDataAccountFile *accountFileData = [[NKDataAccountFile alloc] initWithUrl:account.server user:account.user alias:nil avatar:nil];
-        [accounts addObject:accountFileData];
-    }
-    
-    if (!accounts.count) {
-        return;
-    }
-    
     // Create Talk directory in apps group container
     NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appsGroupIdentifier] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
     if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
         [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
     }
     NSURL *accountsFileURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkAccountsFileName];
-    
+
+    // Create accounts data
+    NSMutableArray *accounts = [NSMutableArray new];
+    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
+        NSString *avatarPath = [self copyUserAvatarInPath:path forAccount:account];
+        NKDataAccountFile *accountFileData = [[NKDataAccountFile alloc] initWithUrl:account.server user:account.user alias:account.userDisplayName avatar:avatarPath];
+        [accounts addObject:accountFileData];
+    }
+
+    if (!accounts.count) {
+        return;
+    }
+
     [[NKCommon shared] createDataAccountFileAt:accountsFileURL accounts:accounts];
+}
+
+- (NSString *)copyUserAvatarInPath:(NSString *)path forAccount:(TalkAccount *)account
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *documentsPath = [[fileManager containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] path];
+    NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
+    NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
+    NSString *copyPath = [path stringByAppendingPathComponent:fileName];
+
+    NSError *error = nil;
+    if ([fileManager fileExistsAtPath:copyPath]) {
+        [fileManager removeItemAtPath:copyPath error:&error];
+    }
+    [fileManager copyItemAtPath:filePath toPath:copyPath error:&error];
+    NSLog(@"Copied profile picture. Error: %@", error);
+
+    return error ? nil : copyPath;
 }
 
 #pragma mark - Notifications
