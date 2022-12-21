@@ -21,6 +21,7 @@
  */
 
 #import "WSMessage.h"
+#import "NCUtils.h"
 
 static NSTimeInterval kSendMessageTimeoutInterval = 15;
 
@@ -69,24 +70,21 @@ static NSTimeInterval kSendMessageTimeoutInterval = 15;
     return NO;
 }
 
+- (BOOL)isJoinMessage
+{
+    if ([[_message objectForKey:@"type"] isEqualToString:@"room"]) {
+        return YES;
+    }
+
+    return NO;
+}
+
 - (void)setMessageTimeout
 {
     // NSTimer uses the runloop of the current thread. Only the main thread guarantees a runloop, so make sure we dispatch it to main!
     // This is mainly a problem for the "hello message", because it's send from a NSURL delegate and the timer sometimes fails to run
     dispatch_async(dispatch_get_main_queue(), ^{
-        self->_timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:kSendMessageTimeoutInterval target:self selector:@selector(executeCompletionBlockWithError) userInfo:nil repeats:NO];
-    });
-}
-
-- (void)executeCompletionBlock:(NSError *)error
-{
-    // As the timer was create on the main thread, it needs to be invalidated on the main thread as well
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.completionBlock) {
-            self.completionBlock(self.webSocketTask, error);
-            self.completionBlock = nil;
-            [self->_timeoutTimer invalidate];
-        }
+        self->_timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:kSendMessageTimeoutInterval target:self selector:@selector(executeCompletionBlockWithSocketError) userInfo:nil repeats:NO];
     });
 }
 
@@ -98,15 +96,21 @@ static NSTimeInterval kSendMessageTimeoutInterval = 15;
     });
 }
 
-- (void)executeCompletionBlockWithSuccess
+- (void)executeCompletionBlockWithStatus:(NCExternalSignalingSendMessageStatus)status
 {
-    [self executeCompletionBlock:nil];
+    // As the timer was create on the main thread, it needs to be invalidated on the main thread as well
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.completionBlock) {
+            self.completionBlock(self.webSocketTask, status);
+            self.completionBlock = nil;
+            [self->_timeoutTimer invalidate];
+        }
+    });
 }
 
-- (void)executeCompletionBlockWithError
+- (void)executeCompletionBlockWithSocketError
 {
-    NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
-    [self executeCompletionBlock:error];
+    [self executeCompletionBlockWithStatus:SendMessageSocketError];
 }
 
 - (NSString *)webSocketMessage
@@ -137,7 +141,7 @@ static NSTimeInterval kSendMessageTimeoutInterval = 15;
     NSURLSessionWebSocketMessage *message = [[NSURLSessionWebSocketMessage alloc] initWithString:self.webSocketMessage];
     [webSocketTask sendMessage:message completionHandler:^(NSError * _Nullable error) {
         if (error && self.completionBlock) {
-            [self executeCompletionBlockWithError];
+            [self executeCompletionBlockWithSocketError];
         }
     }];
 }

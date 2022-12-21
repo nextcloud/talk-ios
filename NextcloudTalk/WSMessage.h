@@ -34,10 +34,10 @@
 - (instancetype)initWithMessage:(NSDictionary *)message withCompletionBlock:(SendMessageCompletionBlock)block;
 - (NSString *)webSocketMessage;
 - (BOOL)isHelloMessage;
+- (BOOL)isJoinMessage;
 - (void)setMessageTimeout;
 - (void)ignoreCompletionBlock;
-- (void)executeCompletionBlockWithSuccess;
-- (void)executeCompletionBlockWithError;
+- (void)executeCompletionBlockWithStatus:(NCExternalSignalingSendMessageStatus)status;
 - (void)sendMessageWithWebSocket:(NSURLSessionWebSocketTask *)webSocketTask;
 
 @end

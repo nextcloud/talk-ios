@@ -159,7 +159,10 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
     [self resetWebSocket];
 
-    [self executeAllCompletionBlocksWithError];
+    // Execute completion blocks on all messages
+    for (WSMessage *message in self->_messagesWithCompletionBlocks) {
+        [message executeCompletionBlockWithStatus:SendMessageSocketError];
+    }
 
     [self setReconnectionTimer];
 }
@@ -220,6 +223,11 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
     // Add message as pending message if websocket is not connected
     if (!_helloResponseReceived && !wsMessage.isHelloMessage) {
+        if (wsMessage.isJoinMessage) {
+            // We join a new room, so any message which wasn't send by now is not relevant for the new room anymore
+            _pendingMessages = [NSMutableArray new];
+        }
+
         [_pendingMessages addObject:wsMessage];
         return;
     }
@@ -244,14 +252,14 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
     if (!wsMessage.webSocketMessage) {
         NSLog(@"Error creating websocket message");
-        [wsMessage executeCompletionBlockWithError];
+        [wsMessage executeCompletionBlockWithStatus:SendMessageApplicationError];
         return;
     }
 
     [wsMessage sendMessageWithWebSocket:_webSocket];
 }
 
-- (void)sendHelloWithCompletionBlock:(SendMessageCompletionBlock)block
+- (void)sendHelloMessage
 {
     NSDictionary *helloDict = @{
                                 @"type": @"hello",
@@ -277,7 +285,12 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
                       };
     }
     
-    [self sendMessage:helloDict withCompletionBlock:block];
+    [self sendMessage:helloDict withCompletionBlock:^(NSURLSessionWebSocketTask *task, NCExternalSignalingSendMessageStatus status) {
+        if (status == SendMessageSocketError && task == self->_webSocket) {
+            [NCUtils log:[NSString stringWithFormat:@"Reconnecting from sendHelloMessage"]];
+            [self reconnect];
+        }
+    }];
 }
 
 - (void)helloResponseReceived:(NSDictionary *)messageDict
@@ -285,7 +298,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     _helloResponseReceived = YES;
 
     NSString *messageId = [messageDict objectForKey:@"id"];
-    [self executeCompletionBlockForMessageId:messageId withError:NO];
+    [self executeCompletionBlockForMessageId:messageId withStatus:SendMessageSuccess];
 
     NSDictionary *helloDict = [messageDict objectForKey:@"hello"];
     _resumeId = [helloDict objectForKey:@"resumeid"];
@@ -322,13 +335,19 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 - (void)errorResponseReceived:(NSDictionary *)messageDict
 {
     NSString *errorCode = [[messageDict objectForKey:@"error"] objectForKey:@"code"];
+
+    [NCUtils log:[NSString stringWithFormat:@"Received error response %@", errorCode]];
+
     if ([errorCode isEqualToString:@"no_such_session"]) {
-        [self forceReconnect];
+        // We could not resume the previous session, but the websocket is still alive -> resend the hello message without a resumeId
+        _resumeId = nil;
+        [self sendHelloMessage];
+
         return;
     }
 
     NSString *messageId = [messageDict objectForKey:@"id"];
-    [self executeCompletionBlockForMessageId:messageId withError:YES];
+    [self executeCompletionBlockForMessageId:messageId withStatus:SendMessageApplicationError];
 }
 
 - (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block
@@ -341,13 +360,20 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
                                           }
                                   };
 
-    [self sendMessage:messageDict withCompletionBlock:^(NSURLSessionWebSocketTask *task, NSError *error) {
-        if (error && task == self->_webSocket) {
+    [self sendMessage:messageDict withCompletionBlock:^(NSURLSessionWebSocketTask *task, NCExternalSignalingSendMessageStatus status) {
+        if (status == SendMessageSocketError && task == self->_webSocket) {
             // Reconnect if this is still the same socket we tried to send the message on
+            [NCUtils log:[NSString stringWithFormat:@"Reconnect from joinRoom"]];
             [self reconnect];
         }
 
         if (block) {
+            NSError *error = nil;
+            
+            if (status != SendMessageSuccess) {
+                error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+            }
+
             block(error);
         }
     }];
@@ -404,7 +430,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     _currentRoom = [[messageDict objectForKey:@"room"] objectForKey:@"roomid"];
     
     NSString *messageId = [messageDict objectForKey:@"id"];
-    [self executeCompletionBlockForMessageId:messageId withError:NO];
+    [self executeCompletionBlockForMessageId:messageId withStatus:SendMessageSuccess];
     
     // Notify that session has change to rejoin the call if currently in a call
     if (_sessionChanged) {
@@ -488,7 +514,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 #pragma mark - Completion blocks
 
-- (void)executeCompletionBlockForMessageId:(NSString *)messageId withError:(BOOL)withError
+- (void)executeCompletionBlockForMessageId:(NSString *)messageId withStatus:(NCExternalSignalingSendMessageStatus)status
 {
     if (!messageId) {
         return;
@@ -496,35 +522,17 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self->_helloMessage.messageId isEqualToString:messageId]) {
-            [self executeCompletionBlockForMessage:self->_helloMessage withError:withError];
+            [self->_helloMessage executeCompletionBlockWithStatus:status];
             self->_helloMessage = nil;
             return;
         }
 
         for (WSMessage *message in self->_messagesWithCompletionBlocks) {
             if ([messageId isEqualToString:message.messageId]) {
-                [self executeCompletionBlockForMessage:message withError:withError];
+                [message executeCompletionBlockWithStatus:status];
                 [self->_messagesWithCompletionBlocks removeObject:message];
                 break;
             }
-        }
-    });
-}
-
-- (void)executeCompletionBlockForMessage:(WSMessage *)message withError:(BOOL)withError
-{
-    if (withError) {
-        [message executeCompletionBlockWithError];
-    } else {
-        [message executeCompletionBlockWithSuccess];
-    }
-}
-
-- (void)executeAllCompletionBlocksWithError
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        for (WSMessage *message in self->_messagesWithCompletionBlocks) {
-            [message executeCompletionBlockWithError];
         }
     });
 }
@@ -541,11 +549,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
         NSLog(@"WebSocket Connected!");
         self->_reconnectInterval = kInitialReconnectInterval;
-        [self sendHelloWithCompletionBlock:^(NSURLSessionWebSocketTask *task, NSError *error) {
-            if (error && task == self->_webSocket) {
-                [self reconnect];
-            }
-        }];
+        [self sendHelloMessage];
     });
 }
 
@@ -611,7 +615,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
             
             // Completion block for messageId should have been handled already at this point
             NSString *messageId = [messageDict objectForKey:@"id"];
-            [weakSelf executeCompletionBlockForMessageId:messageId withError:YES];
+            [weakSelf executeCompletionBlockForMessageId:messageId withStatus:SendMessageApplicationError];
 
             [weakSelf receiveMessage];
         } else {
