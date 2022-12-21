@@ -138,7 +138,6 @@ static NSTimeInterval kSendMessageTimeoutInterval = 15;
     }
 
     NSLog(@"Sending: %@", self.webSocketMessage);
-    [NCUtils trace:[NSString stringWithFormat:@"Sending: %@", self.webSocketMessage]];
     NSURLSessionWebSocketMessage *message = [[NSURLSessionWebSocketMessage alloc] initWithString:self.webSocketMessage];
     [webSocketTask sendMessage:message completionHandler:^(NSError * _Nullable error) {
         if (error && self.completionBlock) {
