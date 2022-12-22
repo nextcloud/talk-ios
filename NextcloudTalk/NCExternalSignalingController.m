@@ -137,7 +137,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     _messageId = 1;
     _messagesWithCompletionBlocks = [NSMutableArray new];
     _helloResponseReceived = NO;
-    NSLog(@"Connecting to: %@",  _serverUrl);
+    [NCUtils log:[NSString stringWithFormat:@"Connecting to: %@", _serverUrl]];
     NSURL *url = [NSURL URLWithString:_serverUrl];
     NSURLSession *wsSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
     NSURLRequest *wsRequest = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:kWebSocketTimeoutInterval];
@@ -156,6 +156,8 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     if (_reconnectTimer) {
         return;
     }
+
+    [NCUtils log:[NSString stringWithFormat:@"Reconnecting to: %@", _serverUrl]];
 
     [self resetWebSocket];
 
@@ -177,6 +179,8 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)disconnect
 {
+    [NCUtils log:[NSString stringWithFormat:@"Disconnecting from: %@", _serverUrl]];
+
     dispatch_async(dispatch_get_main_queue(), ^{
         [self invalidateReconnectionTimer];
         [self resetWebSocket];
