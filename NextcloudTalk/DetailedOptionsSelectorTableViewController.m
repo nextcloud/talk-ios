@@ -103,7 +103,7 @@
     if (_type == DetailedOptionsSelectorTypeAccounts) {
         AccountTableViewCell *accountCell = [tableView dequeueReusableCellWithIdentifier:@"AccountTableViewCellIdentifier" forIndexPath:indexPath];
         accountCell.accountNameLabel.text = option.title;
-        accountCell.accountServerLabel.text = [option.subtitle stringByReplacingOccurrencesOfString:@"https://" withString:@""];
+        accountCell.accountServerLabel.text = [option.subtitle stringByReplacingOccurrencesOfString:@"https://" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [option.subtitle length])];
         accountCell.accountImageView.image = option.image;
         accountCell.accountImageView.backgroundColor = [UIColor systemBackgroundColor];
         return accountCell;

@@ -262,7 +262,8 @@
     for (NKDataAccountFile *filesAccount in filesAccounts) {
         BOOL accountIncluded = NO;
         for (TalkAccount *talkAccount in talkAccounts) {
-            if ([talkAccount.server isEqualToString:filesAccount.url] && [talkAccount.user isEqualToString:filesAccount.user]) {
+            if ([talkAccount.server caseInsensitiveCompare:filesAccount.url] == NSOrderedSame &&
+                [talkAccount.user caseInsensitiveCompare:filesAccount.user] == NSOrderedSame) {
                 accountIncluded = YES;
             }
         }
