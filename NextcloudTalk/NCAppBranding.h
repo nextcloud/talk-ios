@@ -36,6 +36,7 @@ extern NSString * const groupIdentifier;
 extern NSString * const appsGroupIdentifier;
 extern NSString * const pushNotificationServer;
 extern BOOL const multiAccountEnabled;
+extern BOOL const useAppsGroup;
 extern BOOL const forceDomain;
 extern NSString * const domain;
 extern BOOL const customNavigationLogo;

@@ -167,6 +167,9 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
 - (void)createAccountsFile
 {
+    if (!useAppsGroup) {
+        return;
+    }
     // Create Talk directory in apps group container
     NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appsGroupIdentifier] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
     if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {

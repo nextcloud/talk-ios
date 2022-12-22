@@ -42,6 +42,7 @@ NSString * const groupIdentifier = @"group.com.nextcloud.Talk";
 NSString * const appsGroupIdentifier = @"group.com.nextcloud.apps";
 NSString * const pushNotificationServer = @"https://push-notifications.nextcloud.com";
 BOOL const multiAccountEnabled = YES;
+BOOL const useAppsGroup = YES;
 BOOL const forceDomain = NO;
 NSString * const domain = nil;
 NSString * const appAlternateVersion = @"";
