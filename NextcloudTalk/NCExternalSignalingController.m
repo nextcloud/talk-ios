@@ -352,6 +352,15 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block
 {
+
+    if (_disconnected) {
+        [NCUtils log:[NSString stringWithFormat:@"Joining room %@, but the websocket is disconnected.", roomId]];
+    }
+
+    if (_webSocket == nil) {
+        [NCUtils log:[NSString stringWithFormat:@"Joining room %@, but the websocket is nil.", roomId]];
+    }
+
     NSDictionary *messageDict = @{
                                   @"type": @"room",
                                   @"room": @{
