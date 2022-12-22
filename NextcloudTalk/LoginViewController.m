@@ -279,6 +279,7 @@
     NSMutableArray *importedAccounts = [NSMutableArray new];
     for (NKDataAccountFile *filesAccount in _importedFilesAccount) {
         DetailedOption *option = [[DetailedOption alloc] init];
+        option.identifier = filesAccount.user;
         option.title = (!filesAccount.alias || [filesAccount.alias isEqualToString:@""]) ? filesAccount.user : filesAccount.alias;
         option.subtitle = filesAccount.url;
         NSData *imageData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filesAccount.avatar]];
@@ -298,7 +299,7 @@
 - (void)detailedOptionsSelector:(DetailedOptionsSelectorTableViewController *)viewController didSelectOptionWithIdentifier:(DetailedOption *)option
 {
     [self dismissViewControllerAnimated:YES completion:^{
-        [self presentAuthenticationViewWithServerURL:option.subtitle withUser:option.title
+        [self presentAuthenticationViewWithServerURL:option.subtitle withUser:option.identifier
         ];
     }];
 }
