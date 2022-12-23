@@ -150,6 +150,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
         [[NCAPIController sharedInstance] createAPISessionManagerForAccount:talkAccount];
         [self subscribeForPushNotificationsForAccountId:accountId withCompletionBlock:nil];
+        [self createAccountsFile];
     } else {
         [self setActiveAccountWithAccountId:accountId];
         [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Account already added", nil) dismissAfterDelay:4.0f includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
@@ -186,10 +187,21 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     }
 
     if (!accounts.count) {
+        [self removeAccountsFileAtPath:accountsFileURL.path];
         return;
     }
 
     [[NKCommon shared] createDataAccountFileAt:accountsFileURL accounts:accounts];
+}
+
+- (void)removeAccountsFileAtPath:(NSString *)path
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    if ([fileManager fileExistsAtPath:path]) {
+        [fileManager removeItemAtPath:path error:&error];
+        NSLog(@"Removed accounts file. Error: %@", error);
+    }
 }
 
 - (NSString *)copyUserAvatarInPath:(NSString *)path forAccount:(TalkAccount *)account
@@ -373,6 +385,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     [[NCDatabaseManager sharedInstance] removeAccountWithAccountId:removingAccount.accountId];
     [[[NCChatFileController alloc] init] deleteDownloadDirectoryForAccount:removingAccount];
     [[[NCRoomsManager sharedInstance] chatViewController] leaveChat];
+    [self createAccountsFile];
     
     // Activate any of the inactive accounts
     NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
