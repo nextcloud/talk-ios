@@ -22,6 +22,8 @@
 
 #import "NCSettingsController.h"
 
+@import NextcloudKit;
+
 #import <openssl/rsa.h>
 #import <openssl/pem.h>
 #import <openssl/bio.h>
@@ -107,6 +109,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         _externalSignalingControllers = [NSMutableDictionary new];
         
         [self configureDatabase];
+        [self createAccountsFile];
         [self checkStoredDataInKechain];
         [self configureAppSettings];
         
@@ -147,6 +150,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
         [[NCAPIController sharedInstance] createAPISessionManagerForAccount:talkAccount];
         [self subscribeForPushNotificationsForAccountId:accountId withCompletionBlock:nil];
+        [self createAccountsFile];
     } else {
         [self setActiveAccountWithAccountId:accountId];
         [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Account already added", nil) dismissAfterDelay:4.0f includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
@@ -160,6 +164,62 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     [[NCDatabaseManager sharedInstance] resetUnreadBadgeNumberForAccountId:accountId];
     [[NCNotificationController sharedInstance] removeAllNotificationsForAccountId:accountId];
     [[NCConnectionController sharedInstance] checkAppState];
+}
+
+- (void)createAccountsFile
+{
+    if (!useAppsGroup) {
+        return;
+    }
+    // Create Talk directory in apps group container
+    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appsGroupIdentifier] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    NSURL *accountsFileURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkAccountsFileName];
+
+    // Create accounts data
+    NSMutableArray *accounts = [NSMutableArray new];
+    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
+        NSString *avatarPath = [self copyUserAvatarInPath:path forAccount:account];
+        NKDataAccountFile *accountFileData = [[NKDataAccountFile alloc] initWithUrl:account.server user:account.user alias:account.userDisplayName avatar:avatarPath];
+        [accounts addObject:accountFileData];
+    }
+
+    if (!accounts.count) {
+        [self removeAccountsFileAtPath:accountsFileURL.path];
+        return;
+    }
+
+    [[NKCommon shared] createDataAccountFileAt:accountsFileURL accounts:accounts];
+}
+
+- (void)removeAccountsFileAtPath:(NSString *)path
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    if ([fileManager fileExistsAtPath:path]) {
+        [fileManager removeItemAtPath:path error:&error];
+        NSLog(@"Removed accounts file. Error: %@", error);
+    }
+}
+
+- (NSString *)copyUserAvatarInPath:(NSString *)path forAccount:(TalkAccount *)account
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *documentsPath = [[fileManager containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] path];
+    NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
+    NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
+    NSString *copyPath = [path stringByAppendingPathComponent:fileName];
+
+    NSError *error = nil;
+    if ([fileManager fileExistsAtPath:copyPath]) {
+        [fileManager removeItemAtPath:copyPath error:&error];
+    }
+    [fileManager copyItemAtPath:filePath toPath:copyPath error:&error];
+    NSLog(@"Copied profile picture. Error: %@", error);
+
+    return error ? nil : copyPath;
 }
 
 #pragma mark - Notifications
@@ -325,6 +385,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     [[NCDatabaseManager sharedInstance] removeAccountWithAccountId:removingAccount.accountId];
     [[[NCChatFileController alloc] init] deleteDownloadDirectoryForAccount:removingAccount];
     [[[NCRoomsManager sharedInstance] chatViewController] leaveChat];
+    [self createAccountsFile];
     
     // Activate any of the inactive accounts
     NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];

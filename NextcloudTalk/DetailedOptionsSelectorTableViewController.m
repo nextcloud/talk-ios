@@ -23,6 +23,7 @@
 #import "DetailedOptionsSelectorTableViewController.h"
 
 #import "NCAppBranding.h"
+#import "NextcloudTalk-Swift.h"
 
 @interface DetailedOptionsSelectorTableViewController ()
 
@@ -33,13 +34,23 @@
 
 @implementation DetailedOptionsSelectorTableViewController
 
-- (instancetype)initWithOptions:(NSArray *)options forSenderIdentifier:(NSString *)senderId andTitle:(NSString *)title
+- (instancetype)initWithOptions:(NSArray *)options forSenderIdentifier:(NSString *)senderId
 {
     self = [super initWithStyle:UITableViewStyleGrouped];
-    
+
     self.options = options;
     self.senderId = senderId;
-    self.title = title;
+    self.type = DetailedOptionsSelectorTypeDefault;
+
+    return self;
+}
+
+- (instancetype)initWithAccounts:(NSArray *)accounts
+{
+    self = [super initWithStyle:UITableViewStyleGrouped];
+
+    self.options = accounts;
+    self.type = DetailedOptionsSelectorTypeAccounts;
     
     return self;
 }
@@ -64,7 +75,8 @@
     self.navigationItem.compactAppearance = appearance;
     self.navigationItem.scrollEdgeAppearance = appearance;
     
-    self.navigationController.title = self.title;
+    NSBundle *bundle = [NSBundle bundleForClass:[AccountTableViewCell class]];
+    [self.tableView registerNib:[UINib nibWithNibName:@"AccountTableViewCell" bundle:bundle] forCellReuseIdentifier:@"AccountTableViewCellIdentifier"];
     
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
@@ -87,7 +99,16 @@
 {
     DetailedOption *option = [_options objectAtIndex:indexPath.row];
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"DetailOptionIdentifier"];
-    
+
+    if (_type == DetailedOptionsSelectorTypeAccounts) {
+        AccountTableViewCell *accountCell = [tableView dequeueReusableCellWithIdentifier:@"AccountTableViewCellIdentifier" forIndexPath:indexPath];
+        accountCell.accountNameLabel.text = option.title;
+        accountCell.accountServerLabel.text = [option.subtitle stringByReplacingOccurrencesOfString:@"https://" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [option.subtitle length])];
+        accountCell.accountImageView.image = option.image;
+        accountCell.accountImageView.backgroundColor = [UIColor systemBackgroundColor];
+        return accountCell;
+    }
+
     [cell.imageView setImage:option.image];
     cell.textLabel.text = option.title;
     cell.detailTextLabel.text = option.subtitle;

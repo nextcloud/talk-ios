@@ -30,6 +30,11 @@
 @property (nonatomic, assign) BOOL selected;
 @end
 
+typedef enum DetailedOptionsSelectorType {
+    DetailedOptionsSelectorTypeDefault = 0,
+    DetailedOptionsSelectorTypeAccounts
+} DetailedOptionsSelectorType;
+
 @class DetailedOptionsSelectorTableViewController;
 @protocol DetailedOptionsSelectorTableViewControllerDelegate <NSObject>
 - (void)detailedOptionsSelector:(DetailedOptionsSelectorTableViewController *)viewController didSelectOptionWithIdentifier:(DetailedOption *)option;
@@ -41,9 +46,10 @@
 @property (nonatomic, weak) id<DetailedOptionsSelectorTableViewControllerDelegate> delegate;
 @property (nonatomic, strong) NSArray *options;
 @property (nonatomic, strong) NSString *senderId;
-@property (nonatomic, strong) NSString *title;
+@property (nonatomic, assign) DetailedOptionsSelectorType type;
 
-- (instancetype)initWithOptions:(NSArray *)options forSenderIdentifier:(NSString *)senderId andTitle:(NSString *)title;
+- (instancetype)initWithOptions:(NSArray *)options forSenderIdentifier:(NSString *)senderId;
+- (instancetype)initWithAccounts:(NSArray *)accounts;
 
 @end
 

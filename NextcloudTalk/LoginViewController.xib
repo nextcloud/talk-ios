@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -14,6 +15,7 @@
                 <outlet property="appLogo" destination="iwf-In-Fgx" id="lQi-z1-f1e"/>
                 <outlet property="cancel" destination="3DN-vn-ssn" id="2K7-ca-m3d"/>
                 <outlet property="imageBaseUrl" destination="FqU-PH-59c" id="HcC-vC-kkQ"/>
+                <outlet property="importButton" destination="Djk-FQ-pNA" id="CLV-uu-z7D"/>
                 <outlet property="login" destination="WaC-p3-cE0" id="gR4-kZ-73f"/>
                 <outlet property="qrCodeLogin" destination="AEd-IT-8im" id="TlL-ER-X0g"/>
                 <outlet property="serverUrl" destination="Xub-RR-Z2O" id="yCd-bR-8wI"/>
@@ -25,13 +27,27 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="loginLogo" translatesAutoresizingMaskIntoConstraints="NO" id="iwf-In-Fgx">
-                    <rect key="frame" x="77" y="62" width="221" height="136"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3DN-vn-ssn">
+                    <rect key="frame" x="16" y="16" width="53" height="33"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <state key="normal" title="Cancel"/>
+                    <connections>
+                        <action selector="cancel:" destination="-1" eventType="touchUpInside" id="jep-NM-iny"/>
+                    </connections>
+                </button>
+                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="loginLogo" translatesAutoresizingMaskIntoConstraints="NO" id="iwf-In-Fgx">
+                    <rect key="frame" x="63" y="62" width="250" height="125"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="250" id="HDX-9P-1H4"/>
+                        <constraint firstAttribute="height" constant="125" id="wj6-8X-JR0"/>
+                    </constraints>
                 </imageView>
-                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Server address https://…" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Xub-RR-Z2O">
+                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Server address https://…" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Xub-RR-Z2O">
                     <rect key="frame" x="49" y="232" width="282" height="35"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" id="cwO-Af-ONt"/>
+                        <constraint firstAttribute="height" constant="35" id="qlC-Ic-ZUg"/>
+                    </constraints>
                     <color key="textColor" systemColor="placeholderTextColor"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="URL"/>
@@ -39,36 +55,53 @@
                         <outlet property="delegate" destination="-1" id="JxR-kN-b17"/>
                     </connections>
                 </textField>
-                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="Dkt-lG-hBg">
+                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="Dkt-lG-hBg">
                     <rect key="frame" x="339" y="239" width="20" height="20"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="20" id="a3k-Z9-ufY"/>
+                        <constraint firstAttribute="height" constant="20" id="gOP-Sl-Pyr"/>
+                    </constraints>
                     <color key="color" systemColor="secondaryLabelColor"/>
                 </activityIndicatorView>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="loginURL" translatesAutoresizingMaskIntoConstraints="NO" id="FqU-PH-59c">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="loginURL" translatesAutoresizingMaskIntoConstraints="NO" id="FqU-PH-59c">
                     <rect key="frame" x="16" y="237" width="25" height="25"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="25" id="WQO-8Z-ade"/>
+                        <constraint firstAttribute="height" constant="25" id="b2R-SA-eic"/>
+                    </constraints>
                 </imageView>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3DN-vn-ssn">
-                    <rect key="frame" x="16" y="30" width="160" height="44"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                    <connections>
-                        <action selector="cancel:" destination="-1" eventType="touchUpInside" id="jep-NM-iny"/>
-                    </connections>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WaC-p3-cE0">
-                    <rect key="frame" x="87" y="307" width="200" height="52"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WaC-p3-cE0">
+                    <rect key="frame" x="88" y="307" width="200" height="52"/>
                     <color key="backgroundColor" red="0.28099492970000001" green="0.3251131223" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="200" id="QRN-lR-Dsg"/>
+                        <constraint firstAttribute="height" constant="52" id="Ra6-PS-axy"/>
+                    </constraints>
                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                     <state key="normal" title="Log in"/>
                     <connections>
                         <action selector="login:" destination="-1" eventType="touchUpInside" id="N8h-1K-h4U"/>
                     </connections>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="AEd-IT-8im">
-                    <rect key="frame" x="162" y="410" width="50" height="50"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Djk-FQ-pNA">
+                    <rect key="frame" x="88" y="374" width="200" height="52"/>
+                    <color key="backgroundColor" red="0.28099492970000001" green="0.3251131223" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="52" id="Y5n-bA-UNh"/>
+                        <constraint firstAttribute="width" constant="200" id="zQ7-Wp-Z24"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                    <state key="normal" title="Import account"/>
+                    <connections>
+                        <action selector="importAccounts:" destination="-1" eventType="touchUpInside" id="CpK-hk-8aW"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AEd-IT-8im">
+                    <rect key="frame" x="163" y="444" width="50" height="50"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="50" id="Xec-Ua-x8g"/>
+                        <constraint firstAttribute="height" constant="50" id="etr-8G-wQ1"/>
+                    </constraints>
                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                     <state key="normal" title="QRButton" image="qrcode-scan">
@@ -79,16 +112,36 @@
                     </connections>
                 </button>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="f6v-tp-8eE"/>
             <color key="backgroundColor" red="0.0" green="0.50980392159999999" blue="0.78823529410000004" alpha="1" colorSpace="calibratedRGB"/>
+            <constraints>
+                <constraint firstItem="AEd-IT-8im" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="2LI-re-yqW"/>
+                <constraint firstItem="Xub-RR-Z2O" firstAttribute="top" secondItem="f6v-tp-8eE" secondAttribute="top" constant="232" id="8cd-KZ-b7b"/>
+                <constraint firstItem="AEd-IT-8im" firstAttribute="top" secondItem="f6v-tp-8eE" secondAttribute="top" constant="444" id="Abi-ue-wqe"/>
+                <constraint firstItem="Dkt-lG-hBg" firstAttribute="top" secondItem="f6v-tp-8eE" secondAttribute="top" constant="239" id="BNM-Jz-X13"/>
+                <constraint firstItem="WaC-p3-cE0" firstAttribute="top" secondItem="f6v-tp-8eE" secondAttribute="top" constant="307" id="CX2-JJ-UiE"/>
+                <constraint firstItem="iwf-In-Fgx" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="M7m-ln-rs0"/>
+                <constraint firstItem="Djk-FQ-pNA" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="SOb-cv-Ebv"/>
+                <constraint firstItem="3DN-vn-ssn" firstAttribute="leading" secondItem="f6v-tp-8eE" secondAttribute="leading" constant="16" id="WhM-h9-y2X"/>
+                <constraint firstItem="f6v-tp-8eE" firstAttribute="trailing" secondItem="Xub-RR-Z2O" secondAttribute="trailing" constant="44" id="cAR-f9-vZi"/>
+                <constraint firstItem="iwf-In-Fgx" firstAttribute="top" secondItem="f6v-tp-8eE" secondAttribute="top" constant="62" id="d21-wF-2ah"/>
+                <constraint firstItem="3DN-vn-ssn" firstAttribute="top" secondItem="f6v-tp-8eE" secondAttribute="top" constant="16" id="imh-ZV-tca"/>
+                <constraint firstItem="WaC-p3-cE0" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="lPR-jF-Nzd"/>
+                <constraint firstItem="FqU-PH-59c" firstAttribute="top" secondItem="f6v-tp-8eE" secondAttribute="top" constant="237" id="lt0-dt-Ouj"/>
+                <constraint firstItem="f6v-tp-8eE" firstAttribute="trailing" secondItem="Dkt-lG-hBg" secondAttribute="trailing" constant="16" id="rx1-uX-znh"/>
+                <constraint firstItem="Djk-FQ-pNA" firstAttribute="top" secondItem="f6v-tp-8eE" secondAttribute="top" constant="374" id="wBN-Fm-xBB"/>
+                <constraint firstItem="FqU-PH-59c" firstAttribute="leading" secondItem="f6v-tp-8eE" secondAttribute="leading" constant="16" id="wze-8C-mcW"/>
+                <constraint firstItem="Xub-RR-Z2O" firstAttribute="leading" secondItem="f6v-tp-8eE" secondAttribute="leading" constant="49" id="ylo-zc-RS2"/>
+            </constraints>
             <point key="canvasLocation" x="32.799999999999997" y="52.623688155922046"/>
         </view>
     </objects>
     <resources>
-        <image name="loginLogo" width="250" height="176.5"/>
+        <image name="loginLogo" width="250" height="125"/>
         <image name="loginURL" width="25" height="25"/>
         <image name="qrcode-scan" width="50" height="50"/>
         <systemColor name="placeholderTextColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29803921568627451" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>

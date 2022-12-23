@@ -22,18 +22,23 @@
 
 #import "LoginViewController.h"
 
+@import NextcloudKit;
+
 #import "NextcloudTalk-Swift.h"
 
 #import "AuthenticationViewController.h"
 #import "CCCertificate.h"
+#import "DetailedOptionsSelectorTableViewController.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
+#import "NCUtils.h"
 
-@interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate, QRCodeLoginControllerDelegate>
+@interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate, QRCodeLoginControllerDelegate, DetailedOptionsSelectorTableViewControllerDelegate>
 {
     AuthenticationViewController *_authenticationViewController;
     QRCodeLoginController *_qrCodeLoginController;
+    NSMutableArray *_importedFilesAccount;
 }
 
 @end
@@ -68,6 +73,19 @@
     
     [self.login setTitle:NSLocalizedString(@"Log in", nil) forState:UIControlStateNormal];
     
+    self.importButton.backgroundColor = [NCAppBranding brandColor];
+    self.importButton.layer.borderColor = [NCAppBranding brandTextColor].CGColor;
+    [self.importButton setTitleColor:[NCAppBranding brandTextColor] forState:UIControlStateNormal];
+
+    self.importButton.layer.cornerRadius = 26;
+    self.importButton.clipsToBounds = YES;
+    self.importButton.titleLabel.minimumScaleFactor = 0.5f;
+    self.importButton.titleLabel.numberOfLines = 1;
+    self.importButton.titleLabel.adjustsFontSizeToFitWidth = YES;
+    self.importButton.layer.borderWidth = 1.0;
+
+    [self.importButton setTitle:NSLocalizedString(@"Import account", nil) forState:UIControlStateNormal];
+
     self.activityIndicatorView.color = [NCAppBranding brandTextColor];
     self.activityIndicatorView.hidden = YES;
     
@@ -77,6 +95,8 @@
     self.cancel.hidden = !(multiAccountEnabled && [[NCDatabaseManager sharedInstance] numberOfAccounts] > 0);
     [self.cancel setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
     [self.cancel setTitleColor:[NCAppBranding brandTextColor] forState:UIControlStateNormal];
+
+    [self checkForFilesAppAccounts];
 
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
     [self.view addGestureRecognizer:tapGestureRecognizer];
@@ -112,6 +132,11 @@
 {
     _qrCodeLoginController = [[QRCodeLoginController alloc] initWithDelegate:self];
     [_qrCodeLoginController scan];
+}
+
+- (IBAction)importAccounts:(id)sender
+{
+    [self presentImportedAccountsSelector];
 }
 
 - (void)trustedCerticateAccepted
@@ -217,6 +242,71 @@
 
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:_authenticationViewController];
     [self presentViewController:navController animated:YES completion:nil];
+}
+
+#pragma mark - Files app accounts
+
+- (void)checkForFilesAppAccounts
+{
+    if (!useAppsGroup || ![NCUtils isNextcloudAppInstalled]) {
+        self.importButton.hidden = YES;
+        return;
+    }
+
+    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appsGroupIdentifier] URLByAppendingPathComponent:kNextcloudFilesDatabaseFolder] path];
+    NSURL *accountsFileURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkAccountsFileName];
+    NSArray *filesAccounts = [[NKCommon shared] readDataAccountFileAt:accountsFileURL];
+    NSArray *talkAccounts = [[NCDatabaseManager sharedInstance] allAccounts];
+
+    _importedFilesAccount = [NSMutableArray new];
+    for (NKDataAccountFile *filesAccount in filesAccounts) {
+        BOOL accountIncluded = NO;
+        for (TalkAccount *talkAccount in talkAccounts) {
+            if ([talkAccount.server caseInsensitiveCompare:filesAccount.url] == NSOrderedSame &&
+                [talkAccount.user caseInsensitiveCompare:filesAccount.user] == NSOrderedSame) {
+                accountIncluded = YES;
+            }
+        }
+        if (!accountIncluded) {
+            [_importedFilesAccount addObject:filesAccount];
+        }
+    }
+
+    self.importButton.hidden = !_importedFilesAccount.count;
+}
+
+- (void)presentImportedAccountsSelector
+{
+    NSMutableArray *importedAccounts = [NSMutableArray new];
+    for (NKDataAccountFile *filesAccount in _importedFilesAccount) {
+        DetailedOption *option = [[DetailedOption alloc] init];
+        option.identifier = filesAccount.user;
+        option.title = (!filesAccount.alias || [filesAccount.alias isEqualToString:@""]) ? filesAccount.user : filesAccount.alias;
+        option.subtitle = filesAccount.url;
+        NSData *imageData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filesAccount.avatar]];
+        option.image = [UIImage imageWithData:imageData];
+        [importedAccounts addObject:option];
+    }
+
+    DetailedOptionsSelectorTableViewController *accountSelectorVC = [[DetailedOptionsSelectorTableViewController alloc] initWithAccounts:importedAccounts];
+    accountSelectorVC.title = NSLocalizedString(@"Import account", nil);
+    accountSelectorVC.delegate = self;
+    NCNavigationController *accountSelectorNC = [[NCNavigationController alloc] initWithRootViewController:accountSelectorVC];
+    [self presentViewController:accountSelectorNC animated:YES completion:nil];
+}
+
+#pragma mark - DetailedOptionSelector delegate
+
+- (void)detailedOptionsSelector:(DetailedOptionsSelectorTableViewController *)viewController didSelectOptionWithIdentifier:(DetailedOption *)option
+{
+    [self dismissViewControllerAnimated:YES completion:^{
+        [self presentAuthenticationViewWithServerURL:option.subtitle withUser:option.identifier];
+    }];
+}
+
+- (void)detailedOptionsSelectorWasCancelled:(DetailedOptionsSelectorTableViewController *)viewController
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - Alerts
