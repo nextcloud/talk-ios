@@ -300,8 +300,7 @@
 - (void)detailedOptionsSelector:(DetailedOptionsSelectorTableViewController *)viewController didSelectOptionWithIdentifier:(DetailedOption *)option
 {
     [self dismissViewControllerAnimated:YES completion:^{
-        [self presentAuthenticationViewWithServerURL:option.subtitle withUser:option.identifier
-        ];
+        [self presentAuthenticationViewWithServerURL:option.subtitle withUser:option.identifier];
     }];
 }
 
