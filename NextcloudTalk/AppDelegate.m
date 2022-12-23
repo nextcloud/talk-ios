@@ -470,7 +470,12 @@
             [[NCSettingsController sharedInstance] disconnectAllExternalSignalingControllers];
         }
 
-        [self->_keepAliveBGTask stopBackgroundTask];
+        // Disconnect is dispatched to the main queue, so in theory it can happen that we stop the background task
+        // before the disconnect is run/completed. So we dispatch the stopBackgroundTask to main as well
+        // to be sure it's called after everything else is run.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_keepAliveBGTask stopBackgroundTask];
+        });
     }];
 
     [[NSRunLoop mainRunLoop] addTimer:_keepAliveTimer forMode:NSRunLoopCommonModes];
