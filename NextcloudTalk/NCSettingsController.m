@@ -245,20 +245,24 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     }
     
     [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
-        if (!error) {
-            [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
-                if (!error) {
-                    // SetSignalingConfiguration should be called just once
-                    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-                    [[NCSettingsController sharedInstance] setSignalingConfigurationForAccountId:account.accountId];
-                    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateConfigHashTransaction" expirationHandler:nil];
-                    [NCUtils log:@"Start update config hash transaction"];
-                    [[NCDatabaseManager sharedInstance] updateTalkConfigurationHashForAccountId:account.accountId withHash:configurationHash];
-                    [bgTask stopBackgroundTask];
-                    [NCUtils log:@"End update config hash transaction"];
-                }
-            }];
+        if (error) {
+            return;
         }
+
+        [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
+            if (error) {
+                return;
+            }
+
+            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateSignalingConfiguration" expirationHandler:nil];
+
+            // SetSignalingConfiguration should be called just once
+            TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+            [[NCSettingsController sharedInstance] setSignalingConfigurationForAccountId:account.accountId];
+            [[NCDatabaseManager sharedInstance] updateTalkConfigurationHashForAccountId:account.accountId withHash:configurationHash];
+
+            [bgTask stopBackgroundTask];
+        }];
     }];
 }
 
