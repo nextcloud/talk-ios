@@ -58,16 +58,6 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 @implementation NCExternalSignalingController
 
-+ (NCExternalSignalingController *)sharedInstance
-{
-    static dispatch_once_t once;
-    static NCExternalSignalingController *sharedInstance;
-    dispatch_once(&once, ^{
-        sharedInstance = [[self alloc] init];
-    });
-    return sharedInstance;
-}
-
 - (instancetype)initWithAccount:(TalkAccount *)account server:(NSString *)serverUrl andTicket:(NSString *)ticket
 {
     self = [super init];
