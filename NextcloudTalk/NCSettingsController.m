@@ -245,20 +245,24 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     }
     
     [[NCSettingsController sharedInstance] getCapabilitiesWithCompletionBlock:^(NSError *error) {
-        if (!error) {
-            [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
-                if (!error) {
-                    // SetSignalingConfiguration should be called just once
-                    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-                    [[NCSettingsController sharedInstance] setSignalingConfigurationForAccountId:account.accountId];
-                    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateConfigHashTransaction" expirationHandler:nil];
-                    [NCUtils log:@"Start update config hash transaction"];
-                    [[NCDatabaseManager sharedInstance] updateTalkConfigurationHashForAccountId:account.accountId withHash:configurationHash];
-                    [bgTask stopBackgroundTask];
-                    [NCUtils log:@"End update config hash transaction"];
-                }
-            }];
+        if (error) {
+            return;
         }
+
+        [[NCSettingsController sharedInstance] getSignalingConfigurationWithCompletionBlock:^(NSError *error) {
+            if (error) {
+                return;
+            }
+
+            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateSignalingConfiguration" expirationHandler:nil];
+
+            // SetSignalingConfiguration should be called just once
+            TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+            [[NCSettingsController sharedInstance] setSignalingConfigurationForAccountId:account.accountId];
+            [[NCDatabaseManager sharedInstance] updateTalkConfigurationHashForAccountId:account.accountId withHash:configurationHash];
+
+            [bgTask stopBackgroundTask];
+        }];
     }];
 }
 
@@ -454,13 +458,17 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 - (void)setSignalingConfigurationForAccountId:(NSString *)accountId
 {
     NSDictionary *signalingConfiguration = [_signalingConfigutations objectForKey:accountId];
+    NSString *externalSignalingTicket = [signalingConfiguration objectForKey:@"ticket"];
     NSString *externalSignalingServer = nil;
+    
     id server = [signalingConfiguration objectForKey:@"server"];
     if ([server isKindOfClass:[NSString class]] && ![server isEqualToString:@""]) {
         externalSignalingServer = server;
     }
-    NSString *externalSignalingTicket = [signalingConfiguration objectForKey:@"ticket"];
+
     if (externalSignalingServer && externalSignalingTicket) {
+        BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCSetSignalingConfiguration" expirationHandler:nil];
+
         dispatch_async(dispatch_get_main_queue(), ^{
             NCExternalSignalingController *extSignalingController = [self->_externalSignalingControllers objectForKey:accountId];
             
@@ -471,6 +479,8 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
             TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
             extSignalingController = [[NCExternalSignalingController alloc] initWithAccount:account server:externalSignalingServer andTicket:externalSignalingTicket];
             [self->_externalSignalingControllers setObject:extSignalingController forKey:accountId];
+
+            [bgTask stopBackgroundTask];
         });
     }
 }

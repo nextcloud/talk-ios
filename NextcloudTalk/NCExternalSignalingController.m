@@ -58,16 +58,6 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 @implementation NCExternalSignalingController
 
-+ (NCExternalSignalingController *)sharedInstance
-{
-    static dispatch_once_t once;
-    static NCExternalSignalingController *sharedInstance;
-    dispatch_once(&once, ^{
-        sharedInstance = [[self alloc] init];
-    });
-    return sharedInstance;
-}
-
 - (instancetype)initWithAccount:(TalkAccount *)account server:(NSString *)serverUrl andTicket:(NSString *)ticket
 {
     self = [super init];
@@ -129,6 +119,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     // Do not try to connect if the app is running in the background
     if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) {
         [NCUtils log:@"Trying to create websocket connection while app is in the background"];
+        _disconnected = YES;
         return;
     }
 
