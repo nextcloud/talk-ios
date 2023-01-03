@@ -3099,11 +3099,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)checkUnreadMessagesVisibility
 {
-    NSIndexPath *indexPath = [self indexPathForMessage:_firstUnreadMessage];
-    NSArray* visibleCellsIPs = [self.tableView indexPathsForVisibleRows];
-    if ([visibleCellsIPs containsObject:indexPath]) {
-         [self hideNewMessagesView];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSIndexPath *indexPath = [self indexPathForMessage:self->_firstUnreadMessage];
+        NSArray* visibleCellsIPs = [self.tableView indexPathsForVisibleRows];
+        if ([visibleCellsIPs containsObject:indexPath]) {
+            [self hideNewMessagesView];
+        }
+    });
 }
 
 - (void)checkLastCommonReadMessage
