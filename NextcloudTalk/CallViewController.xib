@@ -162,10 +162,10 @@
                             </subviews>
                         </stackView>
                         <view contentMode="scaleToFill" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="NY0-IT-mMr" userLabel="TitleView" customClass="NCChatTitleView">
-                            <rect key="frame" x="8" y="37" width="345" height="30"/>
+                            <rect key="frame" x="8" y="30" width="345" height="44"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
-                                <constraint firstAttribute="height" constant="30" id="TeG-Qy-adB"/>
+                                <constraint firstAttribute="height" constant="44" id="TeG-Qy-adB"/>
                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" id="eXn-Ro-wDA"/>
                             </constraints>
                         </view>
