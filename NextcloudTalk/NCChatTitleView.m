@@ -37,21 +37,37 @@
     self = [super init];
     
     if (self) {
-        [[NSBundle mainBundle] loadNibNamed:@"NCChatTitleView" owner:self options:nil];
-        
-        [self addSubview:self.contentView];
-        
-        self.contentView.frame = self.bounds;
-        self.image.layer.cornerRadius = 15.0f;
-        self.image.clipsToBounds = YES;
-        self.image.backgroundColor = [NCAppBranding avatarPlaceholderColor];
-        self.title.titleLabel.adjustsFontSizeToFitWidth = YES;
-        self.title.titleLabel.minimumScaleFactor = 0.85;
-        [self.title setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
-        [self.subtitle setTextColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.7]];
+        [self commonInit];
     }
     
     return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    self = [super initWithCoder:coder];
+
+    if (self) {
+        [self commonInit];
+    }
+
+    return self;
+}
+
+- (void)commonInit
+{
+    [[NSBundle mainBundle] loadNibNamed:@"NCChatTitleView" owner:self options:nil];
+
+    [self addSubview:self.contentView];
+    self.contentView.frame = self.bounds;
+
+    self.image.layer.cornerRadius = 15.0f;
+    self.image.clipsToBounds = YES;
+    self.image.backgroundColor = [NCAppBranding avatarPlaceholderColor];
+    self.title.titleLabel.adjustsFontSizeToFitWidth = YES;
+    self.title.titleLabel.minimumScaleFactor = 0.85;
+    [self.title setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
+    [self.subtitle setTextColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.7]];
 }
 
 - (void)setUserStatus:(NSString *)userStatus
