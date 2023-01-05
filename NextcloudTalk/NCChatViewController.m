@@ -654,62 +654,14 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     self.titleView = [[NCChatTitleView alloc] init];
     self.titleView.frame = CGRectMake(0, 0, MAXFLOAT, 30);
+
     [self.titleView.title addTarget:self action:@selector(titleButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    
-    [_titleView.title setTitle:_room.displayName forState:UIControlStateNormal];
-    
-    // Set room image
-    switch (_room.type) {
-        case kNCRoomTypeOneToOne:
-        {
-            // Request user avatar to the server and set it if exist
-            [_titleView.image setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                    placeholderImage:nil success:nil failure:nil];
-        }
-            break;
-        case kNCRoomTypeGroup:
-            [_titleView.image setImage:[UIImage imageNamed:@"group-15"]];
-            [_titleView.image setContentMode:UIViewContentModeCenter];
-            break;
-        case kNCRoomTypePublic:
-            [_titleView.image setImage:[UIImage imageNamed:@"public-15"]];
-            [_titleView.image setContentMode:UIViewContentModeCenter];
-            break;
-        case kNCRoomTypeChangelog:
-            [_titleView.image setImage:[UIImage imageNamed:@"changelog"]];
-            break;
-        default:
-            break;
-    }
-    
-    // Set objectType image
-    if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [_titleView.image setImage:[UIImage imageNamed:@"file-conv-15"]];
-        [_titleView.image setContentMode:UIViewContentModeCenter];
-    } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [_titleView.image setImage:[UIImage imageNamed:@"pass-conv-15"]];
-        [_titleView.image setContentMode:UIViewContentModeCenter];
-    }
-    
-    _titleView.title.accessibilityHint = NSLocalizedString(@"Double tap to go to conversation information", nil);
+    self.titleView.title.accessibilityHint = NSLocalizedString(@"Double tap to go to conversation information", nil);
 
-    // User status
-    [_titleView setUserStatus:_room.status];
+    [self.titleView setupForRoom:_room];
 
-    // User status message
-    [_titleView setUserStatusMessage:_room.statusMessage withIcon:_room.statusIcon];
-
-    if (!_room.statusMessage || [_room.statusMessage isEqualToString:@""]) {
-        if ([_room.status isEqualToString: kUserStatusDND]) {
-            [_titleView setUserStatusMessage:NSLocalizedString(@"Do not disturb", nil) withIcon:nil];
-        } else if ([_room.status isEqualToString:kUserStatusAway]) {
-            [_titleView setUserStatusMessage:NSLocalizedString(@"Away", nil) withIcon:nil];
-        }
-    }
-
-    // Show description in group conversations
-    if (_room.type != kNCRoomTypeOneToOne && ![_room.roomDescription isEqualToString:@""]) {
-        [_titleView setUserStatusMessage:_room.roomDescription withIcon:nil];
+    if (self.navigationController.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
+        [self.titleView.subtitle setHidden:YES];
     }
 
     self.navigationItem.titleView = _titleView;

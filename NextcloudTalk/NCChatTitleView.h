@@ -22,6 +22,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "NCRoom.h"
+
 @interface NCChatTitleView : UIView
 
 @property (weak, nonatomic) IBOutlet UIButton *title;
@@ -29,6 +31,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *subtitle;
 @property (weak, nonatomic) IBOutlet UIImageView *userStatusImage;
 
+- (void)setupForRoom:(NCRoom *)room;
 - (void)setUserStatus:(NSString *)userStatus;
 - (void)setUserStatusMessage:(NSString *)userStatusMessage withIcon:(NSString*)userStatusIcon;
 

@@ -195,14 +195,10 @@ typedef NS_ENUM(NSInteger, CallState) {
 
     self.moreMenuButton.showsMenuAsPrimaryAction = YES;
 
-    [self.titleView.title setTitle:_room.displayName forState:UIControlStateNormal];
+    [self.titleView setupForRoom:_room];
 
-    // User status
-    [self.titleView setUserStatus:_room.status];
-
-    //User status message
-    [self.titleView setUserStatusMessage:_room.statusMessage withIcon:_room.statusIcon];
-
+    // The titleView uses the themeColor as a background for the userStatusImage
+    // As we always have a black background, we need to change that
     if (_room.statusMessage && ![_room.statusMessage isEqualToString:@""]) {
         [self.titleView.userStatusImage setBackgroundColor:UIColor.blackColor];
     }
@@ -270,10 +266,6 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self setLocalVideoRect];
     [self adjustSpeakerButton];
     [self adjustTopBar];
-
-    // The titleView uses the themeColor as a background for the userStatusImage
-    // As we always have a black background, we need to change that
-    [self.titleView.userStatusImage setBackgroundColor:UIColor.blackColor];
 }
 
 - (void)viewWillDisappear:(BOOL)animated

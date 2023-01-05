@@ -22,7 +22,11 @@
 
 #import "NCChatTitleView.h"
 
+#import "UIImageView+AFNetworking.h"
+
+#import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCUserStatus.h"
 
 @interface NCChatTitleView ()
 
@@ -69,6 +73,71 @@
 
     [self.subtitle setTextColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.7]];
     [self.subtitle setHidden:YES];
+}
+
+- (void)setupForRoom:(NCRoom *)room
+{
+    [self.title setTitle:room.displayName forState:UIControlStateNormal];
+
+    // Set room image
+    switch (room.type) {
+        case kNCRoomTypeOneToOne:
+        {
+            // Request user avatar to the server and set it if exist
+            [self.image setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name
+                                                                                                  withStyle:self.traitCollection.userInterfaceStyle
+                                                                                                    andSize:96
+                                                                                               usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                                    placeholderImage:nil success:nil failure:nil];
+        }
+            break;
+        case kNCRoomTypeGroup:
+            [self.image setImage:[UIImage imageNamed:@"group-15"]];
+            [self.image setContentMode:UIViewContentModeCenter];
+            break;
+        case kNCRoomTypePublic:
+            [self.image setImage:[UIImage imageNamed:@"public-15"]];
+            [self.image setContentMode:UIViewContentModeCenter];
+            break;
+        case kNCRoomTypeChangelog:
+            [self.image setImage:[UIImage imageNamed:@"changelog"]];
+            break;
+        default:
+            break;
+    }
+
+    // Set objectType image
+    if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {
+        [self.image setImage:[UIImage imageNamed:@"file-conv-15"]];
+        [self.image setContentMode:UIViewContentModeCenter];
+    } else if ([room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
+        [self.image setImage:[UIImage imageNamed:@"pass-conv-15"]];
+        [self.image setContentMode:UIViewContentModeCenter];
+    }
+
+    /*
+     Disabled, until https://github.com/nextcloud/spreed/issues/8411 is fixed
+
+        // User status
+        [self setUserStatus:room.status];
+
+        // User status message
+        [self setUserStatusMessage:room.statusMessage withIcon:room.statusIcon];
+
+        if (!room.statusMessage || [room.statusMessage isEqualToString:@""]) {
+            if ([room.status isEqualToString:kUserStatusDND]) {
+                [self setUserStatusMessage:NSLocalizedString(@"Do not disturb", nil) withIcon:nil];
+            } else if ([room.status isEqualToString:kUserStatusAway]) {
+                [self setUserStatusMessage:NSLocalizedString(@"Away", nil) withIcon:nil];
+            }
+        }
+    */
+
+
+    // Show description in group conversations
+    if (room.type != kNCRoomTypeOneToOne && ![room.roomDescription isEqualToString:@""]) {
+        [self setUserStatusMessage:room.roomDescription withIcon:nil];
+    }
 }
 
 - (void)setUserStatus:(NSString *)userStatus
