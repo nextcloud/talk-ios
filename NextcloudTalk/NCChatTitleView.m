@@ -61,12 +61,10 @@
     [self addSubview:self.contentView];
     self.contentView.frame = self.bounds;
 
-    self.image.layer.cornerRadius = 15.0f;
+    self.image.layer.cornerRadius = self.image.bounds.size.width / 2;
     self.image.clipsToBounds = YES;
     self.image.backgroundColor = [NCAppBranding avatarPlaceholderColor];
 
-    self.title.titleLabel.adjustsFontSizeToFitWidth = YES;
-    self.title.titleLabel.minimumScaleFactor = 0.85;
     [self.title setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
 
     [self.subtitle setTextColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.7]];
