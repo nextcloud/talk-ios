@@ -24,6 +24,7 @@
 #define NextcloudTalk_Bridging_Header_h
 
 #import "AvatarHeaderView.h"
+#import "CallParticipantViewCell.h"
 #import "DetailedOptionsSelectorTableViewController.h"
 #import "DirectoryTableViewCell.h"
 #import "HeaderWithButton.h"

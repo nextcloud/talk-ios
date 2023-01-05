@@ -46,6 +46,7 @@
 		1F98DF9C28E7484700E05174 /* ReferenceDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F98DF9B28E7484700E05174 /* ReferenceDeckView.swift */; };
 		1F98DF9E28E7485000E05174 /* ReferenceDeckView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F98DF9D28E7485000E05174 /* ReferenceDeckView.xib */; };
 		1FA20C8A284001D80062B4F3 /* DebounceWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA20C89284001D80062B4F3 /* DebounceWebView.swift */; };
+		1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */; };
 		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
 		1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
@@ -194,7 +195,6 @@
 		2C78EFA11F828C41008AFA74 /* CallViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C78EF9F1F828C41008AFA74 /* CallViewController.xib */; };
 		2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EFA31F86FF4A008AFA74 /* CallParticipantViewCell.m */; };
 		2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C78EFA41F86FF4A008AFA74 /* CallParticipantViewCell.xib */; };
-		2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EFA81F87EF39008AFA74 /* NBMPeersFlowLayout.m */; };
 		2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */; };
 		2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A12402017872600864818 /* AddParticipantsTableViewController.m */; };
 		2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */; };
@@ -400,6 +400,7 @@
 		1F98DF9B28E7484700E05174 /* ReferenceDeckView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceDeckView.swift; sourceTree = "<group>"; };
 		1F98DF9D28E7485000E05174 /* ReferenceDeckView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceDeckView.xib; sourceTree = "<group>"; };
 		1FA20C89284001D80062B4F3 /* DebounceWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebounceWebView.swift; sourceTree = "<group>"; };
+		1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallFlowLayout.swift; sourceTree = "<group>"; };
 		1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeLoginController.swift; sourceTree = "<group>"; };
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
 		1FD9182828C55A73009092AB /* BGTaskHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGTaskHelper.swift; sourceTree = "<group>"; };
@@ -587,8 +588,6 @@
 		2C78EFA21F86FF4A008AFA74 /* CallParticipantViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CallParticipantViewCell.h; sourceTree = "<group>"; };
 		2C78EFA31F86FF4A008AFA74 /* CallParticipantViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CallParticipantViewCell.m; sourceTree = "<group>"; };
 		2C78EFA41F86FF4A008AFA74 /* CallParticipantViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CallParticipantViewCell.xib; sourceTree = "<group>"; };
-		2C78EFA71F87EF39008AFA74 /* NBMPeersFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBMPeersFlowLayout.h; sourceTree = "<group>"; };
-		2C78EFA81F87EF39008AFA74 /* NBMPeersFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBMPeersFlowLayout.m; sourceTree = "<group>"; };
 		2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserSettingsTableViewCell.xib; sourceTree = "<group>"; };
 		2C7A123F2017872600864818 /* AddParticipantsTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AddParticipantsTableViewController.h; sourceTree = "<group>"; };
 		2C7A12402017872600864818 /* AddParticipantsTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AddParticipantsTableViewController.m; sourceTree = "<group>"; };
@@ -1143,8 +1142,6 @@
 				2C78EF9D1F828C41008AFA74 /* CallViewController.h */,
 				2C78EF9E1F828C41008AFA74 /* CallViewController.m */,
 				2C78EF9F1F828C41008AFA74 /* CallViewController.xib */,
-				2C78EFA71F87EF39008AFA74 /* NBMPeersFlowLayout.h */,
-				2C78EFA81F87EF39008AFA74 /* NBMPeersFlowLayout.m */,
 				2C78EF9A1F826B22008AFA74 /* NCCallController.h */,
 				2C78EF9B1F826B22008AFA74 /* NCCallController.m */,
 				2C8CDD0421C2EDE8004E2997 /* AvatarBackgroundImageView.h */,
@@ -1154,6 +1151,7 @@
 				2C4DE9F021F732B40096940D /* NCAudioController.h */,
 				2C4DE9F121F732B40096940D /* NCAudioController.m */,
 				2C4446FA265D5BEF00DF1DBC /* CallConstants.h */,
+				1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */,
 			);
 			name = Calls;
 			sourceTree = "<group>";
@@ -1880,7 +1878,6 @@
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
 				2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */,
 				2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
-				2C78EFA91F87EF39008AFA74 /* NBMPeersFlowLayout.m in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
 				2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */,
@@ -1980,6 +1977,7 @@
 				DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */,
 				1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */,
 				2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */,
+				1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */,
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
 				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,
 				2CEDA88926F10BB20044552B /* UserStatusMessageViewController.swift in Sources */,

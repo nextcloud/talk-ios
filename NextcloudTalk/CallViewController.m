@@ -35,7 +35,6 @@
 
 #import "CallKitManager.h"
 #import "CallParticipantViewCell.h"
-#import "NBMPeersFlowLayout.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCAudioController.h"
@@ -45,6 +44,8 @@
 #import "NCSettingsController.h"
 #import "NCSignalingMessage.h"
 #import "NCUtils.h"
+
+#import "NextcloudTalk-Swift.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
@@ -164,6 +165,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.closeScreensharingButton.layer setCornerRadius:16.0f];
 
     [self.collectionView.layer setCornerRadius:30.0f];
+    [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAlways];
     
     _airplayView = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
     _airplayView.tintColor = [UIColor whiteColor];
@@ -1293,25 +1295,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     return cell;
 }
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    CGRect frame = [NBMPeersFlowLayout frameForWithNumberOfItems:_peersInCall.count
-                                                             row:indexPath.row
-                                                     contentSize:self.collectionView.frame.size];
-    return frame.size;
-}
-
 -(void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
     CallParticipantViewCell *participantCell = (CallParticipantViewCell *)cell;
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
     
     [self updateParticipantCell:participantCell withPeerConnection:peerConnection];
-}
-
-- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section
-{
-    return kCallViewParticipantLineSpacing;
 }
 
 #pragma mark - Call Controller delegate
