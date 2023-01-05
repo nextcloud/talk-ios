@@ -59,7 +59,7 @@ You got stuck while working on a issue or need some pointers? Feel free to ask i
 
 We are using our own builds of the WebRTC library. They can be found in this [repository](https://github.com/nextcloud-releases/talk-clients-webrtc).
 
-Current version: [106.5249.0](https://github.com/nextcloud-releases/talk-clients-webrtc/releases/tag/106.5249.0).
+Current version: [108.5359.0](https://github.com/nextcloud-releases/talk-clients-webrtc/releases/tag/108.5359.0).
 \
 Download `WebRTC.xcframework.zip`, unzip it and place it in the `ThirdParty` folder of the project.
 
