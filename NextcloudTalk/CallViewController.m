@@ -270,6 +270,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self setLocalVideoRect];
     [self adjustSpeakerButton];
     [self adjustTopBar];
+
+    // The titleView uses the themeColor as a background for the userStatusImage
+    // As we always have a black background, we need to change that
+    [self.titleView.userStatusImage setBackgroundColor:UIColor.blackColor];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
