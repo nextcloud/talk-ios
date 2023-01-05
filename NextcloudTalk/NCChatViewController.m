@@ -597,19 +597,20 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (currentResponder && ![currentResponder isKindOfClass:[EmojiTextField class]]) {
         return;
     }
-
-    CGRect keyboardRect = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    [self updateViewToShowOrHideEmojiKeyboard:keyboardRect.size.height];
-    NSIndexPath *indexPath = [self indexPathForMessage:_reactingMessage];
-    if (indexPath) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            CGRect cellRect = [self.tableView rectForRowAtIndexPath:indexPath];
-            // Only scroll if cell is not completely visible
-            if (!CGRectContainsRect(self.tableView.bounds, cellRect)) {
-                [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-            }
-        });
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        CGRect keyboardRect = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+        [self updateViewToShowOrHideEmojiKeyboard:keyboardRect.size.height];
+        NSIndexPath *indexPath = [self indexPathForMessage:self->_reactingMessage];
+        if (indexPath) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                CGRect cellRect = [self.tableView rectForRowAtIndexPath:indexPath];
+                // Only scroll if cell is not completely visible
+                if (!CGRectContainsRect(self.tableView.bounds, cellRect)) {
+                    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+                }
+            });
+        }
+    });
 }
 
 - (void)wllHideHideKeyboard:(NSNotification *)notification
@@ -1150,9 +1151,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)unreadMessagesButtonPressed:(id)sender
 {
-    if (_firstUnreadMessage) {
-        [self.tableView scrollToRowAtIndexPath:[self indexPathForMessage:_firstUnreadMessage] atScrollPosition:UITableViewScrollPositionNone animated:YES];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self->_firstUnreadMessage) {
+            [self.tableView scrollToRowAtIndexPath:[self indexPathForMessage:self->_firstUnreadMessage] atScrollPosition:UITableViewScrollPositionNone animated:YES];
+        }
+    });
 }
 
 - (void)videoCallButtonPressed:(id)sender
@@ -3961,18 +3964,22 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 #pragma mark - ChatMessageTableViewCellDelegate
 
 - (void)cellWantsToScrollToMessage:(NCChatMessage *)message {
-    NSIndexPath *indexPath = [self indexPathForMessage:message];
-    if (indexPath) {
-        [self highlightMessageAtIndexPath:indexPath withScrollPosition:UITableViewScrollPositionTop];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSIndexPath *indexPath = [self indexPathForMessage:message];
+        if (indexPath) {
+            [self highlightMessageAtIndexPath:indexPath withScrollPosition:UITableViewScrollPositionTop];
+        }
+    });
 }
 
 - (void)cellWantsToDisplayOptionsForMessageActor:(NCChatMessage *)message {
-    NSIndexPath *indexPath = [self indexPathForMessage:message];
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    if (indexPath && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId]) {
-        [self presentOptionsForMessageActor:message fromIndexPath:indexPath];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSIndexPath *indexPath = [self indexPathForMessage:message];
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        if (indexPath && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId]) {
+            [self presentOptionsForMessageActor:message fromIndexPath:indexPath];
+        }
+    });
 }
 
 - (void)cellDidSelectedReaction:(NCChatReaction *)reaction forMessage:(NCChatMessage *)message
