@@ -32,6 +32,9 @@
 
 @property (strong, nonatomic) IBOutlet UIView *contentView;
 
+@property (strong, nonatomic) UIFont *titleFont;
+@property (strong, nonatomic) UIFont *subtitleFont;
+
 @end
 
 @implementation NCChatTitleView
@@ -65,42 +68,45 @@
     [self addSubview:self.contentView];
     self.contentView.frame = self.bounds;
 
-    self.image.layer.cornerRadius = self.image.bounds.size.width / 2;
-    self.image.clipsToBounds = YES;
-    self.image.backgroundColor = [NCAppBranding avatarPlaceholderColor];
+    self.avatarimage.layer.cornerRadius = self.avatarimage.bounds.size.width / 2;
+    self.avatarimage.clipsToBounds = YES;
+    self.avatarimage.backgroundColor = [NCAppBranding avatarPlaceholderColor];
 
-    [self.title setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
+    [self.titleButton setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
 
-    [self.subtitle setTextColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.7]];
-    [self.subtitle setHidden:YES];
+    self.titleFont = [UIFont systemFontOfSize:16 weight:UIFontWeightSemibold];
+    self.subtitleFont = [UIFont systemFontOfSize:13];
+
+    self.showSubtitle = YES;
+
+    // Set empty title on init to prevent showing a placeholder on iPhones in landscape
+    [self setTitle:@"" withSubtitle:nil];
 }
 
-- (void)setupForRoom:(NCRoom *)room
+- (void)updateForRoom:(NCRoom *)room
 {
-    [self.title setTitle:room.displayName forState:UIControlStateNormal];
-
     // Set room image
     switch (room.type) {
         case kNCRoomTypeOneToOne:
         {
             // Request user avatar to the server and set it if exist
-            [self.image setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name
-                                                                                                  withStyle:self.traitCollection.userInterfaceStyle
-                                                                                                    andSize:96
-                                                                                               usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+            [self.avatarimage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name
+                                                                                                        withStyle:self.traitCollection.userInterfaceStyle
+                                                                                                          andSize:96
+                                                                                                     usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                     placeholderImage:nil success:nil failure:nil];
         }
             break;
         case kNCRoomTypeGroup:
-            [self.image setImage:[UIImage imageNamed:@"group-15"]];
-            [self.image setContentMode:UIViewContentModeCenter];
+            [self.avatarimage setImage:[UIImage imageNamed:@"group-15"]];
+            [self.avatarimage setContentMode:UIViewContentModeCenter];
             break;
         case kNCRoomTypePublic:
-            [self.image setImage:[UIImage imageNamed:@"public-15"]];
-            [self.image setContentMode:UIViewContentModeCenter];
+            [self.avatarimage setImage:[UIImage imageNamed:@"public-15"]];
+            [self.avatarimage setContentMode:UIViewContentModeCenter];
             break;
         case kNCRoomTypeChangelog:
-            [self.image setImage:[UIImage imageNamed:@"changelog"]];
+            [self.avatarimage setImage:[UIImage imageNamed:@"changelog"]];
             break;
         default:
             break;
@@ -108,39 +114,50 @@
 
     // Set objectType image
     if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [self.image setImage:[UIImage imageNamed:@"file-conv-15"]];
-        [self.image setContentMode:UIViewContentModeCenter];
+        [self.userStatusImage setImage:[UIImage imageNamed:@"file-conv-15"]];
+        [self.userStatusImage setContentMode:UIViewContentModeCenter];
     } else if ([room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [self.image setImage:[UIImage imageNamed:@"pass-conv-15"]];
-        [self.image setContentMode:UIViewContentModeCenter];
+        [self.userStatusImage setImage:[UIImage imageNamed:@"pass-conv-15"]];
+        [self.userStatusImage setContentMode:UIViewContentModeCenter];
     }
+
+    NSString *subtitle = nil;
 
     /*
      Disabled, until https://github.com/nextcloud/spreed/issues/8411 is fixed
 
         // User status
-        [self setUserStatus:room.status];
+        [self setStatusImageForUserStatus:room.status];
 
         // User status message
-        [self setUserStatusMessage:room.statusMessage withIcon:room.statusIcon];
-
         if (!room.statusMessage || [room.statusMessage isEqualToString:@""]) {
+            // We don't have a dedicated statusMessage -> check the room status itself
+
             if ([room.status isEqualToString:kUserStatusDND]) {
-                [self setUserStatusMessage:NSLocalizedString(@"Do not disturb", nil) withIcon:nil];
+                subtitle = NSLocalizedString(@"Do not disturb", nil);
             } else if ([room.status isEqualToString:kUserStatusAway]) {
-                [self setUserStatusMessage:NSLocalizedString(@"Away", nil) withIcon:nil];
+                subtitle = NSLocalizedString(@"Away", nil);
+            }
+        } else if (room.statusMessage && ![room.statusMessage isEqualToString:@""]) {
+            // A dedicated statusMessage was set -> use it
+
+            if (room.statusIcon && ![room.statusIcon isEqualToString:@""]) {
+                subtitle = [NSString stringWithFormat:@"%@ %@", room.statusIcon, room.statusMessage];
+            } else {
+                subtitle = room.statusMessage;
             }
         }
-    */
-
+     */
 
     // Show description in group conversations
     if (room.type != kNCRoomTypeOneToOne && ![room.roomDescription isEqualToString:@""]) {
-        [self setUserStatusMessage:room.roomDescription withIcon:nil];
+        subtitle = room.roomDescription;
     }
+
+    [self setTitle:room.displayName withSubtitle:subtitle];
 }
 
-- (void)setUserStatus:(NSString *)userStatus
+- (void)setStatusImageForUserStatus:(NSString *)userStatus
 {
     UIImage *statusImage = nil;
     if ([userStatus isEqualToString:@"online"]) {
@@ -160,17 +177,26 @@
     }
 }
 
-- (void)setUserStatusMessage:(NSString *)userStatusMessage withIcon:(NSString*)userStatusIcon
+- (void)setTitle:(NSString *)title withSubtitle:(NSString *)subtitle
 {
-    if (userStatusMessage && ![userStatusMessage isEqualToString:@""]) {
-        self.subtitle.text = userStatusMessage;
-        if (userStatusIcon && ![userStatusIcon isEqualToString:@""]) {
-            self.subtitle.text = [NSString stringWithFormat:@"%@ %@", userStatusIcon, userStatusMessage];
-        }
-        self.subtitle.hidden = NO;
+    NSMutableAttributedString *attributedTitle = [[NSMutableAttributedString alloc] initWithString:title];
+    NSRange rangeTitle = NSMakeRange(0, [title length]);
+    [attributedTitle addAttribute:NSFontAttributeName value:self.titleFont range:rangeTitle];
+
+    if (self.showSubtitle && subtitle != nil) {
+        NSMutableAttributedString *attributedSubtitle = [[NSMutableAttributedString alloc] initWithString:subtitle];
+        NSRange rangeSubtitle = NSMakeRange(0, [subtitle length]);
+        [attributedSubtitle addAttribute:NSFontAttributeName value:self.subtitleFont range:rangeSubtitle];
+
+        [attributedTitle appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n"]];
+        [attributedTitle appendAttributedString:attributedSubtitle];
+
+        [self.titleButton.titleLabel setNumberOfLines:2];
     } else {
-        self.subtitle.hidden = YES;
+        [self.titleButton.titleLabel setNumberOfLines:1];
     }
+
+    [self.titleButton setAttributedTitle:attributedTitle forState:UIControlStateNormal];
 }
 
 @end

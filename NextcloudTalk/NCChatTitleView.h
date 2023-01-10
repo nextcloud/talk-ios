@@ -26,13 +26,11 @@
 
 @interface NCChatTitleView : UIView
 
-@property (weak, nonatomic) IBOutlet UIButton *title;
-@property (weak, nonatomic) IBOutlet UIImageView *image;
-@property (weak, nonatomic) IBOutlet UILabel *subtitle;
+@property (weak, nonatomic) IBOutlet UIButton *titleButton;
+@property (weak, nonatomic) IBOutlet UIImageView *avatarimage;
 @property (weak, nonatomic) IBOutlet UIImageView *userStatusImage;
+@property (assign, nonatomic) BOOL showSubtitle;
 
-- (void)setupForRoom:(NCRoom *)room;
-- (void)setUserStatus:(NSString *)userStatus;
-- (void)setUserStatusMessage:(NSString *)userStatusMessage withIcon:(NSString*)userStatusIcon;
+- (void)updateForRoom:(NCRoom *)room;
 
 @end

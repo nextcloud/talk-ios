@@ -195,7 +195,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
     self.moreMenuButton.showsMenuAsPrimaryAction = YES;
 
-    [self.titleView setupForRoom:_room];
+    [self.titleView updateForRoom:_room];
 
     // The titleView uses the themeColor as a background for the userStatusImage
     // As we always have a black background, we need to change that
