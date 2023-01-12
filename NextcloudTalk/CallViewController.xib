@@ -185,7 +185,7 @@
                         <constraint firstItem="Rl8-bS-FJ5" firstAttribute="top" secondItem="U6B-V9-PR8" secondAttribute="top" constant="8" id="cCq-ee-a3F"/>
                         <constraint firstItem="U6B-V9-PR8" firstAttribute="bottom" secondItem="vBI-Mz-P4p" secondAttribute="bottom" constant="4" id="e6u-T7-4Mi"/>
                         <constraint firstItem="sX5-HH-Bl6" firstAttribute="leading" secondItem="Rl8-bS-FJ5" secondAttribute="trailing" constant="8" id="rU0-Bc-0MT"/>
-                        <constraint firstItem="FHx-ks-wEy" firstAttribute="leading" secondItem="NY0-IT-mMr" secondAttribute="trailing" priority="250" constant="8" id="uUY-lE-iwc"/>
+                        <constraint firstItem="FHx-ks-wEy" firstAttribute="leading" secondItem="NY0-IT-mMr" secondAttribute="trailing" priority="750" constant="8" id="uUY-lE-iwc"/>
                         <constraint firstItem="U6B-V9-PR8" firstAttribute="trailing" secondItem="vBI-Mz-P4p" secondAttribute="trailing" constant="4" id="yGf-lp-FfM"/>
                     </constraints>
                 </view>
