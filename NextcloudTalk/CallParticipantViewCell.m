@@ -22,7 +22,6 @@
 
 #import "CallParticipantViewCell.h"
 
-#import "DBImageColorPicker.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImageView+Letters.h"
 
@@ -30,6 +29,8 @@
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCUtils.h"
+
+#import "NextcloudTalk-Swift.h"
 
 NSString *const kCallParticipantCellIdentifier = @"CallParticipantCellIdentifier";
 NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
@@ -39,7 +40,6 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 {
     UIView<RTCVideoRenderer> *_videoView;
     CGSize _remoteVideoSize;
-    AvatarBackgroundImageView *_backgroundImageView;
     NSTimer *_disconnectedTimer;
 }
 
@@ -78,7 +78,6 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     [super prepareForReuse];
     _displayName = nil;
     _peerAvatarImageView.alpha = 1;
-    _backgroundImageView = nil;
     _peerNameLabel.text = nil;
     [_videoView removeFromSuperview];
     _videoView = nil;
@@ -102,35 +101,10 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 
 - (void)setUserAvatar:(NSString *)userId
 {
-    if (!_backgroundImageView) {
-        _backgroundImageView = [[AvatarBackgroundImageView alloc] initWithFrame:self.bounds];
-        __weak UIImageView *weakBGView = _backgroundImageView;
-        self.backgroundView = _backgroundImageView;
-        [_backgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                    placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
-                                        NSDictionary *headers = [response allHeaderFields];
-                                        id customAvatarHeader = [headers objectForKey:@"X-NC-IsCustomAvatar"];
-                                        BOOL shouldShowBlurBackground = YES;
-                                        if (customAvatarHeader) {
-                                            shouldShowBlurBackground = [customAvatarHeader boolValue];
-                                        } else if ([response statusCode] == 201) {
-                                            shouldShowBlurBackground = NO;
-                                        }
-                                        
-                                        if (shouldShowBlurBackground) {
-                                            UIImage *blurImage = [NCUtils blurImageFromImage:image];
-                                            [weakBGView setImage:blurImage];
-                                            weakBGView.contentMode = UIViewContentModeScaleAspectFill;
-                                        } else {
-                                            DBImageColorPicker *colorPicker = [[DBImageColorPicker alloc] initFromImage:image withBackgroundType:DBImageColorPickerBackgroundTypeDefault];
-                                            [weakBGView setBackgroundColor:colorPicker.backgroundColor];
-                                            weakBGView.backgroundColor = [weakBGView.backgroundColor colorWithAlphaComponent:0.8];
-                                        }
-                                    } failure:nil];
-        
-        if (!userId || userId.length == 0) {
-            weakBGView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:1];
-        }
+    if (!userId || userId.length == 0) {
+        [self setBackgroundColor:[UIColor colorWithWhite:0.5 alpha:1]];
+    } else {
+        [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:userId]];
     }
     
     if (userId && userId.length > 0) {
