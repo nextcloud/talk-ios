@@ -48,7 +48,7 @@ static NSString * const kNCSignalingMessageActionKey = @"action";
 static NSString * const kNCSignalingMessagePayloadKey = @"payload";
 static NSString * const kNCSignalingMessageRoomTypeKey = @"roomType";
 static NSString * const kNCSignalingMessageNickKey = @"nick";
-static NSString * const kNCSignalingMessageEnabledKey = @"enabled";
+static NSString * const kNCSignalingMessageStatusKey = @"status";
 
 static NSString * const kNCSignalingMessageTypeOfferKey = @"offer";
 static NSString * const kNCSignalingMessageTypeAnswerKey = @"answer";
@@ -649,7 +649,7 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCRecordingMessage
 
-@synthesize enabled = _enabled;
+@synthesize status = _status;
 
 - (instancetype)initWithValues:(NSDictionary *)values {
     NSDictionary *valuesDict = [[NSDictionary alloc] initWithDictionary:values];
@@ -663,7 +663,7 @@ NSString *const kRoomTypeScreen = @"screen";
                        payload:recordingDict
                       roomType:nil];
     if (self) {
-        _enabled = [[recordingDict objectForKey:kNCSignalingMessageEnabledKey] integerValue];
+        _status = [[recordingDict objectForKey:kNCSignalingMessageStatusKey] integerValue];
     }
 
     return self;

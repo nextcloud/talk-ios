@@ -869,7 +869,7 @@ static NSString * const kNCVideoTrackKind = @"video";
             case kNCSignalingMessageTypeRecording:
             {
                 NCRecordingMessage *recordingMessage = (NCRecordingMessage *)signalingMessage;
-                self->_room.callRecording = recordingMessage.enabled;
+                self->_room.callRecording = recordingMessage.status;
                 [self.delegate callControllerDidChangeRecording:self];
 
                 break;
