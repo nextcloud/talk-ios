@@ -46,7 +46,7 @@
                             <rect key="frame" x="725" y="28" width="48" height="48"/>
                             <color key="backgroundColor" systemColor="systemRedColor"/>
                             <constraints>
-                                <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="aZ2-oa-X4M"/>
+                                <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="48" id="aZ2-oa-X4M"/>
                             </constraints>
                             <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <inset key="contentEdgeInsets" minX="16" minY="0.0" maxX="8" maxY="0.0"/>
