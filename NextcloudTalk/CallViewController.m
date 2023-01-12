@@ -195,6 +195,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 
     self.moreMenuButton.showsMenuAsPrimaryAction = YES;
 
+    // Text color should be always white in the call view
+    [self.titleView.titleButton setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
     [self.titleView updateForRoom:_room];
 
     // The titleView uses the themeColor as a background for the userStatusImage
