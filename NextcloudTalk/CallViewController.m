@@ -1264,8 +1264,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)updateParticipantCell:(CallParticipantViewCell *)cell withPeerConnection:(NCPeerConnection *)peerConnection
 {
     BOOL isVideoDisabled = peerConnection.isRemoteVideoDisabled;
-    
-    if (_isAudioOnly || peerConnection.remoteStream == nil) {
+
+    if (_isAudioOnly || peerConnection.remoteStream == nil || [peerConnection.remoteStream.videoTracks count] == 0) {
         isVideoDisabled = YES;
     }
     
