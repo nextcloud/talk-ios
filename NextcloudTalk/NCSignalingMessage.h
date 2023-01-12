@@ -134,7 +134,7 @@ typedef enum {
 
 @interface NCRecordingMessage : NCSignalingMessage
 
-@property(nonatomic, readonly) NSInteger enabled;
+@property(nonatomic, readonly) NSInteger status;
 
 - (instancetype)initWithValues:(NSDictionary *)values;
 

@@ -2584,12 +2584,17 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)startRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StartRecordingCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"call/%@/recording", encodedToken];
-    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
+    NSString *endpoint = [NSString stringWithFormat:@"recording/%@", encodedToken];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:1 forAccount:account];
+
+    // Status 1 -> Video recording
+    // Status 2 -> Audio recording (not supported for now)
+    NSDictionary *parameters = @{
+        @"status" : @(1)
+    };
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -2607,9 +2612,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)stopRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StopRecordingCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"call/%@/recording", encodedToken];
-    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
+    NSString *endpoint = [NSString stringWithFormat:@"recording/%@", encodedToken];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:1 forAccount:account];
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
