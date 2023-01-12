@@ -91,7 +91,7 @@ class CallFlowLayout: UICollectionViewFlowLayout {
         // Calculate cell height
         let sectionInsetHeight = sectionInset.top + sectionInset.bottom
         let safeAreaInsetHeight = collectionView.safeAreaInsets.top + collectionView.safeAreaInsets.bottom
-        let marginsAndInsetsHeight = sectionInsetHeight + safeAreaInsetHeight + minimumLineSpacing * CGFloat(numberOfRows + 1)
+        let marginsAndInsetsHeight = sectionInsetHeight + safeAreaInsetHeight + minimumLineSpacing * CGFloat(numberOfRows - 1)
         var itemHeight = ((contentSize.height - marginsAndInsetsHeight) / CGFloat(numberOfRows)).rounded(.down)
 
         // Enfore minimum cell height
