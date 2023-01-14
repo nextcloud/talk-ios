@@ -122,6 +122,11 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     if (!displayName || [displayName isKindOfClass:[NSNull class]] || [displayName isEqualToString:@""]) {
         _displayName = NSLocalizedString(@"Guest", nil);
     }
+
+    if ([self.peerNameLabel.text isEqualToString:_displayName]) {
+        return;
+    }
+
     dispatch_async(dispatch_get_main_queue(), ^{
         self.peerNameLabel.text = self->_displayName;
     });
@@ -237,6 +242,10 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 - (void)setVideoView:(RTCMTLVideoView *)videoView
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        if (videoView == self->_videoView) {
+            return;
+        }
+
         [self->_videoView removeFromSuperview];
         self->_videoView = nil;
         self->_videoView = videoView;
