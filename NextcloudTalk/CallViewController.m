@@ -1311,9 +1311,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
     cell.peerId = peerConnection.peerId;
     cell.actionsDelegate = self;
-    
-    [self updateParticipantCell:cell withPeerConnection:peerConnection];
-    
+        
     return cell;
 }
 
