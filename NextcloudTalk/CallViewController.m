@@ -1418,12 +1418,20 @@ typedef NS_ENUM(NSInteger, CallState) {
         if ([remotePeer.roomType isEqualToString:kRoomTypeVideo]) {
             [self->_videoRenderersDict setObject:renderView forKey:remotePeer.peerId];
             NSIndexPath *indexPath = [self indexPathForPeerId:remotePeer.peerId];
+
             if (!indexPath) {
+                // This is a new peer, add it to the collection view
+                
                 [self->_peersInCall addObject:remotePeer];
                 NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:self->_peersInCall.count - 1 inSection:0];
                 [self.collectionView insertItemsAtIndexPaths:@[insertionIndexPath]];
             } else {
-                [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
+                // This peer already exists in the collection view, so we can just update its cell
+
+                [self updatePeer:remotePeer block:^(CallParticipantViewCell *cell) {
+                    [cell setVideoView:renderView];
+                    [cell setVideoDisabled:!self->_isAudioOnly];
+                }];
             }
         } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
             [self->_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
