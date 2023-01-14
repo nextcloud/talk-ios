@@ -1430,7 +1430,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
                 [self updatePeer:remotePeer block:^(CallParticipantViewCell *cell) {
                     [cell setVideoView:renderView];
-                    [cell setVideoDisabled:!self->_isAudioOnly];
+                    [cell setVideoDisabled:self->_isAudioOnly];
                 }];
             }
         } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
