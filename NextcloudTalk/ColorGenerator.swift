@@ -70,9 +70,9 @@ import CryptoKit
             var blue: CGFloat = 0
 
             color1.getRed(&red, green: &green, blue: &blue, alpha: nil)
-            let r = abs(red + step[0] * CGFloat(i)) / 255
-            let g = abs(green + step[1] * CGFloat(i)) / 255
-            let b = abs(blue + step[2] * CGFloat(i)) / 255
+            let r = abs(red + step[0] * CGFloat(i))
+            let g = abs(green + step[1] * CGFloat(i))
+            let b = abs(blue + step[2] * CGFloat(i))
 
             palette.append(UIColor(red: r, green: g, blue: b, alpha: 1))
         }
@@ -81,9 +81,9 @@ import CryptoKit
     }
 
     private static func genColors(_ steps: Int) -> [UIColor] {
-        let red = UIColor(red: 182, green: 70, blue: 157, alpha: 1)
-        let yellow = UIColor(red: 221, green: 203, blue: 85, alpha: 1)
-        let blue = UIColor(red: 0, green: 130, blue: 201, alpha: 1)
+        let red = UIColor(red: 182 / 255, green: 70 / 255, blue: 157 / 255, alpha: 1)
+        let yellow = UIColor(red: 221 / 255, green: 203 / 255, blue: 85 / 255, alpha: 1)
+        let blue = UIColor(red: 0, green: 130 / 255, blue: 201 / 255, alpha: 1)
 
         var palette1 = mixPalette(steps, red, yellow)
         let palette2 = mixPalette(steps, yellow, blue)
