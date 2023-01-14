@@ -503,7 +503,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 {
     NSString *eventType = [eventDict objectForKey:@"type"];
     if ([eventType isEqualToString:@"update"]) {
-        NSLog(@"Participant list changed: %@", [eventDict objectForKey:@"update"]);
+        //NSLog(@"Participant list changed: %@", [eventDict objectForKey:@"update"]);
         [self.delegate externalSignalingController:self didReceivedParticipantListMessage:[eventDict objectForKey:@"update"]];
     } else {
         NSLog(@"Unknown room event: %@", eventDict);
@@ -512,7 +512,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)messageReceived:(NSDictionary *)messageDict
 {
-    NSLog(@"Message received");
+    //NSLog(@"Message received");
     [self.delegate externalSignalingController:self didReceivedSignalingMessage:messageDict];
 }
 
@@ -600,7 +600,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
                 messageString = [[NSString alloc] initWithData:messageData encoding:NSUTF8StringEncoding];
             }
 
-            NSLog(@"WebSocket didReceiveMessage: %@", messageString);
+            //NSLog(@"WebSocket didReceiveMessage: %@", messageString);
             NSDictionary *messageDict = [weakSelf getWebSocketMessageFromJSONData:messageData];
             NSString *messageType = [messageDict objectForKey:@"type"];
             if ([messageType isEqualToString:@"hello"]) {
