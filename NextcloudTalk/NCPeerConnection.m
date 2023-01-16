@@ -34,11 +34,11 @@
 #import "ARDSDPUtils.h"
 
 #import "NCSignalingMessage.h"
+#import "NextcloudTalk-Swift.h"
 
 
 @interface NCPeerConnection () <RTCPeerConnectionDelegate, RTCDataChannelDelegate>
 
-@property (nonatomic, strong) RTCPeerConnectionFactory *peerConnectionFactory;
 @property (nonatomic, strong) NSMutableArray *queuedRemoteCandidates;
 
 @end
@@ -50,10 +50,6 @@
     self = [super init];
     
     if (self) {
-        RTCDefaultVideoEncoderFactory *encoderFactory = [[RTCDefaultVideoEncoderFactory alloc] init];
-        RTCDefaultVideoDecoderFactory *decoderFactory = [[RTCDefaultVideoDecoderFactory alloc] init];
-        _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] initWithEncoderFactory:encoderFactory decoderFactory:decoderFactory];
-        
         RTCMediaConstraints* constraints = [[RTCMediaConstraints alloc]
                                             initWithMandatoryConstraints:nil
                                             optionalConstraints:nil];
@@ -61,10 +57,11 @@
         RTCConfiguration *config = [[RTCConfiguration alloc] init];
         [config setIceServers:iceServers];
         [config setSdpSemantics:RTCSdpSemanticsUnifiedPlan];
-        
-        RTCPeerConnection *peerConnection = [_peerConnectionFactory peerConnectionWithConfiguration:config
-                                                                                        constraints:constraints
-                                                                                           delegate:self];
+
+        RTCPeerConnectionFactory *peerConnectionFactory = [WebRTCCommon shared].peerConnectionFactory;
+        RTCPeerConnection *peerConnection = [peerConnectionFactory peerConnectionWithConfiguration:config
+                                                                                       constraints:constraints
+                                                                                          delegate:self];
         
         _peerConnection = peerConnection;
         _peerId = sessionId;
