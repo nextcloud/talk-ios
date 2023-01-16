@@ -401,7 +401,8 @@
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"Did create local session description of type %@ for peer %@", [RTCSessionDescription stringForType:sdp.type], self->_peerId);
+        //NSLog(@"Did create local session description of type %@ for peer %@", [RTCSessionDescription stringForType:sdp.type], self->_peerId);
+
         // Set H264 as preferred codec.
         RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sdp preferredVideoCodec:@"H264"];
         __weak NCPeerConnection *weakSelf = self;
@@ -426,10 +427,12 @@
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"Did set remote session description of type %@ for peer %@", [RTCSessionDescription stringForType:sessionDescription.type], self->_peerId);
+        //NSLog(@"Did set remote session description of type %@ for peer %@", [RTCSessionDescription stringForType:sessionDescription.type], self->_peerId);
+
         // If we just set a remote offer we need to create an answer and set it as local description.
         if (self->_peerConnection.signalingState == RTCSignalingStateHaveRemoteOffer) {
-            NSLog(@"Creating answer for peer %@", self->_peerId);
+            //NSLog(@"Creating answer for peer %@", self->_peerId);
+            
             //Create data channel before sending answer
             RTCDataChannelConfiguration* config = [[RTCDataChannelConfiguration alloc] init];
             config.isNegotiated = NO;

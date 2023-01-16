@@ -684,7 +684,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedSignalingMessage:(NSDictionary *)signalingMessageDict
 {
-    NSLog(@"External signaling message received: %@", signalingMessageDict);
+    //NSLog(@"External signaling message received: %@", signalingMessageDict);
+    
     NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromExternalSignalingJSONDictionary:signalingMessageDict];
     [self checkIfPendingOffer:signalingMessage];
     [self processSignalingMessage:signalingMessage];
@@ -692,7 +693,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedParticipantListMessage:(NSDictionary *)participantListMessageDict
 {
-    NSLog(@"External participants message received: %@", participantListMessageDict);
+    //NSLog(@"External participants message received: %@", participantListMessageDict);
     
     NSArray *usersInRoom = [participantListMessageDict objectForKey:@"users"];
     
@@ -954,7 +955,7 @@ static NSString * const kNCVideoTrackKind = @"video";
             [sessions addObject:sessionId];
         }
     }
-    NSLog(@"InCall sessions: %@", sessions);
+    //NSLog(@"InCall sessions: %@", sessions);
     return sessions;
 }
 
