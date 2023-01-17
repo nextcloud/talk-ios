@@ -35,7 +35,7 @@ NSString *const kTalkDatabaseFolder                 = @"Library/Application Supp
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
 NSString *const kNextcloudFilesDatabaseFolder       = @"Library/Application Support/Nextcloud";
 NSString *const kTalkAccountsFileName               = @"accounts.json";
-uint64_t const kTalkDatabaseSchemaVersion           = 43;
+uint64_t const kTalkDatabaseSchemaVersion           = 44;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
