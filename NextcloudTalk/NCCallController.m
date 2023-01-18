@@ -610,7 +610,10 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)createPublisherPeerConnection
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self->_publisherPeerConnection) {return;}
+        if (self->_publisherPeerConnection || (!self->_localAudioTrack && !self->_localVideoTrack)) {
+            NSLog(@"Not creating publisher peer connection. Already created or no local media.");
+            return;
+        }
         
         NSLog(@"Creating publisher peer connection with sessionId: %@", [self signalingSessionId]);
         
