@@ -39,8 +39,8 @@ class CallFlowLayout: UICollectionViewFlowLayout {
     }
 
     func commonInit() {
-        self.minimumInteritemSpacing = 10
-        self.minimumLineSpacing = 10
+        self.minimumInteritemSpacing = 8
+        self.minimumLineSpacing = 8
         self.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     }
 

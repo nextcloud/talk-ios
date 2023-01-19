@@ -15,6 +15,9 @@
                 <outlet property="avatarBackgroundImageView" destination="H1v-6g-V21" id="ASI-wy-zPa"/>
                 <outlet property="closeScreensharingButton" destination="N0N-Ny-Aeg" id="NrD-JV-Hec"/>
                 <outlet property="collectionView" destination="aUh-Z0-hO6" id="jmc-BV-dTa"/>
+                <outlet property="collectionViewBottomConstraint" destination="TOU-Pk-3pi" id="R4U-x4-psd"/>
+                <outlet property="collectionViewLeftConstraint" destination="XPT-Wv-kZY" id="daX-Mt-ctm"/>
+                <outlet property="collectionViewRightConstraint" destination="DEZ-W6-lNr" id="dhb-cd-90o"/>
                 <outlet property="hangUpButton" destination="Rl8-bS-FJ5" id="jNg-Ly-6wz"/>
                 <outlet property="localVideoView" destination="TXj-7E-NAa" id="nXn-uK-PDD"/>
                 <outlet property="lowerHandButton" destination="RpQ-sH-1qf" id="g5K-YY-Va1"/>
