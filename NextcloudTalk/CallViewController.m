@@ -247,6 +247,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
     [self.collectionView.collectionViewLayout invalidateLayout];
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        [self adjustCollectionView];
         [self setLocalVideoRect];
         [self resizeScreensharingView];
         [self adjustTopBar];
@@ -257,6 +258,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)viewSafeAreaInsetsDidChange
 {
     [super viewSafeAreaInsetsDidChange];
+    [self adjustCollectionView];
     [self setLocalVideoRect];
     [self adjustTopBar];
 }
@@ -265,6 +267,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [super viewWillAppear:animated];
 
+    [self adjustCollectionView];
     [self setLocalVideoRect];
     [self adjustSpeakerButton];
     [self adjustTopBar];
@@ -431,15 +434,16 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     NSString *videoResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
     NSString *localVideoRes = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:videoResolution];
-    
+
+    // When running on MacOS the camera will always be in portrait mode
     if ([localVideoRes isEqualToString:@"Low"] || [localVideoRes isEqualToString:@"Normal"]) {
-        if (width < height) {
+        if (width < height || [NCUtils isiOSAppOnMac]) {
             localVideoSize = CGSizeMake(height * 3/4, height);
         } else {
             localVideoSize = CGSizeMake(width, width * 3/4);
         }
     } else {
-        if (width < height) {
+        if (width < height || [NCUtils isiOSAppOnMac]) {
             localVideoSize = CGSizeMake(height * 9/16, height);
         } else {
             localVideoSize = CGSizeMake(width, width * 9/16);
@@ -447,7 +451,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 
     UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
-    _localVideoOriginPosition = CGPointMake(16 + safeAreaInsets.left, 80 + safeAreaInsets.top);
+    _localVideoOriginPosition = CGPointMake(16 + safeAreaInsets.left + _collectionViewLeftConstraint.constant, 80 + safeAreaInsets.top);
 
     CGRect localVideoRect = CGRectMake(_localVideoOriginPosition.x, _localVideoOriginPosition.y, localVideoSize.width, localVideoSize.height);
     
@@ -738,6 +742,23 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
+- (void)adjustCollectionView
+{
+    if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
+        [self->_collectionViewLeftConstraint setConstant:0.0f];
+        [self->_collectionViewRightConstraint setConstant:0.0f];
+    } else {
+        [self->_collectionViewLeftConstraint setConstant:8.0f];
+        [self->_collectionViewRightConstraint setConstant:8.0f];
+    }
+
+    if (self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
+        [self->_collectionViewBottomConstraint setConstant:0.0f];
+    } else {
+        [self->_collectionViewBottomConstraint setConstant:8.0f];
+    }
+}
+
 - (void)adjustMoreButtonMenu
 {
     // When we target iOS 15, we might want to use an uncached UIDeferredMenuElement
@@ -858,7 +879,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)adjustLocalVideoPositionFromOriginPosition:(CGPoint)position
 {
     UIEdgeInsets safeAreaInsets = _localVideoView.superview.safeAreaInsets;
-    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(16 + _topBarView.frame.origin.y + _topBarView.frame.size.height, 16 + safeAreaInsets.left, 16 + safeAreaInsets.bottom, 16 + safeAreaInsets.right);
+    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(16 + _topBarView.frame.origin.y + _topBarView.frame.size.height, 16 + safeAreaInsets.left + _collectionViewLeftConstraint.constant, 16 + safeAreaInsets.bottom + _collectionViewBottomConstraint.constant, 16 + safeAreaInsets.right + _collectionViewRightConstraint.constant);
 
     CGSize parentSize = _localVideoView.superview.bounds.size;
     CGSize viewSize = _localVideoView.bounds.size;
@@ -1102,7 +1123,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_localVideoView.captureSession stopRunning];
         _localVideoView.captureSession = nil;
         [_localVideoView setHidden:YES];
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             for (NCPeerConnection *peerConnection in self->_peersInCall) {
                 // Video renderers
