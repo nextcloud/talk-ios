@@ -29,7 +29,7 @@ extern NSString *const kRoomTypeVideo;
 extern NSString *const kRoomTypeScreen;
 
 typedef enum {
-    kNCSignalingMessageTypeUknown,
+    kNCSignalingMessageTypeUnknown,
     kNCSignalingMessageTypeCandidate,
     kNCSignalingMessageTypeOffer,
     kNCSignalingMessageTypeAnswer,
@@ -37,7 +37,9 @@ typedef enum {
     kNCSignalingMessageTypeControl,
     kNCSignalingMessageTypeMute,
     kNCSignalingMessageTypeUnmute,
-    kNCSignalingMessageTypeNickChanged
+    kNCSignalingMessageTypeNickChanged,
+    kNCSignalingMessageTypeRaiseHand,
+    kNCSignalingMessageTypeRecording
 } NCSignalingMessageType;
 
 
@@ -119,3 +121,21 @@ typedef enum {
 
 @end
 
+@interface NCRaiseHandMessage : NCSignalingMessage
+
+- (instancetype)initWithFrom:(NSString *)from
+                      sendTo:(NSString *)to
+                 withPayload:(NSDictionary *)payload
+                 forRoomType:(NSString *)roomType;
+
+- (instancetype)initWithValues:(NSDictionary *)values;
+
+@end
+
+@interface NCRecordingMessage : NCSignalingMessage
+
+@property(nonatomic, readonly) NSInteger enabled;
+
+- (instancetype)initWithValues:(NSDictionary *)values;
+
+@end

@@ -51,6 +51,7 @@
 - (void)callController:(NCCallController *)callController didReceiveForceMuteActionForPeerId:(NSString *)peerId;
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController;
 - (void)callControllerWantsToHangUpCall:(NCCallController *)callController;
+- (void)callControllerDidChangeRecording:(NCCallController *)callController;
 
 @end
 
@@ -73,6 +74,9 @@
 - (void)switchCamera;
 - (void)enableVideo:(BOOL)enable;
 - (void)enableAudio:(BOOL)enable;
+- (void)raiseHand:(BOOL)raised;
+- (void)startRecording;
+- (void)stopRecording;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 - (NSString *)signalingSessionId;
 

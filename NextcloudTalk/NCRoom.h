@@ -138,6 +138,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 @property (nonatomic, assign) NSInteger attendeePermissions;
 @property (nonatomic, assign) NSInteger callPermissions;
 @property (nonatomic, assign) NSInteger defaultPermissions;
+@property (nonatomic, assign) NSInteger callRecording;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;

@@ -35,7 +35,7 @@ NSString *const kTalkDatabaseFolder                 = @"Library/Application Supp
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
 NSString *const kNextcloudFilesDatabaseFolder       = @"Library/Application Support/Nextcloud";
 NSString *const kTalkAccountsFileName               = @"accounts.json";
-uint64_t const kTalkDatabaseSchemaVersion           = 43;
+uint64_t const kTalkDatabaseSchemaVersion           = 44;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -75,6 +75,8 @@ NSString * const kCapabilitySilentSend              = @"silent-send";
 NSString * const kCapabilitySilentCall              = @"silent-call";
 NSString * const kCapabilitySendCallNotification    = @"send-call-notification";
 NSString * const kCapabilityTalkPolls               = @"talk-polls";
+NSString * const kCapabilityRaiseHand               = @"raise-hand";
+NSString * const kCapabilityRecordingV1             = @"recording-v1";
 
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 

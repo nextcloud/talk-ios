@@ -19,6 +19,8 @@
 
 #import "CallParticipantViewCell.h"
 
+CGFloat const kCallViewParticipantLineSpacing = 8.0;
+
 @interface NBMPeersFlowLayout ()
 
 @property (assign, nonatomic) BOOL isActvive;
@@ -115,25 +117,28 @@
     BOOL isPortrait = contentSize.width < contentSize.height;
     NSUInteger columns = [NBMPeersFlowLayout columnsWithWithNumberOfItems:numberOfItems
                                                  isPortrait:isPortrait];
-    NSUInteger border = 0;
-    
+
+    // Only use a border if there's more than one participant, otherwise go fullscreen
+    // For X we take half the spacing, because both neighbour cells will have a border
+    NSUInteger borderX = numberOfItems == 1 ? 0 : kCallViewParticipantLineSpacing / 2;
+    NSUInteger borderY = numberOfItems == 1 ? 0 : kCallViewParticipantLineSpacing;
+
     NSUInteger rows = ceil((float)numberOfItems / (float)columns);
     
-    CGFloat h = (contentSize.height - ((rows + 1) * border)) / rows;
-    CGFloat w = (contentSize.width - ((columns + 1) * border)) / columns ;
-    
+    CGFloat h = (contentSize.height - ((rows + 1) * borderY)) / rows;
+    CGFloat w = (contentSize.width - ((columns + 1) * borderX)) / columns ;
+
     h = (h < kCallParticipantCellMinHeight) ? kCallParticipantCellMinHeight : h;
     
     NSUInteger line = row == 0 ? 0 : row / columns;
     NSUInteger _r = row % columns;
     
-    NSUInteger xOffset = (w * _r)  ;
-    NSUInteger yOffset = (line == 0 ? 0 : h * line ) ;
-    
-    NSUInteger xBorderOffset = border * (_r + 1) ;
-    
-    NSUInteger yBorderOffset = border * (line + 1);
-    
+    NSUInteger xOffset = w * _r;
+    NSUInteger yOffset = ceil(line == 0 ? 0 : h * line);
+
+    NSUInteger xBorderOffset = borderX * (_r + 1) ;
+    NSUInteger yBorderOffset = borderY * (line + 1);
+
     NSUInteger mod = numberOfItems % columns;
     
     NSUInteger centered = numberOfItems - mod;
@@ -145,7 +150,7 @@
         
     }
     
-    CGRect result = CGRectMake(xOffset + xBorderOffset , yOffset+ yBorderOffset, w , h);
+    CGRect result = CGRectMake(xOffset + xBorderOffset , yOffset + yBorderOffset, w , h);
     
     return result;
 }

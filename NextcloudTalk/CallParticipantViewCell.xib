@@ -1,76 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="" id="gTV-IL-0wX" customClass="CallParticipantViewCell">
-            <rect key="frame" x="0.0" y="0.0" width="200" height="230"/>
+            <rect key="frame" x="0.0" y="0.0" width="295" height="230"/>
             <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                <rect key="frame" x="0.0" y="0.0" width="200" height="230"/>
+                <rect key="frame" x="0.0" y="0.0" width="295" height="230"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2xo-Od-0bZ">
-                        <rect key="frame" x="0.0" y="0.0" width="200" height="230"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    </view>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zYx-Of-3tH">
-                        <rect key="frame" x="50" y="65" width="100" height="100"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                    </imageView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D5h-T2-aB9">
-                        <rect key="frame" x="8" y="32" width="184" height="30"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
-                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <nil key="highlightedColor"/>
-                        <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.74765580537303389" colorSpace="custom" customColorSpace="sRGB"/>
-                        <size key="shadowOffset" width="1" height="1"/>
-                    </label>
-                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fKp-Jc-Znf">
-                        <rect key="frame" x="58" y="64" width="84" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2xo-Od-0bZ">
+                        <rect key="frame" x="0.0" y="0.0" width="295" height="230"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bj2-hS-1pF">
-                                <rect key="frame" x="26" y="0.0" width="32" height="32"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bj2-hS-1pF">
+                                <rect key="frame" x="132" y="12" width="32" height="32"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="32" id="7vp-Kk-0hF"/>
+                                    <constraint firstAttribute="width" constant="32" id="Z5s-i5-hgP"/>
+                                </constraints>
                                 <state key="normal" image="screensharing"/>
                                 <connections>
                                     <action selector="screenSharingButtonPressed:" destination="gTV-IL-0wX" eventType="touchUpInside" id="DzG-u7-nPx"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vlO-GV-Y3B">
-                                <rect key="frame" x="26" y="0.0" width="32" height="32"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
-                                <state key="normal" image="audio-off"/>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="bj2-hS-1pF" firstAttribute="top" secondItem="2xo-Od-0bZ" secondAttribute="top" constant="12" id="0cN-yQ-l1p"/>
+                            <constraint firstItem="bj2-hS-1pF" firstAttribute="centerX" secondItem="2xo-Od-0bZ" secondAttribute="centerX" id="8nf-Dz-VmE"/>
+                            <constraint firstItem="bj2-hS-1pF" firstAttribute="top" secondItem="2xo-Od-0bZ" secondAttribute="top" constant="12" id="jii-H6-grR"/>
+                        </constraints>
+                    </view>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zYx-Of-3tH">
+                        <rect key="frame" x="98" y="65" width="100" height="100"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    </imageView>
+                    <stackView opaque="NO" contentMode="scaleToFill" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="Tog-ZY-cO4">
+                        <rect key="frame" x="12" y="174" width="271" height="44"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BPo-EN-rrM" userLabel="Raised Hand Indicator">
+                                <rect key="frame" x="0.0" y="0.0" width="24" height="44"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <size key="titleShadowOffset" width="1" height="1"/>
+                                <state key="normal" image="hand">
+                                    <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="248" verticalHuggingPriority="251" text="ghj" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D5h-T2-aB9">
+                                <rect key="frame" x="36" y="0.0" width="199" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="10" id="O0z-z2-KdL"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                                <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.74765580537303389" colorSpace="custom" customColorSpace="sRGB"/>
+                                <size key="shadowOffset" width="1" height="1"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vlO-GV-Y3B">
+                                <rect key="frame" x="247" y="0.0" width="24" height="44"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <size key="titleShadowOffset" width="1" height="1"/>
+                                <state key="normal" image="audio-off">
+                                    <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    </view>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="44" id="eyv-6K-4Fu"/>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" id="tc0-yY-uLq"/>
+                        </constraints>
+                    </stackView>
                 </subviews>
             </view>
-            <size key="customSize" width="200" height="200"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="2xo-Od-0bZ" secondAttribute="bottom" id="6BS-bd-V7e"/>
+                <constraint firstItem="2xo-Od-0bZ" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="7ax-NA-Mp7"/>
+                <constraint firstItem="2xo-Od-0bZ" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="KOw-nZ-G8t"/>
+                <constraint firstItem="Tog-ZY-cO4" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="RH0-ZW-O57"/>
+                <constraint firstAttribute="bottom" secondItem="Tog-ZY-cO4" secondAttribute="bottom" constant="12" id="UXP-Gm-lYX"/>
+                <constraint firstAttribute="trailing" secondItem="2xo-Od-0bZ" secondAttribute="trailing" id="gTd-Es-Nku"/>
+                <constraint firstAttribute="trailing" secondItem="Tog-ZY-cO4" secondAttribute="trailing" constant="12" id="k7o-jB-7o3"/>
+            </constraints>
+            <size key="customSize" width="295" height="200"/>
             <connections>
                 <outlet property="audioOffIndicator" destination="vlO-GV-Y3B" id="cIm-dZ-peB"/>
-                <outlet property="buttonsContainerView" destination="fKp-Jc-Znf" id="IKS-0x-s9X"/>
                 <outlet property="peerAvatarImageView" destination="zYx-Of-3tH" id="fkR-av-PMY"/>
                 <outlet property="peerNameLabel" destination="D5h-T2-aB9" id="m82-2d-znc"/>
                 <outlet property="peerVideoView" destination="2xo-Od-0bZ" id="YvZ-QP-fUW"/>
+                <outlet property="raisedHandIndicator" destination="BPo-EN-rrM" id="Dwq-96-Waf"/>
                 <outlet property="screensharingIndicator" destination="bj2-hS-1pF" id="VFt-FC-Oum"/>
             </connections>
-            <point key="canvasLocation" x="-41.600000000000001" y="128.63568215892056"/>
+            <point key="canvasLocation" x="34.399999999999999" y="128.63568215892056"/>
         </collectionViewCell>
     </objects>
     <resources>
         <image name="audio-off" width="24" height="24"/>
+        <image name="hand" width="24" height="24"/>
         <image name="screensharing" width="24" height="24"/>
     </resources>
 </document>
