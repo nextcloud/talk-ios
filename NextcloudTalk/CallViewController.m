@@ -247,6 +247,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
     [self.collectionView.collectionViewLayout invalidateLayout];
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        [self adjustCollectionView];
         [self setLocalVideoRect];
         [self resizeScreensharingView];
         [self adjustTopBar];
@@ -257,6 +258,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)viewSafeAreaInsetsDidChange
 {
     [super viewSafeAreaInsetsDidChange];
+    [self adjustCollectionView];
     [self setLocalVideoRect];
     [self adjustTopBar];
 }
@@ -265,6 +267,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [super viewWillAppear:animated];
 
+    [self adjustCollectionView];
     [self setLocalVideoRect];
     [self adjustSpeakerButton];
     [self adjustTopBar];
@@ -738,6 +741,23 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
+- (void)adjustCollectionView
+{
+    if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
+        [self->_collectionViewLeftConstraint setConstant:0.0f];
+        [self->_collectionViewRightConstraint setConstant:0.0f];
+    } else {
+        [self->_collectionViewLeftConstraint setConstant:8.0f];
+        [self->_collectionViewRightConstraint setConstant:8.0f];
+    }
+
+    if (self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
+        [self->_collectionViewBottomConstraint setConstant:0.0f];
+    } else {
+        [self->_collectionViewBottomConstraint setConstant:8.0f];
+    }
+}
+
 - (void)adjustMoreButtonMenu
 {
     // When we target iOS 15, we might want to use an uncached UIDeferredMenuElement
@@ -1102,7 +1122,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         [_localVideoView.captureSession stopRunning];
         _localVideoView.captureSession = nil;
         [_localVideoView setHidden:YES];
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             for (NCPeerConnection *peerConnection in self->_peersInCall) {
                 // Video renderers
