@@ -167,7 +167,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.collectionView.layer setCornerRadius:30.0f];
     [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAlways];
     
-    _airplayView = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
+    _airplayView = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(0, 0, 48, 56)];
     _airplayView.tintColor = [UIColor whiteColor];
     _airplayView.activeTintColor = [UIColor whiteColor];
         
