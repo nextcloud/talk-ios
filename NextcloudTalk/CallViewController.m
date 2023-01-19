@@ -431,15 +431,16 @@ typedef NS_ENUM(NSInteger, CallState) {
     
     NSString *videoResolution = [[[NCSettingsController sharedInstance] videoSettingsModel] currentVideoResolutionSettingFromStore];
     NSString *localVideoRes = [[[NCSettingsController sharedInstance] videoSettingsModel] readableResolution:videoResolution];
-    
+
+    // When running on MacOS the camera will always be in portrait mode
     if ([localVideoRes isEqualToString:@"Low"] || [localVideoRes isEqualToString:@"Normal"]) {
-        if (width < height) {
+        if (width < height || [NCUtils isiOSAppOnMac]) {
             localVideoSize = CGSizeMake(height * 3/4, height);
         } else {
             localVideoSize = CGSizeMake(width, width * 3/4);
         }
     } else {
-        if (width < height) {
+        if (width < height || [NCUtils isiOSAppOnMac]) {
             localVideoSize = CGSizeMake(height * 9/16, height);
         } else {
             localVideoSize = CGSizeMake(width, width * 9/16);
@@ -447,7 +448,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
 
     UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
-    _localVideoOriginPosition = CGPointMake(16 + safeAreaInsets.left, 80 + safeAreaInsets.top);
+    _localVideoOriginPosition = CGPointMake(16 + safeAreaInsets.left + _collectionViewLeftConstraint.constant, 80 + safeAreaInsets.top);
 
     CGRect localVideoRect = CGRectMake(_localVideoOriginPosition.x, _localVideoOriginPosition.y, localVideoSize.width, localVideoSize.height);
     
@@ -858,7 +859,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)adjustLocalVideoPositionFromOriginPosition:(CGPoint)position
 {
     UIEdgeInsets safeAreaInsets = _localVideoView.superview.safeAreaInsets;
-    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(16 + _topBarView.frame.origin.y + _topBarView.frame.size.height, 16 + safeAreaInsets.left, 16 + safeAreaInsets.bottom, 16 + safeAreaInsets.right);
+    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(16 + _topBarView.frame.origin.y + _topBarView.frame.size.height, 16 + safeAreaInsets.left + _collectionViewLeftConstraint.constant, 16 + safeAreaInsets.bottom + _collectionViewBottomConstraint.constant, 16 + safeAreaInsets.right + _collectionViewRightConstraint.constant);
 
     CGSize parentSize = _localVideoView.superview.bounds.size;
     CGSize viewSize = _localVideoView.bounds.size;
