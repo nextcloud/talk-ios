@@ -83,6 +83,12 @@
     [self setTitle:@"" withSubtitle:nil];
 }
 
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    self.avatarimage.layer.cornerRadius = self.avatarimage.bounds.size.width / 2;
+}
+
 - (void)updateForRoom:(NCRoom *)room
 {
     // Set room image
