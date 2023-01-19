@@ -76,6 +76,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     room.callPermissions = [[roomDict objectForKey:@"callPermissions"] integerValue];
     room.defaultPermissions = [[roomDict objectForKey:@"defaultPermissions"] integerValue];
     room.callRecording = [[roomDict objectForKey:@"callRecording"] integerValue];
+    room.callStartTime = [[roomDict objectForKey:@"callStartTime"] integerValue];
     
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
@@ -181,6 +182,7 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     managedRoom.callPermissions = room.callPermissions;
     managedRoom.defaultPermissions = room.defaultPermissions;
     managedRoom.callRecording = room.callRecording;
+    managedRoom.callStartTime = room.callStartTime;
 }
 
 + (NSString *)primaryKey {

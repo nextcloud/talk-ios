@@ -22,9 +22,15 @@
 
 #import <UIKit/UIKit.h>
 
+#import "NCRoom.h"
+
 @interface NCChatTitleView : UIView
 
-@property (weak, nonatomic) IBOutlet UIButton *title;
-@property (weak, nonatomic) IBOutlet UIImageView *image;
+@property (weak, nonatomic) IBOutlet UIButton *titleButton;
+@property (weak, nonatomic) IBOutlet UIImageView *avatarimage;
+@property (weak, nonatomic) IBOutlet UIImageView *userStatusImage;
+@property (assign, nonatomic) BOOL showSubtitle;
+
+- (void)updateForRoom:(NCRoom *)room;
 
 @end

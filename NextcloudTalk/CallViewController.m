@@ -30,12 +30,11 @@
 #import <WebRTC/RTCVideoTrack.h>
 
 #import "DBImageColorPicker.h"
+#import "JDStatusBarNotification.h"
 #import "UIImageView+AFNetworking.h"
-#import "UIView+Toast.h"
 
 #import "CallKitManager.h"
 #import "CallParticipantViewCell.h"
-#import "NBMPeersFlowLayout.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCAudioController.h"
@@ -45,6 +44,8 @@
 #import "NCSettingsController.h"
 #import "NCSignalingMessage.h"
 #import "NCUtils.h"
+
+#import "NextcloudTalk-Swift.h"
 
 typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
@@ -164,6 +165,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self.closeScreensharingButton.layer setCornerRadius:16.0f];
 
     [self.collectionView.layer setCornerRadius:30.0f];
+    [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAlways];
     
     _airplayView = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
     _airplayView.tintColor = [UIColor whiteColor];
@@ -192,6 +194,16 @@ typedef NS_ENUM(NSInteger, CallState) {
     self.moreMenuButton.accessibilityHint = NSLocalizedString(@"Double tap to show more actions", nil);
 
     self.moreMenuButton.showsMenuAsPrimaryAction = YES;
+
+    // Text color should be always white in the call view
+    [self.titleView.titleButton setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
+    [self.titleView updateForRoom:_room];
+
+    // The titleView uses the themeColor as a background for the userStatusImage
+    // As we always have a black background, we need to change that
+    if (_room.statusMessage && ![_room.statusMessage isEqualToString:@""]) {
+        [self.titleView.userStatusImage setBackgroundColor:UIColor.blackColor];
+    }
     
     self.collectionView.delegate = self;
     
@@ -237,7 +249,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         [self setLocalVideoRect];
         [self resizeScreensharingView];
-        [self adjustButtons];
+        [self adjustTopBar];
     } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
     }];
 }
@@ -246,7 +258,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [super viewSafeAreaInsetsDidChange];
     [self setLocalVideoRect];
-    [self adjustButtons];
+    [self adjustTopBar];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -255,7 +267,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
     [self setLocalVideoRect];
     [self adjustSpeakerButton];
-    [self adjustButtons];
+    [self adjustTopBar];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -635,18 +647,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     [self invalidateDetailedViewTimer];
 }
 
-- (void)showInfoToastWithTitle:(NSString *)title andMessage:(NSString *)message withDuration:(CGFloat)duration
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIView *toast = [self.view toastViewForMessage:message title:title image:nil style:nil];
-        [self.view showToast:toast duration:duration position:CSToastPositionCenter completion:nil];
-    });
-}
-
-- (void)setAudioMuteButtonActive:(BOOL)active showInfoToast:(BOOL)showToast
+- (void)setAudioMuteButtonActive:(BOOL)active
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSString *micStatusString = nil;
+
         if (active) {
             micStatusString = NSLocalizedString(@"Microphone enabled", nil);
             [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
@@ -654,10 +659,8 @@ typedef NS_ENUM(NSInteger, CallState) {
             micStatusString = NSLocalizedString(@"Microphone disabled", nil);
             [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
         }
+
         self->_audioMuteButton.accessibilityValue = micStatusString;
-        if (showToast) {
-            [self.view makeToast:micStatusString duration:1.5 position:CSToastPositionCenter];
-        }
     });
 }
 
@@ -668,10 +671,11 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
-- (void)setVideoDisableButtonActive:(BOOL)active showInfoToast:(BOOL)showToast
+- (void)setVideoDisableButtonActive:(BOOL)active
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSString *cameraStatusString = nil;
+
         if (active) {
             cameraStatusString = NSLocalizedString(@"Camera enabled", nil);
             [self->_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
@@ -679,10 +683,8 @@ typedef NS_ENUM(NSInteger, CallState) {
             cameraStatusString = NSLocalizedString(@"Camera disabled", nil);
             [self->_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
         }
+
         self->_videoDisableButton.accessibilityValue = cameraStatusString;
-        if (showToast) {
-            [self.view makeToast:cameraStatusString duration:1.5 position:CSToastPositionCenter];
-        }
     });
 }
 
@@ -700,7 +702,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     });
 }
 
-- (void)adjustButtons
+- (void)adjustTopBar
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         // Enable/Disable video buttons
@@ -708,11 +710,19 @@ typedef NS_ENUM(NSInteger, CallState) {
         self->_switchCameraButton.hidden = self->_isAudioOnly;
         self->_videoCallButton.hidden = !self->_isAudioOnly;
 
-        UIDevice *currentDevice = [UIDevice currentDevice];
-
         self->_lowerHandButton.hidden = !self->_isHandRaised;
         self->_recordingButton.hidden = !self->_room.callRecording;
         self->_speakerButton.hidden = NO;
+
+        // When the horizontal size is compact (e.g. iPhone portrait) we don't show the 'End call' text on the button
+        // Don't make assumptions about the device here, because with split screen even an iPad can have a compact width
+        if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
+            [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
+            [self->_titleView setHidden:YES];
+        } else {
+            [self->_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
+            [self->_titleView setHidden:NO];
+        }
 
         // Make sure we get the correct frame for the stack view, after changing the visibility of buttons
         [self->_topBarView setNeedsLayout];
@@ -722,13 +732,6 @@ typedef NS_ENUM(NSInteger, CallState) {
         // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
         if (self->_topBarButtonStackView.frame.origin.x < 0) {
             self->_speakerButton.hidden = YES;
-        }
-
-        // When running on iPhone in portrait mode, we don't show the 'End call' text on the button
-        if (currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone && UIDeviceOrientationIsPortrait(currentDevice.orientation)) {
-            [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
-        } else {
-            [self->_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
         }
 
         [self adjustMoreButtonMenu];
@@ -768,7 +771,7 @@ typedef NS_ENUM(NSInteger, CallState) {
         UIAction *raiseHandAction = [UIAction actionWithTitle:raiseHandTitel image:[UIImage imageNamed:@"hand"] identifier:nil handler:^(UIAction *action) {
             [self->_callController raiseHand:!self->_isHandRaised];
             self->_isHandRaised = !self->_isHandRaised;
-            [self adjustButtons];
+            [self adjustTopBar];
         }];
 
         [items addObject:raiseHandAction];
@@ -805,9 +808,9 @@ typedef NS_ENUM(NSInteger, CallState) {
         currentOutput = audioSession.currentRoute.outputs[0];
     }
     if ([currentOutput.portType isEqualToString:AVAudioSessionPortBuiltInSpeaker]) {
-        [self setSpeakerButtonActive:YES showInfoToast:NO];
+        [self setSpeakerButtonActive:YES];
     } else {
-        [self setSpeakerButtonActive:NO showInfoToast:NO];
+        [self setSpeakerButtonActive:NO];
     }
     
     // Show AirPlay button if there are more audio routes available
@@ -955,29 +958,27 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)forceMuteAudio
 {
-    NSString *forceMutedString = NSLocalizedString(@"You have been muted by a moderator", nil);
-    [self muteAudioWithReason:forceMutedString];
-}
+    [self muteAudio];
 
--(void)muteAudioWithReason:(NSString*)reason
-{
-    [_callController enableAudio:NO];
-    [self setAudioMuteButtonActive:NO showInfoToast:!reason];
-    if (reason) {
-        NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
-        [self showInfoToastWithTitle:micDisabledString andMessage:reason withDuration:7.0];
-    }
+    NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
+    NSString *forceMutedString = NSLocalizedString(@"You have been muted by a moderator", nil);
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[JDStatusBarNotificationPresenter sharedPresenter] presentWithTitle:micDisabledString subtitle:forceMutedString includedStyle:JDStatusBarNotificationIncludedStyleDark completion:nil];
+        [[JDStatusBarNotificationPresenter sharedPresenter] dismissAfterDelay:7.0];
+    });
 }
 
 - (void)muteAudio
 {
-    [self muteAudioWithReason:nil];
+    [_callController enableAudio:NO];
+    [self setAudioMuteButtonActive:NO];
 }
 
 - (void)unmuteAudio
 {
     [_callController enableAudio:YES];
-    [self setAudioMuteButtonActive:YES showInfoToast:YES];
+    [self setAudioMuteButtonActive:YES];
 }
 
 - (IBAction)videoButtonPressed:(id)sender
@@ -997,14 +998,14 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     [_callController enableVideo:NO];
     [self setLocalVideoViewHidden:YES];
-    [self setVideoDisableButtonActive:NO showInfoToast:!_isAudioOnly];
+    [self setVideoDisableButtonActive:NO];
 }
 
 - (void)enableLocalVideo
 {
     [_callController enableVideo:YES];
     [self setLocalVideoViewHidden:NO];
-    [self setVideoDisableButtonActive:YES showInfoToast:NO];
+    [self setVideoDisableButtonActive:YES];
 }
 
 - (IBAction)switchCameraButtonPressed:(id)sender
@@ -1045,21 +1046,22 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)disableSpeaker
 {
     [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
-    [self setSpeakerButtonActive:NO showInfoToast:YES];
+    [self setSpeakerButtonActive:NO];
     [self adjustSpeakerButton];
 }
 
 - (void)enableSpeaker
 {
     [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
-    [self setSpeakerButtonActive:YES showInfoToast:YES];
+    [self setSpeakerButtonActive:YES];
     [self adjustSpeakerButton];
 }
 
-- (void)setSpeakerButtonActive:(BOOL)active showInfoToast:(BOOL)showToast
+- (void)setSpeakerButtonActive:(BOOL)active
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSString *speakerStatusString = nil;
+
         if (active) {
             speakerStatusString = NSLocalizedString(@"Speaker enabled", nil);
             [self.speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
@@ -1067,11 +1069,9 @@ typedef NS_ENUM(NSInteger, CallState) {
             speakerStatusString = NSLocalizedString(@"Speaker disabled", nil);
             [self.speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
         }
+
         self.speakerButton.accessibilityValue = speakerStatusString;
         self.speakerButton.accessibilityHint = NSLocalizedString(@"Double tap to enable or disable the speaker", nil);
-        if (showToast) {
-            [self.view makeToast:speakerStatusString duration:1.5 position:CSToastPositionCenter];
-        }
     });
 }
 
@@ -1207,7 +1207,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 {
     self->_isHandRaised = NO;
     [self->_callController raiseHand:NO];
-    [self adjustButtons];
+    [self adjustTopBar];
 }
 
 - (IBAction)videoRecordingButtonPressed:(id)sender
@@ -1264,8 +1264,8 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)updateParticipantCell:(CallParticipantViewCell *)cell withPeerConnection:(NCPeerConnection *)peerConnection
 {
     BOOL isVideoDisabled = peerConnection.isRemoteVideoDisabled;
-    
-    if (_isAudioOnly || peerConnection.remoteStream == nil) {
+
+    if (_isAudioOnly || peerConnection.remoteStream == nil || [peerConnection.remoteStream.videoTracks count] == 0) {
         isVideoDisabled = YES;
     }
     
@@ -1291,25 +1291,12 @@ typedef NS_ENUM(NSInteger, CallState) {
     return cell;
 }
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    CGRect frame = [NBMPeersFlowLayout frameForWithNumberOfItems:_peersInCall.count
-                                                             row:indexPath.row
-                                                     contentSize:self.collectionView.frame.size];
-    return frame.size;
-}
-
 -(void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
     CallParticipantViewCell *participantCell = (CallParticipantViewCell *)cell;
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
     
     [self updateParticipantCell:participantCell withPeerConnection:peerConnection];
-}
-
-- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section
-{
-    return kCallViewParticipantLineSpacing;
 }
 
 #pragma mark - Call Controller delegate
@@ -1374,13 +1361,13 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callController:(NCCallController *)callController didCreateLocalAudioTrack:(RTCAudioTrack *)audioTrack
 {
-    [self setAudioMuteButtonActive:audioTrack.isEnabled showInfoToast:NO];
+    [self setAudioMuteButtonActive:audioTrack.isEnabled];
 }
 
 - (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack *)videoTrack
 {
     [self setLocalVideoViewHidden:!videoTrack.isEnabled];
-    [self setVideoDisableButtonActive:videoTrack.isEnabled showInfoToast:NO];
+    [self setVideoDisableButtonActive:videoTrack.isEnabled];
     
     // We set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
     if (!videoTrack.isEnabled) {
@@ -1514,7 +1501,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 
 - (void)callControllerDidChangeRecording:(NCCallController *)callController
 {
-    [self adjustButtons];
+    [self adjustTopBar];
 }
 
 #pragma mark - Screensharing
