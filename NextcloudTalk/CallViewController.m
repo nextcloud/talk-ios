@@ -1638,7 +1638,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     return indexPath;
 }
 
-- (void)updatePeer:(NCPeerConnection *)peer block:(void(^)(CallParticipantViewCell* cell))block
+- (void)updatePeer:(NCPeerConnection *)peer block:(UpdateCallParticipantViewCellBlock)block
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
