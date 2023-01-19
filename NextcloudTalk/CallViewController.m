@@ -1291,7 +1291,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     }
     
     [cell setVideoView:[_videoRenderersDict objectForKey:peerConnection.peerId]];
-    [cell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId]];
+    [cell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId] withDisplayName:peerConnection.peerName];
     [cell setDisplayName:peerConnection.peerName];
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
     [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];

@@ -99,10 +99,12 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     [self resizeRemoteVideoView];
 }
 
-- (void)setUserAvatar:(NSString *)userId
+- (void)setUserAvatar:(NSString *)userId withDisplayName:(NSString *)displayName
 {
     if (!userId || userId.length == 0) {
         [self setBackgroundColor:[UIColor colorWithWhite:0.5 alpha:1]];
+    } else if (displayName.length > 0) {
+        [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:displayName]];
     } else {
         [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:userId]];
     }
