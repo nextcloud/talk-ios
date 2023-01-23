@@ -1245,6 +1245,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         [self initSessionManagers];
         apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     }
+
+    // In case a request times out, we need to make sure the completionblock is called so the message
+    // is marked as an offline message. As we can run max. 30s in the background, we need to lower the
+    // default timeout from 60s to something < 30s.
+    [apiSessionManager.requestSerializer setTimeoutInterval:25];
+
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
