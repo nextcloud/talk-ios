@@ -54,6 +54,18 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallStateInCall
 };
 
+typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell);
+
+@interface PendingCellUpdate : NSObject
+
+@property (nonatomic, strong) NCPeerConnection *peer;
+@property (nonatomic, strong) UpdateCallParticipantViewCellBlock block;
+
+@end
+
+@implementation PendingCellUpdate
+@end
+
 @interface CallViewController () <NCCallControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, RTCVideoViewDelegate, CallParticipantViewCellDelegate, UIGestureRecognizerDelegate>
 {
     CallState _callState;
@@ -82,6 +94,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     CGPoint _localVideoDragStartingPosition;
     CGPoint _localVideoOriginPosition;
     AVRoutePickerView *_airplayView;
+    NSMutableArray *_pendingPeerInserts;
+    NSMutableArray *_pendingPeerDeletions;
+    NSMutableArray *_pendingPeerUpdates;
+    NSTimer *_batchUpdateTimer;
 }
 
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
@@ -120,6 +136,9 @@ typedef NS_ENUM(NSInteger, CallState) {
     _videoRenderersDict = [[NSMutableDictionary alloc] init];
     _screenRenderersDict = [[NSMutableDictionary alloc] init];
     _buttonFeedbackGenerator = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleLight)];
+    _pendingPeerInserts = [[NSMutableArray alloc] init];
+    _pendingPeerDeletions = [[NSMutableArray alloc] init];
+    _pendingPeerUpdates = [[NSMutableArray alloc] init];
     
     // Use image downloader without cache so I can get 200 or 201 from the avatar requests.
     [AvatarBackgroundImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloaderNoCache]];
@@ -1340,33 +1359,12 @@ typedef NS_ENUM(NSInteger, CallState) {
 - (void)callController:(NCCallController *)callController peerJoined:(NCPeerConnection *)peer
 {
     // Always add a joined peer, even if the peer doesn't publish any streams (yet)
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
-        if (!indexPath) {
-            [self->_peersInCall addObject:peer];
-            NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:self->_peersInCall.count - 1 inSection:0];
-            [self.collectionView insertItemsAtIndexPaths:@[insertionIndexPath]];
-        }
-    });
-    
+    [self addPeer:peer];
 }
 
 - (void)callController:(NCCallController *)callController peerLeft:(NCPeerConnection *)peer
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // Video renderers
-        RTCMTLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peer.peerId];
-        [[peer.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
-        [self->_videoRenderersDict removeObjectForKey:peer.peerId];
-        // Screen renderers
-        [self removeScreensharingOfPeer:peer];
-        
-        NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
-        if (indexPath) {
-            [self->_peersInCall removeObjectAtIndex:indexPath.row];
-            [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
-        }
-    });
+    [self removePeer:peer];
 }
 
 - (void)callController:(NCCallController *)callController didCreateLocalVideoCapturer:(RTCCameraVideoCapturer *)videoCapturer
@@ -1409,11 +1407,9 @@ typedef NS_ENUM(NSInteger, CallState) {
             NSIndexPath *indexPath = [self indexPathForPeerId:remotePeer.peerId];
 
             if (!indexPath) {
-                // This is a new peer, add it to the collection view
-                
-                [self->_peersInCall addObject:remotePeer];
-                NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:self->_peersInCall.count - 1 inSection:0];
-                [self.collectionView insertItemsAtIndexPaths:@[insertionIndexPath]];
+                // This is a new peer, add it
+
+                [self addPeer:remotePeer];
             } else {
                 // This peer already exists in the collection view, so we can just update its cell
 
@@ -1442,11 +1438,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     if (state == RTCIceConnectionStateClosed) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if ([peer.roomType isEqualToString:kRoomTypeVideo]) {
-                NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
-                if (indexPath) {
-                    [self->_peersInCall removeObjectAtIndex:indexPath.row];
-                    [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
-                }
+                [self removePeer:peer];
             } else if ([peer.roomType isEqualToString:kRoomTypeScreen]) {
                 [self removeScreensharingOfPeer:peer];
             }
@@ -1646,13 +1638,21 @@ typedef NS_ENUM(NSInteger, CallState) {
     return indexPath;
 }
 
-- (void)updatePeer:(NCPeerConnection *)peer block:(void(^)(CallParticipantViewCell* cell))block
+- (void)updatePeer:(NCPeerConnection *)peer block:(UpdateCallParticipantViewCellBlock)block
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
         if (indexPath) {
             CallParticipantViewCell *cell = (id)[self.collectionView cellForItemAtIndexPath:indexPath];
             block(cell);
+        } else {
+            // The participant might not be added at this point -> delay the update
+
+            PendingCellUpdate *pendingUpdate = [[PendingCellUpdate alloc] init];
+            pendingUpdate.peer = peer;
+            pendingUpdate.block = block;
+
+            [self->_pendingPeerUpdates addObject:pendingUpdate];
         }
     });
 }
@@ -1694,6 +1694,102 @@ typedef NS_ENUM(NSInteger, CallState) {
             }];
         }
     });
+}
+
+- (void)addPeer:(NCPeerConnection *)peer
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self->_peersInCall.count == 0) {
+            // Don't delay adding the first peer
+
+            [self->_peersInCall addObject:peer];
+            NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+            [self.collectionView insertItemsAtIndexPaths:@[insertionIndexPath]];
+        } else {
+            // Delay updating the collection view a bit to allow batch updating
+
+            [self->_pendingPeerInserts addObject:peer];
+            [self scheduleBatchCollectionViewUpdate];
+        }
+    });
+}
+
+- (void)removePeer:(NCPeerConnection *)peer
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_pendingPeerDeletions addObject:peer];
+        [self scheduleBatchCollectionViewUpdate];
+    });
+}
+
+- (void)scheduleBatchCollectionViewUpdate
+{
+    // Make sure to call this only from the main queue
+
+    if (self->_batchUpdateTimer == nil) {
+        self->_batchUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(batchCollectionViewUpdate) userInfo:nil repeats:NO];
+    }
+}
+
+- (void)batchCollectionViewUpdate
+{
+    self->_batchUpdateTimer = nil;
+
+    if (_pendingPeerInserts.count == 0 && _pendingPeerDeletions.count == 0) {
+        return;
+    }
+
+    [_collectionView performBatchUpdates:^{
+        // Perform deletes before inserts according to apples docs
+        NSMutableArray *indexPathsToDelete = [[NSMutableArray alloc] init];
+
+        // Determine all indexPaths we want to delete and remove the renderers
+        for (NCPeerConnection *peer in _pendingPeerDeletions) {
+            // Video renderers
+            RTCMTLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peer.peerId];
+            [[peer.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
+            [self->_videoRenderersDict removeObjectForKey:peer.peerId];
+
+            // Screen renderers
+            [self removeScreensharingOfPeer:peer];
+
+            NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
+
+            if (indexPath) {
+                [indexPathsToDelete addObject:indexPath];
+            }
+        }
+
+        // Deletes should be done in descending order
+        NSSortDescriptor *rowSortDescending = [[NSSortDescriptor alloc] initWithKey:@"row" ascending:NO];
+        NSArray *indexPathsToDeleteSorted = [indexPathsToDelete sortedArrayUsingDescriptors:@[rowSortDescending]];
+
+        for (NSIndexPath *indexPath in indexPathsToDeleteSorted) {
+            [self->_peersInCall removeObjectAtIndex:indexPath.row];
+            [_collectionView deleteItemsAtIndexPaths:@[indexPath]];
+        }
+
+        // Add all new peers
+        for (NCPeerConnection *peer in _pendingPeerInserts) {
+            NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
+            if (!indexPath) {
+                [self->_peersInCall addObject:peer];
+                NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:self->_peersInCall.count - 1 inSection:0];
+                [self.collectionView insertItemsAtIndexPaths:@[insertionIndexPath]];
+            }
+        }
+
+        // Process pending updates
+        for (PendingCellUpdate *pendingUpdate in _pendingPeerUpdates) {
+            [self updatePeer:pendingUpdate.peer block:pendingUpdate.block];
+        }
+
+        _pendingPeerInserts = [[NSMutableArray alloc] init];
+        _pendingPeerDeletions = [[NSMutableArray alloc] init];
+        _pendingPeerUpdates = [[NSMutableArray alloc] init];
+    } completion:^(BOOL finished) {
+
+    }];
 }
 
 @end
