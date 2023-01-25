@@ -25,6 +25,7 @@
                     <rect key="frame" x="0.0" y="7" width="30" height="30"/>
                     <constraints>
                         <constraint firstAttribute="width" secondItem="IxN-fr-8tD" secondAttribute="height" multiplier="1:1" id="JYW-6K-xTq"/>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="30" id="fLM-v7-beS"/>
                     </constraints>
                 </imageView>
                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="6PH-NC-M0F" userLabel="UserStatusImageView">
@@ -56,9 +57,7 @@
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <constraints>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="IxN-fr-8tD" secondAttribute="bottom" constant="7" id="1Ih-4p-ulE">
-                    <variation key="heightClass=compact" constant="0.0"/>
-                </constraint>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="IxN-fr-8tD" secondAttribute="bottom" priority="750" constant="7" id="1Ih-4p-ulE"/>
                 <constraint firstItem="6PH-NC-M0F" firstAttribute="trailing" secondItem="IxN-fr-8tD" secondAttribute="trailing" constant="4" id="Bbu-wt-u4J"/>
                 <constraint firstItem="I8S-E1-SNm" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="Nu8-OF-w5n"/>
                 <constraint firstItem="I8S-E1-SNm" firstAttribute="leading" secondItem="IxN-fr-8tD" secondAttribute="trailing" constant="10" id="RzK-wZ-yG9"/>
@@ -68,9 +67,7 @@
                 <constraint firstItem="6PH-NC-M0F" firstAttribute="top" secondItem="IxN-fr-8tD" secondAttribute="top" priority="750" constant="22" id="mVF-Yo-XXC"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="I8S-E1-SNm" secondAttribute="trailing" id="tGw-MV-n1a"/>
                 <constraint firstItem="I8S-E1-SNm" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="xX6-0N-eyd"/>
-                <constraint firstItem="IxN-fr-8tD" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="7" id="yax-W8-R8c">
-                    <variation key="heightClass=compact" constant="0.0"/>
-                </constraint>
+                <constraint firstItem="IxN-fr-8tD" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" priority="750" constant="7" id="yax-W8-R8c"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <point key="canvasLocation" x="-83.200000000000003" y="-265.36731634182911"/>
