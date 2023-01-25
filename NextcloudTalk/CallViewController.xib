@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <device id="ipad12_9rounded" orientation="portrait" layout="fullscreen" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
@@ -17,19 +17,25 @@
                 <outlet property="collectionView" destination="aUh-Z0-hO6" id="jmc-BV-dTa"/>
                 <outlet property="collectionViewBottomConstraint" destination="TOU-Pk-3pi" id="R4U-x4-psd"/>
                 <outlet property="collectionViewLeftConstraint" destination="XPT-Wv-kZY" id="daX-Mt-ctm"/>
-                <outlet property="collectionViewRightConstraint" destination="DEZ-W6-lNr" id="dhb-cd-90o"/>
+                <outlet property="collectionViewRightConstraint" destination="MON-Nu-TFX" id="9Gf-Mr-91m"/>
                 <outlet property="hangUpButton" destination="Rl8-bS-FJ5" id="jNg-Ly-6wz"/>
                 <outlet property="localVideoView" destination="TXj-7E-NAa" id="nXn-uK-PDD"/>
                 <outlet property="lowerHandButton" destination="RpQ-sH-1qf" id="g5K-YY-Va1"/>
                 <outlet property="moreMenuButton" destination="Gjp-FF-fc2" id="qXV-GI-Uuu"/>
                 <outlet property="recordingButton" destination="aQX-QQ-eLT" id="Jh5-wa-IyR"/>
+                <outlet property="screenshareViewRightContraint" destination="IS9-3G-cQz" id="QGY-es-LX7"/>
                 <outlet property="screensharingView" destination="Zzc-Pq-hMC" id="kaT-G4-IxS"/>
+                <outlet property="sideBarView" destination="fSY-ZT-xIC" id="4UK-JE-3Md"/>
+                <outlet property="sideBarViewBottomConstraint" destination="cnF-xe-Mjs" id="3zi-x2-dCx"/>
+                <outlet property="sideBarViewRightConstraint" destination="grQ-FV-QY8" id="dTS-zj-Qdo"/>
+                <outlet property="sideBarWidth" destination="8kc-f3-P81" id="30D-SX-qos"/>
                 <outlet property="speakerButton" destination="dgz-bL-PRr" id="WdG-PS-8Qa"/>
                 <outlet property="switchCameraButton" destination="Mf3-yk-Olo" id="bJn-Fu-bqF"/>
                 <outlet property="titleView" destination="NY0-IT-mMr" id="TTN-Ws-hgl"/>
                 <outlet property="toggleChatButton" destination="vBI-Mz-P4p" id="PVu-uW-pOJ"/>
                 <outlet property="topBarButtonStackView" destination="FHx-ks-wEy" id="dZG-YF-m0q"/>
                 <outlet property="topBarView" destination="reh-cY-1Qv" id="rBs-Qj-M1A"/>
+                <outlet property="topBarViewRightContraint" destination="8ND-zt-NSC" id="iqG-dd-cZy"/>
                 <outlet property="videoCallButton" destination="YDj-MO-jIc" id="RwW-bN-mi1"/>
                 <outlet property="videoDisableButton" destination="5zQ-it-ujU" id="n3u-2y-uqi"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
@@ -39,14 +45,14 @@
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT" userLabel="CallView">
-            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+            <rect key="frame" x="0.0" y="0.0" width="1024" height="1366"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="reh-cY-1Qv" userLabel="TopBar">
-                    <rect key="frame" x="0.0" y="0.0" width="393" height="123"/>
+                    <rect key="frame" x="0.0" y="0.0" width="1024" height="88"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl8-bS-FJ5" userLabel="HangupButton">
-                            <rect key="frame" x="284" y="67" width="48" height="48"/>
+                            <rect key="frame" x="915" y="32" width="48" height="48"/>
                             <color key="backgroundColor" systemColor="systemRedColor"/>
                             <constraints>
                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="aZ2-oa-X4M"/>
@@ -60,7 +66,7 @@
                             </connections>
                         </button>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sX5-HH-Bl6" userLabel="Separator">
-                            <rect key="frame" x="340" y="75" width="1" height="32"/>
+                            <rect key="frame" x="971" y="40" width="1" height="32"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="32" id="BU7-Cl-egd"/>
@@ -71,7 +77,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vBI-Mz-P4p" userLabel="ToggleChatButton">
-                            <rect key="frame" x="345" y="63" width="44" height="56"/>
+                            <rect key="frame" x="976" y="28" width="44" height="56"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="44" id="9DJ-Sj-p8R"/>
@@ -83,7 +89,7 @@
                             </connections>
                         </button>
                         <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="FHx-ks-wEy">
-                            <rect key="frame" x="-80" y="63" width="356" height="56"/>
+                            <rect key="frame" x="551" y="28" width="356" height="56"/>
                             <subviews>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aQX-QQ-eLT" userLabel="RecordingButton">
                                     <rect key="frame" x="0.0" y="0.0" width="44" height="56"/>
@@ -165,12 +171,17 @@
                             </subviews>
                         </stackView>
                         <view contentMode="scaleToFill" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="NY0-IT-mMr" userLabel="TitleView" customClass="NCChatTitleView">
-                            <rect key="frame" x="8" y="67" width="0.0" height="48"/>
+                            <rect key="frame" x="8" y="32" width="535" height="48"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="48" id="TeG-Qy-adB"/>
                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" id="eXn-Ro-wDA"/>
                             </constraints>
+                            <variation key="default">
+                                <mask key="constraints">
+                                    <exclude reference="eXn-Ro-wDA"/>
+                                </mask>
+                            </variation>
                         </view>
                     </subviews>
                     <viewLayoutGuide key="safeArea" id="U6B-V9-PR8"/>
@@ -178,7 +189,7 @@
                     <constraints>
                         <constraint firstItem="vBI-Mz-P4p" firstAttribute="top" secondItem="U6B-V9-PR8" secondAttribute="top" constant="4" id="0QU-Sz-S3Y"/>
                         <constraint firstItem="Rl8-bS-FJ5" firstAttribute="leading" secondItem="FHx-ks-wEy" secondAttribute="trailing" constant="8" id="2FZ-aE-UFv"/>
-                        <constraint firstItem="NY0-IT-mMr" firstAttribute="leading" secondItem="U6B-V9-PR8" secondAttribute="leading" constant="8" id="Fg4-8S-ufG"/>
+                        <constraint firstItem="NY0-IT-mMr" firstAttribute="leading" secondItem="reh-cY-1Qv" secondAttribute="leading" constant="8" id="Fg4-8S-ufG"/>
                         <constraint firstItem="vBI-Mz-P4p" firstAttribute="leading" secondItem="sX5-HH-Bl6" secondAttribute="trailing" constant="4" id="Hwz-5s-8r3"/>
                         <constraint firstItem="NY0-IT-mMr" firstAttribute="centerY" secondItem="reh-cY-1Qv" secondAttribute="centerYWithinMargins" id="Km8-3x-pGw"/>
                         <constraint firstItem="U6B-V9-PR8" firstAttribute="bottom" secondItem="FHx-ks-wEy" secondAttribute="bottom" constant="4" id="Ml0-KX-CA3"/>
@@ -188,12 +199,12 @@
                         <constraint firstItem="Rl8-bS-FJ5" firstAttribute="top" secondItem="U6B-V9-PR8" secondAttribute="top" constant="8" id="cCq-ee-a3F"/>
                         <constraint firstItem="U6B-V9-PR8" firstAttribute="bottom" secondItem="vBI-Mz-P4p" secondAttribute="bottom" constant="4" id="e6u-T7-4Mi"/>
                         <constraint firstItem="sX5-HH-Bl6" firstAttribute="leading" secondItem="Rl8-bS-FJ5" secondAttribute="trailing" constant="8" id="rU0-Bc-0MT"/>
-                        <constraint firstItem="FHx-ks-wEy" firstAttribute="leading" secondItem="NY0-IT-mMr" secondAttribute="trailing" priority="750" constant="8" id="uUY-lE-iwc"/>
+                        <constraint firstItem="FHx-ks-wEy" firstAttribute="leading" secondItem="NY0-IT-mMr" secondAttribute="trailing" constant="8" id="uUY-lE-iwc"/>
                         <constraint firstItem="U6B-V9-PR8" firstAttribute="trailing" secondItem="vBI-Mz-P4p" secondAttribute="trailing" constant="4" id="yGf-lp-FfM"/>
                     </constraints>
                 </view>
                 <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="aUh-Z0-hO6">
-                    <rect key="frame" x="0.0" y="123" width="393" height="695"/>
+                    <rect key="frame" x="0.0" y="88" width="1038" height="1258"/>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" sectionInsetReference="safeArea" id="iSf-tu-VMU" customClass="CallFlowLayout" customModule="NextcloudTalk" customModuleProvider="target">
                         <size key="itemSize" width="50" height="50"/>
@@ -207,10 +218,10 @@
                     </connections>
                 </collectionView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zzc-Pq-hMC" userLabel="ScreenshareView">
-                    <rect key="frame" x="0.0" y="123" width="393" height="695"/>
+                    <rect key="frame" x="0.0" y="88" width="1024" height="1258"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N0N-Ny-Aeg" userLabel="CloseScreenshareView">
-                            <rect key="frame" x="345" y="16" width="32" height="32"/>
+                            <rect key="frame" x="976" y="16" width="32" height="32"/>
                             <color key="backgroundColor" white="0.5" alpha="0.95060911873318499" colorSpace="calibratedWhite"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="32" id="uMi-V0-B3H"/>
@@ -230,11 +241,11 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TXj-7E-NAa" userLabel="LocalVideo" customClass="RTCCameraPreviewView">
-                    <rect key="frame" x="122" y="235" width="104" height="179"/>
+                    <rect key="frame" x="122" y="235" width="346" height="328"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mf3-yk-Olo">
-                            <rect key="frame" x="32" y="139" width="40" height="40"/>
+                            <rect key="frame" x="153" y="288" width="40" height="40"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <state key="normal" image="switch-camera"/>
                             <connections>
@@ -243,35 +254,45 @@
                         </button>
                     </subviews>
                 </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fSY-ZT-xIC" userLabel="Sidebar View">
+                    <rect key="frame" x="666" y="32" width="350" height="1306"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="350" id="8kc-f3-P81"/>
+                    </constraints>
+                </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="bbs-K4-b33"/>
             <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="reh-cY-1Qv" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="AhA-F1-rqp"/>
-                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="aUh-Z0-hO6" secondAttribute="trailing" id="DEZ-W6-lNr"/>
+                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="reh-cY-1Qv" secondAttribute="trailing" id="8ND-zt-NSC"/>
+                <constraint firstItem="reh-cY-1Qv" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" id="AhA-F1-rqp"/>
+                <constraint firstItem="fSY-ZT-xIC" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" constant="8" id="ENd-Oe-5YE"/>
                 <constraint firstItem="aUh-Z0-hO6" firstAttribute="top" secondItem="reh-cY-1Qv" secondAttribute="bottom" id="GtW-pl-edb"/>
+                <constraint firstItem="Zzc-Pq-hMC" firstAttribute="trailing" secondItem="bbs-K4-b33" secondAttribute="trailing" id="IS9-3G-cQz"/>
+                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="aUh-Z0-hO6" secondAttribute="trailing" constant="-14" id="MON-Nu-TFX"/>
                 <constraint firstItem="Zzc-Pq-hMC" firstAttribute="top" secondItem="reh-cY-1Qv" secondAttribute="bottom" id="SEj-Nc-c8l"/>
                 <constraint firstItem="bbs-K4-b33" firstAttribute="bottom" secondItem="aUh-Z0-hO6" secondAttribute="bottom" id="TOU-Pk-3pi"/>
                 <constraint firstItem="aUh-Z0-hO6" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" id="XPT-Wv-kZY"/>
                 <constraint firstItem="reh-cY-1Qv" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="c1h-3M-GBu"/>
-                <constraint firstItem="reh-cY-1Qv" firstAttribute="trailing" secondItem="i5M-Pr-FkT" secondAttribute="trailing" id="gGo-jt-xAM"/>
-                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="Zzc-Pq-hMC" secondAttribute="trailing" id="ksS-3H-5wN"/>
-                <constraint firstItem="bbs-K4-b33" firstAttribute="bottom" secondItem="Zzc-Pq-hMC" secondAttribute="bottom" id="nY6-7m-HGN"/>
+                <constraint firstItem="bbs-K4-b33" firstAttribute="bottom" secondItem="fSY-ZT-xIC" secondAttribute="bottom" constant="8" id="cnF-xe-Mjs"/>
+                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="fSY-ZT-xIC" secondAttribute="trailing" constant="8" id="grQ-FV-QY8"/>
+                <constraint firstItem="Zzc-Pq-hMC" firstAttribute="bottom" secondItem="bbs-K4-b33" secondAttribute="bottom" id="nY6-7m-HGN"/>
                 <constraint firstItem="Zzc-Pq-hMC" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" id="pzB-Lo-vzV"/>
                 <constraint firstItem="reh-cY-1Qv" firstAttribute="bottom" secondItem="bbs-K4-b33" secondAttribute="top" constant="64" id="urh-LB-Bha"/>
             </constraints>
-            <point key="canvasLocation" x="29.439252336448597" y="49.244060475161987"/>
+            <point key="canvasLocation" x="29.296874999999996" y="49.194729136163978"/>
         </view>
         <view contentMode="scaleToFill" id="BF4-kz-lxP">
-            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+            <rect key="frame" x="0.0" y="0.0" width="1024" height="1366"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H1v-6g-V21" customClass="AvatarBackgroundImageView">
-                    <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                    <rect key="frame" x="0.0" y="0.0" width="1024" height="1366"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 </imageView>
-                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Waiting for others to the call..." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="11" translatesAutoresizingMaskIntoConstraints="NO" id="ihe-9I-8ts">
-                    <rect key="frame" x="17" y="32" width="359" height="42"/>
+                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Waiting for others to the call..." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="11" translatesAutoresizingMaskIntoConstraints="NO" id="ihe-9I-8ts">
+                    <rect key="frame" x="44" y="32" width="936" height="42"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -279,7 +300,7 @@
                 </label>
             </subviews>
             <viewLayoutGuide key="safeArea" id="ikW-9Y-8vD"/>
-            <point key="canvasLocation" x="757.60000000000002" y="52.623688155922046"/>
+            <point key="canvasLocation" x="757.03125" y="52.26939970717423"/>
         </view>
     </objects>
     <resources>
@@ -294,6 +315,9 @@
         <image name="switch-camera" width="24" height="24"/>
         <image name="video" width="24" height="24"/>
         <image name="video-off" width="24" height="24"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemRedColor">
             <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

@@ -52,9 +52,6 @@
 @property (nonatomic, strong) IBOutlet AvatarBackgroundImageView *avatarBackgroundImageView;
 @property (nonatomic, strong) IBOutlet UILabel *waitingLabel;
 @property (nonatomic, strong) IBOutlet NCChatTitleView *titleView;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *collectionViewLeftConstraint;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *collectionViewRightConstraint;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *collectionViewBottomConstraint;
 
 - (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly;
 - (void)toggleChatView;

@@ -54,6 +54,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallStateInCall
 };
 
+CGFloat const kSidebarWidth = 350;
+
 typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell);
 
 @interface PendingCellUpdate : NSObject
@@ -112,7 +114,15 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 @property (nonatomic, strong) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) IBOutlet UIView *topBarView;
 @property (nonatomic, strong) IBOutlet UIStackView *topBarButtonStackView;
-@property (nonatomic, strong) IBOutlet UICollectionViewFlowLayout *flowLayout;
+@property (nonatomic, strong) IBOutlet UIView *sideBarView;
+@property (nonatomic, strong) IBOutlet NSLayoutConstraint *collectionViewLeftConstraint;
+@property (nonatomic, strong) IBOutlet NSLayoutConstraint *collectionViewBottomConstraint;
+@property (nonatomic, strong) IBOutlet NSLayoutConstraint *collectionViewRightConstraint;
+@property (nonatomic, strong) IBOutlet NSLayoutConstraint *topBarViewRightContraint;
+@property (nonatomic, strong) IBOutlet NSLayoutConstraint *screenshareViewRightContraint;
+@property (nonatomic, strong) IBOutlet NSLayoutConstraint *sideBarViewRightConstraint;
+@property (nonatomic, strong) IBOutlet NSLayoutConstraint *sideBarViewBottomConstraint;
+@property (nonatomic, strong) IBOutlet NSLayoutConstraint *sideBarWidth;
 
 @end
 
@@ -172,8 +182,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     
     _tapGestureForDetailedView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showDetailedViewWithTimer)];
     [_tapGestureForDetailedView setNumberOfTapsRequired:1];
-    
-    
+
     UILongPressGestureRecognizer *pushToTalkRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handlePushToTalk:)];
     pushToTalkRecognizer.delegate = self;
     [self.audioMuteButton addGestureRecognizer:pushToTalkRecognizer];
@@ -185,7 +194,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     [self.collectionView.layer setCornerRadius:30.0f];
     [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAlways];
-    
+
+    [self.sideBarView setClipsToBounds:YES];
+    [self.sideBarView.layer setCornerRadius:30.0f];
+
     _airplayView = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(0, 0, 48, 56)];
     _airplayView.tintColor = [UIColor whiteColor];
     _airplayView.activeTintColor = [UIColor whiteColor];
@@ -223,6 +235,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     if (_room.statusMessage && ![_room.statusMessage isEqualToString:@""]) {
         [self.titleView.userStatusImage setBackgroundColor:UIColor.blackColor];
     }
+
+    // Prevent squished texts while animating the sidebar
+    [self.titleView.titleButton.titleLabel setContentMode:UIViewContentModeLeft];
     
     self.collectionView.delegate = self;
     
@@ -266,7 +281,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     [self.collectionView.collectionViewLayout invalidateLayout];
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-        [self adjustCollectionView];
+        [self adjustConstraints];
         [self setLocalVideoRect];
         [self resizeScreensharingView];
         [self adjustTopBar];
@@ -277,7 +292,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)viewSafeAreaInsetsDidChange
 {
     [super viewSafeAreaInsetsDidChange];
-    [self adjustCollectionView];
+    [self adjustConstraints];
     [self setLocalVideoRect];
     [self adjustTopBar];
 }
@@ -286,7 +301,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     [super viewWillAppear:animated];
 
-    [self adjustCollectionView];
+    [self setSideBarVisible:NO animated:NO withCompletion:nil];
+    [self adjustConstraints];
     [self setLocalVideoRect];
     [self adjustSpeakerButton];
     [self adjustTopBar];
@@ -746,10 +762,21 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             [self->_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
             [self->_titleView setHidden:NO];
         }
-
+        
         // Make sure we get the correct frame for the stack view, after changing the visibility of buttons
         [self->_topBarView setNeedsLayout];
         [self->_topBarView layoutIfNeeded];
+
+        // Hide titleView if we don't have enough space
+        // Don't do it in one go, as then we will have some jumping
+        if (self->_titleView.frame.size.width < 200) {
+            [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
+            [self->_titleView setHidden:YES];
+
+            // Need to update the layout again, if we changed it here
+            [self->_topBarView setNeedsLayout];
+            [self->_topBarView layoutIfNeeded];
+        }
 
         // Hide the speaker button to make some more room for higher priority buttons
         // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
@@ -761,20 +788,23 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     });
 }
 
-- (void)adjustCollectionView
+- (void)adjustConstraints
 {
+    CGFloat rightConstraintConstant = [self getRightSideConstraintConstant];
+    [self->_collectionViewRightConstraint setConstant:rightConstraintConstant];
+
     if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
         [self->_collectionViewLeftConstraint setConstant:0.0f];
-        [self->_collectionViewRightConstraint setConstant:0.0f];
     } else {
         [self->_collectionViewLeftConstraint setConstant:8.0f];
-        [self->_collectionViewRightConstraint setConstant:8.0f];
     }
 
     if (self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
         [self->_collectionViewBottomConstraint setConstant:0.0f];
+        [self->_sideBarViewBottomConstraint setConstant:0.0f];
     } else {
         [self->_collectionViewBottomConstraint setConstant:8.0f];
+        [self->_sideBarViewBottomConstraint setConstant:8.0f];
     }
 }
 
@@ -898,7 +928,13 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)adjustLocalVideoPositionFromOriginPosition:(CGPoint)position
 {
     UIEdgeInsets safeAreaInsets = _localVideoView.superview.safeAreaInsets;
-    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(16 + _topBarView.frame.origin.y + _topBarView.frame.size.height, 16 + safeAreaInsets.left + _collectionViewLeftConstraint.constant, 16 + safeAreaInsets.bottom + _collectionViewBottomConstraint.constant, 16 + safeAreaInsets.right + _collectionViewRightConstraint.constant);
+
+    CGFloat edgeInsetTop = 16 + _topBarView.frame.origin.y + _topBarView.frame.size.height;
+    CGFloat edgeInsetLeft = 16 + safeAreaInsets.left + _collectionViewLeftConstraint.constant;
+    CGFloat edgeInsetBottom = 16 + safeAreaInsets.bottom + _collectionViewBottomConstraint.constant;
+    CGFloat edgeInsetRight = 16 + safeAreaInsets.right + _collectionViewRightConstraint.constant;
+
+    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(edgeInsetTop, edgeInsetLeft, edgeInsetBottom, edgeInsetRight);
 
     CGSize parentSize = _localVideoView.superview.bounds.size;
     CGSize viewSize = _localVideoView.bounds.size;
@@ -1136,6 +1172,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         _hangingUp = YES;
         // Dismiss possible notifications
         [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+        // Make sure we don't try to receive messages while hanging up
+        if (_chatViewController) {
+            [_chatViewController leaveChat];
+            _chatViewController = nil;
+        }
         
         [self.delegate callViewControllerWantsToBeDismissed:self];
         
@@ -1195,20 +1237,167 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [self toggleChatView];
 }
 
-- (void)toggleChatView
+- (CGFloat)getRightSideConstraintConstant
+{
+    CGFloat constant = 0;
+
+    if (self.sideBarWidth.constant > 0) {
+        // Take sidebar width into account
+        constant += self.sideBarWidth.constant;
+
+        // Add padding between the element and the sidebar
+        constant += 8;
+    }
+
+    if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular) {
+        // On regular size classes, we also have a padding of 8 to the safe area
+        constant += 8;
+    }
+
+    return constant;
+}
+
+- (void)setSideBarVisible:(BOOL)visible animated:(BOOL)animated withCompletion:(void (^ __nullable)(void))block
+{
+    [self.view layoutIfNeeded];
+
+    if (visible) {
+        [self.sideBarView setHidden:NO];
+        [self.sideBarWidth setConstant:kSidebarWidth];
+    } else {
+        [self.sideBarWidth setConstant:0];
+    }
+
+    CGFloat rightConstraintConstant = [self getRightSideConstraintConstant];
+    [self.topBarViewRightContraint setConstant:rightConstraintConstant];
+    [self.screenshareViewRightContraint setConstant:rightConstraintConstant];
+    [self.collectionViewRightConstraint setConstant:rightConstraintConstant];
+    [self adjustTopBar];
+
+    void (^animations)(void) = ^void() {
+        [self.view layoutIfNeeded];
+        [self adjustLocalVideoPositionFromOriginPosition:self.localVideoView.frame.origin];
+    };
+
+    void (^afterAnimations)(void) = ^void() {
+        if (!visible) {
+            [self.sideBarView setHidden:YES];
+        }
+
+        if (block) {
+            block();
+        }
+    };
+
+    if (animated) {
+        [UIView animateWithDuration:0.3f animations:^{
+            animations();
+        } completion:^(BOOL finished) {
+            afterAnimations();
+        }];
+    } else {
+        animations();
+        afterAnimations();
+    }
+}
+
+- (void)adjustChatLocation
 {
     if (!_chatNavigationController) {
+        return;
+    }
+
+    if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact && [_chatNavigationController.view isDescendantOfView:_sideBarView]) {
+        // Chat is displayed in the sidebar, but needs to move to full screen
+
+        // Remove chat from the sidebar and add to call view
+        [_chatNavigationController.view removeFromSuperview];
+        [self.view addSubview:_chatNavigationController.view];
+
+        // Show the navigationbar in case of fullscreen and adjust the frame
+        [_chatNavigationController setNavigationBarHidden:NO];
+        _chatNavigationController.view.frame = self.view.bounds;
+
+        // Finally hide the sidebar
+        [self setSideBarVisible:NO animated:NO withCompletion:nil];
+    } else if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular && [_chatNavigationController.view isDescendantOfView:self.view]) {
+        // Chat is fullscreen, but should move to the sidebar
+
+        // Remove chat from the call view and move it to the sidebar
+        [_chatNavigationController.view removeFromSuperview];
+        [self.sideBarView addSubview:_chatNavigationController.view];
+
+        // Show the sidebar to have the correct bounds
+        [self setSideBarVisible:YES animated:NO withCompletion:nil];
+
+        CGRect sideBarViewBounds = self.sideBarView.bounds;
+        _chatNavigationController.view.frame = CGRectMake(sideBarViewBounds.origin.x, sideBarViewBounds.origin.y, kSidebarWidth, sideBarViewBounds.size.height);
+
+        // Don't show the navigation bar when we show the chat in the sidebar
+        [_chatNavigationController setNavigationBarHidden:YES];
+    }
+}
+
+- (void)showChat
+{
+    if (!_chatNavigationController) {
+        // Create new chat controller
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:_room.token forAccountId:activeAccount.accountId];
         _chatViewController = [[NCChatViewController alloc] initForRoom:room];
         _chatViewController.presentedInCall = YES;
         _chatNavigationController = [[UINavigationController alloc] initWithRootViewController:_chatViewController];
-        [self addChildViewController:_chatNavigationController];
-        
+    }
+
+    [self addChildViewController:_chatNavigationController];
+
+    if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
+        // Show chat fullscreen
         [self.view addSubview:_chatNavigationController.view];
+
         _chatNavigationController.view.frame = self.view.bounds;
         _chatNavigationController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        [_chatNavigationController didMoveToParentViewController:self];
+    } else {
+        // Show chat in sidebar
+
+        [self.sideBarView addSubview:_chatNavigationController.view];
+
+        CGRect sideBarViewBounds = self.sideBarView.bounds;
+        _chatNavigationController.view.frame = CGRectMake(sideBarViewBounds.origin.x, sideBarViewBounds.origin.y, kSidebarWidth, sideBarViewBounds.size.height);
+
+        // Make sure the width does not change when collapsing the side bar (weird animation)
+        _chatNavigationController.view.autoresizingMask = UIViewAutoresizingFlexibleHeight;
+
+        [_chatNavigationController setNavigationBarHidden:YES];
+
+        __weak typeof(self) weakSelf = self;
+
+        [self setSideBarVisible:YES animated:YES withCompletion:^{
+            __strong typeof(self) strongSelf = weakSelf;
+
+            strongSelf->_chatNavigationController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        }];
+    }
+
+    [_chatNavigationController didMoveToParentViewController:self];
+}
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    if (!_chatNavigationController) {
+        return;
+    }
+
+    if (previousTraitCollection.horizontalSizeClass != self.traitCollection.horizontalSizeClass) {
+        // Need to adjust the position of the chat, either sidebar -> fullscreen or fullscreen -> sidebar
+        [self adjustChatLocation];
+    }
+}
+
+- (void)toggleChatView
+{
+    if (!_chatNavigationController) {
+        [self showChat];
 
         if (!_isAudioOnly) {
             [self.view bringSubviewToFront:_localVideoView];
@@ -1216,19 +1405,30 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         [self removeTapGestureForDetailedView];
     } else {
-        [_chatViewController leaveChat];
-        _chatViewController = nil;
-        
-        [_chatNavigationController willMoveToParentViewController:nil];
-        [_chatNavigationController.view removeFromSuperview];
-        [_chatNavigationController removeFromParentViewController];
-        
-        _chatNavigationController = nil;
-        
-        if ((!_isAudioOnly && _callState == CallStateInCall) || _screenView) {
-            [self addTapGestureForDetailedView];
-            [self showDetailedViewWithTimer];
-        }
+        [self.view layoutIfNeeded];
+
+        // Make sure we have a nice animation when closing the side bar and the chat is not squished
+        _chatNavigationController.view.autoresizingMask = UIViewAutoresizingFlexibleHeight;
+
+        __weak typeof(self) weakSelf = self;
+
+        [self setSideBarVisible:NO animated:YES withCompletion:^{
+            __strong typeof(self) strongSelf = weakSelf;
+
+            [strongSelf->_chatViewController leaveChat];
+            strongSelf->_chatViewController = nil;
+
+            [strongSelf->_chatNavigationController willMoveToParentViewController:nil];
+            [strongSelf->_chatNavigationController.view removeFromSuperview];
+            [strongSelf->_chatNavigationController removeFromParentViewController];
+
+            strongSelf->_chatNavigationController = nil;
+
+            if ((!strongSelf->_isAudioOnly && strongSelf->_callState == CallStateInCall) || strongSelf->_screenView) {
+                [strongSelf addTapGestureForDetailedView];
+                [strongSelf showDetailedViewWithTimer];
+            }
+        }];
     }
 }
 
