@@ -35,6 +35,7 @@
 NSString *const kCallParticipantCellIdentifier = @"CallParticipantCellIdentifier";
 NSString *const kCallParticipantCellNibName = @"CallParticipantViewCell";
 CGFloat const kCallParticipantCellMinHeight = 128;
+CGFloat const kCallParticipantCellMinWidth = 192; // Aspect ratio of 1.5
 
 @interface CallParticipantViewCell()
 {

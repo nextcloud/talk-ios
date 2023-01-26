@@ -26,6 +26,7 @@
 extern NSString *const kCallParticipantCellIdentifier;
 extern NSString *const kCallParticipantCellNibName;
 extern CGFloat const kCallParticipantCellMinHeight;
+extern CGFloat const kCallParticipantCellMinWidth;
 
 @class CallParticipantViewCell;
 @protocol CallParticipantViewCellDelegate <NSObject>
