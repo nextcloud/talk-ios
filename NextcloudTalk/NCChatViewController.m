@@ -444,7 +444,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     _isVisible = YES;
     
     if (!_offlineMode) {
-        [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+        [[NCRoomsManager sharedInstance] joinRoom:_room.token forCall:NO];
     }
 }
 
@@ -556,7 +556,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     if (!_offlineMode) {
-        [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+        [[NCRoomsManager sharedInstance] joinRoom:_room.token forCall:NO];
     }
     
     [self startObservingExpiredMessages];
@@ -639,7 +639,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 _startReceivingMessagesAfterJoin = YES;
                 
                 [self removeOfflineFooterView];
-                [[NCRoomsManager sharedInstance] joinRoom:_room.token];
+                [[NCRoomsManager sharedInstance] joinRoom:_room.token forCall:NO];
             }
             break;
             

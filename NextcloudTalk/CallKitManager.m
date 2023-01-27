@@ -502,6 +502,14 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     }
 }
 
+- (void)switchCallFrom:(NSString *)from toCall:(NSString *)to
+{
+    CallKitCall *call = [self callForToken:from];
+    if (call) {
+        call.token = to;
+    }
+}
+
 #pragma mark - CXProviderDelegate
 
 - (void)providerDidReset:(CXProvider *)provider

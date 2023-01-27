@@ -284,11 +284,6 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     return errorReason;
 }
 
-- (void)joinRoom:(NSString *)token
-{
-    [self joinRoom:token forCall:NO];
-}
-
 - (void)rejoinRoom:(NSString *)token
 {
     NCRoomController *roomController = [_activeRooms objectForKey:token];
@@ -853,6 +848,13 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     if (_callViewController == viewController) {
         _callViewController = nil;
         [self upgradeCallToVideoCall:room];
+    }
+}
+
+- (void)callViewController:(CallViewController *)viewController wantsToSwitchCallFromCall:(NSString *)from toRoom:(NSString *)to
+{
+    if (_callViewController == viewController) {
+        [[CallKitManager sharedInstance] switchCallFrom:from toCall:to];
     }
 }
 

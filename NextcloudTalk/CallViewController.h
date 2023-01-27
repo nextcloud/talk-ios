@@ -33,6 +33,7 @@
 - (void)callViewControllerWantsToBeDismissed:(CallViewController *)viewController;
 - (void)callViewControllerWantsVideoCallUpgrade:(CallViewController *)viewController;
 - (void)callViewControllerDidFinish:(CallViewController *)viewController;
+- (void)callViewController:(CallViewController *)viewController wantsToSwitchCallFromCall:(NSString *)from toRoom:(NSString *)to;
 
 @end
 

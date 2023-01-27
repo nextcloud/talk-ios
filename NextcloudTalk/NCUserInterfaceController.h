@@ -39,6 +39,7 @@
 
 + (instancetype)sharedInstance;
 - (void)presentConversationsList;
+- (void)popToConversationsList;
 - (void)presentLoginViewController;
 - (void)presentOfflineWarningAlert;
 - (void)presentLoggedOutInvalidCredentialsAlert;

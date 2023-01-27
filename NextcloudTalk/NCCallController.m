@@ -259,6 +259,14 @@ static NSString * const kNCVideoTrackKind = @"video";
     }];
 }
 
+- (void)willSwitchToCall:(NSString *)token
+{
+    NSLog(@"willSwitchToCall");
+    _userInCall = 0;
+    [self stopCallController];
+    [self.delegate callController:self isSwitchingToCall:token];
+}
+
 
 - (void)forceReconnect
 {
@@ -290,44 +298,57 @@ static NSString * const kNCVideoTrackKind = @"video";
     }];
 }
 
-- (void)leaveCall
+- (void)stopCallController
 {
     [self setLeavingCall:YES];
     [self stopSendingNick];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     _externalSignalingController.delegate = nil;
-
+    
     [[WebRTCCommon shared] dispatch:^{
         [self cleanCurrentPeerConnections];
+    }];
+    
+    [_localVideoCapturer stopCapture];
+    _localVideoCapturer = nil;
+    _localAudioTrack = nil;
+    _localVideoTrack = nil;
+    _connectionsDict = nil;
+    
+    [self stopMonitoringMicrophoneAudioLevel];
+    [_signalingController stopAllRequests];
+    
+    [_getPeersForCallTask cancel];
+    _getPeersForCallTask = nil;
+    
+    [_joinCallTask cancel];
+    _joinCallTask = nil;
+}
 
-        [self->_localVideoCapturer stopCapture];
-        self->_localVideoCapturer = nil;
-        self->_localAudioTrack = nil;
-        self->_localVideoTrack = nil;
-        self->_connectionsDict = nil;
+- (void)leaveCallInServerWithCompletionBlock:(LeaveCallCompletionBlock)block
+{
+    if (_userInCall) {
+        [[NCAPIController sharedInstance] leaveCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+            block(error);
+        }];
+    } else {
+        block(nil);
+    }
+}
 
-        [self stopMonitoringMicrophoneAudioLevel];
-        [self->_signalingController stopAllRequests];
+- (void)leaveCall
+{
+    [self stopCallController];
 
-        if (self->_userInCall) {
-            [self->_getPeersForCallTask cancel];
-            self->_getPeersForCallTask = nil;
-
-            [[NCAPIController sharedInstance] leaveCall:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
-                [self.delegate callControllerDidEndCall:self];
-
-                if (error) {
-                    NSLog(@"Could not leave call. Error: %@", error.description);
-                }
-            }];
-        } else {
-            [self->_joinCallTask cancel];
-            self->_joinCallTask = nil;
-
-            [self.delegate callControllerDidEndCall:self];
+    [self leaveCallInServerWithCompletionBlock:^(NSError *error) {
+        if (error) {
+            NSLog(@"Could not leave call. Error: %@", error.description);
         }
+        [self.delegate callControllerDidEndCall:self];
+    }];
 
+    [[WebRTCCommon shared] dispatch:^{
         [[NCAudioController sharedInstance] disableAudioSession];
     }];
 }

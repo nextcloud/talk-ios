@@ -329,6 +329,11 @@
     [_mainViewController showColumn:UISplitViewControllerColumnPrimary];
 }
 
+- (void)popToConversationsList
+{
+    [_mainViewController popSecondaryColumnToRootViewController];
+    [_mainViewController showColumn:UISplitViewControllerColumnPrimary];
+}
 
 - (void)presentChatViewController:(NCChatViewController *)chatViewController
 {

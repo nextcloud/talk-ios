@@ -51,7 +51,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
     CallStateWaitingParticipants,
     CallStateReconnecting,
-    CallStateInCall
+    CallStateInCall,
+    CallStateSwitchingToBreakoutRoom
 };
 
 CGFloat const kSidebarWidth = 350;
@@ -561,7 +562,16 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             }
         }
             break;
-            
+
+        case CallStateSwitchingToBreakoutRoom:
+        {
+            [self showWaitingScreen];
+            [self invalidateDetailedViewTimer];
+            [self showDetailedView];
+            [self removeTapGestureForDetailedView];
+        }
+            break;
+
         default:
             break;
     }
@@ -623,6 +633,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         waitingMessage = NSLocalizedString(@"Connecting to the call …", nil);
     }
     
+    if (_callState == CallStateSwitchingToBreakoutRoom) {
+        waitingMessage = NSLocalizedString(@"Switching to another call …", nil);
+    }
+
     dispatch_async(dispatch_get_main_queue(), ^{
         self.waitingLabel.text = waitingMessage;
     });
@@ -1743,6 +1757,32 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Call recording stopped", nil) dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
         }
     });
+}
+
+- (void)callController:(NCCallController *)callController isSwitchingToCall:(NSString *)token
+{
+    [self setCallState:CallStateSwitchingToBreakoutRoom];
+
+    // Connect to new call
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+        if (!error) {
+            // Leave chat if present behind call
+            NCChatViewController *roomsManagerChat = [NCRoomsManager sharedInstance].chatViewController;
+            if ([roomsManagerChat.room.token isEqualToString:self->_room.token]) {
+                [[NCRoomsManager sharedInstance].chatViewController leaveChat];
+                [[NCUserInterfaceController sharedInstance] popToConversationsList];
+            }
+            // Notify callkit about room switch
+            [self.delegate callViewController:self wantsToSwitchCallFromCall:self->_room.token toRoom:token];
+            // Asign new room as current room
+            self->_room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
+            // Forget current call controller
+            self->_callController = nil;
+            // Join new room
+            [[NCRoomsManager sharedInstance] joinRoom:token forCall:YES];
+        }
+    }];
 }
 
 #pragma mark - Screensharing
