@@ -271,6 +271,8 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
         for (UNNotificationRequest *notificationRequest in requests) {
             removeNotification(notificationRequest, YES);
         }
+
+        [self updateAppIconBadgeNumber];
     }];
 
     // Check in delivered notifications
@@ -278,9 +280,9 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
         for (UNNotification *notification in notifications) {
             removeNotification(notification.request, NO);
         }
+
+        [self updateAppIconBadgeNumber];
     }];
-    
-    [self updateAppIconBadgeNumber];
 }
 
 - (void)checkForNewNotificationsWithCompletionBlock:(CheckForNewNotificationsCompletionBlock)block
