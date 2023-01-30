@@ -35,7 +35,7 @@ NSString *const kTalkDatabaseFolder                 = @"Library/Application Supp
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
 NSString *const kNextcloudFilesDatabaseFolder       = @"Library/Application Support/Nextcloud";
 NSString *const kTalkAccountsFileName               = @"accounts.json";
-uint64_t const kTalkDatabaseSchemaVersion           = 45;
+uint64_t const kTalkDatabaseSchemaVersion           = 46;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -359,25 +359,40 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     capabilities.extendedSupport = [[version objectForKey:@"extendedSupport"] boolValue];
     capabilities.talkCapabilities = [talkCaps objectForKey:@"features"];
     capabilities.chatMaxLength = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"max-length"] integerValue];
-    if ([[[[talkCaps objectForKey:@"config"] objectForKey:@"conversations"] allKeys] containsObject:@"can-create"]) {
-        capabilities.canCreate = [[[[talkCaps objectForKey:@"config"] objectForKey:@"conversations"] objectForKey:@"can-create"] boolValue];
-    } else {
-        capabilities.canCreate = YES;
-    }
     capabilities.attachmentsAllowed = [[[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
     capabilities.attachmentsFolder = [[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
     capabilities.readStatusPrivacy = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"read-privacy"] boolValue];
     capabilities.accountPropertyScopesVersion2 = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesVersion"] integerValue] == 2;
     capabilities.accountPropertyScopesFederationEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesFederationEnabled"] boolValue];
-    if ([[[[talkCaps objectForKey:@"config"] objectForKey:@"call"] allKeys] containsObject:@"enabled"]) {
-        capabilities.callEnabled = [[[[talkCaps objectForKey:@"config"] objectForKey:@"call"] objectForKey:@"enabled"] boolValue];
-    } else {
-        capabilities.callEnabled = YES;
-    }
     capabilities.talkVersion = [talkCaps objectForKey:@"version"];
     capabilities.guestsAppEnabled = [[guestsCaps objectForKey:@"enabled"] boolValue];
     capabilities.referenceApiSupported = [[coreCaps objectForKey:@"reference-api"] boolValue];
     capabilities.notificationsAppEnabled = ([notificationsCaps objectForKey:@"ocs-endpoints"] != nil);
+
+    NSDictionary *talkConfig = [talkCaps objectForKey:@"config"];
+    NSDictionary *callConfig = [talkConfig objectForKey:@"call"];
+    NSArray *callConfigKeys = [callConfig allKeys];
+
+    if ([callConfigKeys containsObject:@"enabled"]) {
+        capabilities.callEnabled = [[callConfig objectForKey:@"enabled"] boolValue];
+    } else {
+        capabilities.callEnabled = YES;
+    }
+
+    if ([callConfigKeys containsObject:@"recording"]) {
+        capabilities.recordingEnabled = [[callConfig objectForKey:@"recording"] boolValue];
+    } else {
+        capabilities.recordingEnabled = NO;
+    }
+
+    NSDictionary *conversationConfig = [talkConfig objectForKey:@"conversation"];
+    NSArray *conversationConfigKeys = [conversationConfig allKeys];
+
+    if ([conversationConfigKeys containsObject:@"can-create"]) {
+        capabilities.canCreate = [[conversationConfig objectForKey:@"can-create"] boolValue];
+    } else {
+        capabilities.canCreate = YES;
+    }
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
