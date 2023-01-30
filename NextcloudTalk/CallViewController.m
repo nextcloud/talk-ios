@@ -817,7 +817,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         [items addObject:raiseHandAction];
     }
 
-    if ([self->_room canModerate] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRecordingV1]) {
+    if ([self->_room canModerate] && [[NCSettingsController sharedInstance] isRecordingEnabled]) {
         UIImage *recordingImage = [UIImage imageNamed:@"record-circle"];
         NSString *recordingActionTitle = NSLocalizedString(@"Start recording", nil);
 

@@ -82,6 +82,7 @@ typedef enum NCPreferredFileSorting {
 - (BOOL)callsEnabledCapability;
 - (BOOL)isGuestsAppEnabled;
 - (BOOL)isReferenceApiSupported;
+- (BOOL)isRecordingEnabled;
 - (NCPreferredFileSorting)getPreferredFileSorting;
 - (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting;
 - (BOOL)isContactSyncEnabled;

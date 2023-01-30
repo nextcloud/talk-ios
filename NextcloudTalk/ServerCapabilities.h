@@ -61,6 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL guestsAppEnabled;
 @property BOOL referenceApiSupported;
 @property BOOL notificationsAppEnabled;
+@property BOOL recordingEnabled;
 
 @end
 
