@@ -25,16 +25,30 @@ import Foundation
 
     public static let shared = WebRTCCommon()
 
-    public let peerConnectionFactory: RTCPeerConnectionFactory
+    public lazy var peerConnectionFactory: RTCPeerConnectionFactory = {
+        return RTCPeerConnectionFactory(encoderFactory: encoderFactory, decoderFactory: decoderFactory)
+    }()
 
-    private let encoderFactory: RTCVideoEncoderFactory
-    private let decoderFactory: RTCVideoDecoderFactory
+    private lazy var encoderFactory: RTCVideoEncoderFactory = {
+        return RTCDefaultVideoEncoderFactory()
+    }()
+
+    private lazy var decoderFactory: RTCVideoDecoderFactory = {
+        return RTCDefaultVideoDecoderFactory()
+    }()
+
+    public let webrtcClientDispatchQueue = DispatchQueue(label: "webrtcClientDispatchQueue")
 
     private override init() {
-        encoderFactory = RTCDefaultVideoEncoderFactory()
-        decoderFactory = RTCDefaultVideoDecoderFactory()
-        peerConnectionFactory = RTCPeerConnectionFactory(encoderFactory: encoderFactory, decoderFactory: decoderFactory)
-
         super.init()
+    }
+
+    // Every call into the WebRTC library must be dispatched to this queue
+    public func dispatch(_ work: @escaping @convention(block) () -> Void) {
+        webrtcClientDispatchQueue.async(execute: work)
+    }
+
+    public func assertQueue() {
+        dispatchPrecondition(condition: .onQueue(webrtcClientDispatchQueue))
     }
 }
