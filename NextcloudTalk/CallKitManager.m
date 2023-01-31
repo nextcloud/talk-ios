@@ -34,6 +34,8 @@
 #import "NCUserInterfaceController.h"
 #import "NCUtils.h"
 
+#import "NextcloudTalk-Swift.h"
+
 NSString * const CallKitManagerDidAnswerCallNotification        = @"CallKitManagerDidAnswerCallNotification";
 NSString * const CallKitManagerDidEndCallNotification           = @"CallKitManagerDidEndCallNotification";
 NSString * const CallKitManagerDidStartCallNotification         = @"CallKitManagerDidStartCallNotification";
@@ -585,13 +587,19 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 - (void)provider:(CXProvider *)provider didActivateAudioSession:(AVAudioSession *)audioSession
 {
     NSLog(@"Provider:didActivateAudioSession - %@", audioSession);
-    [[NCAudioController sharedInstance] providerDidActivateAudioSession:audioSession];
+
+    [[WebRTCCommon shared] dispatch:^{
+        [[NCAudioController sharedInstance] providerDidActivateAudioSession:audioSession];
+    }];
 }
 
 - (void)provider:(CXProvider *)provider didDeactivateAudioSession:(nonnull AVAudioSession *)audioSession
 {
     NSLog(@"Provider:didDeactivateAudioSession - %@", audioSession);
-    [[NCAudioController sharedInstance] providerDidDeactivateAudioSession:audioSession];
+
+    [[WebRTCCommon shared] dispatch:^{
+        [[NCAudioController sharedInstance] providerDidDeactivateAudioSession:audioSession];
+    }];
 }
 
 

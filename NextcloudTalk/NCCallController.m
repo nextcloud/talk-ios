@@ -114,12 +114,14 @@ static NSString * const kNCVideoTrackKind = @"video";
         _serverSupportsConversationPermissions =
         [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityConversationPermissions forAccountId:_account.accountId] ||
         [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag forAccountId:_account.accountId];
-        
-        if (audioOnly || voiceChatMode) {
-            [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
-        } else {
-            [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
-        }
+
+        [[WebRTCCommon shared] dispatch:^{
+            if (audioOnly || voiceChatMode) {
+                [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
+            } else {
+                [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
+            }
+        }];
         
         [self initRecorder];
     }
@@ -159,29 +161,34 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)joinCall
 {
     _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
-        if (!error) {
-            [self.delegate callControllerDidJoinCall:self];
-            [self getPeersForCall];
-            [self startMonitoringMicrophoneAudioLevel];
-            if ([self->_externalSignalingController isEnabled]) {
-                if ([self->_externalSignalingController hasMCU]) {
-                    [self createPublisherPeerConnection];
+        [[WebRTCCommon shared] dispatch:^{
+            if (!error) {
+                [self.delegate callControllerDidJoinCall:self];
+                [self getPeersForCall];
+                [self startMonitoringMicrophoneAudioLevel];
+
+                if ([self->_externalSignalingController isEnabled]) {
+                    if ([self->_externalSignalingController hasMCU]) {
+                        [self createPublisherPeerConnection];
+                    }
+                } else {
+                    [self->_signalingController startPullingSignalingMessages];
                 }
+
+                self->_joinedCallOnce = YES;
+                self->_joinCallAttempts = 0;
             } else {
-                [self->_signalingController startPullingSignalingMessages];
+                if (self->_joinCallAttempts < 3) {
+                    NSLog(@"Could not join call, retrying. %ld", (long)self->_joinCallAttempts);
+                    self->_joinCallAttempts += 1;
+                    [self joinCall];
+                    return;
+                }
+
+                [self.delegate callControllerDidFailedJoiningCall:self statusCode:@(statusCode) errorReason:[self getJoinCallErrorReason:statusCode]];
+                NSLog(@"Could not join call. Error: %@", error.description);
             }
-            self->_joinedCallOnce = YES;
-            self->_joinCallAttempts = 0;
-        } else {
-            if (self->_joinCallAttempts < 3) {
-                NSLog(@"Could not join call, retrying. %ld", (long)self->_joinCallAttempts);
-                self->_joinCallAttempts += 1;
-                [self joinCall];
-                return;
-            } 
-            [self.delegate callControllerDidFailedJoiningCall:self statusCode:@(statusCode) errorReason:[self getJoinCallErrorReason:statusCode]];
-            NSLog(@"Could not join call. Error: %@", error.description);
-        }
+        }];
     }];
 }
 
@@ -213,53 +220,65 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)shouldRejoinCall
 {
     [self createLocalMedia];
+
     _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
-        if (!error) {
-            [self.delegate callControllerDidJoinCall:self];
-            NSLog(@"Rejoined call");
-            if ([self->_externalSignalingController hasMCU]) {
-                [self createPublisherPeerConnection];
+        [[WebRTCCommon shared] dispatch:^{
+            if (!error) {
+                [self.delegate callControllerDidJoinCall:self];
+                NSLog(@"Rejoined call");
+
+                if ([self->_externalSignalingController hasMCU]) {
+                    [self createPublisherPeerConnection];
+                }
+
+                self->_joinCallAttempts = 0;
+            } else {
+                if (self->_joinCallAttempts < 3) {
+                    NSLog(@"Could not rejoin call, retrying. %ld", (long)self->_joinCallAttempts);
+                    self->_joinCallAttempts += 1;
+                    [self shouldRejoinCall];
+                    return;
+                }
+
+                [self.delegate callControllerDidFailedJoiningCall:self statusCode:@(statusCode) errorReason:[self getJoinCallErrorReason:statusCode]];
+                NSLog(@"Could not rejoin call. Error: %@", error.description);
             }
-            self->_joinCallAttempts = 0;
-        } else {
-            if (self->_joinCallAttempts < 3) {
-                NSLog(@"Could not rejoin call, retrying. %ld", (long)self->_joinCallAttempts);
-                self->_joinCallAttempts += 1;
-                [self shouldRejoinCall];
-                return;
-            }
-            [self.delegate callControllerDidFailedJoiningCall:self statusCode:@(statusCode) errorReason:[self getJoinCallErrorReason:statusCode]];
-            NSLog(@"Could not rejoin call. Error: %@", error.description);
-        }
+        }];
     }];
 }
 
 - (void)willRejoinCall
 {
     NSLog(@"willRejoinCall");
-    _userInCall = 0;
-    [self cleanCurrentPeerConnections];
-    [self.delegate callControllerIsReconnectingCall:self];
-    _preparedForRejoin = YES;
+
+    [[WebRTCCommon shared] dispatch:^{
+        self->_userInCall = 0;
+        [self cleanCurrentPeerConnections];
+        [self.delegate callControllerIsReconnectingCall:self];
+        self->_preparedForRejoin = YES;
+    }];
 }
 
 
 - (void)forceReconnect
 {
     NSLog(@"forceReconnect");
-    _userInCall = 0;
-    [self cleanCurrentPeerConnections];
-    [self.delegate callControllerIsReconnectingCall:self];
-    
-    // Remember current audio and video status before rejoin the call
-    _disableAudioAtStart = ![self isAudioEnabled];
-    _disableVideoAtStart = ![self isVideoEnabled];
-    
-    if ([_externalSignalingController isEnabled]) {
-        [_externalSignalingController forceReconnect];
-    } else {
-        [self rejoinCallUsingInternalSignaling];
-    }
+
+    [[WebRTCCommon shared] dispatch:^{
+        self->_userInCall = 0;
+        [self cleanCurrentPeerConnections];
+        [self.delegate callControllerIsReconnectingCall:self];
+
+        // Remember current audio and video status before rejoin the call
+        self->_disableAudioAtStart = ![self isAudioEnabled];
+        self->_disableVideoAtStart = ![self isVideoEnabled];
+
+        if ([self->_externalSignalingController isEnabled]) {
+            [self->_externalSignalingController forceReconnect];
+        } else {
+            [self rejoinCallUsingInternalSignaling];
+        }
+    }];
 }
 
 - (void)rejoinCallUsingInternalSignaling
@@ -278,35 +297,39 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     _externalSignalingController.delegate = nil;
-    
-    [self cleanCurrentPeerConnections];
-    
-    [_localVideoCapturer stopCapture];
-    _localVideoCapturer = nil;
-    _localAudioTrack = nil;
-    _localVideoTrack = nil;
-    _connectionsDict = nil;
-    
-    [self stopMonitoringMicrophoneAudioLevel];
-    [_signalingController stopAllRequests];
-    
-    if (_userInCall) {
-        [_getPeersForCallTask cancel];
-        _getPeersForCallTask = nil;
-        
-        [[NCAPIController sharedInstance] leaveCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+
+    [[WebRTCCommon shared] dispatch:^{
+        [self cleanCurrentPeerConnections];
+
+        [self->_localVideoCapturer stopCapture];
+        self->_localVideoCapturer = nil;
+        self->_localAudioTrack = nil;
+        self->_localVideoTrack = nil;
+        self->_connectionsDict = nil;
+
+        [self stopMonitoringMicrophoneAudioLevel];
+        [self->_signalingController stopAllRequests];
+
+        if (self->_userInCall) {
+            [self->_getPeersForCallTask cancel];
+            self->_getPeersForCallTask = nil;
+
+            [[NCAPIController sharedInstance] leaveCall:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+                [self.delegate callControllerDidEndCall:self];
+
+                if (error) {
+                    NSLog(@"Could not leave call. Error: %@", error.description);
+                }
+            }];
+        } else {
+            [self->_joinCallTask cancel];
+            self->_joinCallTask = nil;
+
             [self.delegate callControllerDidEndCall:self];
-            if (error) {
-                NSLog(@"Could not leave call. Error: %@", error.description);
-            }
-        }];
-    } else {
-        [_joinCallTask cancel];
-        _joinCallTask = nil;
-        [self.delegate callControllerDidEndCall:self];
-    }
-    
-    [[NCAudioController sharedInstance] disableAudioSession];
+        }
+
+        [[NCAudioController sharedInstance] disableAudioSession];
+    }];
 }
 
 - (void)dealloc
@@ -346,6 +369,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     [_localAudioTrack setIsEnabled:enable];
     [self sendDataChannelMessageToAllOfType:enable ? @"audioOn" : @"audioOff" withPayload:nil];
+
     if (!enable) {
         _speaking = NO;
         [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
@@ -354,25 +378,27 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)raiseHand:(BOOL)raised
 {
-    NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
+    [[WebRTCCommon shared] dispatch:^{
+        NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
 
-    NSDictionary *payload = @{
-        @"state": @(raised),
-        @"timestamp": [NSString stringWithFormat:@"%.0f", timeStamp]
-    };
+        NSDictionary *payload = @{
+            @"state": @(raised),
+            @"timestamp": [NSString stringWithFormat:@"%.0f", timeStamp]
+        };
 
-    for (NCPeerConnection *peer in [_connectionsDict allValues]) {
-        NCRaiseHandMessage *message = [[NCRaiseHandMessage alloc] initWithFrom:[self signalingSessionId]
-                                                                        sendTo:peer.peerId
-                                                                   withPayload:payload
-                                                                   forRoomType:peer.roomType];
+        for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
+            NCRaiseHandMessage *message = [[NCRaiseHandMessage alloc] initWithFrom:[self signalingSessionId]
+                                                                            sendTo:peer.peerId
+                                                                       withPayload:payload
+                                                                       forRoomType:peer.roomType];
 
-        if ([_externalSignalingController isEnabled]) {
-            [_externalSignalingController sendCallMessage:message];
-        } else {
-            [_signalingController sendSignalingMessage:message];
+            if ([self->_externalSignalingController isEnabled]) {
+                [self->_externalSignalingController sendCallMessage:message];
+            } else {
+                [self->_signalingController sendSignalingMessage:message];
+            }
         }
-    }
+    }];
 }
 
 - (void)startRecording
@@ -397,16 +423,21 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)cleanCurrentPeerConnections
 {
+    [[WebRTCCommon shared] assertQueue];
+
     for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
         if (!peerConnectionWrapper.isMCUPublisherPeer) {
             [self.delegate callController:self peerLeft:peerConnectionWrapper];
         }
+
         peerConnectionWrapper.delegate = nil;
         [peerConnectionWrapper close];
     }
+
     for (NSTimer *pendingOfferTimer in [_pendingOffersDict allValues]) {
         [pendingOfferTimer invalidate];
     }
+
     _connectionsDict = [[NSMutableDictionary alloc] init];
     _pendingOffersDict = [[NSMutableDictionary alloc] init];
     _usersInRoom = [[NSArray alloc] init];
@@ -416,8 +447,11 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)cleanPeerConnectionForSessionId:(NSString *)sessionId ofType:(NSString *)roomType
 {
+    [[WebRTCCommon shared] assertQueue];
+
     NSString *peerKey = [sessionId stringByAppendingString:roomType];
     NCPeerConnection *removedPeerConnection = [_connectionsDict objectForKey:peerKey];
+
     if (removedPeerConnection) {
         if ([roomType isEqualToString:kRoomTypeVideo]) {
             NSLog(@"Removing peer from call: %@", sessionId);
@@ -426,27 +460,38 @@ static NSString * const kNCVideoTrackKind = @"video";
             NSLog(@"Removing screensharing from peer: %@", sessionId);
             [self.delegate callController:self didReceiveUnshareScreenFromPeer:removedPeerConnection];
         }
+
         removedPeerConnection.delegate = nil;
         [removedPeerConnection close];
+
         [_connectionsDict removeObjectForKey:peerKey];
     }
 }
 
 - (void)cleanAllPeerConnectionsForSessionId:(NSString *)sessionId
 {
+    [[WebRTCCommon shared] assertQueue];
+
     [self cleanPeerConnectionForSessionId:sessionId ofType:kRoomTypeVideo];
     [self cleanPeerConnectionForSessionId:sessionId ofType:kRoomTypeScreen];
     
     // Invalidate possible request timers
     NSString *peerVideoKey = [sessionId stringByAppendingString:kRoomTypeVideo];
     NSTimer *pendingVideoRequestTimer = [_pendingOffersDict objectForKey:peerVideoKey];
+
     if (pendingVideoRequestTimer) {
-        [pendingVideoRequestTimer invalidate];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [pendingVideoRequestTimer invalidate];
+        });
     }
+
     NSString *peerScreenKey = [sessionId stringByAppendingString:kRoomTypeVideo];
     NSTimer *pendingScreenRequestTimer = [_pendingOffersDict objectForKey:peerScreenKey];
+
     if (pendingScreenRequestTimer) {
-        [pendingScreenRequestTimer invalidate];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [pendingScreenRequestTimer invalidate];
+        });
     }
 }
 
@@ -509,9 +554,13 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)getPeersForCall
 {
     _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:_account withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
-        if (!error) {
-            self->_peersInCall = peers;
+        if (error) {
+            return;
         }
+
+        [[WebRTCCommon shared] dispatch:^{
+            self->_peersInCall = peers;
+        }];
     }];
 }
 
@@ -547,28 +596,32 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)createLocalMedia
 {
-    _localAudioTrack = nil;
-    _localVideoTrack = nil;
-    [_localVideoCapturer stopCapture];
-    _localVideoCapturer = nil;
-    
-    if ((_userPermissions & NCPermissionCanPublishAudio) != 0 || !_serverSupportsConversationPermissions) {
-        [self createLocalAudioTrack];
-    } else {
-        [self.delegate callController:self didCreateLocalAudioTrack:nil];
-    }
-    
-    if (!_isAudioOnly && ((_userPermissions & NCPermissionCanPublishVideo) != 0 || !_serverSupportsConversationPermissions)) {
-        [self createLocalVideoTrack];
-    } else {
-        [self.delegate callController:self didCreateLocalVideoTrack:nil];
-    }
+    [[WebRTCCommon shared] dispatch:^{
+        self->_localAudioTrack = nil;
+        self->_localVideoTrack = nil;
+        [self->_localVideoCapturer stopCapture];
+        self->_localVideoCapturer = nil;
+
+        if ((self->_userPermissions & NCPermissionCanPublishAudio) != 0 || !self->_serverSupportsConversationPermissions) {
+            [self createLocalAudioTrack];
+        } else {
+            [self.delegate callController:self didCreateLocalAudioTrack:nil];
+        }
+
+        if (!self->_isAudioOnly && ((self->_userPermissions & NCPermissionCanPublishVideo) != 0 || !self->_serverSupportsConversationPermissions)) {
+            [self createLocalVideoTrack];
+        } else {
+            [self.delegate callController:self didCreateLocalVideoTrack:nil];
+        }
+    }];
 }
 
 #pragma mark - Peer Connection Wrapper
 
 - (NCPeerConnection *)getPeerConnectionWrapperForSessionId:(NSString *)sessionId ofType:(NSString *)roomType
 {
+    [[WebRTCCommon shared] assertQueue];
+
     NSString *peerKey = [sessionId stringByAppendingString:roomType];
     NCPeerConnection *peerConnectionWrapper = [_connectionsDict objectForKey:peerKey];
     
@@ -577,6 +630,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (NCPeerConnection *)getOrCreatePeerConnectionWrapperForSessionId:(NSString *)sessionId ofType:(NSString *)roomType
 {
+    [[WebRTCCommon shared] assertQueue];
+
     NSString *peerKey = [sessionId stringByAppendingString:roomType];
     NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId ofType:roomType];
     
@@ -618,59 +673,50 @@ static NSString * const kNCVideoTrackKind = @"video";
     return peerConnectionWrapper;
 }
 
-- (NCPeerConnection *)peerConnectionWrapperForConnection:(RTCPeerConnection *)connection
-{
-    NCPeerConnection *peerConnectionWrapper = nil;
-    NSArray *connectionWrappers = [self.connectionsDict allValues];
-    
-    for (NCPeerConnection *wrapper in connectionWrappers) {
-        if ([wrapper.peerConnection isEqual:connection]) {
-            peerConnectionWrapper = wrapper;
-            break;
-        }
-    }
-    
-    return peerConnectionWrapper;
-}
-
 - (void)sendDataChannelMessageToAllOfType:(NSString *)type withPayload:(id)payload
 {
-    if ([_externalSignalingController hasMCU]) {
-        [_publisherPeerConnection sendDataChannelMessageOfType:type withPayload:payload];
-    } else {
-        NSArray *connectionWrappers = [self.connectionsDict allValues];
-        for (NCPeerConnection *peerConnection in connectionWrappers) {
-            [peerConnection sendDataChannelMessageOfType:type withPayload:payload];
+    [[WebRTCCommon shared] dispatch:^{
+        if ([self->_externalSignalingController hasMCU]) {
+            [self->_publisherPeerConnection sendDataChannelMessageOfType:type withPayload:payload];
+        } else {
+            NSArray *connectionWrappers = [self.connectionsDict allValues];
+            for (NCPeerConnection *peerConnection in connectionWrappers) {
+                [peerConnection sendDataChannelMessageOfType:type withPayload:payload];
+            }
         }
-    }
+    }];
 }
 
 #pragma mark - External signaling support
 
 - (void)createPublisherPeerConnection
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (self->_publisherPeerConnection || (!self->_localAudioTrack && !self->_localVideoTrack)) {
-            NSLog(@"Not creating publisher peer connection. Already created or no local media.");
-            return;
-        }
-        
-        NSLog(@"Creating publisher peer connection with sessionId: %@", [self signalingSessionId]);
-        
-        NSArray *iceServers = [self->_signalingController getIceServers];
-        self->_publisherPeerConnection = [[NCPeerConnection alloc] initForPublisherWithSessionId:[self signalingSessionId] andICEServers:iceServers forAudioOnlyCall:YES];
-        self->_publisherPeerConnection.roomType = kRoomTypeVideo;
-        self->_publisherPeerConnection.delegate = self;
-        NSString *peerKey = [[self signalingSessionId] stringByAppendingString:kRoomTypeVideo];
-        [self->_connectionsDict setObject:self->_publisherPeerConnection forKey:peerKey];
-        if (self->_localAudioTrack) {
-            [self->_publisherPeerConnection.peerConnection addTrack:self->_localAudioTrack streamIds:@[kNCMediaStreamId]];
-        }
-        if (self->_localVideoTrack) {
-            [self->_publisherPeerConnection.peerConnection addTrack:self->_localVideoTrack streamIds:@[kNCMediaStreamId]];
-        }
-        [self->_publisherPeerConnection sendPublisherOffer];
-    });
+    [[WebRTCCommon shared] assertQueue];
+
+    if (self->_publisherPeerConnection || (!self->_localAudioTrack && !self->_localVideoTrack)) {
+        NSLog(@"Not creating publisher peer connection. Already created or no local media.");
+        return;
+    }
+
+    NSLog(@"Creating publisher peer connection with sessionId: %@", [self signalingSessionId]);
+
+    NSArray *iceServers = [self->_signalingController getIceServers];
+    self->_publisherPeerConnection = [[NCPeerConnection alloc] initForPublisherWithSessionId:[self signalingSessionId] andICEServers:iceServers forAudioOnlyCall:YES];
+    self->_publisherPeerConnection.roomType = kRoomTypeVideo;
+    self->_publisherPeerConnection.delegate = self;
+
+    NSString *peerKey = [[self signalingSessionId] stringByAppendingString:kRoomTypeVideo];
+    [self->_connectionsDict setObject:self->_publisherPeerConnection forKey:peerKey];
+
+    if (self->_localAudioTrack) {
+        [self->_publisherPeerConnection.peerConnection addTrack:self->_localAudioTrack streamIds:@[kNCMediaStreamId]];
+    }
+
+    if (self->_localVideoTrack) {
+        [self->_publisherPeerConnection.peerConnection addTrack:self->_localVideoTrack streamIds:@[kNCMediaStreamId]];
+    }
+
+    [self->_publisherPeerConnection sendPublisherOffer];
 }
 
 - (void)sendNick
@@ -693,21 +739,27 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)stopSendingNick
 {
-    [_sendNickTimer invalidate];
-    _sendNickTimer = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_sendNickTimer invalidate];
+        self->_sendNickTimer = nil;
+    });
 }
 
 - (void)requestNewOffer:(NSTimer *)timer
 {
-    NSString *sessionId = [timer.userInfo objectForKey:@"sessionId"];
-    NSString *roomType = [timer.userInfo objectForKey:@"roomType"];
-    NSInteger timeout = [[timer.userInfo objectForKey:@"timeout"] integerValue];
-    
-    if ([[NSDate date] timeIntervalSince1970] < timeout) {
-        [_externalSignalingController requestOfferForSessionId:sessionId andRoomType:roomType];
-    } else {
-        [timer invalidate];
-    }
+    [[WebRTCCommon shared] dispatch:^{
+        NSString *sessionId = [timer.userInfo objectForKey:@"sessionId"];
+        NSString *roomType = [timer.userInfo objectForKey:@"roomType"];
+        NSInteger timeout = [[timer.userInfo objectForKey:@"timeout"] integerValue];
+
+        if ([[NSDate date] timeIntervalSince1970] < timeout) {
+            [self->_externalSignalingController requestOfferForSessionId:sessionId andRoomType:roomType];
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [timer invalidate];
+            });
+        }
+    }];
 }
 
 - (void)checkIfPendingOffer:(NCSignalingMessage *)signalingMessage
@@ -718,7 +770,10 @@ static NSString * const kNCVideoTrackKind = @"video";
         
         if (pendingRequestTimer) {
             NSLog(@"Pending requested offer arrived. Removing timer.");
-            [pendingRequestTimer invalidate];
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [pendingRequestTimer invalidate];
+            });
         }
     }
 }
@@ -728,170 +783,191 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedSignalingMessage:(NSDictionary *)signalingMessageDict
 {
     //NSLog(@"External signaling message received: %@", signalingMessageDict);
-    
-    NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromExternalSignalingJSONDictionary:signalingMessageDict];
-    [self checkIfPendingOffer:signalingMessage];
-    [self processSignalingMessage:signalingMessage];
+
+    [[WebRTCCommon shared] dispatch:^{
+        NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromExternalSignalingJSONDictionary:signalingMessageDict];
+        [self checkIfPendingOffer:signalingMessage];
+        [self processSignalingMessage:signalingMessage];
+    }];
 }
 
 - (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedParticipantListMessage:(NSDictionary *)participantListMessageDict
 {
     //NSLog(@"External participants message received: %@", participantListMessageDict);
-    
-    NSArray *usersInRoom = [participantListMessageDict objectForKey:@"users"];
-    
-    // Update for "all" participants
-    if ([[participantListMessageDict objectForKey:@"all"] boolValue]) {
-        // Check if "incall" key exist
-        if ([[participantListMessageDict allKeys] containsObject:@"incall"]) {
-            // Clear usersInRoom array if incall=false
-            if (![[participantListMessageDict objectForKey:@"incall"] boolValue]) {
-                usersInRoom = @[];
+
+    [[WebRTCCommon shared] dispatch:^{
+        NSArray *usersInRoom = [participantListMessageDict objectForKey:@"users"];
+
+        // Update for "all" participants
+        if ([[participantListMessageDict objectForKey:@"all"] boolValue]) {
+            // Check if "incall" key exist
+            if ([[participantListMessageDict allKeys] containsObject:@"incall"]) {
+                // Clear usersInRoom array if incall=false
+                if (![[participantListMessageDict objectForKey:@"incall"] boolValue]) {
+                    usersInRoom = @[];
+                }
             }
         }
-    }
-    
-    [self processUsersInRoom:usersInRoom];
+
+        [self processUsersInRoom:usersInRoom];
+    }];
 }
 
 - (void)externalSignalingControllerShouldRejoinCall:(NCExternalSignalingController *)externalSignalingController
 {
     // Call controller should rejoin the call if it was notifiy with the willRejoin notification first.
     // Also we should check that it has joined the call first with the startCall method.
-    if (_preparedForRejoin && _joinedCallOnce) {
-        _preparedForRejoin = NO;
-        [self shouldRejoinCall];
-    }
+
+    [[WebRTCCommon shared] dispatch:^{
+        if (self->_preparedForRejoin && self->_joinedCallOnce) {
+            self->_preparedForRejoin = NO;
+            [self shouldRejoinCall];
+        }
+    }];
 }
 
 - (void)externalSignalingControllerWillRejoinCall:(NCExternalSignalingController *)externalSignalingController
 {
-    [self willRejoinCall];
+    [[WebRTCCommon shared] dispatch:^{
+        [self willRejoinCall];
+    }];
 }
 
 #pragma mark - Signaling Controller Delegate
 
 - (void)signalingController:(NCSignalingController *)signalingController didReceiveSignalingMessage:(NSDictionary *)message
 {
-    NSString *messageType = [message objectForKey:@"type"];
-    
-    if (_leavingCall) {return;}
-    
-    if ([messageType isEqualToString:@"usersInRoom"]) {
-        [self processUsersInRoom:[message objectForKey:@"data"]];
-    } else if ([messageType isEqualToString:@"message"]) {
-        NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromJSONString:[message objectForKey:@"data"]];
-        [self processSignalingMessage:signalingMessage];
-    } else {
-        NSLog(@"Uknown message: %@", [message objectForKey:@"data"]);
-    }
+    [[WebRTCCommon shared] dispatch:^{
+        NSString *messageType = [message objectForKey:@"type"];
+
+        if (self->_leavingCall) {
+            return;
+        }
+
+        if ([messageType isEqualToString:@"usersInRoom"]) {
+            [self processUsersInRoom:[message objectForKey:@"data"]];
+        } else if ([messageType isEqualToString:@"message"]) {
+            NCSignalingMessage *signalingMessage = [NCSignalingMessage messageFromJSONString:[message objectForKey:@"data"]];
+            [self processSignalingMessage:signalingMessage];
+        } else {
+            NSLog(@"Uknown message: %@", [message objectForKey:@"data"]);
+        }
+    }];
 }
 
 #pragma mark - Signaling functions
 
 - (void)processSignalingMessage:(NCSignalingMessage *)signalingMessage
 {
-    if (signalingMessage) {
-        switch (signalingMessage.messageType) {
-            case kNCSignalingMessageTypeOffer:
-            case kNCSignalingMessageTypeAnswer:
-            {
-                NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
-                NCSessionDescriptionMessage *sdpMessage = (NCSessionDescriptionMessage *)signalingMessage;
-                RTCSessionDescription *sessionDescription = sdpMessage.sessionDescription;
-                [peerConnectionWrapper setPeerName:sdpMessage.nick];
-                [peerConnectionWrapper setRemoteDescription:sessionDescription];
-                break;
-            }
-            case kNCSignalingMessageTypeCandidate:
-            {
-                NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
-                NCICECandidateMessage *candidateMessage = (NCICECandidateMessage *)signalingMessage;
-                [peerConnectionWrapper addICECandidate:candidateMessage.candidate];
-                break;
-            }
-            case kNCSignalingMessageTypeUnshareScreen:
-            {
-                NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
-                if (peerConnectionWrapper) {
-                    NSString *peerKey = [peerConnectionWrapper.peerId stringByAppendingString:kRoomTypeScreen];
-                    NCPeerConnection *screenPeerConnection = [_connectionsDict objectForKey:peerKey];
-                    if (screenPeerConnection) {
-                        [screenPeerConnection close];
-                        [_connectionsDict removeObjectForKey:peerKey];
-                    }
-                    [self.delegate callController:self didReceiveUnshareScreenFromPeer:peerConnectionWrapper];
-                }
-                break;
-            }
-            case kNCSignalingMessageTypeControl:
-            {
-                NSString *action = [signalingMessage.payload objectForKey:@"action"];
-                if ([action isEqualToString:@"forceMute"]) {
-                    NSString *peerId = [signalingMessage.payload objectForKey:@"peerId"];
-                    [self.delegate callController:self didReceiveForceMuteActionForPeerId:peerId];
-                }
-                break;
-            }
-            case kNCSignalingMessageTypeMute:
-            case kNCSignalingMessageTypeUnmute:
-            {
-                NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
-                if (peerConnectionWrapper) {
-                    NSString *name = [signalingMessage.payload objectForKey:@"name"];
-                    if ([name isEqualToString:@"audio"]) {
-                        NSString *messageType = (signalingMessage.messageType == kNCSignalingMessageTypeMute) ? @"audioOff" : @"audioOn";
-                        [peerConnectionWrapper setStatusForDataChannelMessageType:messageType withPayload:nil];
-                    } else if ([name isEqualToString:@"video"]) {
-                        NSString *messageType = (signalingMessage.messageType == kNCSignalingMessageTypeMute) ? @"videoOff" : @"videoOn";
-                        [peerConnectionWrapper setStatusForDataChannelMessageType:messageType withPayload:nil];
-                    }
-                }
-                break;
-            }
-            case kNCSignalingMessageTypeNickChanged:
-            {
-                NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
-                if (peerConnectionWrapper) {
-                    NSString *name = [signalingMessage.payload objectForKey:@"name"];
-                    if (name.length > 0) {
-                        [peerConnectionWrapper setStatusForDataChannelMessageType:@"nickChanged" withPayload:name];
-                    }
-                }
-                break;
-            }
-            case kNCSignalingMessageTypeRaiseHand:
-            {
-                NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
-                if (peerConnectionWrapper) {
-                    BOOL raised = [[signalingMessage.payload objectForKey:@"state"] boolValue];
-                    [peerConnectionWrapper setStatusForDataChannelMessageType:@"raiseHand" withPayload:@(raised)];
-                }
-                break;
-            }
-            case kNCSignalingMessageTypeRecording:
-            {
-                NCRecordingMessage *recordingMessage = (NCRecordingMessage *)signalingMessage;
-                self->_room.callRecording = recordingMessage.status;
-                [self.delegate callControllerDidChangeRecording:self];
+    if (!signalingMessage) {
+        return;
+    }
 
-                break;
-            }
-            case kNCSignalingMessageTypeUnknown:
-                NSLog(@"Received an unknown signaling message: %@", signalingMessage);
-                break;
+    [[WebRTCCommon shared] assertQueue];
+
+    switch (signalingMessage.messageType) {
+        case kNCSignalingMessageTypeOffer:
+        case kNCSignalingMessageTypeAnswer:
+        {
+            NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            NCSessionDescriptionMessage *sdpMessage = (NCSessionDescriptionMessage *)signalingMessage;
+            RTCSessionDescription *sessionDescription = sdpMessage.sessionDescription;
+            [peerConnectionWrapper setPeerName:sdpMessage.nick];
+            [peerConnectionWrapper setRemoteDescription:sessionDescription];
+            break;
         }
+        case kNCSignalingMessageTypeCandidate:
+        {
+            NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            NCICECandidateMessage *candidateMessage = (NCICECandidateMessage *)signalingMessage;
+            [peerConnectionWrapper addICECandidate:candidateMessage.candidate];
+            break;
+        }
+        case kNCSignalingMessageTypeUnshareScreen:
+        {
+            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            if (peerConnectionWrapper) {
+                NSString *peerKey = [peerConnectionWrapper.peerId stringByAppendingString:kRoomTypeScreen];
+                NCPeerConnection *screenPeerConnection = [self->_connectionsDict objectForKey:peerKey];
+                if (screenPeerConnection) {
+                    [screenPeerConnection close];
+                    [self->_connectionsDict removeObjectForKey:peerKey];
+                }
+                [self.delegate callController:self didReceiveUnshareScreenFromPeer:peerConnectionWrapper];
+            }
+            break;
+        }
+        case kNCSignalingMessageTypeControl:
+        {
+            NSString *action = [signalingMessage.payload objectForKey:@"action"];
+            if ([action isEqualToString:@"forceMute"]) {
+                NSString *peerId = [signalingMessage.payload objectForKey:@"peerId"];
+                [self.delegate callController:self didReceiveForceMuteActionForPeerId:peerId];
+            }
+            break;
+        }
+        case kNCSignalingMessageTypeMute:
+        case kNCSignalingMessageTypeUnmute:
+        {
+            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            if (peerConnectionWrapper) {
+                NSString *name = [signalingMessage.payload objectForKey:@"name"];
+                if ([name isEqualToString:@"audio"]) {
+                    NSString *messageType = (signalingMessage.messageType == kNCSignalingMessageTypeMute) ? @"audioOff" : @"audioOn";
+                    [peerConnectionWrapper setStatusForDataChannelMessageType:messageType withPayload:nil];
+                } else if ([name isEqualToString:@"video"]) {
+                    NSString *messageType = (signalingMessage.messageType == kNCSignalingMessageTypeMute) ? @"videoOff" : @"videoOn";
+                    [peerConnectionWrapper setStatusForDataChannelMessageType:messageType withPayload:nil];
+                }
+            }
+            break;
+        }
+        case kNCSignalingMessageTypeNickChanged:
+        {
+            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            if (peerConnectionWrapper) {
+                NSString *name = [signalingMessage.payload objectForKey:@"name"];
+                if (name.length > 0) {
+                    [peerConnectionWrapper setStatusForDataChannelMessageType:@"nickChanged" withPayload:name];
+                }
+            }
+            break;
+        }
+        case kNCSignalingMessageTypeRaiseHand:
+        {
+            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            if (peerConnectionWrapper) {
+                BOOL raised = [[signalingMessage.payload objectForKey:@"state"] boolValue];
+                [peerConnectionWrapper setStatusForDataChannelMessageType:@"raiseHand" withPayload:@(raised)];
+            }
+            break;
+        }
+        case kNCSignalingMessageTypeRecording:
+        {
+            NCRecordingMessage *recordingMessage = (NCRecordingMessage *)signalingMessage;
+            self->_room.callRecording = recordingMessage.status;
+            [self.delegate callControllerDidChangeRecording:self];
+
+            break;
+        }
+        case kNCSignalingMessageTypeUnknown:
+            NSLog(@"Received an unknown signaling message: %@", signalingMessage);
+            break;
     }
 }
 
 - (void)processUsersInRoom:(NSArray *)users
 {
+    [[WebRTCCommon shared] assertQueue];
+
     _usersInRoom = users;
     
     NSInteger previousUserInCall = _userInCall;
     NSMutableArray *newSessions = [self getInCallSessionsFromUsersInRoom:users];
     
-    if (_leavingCall) {return;}
+    if (_leavingCall) {
+        return;
+    }
     
     // Detect if user should rejoin call (internal signaling)
     if (!_userInCall && _shouldRejoinCallUsingInternalSignaling) {
@@ -901,7 +977,10 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     if (!previousUserInCall) {
         // Do nothing if app user is stil not in the call
-        if (!_userInCall) {return;}
+        if (!_userInCall) {
+            return;
+        }
+
         // Create publisher peer connection
         if ([_externalSignalingController hasMCU]) {
             [self createPublisherPeerConnection];
@@ -962,8 +1041,10 @@ static NSString * const kNCVideoTrackKind = @"video";
         if ([[self signalingSessionId] isEqualToString:sessionId]) {
             NSLog(@"User sessionId is no longer in the call -> hang up call");
             [self.delegate callControllerWantsToHangUpCall:self];
+
             return;
         }
+
         // Remove all peer connections for that user
         [self cleanAllPeerConnectionsForSessionId:sessionId];
     }
@@ -1021,9 +1102,12 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId
 {
+    [[WebRTCCommon shared] assertQueue];
+
     if ([_externalSignalingController isEnabled]) {
         return [_externalSignalingController getUserIdFromSessionId:sessionId];
     }
+
     NSInteger callAPIVersion = [[NCAPIController sharedInstance] callAPIVersionForAccount:_account];
     NSString *userId = nil;
     for (NSMutableDictionary *user in _peersInCall) {
@@ -1039,7 +1123,9 @@ static NSString * const kNCVideoTrackKind = @"video";
 }
 
 - (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId
-{    
+{
+    [[WebRTCCommon shared] assertQueue];
+
     if ([_externalSignalingController isEnabled]) {
         return [_externalSignalingController getDisplayNameFromSessionId:sessionId];
     }
@@ -1054,6 +1140,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 }
 
 #pragma mark - NCPeerConnectionDelegate
+// Delegates from NCPeerConnection are already dispatched to the webrtc worker queue
 
 - (void)peerConnection:(NCPeerConnection *)peerConnection didAddStream:(RTCMediaStream *)stream
 {

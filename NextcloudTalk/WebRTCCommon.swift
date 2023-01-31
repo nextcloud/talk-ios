@@ -37,7 +37,7 @@ import Foundation
         return RTCDefaultVideoDecoderFactory()
     }()
 
-    public let webrtcClientDispatchQueue = DispatchQueue(label: "webrtcClientDispatchQueue")
+    private let webrtcClientDispatchQueue = DispatchQueue(label: "webrtcClientDispatchQueue")
 
     private override init() {
         super.init()

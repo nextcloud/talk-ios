@@ -842,23 +842,31 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)adjustSpeakerButton
 {
-    AVAudioSession *audioSession = [NCAudioController sharedInstance].rtcAudioSession.session;
-    AVAudioSessionPortDescription *currentOutput = nil;
-    if (audioSession.currentRoute.outputs.count > 0) {
-        currentOutput = audioSession.currentRoute.outputs[0];
-    }
-    if ([currentOutput.portType isEqualToString:AVAudioSessionPortBuiltInSpeaker]) {
-        [self setSpeakerButtonActive:YES];
-    } else {
-        [self setSpeakerButtonActive:NO];
-    }
-    
-    // Show AirPlay button if there are more audio routes available
-    if (audioSession.availableInputs.count > 1) {
-        [self setSpeakerButtonWithAirplayButton];
-    } else {
-        [_airplayView removeFromSuperview];
-    }
+    [[WebRTCCommon shared] dispatch:^{
+        AVAudioSession *audioSession = [NCAudioController sharedInstance].rtcAudioSession.session;
+        AVAudioSessionPortDescription *currentOutput = nil;
+
+        if (audioSession.currentRoute.outputs.count > 0) {
+            currentOutput = audioSession.currentRoute.outputs[0];
+        }
+
+        if ([currentOutput.portType isEqualToString:AVAudioSessionPortBuiltInSpeaker]) {
+            [self setSpeakerButtonActive:YES];
+        } else {
+            [self setSpeakerButtonActive:NO];
+        }
+
+        NSUInteger numberOfAvailableInputs = audioSession.availableInputs.count;
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Show AirPlay button if there are more audio routes available
+            if (numberOfAvailableInputs > 1) {
+                [self setSpeakerButtonWithAirplayButton];
+            } else {
+                [self->_airplayView removeFromSuperview];
+            }
+        });
+    }];
 }
 
 - (void)setDetailedViewTimer
@@ -1085,16 +1093,20 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)disableSpeaker
 {
-    [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
     [self setSpeakerButtonActive:NO];
-    [self adjustSpeakerButton];
+
+    [[WebRTCCommon shared] dispatch:^{
+        [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
+    }];
 }
 
 - (void)enableSpeaker
 {
-    [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
     [self setSpeakerButtonActive:YES];
-    [self adjustSpeakerButton];
+
+    [[WebRTCCommon shared] dispatch:^{
+        [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
+    }];
 }
 
 - (void)setSpeakerButtonActive:(BOOL)active
@@ -1310,7 +1322,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     }
     
     [cell setVideoView:[_videoRenderersDict objectForKey:peerConnection.peerId]];
-    [cell setUserAvatar:[_callController getUserIdFromSessionId:peerConnection.peerId] withDisplayName:peerConnection.peerName];
+
     [cell setDisplayName:peerConnection.peerName];
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
     [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
@@ -1319,6 +1331,14 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [cell setRaiseHand:peerConnection.isHandRaised];
     [cell.peerNameLabel setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
     [cell.audioOffIndicator setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
+
+    [[WebRTCCommon shared] dispatch:^{
+        NSString *userId = [self->_callController getUserIdFromSessionId:peerConnection.peerId];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [cell setUserAvatar:userId withDisplayName:peerConnection.peerName];
+        });
+    }];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
