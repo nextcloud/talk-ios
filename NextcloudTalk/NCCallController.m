@@ -854,6 +854,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     }];
 }
 
+- (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController shouldSwitchToCall:(NSString *)roomToken
+{
+    [self willSwitchToCall:roomToken];
+}
+
 #pragma mark - Signaling Controller Delegate
 
 - (void)signalingController:(NCSignalingController *)signalingController didReceiveSignalingMessage:(NSDictionary *)message
