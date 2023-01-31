@@ -170,6 +170,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     _callController = [[NCCallController alloc] initWithDelegate:self inRoom:_room forAudioOnlyCall:_isAudioOnly withSessionId:sessionId andVoiceChatMode:_voiceChatModeAtStart];
     _callController.userDisplayName = _displayName;
+    _callController.disableAudioAtStart = _audioDisabledAtStart;
     _callController.disableVideoAtStart = _videoDisabledAtStart;
     _callController.silentCall = _silentCall;
     
@@ -1777,6 +1778,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             [self.delegate callViewController:self wantsToSwitchCallFromCall:self->_room.token toRoom:token];
             // Asign new room as current room
             self->_room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
+            // Save current audio and video state
+            self->_audioDisabledAtStart = !self->_callController.isAudioEnabled;
+            self->_videoDisabledAtStart = !self->_callController.isVideoEnabled;
             // Forget current call controller
             self->_callController = nil;
             // Join new room

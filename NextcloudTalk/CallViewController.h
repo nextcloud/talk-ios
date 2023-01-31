@@ -41,6 +41,7 @@
 
 @property (nonatomic, weak) id<CallViewControllerDelegate> delegate;
 @property (nonatomic, strong) NCRoom *room;
+@property (nonatomic, assign) BOOL audioDisabledAtStart;
 @property (nonatomic, assign) BOOL videoDisabledAtStart;
 @property (nonatomic, assign) BOOL voiceChatModeAtStart;
 @property (nonatomic, assign) BOOL silentCall;
