@@ -52,7 +52,7 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallStateWaitingParticipants,
     CallStateReconnecting,
     CallStateInCall,
-    CallStateSwitchingToBreakoutRoom
+    CallStateSwitchingToAnotherRoom
 };
 
 CGFloat const kSidebarWidth = 350;
@@ -564,7 +564,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         }
             break;
 
-        case CallStateSwitchingToBreakoutRoom:
+        case CallStateSwitchingToAnotherRoom:
         {
             [self showWaitingScreen];
             [self invalidateDetailedViewTimer];
@@ -634,8 +634,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         waitingMessage = NSLocalizedString(@"Connecting to the call …", nil);
     }
     
-    if (_callState == CallStateSwitchingToBreakoutRoom) {
-        waitingMessage = NSLocalizedString(@"Switching to another call …", nil);
+    if (_callState == CallStateSwitchingToAnotherRoom) {
+        waitingMessage = NSLocalizedString(@"Switching to another conversation …", nil);
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -1762,7 +1762,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)callController:(NCCallController *)callController isSwitchingToCall:(NSString *)token
 {
-    [self setCallState:CallStateSwitchingToBreakoutRoom];
+    [self setCallState:CallStateSwitchingToAnotherRoom];
 
     // Connect to new call
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
