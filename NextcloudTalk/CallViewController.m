@@ -410,6 +410,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     if (!_callController) {
         [self startCallWithSessionId:roomController.userSessionId];
     }
+
+    [self.titleView updateForRoom:_room];
 }
 
 - (void)providerDidChangeAudioMute:(NSNotification *)notification
