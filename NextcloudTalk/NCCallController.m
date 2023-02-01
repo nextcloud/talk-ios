@@ -37,6 +37,7 @@
 #import "ARDCaptureController.h"
 
 #import "CallConstants.h"
+#import "CallKitManager.h"
 #import "NCAPIController.h"
 #import "NCAudioController.h"
 #import "NCDatabaseManager.h"
@@ -595,6 +596,9 @@ static NSString * const kNCVideoTrackKind = @"video";
     RTCAudioSource *source = [peerConnectionFactory audioSourceWithConstraints:nil];
     _localAudioTrack = [peerConnectionFactory audioTrackWithSource:source trackId:kNCAudioTrackId];
     [_localAudioTrack setIsEnabled:!_disableAudioAtStart];
+    if ([CallKitManager isCallKitAvailable]) {
+        [[CallKitManager sharedInstance] changeAudioMuted:_disableAudioAtStart forCall:_room.token];
+    }
     
     [self.delegate callController:self didCreateLocalAudioTrack:_localAudioTrack];
 }

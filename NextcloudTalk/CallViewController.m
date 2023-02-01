@@ -1045,13 +1045,13 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     
     if ([_callController isAudioEnabled]) {
         if ([CallKitManager isCallKitAvailable]) {
-            [[CallKitManager sharedInstance] reportAudioMuted:YES forCall:_room.token];
+            [[CallKitManager sharedInstance] changeAudioMuted:YES forCall:_room.token];
         } else {
             [self muteAudio];
         }
     } else {
         if ([CallKitManager isCallKitAvailable]) {
-            [[CallKitManager sharedInstance] reportAudioMuted:NO forCall:_room.token];
+            [[CallKitManager sharedInstance] changeAudioMuted:NO forCall:_room.token];
         } else {
             [self unmuteAudio];
         }
