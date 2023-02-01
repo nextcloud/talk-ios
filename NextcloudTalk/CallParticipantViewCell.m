@@ -132,6 +132,7 @@ CGFloat const kCallParticipantCellMinWidth = 192; // Aspect ratio of 1.5
 
     dispatch_async(dispatch_get_main_queue(), ^{
         self.peerNameLabel.text = self->_displayName;
+        [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:self->_displayName]];
     });
 }
 
