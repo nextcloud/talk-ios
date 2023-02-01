@@ -93,6 +93,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     BOOL _pushToTalkActive;
     BOOL _isHandRaised;
     BOOL _proximityState;
+    BOOL _showChatAfterRoomSwitch;
     UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
     CGPoint _localVideoDragStartingPosition;
     CGPoint _localVideoOriginPosition;
@@ -1579,6 +1580,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)callControllerDidJoinCall:(NCCallController *)callController
 {
     [self setCallState:CallStateWaitingParticipants];
+
+    // Show chat if it was visible before room switch
+    if (_showChatAfterRoomSwitch && !_chatViewController) {
+        _showChatAfterRoomSwitch = NO;
+        [self toggleChatView];
+    }
 }
 
 - (void)callControllerDidFailedJoiningCall:(NCCallController *)callController statusCode:(NSNumber *)statusCode errorReason:(NSString *) errorReason
@@ -1763,6 +1770,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)callController:(NCCallController *)callController isSwitchingToCall:(NSString *)token
 {
     [self setCallState:CallStateSwitchingToAnotherRoom];
+
+    // Close chat before switching to another room
+    if (_chatViewController) {
+        _showChatAfterRoomSwitch = YES;
+        [self toggleChatView];
+    }
 
     // Connect to new call
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
