@@ -1769,7 +1769,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     });
 }
 
-- (void)callController:(NCCallController *)callController isSwitchingToCall:(NSString *)token
+- (void)callController:(NCCallController *)callController isSwitchingToCall:(NSString *)token withAudioEnabled:(BOOL)audioEnabled andVideoEnabled:(BOOL)videoEnabled
 {
     [self setCallState:CallStateSwitchingToAnotherRoom];
 
@@ -1794,8 +1794,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             // Asign new room as current room
             self->_room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
             // Save current audio and video state
-            self->_audioDisabledAtStart = !self->_callController.isAudioEnabled;
-            self->_videoDisabledAtStart = !self->_callController.isVideoEnabled;
+            self->_audioDisabledAtStart = !audioEnabled;
+            self->_videoDisabledAtStart = !videoEnabled;
             // Forget current call controller
             self->_callController = nil;
             // Join new room
