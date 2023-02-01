@@ -248,6 +248,12 @@
 "Call options" = "Call options";
 
 /* No comment provided by engineer. */
+"Call recording started" = "Call recording started";
+
+/* No comment provided by engineer. */
+"Call recording stopped" = "Call recording stopped";
+
+/* No comment provided by engineer. */
 "Call without notification" = "Call without notification";
 
 /* No comment provided by engineer. */
