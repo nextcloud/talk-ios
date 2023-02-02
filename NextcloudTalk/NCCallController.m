@@ -263,11 +263,18 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)willSwitchToCall:(NSString *)token
 {
     NSLog(@"willSwitchToCall");
+
     BOOL isAudioEnabled = [self isAudioEnabled];
     BOOL isVideoEnabled = [self isVideoEnabled];
-    _userInCall = 0;
+
     [self stopCallController];
-    [self.delegate callController:self isSwitchingToCall:token withAudioEnabled:isAudioEnabled andVideoEnabled:isVideoEnabled];
+
+    [self leaveCallInServerWithCompletionBlock:^(NSError *error) {
+        if (error) {
+            NSLog(@"Could not leave call. Error: %@", error.description);
+        }
+        [self.delegate callController:self isSwitchingToCall:token withAudioEnabled:isAudioEnabled andVideoEnabled:isVideoEnabled];
+    }];
 }
 
 

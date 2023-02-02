@@ -22,6 +22,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "NCAPIController.h"
 #import "NCRoom.h"
 #import "NCChatController.h"
 #import "NCChatViewController.h"
@@ -72,5 +73,7 @@ typedef void (^SendOfflineMessagesCompletionBlock)(void);
 - (void)leaveChatInRoom:(NSString *)token;
 // Call
 - (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video;
+// Switch to
+- (void)prepareSwitchToAnotherRoomFromRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block;
 
 @end

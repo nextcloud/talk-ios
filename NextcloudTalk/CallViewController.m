@@ -1784,16 +1784,15 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     // Connect to new call
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
-        if (!error) {
-            // Leave chat if present behind call
-            NCChatViewController *roomsManagerChat = [NCRoomsManager sharedInstance].chatViewController;
-            if ([roomsManagerChat.room.token isEqualToString:self->_room.token]) {
-                [[NCRoomsManager sharedInstance].chatViewController leaveChat];
-                [[NCUserInterfaceController sharedInstance] popToConversationsList];
-            }
+        if (error) {
+            NSLog(@"Error getting room to switch");
+            return;
+        }
+        // Prepare rooms manager to switch to another room
+        [[NCRoomsManager sharedInstance] prepareSwitchToAnotherRoomFromRoom:self->_room.token withCompletionBlock:^(NSError *error) {
             // Notify callkit about room switch
             [self.delegate callViewController:self wantsToSwitchCallFromCall:self->_room.token toRoom:token];
-            // Asign new room as current room
+            // Assign new room as current room
             self->_room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
             // Save current audio and video state
             self->_audioDisabledAtStart = !audioEnabled;
@@ -1802,7 +1801,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             self->_callController = nil;
             // Join new room
             [[NCRoomsManager sharedInstance] joinRoom:token forCall:YES];
-        }
+        }];
     }];
 }
 
