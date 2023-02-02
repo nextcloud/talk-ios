@@ -2005,8 +2005,14 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)removePeer:(NCPeerConnection *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_pendingPeerDeletions addObject:peer];
-        [self scheduleBatchCollectionViewUpdate];
+        if ([self->_pendingPeerInserts containsObject:peer]) {
+            // The peer is a pending insert, but was removed before the batch update
+            // In this case we can just remove the pending insert
+            [self->_pendingPeerInserts removeObject:peer];
+        } else {
+            [self->_pendingPeerDeletions addObject:peer];
+            [self scheduleBatchCollectionViewUpdate];
+        }
     });
 }
 
@@ -2043,7 +2049,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
             NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
 
-            if (indexPath) {
+            // Make sure we remove every index path only once
+            if (indexPath && ![indexPathsToDelete containsObject:indexPath]) {
                 [indexPathsToDelete addObject:indexPath];
             }
         }
