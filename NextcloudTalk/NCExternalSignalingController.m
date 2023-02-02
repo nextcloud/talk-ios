@@ -500,7 +500,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 - (void)processSwitchToMessageEvent:(NSDictionary *)messageDict
 {
-    NSString *roomToken = [messageDict objectForKey:@"roomId"];
+    NSString *roomToken = [messageDict objectForKey:@"roomid"];
     if (roomToken.length > 0) {
         [self.delegate externalSignalingController:self shouldSwitchToCall:roomToken];
     } else {
