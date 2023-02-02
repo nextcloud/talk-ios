@@ -56,7 +56,8 @@ extern NSString * const CallKitManagerDidFailRequestingCallTransaction;
 - (void)reportIncomingCallForOldAccount;
 - (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName silently:(BOOL)silently withAccountId:(NSString *)accountId;
 - (void)endCall:(NSString *)token;
-- (void)reportAudioMuted:(BOOL)muted forCall:(NSString *)token;
+- (void)changeAudioMuted:(BOOL)muted forCall:(NSString *)token;
+- (void)switchCallFrom:(NSString *)from toCall:(NSString *)to;
 
 
 @end

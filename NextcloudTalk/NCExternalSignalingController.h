@@ -39,6 +39,7 @@ typedef enum NCExternalSignalingSendMessageStatus {
 - (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedParticipantListMessage:(NSDictionary *)participantListMessageDict;
 - (void)externalSignalingControllerShouldRejoinCall:(NCExternalSignalingController *)externalSignalingController;
 - (void)externalSignalingControllerWillRejoinCall:(NCExternalSignalingController *)externalSignalingController;
+- (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController shouldSwitchToCall:(NSString *)roomToken;
 
 @end
 

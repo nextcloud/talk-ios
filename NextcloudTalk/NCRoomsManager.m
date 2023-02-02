@@ -27,7 +27,6 @@
 #import "AppDelegate.h"
 #import "CallKitManager.h"
 #import "NCChatViewController.h"
-#import "NCAPIController.h"
 #import "NCChatBlock.h"
 #import "NCChatController.h"
 #import "NCChatMessage.h"
@@ -282,11 +281,6 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }
     
     return errorReason;
-}
-
-- (void)joinRoom:(NSString *)token
-{
-    [self joinRoom:token forCall:NO];
 }
 
 - (void)rejoinRoom:(NSString *)token
@@ -824,17 +818,45 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     [[CallKitManager sharedInstance] endCall:room.token];
 }
 
-- (void)callDidEndInRoomWithToken:(NSString *)token
+- (void)leaveCallInRoom:(NSString *)token
 {
     NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (roomController) {
         roomController.inCall = NO;
     }
-    [[CallKitManager sharedInstance] endCall:token];
+
     [self leaveRoom:token];
+}
+
+- (void)callDidEndInRoomWithToken:(NSString *)token
+{
+    [self leaveCallInRoom:token];
+
+    [[CallKitManager sharedInstance] endCall:token];
     
     if ([_chatViewController.room.token isEqualToString:token]) {
         [_chatViewController resumeChat];
+    }
+}
+
+#pragma mark - Switch to
+
+- (void)prepareSwitchToAnotherRoomFromRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block
+{
+    if ([_chatViewController.room.token isEqualToString:token]) {
+        [_chatViewController leaveChat];
+        [[NCUserInterfaceController sharedInstance] popToConversationsList];
+    }
+    
+    // Remove room controller and exit room
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NCRoomController *roomController = [_activeRooms objectForKey:token];
+    if (roomController) {
+        [_activeRooms removeObjectForKey:token];
+        [[NCAPIController sharedInstance] exitRoom:token forAccount:activeAccount withCompletionBlock:block];
+    } else {
+        NSLog(@"Couldn't find a room controller from the room we are switching from");
+        block(nil);
     }
 }
 
@@ -853,6 +875,13 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     if (_callViewController == viewController) {
         _callViewController = nil;
         [self upgradeCallToVideoCall:room];
+    }
+}
+
+- (void)callViewController:(CallViewController *)viewController wantsToSwitchCallFromCall:(NSString *)from toRoom:(NSString *)to
+{
+    if (_callViewController == viewController) {
+        [[CallKitManager sharedInstance] switchCallFrom:from toCall:to];
     }
 }
 

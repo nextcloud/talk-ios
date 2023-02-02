@@ -51,7 +51,8 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallStateJoining,
     CallStateWaitingParticipants,
     CallStateReconnecting,
-    CallStateInCall
+    CallStateInCall,
+    CallStateSwitchingToAnotherRoom
 };
 
 CGFloat const kSidebarWidth = 350;
@@ -92,6 +93,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     BOOL _pushToTalkActive;
     BOOL _isHandRaised;
     BOOL _proximityState;
+    BOOL _showChatAfterRoomSwitch;
     UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
     CGPoint _localVideoDragStartingPosition;
     CGPoint _localVideoOriginPosition;
@@ -169,6 +171,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     _callController = [[NCCallController alloc] initWithDelegate:self inRoom:_room forAudioOnlyCall:_isAudioOnly withSessionId:sessionId andVoiceChatMode:_voiceChatModeAtStart];
     _callController.userDisplayName = _displayName;
+    _callController.disableAudioAtStart = _audioDisabledAtStart;
     _callController.disableVideoAtStart = _videoDisabledAtStart;
     _callController.silentCall = _silentCall;
     
@@ -407,6 +410,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     if (!_callController) {
         [self startCallWithSessionId:roomController.userSessionId];
     }
+
+    [self.titleView updateForRoom:_room];
 }
 
 - (void)providerDidChangeAudioMute:(NSNotification *)notification
@@ -561,7 +566,16 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             }
         }
             break;
-            
+
+        case CallStateSwitchingToAnotherRoom:
+        {
+            [self showWaitingScreen];
+            [self invalidateDetailedViewTimer];
+            [self showDetailedView];
+            [self removeTapGestureForDetailedView];
+        }
+            break;
+
         default:
             break;
     }
@@ -623,6 +637,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         waitingMessage = NSLocalizedString(@"Connecting to the call …", nil);
     }
     
+    if (_callState == CallStateSwitchingToAnotherRoom) {
+        waitingMessage = NSLocalizedString(@"Switching to another conversation …", nil);
+    }
+
     dispatch_async(dispatch_get_main_queue(), ^{
         self.waitingLabel.text = waitingMessage;
     });
@@ -1027,13 +1045,13 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     
     if ([_callController isAudioEnabled]) {
         if ([CallKitManager isCallKitAvailable]) {
-            [[CallKitManager sharedInstance] reportAudioMuted:YES forCall:_room.token];
+            [[CallKitManager sharedInstance] changeAudioMuted:YES forCall:_room.token];
         } else {
             [self muteAudio];
         }
     } else {
         if ([CallKitManager isCallKitAvailable]) {
-            [[CallKitManager sharedInstance] reportAudioMuted:NO forCall:_room.token];
+            [[CallKitManager sharedInstance] changeAudioMuted:NO forCall:_room.token];
         } else {
             [self unmuteAudio];
         }
@@ -1564,6 +1582,14 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)callControllerDidJoinCall:(NCCallController *)callController
 {
     [self setCallState:CallStateWaitingParticipants];
+
+    // Show chat if it was visible before room switch
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
+        if (self->_showChatAfterRoomSwitch && !self->_chatViewController) {
+            self->_showChatAfterRoomSwitch = NO;
+            [self toggleChatView];
+        }
+    });
 }
 
 - (void)callControllerDidFailedJoiningCall:(NCCallController *)callController statusCode:(NSNumber *)statusCode errorReason:(NSString *) errorReason
@@ -1743,6 +1769,40 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Call recording stopped", nil) dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
         }
     });
+}
+
+- (void)callController:(NCCallController *)callController isSwitchingToCall:(NSString *)token withAudioEnabled:(BOOL)audioEnabled andVideoEnabled:(BOOL)videoEnabled
+{
+    [self setCallState:CallStateSwitchingToAnotherRoom];
+
+    // Close chat before switching to another room
+    if (_chatViewController) {
+        _showChatAfterRoomSwitch = YES;
+        [self toggleChatView];
+    }
+
+    // Connect to new call
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+        if (error) {
+            NSLog(@"Error getting room to switch");
+            return;
+        }
+        // Prepare rooms manager to switch to another room
+        [[NCRoomsManager sharedInstance] prepareSwitchToAnotherRoomFromRoom:self->_room.token withCompletionBlock:^(NSError *error) {
+            // Notify callkit about room switch
+            [self.delegate callViewController:self wantsToSwitchCallFromCall:self->_room.token toRoom:token];
+            // Assign new room as current room
+            self->_room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
+            // Save current audio and video state
+            self->_audioDisabledAtStart = !audioEnabled;
+            self->_videoDisabledAtStart = !videoEnabled;
+            // Forget current call controller
+            self->_callController = nil;
+            // Join new room
+            [[NCRoomsManager sharedInstance] joinRoom:token forCall:YES];
+        }];
+    }];
 }
 
 #pragma mark - Screensharing

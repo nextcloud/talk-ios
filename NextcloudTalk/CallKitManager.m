@@ -487,7 +487,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     }
 }
 
-- (void)reportAudioMuted:(BOOL)muted forCall:(NSString *)token
+- (void)changeAudioMuted:(BOOL)muted forCall:(NSString *)token
 {
     CallKitCall *call = [self callForToken:token];
     if (call) {
@@ -499,6 +499,14 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
                 NSLog(@"%@", error.localizedDescription);
             }
         }];
+    }
+}
+
+- (void)switchCallFrom:(NSString *)from toCall:(NSString *)to
+{
+    CallKitCall *call = [self callForToken:from];
+    if (call) {
+        call.token = to;
     }
 }
 

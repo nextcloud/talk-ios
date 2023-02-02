@@ -52,6 +52,7 @@
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController;
 - (void)callControllerWantsToHangUpCall:(NCCallController *)callController;
 - (void)callControllerDidChangeRecording:(NCCallController *)callController;
+- (void)callController:(NCCallController *)callController isSwitchingToCall:(NSString *)token withAudioEnabled:(BOOL)audioEnabled andVideoEnabled:(BOOL)videoEnabled;
 
 @end
 
@@ -79,5 +80,7 @@
 - (void)stopRecording;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 - (NSString *)signalingSessionId;
+
+- (void)willSwitchToCall:(NSString *)token;
 
 @end

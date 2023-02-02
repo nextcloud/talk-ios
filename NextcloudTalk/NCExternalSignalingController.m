@@ -479,6 +479,8 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
         NSLog(@"Participant left room.");
     } else if ([eventType isEqualToString:@"message"]) {
         [self processRoomMessageEvent:[eventDict objectForKey:@"message"]];
+    } else if ([eventType isEqualToString:@"switchto"]) {
+        [self processSwitchToMessageEvent:[eventDict objectForKey:@"switchto"]];
     } else {
         NSLog(@"Unknown room event: %@", eventDict);
     }
@@ -493,6 +495,16 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
         [self.delegate externalSignalingController:self didReceivedSignalingMessage:messageDict];
     } else {
         NSLog(@"Unknown room message type: %@", messageDict);
+    }
+}
+
+- (void)processSwitchToMessageEvent:(NSDictionary *)messageDict
+{
+    NSString *roomToken = [messageDict objectForKey:@"roomid"];
+    if (roomToken.length > 0) {
+        [self.delegate externalSignalingController:self shouldSwitchToCall:roomToken];
+    } else {
+        NSLog(@"Unknown switchTo message: %@", messageDict);
     }
 }
 

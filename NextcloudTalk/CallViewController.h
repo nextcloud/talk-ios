@@ -33,6 +33,7 @@
 - (void)callViewControllerWantsToBeDismissed:(CallViewController *)viewController;
 - (void)callViewControllerWantsVideoCallUpgrade:(CallViewController *)viewController;
 - (void)callViewControllerDidFinish:(CallViewController *)viewController;
+- (void)callViewController:(CallViewController *)viewController wantsToSwitchCallFromCall:(NSString *)from toRoom:(NSString *)to;
 
 @end
 
@@ -40,6 +41,7 @@
 
 @property (nonatomic, weak) id<CallViewControllerDelegate> delegate;
 @property (nonatomic, strong) NCRoom *room;
+@property (nonatomic, assign) BOOL audioDisabledAtStart;
 @property (nonatomic, assign) BOOL videoDisabledAtStart;
 @property (nonatomic, assign) BOOL voiceChatModeAtStart;
 @property (nonatomic, assign) BOOL silentCall;
