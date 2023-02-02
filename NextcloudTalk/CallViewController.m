@@ -1715,6 +1715,14 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)callControllerDidChangeRecording:(NCCallController *)callController
 {
     [self adjustTopBar];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self->_room.callRecording) {
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Call recording started", nil) dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
+        } else {
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Call recording stopped", nil) dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
+        }
+    });
 }
 
 #pragma mark - Screensharing
