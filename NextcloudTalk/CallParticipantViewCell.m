@@ -62,7 +62,7 @@ CGFloat const kCallParticipantCellMinWidth = 192; // Aspect ratio of 1.5
     self.screensharingIndicator.clipsToBounds = YES;
     
     self.peerAvatarImageView.hidden = YES;
-    self.peerAvatarImageView.layer.cornerRadius = 50;
+    self.peerAvatarImageView.layer.cornerRadius = self.peerAvatarImageView.bounds.size.width / 2;
     self.peerAvatarImageView.layer.masksToBounds = YES;
 
     self.layer.cornerRadius = 22.0f;
@@ -91,6 +91,33 @@ CGFloat const kCallParticipantCellMinWidth = 192; // Aspect ratio of 1.5
     [super applyLayoutAttributes:layoutAttributes];
     
     [self resizeRemoteVideoView];
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+
+    CGRect bounds = self.bounds;
+
+    // Usually we have a padding to the side of the cell of 22 (= cornerRadius)
+    // But when the cell is really small adjust the padding to be 11 (= cornerRadius / 2)
+    if (bounds.size.width <= 200 || bounds.size.height <= 200) {
+        self.stackViewLeftConstraint.constant = 11;
+        self.stackViewRightConstraint.constant = 11;
+        self.stackViewBottomConstraint.constant = 11;
+        self.screensharingIndiciatorTopConstraint.constant = 11;
+        self.screensharingIndiciatorRightConstraint.constant = 11;
+    } else {
+        self.stackViewLeftConstraint.constant = 22;
+        self.stackViewRightConstraint.constant = 22;
+        self.stackViewBottomConstraint.constant = 22;
+        self.screensharingIndiciatorTopConstraint.constant = 22;
+        self.screensharingIndiciatorRightConstraint.constant = 22;
+    }
+
+    [self.contentView layoutSubviews];
+
+    self.peerAvatarImageView.layer.cornerRadius = self.peerAvatarImageView.bounds.size.width / 2;
 }
 
 - (void)toggleZoom
