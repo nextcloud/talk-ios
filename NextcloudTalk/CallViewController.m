@@ -192,11 +192,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [self.hangUpButton.layer setCornerRadius:self.hangUpButton.frame.size.height / 2];
     [self.closeScreensharingButton.layer setCornerRadius:16.0f];
 
-    [self.collectionView.layer setCornerRadius:30.0f];
+    [self.collectionView.layer setCornerRadius:22.0f];
     [self.collectionView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAlways];
 
     [self.sideBarView setClipsToBounds:YES];
-    [self.sideBarView.layer setCornerRadius:30.0f];
+    [self.sideBarView.layer setCornerRadius:22.0f];
 
     _airplayView = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(0, 0, 48, 56)];
     _airplayView.tintColor = [UIColor whiteColor];

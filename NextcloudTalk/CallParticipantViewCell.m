@@ -65,7 +65,7 @@ CGFloat const kCallParticipantCellMinWidth = 192; // Aspect ratio of 1.5
     self.peerAvatarImageView.layer.cornerRadius = 50;
     self.peerAvatarImageView.layer.masksToBounds = YES;
 
-    self.layer.cornerRadius = 30.0f;
+    self.layer.cornerRadius = 22.0f;
     [self.layer setMasksToBounds:YES];
     
     _showOriginalSize = NO;
