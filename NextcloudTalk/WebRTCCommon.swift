@@ -21,7 +21,7 @@
 
 import Foundation
 
-@objcMembers class WebRTCCommon: NSObject {
+@objcMembers final class WebRTCCommon: NSObject {
 
     public static let shared = WebRTCCommon()
 
