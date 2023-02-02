@@ -50,6 +50,8 @@
     self = [super init];
     
     if (self) {
+        [[WebRTCCommon shared] assertQueue];
+        
         RTCMediaConstraints* constraints = [[RTCMediaConstraints alloc]
                                             initWithMandatoryConstraints:nil
                                             optionalConstraints:nil];
@@ -103,14 +105,18 @@
 
 - (void)addICECandidate:(RTCIceCandidate *)candidate
 {
+    [[WebRTCCommon shared] assertQueue];
+
     if (!_peerConnection.remoteDescription) {
         if (!self.queuedRemoteCandidates) {
             self.queuedRemoteCandidates = [NSMutableArray array];
         }
+        
         NSLog(@"Queued a remote ICE candidate for later.");
         [self.queuedRemoteCandidates addObject:candidate];
     } else {
         NSLog(@"Adding a remote ICE candidate.");
+
         [self.peerConnection addIceCandidate:candidate completionHandler:^(NSError * _Nullable error) {
             if (error) {
                 NSLog(@"Error while adding a remote ICE candidate.");
@@ -121,8 +127,11 @@
 
 - (void)drainRemoteCandidates
 {
+
+    [[WebRTCCommon shared] assertQueue];
+
     NSLog(@"Drain %lu remote ICE candidates.", (unsigned long)[self.queuedRemoteCandidates count]);
-    
+
     for (RTCIceCandidate *candidate in self.queuedRemoteCandidates) {
         [self.peerConnection addIceCandidate:candidate completionHandler:^(NSError * _Nullable error) {
             if (error) {
@@ -133,23 +142,19 @@
     self.queuedRemoteCandidates = nil;
 }
 
-- (void)removeRemoteCandidates
-{
-    NSLog(@"%s", __PRETTY_FUNCTION__);
-    
-    [self.queuedRemoteCandidates removeAllObjects];
-    self.queuedRemoteCandidates = nil;
-}
-
 - (void)setRemoteDescription:(RTCSessionDescription *)sessionDescription
 {
+    [[WebRTCCommon shared] assertQueue];
+
     __weak NCPeerConnection *weakSelf = self;
     RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sessionDescription preferredVideoCodec:@"H264"];
     [_peerConnection setRemoteDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
-        NCPeerConnection *strongSelf = weakSelf;
-        if (strongSelf) {
-            [strongSelf peerConnectionDidSetRemoteSessionDescription:sdpPreferringCodec error:error];
-        }
+        [[WebRTCCommon shared] dispatch:^{
+            NCPeerConnection *strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf peerConnectionDidSetRemoteSessionDescription:sdpPreferringCodec error:error];
+            }
+        }];
     }];
 }
 
@@ -165,23 +170,31 @@
 
 - (void)sendOfferWithConstraints:(RTCMediaConstraints *)constraints
 {
+    [[WebRTCCommon shared] assertQueue];
+
     //Create data channel before creating the offer to enable data channels
     RTCDataChannelConfiguration* config = [[RTCDataChannelConfiguration alloc] init];
     config.isNegotiated = NO;
     _localDataChannel = [_peerConnection dataChannelForLabel:@"status" configuration:config];
     _localDataChannel.delegate = self;
+
     // Create offer
     __weak NCPeerConnection *weakSelf = self;
     [_peerConnection offerForConstraints:constraints completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
-        NCPeerConnection *strongSelf = weakSelf;
-        if (strongSelf) {
-            [strongSelf peerConnectionDidCreateLocalSessionDescription:sdp error:error];
-        }
+        [[WebRTCCommon shared] dispatch:^{
+            NCPeerConnection *strongSelf = weakSelf;
+
+            if (strongSelf) {
+                [strongSelf peerConnectionDidCreateLocalSessionDescription:sdp error:error];
+            }
+        }];
     }];
 }
 
 - (void)setStatusForDataChannelMessageType:(NSString *)type withPayload:(id)payload
 {
+    [[WebRTCCommon shared] assertQueue];
+
     if ([type isEqualToString:@"nickChanged"]) {
         NSString *nick = @"";
         if ([payload isKindOfClass:[NSString class]]) {
@@ -215,6 +228,8 @@
 
 - (void)close
 {
+    [[WebRTCCommon shared] assertQueue];
+
     RTCMediaStream *localStream = [self.peerConnection.localStreams firstObject];
     if (localStream) {
         [self.peerConnection removeStream:localStream];
@@ -228,6 +243,7 @@
 }
 
 #pragma mark - RTCPeerConnectionDelegate
+// Delegates from RTCPeerConnection are called on the "signaling_thread" of WebRTC
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didChangeSignalingState:(RTCSignalingState)stateChanged
 {
@@ -236,31 +252,34 @@
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didAddStream:(RTCMediaStream *)stream
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [[WebRTCCommon shared] dispatch:^{
         NSLog(@"Received %lu video tracks and %lu audio tracks from %@",
               (unsigned long)stream.videoTracks.count,
               (unsigned long)stream.audioTracks.count,
               self.peerId);
-        
+
         self.remoteStream = stream;
         [self.delegate peerConnection:self didAddStream:stream];
-    });
+    }];
 }
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didRemoveStream:(RTCMediaStream *)stream
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [[WebRTCCommon shared] dispatch:^{
         NSLog(@"Stream was removed from %@", self.peerId);
         self.remoteStream = nil;
         [self.delegate peerConnection:self didRemoveStream:stream];
-    });
+    }];
 }
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didAddReceiver:(RTCRtpReceiver *)rtpReceiver streams:(NSArray<RTCMediaStream *> *)mediaStreams
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [[WebRTCCommon shared] dispatch:^{
         RTCMediaStream *stream = mediaStreams[0];
-        if (!stream) {return;}
+        if (!stream) {
+            return;
+        }
+
         NSLog(@"Received %lu video tracks and %lu audio tracks from %@",
               (unsigned long)stream.videoTracks.count,
               (unsigned long)stream.audioTracks.count,
@@ -268,17 +287,16 @@
         
         self.remoteStream = stream;
         [self.delegate peerConnection:self didAddStream:stream];
-        
-    });
+    }];
 }
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didRemoveReceiver:(RTCRtpReceiver *)rtpReceiver
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [[WebRTCCommon shared] dispatch:^{
         NSLog(@"Receiver was removed from %@", self.peerId);
         self.remoteStream = nil;
         [self.delegate peerConnection:self didRemoveStream:nil];
-    });
+    }];
 }
 
 - (void)peerConnectionShouldNegotiate:(RTCPeerConnection *)peerConnection
@@ -288,10 +306,10 @@
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didChangeIceConnectionState:(RTCIceConnectionState)newState
 {
-    NSLog(@"ICE state with '%@' changed to: %@", self.peerId, [self stringForConnectionState:newState]);
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [[WebRTCCommon shared] dispatch:^{
+        NSLog(@"ICE state with '%@' changed to: %@", self.peerId, [self stringForConnectionState:newState]);
         [self.delegate peerConnection:self didChangeIceConnectionState:newState];
-    });
+    }];
 }
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didChangeIceGatheringState:(RTCIceGatheringState)newState
@@ -301,10 +319,10 @@
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didGenerateIceCandidate:(RTCIceCandidate *)candidate
 {
-    NSLog(@"Peer '%@' did generate Ice Candidate: %@", self.peerId, candidate);
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [[WebRTCCommon shared] dispatch:^{
+        NSLog(@"Peer '%@' did generate Ice Candidate: %@", self.peerId, candidate);
         [self.delegate peerConnection:self didGenerateIceCandidate:candidate];
-    });
+    }];
 }
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didRemoveIceCandidates:(NSArray<RTCIceCandidate *> *)candidates
@@ -314,32 +332,40 @@
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didOpenDataChannel:(RTCDataChannel *)dataChannel
 {
-    if ([dataChannel.label isEqualToString:@"status"] || [dataChannel.label isEqualToString:@"JanusDataChannel"]) {
-        _remoteDataChannel = dataChannel;
-        _remoteDataChannel.delegate = self;
-        NSLog(@"Remote data channel '%@' was opened.", dataChannel.label);
-    } else {
-        NSLog(@"Data channel '%@' was opened.", dataChannel.label);
-    }
+    [[WebRTCCommon shared] dispatch:^{
+        if ([dataChannel.label isEqualToString:@"status"] || [dataChannel.label isEqualToString:@"JanusDataChannel"]) {
+            self->_remoteDataChannel = dataChannel;
+            self->_remoteDataChannel.delegate = self;
+            NSLog(@"Remote data channel '%@' was opened.", dataChannel.label);
+        } else {
+            NSLog(@"Data channel '%@' was opened.", dataChannel.label);
+        }
+    }];
 }
 
 #pragma mark - RTCDataChannelDelegate
+// Delegates from RTCDataChannel are called on the "signaling_thread" of WebRTC
 
 - (void)dataChannelDidChangeState:(RTCDataChannel *)dataChannel
 {
-    NSLog(@"Data cahnnel '%@' did change state: %ld", dataChannel.label, (long)dataChannel.readyState);
-    if (dataChannel.readyState == RTCDataChannelStateOpen && [dataChannel.label isEqualToString:@"status"]) {
-        [self.delegate peerConnectionDidOpenStatusDataChannel:self];
-    }
+    [[WebRTCCommon shared] dispatch:^{
+        NSLog(@"Data cahnnel '%@' did change state: %ld", dataChannel.label, (long)dataChannel.readyState);
+        
+        if (dataChannel.readyState == RTCDataChannelStateOpen && [dataChannel.label isEqualToString:@"status"]) {
+            [self.delegate peerConnectionDidOpenStatusDataChannel:self];
+        }
+    }];
 }
 
 - (void)dataChannel:(RTCDataChannel *)dataChannel didReceiveMessageWithBuffer:(RTCDataBuffer *)buffer
 {
-    NSDictionary *message = [self getDataChannelMessageFromJSONData:buffer.data];
-    NSString *messageType = [message objectForKey:@"type"];
-    id messagePayload = [message objectForKey:@"payload"];
-    
-    [self setStatusForDataChannelMessageType:messageType withPayload:messagePayload];
+    [[WebRTCCommon shared] dispatch:^{
+        NSDictionary *message = [self getDataChannelMessageFromJSONData:buffer.data];
+        NSString *messageType = [message objectForKey:@"type"];
+        id messagePayload = [message objectForKey:@"payload"];
+
+        [self setStatusForDataChannelMessageType:messageType withPayload:messagePayload];
+    }];
 }
 
 - (NSDictionary *)getDataChannelMessageFromJSONData:(NSData *)jsonData
@@ -372,16 +398,18 @@
 
 - (void)sendDataChannelMessageOfType:(NSString *)type withPayload:(id)payload
 {
+    [[WebRTCCommon shared] assertQueue];
+
     NSDictionary *message = @{@"type": type};
-    
+
     if (payload) {
         message = @{@"type": type,
                     @"payload": payload};
     }
-    
+
     NSData *jsonMessage = [self createDataChannelMessage:message];
     RTCDataBuffer *dataBuffer = [[RTCDataBuffer alloc] initWithData:jsonMessage isBinary:NO];
-    
+
     if (_localDataChannel) {
         [_localDataChannel sendData:dataBuffer];
     } else if (_remoteDataChannel) {
@@ -392,8 +420,7 @@
 }
 
 #pragma mark - RTCSessionDescriptionDelegate
-// Callbacks for this delegate occur on non-main thread and need to be
-// dispatched back to main queue as needed.
+// Delegates from RTCSessionDescription are already dispatched to the webrtc client thread
 
 - (void)peerConnectionDidCreateLocalSessionDescription:(RTCSessionDescription *)sdp error:(NSError *)error
 {
@@ -401,24 +428,26 @@
         NSLog(@"Failed to create local session description for peer %@. Error: %@", _peerId, error);
         return;
     }
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        //NSLog(@"Did create local session description of type %@ for peer %@", [RTCSessionDescription stringForType:sdp.type], self->_peerId);
 
-        // Set H264 as preferred codec.
-        RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sdp preferredVideoCodec:@"H264"];
-        __weak NCPeerConnection *weakSelf = self;
-        [self->_peerConnection setLocalDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
-            if (error) {
-                NSLog(@"Failed to set local session description: %@", error);
-                return;
-            }
+    [[WebRTCCommon shared] assertQueue];
+
+    // Set H264 as preferred codec.
+    RTCSessionDescription *sdpPreferringCodec = [ARDSDPUtils descriptionForDescription:sdp preferredVideoCodec:@"H264"];
+
+    __weak NCPeerConnection *weakSelf = self;
+    [self->_peerConnection setLocalDescription:sdpPreferringCodec completionHandler:^(NSError *error) {
+        if (error) {
+            NSLog(@"Failed to set local session description: %@", error);
+            return;
+        }
+
+        [[WebRTCCommon shared] dispatch:^{
             NCPeerConnection *strongSelf = weakSelf;
             if (strongSelf) {
                 [strongSelf.delegate peerConnection:strongSelf needsToSendSessionDescription:sdpPreferringCodec];
             }
         }];
-    });
+    }];
 }
 
 - (void)peerConnectionDidSetRemoteSessionDescription:(RTCSessionDescription *)sessionDescription error:(NSError *)error
@@ -427,34 +456,34 @@
         NSLog(@"Failed to set remote session description for peer %@. Error: %@", _peerId, error);
         return;
     }
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        //NSLog(@"Did set remote session description of type %@ for peer %@", [RTCSessionDescription stringForType:sessionDescription.type], self->_peerId);
 
-        // If we just set a remote offer we need to create an answer and set it as local description.
-        if (self->_peerConnection.signalingState == RTCSignalingStateHaveRemoteOffer) {
-            //NSLog(@"Creating answer for peer %@", self->_peerId);
-            
-            //Create data channel before sending answer
-            RTCDataChannelConfiguration* config = [[RTCDataChannelConfiguration alloc] init];
-            config.isNegotiated = NO;
-            self->_localDataChannel = [self->_peerConnection dataChannelForLabel:@"status" configuration:config];
-            self->_localDataChannel.delegate = self;
-            // Create answer
-            RTCMediaConstraints *constraints = [self defaultAnswerConstraints];
-            __weak NCPeerConnection *weakSelf = self;
-            [self->_peerConnection answerForConstraints:constraints completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
+    [[WebRTCCommon shared] assertQueue];
+
+    // If we just set a remote offer we need to create an answer and set it as local description.
+    if (self->_peerConnection.signalingState == RTCSignalingStateHaveRemoteOffer) {
+        // Create data channel before sending answer
+        RTCDataChannelConfiguration* config = [[RTCDataChannelConfiguration alloc] init];
+        config.isNegotiated = NO;
+        self->_localDataChannel = [self->_peerConnection dataChannelForLabel:@"status" configuration:config];
+        self->_localDataChannel.delegate = self;
+
+        // Create answer
+        RTCMediaConstraints *constraints = [self defaultAnswerConstraints];
+
+        __weak NCPeerConnection *weakSelf = self;
+        [self->_peerConnection answerForConstraints:constraints completionHandler:^(RTCSessionDescription *sdp, NSError *error) {
+            [[WebRTCCommon shared] dispatch:^{
                 NCPeerConnection *strongSelf = weakSelf;
                 if (strongSelf) {
                     [strongSelf peerConnectionDidCreateLocalSessionDescription:sdp error:error];
                 }
             }];
-        }
-        
-        if (self->_peerConnection.remoteDescription) {
-            [self drainRemoteCandidates];
-        }
-    });
+        }];
+    }
+
+    if (self->_peerConnection.remoteDescription) {
+        [self drainRemoteCandidates];
+    }
 }
 
 #pragma mark - Utils

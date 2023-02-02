@@ -83,7 +83,6 @@
 - (void)sendDataChannelMessageOfType:(NSString *)type withPayload:(id)payload;
 - (void)setStatusForDataChannelMessageType:(NSString *)type withPayload:(id)payload;
 - (void)drainRemoteCandidates;
-- (void)removeRemoteCandidates;
 - (void)close;
 
 @end

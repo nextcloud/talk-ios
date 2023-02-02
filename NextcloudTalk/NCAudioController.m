@@ -24,6 +24,8 @@
 
 #import "CallKitManager.h"
 
+#import "NextcloudTalk-Swift.h"
+
 NSString * const AudioSessionDidChangeRouteNotification         = @"AudioSessionDidChangeRouteNotification";
 NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSessionWasActivatedByProviderNotification";
 
@@ -80,6 +82,8 @@ NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSession
 
 - (void)changeAudioSessionConfigurationModeTo:(NSString *)mode
 {
+    [[WebRTCCommon shared] assertQueue];
+
     RTCAudioSessionConfiguration *configuration = [RTCAudioSessionConfiguration webRTCConfiguration];
     configuration.category = AVAudioSessionCategoryPlayAndRecord;
     configuration.mode = mode;
@@ -87,6 +91,7 @@ NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSession
     [_rtcAudioSession lockForConfiguration];
     BOOL hasSucceeded = NO;
     NSError *error = nil;
+
     if (_rtcAudioSession.isActive) {
         hasSucceeded = [_rtcAudioSession setConfiguration:configuration error:&error];
     } else {
@@ -94,20 +99,27 @@ NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSession
                                           active:YES
                                            error:&error];
     }
+
     if (!hasSucceeded) {
         NSLog(@"Error setting configuration: %@", error.localizedDescription);
     }
+
     [_rtcAudioSession unlockForConfiguration];
 }
 
 - (void)disableAudioSession
 {
+    [[WebRTCCommon shared] assertQueue];
+
     [_rtcAudioSession lockForConfiguration];
+
     NSError *error = nil;
     BOOL hasSucceeded = [_rtcAudioSession setActive:NO error:&error];
+
     if (!hasSucceeded) {
         NSLog(@"Error setting configuration: %@", error.localizedDescription);
     }
+
     [_rtcAudioSession unlockForConfiguration];
 }
 
@@ -118,9 +130,11 @@ NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSession
 
 - (void)providerDidActivateAudioSession:(AVAudioSession *)audioSession
 {
+    [[WebRTCCommon shared] assertQueue];
+
     [_rtcAudioSession audioSessionDidActivate:audioSession];
     _rtcAudioSession.isAudioEnabled = YES;
-    
+
     [[NSNotificationCenter defaultCenter] postNotificationName:AudioSessionWasActivatedByProviderNotification
                                                         object:self
                                                       userInfo:nil];
@@ -128,6 +142,8 @@ NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSession
 
 - (void)providerDidDeactivateAudioSession:(AVAudioSession *)audioSession
 {
+    [[WebRTCCommon shared] assertQueue];
+
     [_rtcAudioSession audioSessionDidDeactivate:audioSession];
     _rtcAudioSession.isAudioEnabled = NO;
 }

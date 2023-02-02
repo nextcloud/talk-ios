@@ -26,10 +26,6 @@
 #import "AFNetworkActivityIndicatorManager.h"
 
 #import <Intents/Intents.h>
-
-#import <WebRTC/RTCAudioSession.h>
-#import <WebRTC/RTCAudioSessionConfiguration.h>
-
 #import <UserNotifications/UserNotifications.h>
 
 #import <BackgroundTasks/BGTaskScheduler.h>
@@ -75,9 +71,11 @@
     pushRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
     pushRegistry.delegate = self;
     pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
-    
-    NSLog(@"Configure Audio Session");
-    [NCAudioController sharedInstance];
+
+    [[WebRTCCommon shared] dispatch:^{
+        NSLog(@"Configure Audio Session");
+        [NCAudioController sharedInstance];
+    }];
     
     NSLog(@"Configure App Settings");
     [NCSettingsController sharedInstance];
