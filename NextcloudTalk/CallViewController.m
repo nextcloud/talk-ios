@@ -1584,10 +1584,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [self setCallState:CallStateWaitingParticipants];
 
     // Show chat if it was visible before room switch
-    if (_showChatAfterRoomSwitch && !_chatViewController) {
-        _showChatAfterRoomSwitch = NO;
-        [self toggleChatView];
-    }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
+        if (self->_showChatAfterRoomSwitch && !self->_chatViewController) {
+            self->_showChatAfterRoomSwitch = NO;
+            [self toggleChatView];
+        }
+    });
 }
 
 - (void)callControllerDidFailedJoiningCall:(NCCallController *)callController statusCode:(NSNumber *)statusCode errorReason:(NSString *) errorReason
