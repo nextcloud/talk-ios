@@ -21,7 +21,7 @@
             <rect key="frame" x="0.0" y="0.0" width="290" height="44"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="IxN-fr-8tD" userLabel="AvatarImageView">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="IxN-fr-8tD" userLabel="AvatarImageView">
                     <rect key="frame" x="0.0" y="7" width="30" height="30"/>
                     <constraints>
                         <constraint firstAttribute="width" secondItem="IxN-fr-8tD" secondAttribute="height" multiplier="1:1" id="JYW-6K-xTq"/>
@@ -62,8 +62,10 @@
                 <constraint firstItem="I8S-E1-SNm" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="Nu8-OF-w5n"/>
                 <constraint firstItem="I8S-E1-SNm" firstAttribute="leading" secondItem="IxN-fr-8tD" secondAttribute="trailing" constant="10" id="RzK-wZ-yG9"/>
                 <constraint firstItem="IxN-fr-8tD" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="V8v-Q7-D6r"/>
+                <constraint firstItem="IxN-fr-8tD" firstAttribute="top" relation="greaterThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="top" id="aw0-kd-xYR"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="6PH-NC-M0F" secondAttribute="bottom" id="bSL-rZ-FxA"/>
                 <constraint firstItem="IxN-fr-8tD" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="bfS-1h-ijV"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="IxN-fr-8tD" secondAttribute="bottom" id="j06-qO-wp3"/>
                 <constraint firstItem="6PH-NC-M0F" firstAttribute="top" secondItem="IxN-fr-8tD" secondAttribute="top" priority="750" constant="22" id="mVF-Yo-XXC"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="I8S-E1-SNm" secondAttribute="trailing" id="tGw-MV-n1a"/>
                 <constraint firstItem="I8S-E1-SNm" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="xX6-0N-eyd"/>

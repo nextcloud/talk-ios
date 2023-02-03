@@ -52,6 +52,11 @@ extern CGFloat const kCallParticipantCellMinWidth;
 @property (nonatomic, weak) IBOutlet UIButton *audioOffIndicator;
 @property (nonatomic, weak) IBOutlet UIButton *screensharingIndicator;
 @property (nonatomic, weak) IBOutlet UIButton *raisedHandIndicator;
+@property (nonatomic, weak) IBOutlet NSLayoutConstraint *stackViewBottomConstraint;
+@property (nonatomic, weak) IBOutlet NSLayoutConstraint *stackViewLeftConstraint;
+@property (nonatomic, weak) IBOutlet NSLayoutConstraint *stackViewRightConstraint;
+@property (nonatomic, weak) IBOutlet NSLayoutConstraint *screensharingIndiciatorRightConstraint;
+@property (nonatomic, weak) IBOutlet NSLayoutConstraint *screensharingIndiciatorTopConstraint;
 
 
 - (void)setVideoView:(RTCMTLVideoView *)videoView;
