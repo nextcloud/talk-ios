@@ -775,10 +775,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         // Don't make assumptions about the device here, because with split screen even an iPad can have a compact width
         if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
             [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
-            [self->_titleView setHidden:YES];
         } else {
             [self->_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
-            [self->_titleView setHidden:NO];
         }
         
         // Make sure we get the correct frame for the stack view, after changing the visibility of buttons
@@ -790,11 +788,13 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         if (self->_titleView.frame.size.width < 200) {
             [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
             [self->_titleView setHidden:YES];
-
-            // Need to update the layout again, if we changed it here
-            [self->_topBarView setNeedsLayout];
-            [self->_topBarView layoutIfNeeded];
+        } else {
+            [self->_titleView setHidden:NO];
         }
+
+        // Need to update the layout again, if we changed it here
+        [self->_topBarView setNeedsLayout];
+        [self->_topBarView layoutIfNeeded];
 
         // Hide the speaker button to make some more room for higher priority buttons
         // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
