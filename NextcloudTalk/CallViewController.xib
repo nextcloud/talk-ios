@@ -205,7 +205,7 @@
                     </constraints>
                 </view>
                 <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="aUh-Z0-hO6">
-                    <rect key="frame" x="0.0" y="88" width="1038" height="1258"/>
+                    <rect key="frame" x="0.0" y="88" width="1024" height="1258"/>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" sectionInsetReference="safeArea" id="iSf-tu-VMU" customClass="CallFlowLayout" customModule="NextcloudTalk" customModuleProvider="target">
                         <size key="itemSize" width="50" height="50"/>
@@ -271,7 +271,7 @@
                 <constraint firstItem="fSY-ZT-xIC" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" constant="8" id="ENd-Oe-5YE"/>
                 <constraint firstItem="aUh-Z0-hO6" firstAttribute="top" secondItem="reh-cY-1Qv" secondAttribute="bottom" id="GtW-pl-edb"/>
                 <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="Zzc-Pq-hMC" secondAttribute="trailing" id="IS9-3G-cQz"/>
-                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="aUh-Z0-hO6" secondAttribute="trailing" constant="-14" id="MON-Nu-TFX"/>
+                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="aUh-Z0-hO6" secondAttribute="trailing" id="MON-Nu-TFX"/>
                 <constraint firstItem="Zzc-Pq-hMC" firstAttribute="top" secondItem="reh-cY-1Qv" secondAttribute="bottom" id="SEj-Nc-c8l"/>
                 <constraint firstItem="bbs-K4-b33" firstAttribute="bottom" secondItem="aUh-Z0-hO6" secondAttribute="bottom" id="TOU-Pk-3pi"/>
                 <constraint firstItem="aUh-Z0-hO6" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" id="XPT-Wv-kZY"/>
