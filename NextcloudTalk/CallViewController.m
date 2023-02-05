@@ -282,9 +282,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 
+    [self adjustConstraints];
     [self.collectionView.collectionViewLayout invalidateLayout];
+    
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-        [self adjustConstraints];
         [self setLocalVideoRect];
         [self resizeScreensharingView];
         [self adjustTopBar];
