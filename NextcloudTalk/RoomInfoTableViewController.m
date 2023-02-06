@@ -325,7 +325,7 @@ typedef enum FileAction {
         // Guests section
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionGuests]];
         // Webinar section
-        if (_room.type != kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
+        if (_room.type != kNCRoomTypeOneToOne && _room.type != kNCRoomTypeFormerOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
             [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionWebinar]];
         }
     }

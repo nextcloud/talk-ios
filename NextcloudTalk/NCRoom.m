@@ -206,12 +206,13 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (BOOL)isNameEditable
 {
-    return [self canModerate] && self.type != kNCRoomTypeOneToOne;
+    return [self canModerate] && self.type != kNCRoomTypeOneToOne && self.type != kNCRoomTypeFormerOneToOne;
 }
 
 - (BOOL)isLockedOneToOne
 {
-    return self.type == kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLockedOneToOneRooms];
+    return (self.type == kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLockedOneToOneRooms])
+        || self.type == kNCRoomTypeFormerOneToOne;
 }
 
 - (BOOL)userCanStartCall
@@ -224,7 +225,8 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 
 - (BOOL)hasUnreadMention
 {
-    return self.unreadMention || self.unreadMentionDirect || (self.type == kNCRoomTypeOneToOne && self.unreadMessages > 0);
+    return self.unreadMention || self.unreadMentionDirect || (self.type == kNCRoomTypeOneToOne && self.unreadMessages > 0)
+        || (self.type == kNCRoomTypeFormerOneToOne && self.unreadMessages > 0);
 }
 
 - (BOOL)isLeavable
@@ -233,13 +235,14 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     // (No need to check room type because in one2one rooms users will always be moderators)
     // or when in a group call and there are other participants.
     // We can also check "canLeaveConversation" since v2
-    return self.canLeaveConversation || ![self canModerate] || (self.type != kNCRoomTypeOneToOne && [self.participants count] > 1);
+    return self.canLeaveConversation || ![self canModerate] || (self.type != kNCRoomTypeOneToOne && [self.participants count] > 1)
+        || (self.type != kNCRoomTypeFormerOneToOne && [self.participants count] > 1);
 }
 
 - (NSString *)deletionMessage
 {
     NSString *message = NSLocalizedString(@"Do you really want to delete this conversation?", nil);
-    if (self.type == kNCRoomTypeOneToOne) {
+    if (self.type == kNCRoomTypeOneToOne || self.type == kNCRoomTypeFormerOneToOne) {
         message = [NSString stringWithFormat:NSLocalizedString(@"If you delete the conversation, it will also be deleted for %@", nil), self.displayName];
     } else if ([self.participants count] > 1) {
         message = NSLocalizedString(@"If you delete the conversation, it will also be deleted for all other participants.", nil);
