@@ -1255,7 +1255,7 @@ typedef enum FileAction {
     [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySendCallNotification];
     
     UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:participant.detailedName
+    [UIAlertController alertControllerWithTitle:[self detailedNameForParticipant:participant]
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
@@ -1410,6 +1410,13 @@ typedef enum FileAction {
     }
 }
 
+- (NSString *)detailedNameForParticipant:(NCRoomParticipant *)participant
+{
+    if (participant.canModerate && (_room.type == kNCRoomTypeOneToOne || _room.type == kNCRoomTypeFormerOneToOne)) {
+        return participant.displayName;
+    }
+    return participant.detailedName;
+}
 
 #pragma mark - Public switch
 
@@ -2221,7 +2228,7 @@ typedef enum FileAction {
             }
             
             // Display name
-            cell.labelTitle.text = participant.detailedName;
+            cell.labelTitle.text = [self detailedNameForParticipant:participant];
             
             // Avatar
             if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
