@@ -326,7 +326,11 @@ typedef enum RoomSearchSection {
             [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
             [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
             break;
-            
+
+        case kNCRoomTypeFormerOneToOne:
+            [cell.roomImage setImage:[UIImage imageNamed:@"user"]];
+            break;
+
         default:
             break;
     }

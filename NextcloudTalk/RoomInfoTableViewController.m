@@ -1790,7 +1790,11 @@ typedef enum FileAction {
                     [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
                 }
                     break;
-                    
+
+                case kNCRoomTypeFormerOneToOne:
+                    [cell.roomImage setImage:[UIImage imageNamed:@"user"]];
+                    break;
+
                 default:
                     break;
             }
