@@ -2831,8 +2831,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nextcloud/NextcloudKit";
 			requirement = {
-				kind = exactVersion;
-				version = 1.5.0;
+				branch = develop;
+				kind = branch;
 			};
 		};
 		2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */ = {

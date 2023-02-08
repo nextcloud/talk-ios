@@ -202,7 +202,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
     
     // First read metadata from the file and check if we already downloaded it
     NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
-    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:serverUrlFileName depth:@"0" showHiddenFiles:NO requestBody:nil options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *responseDates, NKError *error) {
+    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:serverUrlFileName depth:@"0" showHiddenFiles:NO includeHiddenFiles:@[] requestBody:nil options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *responseDates, NKError *error) {
         if (error.errorCode == 0 && files.count == 1) {
             // File exists on server -> check our cache
             NKFile *file = files.firstObject;
