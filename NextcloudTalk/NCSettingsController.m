@@ -176,7 +176,16 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     NSURL *appsGroupFolderURL = [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appsGroupIdentifier];
     NSMutableArray *accounts = [NSMutableArray new];
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
-        UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:UIUserInterfaceStyleLight andSize:CGSizeMake(128, 128)];
+        CGSize imageSize = CGSizeMake(128, 128);
+        UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:UIUserInterfaceStyleLight andSize:imageSize];
+        if (accountImage) {
+            UIGraphicsBeginImageContextWithOptions(imageSize, NO, [UIScreen mainScreen].scale);
+            CGRect rect = CGRectMake(0, 0, imageSize.width, imageSize.height);
+            [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:imageSize.height] addClip];
+            [accountImage drawInRect:rect];
+            accountImage = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+        }
         DataAccounts *accountData = [[DataAccounts alloc] initWithUrl:account.server user:account.user name:account.userDisplayName image:accountImage];
         [accounts addObject:accountData];
     }
