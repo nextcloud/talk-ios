@@ -29,8 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 extern NSString *const kTalkDatabaseFolder;
 extern NSString *const kTalkDatabaseFileName;
-extern NSString *const kNextcloudFilesDatabaseFolder;
-extern NSString *const kTalkAccountsFileName;
 extern uint64_t const kTalkDatabaseSchemaVersion;
 
 extern NSString * const kCapabilitySystemMessages;

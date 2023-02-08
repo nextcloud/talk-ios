@@ -171,55 +171,19 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     if (!useAppsGroup) {
         return;
     }
-    // Create Talk directory in apps group container
-    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appsGroupIdentifier] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
-    }
-    NSURL *accountsFileURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkAccountsFileName];
 
     // Create accounts data
+    NSURL *appsGroupFolderURL = [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appsGroupIdentifier];
     NSMutableArray *accounts = [NSMutableArray new];
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
-        NSString *avatarPath = [self copyUserAvatarInPath:path forAccount:account];
-        NKDataAccountFile *accountFileData = [[NKDataAccountFile alloc] initWithUrl:account.server user:account.user alias:account.userDisplayName avatar:avatarPath];
-        [accounts addObject:accountFileData];
+        UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:UIUserInterfaceStyleLight andSize:CGSizeMake(128, 128)];
+        DataAccounts *accountData = [[DataAccounts alloc] initWithUrl:account.server user:account.user name:account.userDisplayName image:accountImage];
+        [accounts addObject:accountData];
     }
 
-    if (!accounts.count) {
-        [self removeAccountsFileAtPath:accountsFileURL.path];
-        return;
-    }
-
-    [[NKCommon shared] createDataAccountFileAt:accountsFileURL accounts:accounts];
-}
-
-- (void)removeAccountsFileAtPath:(NSString *)path
-{
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError *error = nil;
-    if ([fileManager fileExistsAtPath:path]) {
-        [fileManager removeItemAtPath:path error:&error];
-        NSLog(@"Removed accounts file. Error: %@", error);
-    }
-}
-
-- (NSString *)copyUserAvatarInPath:(NSString *)path forAccount:(TalkAccount *)account
-{
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *documentsPath = [[fileManager containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] path];
-    NSString *fileName = [NSString stringWithFormat:@"%@-%@.png", account.userId, [[NSURL URLWithString:account.server] host]];
-    NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
-    NSString *copyPath = [path stringByAppendingPathComponent:fileName];
-
-    NSError *error = nil;
-    if ([fileManager fileExistsAtPath:copyPath]) {
-        [fileManager removeItemAtPath:copyPath error:&error];
-    }
-    [fileManager copyItemAtPath:filePath toPath:copyPath error:&error];
-    NSLog(@"Copied profile picture. Error: %@", error);
-
-    return error ? nil : copyPath;
+    NKShareAccounts *shareAccounts = [[NKShareAccounts alloc] init];
+    NSError *error = [shareAccounts putShareAccountsAt:appsGroupFolderURL app:@"nextcloudtalk" dataAccounts:accounts];
+    NSLog(@"Created accounts file. Error: %@", error);
 }
 
 #pragma mark - Notifications
