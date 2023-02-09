@@ -1220,12 +1220,16 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             for (NCPeerConnection *peerConnection in self->_peersInCall) {
                 // Video renderers
                 RTCMTLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peerConnection.peerId];
-                [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
                 [self->_videoRenderersDict removeObjectForKey:peerConnection.peerId];
+
                 // Screen renderers
                 RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peerConnection.peerId];
-                [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
                 [self->_screenRenderersDict removeObjectForKey:peerConnection.peerId];
+
+                [[WebRTCCommon shared] dispatch:^{
+                    [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
+                    [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
+                }];
             }
         });
         
@@ -1646,9 +1650,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     dispatch_async(dispatch_get_main_queue(), ^{
         RTCMTLVideoView *renderView = [[RTCMTLVideoView alloc] initWithFrame:CGRectZero];
         renderView.delegate = self;
-        RTCVideoTrack *remoteVideoTrack = [remotePeer.remoteStream.videoTracks firstObject];
-        [remoteVideoTrack addRenderer:renderView];
-        
+
+        [[WebRTCCommon shared] dispatch:^{
+            RTCVideoTrack *remoteVideoTrack = [remotePeer.remoteStream.videoTracks firstObject];
+            [remoteVideoTrack addRenderer:renderView];
+        }];
+
         if ([remotePeer.roomType isEqualToString:kRoomTypeVideo]) {
             [self->_videoRenderersDict setObject:renderView forKey:remotePeer.peerId];
             NSIndexPath *indexPath = [self indexPathForPeerId:remotePeer.peerId];
@@ -1836,14 +1843,18 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerId];
-        [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
         [self->_screenRenderersDict removeObjectForKey:peer.peerId];
         [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
             [cell setScreenShared:NO];
         }];
+
         if (self->_screenView == screenRenderer) {
             [self closeScreensharingButtonPressed:self];
         }
+
+        [[WebRTCCommon shared] dispatch:^{
+            [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
+        }];
     });
 }
 
@@ -2042,8 +2053,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         for (NCPeerConnection *peer in _pendingPeerDeletions) {
             // Video renderers
             RTCMTLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peer.peerId];
-            [[peer.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
             [self->_videoRenderersDict removeObjectForKey:peer.peerId];
+
+            [[WebRTCCommon shared] dispatch:^{
+                [[peer.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
+            }];
 
             // Screen renderers
             [self removeScreensharingOfPeer:peer];
