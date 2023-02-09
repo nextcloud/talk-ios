@@ -65,24 +65,26 @@ class CallFlowLayout: UICollectionViewFlowLayout {
         guard let collectionView = collectionView else { return 1 }
 
         let contentSize = collectionView.bounds.size
+        let cellMinWidth = kCallParticipantCellMinHeight * targetAspectRatio + minimumInteritemSpacing
 
-        if (contentSize.width / kCallParticipantCellMinWidth).rounded(.down) < 1 {
+        if (contentSize.width / cellMinWidth).rounded(.down) < 1 {
             return 1
         }
 
-        return Int((contentSize.width / kCallParticipantCellMinWidth).rounded(.down))
+        return Int((contentSize.width / cellMinWidth).rounded(.down))
     }
 
     func rowsMax() -> Int {
         guard let collectionView = collectionView else { return 1 }
 
         let contentSize = collectionView.bounds.size
+        let cellMinHeight = kCallParticipantCellMinHeight + minimumLineSpacing
 
-        if (contentSize.height / kCallParticipantCellMinHeight).rounded(.down) < 1 {
+        if (contentSize.height / cellMinHeight).rounded(.down) < 1 {
             return 1
         }
 
-        return Int((contentSize.height / kCallParticipantCellMinHeight).rounded(.down))
+        return Int((contentSize.height / cellMinHeight).rounded(.down))
     }
 
     // Based on the makeGrid method of web:
