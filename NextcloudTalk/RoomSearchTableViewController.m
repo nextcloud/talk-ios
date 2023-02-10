@@ -298,11 +298,11 @@ typedef enum RoomSearchSection {
     
     // Set unread messages
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag]) {
-        BOOL mentioned = room.unreadMentionDirect || room.type == kNCRoomTypeOneToOne;
+        BOOL mentioned = room.unreadMentionDirect || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
         BOOL groupMentioned = room.unreadMention && !room.unreadMentionDirect;
         [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:groupMentioned];
     } else {
-        BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne;
+        BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
         [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
     
@@ -326,7 +326,11 @@ typedef enum RoomSearchSection {
             [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
             [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
             break;
-            
+
+        case kNCRoomTypeFormerOneToOne:
+            [cell.roomImage setImage:[UIImage imageNamed:@"user"]];
+            break;
+
         default:
             break;
     }

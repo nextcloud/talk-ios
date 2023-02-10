@@ -325,7 +325,7 @@ typedef enum FileAction {
         // Guests section
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionGuests]];
         // Webinar section
-        if (_room.type != kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
+        if (_room.type != kNCRoomTypeOneToOne && _room.type != kNCRoomTypeFormerOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityWebinaryLobby]) {
             [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionWebinar]];
         }
     }
@@ -1255,7 +1255,7 @@ typedef enum FileAction {
     [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySendCallNotification];
     
     UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:participant.detailedName
+    [UIAlertController alertControllerWithTitle:[self detailedNameForParticipant:participant]
                                         message:nil
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
@@ -1410,6 +1410,13 @@ typedef enum FileAction {
     }
 }
 
+- (NSString *)detailedNameForParticipant:(NCRoomParticipant *)participant
+{
+    if (participant.canModerate && (_room.type == kNCRoomTypeOneToOne || _room.type == kNCRoomTypeFormerOneToOne)) {
+        return participant.displayName;
+    }
+    return participant.detailedName;
+}
 
 #pragma mark - Public switch
 
@@ -1790,7 +1797,11 @@ typedef enum FileAction {
                     [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
                 }
                     break;
-                    
+
+                case kNCRoomTypeFormerOneToOne:
+                    [cell.roomImage setImage:[UIImage imageNamed:@"user"]];
+                    break;
+
                 default:
                     break;
             }
@@ -2217,7 +2228,7 @@ typedef enum FileAction {
             }
             
             // Display name
-            cell.labelTitle.text = participant.detailedName;
+            cell.labelTitle.text = [self detailedNameForParticipant:participant];
             
             // Avatar
             if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {

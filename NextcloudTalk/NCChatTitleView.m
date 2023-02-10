@@ -114,6 +114,10 @@
         case kNCRoomTypeChangelog:
             [self.avatarimage setImage:[UIImage imageNamed:@"changelog"]];
             break;
+        case kNCRoomTypeFormerOneToOne:
+            [self.avatarimage setImage:[UIImage imageNamed:@"user-15"]];
+            [self.avatarimage setContentMode:UIViewContentModeCenter];
+            break;
         default:
             break;
     }

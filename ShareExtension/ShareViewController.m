@@ -298,7 +298,7 @@
         UIGraphicsEndImageContext();
         [profileButton setImage:profileImage forState:UIControlStateNormal];
     } else {
-        UIImage *profileImage = [[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *profileImage = [[UIImage imageNamed:@"user-profile"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         [profileButton setImage:profileImage forState:UIControlStateNormal];
         profileButton.contentMode = UIViewContentModeCenter;
     }
@@ -585,6 +585,10 @@
         case kNCRoomTypeChangelog:
             [cell.avatarImageView setImage:[UIImage imageNamed:@"changelog"]];
             [cell.avatarImageView setContentMode:UIViewContentModeScaleToFill];
+            break;
+
+        case kNCRoomTypeFormerOneToOne:
+            [cell.avatarImageView setImage:[UIImage imageNamed:@"user-18"]];
             break;
             
         default:

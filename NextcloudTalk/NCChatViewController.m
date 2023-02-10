@@ -1616,7 +1616,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                     }];
                     
                     if ([appId isEqualToString:@"profile"]) {
-                        [action setValue:[[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+                        [action setValue:[[UIImage imageNamed:@"user-profile"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
                     } else if ([appId isEqualToString:@"email"]) {
                         [action setValue:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
                     }
@@ -3680,7 +3680,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if ([self isMessageReplyable:message] && _room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId] )
     {
-        UIImage *replyPrivateImage = [[UIImage imageNamed:@"user"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *replyPrivateImage = [[UIImage imageNamed:@"user-profile"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         UIAction *replyPrivateAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply privately", nil) image:replyPrivateImage identifier:nil handler:^(UIAction *action){
             
             [self didPressReplyPrivately:message];
