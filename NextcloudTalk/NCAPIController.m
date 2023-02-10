@@ -102,7 +102,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
     NSString *userToken = [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId];
     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
-    [[NKCommon shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken urlBase:account.server userAgent:userAgent nextcloudVersion:serverCapabilities.versionMajor delegate:self];
+    [[NextcloudKit shared] setupWithAccount:account.accountId user:account.user userId:account.userId password:userToken urlBase:account.server userAgent:userAgent nextcloudVersion:serverCapabilities.versionMajor delegate:self];
 }
 
 - (void)initImageDownloaders
@@ -1821,7 +1821,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
             </d:propfind>";
 
     NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
-    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:serverUrlString depth:depth showHiddenFiles:NO requestBody:[body dataUsingEncoding:NSUTF8StringEncoding] options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *responseDates, NKError *error) {
+    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:serverUrlString depth:depth showHiddenFiles:NO includeHiddenFiles:@[] requestBody:[body dataUsingEncoding:NSUTF8StringEncoding] options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *responseDates, NKError *error) {
         if (error.errorCode == 0 && block) {
             block(files, nil);
         } else if (block) {
@@ -1917,7 +1917,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     
     NSString *bodyRequest = [NSString stringWithFormat:body, account.userId, fileId];
     NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
-    [[NextcloudKit shared] searchBodyRequestWithServerUrl:account.server requestBody:bodyRequest showHiddenFiles:YES options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *data, NKError *error) {
+    [[NextcloudKit shared] searchBodyRequestWithServerUrl:account.server requestBody:bodyRequest showHiddenFiles:YES includeHiddenFiles:@[] options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *data, NKError *error) {
         if (block) {
             if ([files count] > 0) {
                 block([files objectAtIndex:0], error.errorCode, error.errorDescription);
@@ -1936,7 +1936,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *fileServerURL = [self serverFileURLForFilePath:fileServerPath andAccountId:account.accountId];
 
     NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
-    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:fileServerURL depth:@"0" showHiddenFiles:NO requestBody:nil options:options completion:^(NSString *accountId, NSArray<NKFile *> *files, NSData *data, NKError *error) {
+    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:fileServerURL depth:@"0" showHiddenFiles:NO includeHiddenFiles:@[] requestBody:nil options:options completion:^(NSString *accountId, NSArray<NKFile *> *files, NSData *data, NKError *error) {
         // File already exists
         if (error.errorCode == 0 && files.count == 1) {
             NSString *alternativeName = [self alternativeNameForFileName:fileName original:isOriginalName];
@@ -1962,7 +1962,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *attachmentFolderServerURL = [self attachmentFolderServerURLForAccountId:account.accountId];
     NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
 
-    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO requestBody:nil options:options completion:^(NSString *accountId, NSArray<NKFile *> *files, NSData *data, NKError *error) {
+    [[NextcloudKit shared] readFileOrFolderWithServerUrlFileName:attachmentFolderServerURL depth:@"0" showHiddenFiles:NO includeHiddenFiles:@[] requestBody:nil options:options completion:^(NSString *accountId, NSArray<NKFile *> *files, NSData *data, NKError *error) {
         // Attachment folder do not exist
         if (error.errorCode == 404) {
             [[NextcloudKit shared] createFolderWithServerUrlFileName:attachmentFolderServerURL options:options completion:^(NSString *accountId, NSString *ocId, NSDate *data, NKError *error) {

@@ -114,7 +114,7 @@
     NSString *userToken = [[NCKeyChainController sharedInstance] tokenForAccountId:_account.accountId];
     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
 
-    [[NKCommon shared] setupWithAccount:_account.accountId user:_account.user userId:_account.userId password:userToken urlBase:_account.server userAgent:userAgent nextcloudVersion:_serverCapabilities.versionMajor delegate:self];
+    [[NextcloudKit shared] setupWithAccount:_account.accountId user:_account.user userId:_account.userId password:userToken urlBase:_account.server userAgent:userAgent nextcloudVersion:_serverCapabilities.versionMajor delegate:self];
     
     // Set to section
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],

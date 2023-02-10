@@ -38,7 +38,7 @@
 {
     AuthenticationViewController *_authenticationViewController;
     QRCodeLoginController *_qrCodeLoginController;
-    NSMutableArray *_importedFilesAccount;
+    NSMutableArray *_importedNextcloudAccounts;
 }
 
 @end
@@ -253,38 +253,37 @@
         return;
     }
 
-    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appsGroupIdentifier] URLByAppendingPathComponent:kNextcloudFilesDatabaseFolder] path];
-    NSURL *accountsFileURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkAccountsFileName];
-    NSArray *filesAccounts = [[NKCommon shared] readDataAccountFileAt:accountsFileURL];
+    NSURL *appsGroupFolderURL = [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appsGroupIdentifier];
+    NKShareAccounts *shareAccounts = [[NKShareAccounts alloc] init];
+    NSArray *nextcloudAccounts = [shareAccounts getShareAccountAt:appsGroupFolderURL application:[UIApplication sharedApplication]];
     NSArray *talkAccounts = [[NCDatabaseManager sharedInstance] allAccounts];
 
-    _importedFilesAccount = [NSMutableArray new];
-    for (NKDataAccountFile *filesAccount in filesAccounts) {
+    _importedNextcloudAccounts = [NSMutableArray new];
+    for (DataAccounts *nextcloudAccount in nextcloudAccounts) {
         BOOL accountIncluded = NO;
         for (TalkAccount *talkAccount in talkAccounts) {
-            if ([talkAccount.server caseInsensitiveCompare:filesAccount.url] == NSOrderedSame &&
-                [talkAccount.user caseInsensitiveCompare:filesAccount.user] == NSOrderedSame) {
+            if ([talkAccount.server caseInsensitiveCompare:nextcloudAccount.url] == NSOrderedSame &&
+                [talkAccount.user caseInsensitiveCompare:nextcloudAccount.user] == NSOrderedSame) {
                 accountIncluded = YES;
             }
         }
         if (!accountIncluded) {
-            [_importedFilesAccount addObject:filesAccount];
+            [_importedNextcloudAccounts addObject:nextcloudAccount];
         }
     }
 
-    self.importButton.hidden = !_importedFilesAccount.count;
+    self.importButton.hidden = !_importedNextcloudAccounts.count;
 }
 
 - (void)presentImportedAccountsSelector
 {
     NSMutableArray *importedAccounts = [NSMutableArray new];
-    for (NKDataAccountFile *filesAccount in _importedFilesAccount) {
+    for (DataAccounts *nextcloudAccount in _importedNextcloudAccounts) {
         DetailedOption *option = [[DetailedOption alloc] init];
-        option.identifier = filesAccount.user;
-        option.title = (!filesAccount.alias || [filesAccount.alias isEqualToString:@""]) ? filesAccount.user : filesAccount.alias;
-        option.subtitle = filesAccount.url;
-        NSData *imageData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:filesAccount.avatar]];
-        option.image = [UIImage imageWithData:imageData];
+        option.identifier = nextcloudAccount.user;
+        option.title = (!nextcloudAccount.name || [nextcloudAccount.name isEqualToString:@""]) ? nextcloudAccount.user : nextcloudAccount.name;
+        option.subtitle = nextcloudAccount.url;
+        option.image = nextcloudAccount.image;
         [importedAccounts addObject:option];
     }
 
