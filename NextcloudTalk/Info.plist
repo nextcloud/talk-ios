@@ -41,6 +41,7 @@
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>nextcloud</string>
+		<string>nextcloudnotes</string>
 		<string>firefox</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
