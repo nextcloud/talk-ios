@@ -84,6 +84,14 @@ typedef enum NCMessageExpiration {
     NCMessageExpiration4Weeks = 2419200,
 } NCMessageExpiration;
 
+typedef enum NCCallRecordingState {
+    NCCallRecordingStateStopped = 0,
+    NCCallRecordingStateVideoRunning = 1,
+    NCCallRecordingStateAudioRunning = 2,
+    NCCallRecordingStateVideoStarting = 3,
+    NCCallRecordingStateAudioStarting = 4
+} NCCallRecordingState;
+
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;
 
