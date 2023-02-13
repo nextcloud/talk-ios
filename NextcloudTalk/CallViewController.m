@@ -772,6 +772,13 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         self->_recordingButton.hidden = !self->_room.callRecording;
         self->_speakerButton.hidden = NO;
 
+        // Differ between starting a call recording and an actual running call recording
+        if (self->_room.callRecording == NCCallRecordingStateVideoStarting || self->_room.callRecording == NCCallRecordingStateAudioStarting) {
+            self->_recordingButton.tintColor = UIColor.systemGrayColor;
+        } else {
+            self->_recordingButton.tintColor = UIColor.systemRedColor;
+        }
+
         // When the horizontal size is compact (e.g. iPhone portrait) we don't show the 'End call' text on the button
         // Don't make assumptions about the device here, because with split screen even an iPad can have a compact width
         if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
@@ -1771,11 +1778,15 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [self adjustTopBar];
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self->_room.callRecording) {
-            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Call recording started", nil) dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
-        } else {
-            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Call recording stopped", nil) dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
+        NSString *notificationText = NSLocalizedString(@"Call recording stopped", nil);
+
+        if (self->_room.callRecording == NCCallRecordingStateVideoStarting || self->_room.callRecording == NCCallRecordingStateAudioStarting) {
+            notificationText = NSLocalizedString(@"Call recording is starting", nil);
+        } else if (self->_room.callRecording == NCCallRecordingStateVideoRunning || self->_room.callRecording == NCCallRecordingStateAudioRunning) {
+            notificationText = NSLocalizedString(@"Call recording started", nil);
         }
+
+        [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:notificationText dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
     });
 }
 
