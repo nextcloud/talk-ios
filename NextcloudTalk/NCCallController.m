@@ -530,15 +530,19 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)startMonitoringMicrophoneAudioLevel
 {
-    _micAudioLevelTimer = [NSTimer scheduledTimerWithTimeInterval:1.0  target:self selector:@selector(checkMicAudioLevel) userInfo:nil repeats:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_micAudioLevelTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkMicAudioLevel) userInfo:nil repeats:YES];
+    });
 }
 
 - (void)stopMonitoringMicrophoneAudioLevel
 {
-    [_micAudioLevelTimer invalidate];
-    _micAudioLevelTimer = nil;
-    [_recorder stop];
-    _recorder = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_micAudioLevelTimer invalidate];
+        self->_micAudioLevelTimer = nil;
+        [self->_recorder stop];
+        self->_recorder = nil;
+    });
 }
 
 - (void)initRecorder
