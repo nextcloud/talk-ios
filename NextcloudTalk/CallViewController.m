@@ -386,9 +386,13 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 -(void)appWillResignActive:(NSNotification*)notification
 {
-    if (!_isAudioOnly && _callController && [_callController isVideoEnabled]) {
-        // Disable video when the app moves to the background as we can't access the camera anymore.
-        [self disableLocalVideo];
+    if (!_isAudioOnly && _callController) {
+        [_callController getVideoEnabledStateWithCompletionBlock:^(BOOL isEnabled) {
+            if (isEnabled) {
+                // Disable video when the app moves to the background as we can't access the camera anymore.
+                [self disableLocalVideo];
+            }
+        }];
     }
 }
 
@@ -423,11 +427,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     }
     
     BOOL isMuted = [[notification.userInfo objectForKey:@"isMuted"] boolValue];
-    if (isMuted) {
-        [self muteAudio];
-    } else {
-        [self unmuteAudio];
-    }
+    [self setAudioMuted:isMuted];
 }
 
 - (void)providerDidEndCall:(NSNotification *)notification
@@ -1030,18 +1030,26 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)pushToTalkStart
 {
-    if (_callController && ![_callController isAudioEnabled]) {
-        [self unmuteAudio];
-
-        [_buttonFeedbackGenerator impactOccurred];
-        _pushToTalkActive = YES;
+    if (!_callController) {
+        return;
     }
+
+    [_callController getAudioEnabledStateWithCompletionBlock:^(BOOL isEnabled) {
+        if (!isEnabled) {
+            [self setAudioMuted:NO];
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self->_buttonFeedbackGenerator impactOccurred];
+                self->_pushToTalkActive = YES;
+            });
+        }
+    }];
 }
 
 - (void)pushToTalkEnd
 {
     if (_pushToTalkActive) {
-        [self muteAudio];
+        [self setAudioMuted:YES];
 
         _pushToTalkActive = NO;
     }
@@ -1049,26 +1057,24 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (IBAction)audioButtonPressed:(id)sender
 {
-    if (!_callController) {return;}
-    
-    if ([_callController isAudioEnabled]) {
-        if ([CallKitManager isCallKitAvailable]) {
-            [[CallKitManager sharedInstance] changeAudioMuted:YES forCall:_room.token];
-        } else {
-            [self muteAudio];
-        }
-    } else {
-        if ([CallKitManager isCallKitAvailable]) {
-            [[CallKitManager sharedInstance] changeAudioMuted:NO forCall:_room.token];
-        } else {
-            [self unmuteAudio];
-        }
+    if (!_callController) {
+        return;
     }
+
+    [_callController getAudioEnabledStateWithCompletionBlock:^(BOOL isEnabled) {
+        if ([CallKitManager isCallKitAvailable]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[CallKitManager sharedInstance] changeAudioMuted:isEnabled forCall:self->_room.token];
+            });
+        } else {
+            [self setAudioMuted:isEnabled];
+        }
+    }];
 }
 
 - (void)forceMuteAudio
 {
-    [self muteAudio];
+    [self setAudioMuted:YES];
 
     NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
     NSString *forceMutedString = NSLocalizedString(@"You have been muted by a moderator", nil);
@@ -1079,51 +1085,43 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     });
 }
 
-- (void)muteAudio
+- (void)setAudioMuted:(BOOL)isMuted
 {
-    [_callController enableAudio:NO];
-    [self setAudioMuteButtonActive:NO];
-}
-
-- (void)unmuteAudio
-{
-    [_callController enableAudio:YES];
-    [self setAudioMuteButtonActive:YES];
+    [_callController enableAudio:!isMuted];
+    [self setAudioMuteButtonActive:!isMuted];
 }
 
 - (IBAction)videoButtonPressed:(id)sender
 {
-    if (!_callController) {return;}
-    
-    if ([_callController isVideoEnabled]) {
-        [self disableLocalVideo];
-        _userDisabledVideo = YES;
-    } else {
-        [self enableLocalVideo];
-        _userDisabledVideo = NO;
+    if (!_callController) {
+        return;
     }
+    
+    [_callController getVideoEnabledStateWithCompletionBlock:^(BOOL isEnabled) {
+        [self setLocalVideoEnabled:!isEnabled];
+        self->_userDisabledVideo = isEnabled;
+    }];
 }
 
 - (void)disableLocalVideo
 {
-    [_callController enableVideo:NO];
-    [self setLocalVideoViewHidden:YES];
-    [self setVideoDisableButtonActive:NO];
+    [self setLocalVideoEnabled:NO];
 }
 
 - (void)enableLocalVideo
 {
-    [_callController enableVideo:YES];
-    [self setLocalVideoViewHidden:NO];
-    [self setVideoDisableButtonActive:YES];
+    [self setLocalVideoEnabled:YES];
+}
+
+- (void)setLocalVideoEnabled:(BOOL)enabled
+{
+    [_callController enableVideo:enabled];
+
+    [self setLocalVideoViewHidden:!enabled];
+    [self setVideoDisableButtonActive:enabled];
 }
 
 - (IBAction)switchCameraButtonPressed:(id)sender
-{
-    [self switchCamera];
-}
-
-- (void)switchCamera
 {
     [_callController switchCamera];
     [self flipLocalVideoView];
