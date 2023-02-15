@@ -161,6 +161,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerWantsToUpgradeToVideoCall:) name:CallKitManagerWantsToUpgradeToVideoCall object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeRoute:) name:AudioSessionDidChangeRouteNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidActivate:) name:AudioSessionWasActivatedByProviderNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeSpeaker:) name:AudioSessionDidChangeSpeakerIsActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     
@@ -462,6 +463,15 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)audioSessionDidActivate:(NSNotification *)notification
 {
     [self adjustSpeakerButton];
+}
+
+- (void)audioSessionDidChangeSpeaker:(NSNotification *)notification
+{
+    [self adjustSpeakerButton];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self adjustMoreButtonMenu];
+    });
 }
 
 #pragma mark - Local video
@@ -846,7 +856,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         UIImage *speakerImage = [[UIImage imageNamed:@"speaker"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         NSString *speakerActionTitle = NSLocalizedString(@"Speaker", nil);
 
-        if ([[NCAudioController sharedInstance] isSpeakerActive]) {
+        if (![NCAudioController sharedInstance].isSpeakerActive) {
             speakerImage = [[UIImage imageNamed:@"speaker-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         }
 
@@ -899,20 +909,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)adjustSpeakerButton
 {
     [[WebRTCCommon shared] dispatch:^{
-        AVAudioSession *audioSession = [NCAudioController sharedInstance].rtcAudioSession.session;
-        AVAudioSessionPortDescription *currentOutput = nil;
-
-        if (audioSession.currentRoute.outputs.count > 0) {
-            currentOutput = audioSession.currentRoute.outputs[0];
-        }
-
-        if ([currentOutput.portType isEqualToString:AVAudioSessionPortBuiltInSpeaker]) {
-            [self setSpeakerButtonActive:YES];
-        } else {
-            [self setSpeakerButtonActive:NO];
-        }
-
+        NCAudioController *audioController = [NCAudioController sharedInstance];
+        AVAudioSession *audioSession = audioController.rtcAudioSession.session;
         NSUInteger numberOfAvailableInputs = audioSession.availableInputs.count;
+
+        [self setSpeakerButtonActive:audioController.isSpeakerActive];
 
         dispatch_async(dispatch_get_main_queue(), ^{
             // Show AirPlay button if there are more audio routes available
@@ -1140,7 +1141,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (IBAction)speakerButtonPressed:(id)sender
 {
-    if ([[NCAudioController sharedInstance] isSpeakerActive]) {
+    if ([NCAudioController sharedInstance].isSpeakerActive) {
         [self disableSpeaker];
         _userDisabledSpeaker = YES;
     } else {

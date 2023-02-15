@@ -27,17 +27,18 @@
 
 extern NSString * const AudioSessionDidChangeRouteNotification;
 extern NSString * const AudioSessionWasActivatedByProviderNotification;
+extern NSString * const AudioSessionDidChangeSpeakerIsActiveNotification;
 
 @interface NCAudioController : NSObject <RTCAudioSessionDelegate>
 
 @property (nonatomic, strong) RTCAudioSession *rtcAudioSession;
+@property (nonatomic, assign) BOOL isSpeakerActive;
 
 + (instancetype)sharedInstance;
 
 - (void)setAudioSessionToVoiceChatMode;
 - (void)setAudioSessionToVideoChatMode;
 - (void)disableAudioSession;
-- (BOOL)isSpeakerActive;
 - (void)providerDidActivateAudioSession:(AVAudioSession *)audioSession;
 - (void)providerDidDeactivateAudioSession:(AVAudioSession *)audioSession;
 
