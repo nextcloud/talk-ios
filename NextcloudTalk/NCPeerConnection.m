@@ -467,6 +467,17 @@
         self->_localDataChannel = [self->_peerConnection dataChannelForLabel:@"status" configuration:config];
         self->_localDataChannel.delegate = self;
 
+        // Stop video transceiver in audio only peer connections
+        // Constraints are no longer supported when creating answers (with Unified Plan semantics)
+        if (_isAudioOnly) {
+            for (RTCRtpTransceiver *transceiver in self->_peerConnection.transceivers) {
+                if (transceiver.mediaType == RTCRtpMediaTypeVideo) {
+                    [transceiver stopInternal];
+                    NSLog(@"Stop video transceiver in audio only peer connections.");
+                }
+            }
+        }
+
         // Create answer
         RTCMediaConstraints *constraints = [self defaultAnswerConstraints];
 
