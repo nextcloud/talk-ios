@@ -2585,6 +2585,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+- (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url
+{
+    NSMutableURLRequest *thumbnailRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
+    return thumbnailRequest;
+}
+
 #pragma - Recording
 
 - (NSURLSessionDataTask *)startRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StartRecordingCompletionBlock)block
@@ -2635,12 +2641,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 
     return task;
-}
-
-- (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url
-{
-    NSMutableURLRequest *thumbnailRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
-    return thumbnailRequest;
 }
 
 #pragma mark - Error handling
