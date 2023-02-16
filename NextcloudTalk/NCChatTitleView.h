@@ -24,12 +24,21 @@
 
 #import "NCRoom.h"
 
+@class NCChatTitleView;
+@protocol NCChatTitleViewDelegate <NSObject>
+
+- (void)chatTitleViewTapped:(NCChatTitleView *)titleView;
+
+@end
+
 @interface NCChatTitleView : UIView
 
-@property (weak, nonatomic) IBOutlet UIButton *titleButton;
+@property (nonatomic, weak) id<NCChatTitleViewDelegate> delegate;
+@property (weak, nonatomic) IBOutlet UITextView *titleTextView;
 @property (weak, nonatomic) IBOutlet UIImageView *avatarimage;
 @property (weak, nonatomic) IBOutlet UIImageView *userStatusImage;
 @property (assign, nonatomic) BOOL showSubtitle;
+@property (strong, nonatomic) UIColor *titleTextColor;
 
 - (void)updateForRoom:(NCRoom *)room;
 

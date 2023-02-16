@@ -230,7 +230,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     self.moreMenuButton.showsMenuAsPrimaryAction = YES;
 
     // Text color should be always white in the call view
-    [self.titleView.titleButton setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
+    [self.titleView setTitleTextColor:UIColor.whiteColor];
     [self.titleView updateForRoom:_room];
 
     // The titleView uses the themeColor as a background for the userStatusImage
@@ -238,9 +238,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     if (_room.statusMessage && ![_room.statusMessage isEqualToString:@""]) {
         [self.titleView.userStatusImage setBackgroundColor:UIColor.blackColor];
     }
-
-    // Prevent squished texts while animating the sidebar
-    [self.titleView.titleButton.titleLabel setContentMode:UIViewContentModeLeft];
     
     self.collectionView.delegate = self;
     
@@ -1317,6 +1314,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [self adjustTopBar];
 
     void (^animations)(void) = ^void() {
+        [self.titleView layoutIfNeeded];
         [self.view layoutIfNeeded];
         [self adjustLocalVideoPositionFromOriginPosition:self.localVideoView.frame.origin];
     };

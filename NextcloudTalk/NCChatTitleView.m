@@ -72,15 +72,22 @@
     self.avatarimage.clipsToBounds = YES;
     self.avatarimage.backgroundColor = [NCAppBranding avatarPlaceholderColor];
 
-    [self.titleButton setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
+    self.titleTextView.textContainer.lineFragmentPadding = 0;
+    self.titleTextView.textContainerInset = UIEdgeInsetsZero;
 
     self.titleFont = [UIFont systemFontOfSize:16 weight:UIFontWeightSemibold];
     self.subtitleFont = [UIFont systemFontOfSize:13];
 
     self.showSubtitle = YES;
+    self.titleTextColor = [NCAppBranding themeTextColor];
 
     // Set empty title on init to prevent showing a placeholder on iPhones in landscape
     [self setTitle:@"" withSubtitle:nil];
+
+    // Use a LongPressGestureRecognizer here to get a "TouchDown" event
+    UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handlGestureRecognizer:)];
+    longPressGestureRecognizer.minimumPressDuration = 0.0;
+    [self.contentView addGestureRecognizer:longPressGestureRecognizer];
 }
 
 - (void)layoutSubviews
@@ -189,24 +196,51 @@
 
 - (void)setTitle:(NSString *)title withSubtitle:(NSString *)subtitle
 {
+    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+    paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
+
     NSMutableAttributedString *attributedTitle = [[NSMutableAttributedString alloc] initWithString:title];
     NSRange rangeTitle = NSMakeRange(0, [title length]);
     [attributedTitle addAttribute:NSFontAttributeName value:self.titleFont range:rangeTitle];
+    [attributedTitle addAttribute:NSForegroundColorAttributeName value:self.titleTextColor range:rangeTitle];
+    [attributedTitle addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:rangeTitle];
 
     if (self.showSubtitle && subtitle != nil) {
         NSMutableAttributedString *attributedSubtitle = [[NSMutableAttributedString alloc] initWithString:subtitle];
         NSRange rangeSubtitle = NSMakeRange(0, [subtitle length]);
         [attributedSubtitle addAttribute:NSFontAttributeName value:self.subtitleFont range:rangeSubtitle];
+        [attributedSubtitle addAttribute:NSForegroundColorAttributeName value:self.titleTextColor range:rangeSubtitle];
+        [attributedSubtitle addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:rangeSubtitle];
 
         [attributedTitle appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n"]];
         [attributedTitle appendAttributedString:attributedSubtitle];
 
-        [self.titleButton.titleLabel setNumberOfLines:2];
+        [self.titleTextView.textContainer setMaximumNumberOfLines:2];
     } else {
-        [self.titleButton.titleLabel setNumberOfLines:1];
+        [self.titleTextView.textContainer setMaximumNumberOfLines:1];
     }
 
-    [self.titleButton setAttributedTitle:attributedTitle forState:UIControlStateNormal];
+    [self.titleTextView setAttributedText:attributedTitle];
+}
+
+-(void)handlGestureRecognizer:(UILongPressGestureRecognizer *)gestureRecognizer
+{
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        // Simulate a pressed stated. Don't use self.alpha here as it will interfere with NavigationController transitions
+        self.titleTextView.alpha = 0.7;
+        self.avatarimage.alpha = 0.7;
+        self.userStatusImage.alpha = 0.7;
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+        // Call delegate & reset the pressed state -> use dispatch after to give the UI time to show the actual pressed state
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            self.titleTextView.alpha = 1.0;
+            self.avatarimage.alpha = 1.0;
+            self.userStatusImage.alpha = 1.0;
+            
+            [self.delegate chatTitleViewTapped:self];
+        });
+
+    }
 }
 
 @end

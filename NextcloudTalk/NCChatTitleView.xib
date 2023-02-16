@@ -12,12 +12,12 @@
             <connections>
                 <outlet property="avatarimage" destination="IxN-fr-8tD" id="vfr-Ig-iBi"/>
                 <outlet property="contentView" destination="iN0-l3-epB" id="Ubk-5l-dVr"/>
-                <outlet property="titleButton" destination="I8S-E1-SNm" id="K98-AI-AC3"/>
+                <outlet property="titleTextView" destination="iXw-ly-0h6" id="6aa-7m-Yai"/>
                 <outlet property="userStatusImage" destination="6PH-NC-M0F" id="jwk-DI-i5s"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" id="iN0-l3-epB">
+        <view contentMode="left" id="iN0-l3-epB">
             <rect key="frame" x="0.0" y="0.0" width="290" height="44"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
@@ -37,38 +37,40 @@
                         <constraint firstAttribute="height" priority="750" constant="12" id="qvI-6m-Hy5"/>
                     </constraints>
                 </imageView>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="I8S-E1-SNm" userLabel="TitleButton">
-                    <rect key="frame" x="40" y="0.0" width="250" height="44"/>
-                    <constraints>
-                        <constraint firstAttribute="width" relation="greaterThanOrEqual" id="d6R-v2-Oja"/>
-                    </constraints>
-                    <state key="normal">
-                        <attributedString key="attributedTitle">
-                            <fragment content="TitleButton">
-                                <attributes>
-                                    <color key="NSColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                    <font key="NSFont" metaFont="system" size="16"/>
-                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
-                                </attributes>
-                            </fragment>
-                        </attributedString>
-                    </state>
-                </button>
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" bounces="NO" scrollEnabled="NO" bouncesZoom="NO" editable="NO" usesAttributedText="YES" selectable="NO" layoutManager="textKit1" translatesAutoresizingMaskIntoConstraints="NO" id="iXw-ly-0h6">
+                    <rect key="frame" x="40" y="5.6666666666666679" width="250" height="33"/>
+                    <attributedString key="attributedText">
+                        <fragment content="Lorem ipsum dolor sit er elit">
+                            <attributes>
+                                <color key="NSColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <font key="NSFont" metaFont="system" size="14"/>
+                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                            </attributes>
+                        </fragment>
+                        <fragment content=" ">
+                            <attributes>
+                                <color key="NSColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                <font key="NSFont" metaFont="system" size="14"/>
+                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                            </attributes>
+                        </fragment>
+                    </attributedString>
+                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                </textView>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <constraints>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="IxN-fr-8tD" secondAttribute="bottom" priority="750" constant="7" id="1Ih-4p-ulE"/>
+                <constraint firstItem="iXw-ly-0h6" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="2BL-Kl-7lg"/>
                 <constraint firstItem="6PH-NC-M0F" firstAttribute="trailing" secondItem="IxN-fr-8tD" secondAttribute="trailing" constant="4" id="Bbu-wt-u4J"/>
-                <constraint firstItem="I8S-E1-SNm" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="Nu8-OF-w5n"/>
-                <constraint firstItem="I8S-E1-SNm" firstAttribute="leading" secondItem="IxN-fr-8tD" secondAttribute="trailing" constant="10" id="RzK-wZ-yG9"/>
                 <constraint firstItem="IxN-fr-8tD" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="V8v-Q7-D6r"/>
                 <constraint firstItem="IxN-fr-8tD" firstAttribute="top" relation="greaterThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="top" id="aw0-kd-xYR"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="6PH-NC-M0F" secondAttribute="bottom" id="bSL-rZ-FxA"/>
                 <constraint firstItem="IxN-fr-8tD" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="bfS-1h-ijV"/>
+                <constraint firstItem="iXw-ly-0h6" firstAttribute="leading" secondItem="IxN-fr-8tD" secondAttribute="trailing" constant="10" id="eu7-ZM-bS4"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="IxN-fr-8tD" secondAttribute="bottom" id="j06-qO-wp3"/>
                 <constraint firstItem="6PH-NC-M0F" firstAttribute="top" secondItem="IxN-fr-8tD" secondAttribute="top" priority="750" constant="22" id="mVF-Yo-XXC"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="I8S-E1-SNm" secondAttribute="trailing" id="tGw-MV-n1a"/>
-                <constraint firstItem="I8S-E1-SNm" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="xX6-0N-eyd"/>
+                <constraint firstItem="iXw-ly-0h6" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="qGs-Ee-w9L"/>
                 <constraint firstItem="IxN-fr-8tD" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" priority="750" constant="7" id="yax-W8-R8c"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
