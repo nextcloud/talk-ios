@@ -44,6 +44,7 @@
 #import "NCSettingsController.h"
 #import "NCSignalingMessage.h"
 #import "NCUtils.h"
+#import "RoomInfoTableViewController.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -69,7 +70,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 @implementation PendingCellUpdate
 @end
 
-@interface CallViewController () <NCCallControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, RTCVideoViewDelegate, CallParticipantViewCellDelegate, UIGestureRecognizerDelegate>
+@interface CallViewController () <NCCallControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, RTCVideoViewDelegate, CallParticipantViewCellDelegate, UIGestureRecognizerDelegate, NCChatTitleViewDelegate>
 {
     CallState _callState;
     NSMutableArray *_peersInCall;
@@ -238,6 +239,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     if (_room.statusMessage && ![_room.statusMessage isEqualToString:@""]) {
         [self.titleView.userStatusImage setBackgroundColor:UIColor.blackColor];
     }
+
+    self.titleView.delegate = self;
     
     self.collectionView.delegate = self;
     
@@ -2110,5 +2113,17 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     }];
 }
+
+#pragma mark - NCChatTitleViewDelegate
+
+- (void)chatTitleViewTapped:(NCChatTitleView *)titleView
+{
+    RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room];
+
+    roomInfoVC.modalPresentationStyle = UIModalPresentationPageSheet;
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:roomInfoVC];
+    [self presentViewController:navController animated:YES completion:nil];
+}
+
 
 @end
