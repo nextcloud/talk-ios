@@ -107,6 +107,8 @@ typedef void (^GetReferenceForUrlStringCompletionBlock)(NSDictionary *references
 
 typedef void (^StartRecordingCompletionBlock)(NSError *error);
 typedef void (^StopRecordingCompletionBlock)(NSError *error);
+typedef void (^DismissStoredRecordingCompletionBlock)(NSError *error);
+typedef void (^ShareStoredRecordingCompletionBlock)(NSError *error);
 
 extern NSInteger const APIv1;
 extern NSInteger const APIv2;
@@ -264,5 +266,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 // Recording
 - (NSURLSessionDataTask *)startRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StartRecordingCompletionBlock)block;
 - (NSURLSessionDataTask *)stopRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StopRecordingCompletionBlock)block;
+- (NSURLSessionDataTask *)dismissStoredRecordingWithTimestamp:(NSString *)timestamp forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(DismissStoredRecordingCompletionBlock)block;
+- (NSURLSessionDataTask *)shareStoredRecordingWithTimestamp:(NSString *)timestamp withFileId:(NSString *)fileId forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ShareStoredRecordingCompletionBlock)block;
 
 @end
