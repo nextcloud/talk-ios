@@ -259,6 +259,11 @@
               self.peerId);
 
         self.remoteStream = stream;
+
+        if ([stream.videoTracks count] == 0) {
+            self.isRemoteVideoDisabled = YES;
+        }
+
         [self.delegate peerConnection:self didAddStream:stream];
     }];
 }

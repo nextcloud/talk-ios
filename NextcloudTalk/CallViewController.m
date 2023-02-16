@@ -1547,7 +1547,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     BOOL isVideoDisabled = peerConnection.isRemoteVideoDisabled;
 
-    if (_isAudioOnly || peerConnection.remoteStream == nil || [peerConnection.remoteStream.videoTracks count] == 0) {
+    if (_isAudioOnly || peerConnection.remoteStream == nil) {
         isVideoDisabled = YES;
     }
     
@@ -1654,15 +1654,15 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)callController:(NCCallController *)callController didAddStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer
 {
+    [[WebRTCCommon shared] assertQueue];
+
+    RTCMTLVideoView *renderView = [[RTCMTLVideoView alloc] initWithFrame:CGRectZero];
+    renderView.delegate = self;
+
+    RTCVideoTrack *remoteVideoTrack = [remotePeer.remoteStream.videoTracks firstObject];
+    [remoteVideoTrack addRenderer:renderView];
+
     dispatch_async(dispatch_get_main_queue(), ^{
-        RTCMTLVideoView *renderView = [[RTCMTLVideoView alloc] initWithFrame:CGRectZero];
-        renderView.delegate = self;
-
-        [[WebRTCCommon shared] dispatch:^{
-            RTCVideoTrack *remoteVideoTrack = [remotePeer.remoteStream.videoTracks firstObject];
-            [remoteVideoTrack addRenderer:renderView];
-        }];
-
         if ([remotePeer.roomType isEqualToString:kRoomTypeVideo]) {
             [self->_videoRenderersDict setObject:renderView forKey:remotePeer.peerId];
             NSIndexPath *indexPath = [self indexPathForPeerId:remotePeer.peerId];
@@ -1674,9 +1674,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             } else {
                 // This peer already exists in the collection view, so we can just update its cell
 
+                BOOL isVideoDisabled = (self->_isAudioOnly || remotePeer.isRemoteVideoDisabled);
+
                 [self updatePeer:remotePeer block:^(CallParticipantViewCell *cell) {
                     [cell setVideoView:renderView];
-                    [cell setVideoDisabled:self->_isAudioOnly];
+                    [cell setVideoDisabled:isVideoDisabled];
                 }];
             }
         } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
