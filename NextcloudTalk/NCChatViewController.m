@@ -96,7 +96,7 @@ typedef enum NCChatMessageAction {
 
 NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-message";
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, ObjectShareMessageTableViewCellDelegate, PollCreationViewControllerDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, ObjectShareMessageTableViewCellDelegate, PollCreationViewControllerDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate, NCChatTitleViewDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -654,9 +654,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     self.titleView = [[NCChatTitleView alloc] init];
     self.titleView.frame = CGRectMake(0, 0, MAXFLOAT, 30);
-
-    [self.titleView.titleButton addTarget:self action:@selector(titleButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    self.titleView.titleButton.accessibilityHint = NSLocalizedString(@"Double tap to go to conversation information", nil);
+    self.titleView.delegate = self;
+    self.titleView.titleTextView.accessibilityHint = NSLocalizedString(@"Double tap to go to conversation information", nil);
 
     if (self.navigationController.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
         self.titleView.showSubtitle = NO;
@@ -1108,23 +1107,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 }
 
 #pragma mark - Action Methods
-
-- (void)titleButtonPressed:(id)sender
-{
-    RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room fromChatViewController:self];
-    NCSplitViewController *splitViewController = [NCUserInterfaceController sharedInstance].mainViewController;
-
-    if (splitViewController != nil && !splitViewController.isCollapsed) {
-        roomInfoVC.modalPresentationStyle = UIModalPresentationPageSheet;
-        UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:roomInfoVC];
-        [self presentViewController:navController animated:YES completion:nil];
-    } else {
-        [self.navigationController pushViewController:roomInfoVC animated:YES];
-    }
-    
-    // When returning from RoomInfoTableViewController the default keyboard will be shown, so the height might be wrong -> make sure the keyboard is hidden
-    [self dismissKeyboard:YES];
-}
 
 - (void)unreadMessagesButtonPressed:(id)sender
 {
@@ -4059,6 +4041,25 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)previewControllerDidDismiss:(QLPreviewController *)controller
 {
     _isPreviewControllerShown = NO;
+}
+
+#pragma mark - NCChatTitleViewDelegate
+
+- (void)chatTitleViewTapped:(NCChatTitleView *)titleView
+{
+    RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room fromChatViewController:self];
+    NCSplitViewController *splitViewController = [NCUserInterfaceController sharedInstance].mainViewController;
+
+    if (splitViewController != nil && !splitViewController.isCollapsed) {
+        roomInfoVC.modalPresentationStyle = UIModalPresentationPageSheet;
+        UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:roomInfoVC];
+        [self presentViewController:navController animated:YES completion:nil];
+    } else {
+        [self.navigationController pushViewController:roomInfoVC animated:YES];
+    }
+
+    // When returning from RoomInfoTableViewController the default keyboard will be shown, so the height might be wrong -> make sure the keyboard is hidden
+    [self dismissKeyboard:YES];
 }
 
 @end

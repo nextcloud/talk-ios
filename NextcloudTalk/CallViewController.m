@@ -44,6 +44,7 @@
 #import "NCSettingsController.h"
 #import "NCSignalingMessage.h"
 #import "NCUtils.h"
+#import "RoomInfoTableViewController.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -69,7 +70,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 @implementation PendingCellUpdate
 @end
 
-@interface CallViewController () <NCCallControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, RTCVideoViewDelegate, CallParticipantViewCellDelegate, UIGestureRecognizerDelegate>
+@interface CallViewController () <NCCallControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, RTCVideoViewDelegate, CallParticipantViewCellDelegate, UIGestureRecognizerDelegate, NCChatTitleViewDelegate>
 {
     CallState _callState;
     NSMutableArray *_peersInCall;
@@ -231,7 +232,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     self.moreMenuButton.showsMenuAsPrimaryAction = YES;
 
     // Text color should be always white in the call view
-    [self.titleView.titleButton setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
+    [self.titleView setTitleTextColor:UIColor.whiteColor];
     [self.titleView updateForRoom:_room];
 
     // The titleView uses the themeColor as a background for the userStatusImage
@@ -240,8 +241,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         [self.titleView.userStatusImage setBackgroundColor:UIColor.blackColor];
     }
 
-    // Prevent squished texts while animating the sidebar
-    [self.titleView.titleButton.titleLabel setContentMode:UIViewContentModeLeft];
+    self.titleView.delegate = self;
     
     self.collectionView.delegate = self;
     
@@ -1316,6 +1316,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [self adjustTopBar];
 
     void (^animations)(void) = ^void() {
+        [self.titleView layoutIfNeeded];
         [self.view layoutIfNeeded];
         [self adjustLocalVideoPositionFromOriginPosition:self.localVideoView.frame.origin];
     };
@@ -2113,5 +2114,17 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     }];
 }
+
+#pragma mark - NCChatTitleViewDelegate
+
+- (void)chatTitleViewTapped:(NCChatTitleView *)titleView
+{
+    RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room];
+
+    roomInfoVC.modalPresentationStyle = UIModalPresentationPageSheet;
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:roomInfoVC];
+    [self presentViewController:navController animated:YES completion:nil];
+}
+
 
 @end
