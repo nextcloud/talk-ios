@@ -30,6 +30,9 @@
 @class RTCVideoTrack;
 @class RTCCameraVideoCapturer;
 
+typedef void (^GetVideoEnabledStateCompletionBlock)(BOOL isEnabled);
+typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
+
 @protocol NCCallControllerDelegate<NSObject>
 
 - (void)callControllerDidJoinCall:(NCCallController *)callController;
@@ -70,8 +73,8 @@
 - (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId andVoiceChatMode:(BOOL)voiceChatMode;
 - (void)startCall;
 - (void)leaveCall;
-- (BOOL)isVideoEnabled;
-- (BOOL)isAudioEnabled;
+- (void)getVideoEnabledStateWithCompletionBlock:(GetVideoEnabledStateCompletionBlock)block;
+- (void)getAudioEnabledStateWithCompletionBlock:(GetAudioEnabledStateCompletionBlock)block;
 - (void)switchCamera;
 - (void)enableVideo:(BOOL)enable;
 - (void)enableAudio:(BOOL)enable;

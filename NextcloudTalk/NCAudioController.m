@@ -26,8 +26,9 @@
 
 #import "NextcloudTalk-Swift.h"
 
-NSString * const AudioSessionDidChangeRouteNotification         = @"AudioSessionDidChangeRouteNotification";
-NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSessionWasActivatedByProviderNotification";
+NSString * const AudioSessionDidChangeRouteNotification             = @"AudioSessionDidChangeRouteNotification";
+NSString * const AudioSessionWasActivatedByProviderNotification     = @"AudioSessionWasActivatedByProviderNotification";
+NSString * const AudioSessionDidChangeSpeakerIsActiveNotification   = @"AudioSessionDidChangeSpeakerIsActiveNotification";
 
 @implementation NCAudioController
 
@@ -64,6 +65,8 @@ NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSession
         }
         
         [_rtcAudioSession addDelegate:self];
+
+        [self updateIsSpeakerActive];
     }
     return self;
 }
@@ -105,6 +108,8 @@ NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSession
     }
 
     [_rtcAudioSession unlockForConfiguration];
+
+    [self updateIsSpeakerActive];
 }
 
 - (void)disableAudioSession
@@ -123,9 +128,24 @@ NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSession
     [_rtcAudioSession unlockForConfiguration];
 }
 
-- (BOOL)isSpeakerActive
+- (void)updateIsSpeakerActive
 {
-    return [_rtcAudioSession mode] == AVAudioSessionModeVideoChat;
+    AVAudioSession *audioSession = self.rtcAudioSession.session;
+    AVAudioSessionPortDescription *currentOutput = nil;
+
+    if (audioSession.currentRoute.outputs.count > 0) {
+        currentOutput = audioSession.currentRoute.outputs[0];
+    }
+
+    if ([_rtcAudioSession mode] == AVAudioSessionModeVideoChat || [currentOutput.portType isEqualToString:AVAudioSessionPortBuiltInSpeaker]) {
+        self.isSpeakerActive = YES;
+    } else {
+        self.isSpeakerActive = NO;
+    }
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:AudioSessionDidChangeSpeakerIsActiveNotification
+                                                        object:self
+                                                      userInfo:nil];
 }
 
 - (void)providerDidActivateAudioSession:(AVAudioSession *)audioSession

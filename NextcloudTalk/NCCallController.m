@@ -264,16 +264,18 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     NSLog(@"willSwitchToCall");
 
-    BOOL isAudioEnabled = [self isAudioEnabled];
-    BOOL isVideoEnabled = [self isVideoEnabled];
+    [[WebRTCCommon shared] dispatch:^{
+        BOOL isAudioEnabled = [self isAudioEnabled];
+        BOOL isVideoEnabled = [self isVideoEnabled];
 
-    [self stopCallController];
+        [self stopCallController];
 
-    [self leaveCallInServerWithCompletionBlock:^(NSError *error) {
-        if (error) {
-            NSLog(@"Could not leave call. Error: %@", error.description);
-        }
-        [self.delegate callController:self isSwitchingToCall:token withAudioEnabled:isAudioEnabled andVideoEnabled:isVideoEnabled];
+        [self leaveCallInServerWithCompletionBlock:^(NSError *error) {
+            if (error) {
+                NSLog(@"Could not leave call. Error: %@", error.description);
+            }
+            [self.delegate callController:self isSwitchingToCall:token withAudioEnabled:isAudioEnabled andVideoEnabled:isVideoEnabled];
+        }];
     }];
 }
 
@@ -318,13 +320,12 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     [[WebRTCCommon shared] dispatch:^{
         [self cleanCurrentPeerConnections];
+        [self->_localVideoCapturer stopCapture];
+        self->_localVideoCapturer = nil;
+        self->_localAudioTrack = nil;
+        self->_localVideoTrack = nil;
+        self->_connectionsDict = nil;
     }];
-    
-    [_localVideoCapturer stopCapture];
-    _localVideoCapturer = nil;
-    _localAudioTrack = nil;
-    _localVideoTrack = nil;
-    _connectionsDict = nil;
     
     [self stopMonitoringMicrophoneAudioLevel];
     [_signalingController stopAllRequests];
@@ -371,40 +372,68 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (BOOL)isVideoEnabled
 {
+    [[WebRTCCommon shared] assertQueue];
+
     return _localVideoTrack ? _localVideoTrack.isEnabled : NO;
 }
 
 - (BOOL)isAudioEnabled
 {
+    [[WebRTCCommon shared] assertQueue];
+
     return _localAudioTrack ? _localAudioTrack.isEnabled : NO;
+}
+
+- (void)getVideoEnabledStateWithCompletionBlock:(GetAudioEnabledStateCompletionBlock)block
+{
+    [[WebRTCCommon shared] dispatch:^{
+        if (block) {
+            block([self isVideoEnabled]);
+        }
+    }];
+}
+
+- (void)getAudioEnabledStateWithCompletionBlock:(GetAudioEnabledStateCompletionBlock)block
+{
+    [[WebRTCCommon shared] dispatch:^{
+        if (block) {
+            block([self isAudioEnabled]);
+        }
+    }];
 }
 
 - (void)switchCamera
 {
-    [_localVideoCaptureController switchCamera];
+    [[WebRTCCommon shared] dispatch:^{
+        [self->_localVideoCaptureController switchCamera];
+    }];
 }
 
 - (void)enableVideo:(BOOL)enable
 {
-    if (enable) {
-        [_localVideoCaptureController startCapture];
-    } else {
-        [_localVideoCaptureController stopCapture];
-    }
-    
-    [_localVideoTrack setIsEnabled:enable];
-    [self sendDataChannelMessageToAllOfType:enable ? @"videoOn" : @"videoOff" withPayload:nil];
+    [[WebRTCCommon shared] dispatch:^{
+        if (enable) {
+            [self->_localVideoCaptureController startCapture];
+        } else {
+            [self->_localVideoCaptureController stopCapture];
+        }
+
+        [self->_localVideoTrack setIsEnabled:enable];
+        [self sendDataChannelMessageToAllOfType:enable ? @"videoOn" : @"videoOff" withPayload:nil];
+    }];
 }
 
 - (void)enableAudio:(BOOL)enable
 {
-    [_localAudioTrack setIsEnabled:enable];
-    [self sendDataChannelMessageToAllOfType:enable ? @"audioOn" : @"audioOff" withPayload:nil];
+    [[WebRTCCommon shared] dispatch:^{
+        [self->_localAudioTrack setIsEnabled:enable];
+        [self sendDataChannelMessageToAllOfType:enable ? @"audioOn" : @"audioOff" withPayload:nil];
 
-    if (!enable) {
-        _speaking = NO;
-        [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
-    }
+        if (!enable) {
+            self->_speaking = NO;
+            [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
+        }
+    }];
 }
 
 - (void)raiseHand:(BOOL)raised
@@ -571,17 +600,20 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)checkMicAudioLevel
 {
-    if ([self isAudioEnabled]) {
-        [_recorder updateMeters];
-        float averagePower = [_recorder averagePowerForChannel:0];
-        if (averagePower >= -50.0f && !_speaking) {
-            _speaking = YES;
-            [self sendDataChannelMessageToAllOfType:@"speaking" withPayload:nil];
-        } else if (averagePower < -50.0f && _speaking) {
-            _speaking = NO;
-            [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
+    [[WebRTCCommon shared] dispatch:^{
+        if ([self isAudioEnabled]) {
+            [self->_recorder updateMeters];
+            float averagePower = [self->_recorder averagePowerForChannel:0];
+
+            if (averagePower >= -50.0f && !self->_speaking) {
+                self->_speaking = YES;
+                [self sendDataChannelMessageToAllOfType:@"speaking" withPayload:nil];
+            } else if (averagePower < -50.0f && self->_speaking) {
+                self->_speaking = NO;
+                [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
+            }
         }
-    }
+    }];
 }
 
 #pragma mark - Call participants
@@ -603,6 +635,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)createLocalAudioTrack
 {
+    [[WebRTCCommon shared] assertQueue];
+
     RTCPeerConnectionFactory *peerConnectionFactory = [WebRTCCommon shared].peerConnectionFactory;
     RTCAudioSource *source = [peerConnectionFactory audioSourceWithConstraints:nil];
     _localAudioTrack = [peerConnectionFactory audioTrackWithSource:source trackId:kNCAudioTrackId];
@@ -616,6 +650,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)createLocalVideoTrack
 {
+    [[WebRTCCommon shared] assertQueue];
+
 #if !TARGET_IPHONE_SIMULATOR
     RTCPeerConnectionFactory *peerConnectionFactory = [WebRTCCommon shared].peerConnectionFactory;
     RTCVideoSource *source = [peerConnectionFactory videoSource];
@@ -713,16 +749,16 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)sendDataChannelMessageToAllOfType:(NSString *)type withPayload:(id)payload
 {
-    [[WebRTCCommon shared] dispatch:^{
-        if ([self->_externalSignalingController hasMCU]) {
-            [self->_publisherPeerConnection sendDataChannelMessageOfType:type withPayload:payload];
-        } else {
-            NSArray *connectionWrappers = [self.connectionsDict allValues];
-            for (NCPeerConnection *peerConnection in connectionWrappers) {
-                [peerConnection sendDataChannelMessageOfType:type withPayload:payload];
-            }
+    [[WebRTCCommon shared] assertQueue];
+
+    if ([self->_externalSignalingController hasMCU]) {
+        [self->_publisherPeerConnection sendDataChannelMessageOfType:type withPayload:payload];
+    } else {
+        NSArray *connectionWrappers = [self.connectionsDict allValues];
+        for (NCPeerConnection *peerConnection in connectionWrappers) {
+            [peerConnection sendDataChannelMessageOfType:type withPayload:payload];
         }
-    }];
+    }
 }
 
 #pragma mark - External signaling support
@@ -763,7 +799,10 @@ static NSString * const kNCVideoTrackKind = @"video";
                               @"userid":_account.userId,
                               @"name":_account.userDisplayName
                               };
-    [self sendDataChannelMessageToAllOfType:@"nickChanged" withPayload:payload];
+
+    [[WebRTCCommon shared] dispatch:^{
+        [self sendDataChannelMessageToAllOfType:@"nickChanged" withPayload:payload];
+    }];
 }
 
 - (void)startSendingNick
