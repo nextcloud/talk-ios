@@ -75,6 +75,7 @@ NSString * const kCapabilitySendCallNotification    = @"send-call-notification";
 NSString * const kCapabilityTalkPolls               = @"talk-polls";
 NSString * const kCapabilityRaiseHand               = @"raise-hand";
 NSString * const kCapabilityRecordingV1             = @"recording-v1";
+NSString * const kCapabilitySingleConvStatus        = @"single-conversation-status";
 
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 

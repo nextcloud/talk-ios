@@ -139,17 +139,14 @@
     }
 
     NSString *subtitle = nil;
-
-    /*
-     Disabled, until https://github.com/nextcloud/spreed/issues/8411 is fixed
-
+    
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySingleConvStatus]) {
         // User status
         [self setStatusImageForUserStatus:room.status];
 
         // User status message
         if (!room.statusMessage || [room.statusMessage isEqualToString:@""]) {
             // We don't have a dedicated statusMessage -> check the room status itself
-
             if ([room.status isEqualToString:kUserStatusDND]) {
                 subtitle = NSLocalizedString(@"Do not disturb", nil);
             } else if ([room.status isEqualToString:kUserStatusAway]) {
@@ -157,14 +154,13 @@
             }
         } else if (room.statusMessage && ![room.statusMessage isEqualToString:@""]) {
             // A dedicated statusMessage was set -> use it
-
             if (room.statusIcon && ![room.statusIcon isEqualToString:@""]) {
                 subtitle = [NSString stringWithFormat:@"%@ %@", room.statusIcon, room.statusMessage];
             } else {
                 subtitle = room.statusMessage;
             }
         }
-     */
+    }
 
     // Show description in group conversations
     if (room.type != kNCRoomTypeOneToOne && ![room.roomDescription isEqualToString:@""]) {
