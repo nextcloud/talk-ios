@@ -237,9 +237,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     // The titleView uses the themeColor as a background for the userStatusImage
     // As we always have a black background, we need to change that
-    if (_room.statusMessage && ![_room.statusMessage isEqualToString:@""]) {
-        [self.titleView.userStatusImage setBackgroundColor:UIColor.blackColor];
-    }
+    [self.titleView setUserStatusBackgroundColor:UIColor.blackColor];
 
     self.titleView.delegate = self;
     
