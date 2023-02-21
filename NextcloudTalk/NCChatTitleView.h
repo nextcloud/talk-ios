@@ -39,6 +39,7 @@
 @property (weak, nonatomic) IBOutlet UIImageView *userStatusImage;
 @property (assign, nonatomic) BOOL showSubtitle;
 @property (strong, nonatomic) UIColor *titleTextColor;
+@property (strong, nonatomic) UIColor *userStatusBackgroundColor;
 
 - (void)updateForRoom:(NCRoom *)room;
 

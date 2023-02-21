@@ -80,6 +80,7 @@
 
     self.showSubtitle = YES;
     self.titleTextColor = [NCAppBranding themeTextColor];
+    self.userStatusBackgroundColor = [NCAppBranding themeColor];
 
     // Set empty title on init to prevent showing a placeholder on iPhones in landscape
     [self setTitle:@"" withSubtitle:nil];
@@ -94,6 +95,7 @@
 {
     [super layoutSubviews];
     self.avatarimage.layer.cornerRadius = self.avatarimage.bounds.size.width / 2;
+    self.userStatusImage.layer.cornerRadius = self.userStatusImage.bounds.size.width / 2;
 }
 
 - (void)updateForRoom:(NCRoom *)room
@@ -184,9 +186,8 @@
     if (statusImage) {
         [_userStatusImage setImage:statusImage];
         _userStatusImage.contentMode = UIViewContentModeCenter;
-        _userStatusImage.layer.cornerRadius = 6;
         _userStatusImage.clipsToBounds = YES;
-        _userStatusImage.backgroundColor = [NCAppBranding themeColor];
+        _userStatusImage.backgroundColor = _userStatusBackgroundColor;
     }
 }
 
