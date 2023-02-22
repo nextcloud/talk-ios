@@ -1654,13 +1654,15 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     [[WebRTCCommon shared] assertQueue];
 
-    RTCMTLVideoView *renderView = [[RTCMTLVideoView alloc] initWithFrame:CGRectZero];
-    renderView.delegate = self;
-
-    RTCVideoTrack *remoteVideoTrack = [remotePeer.remoteStream.videoTracks firstObject];
-    [remoteVideoTrack addRenderer:renderView];
-
     dispatch_async(dispatch_get_main_queue(), ^{
+        RTCMTLVideoView *renderView = [[RTCMTLVideoView alloc] initWithFrame:CGRectZero];
+
+        [[WebRTCCommon shared] dispatch:^{
+            RTCVideoTrack *remoteVideoTrack = [remotePeer.remoteStream.videoTracks firstObject];
+            renderView.delegate = self;
+            [remoteVideoTrack addRenderer:renderView];
+        }];
+
         if ([remotePeer.roomType isEqualToString:kRoomTypeVideo]) {
             [self->_videoRenderersDict setObject:renderView forKey:remotePeer.peerId];
             NSIndexPath *indexPath = [self indexPathForPeerId:remotePeer.peerId];
