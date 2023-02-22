@@ -725,7 +725,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
         
         // Do not add local stream when using a MCU or to screensharing peers
-        if (![_externalSignalingController hasMCU] || !screensharingPeer) {
+        if (![_externalSignalingController hasMCU] && !screensharingPeer) {
             if (_localAudioTrack) {
                 [peerConnectionWrapper.peerConnection addTrack:_localAudioTrack streamIds:@[kNCMediaStreamId]];
             }
