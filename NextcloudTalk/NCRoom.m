@@ -223,6 +223,18 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
     return YES;
 }
 
+- (BOOL)callRecordingIsInActiveState
+{
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRecordingV1]) {
+        // Starting states and running states are considered active
+        if (self.callRecording != NCCallRecordingStateStopped && self.callRecording != NCCallRecordingStateFailed) {
+            return YES;
+        }
+    }
+
+    return NO;
+}
+
 - (BOOL)hasUnreadMention
 {
     return self.unreadMention || self.unreadMentionDirect || (self.type == kNCRoomTypeOneToOne && self.unreadMessages > 0)

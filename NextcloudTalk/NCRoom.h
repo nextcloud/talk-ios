@@ -89,7 +89,8 @@ typedef enum NCCallRecordingState {
     NCCallRecordingStateVideoRunning = 1,
     NCCallRecordingStateAudioRunning = 2,
     NCCallRecordingStateVideoStarting = 3,
-    NCCallRecordingStateAudioStarting = 4
+    NCCallRecordingStateAudioStarting = 4,
+    NCCallRecordingStateFailed = 5
 } NCCallRecordingState;
 
 extern NSString * const NCRoomObjectTypeFile;
@@ -161,6 +162,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 - (BOOL)isLeavable;
 - (BOOL)userCanStartCall;
 - (BOOL)hasUnreadMention;
+- (BOOL)callRecordingIsInActiveState;
 - (NSString *)deletionMessage;
 - (NSString *)notificationLevelString;
 - (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level;

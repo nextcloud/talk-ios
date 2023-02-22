@@ -777,8 +777,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         self->_videoCallButton.hidden = !self->_isAudioOnly;
 
         self->_lowerHandButton.hidden = !self->_isHandRaised;
-        self->_recordingButton.hidden = !self->_room.callRecording;
         self->_speakerButton.hidden = NO;
+
+        BOOL hideRecordingButton = ![self->_room callRecordingIsInActiveState];
+        self->_recordingButton.hidden = hideRecordingButton;
 
         // Differ between starting a call recording and an actual running call recording
         if (self->_room.callRecording == NCCallRecordingStateVideoStarting || self->_room.callRecording == NCCallRecordingStateAudioStarting) {
@@ -881,17 +883,17 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         [items addObject:raiseHandAction];
     }
 
-    if ([self->_room canModerate] && [[NCSettingsController sharedInstance] isRecordingEnabled]) {
+    if ([self->_room isUserOwnerOrModerator] && [[NCSettingsController sharedInstance] isRecordingEnabled]) {
         UIImage *recordingImage = [UIImage imageNamed:@"record-circle"];
         NSString *recordingActionTitle = NSLocalizedString(@"Start recording", nil);
 
-        if (self->_room.callRecording) {
+        if ([self->_room callRecordingIsInActiveState]) {
             recordingImage = [UIImage imageNamed:@"stop-circle"];
             recordingActionTitle = NSLocalizedString(@"Stop recording", nil);
         }
 
         UIAction *recordingAction = [UIAction actionWithTitle:recordingActionTitle image:recordingImage identifier:nil handler:^(UIAction *action) {
-            if (self->_room.callRecording) {
+            if ([self->_room callRecordingIsInActiveState]) {
                 [self showStopRecordingConfirmationDialog];
             } else {
                 [self->_callController startRecording];
@@ -1784,6 +1786,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             notificationText = NSLocalizedString(@"Call recording is starting", nil);
         } else if (self->_room.callRecording == NCCallRecordingStateVideoRunning || self->_room.callRecording == NCCallRecordingStateAudioRunning) {
             notificationText = NSLocalizedString(@"Call recording started", nil);
+        } else if (self->_room.callRecording == NCCallRecordingStateFailed && self->_room.isUserOwnerOrModerator) {
+            notificationText = NSLocalizedString(@"Call recording failed. Please contact your administrator", nil);
         }
 
         [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:notificationText dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
