@@ -193,6 +193,10 @@
 
 - (void)setTitle:(NSString *)title withSubtitle:(NSString *)subtitle
 {
+    if (!title) {
+        return;
+    }
+
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
