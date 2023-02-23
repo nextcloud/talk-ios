@@ -37,6 +37,7 @@ NSString * const kNCPNTypeChatKey               = @"chat";
 NSString * const kNCPNTypeDeleteKey             = @"delete";
 NSString * const kNCPNTypeDeleteAllKey          = @"delete-all";
 NSString * const kNCPNTypeDeleteMultipleKey     = @"delete-multiple";
+NSString * const kNCPNTypeRecording             = @"recording";
 NSString * const kNCPNAppIdAdminNotificationKey = @"admin_notification_talk";
 
 NSString * const NCPushNotificationJoinChatNotification                 = @"NCPushNotificationJoinChatNotification";
@@ -62,7 +63,6 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
     pushNotification.app = app;
     pushNotification.subject = [jsonDict objectForKey:kNCPNSubjectKey];
     pushNotification.roomToken = [jsonDict objectForKey:kNCPNIdKey];
-    pushNotification.roomId = [[jsonDict objectForKey:kNCPNIdKey] integerValue];
     pushNotification.notificationId = [[jsonDict objectForKey:kNCPNNotifIdKey] integerValue];
     
     NSString *type = [jsonDict objectForKey:kNCPNTypeKey];
@@ -73,6 +73,8 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
         pushNotification.type = NCPushNotificationTypeRoom;
     } else if ([type isEqualToString:kNCPNTypeChatKey]) {
         pushNotification.type = NCPushNotificationTypeChat;
+    } else if ([type isEqualToString:kNCPNTypeRecording]) {
+        pushNotification.type = NCPushNotificationTypeRecording;
     }
     
     pushNotification.accountId = accountId;
