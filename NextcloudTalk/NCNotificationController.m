@@ -37,6 +37,9 @@
 NSString * const NCNotificationControllerWillPresentNotification    = @"NCNotificationControllerWillPresentNotification";
 NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalNotificationJoinChatNotification";
 
+NSString * const NCNotificationActionShareRecording                 = @"SHARE_RECORDING";
+NSString * const NCNotificationActionDismissRecordingNotification   = @"DISMISS_RECORDING_NOTIFICATION";
+
 @interface NCNotificationController () <UNUserNotificationCenterDelegate>
 
 @property (nonatomic, strong) UNUserNotificationCenter *notificationCenter;

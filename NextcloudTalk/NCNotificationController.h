@@ -27,6 +27,9 @@
 extern NSString * const NCNotificationControllerWillPresentNotification;
 extern NSString * const NCLocalNotificationJoinChatNotification;
 
+extern NSString * const NCNotificationActionShareRecording;
+extern NSString * const NCNotificationActionDismissRecordingNotification;
+
 typedef void (^CheckForNewNotificationsCompletionBlock)(NSError *error);
 
 typedef enum {
