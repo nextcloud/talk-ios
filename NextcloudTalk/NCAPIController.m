@@ -2643,7 +2643,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)dismissStoredRecordingWithTimestamp:(NSString *)timestamp forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(DismissStoredRecordingCompletionBlock)block
+- (NSURLSessionDataTask *)dismissStoredRecordingNotificationWithTimestamp:(NSString *)timestamp forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(DismissStoredRecordingCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"recording/%@/notification", encodedToken];
