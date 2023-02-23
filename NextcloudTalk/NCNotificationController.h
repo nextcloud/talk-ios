@@ -37,7 +37,8 @@ typedef enum {
     kNCLocalNotificationTypeCancelledCall,
     kNCLocalNotificationTypeFailedSendChat,
     kNCLocalNotificationTypeCallFromOldAccount,
-    kNCLocalNotificationTypeChatNotification
+    kNCLocalNotificationTypeChatNotification,
+    kNCLocalNotificationTypeFailedToShareRecording
 } NCLocalNotificationType;
 
 @interface NCNotificationController : NSObject
