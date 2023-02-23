@@ -2714,7 +2714,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)updateRoomInformation
 {
-    [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+    [[NCRoomsManager sharedInstance] updateRoom:_room.token withCompletionBlock:nil];
 }
 
 - (BOOL)shouldPresentLobbyView

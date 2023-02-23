@@ -540,7 +540,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }];
 }
 
-- (void)updateRoom:(NSString *)token
+- (void)updateRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
@@ -557,9 +557,14 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
             [userInfo setObject:error forKey:@"error"];
             NSLog(@"Could not update rooms. Error: %@", error.description);
         }
+
         [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidUpdateRoomNotification
                                                             object:self
                                                           userInfo:userInfo];
+
+        if (block) {
+            block(roomDict, error);
+        }
     }];
 }
 

@@ -59,7 +59,7 @@ typedef void (^SendOfflineMessagesCompletionBlock)(void);
 - (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId;
 - (void)updateRoomsAndChatsUpdatingUserStatus:(BOOL)updateStatus withCompletionBlock:(UpdateRoomsAndChatsCompletionBlock)block;
 - (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus;
-- (void)updateRoom:(NSString *)token;
+- (void)updateRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
 - (void)updatePendingMessage:(NSString *)message forRoom:(NCRoom *)room;
 - (void)updateLastReadMessage:(NSInteger)lastReadMessage forRoom:(NCRoom *)room;
 - (void)updateLastMessage:(NCChatMessage *)message withNoUnreadMessages:(BOOL)noUnreadMessages forRoom:(NCRoom *)room;
