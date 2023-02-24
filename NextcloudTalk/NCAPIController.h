@@ -51,6 +51,8 @@ typedef void (^SetSIPStateCompletionBlock)(NSError *error);
 typedef void (^ListableCompletionBlock)(NSError *error);
 typedef void (^MessageExpirationCompletionBlock)(NSError *error);
 
+typedef void (^RequestAssistanceCompletionBlock)(NSError *error);
+
 typedef void (^GetParticipantsFromRoomCompletionBlock)(NSMutableArray *participants, NSError *error);
 typedef void (^LeaveRoomCompletionBlock)(NSInteger errorCode, NSError *error);
 typedef void (^ParticipantModificationCompletionBlock)(NSError *error);
@@ -134,6 +136,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)chatAPIVersionForAccount:(TalkAccount *)accounts;
 - (NSInteger)reactionsAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)pollsAPIVersionForAccount:(TalkAccount *)account;
+- (NSInteger)breakoutRoomsAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
 - (NSString *)filesPathForAccount:(TalkAccount *)account;
 
@@ -162,6 +165,10 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)setSIPState:(NCRoomSIPState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetSIPStateCompletionBlock)block;
 - (NSURLSessionDataTask *)setListableScope:(NCRoomListableScope)scope forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ListableCompletionBlock)block;
 - (NSURLSessionDataTask *)setMessageExpiration:(NCMessageExpiration)messageExpiration forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageExpirationCompletionBlock)block;
+
+// Breakout Rooms Controller
+- (NSURLSessionDataTask *)requestAssistanceInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(RequestAssistanceCompletionBlock)block;
+- (NSURLSessionDataTask *)stopRequestingAssistanceInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(RequestAssistanceCompletionBlock)block;
 
 // Participants Controller
 - (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block;

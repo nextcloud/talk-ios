@@ -95,6 +95,7 @@ typedef enum NCCallRecordingState {
 
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;
+extern NSString * const NCRoomObjectTypeRoom;
 
 @interface NCRoom : RLMObject
 
@@ -156,6 +157,7 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 + (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room;
 
 - (BOOL)isPublic;
+- (BOOL)isBreakoutRoom;
 - (BOOL)isUserOwnerOrModerator;
 - (BOOL)canModerate;
 - (BOOL)isNameEditable;

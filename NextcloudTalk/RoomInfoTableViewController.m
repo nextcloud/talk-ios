@@ -259,7 +259,7 @@ typedef enum FileAction {
 {
     [super viewDidAppear:animated];
     
-    [[NCRoomsManager sharedInstance] updateRoom:_room.token];
+    [[NCRoomsManager sharedInstance] updateRoom:_room.token withCompletionBlock:nil];
     [self getRoomParticipants];
 }
 
@@ -760,7 +760,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] renameRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withName:newRoomName andCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
             NSLog(@"Error renaming the room: %@", error.description);
             [self.tableView reloadData];
@@ -777,7 +777,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
             NSLog(@"Error setting room notification level: %@", error.description);
             [self.tableView reloadData];
@@ -794,7 +794,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] setMessageExpiration:messageExpiration forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
             NSLog(@"Error setting message expiration time: %@", error.description);
             [self.tableView reloadData];
@@ -808,7 +808,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] setCallNotificationEnabled:enabled forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
             NSLog(@"Error setting room call notification: %@", error.description);
             [self.tableView reloadData];
@@ -841,7 +841,7 @@ typedef enum FileAction {
         [self setModifyingRoomUI];
         [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error, NSString *errorDescription) {
             if (!error) {
-                [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+                [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
             } else {
                 NSLog(@"Error setting room password: %@", error.description);
                 [self.tableView reloadData];
@@ -857,7 +857,7 @@ typedef enum FileAction {
             [self setModifyingRoomUI];
             [[NCAPIController sharedInstance] setPassword:@"" toRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error, NSString *errorDescription) {
                 if (!error) {
-                    [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+                    [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
                 } else {
                     NSLog(@"Error changing room password: %@", error.description);
                     [self.tableView reloadData];
@@ -885,7 +885,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] resendInvitationToParticipant:participant inRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
             NSString *toastText = participant ? NSLocalizedString(@"Invitation resent", nil) : NSLocalizedString(@"Invitations resent", nil);
             UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
             CGPoint toastPosition = CGPointMake(cell.center.x, cell.center.y);
@@ -903,7 +903,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] sendCallNotificationToParticipant:participant inRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
             UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
             CGPoint toastPosition = CGPointMake(cell.center.x, cell.center.y);
             [self.view makeToast:NSLocalizedString(@"Call notification sent", nil) duration:1.5 position:@(toastPosition)];
@@ -922,7 +922,7 @@ typedef enum FileAction {
         if (!error) {
             NSIndexPath *indexPath = [self getIndexPathForGuestAction:kGuestActionPublicToggle];
             [self shareRoomLinkFromIndexPath:indexPath];
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
             NSLog(@"Error making public the room: %@", error.description);
             [self.tableView reloadData];
@@ -937,7 +937,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] makeRoomPrivate:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
             NSLog(@"Error making private the room: %@", error.description);
             [self.tableView reloadData];
@@ -986,7 +986,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] setListableScope:scope forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
             NSLog(@"Error setting room listable scope: %@", error.description);
             [self.tableView reloadData];
@@ -1006,7 +1006,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] setReadOnlyState:state forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
             NSLog(@"Error setting room readonly state: %@", error.description);
             [self.tableView reloadData];
@@ -1153,7 +1153,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] setLobbyState:lobbyState withTimer:timer forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
             NSLog(@"Error changing lobby state in room: %@", error.description);
             [self.tableView reloadData];
@@ -1214,7 +1214,7 @@ typedef enum FileAction {
     [self setModifyingRoomUI];
     [[NCAPIController sharedInstance] setSIPState:state forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token];
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
             NSLog(@"Error changing SIP state in room: %@", error.description);
             [self.tableView reloadData];

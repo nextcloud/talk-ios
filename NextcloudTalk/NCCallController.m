@@ -459,6 +459,25 @@ static NSString * const kNCVideoTrackKind = @"video";
             }
         }
     }];
+
+    // Request or stop requesting assistance if we are in a breakout room and we are not moderators
+    if (![_room isBreakoutRoom] || _room.canModerate) {
+        return;
+    }
+
+    if (raised) {
+        [[NCAPIController sharedInstance] requestAssistanceInRoom:_room.token forAccount:_account withCompletionBlock:^(NSError *error) {
+            if (error) {
+                NSLog(@"Error requesting assistance");
+            }
+        }];
+    } else {
+        [[NCAPIController sharedInstance] stopRequestingAssistanceInRoom:_room.token forAccount:_account withCompletionBlock:^(NSError *error) {
+            if (error) {
+                NSLog(@"Error on stop requesting assisntance");
+            }
+        }];
+    }
 }
 
 - (void)startRecording

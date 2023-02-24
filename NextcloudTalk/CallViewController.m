@@ -1808,7 +1808,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     // Connect to new call
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+    [[NCRoomsManager sharedInstance] updateRoom:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
         if (error) {
             NSLog(@"Error getting room to switch");
             return;

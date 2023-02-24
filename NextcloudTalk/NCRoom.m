@@ -26,6 +26,7 @@
 
 NSString * const NCRoomObjectTypeFile           = @"file";
 NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
+NSString * const NCRoomObjectTypeRoom           = @"room";
 
 @implementation NCRoom
 
@@ -192,6 +193,11 @@ NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 - (BOOL)isPublic
 {
     return self.type == kNCRoomTypePublic;
+}
+
+- (BOOL)isBreakoutRoom
+{
+    return [self.objectType isEqualToString:NCRoomObjectTypeRoom];
 }
 
 - (BOOL)isUserOwnerOrModerator
