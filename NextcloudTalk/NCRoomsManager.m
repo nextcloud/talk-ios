@@ -355,6 +355,10 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     NSMutableArray *unmanagedRooms = [NSMutableArray new];
     for (NCRoom *managedRoom in managedRooms) {
         NCRoom *unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
+        // Filter out breakout rooms with lobby enabled
+        if ([unmanagedRoom isBreakoutRoom] && unmanagedRoom.lobbyState == NCRoomLobbyStateModeratorsOnly) {
+            continue;
+        }
         [unmanagedRooms addObject:unmanagedRoom];
     }
     // Sort by favorites

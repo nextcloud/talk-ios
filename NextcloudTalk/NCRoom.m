@@ -197,7 +197,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
 
 - (BOOL)isBreakoutRoom
 {
-    return self.objectType == NCRoomObjectTypeRoom;
+    return [self.objectType isEqualToString:NCRoomObjectTypeRoom];
 }
 
 - (BOOL)isUserOwnerOrModerator
