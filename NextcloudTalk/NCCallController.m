@@ -460,8 +460,8 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
     }];
 
-    // Request or stop requesting assistance if we are in a breakout room
-    if (![_room isBreakoutRoom]) {
+    // Request or stop requesting assistance if we are in a breakout room and we are not moderators
+    if (![_room isBreakoutRoom] || _room.canModerate) {
         return;
     }
 
