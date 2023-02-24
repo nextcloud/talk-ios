@@ -190,8 +190,8 @@
                             self.bestAttemptContent.summaryArgument = serverNotification.chatMessageAuthor;
                         } else if (serverNotification.notificationType == kNCNotificationTypeRecording) {
                             self.bestAttemptContent.categoryIdentifier = @"CATEGORY_RECORDING";
-                            self.bestAttemptContent.title = @"";
-                            self.bestAttemptContent.body = serverNotification.subject;
+                            self.bestAttemptContent.title = serverNotification.subject;
+                            self.bestAttemptContent.body = serverNotification.message;
                             self.bestAttemptContent.summaryArgument = serverNotification.objectId;
                         }
 

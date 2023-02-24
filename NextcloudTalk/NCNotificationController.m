@@ -491,7 +491,7 @@ NSString * const NCNotificationActionDismissRecordingNotification   = @"DISMISS_
     NSString *notificationTimestamp = [NSString stringWithFormat:@"%.0f", notificationTimeInterval];
 
     if ([response.actionIdentifier isEqualToString:NCNotificationActionShareRecording]) {
-        NSDictionary *fileParameters = [serverNotification.subjectRichParameters objectForKey:@"file"];
+        NSDictionary *fileParameters = [serverNotification.messageRichParameters objectForKey:@"file"];
 
         if (!fileParameters || ![fileParameters objectForKey:@"id"]) {
             return;
