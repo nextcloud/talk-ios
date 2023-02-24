@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F1C0D7F29A7F33600D17C6D /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1F1C999E2909846400EACF02 /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F24B5A128E0648600654457 /* ReferenceGithubView.swift */; };
@@ -48,6 +49,8 @@
 		1F98DF9C28E7484700E05174 /* ReferenceDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F98DF9B28E7484700E05174 /* ReferenceDeckView.swift */; };
 		1F98DF9E28E7485000E05174 /* ReferenceDeckView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F98DF9D28E7485000E05174 /* ReferenceDeckView.xib */; };
 		1FA20C8A284001D80062B4F3 /* DebounceWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA20C89284001D80062B4F3 /* DebounceWebView.swift */; };
+		1FA38C9029A4B3C6008871B8 /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
+		1FA38C9129A4B3C6008871B8 /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */; };
 		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
@@ -404,6 +407,7 @@
 		1F98DF9B28E7484700E05174 /* ReferenceDeckView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceDeckView.swift; sourceTree = "<group>"; };
 		1F98DF9D28E7485000E05174 /* ReferenceDeckView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceDeckView.xib; sourceTree = "<group>"; };
 		1FA20C89284001D80062B4F3 /* DebounceWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebounceWebView.swift; sourceTree = "<group>"; };
+		1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCNotificationAction.swift; sourceTree = "<group>"; };
 		1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallFlowLayout.swift; sourceTree = "<group>"; };
 		1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeLoginController.swift; sourceTree = "<group>"; };
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
@@ -1358,6 +1362,7 @@
 		2C9B0B99217F6E3400A4752C /* Notifications */ = {
 			isa = PBXGroup;
 			children = (
+				1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */,
 				2C9B0B9A217F756B00A4752C /* NCNotification.h */,
 				2C9B0B9B217F756B00A4752C /* NCNotification.m */,
 				2CBF82AC1FC888FC00636459 /* NCPushNotification.h */,
@@ -1890,6 +1895,7 @@
 				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */,
+				1FA38C9029A4B3C6008871B8 /* NCNotificationAction.swift in Sources */,
 				2C44B4D127FF05A000AD1C86 /* ReactionsSummaryView.swift in Sources */,
 				DA7558C6279AE67F00A48A1B /* UserStatusTableViewController.swift in Sources */,
 				2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */,
@@ -2057,6 +2063,7 @@
 				2C62AFFD24C1BDA5007E460A /* NCMessageParameter.m in Sources */,
 				1F538197291CFE0A003DA6B7 /* NCAvatarSessionManager.m in Sources */,
 				2C62B00C24C1BDC1007E460A /* NCNotification.m in Sources */,
+				1F1C0D7F29A7F33600D17C6D /* NCNotificationAction.swift in Sources */,
 				2C4446FC265D5C5800DF1DBC /* NCRoomParticipants.m in Sources */,
 				2CB6ACDC2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				2C62AFDF24C1BD8D007E460A /* UIImageView+Letters.m in Sources */,
@@ -2106,6 +2113,7 @@
 				2C4446F6265D593200DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */,
 				1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */,
 				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
+				1FA38C9129A4B3C6008871B8 /* NCNotificationAction.swift in Sources */,
 				2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */,
 				2C4446DE2658158000DF1DBC /* NCChatBlock.m in Sources */,
 				2C5BFBF3288AA37F00E75118 /* NCPoll.m in Sources */,

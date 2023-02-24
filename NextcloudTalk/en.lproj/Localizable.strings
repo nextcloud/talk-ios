@@ -536,6 +536,9 @@
 "Dismiss" = "Dismiss";
 
 /* No comment provided by engineer. */
+"Dismiss notification" = "Dismiss notification";
+
+/* No comment provided by engineer. */
 "Do not disturb" = "Do not disturb";
 
 /* No comment provided by engineer. */
@@ -693,6 +696,9 @@
 
 /* No comment provided by engineer. */
 "Failed to send message" = "Failed to send message";
+
+/* No comment provided by engineer. */
+"Failed to share recording" = "Failed to share recording";
 
 /* No comment provided by engineer. */
 "Federated" = "Federated";
@@ -1305,6 +1311,9 @@
 
 /* Share the location of a pin that has been dropped in a map view */
 "Share pin location" = "Share pin location";
+
+/* No comment provided by engineer. */
+"Share recording to chat" = "Share recording to chat";
 
 /* No comment provided by engineer. */
 "Share with" = "Share with";

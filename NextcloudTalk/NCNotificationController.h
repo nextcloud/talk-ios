@@ -27,6 +27,10 @@
 extern NSString * const NCNotificationControllerWillPresentNotification;
 extern NSString * const NCLocalNotificationJoinChatNotification;
 
+extern NSString * const NCNotificationActionShareRecording;
+extern NSString * const NCNotificationActionDismissRecordingNotification;
+extern NSString * const NCNotificationActionReplyToChat;
+
 typedef void (^CheckForNewNotificationsCompletionBlock)(NSError *error);
 
 typedef enum {
@@ -34,7 +38,8 @@ typedef enum {
     kNCLocalNotificationTypeCancelledCall,
     kNCLocalNotificationTypeFailedSendChat,
     kNCLocalNotificationTypeCallFromOldAccount,
-    kNCLocalNotificationTypeChatNotification
+    kNCLocalNotificationTypeChatNotification,
+    kNCLocalNotificationTypeFailedToShareRecording
 } NCLocalNotificationType;
 
 @interface NCNotificationController : NSObject

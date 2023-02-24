@@ -22,6 +22,8 @@
 
 #import "NCNotification.h"
 
+#import "NextcloudTalk-Swift.h"
+
 @implementation NCNotification
 
 + (instancetype)notificationWithDictionary:(NSDictionary *)notificationDict
@@ -41,7 +43,11 @@
     notification.message = [notificationDict objectForKey:@"message"];
     notification.messageRich = [notificationDict objectForKey:@"messageRich"];
     notification.messageRichParameters = [notificationDict objectForKey:@"messageRichParameters"];
-    
+    notification.actions = [notificationDict objectForKey:@"actions"];
+
+    NSISO8601DateFormatter *formatter = [[NSISO8601DateFormatter alloc] init];
+    notification.datetime = [formatter dateFromString:[notificationDict objectForKey:@"datetime"]];
+
     if (![notification.subjectRichParameters isKindOfClass:[NSDictionary class]]) {
         notification.subjectRichParameters = @{};
     }
@@ -58,6 +64,8 @@
     NCNotificationType type = kNCNotificationTypeRoom;
     if ([_objectType isEqualToString:@"chat"]) {
         type = kNCNotificationTypeChat;
+    } else if ([_objectType isEqualToString:@"recording"]) {
+        type = kNCNotificationTypeRecording;
     } else if ([_objectType isEqualToString:@"call"]) {
         type = kNCNotificationTypeCall;
     }
@@ -124,6 +132,23 @@
     NSError *error = nil;
     NSRegularExpression *parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^}]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
     return [parameterRegex matchesInString:text options:0 range:NSMakeRange(0, [text length])];
+}
+
+- (NSArray *)notificationActions
+{
+    if (!self.actions) {
+        return nil;
+    }
+
+    NSMutableArray *resultActions = [[NSMutableArray alloc] init];
+
+    for (NSDictionary *dict in self.actions) {
+        NCNotificationAction *notificationAction = [[NCNotificationAction alloc] initWithDictionary:dict];
+
+        [resultActions addObject:notificationAction];
+    }
+
+    return resultActions;
 }
 
 @end

@@ -231,7 +231,8 @@
 
 - (void)registerInteractivePushNotification
 {
-    UNTextInputNotificationAction *replyAction = [UNTextInputNotificationAction actionWithIdentifier:@"REPLY_CHAT"
+    // Reply directly to a chat notification action/category
+    UNTextInputNotificationAction *replyAction = [UNTextInputNotificationAction actionWithIdentifier:NCNotificationActionReplyToChat
                                                                                           title:NSLocalizedString(@"Reply", nil)
                                                                                         options:UNNotificationActionOptionAuthenticationRequired];
     
@@ -239,8 +240,22 @@
                                                                               actions:@[replyAction]
                                                                     intentIdentifiers:@[]
                                                                               options:UNNotificationCategoryOptionNone];
-    
-    NSSet *categories = [NSSet setWithObject:chatCategory];
+
+    // Recording actions/category
+    UNNotificationAction *recordingShareAction = [UNNotificationAction actionWithIdentifier:NCNotificationActionShareRecording
+                                                                                      title:NSLocalizedString(@"Share recording to chat", nil)
+                                                                                    options:UNNotificationActionOptionAuthenticationRequired];
+
+    UNNotificationAction *recordingDismissAction = [UNNotificationAction actionWithIdentifier:NCNotificationActionDismissRecordingNotification
+                                                                                      title:NSLocalizedString(@"Dismiss notification", nil)
+                                                                                    options:UNNotificationActionOptionAuthenticationRequired | UNNotificationActionOptionDestructive];
+
+    UNNotificationCategory *recordingCategory = [UNNotificationCategory categoryWithIdentifier:@"CATEGORY_RECORDING"
+                                                                                       actions:@[recordingShareAction, recordingDismissAction]
+                                                                             intentIdentifiers:@[]
+                                                                                       options:UNNotificationCategoryOptionNone];
+
+    NSSet *categories = [NSSet setWithObjects:chatCategory, recordingCategory, nil];
     [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:categories];
 }
 

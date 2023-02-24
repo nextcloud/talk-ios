@@ -34,8 +34,14 @@
 #import "NCUserInterfaceController.h"
 #import "NCUserStatus.h"
 
+#import "NextcloudTalk-Swift.h"
+
 NSString * const NCNotificationControllerWillPresentNotification    = @"NCNotificationControllerWillPresentNotification";
 NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalNotificationJoinChatNotification";
+
+NSString * const NCNotificationActionShareRecording                 = @"SHARE_RECORDING";
+NSString * const NCNotificationActionDismissRecordingNotification   = @"DISMISS_RECORDING_NOTIFICATION";
+NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CHAT";
 
 @interface NCNotificationController () <UNUserNotificationCenterDelegate>
 
@@ -129,6 +135,14 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
         {
             NSString *receivedCallFromOldAccountString = NSLocalizedString(@"Received call from an old account", nil);
             content.body = [NSString stringWithFormat:@"%@", receivedCallFromOldAccountString];
+            content.userInfo = userInfo;
+        }
+            break;
+
+        case kNCLocalNotificationTypeFailedToShareRecording:
+        {
+            NSString *failedToShareRecordingString = NSLocalizedString(@"Failed to share recording", nil);
+            content.body = [NSString stringWithFormat:@"%@", failedToShareRecordingString];
             content.userInfo = userInfo;
         }
             break;
@@ -390,18 +404,15 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler
-{
-    if ([NCRoomsManager sharedInstance].callViewController) {
-        completionHandler();
-        return;
-    }
-    
+{    
     UNNotificationRequest *notificationRequest = response.notification.request;
-    NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notificationRequest.content.userInfo objectForKey:@"localNotificationType"] integerValue];
-    NSString *notificationString = [notificationRequest.content.userInfo objectForKey:@"pushNotification"];
-    NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
+    NSDictionary *userInfo = notificationRequest.content.userInfo;
+
+    NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[userInfo objectForKey:@"localNotificationType"] integerValue];
+    NSString *notificationString = [userInfo objectForKey:@"pushNotification"];
+    NSString *notificationAccountId = [userInfo objectForKey:@"accountId"];
     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
-    
+
     // Handle notification response
     if (pushNotification) {
         if ([response isKindOfClass:[UNTextInputNotificationResponse class]]) {
@@ -409,6 +420,8 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
             pushNotification.responseUserText = textInputResponse.userText;
             
             [self handlePushNotificationResponseWithUserText:pushNotification];
+        } else if (pushNotification.type == NCPushNotificationTypeRecording) {
+            [self handlePushNotificationResponseForRecording:response];
         } else {
             [self handlePushNotificationResponse:pushNotification];
         }
@@ -460,8 +473,63 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
     });
 }
 
+- (void)handlePushNotificationResponseForRecording:(UNNotificationResponse *)response
+{
+    UNNotificationRequest *notificationRequest = response.notification.request;
+    NSDictionary *userInfo = notificationRequest.content.userInfo;
+
+    NSString *notificationAccountId = [userInfo objectForKey:@"accountId"];
+    NSDictionary *serverNotificationDict = [userInfo objectForKey:@"serverNotification"];
+
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:notificationAccountId];
+    NCNotification *serverNotification = [NCNotification notificationWithDictionary:serverNotificationDict];
+
+    if (!account || !serverNotification) {
+        return;
+    }
+
+    NSTimeInterval notificationTimeInterval = [serverNotification.datetime timeIntervalSince1970];
+    NSString *notificationTimestamp = [NSString stringWithFormat:@"%.0f", notificationTimeInterval];
+
+    if ([response.actionIdentifier isEqualToString:NCNotificationActionShareRecording]) {
+        NSDictionary *fileParameters = [serverNotification.messageRichParameters objectForKey:@"file"];
+
+        if (!fileParameters || ![fileParameters objectForKey:@"id"]) {
+            return;
+        }
+
+        NSString *fileId = [fileParameters objectForKey:@"id"];
+
+        [[NCAPIController sharedInstance] shareStoredRecordingWithTimestamp:notificationTimestamp
+                                                                 withFileId:fileId
+                                                                    forRoom:serverNotification.roomToken
+                                                                 forAccount:account
+                                                        withCompletionBlock:^(NSError *error) {
+            if (error) {
+                NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:serverNotification.roomToken forKey:@"roomToken"];
+                [userInfo setValue:@(kNCLocalNotificationTypeFailedToShareRecording) forKey:@"localNotificationType"];
+                [userInfo setObject:notificationAccountId forKey:@"accountId"];
+
+                [self showLocalNotification:kNCLocalNotificationTypeFailedToShareRecording withUserInfo:userInfo];
+            }
+        }];
+
+    } else if ([response.actionIdentifier isEqualToString:NCNotificationActionDismissRecordingNotification]) {
+        [[NCAPIController sharedInstance] dismissStoredRecordingNotificationWithTimestamp:notificationTimestamp
+                                                                                  forRoom:serverNotification.roomToken
+                                                                               forAccount:account
+                                                                      withCompletionBlock:nil];
+    } else {
+        // TODO: Show ViewController with notification actions
+    }
+}
+
 - (void)handlePushNotificationResponse:(NCPushNotification *)pushNotification
 {
+    if ([NCRoomsManager sharedInstance].callViewController) {
+        return;
+    }
+
     if (pushNotification) {
         switch (pushNotification.type) {
             case NCPushNotificationTypeCall:
@@ -483,6 +551,10 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 
 - (void)handleLocalNotificationResponse:(NSDictionary *)notificationUserInfo
 {
+    if ([NCRoomsManager sharedInstance].callViewController) {
+        return;
+    }
+
     NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notificationUserInfo objectForKey:@"localNotificationType"] integerValue];
     if (localNotificationType > 0) {
         switch (localNotificationType) {

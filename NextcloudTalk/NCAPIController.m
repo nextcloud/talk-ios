@@ -2585,6 +2585,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+- (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url
+{
+    NSMutableURLRequest *thumbnailRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
+    return thumbnailRequest;
+}
+
 #pragma - Recording
 
 - (NSURLSessionDataTask *)startRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StartRecordingCompletionBlock)block
@@ -2637,10 +2643,57 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url
+- (NSURLSessionDataTask *)dismissStoredRecordingNotificationWithTimestamp:(NSString *)timestamp forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(DismissStoredRecordingNotificationCompletionBlock)block
 {
-    NSMutableURLRequest *thumbnailRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
-    return thumbnailRequest;
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"recording/%@/notification", encodedToken];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:1 forAccount:account];
+
+    NSDictionary *parameters = @{
+        @"timestamp" : timestamp
+    };
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(error);
+        }
+    }];
+
+    return task;
+}
+
+- (NSURLSessionDataTask *)shareStoredRecordingWithTimestamp:(NSString *)timestamp withFileId:(NSString *)fileId forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ShareStoredRecordingCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"recording/%@/share-chat", encodedToken];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:1 forAccount:account];
+
+    NSDictionary *parameters = @{
+        @"timestamp" : timestamp,
+        @"fileId" : fileId
+    };
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(error);
+        }
+    }];
+
+    return task;
 }
 
 #pragma mark - Error handling

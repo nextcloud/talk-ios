@@ -25,7 +25,8 @@
 typedef enum NCNotificationType {
     kNCNotificationTypeRoom = 0,
     kNCNotificationTypeChat,
-    kNCNotificationTypeCall
+    kNCNotificationTypeCall,
+    kNCNotificationTypeRecording
 } NCNotificationType;
 
 @interface NCNotification : NSObject
@@ -40,6 +41,8 @@ typedef enum NCNotificationType {
 @property (nonatomic, strong) NSString *message;
 @property (nonatomic, strong) NSString *messageRich;
 @property (nonatomic, strong) NSDictionary *messageRichParameters;
+@property (nonatomic, strong) NSArray *actions;
+@property (nonatomic, strong) NSDate *datetime;
 
 + (instancetype)notificationWithDictionary:(NSDictionary *)notificationDict;
 - (NCNotificationType)notificationType;
@@ -47,5 +50,6 @@ typedef enum NCNotificationType {
 - (NSString *)chatMessageTitle;
 - (NSString *)callDisplayName;
 - (NSString *)roomToken;
+- (NSArray *)notificationActions;
 
 @end

@@ -175,17 +175,31 @@
                     [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                         NSDictionary *notification = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
                         NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
-                        if (serverNotification && serverNotification.notificationType == kNCNotificationTypeChat) {
+
+                        if (!serverNotification) {
+                            self.contentHandler(self.bestAttemptContent);
+                        }
+
+                        // Add the serverNotification as userInfo as well -> this can later be used to access the actions directly
+                        [userInfo setObject:notification forKey:@"serverNotification"];
+                        self.bestAttemptContent.userInfo = userInfo;
+
+                        if (serverNotification.notificationType == kNCNotificationTypeChat) {
                             self.bestAttemptContent.title = serverNotification.chatMessageTitle;
                             self.bestAttemptContent.body = serverNotification.message;
                             self.bestAttemptContent.summaryArgument = serverNotification.chatMessageAuthor;
+                        } else if (serverNotification.notificationType == kNCNotificationTypeRecording) {
+                            self.bestAttemptContent.categoryIdentifier = @"CATEGORY_RECORDING";
+                            self.bestAttemptContent.title = serverNotification.subject;
+                            self.bestAttemptContent.body = serverNotification.message;
+                            self.bestAttemptContent.summaryArgument = serverNotification.objectId;
                         }
 
                         if (@available(iOS 15.0, *)) {
                             NCRoom *room = [self roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
 
                             if (room) {
-                                [[NCIntentController sharedInstance] getInteractionForRoom:room withTitle:serverNotification.chatMessageTitle withCompletionBlock:^(INSendMessageIntent *sendMessageIntent) {
+                                [[NCIntentController sharedInstance] getInteractionForRoom:room withTitle:self.bestAttemptContent.title withCompletionBlock:^(INSendMessageIntent *sendMessageIntent) {
                                     __block NSError *error;
 
                                     if (sendMessageIntent) {
