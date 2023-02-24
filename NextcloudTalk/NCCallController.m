@@ -1169,12 +1169,15 @@ static NSString * const kNCVideoTrackKind = @"video";
     for (NSMutableDictionary *user in users) {
         NSString *sessionId = [user objectForKey:@"sessionId"];
         NSInteger inCall = [[user objectForKey:@"inCall"] integerValue];
+        BOOL internalClient = [[user objectForKey:@"internal"] boolValue];
+
         // Set inCall flag for app user
         if ([sessionId isEqualToString:[self signalingSessionId]]) {
             _userInCall = inCall;
         }
-        // Add session if inCall
-        if (inCall) {
+
+        // Add session if inCall and if it's not an internal client
+        if (inCall && !internalClient) {
             [sessions addObject:sessionId];
         }
     }
