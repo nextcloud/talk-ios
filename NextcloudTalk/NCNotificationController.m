@@ -41,6 +41,7 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 
 NSString * const NCNotificationActionShareRecording                 = @"SHARE_RECORDING";
 NSString * const NCNotificationActionDismissRecordingNotification   = @"DISMISS_RECORDING_NOTIFICATION";
+NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CHAT";
 
 @interface NCNotificationController () <UNUserNotificationCenterDelegate>
 

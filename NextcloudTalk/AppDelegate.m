@@ -232,7 +232,7 @@
 - (void)registerInteractivePushNotification
 {
     // Reply directly to a chat notification action/category
-    UNTextInputNotificationAction *replyAction = [UNTextInputNotificationAction actionWithIdentifier:@"REPLY_CHAT"
+    UNTextInputNotificationAction *replyAction = [UNTextInputNotificationAction actionWithIdentifier:NCNotificationActionReplyToChat
                                                                                           title:NSLocalizedString(@"Reply", nil)
                                                                                         options:UNNotificationActionOptionAuthenticationRequired];
     
