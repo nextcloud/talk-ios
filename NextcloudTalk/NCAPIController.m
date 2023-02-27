@@ -34,6 +34,8 @@
 #import "NCKeyChainController.h"
 #import "NotificationCenterNotifications.h"
 
+#import "NextcloudTalk-Swift.h"
+
 NSInteger const APIv1                       = 1;
 NSInteger const APIv2                       = 2;
 NSInteger const APIv3                       = 3;
@@ -2515,6 +2517,43 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     [task resume];
 
     return task;
+}
+
+- (void)executeNotificationAction:(NCNotificationAction *)action forAccount:(TalkAccount *)account withCompletionBlock:(ExecuteNotificationActionCompletionBlock)block
+{
+    void (^success)(NSURLSessionDataTask *task, id responseObject) = ^void(NSURLSessionDataTask *task, id responseObject) {
+        if (block) {
+            block(nil);
+        }
+    };
+
+    void (^failure)(NSURLSessionDataTask *task, NSError *error) = ^void(NSURLSessionDataTask *task, NSError *error) {
+        if (block) {
+            block(error);
+        }
+    };
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+
+    if (action.actionType == NCNotificationActionTypeKNotificationActionTypeGet) {
+        [apiSessionManager GET:action.actionLink parameters:nil progress:nil success:success failure:failure];
+
+    } else if (action.actionType == NCNotificationActionTypeKNotificationActionTypePut) {
+        [apiSessionManager PUT:action.actionLink parameters:nil success:success failure:failure];
+
+    } else if (action.actionType == NCNotificationActionTypeKNotificationActionTypePost) {
+        [apiSessionManager POST:action.actionLink parameters:nil progress:nil success:success failure:failure];
+
+    } else if (action.actionType == NCNotificationActionTypeKNotificationActionTypeDelete) {
+        [apiSessionManager DELETE:action.actionLink parameters:nil success:success failure:failure];
+        
+    } else {
+        NSLog(@"Trying to execute non-supported notification action type");
+        if (block) {
+            NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+            block(error);
+        }
+    }
 }
 
 
