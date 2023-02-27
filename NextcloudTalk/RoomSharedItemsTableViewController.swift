@@ -388,7 +388,7 @@ import QuickLook
         self.tableView.deselectRow(at: indexPath, animated: true)
 
         switch currentItemType {
-        case kSharedItemTypeMedia, kSharedItemTypeFile, kSharedItemTypeVoice, kSharedItemTypeAudio:
+        case kSharedItemTypeMedia, kSharedItemTypeFile, kSharedItemTypeVoice, kSharedItemTypeAudio, kSharedItemTypeRecording:
             if let file = message.file() {
                 downloadFileForCell(cell: cell, file: file)
             }
