@@ -46,6 +46,8 @@ extern NSString * const kSharedItemTypeLocation;
 extern NSString * const kSharedItemTypeMedia;
 extern NSString * const kSharedItemTypeOther;
 extern NSString * const kSharedItemTypeVoice;
+extern NSString * const kSharedItemTypePoll;
+extern NSString * const kSharedItemTypeRecording;
 
 @class NCChatMessage;
 

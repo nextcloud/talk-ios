@@ -234,6 +234,10 @@ import QuickLook
             return NSLocalizedString("Others", comment: "")
         case kSharedItemTypeVoice:
             return NSLocalizedString("Voice messages", comment: "")
+        case kSharedItemTypePoll:
+            return NSLocalizedString("Polls", comment: "")
+        case kSharedItemTypeRecording:
+            return NSLocalizedString("Recordings", comment: "")
         default:
             return NSLocalizedString("Shared items", comment: "")
         }
@@ -249,6 +253,9 @@ import QuickLook
         }
         if message.deckCard() != nil {
             imageName = "deck-item"
+        }
+        if message.poll() != nil {
+            imageName = "poll-item"
         }
         return imageName
     }
