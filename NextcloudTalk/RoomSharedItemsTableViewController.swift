@@ -23,7 +23,7 @@ import UIKit
 import QuickLook
 
 @objcMembers class RoomSharedItemsTableViewController: UITableViewController, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource {
-    let roomToken: String
+    let room: NCRoom
     let account: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
     let itemsOverviewLimit: Int = 1
     let itemLimit: Int = 100
@@ -35,8 +35,8 @@ import QuickLook
     var previewControllerFilePath: String = ""
     var isPreviewControllerShown: Bool = false
 
-    init(roomToken: String) {
-        self.roomToken = roomToken
+    init(room: NCRoom) {
+        self.room = room
         super.init(nibName: "RoomSharedItemsTableViewController", bundle: nil)
     }
 
@@ -107,7 +107,7 @@ import QuickLook
         showFetchingItemsPlaceholderView()
         NCAPIController.sharedInstance()
             .getSharedItems(ofType: itemType, fromLastMessageId: currentLastItemId, withLimit: itemLimit,
-                            inRoom: roomToken, for: account) { items, lastItemId, error, _ in
+                            inRoom: room.token, for: account) { items, lastItemId, error, _ in
                 if error == nil, let sharedItems = items as? [NCChatMessage] {
                     // Remove deleted files
                     var filteredItems: [NCChatMessage] = []
@@ -143,7 +143,7 @@ import QuickLook
     func getItemsOverview() {
         showFetchingItemsPlaceholderView()
         NCAPIController.sharedInstance()
-            .getSharedItemsOverview(inRoom: roomToken, withLimit: itemsOverviewLimit, for: account) { itemsOverview, error, _ in
+            .getSharedItemsOverview(inRoom: room.token, withLimit: itemsOverviewLimit, for: account) { itemsOverview, error, _ in
                 if error == nil {
                     self.sharedItemsOverview = itemsOverview as? [String: [NCChatMessage]] ?? [:]
                     let availableItemTypes = self.availableItemTypes()
@@ -234,6 +234,10 @@ import QuickLook
             return NSLocalizedString("Others", comment: "")
         case kSharedItemTypeVoice:
             return NSLocalizedString("Voice messages", comment: "")
+        case kSharedItemTypePoll:
+            return NSLocalizedString("Polls", comment: "")
+        case kSharedItemTypeRecording:
+            return NSLocalizedString("Recordings", comment: "")
         default:
             return NSLocalizedString("Shared items", comment: "")
         }
@@ -249,6 +253,9 @@ import QuickLook
         }
         if message.deckCard() != nil {
             imageName = "deck-item"
+        }
+        if message.poll() != nil {
+            imageName = "poll-item"
         }
         return imageName
     }
@@ -305,6 +312,22 @@ import QuickLook
         let mapViewController = MapViewController(geoLocationRichObject: location)
         let navigationViewController = NCNavigationController(rootViewController: mapViewController)
         self.present(navigationViewController, animated: true, completion: nil)
+    }
+
+    // MARK: - Polls
+
+    func presentPoll(pollId: Int) {
+        let pollViewController = PollVotingView(style: .insetGrouped)
+        pollViewController.room = room
+        let navigationViewController = NCNavigationController(rootViewController: pollViewController)
+        self.present(navigationViewController, animated: true, completion: nil)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: room.token, for: activeAccount) { poll, error, _ in
+            if let poll = poll, error == nil {
+                pollViewController.updatePoll(poll: poll)
+            }
+        }
     }
 
     // MARK: - Other files
@@ -365,7 +388,7 @@ import QuickLook
         self.tableView.deselectRow(at: indexPath, animated: true)
 
         switch currentItemType {
-        case kSharedItemTypeMedia, kSharedItemTypeFile, kSharedItemTypeVoice, kSharedItemTypeAudio:
+        case kSharedItemTypeMedia, kSharedItemTypeFile, kSharedItemTypeVoice, kSharedItemTypeAudio, kSharedItemTypeRecording:
             if let file = message.file() {
                 downloadFileForCell(cell: cell, file: file)
             }
@@ -376,6 +399,10 @@ import QuickLook
         case kSharedItemTypeDeckcard, kSharedItemTypeOther:
             if let link = message.objectShareLink() {
                 openLink(link: link)
+            }
+        case kSharedItemTypePoll:
+            if let pollId = Int(message.poll().parameterId) {
+                presentPoll(pollId: pollId)
             }
         default:
             return

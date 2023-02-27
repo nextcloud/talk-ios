@@ -1084,7 +1084,7 @@ typedef enum FileAction {
 
 - (void)presentSharedItemsView
 {
-    RoomSharedItemsTableViewController *sharedItemsVC = [[RoomSharedItemsTableViewController alloc] initWithRoomToken:_room.token];
+    RoomSharedItemsTableViewController *sharedItemsVC = [[RoomSharedItemsTableViewController alloc] initWithRoom:_room];
     [self.navigationController pushViewController:sharedItemsVC animated:YES];
 }
 

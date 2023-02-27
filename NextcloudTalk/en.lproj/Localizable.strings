@@ -1130,6 +1130,9 @@
 "Poll results" = "Poll results";
 
 /* No comment provided by engineer. */
+"Polls" = "Polls";
+
+/* No comment provided by engineer. */
 "Preview" = "Preview";
 
 /* No comment provided by engineer. */
@@ -1182,6 +1185,9 @@
 
 /* No comment provided by engineer. */
 "Recording" = "Recording";
+
+/* No comment provided by engineer. */
+"Recordings" = "Recordings";
 
 /* No comment provided by engineer. */
 "Redo" = "Redo";

@@ -41,6 +41,8 @@ NSString * const kSharedItemTypeLocation    = @"location";
 NSString * const kSharedItemTypeMedia       = @"media";
 NSString * const kSharedItemTypeOther       = @"other";
 NSString * const kSharedItemTypeVoice       = @"voice";
+NSString * const kSharedItemTypePoll        = @"poll";
+NSString * const kSharedItemTypeRecording   = @"recording";
 
 @interface NCChatMessage ()
 {
