@@ -318,7 +318,12 @@
 
 - (void)presentAlertViewController:(UIAlertController *)alertViewController
 {
-    [_mainViewController presentViewController:alertViewController animated:YES completion:nil];
+    if (_mainViewController.presentedViewController != nil) {
+        // When the callview is presented, we need to show the alert this way
+        [_mainViewController.presentedViewController presentViewController:alertViewController animated:YES completion:nil];
+    } else {
+        [_mainViewController presentViewController:alertViewController animated:YES completion:nil];
+    }
 }
 
 - (void)presentConversationsList

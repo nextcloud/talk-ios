@@ -520,7 +520,23 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
                                                                                forAccount:account
                                                                       withCompletionBlock:nil];
     } else {
-        // TODO: Show ViewController with notification actions
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:serverNotification.subject
+                                                                       message:serverNotification.message
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+
+        for (NCNotificationAction *notificationAction in [serverNotification notificationActions]) {
+            UIAlertAction* tempButton = [UIAlertAction actionWithTitle:notificationAction.actionLabel
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^(UIAlertAction * _Nonnull action) {
+                [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account withCompletionBlock:nil];
+            }];
+
+            [alert addAction:tempButton];
+        }
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+        });
     }
 }
 
