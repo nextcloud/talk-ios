@@ -2088,7 +2088,7 @@ typedef enum FileAction {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
                     }
 
-                    cell.textLabel.text = NSLocalizedString(@"Share conversation link", nil);
+                    cell.textLabel.text = NSLocalizedString(@"Share link", nil);
                     [cell.imageView setImage:[[UIImage imageNamed:@"share"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
 
