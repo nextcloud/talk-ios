@@ -956,8 +956,9 @@ typedef enum FileAction {
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
-    if (_room.name && ![_room.name isEqualToString:@""]) {
-        joinConversationString = [NSString stringWithFormat:NSLocalizedString(@"Join the conversation %@ at", nil), [NSString stringWithFormat:@"\"%@\"", _room.name]];
+
+    if (_room.displayName && ![_room.displayName isEqualToString:@""]) {
+        joinConversationString = [NSString stringWithFormat:NSLocalizedString(@"Join the conversation %@ at", nil), [NSString stringWithFormat:@"\"%@\"", _room.displayName]];
     }
     NSString *shareMessage = [NSString stringWithFormat:@"%@ %@/index.php/call/%@", joinConversationString, activeAccount.server, _room.token];
     NSArray *items = @[shareMessage];
