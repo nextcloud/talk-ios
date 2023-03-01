@@ -72,7 +72,6 @@ typedef enum NotificationAction {
 typedef enum GuestAction {
     kGuestActionPublicToggle = 0,
     kGuestActionPassword,
-    kGuestActionShareLink,
     kGuestActionResendInvitations
 } GuestAction;
 
@@ -80,7 +79,8 @@ typedef enum ConversationAction {
     kConversationActionMessageExpiration = 0,
     kConversationActionListable,
     kConversationActionListableForEveryone,
-    kConversationActionReadOnly
+    kConversationActionReadOnly,
+    kConversationActionShareLink
 } ConversationAction;
 
 typedef enum WebinarAction {
@@ -397,7 +397,6 @@ typedef enum FileAction {
     // Password protection & Share link
     if (_room.isPublic) {
         [actions addObject:[NSNumber numberWithInt:kGuestActionPassword]];
-        [actions addObject:[NSNumber numberWithInt:kGuestActionShareLink]];
     }
     // Resend invitations
     if (_room.isPublic && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySIPSupport]) {
@@ -420,10 +419,12 @@ typedef enum FileAction {
 - (NSArray *)getConversationActions
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
+
     // Message expiration action
     if (_room.isUserOwnerOrModerator && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityMessageExpiration]) {
         [actions addObject:[NSNumber numberWithInt:kConversationActionMessageExpiration]];
     }
+
     if (_room.canModerate) {
         // Listable room action
         if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
@@ -439,6 +440,8 @@ typedef enum FileAction {
             [actions addObject:[NSNumber numberWithInt:kConversationActionReadOnly]];
         }
     }
+
+    [actions addObject:[NSNumber numberWithInt:kConversationActionShareLink]];
     
     return [NSArray arrayWithArray:actions];
 }
@@ -1979,22 +1982,7 @@ typedef enum FileAction {
                     return cell;
                 }
                     break;
-                    
-                case kGuestActionShareLink:
-                {
-                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
-                    if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
-                    }
-                    
-                    cell.textLabel.text = NSLocalizedString(@"Share conversation link", nil);
-                    [cell.imageView setImage:[[UIImage imageNamed:@"share"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
-                    
-                    return cell;
-                }
-                    break;
-                    
+
                 case kGuestActionResendInvitations:
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:resendInvitationsCellIdentifier];
@@ -2085,6 +2073,21 @@ typedef enum FileAction {
                     [cell.imageView setImage:[[UIImage imageNamed:@"message-text-lock"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
+                    return cell;
+                }
+                    break;
+
+                case kConversationActionShareLink:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:shareLinkCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:shareLinkCellIdentifier];
+                    }
+
+                    cell.textLabel.text = NSLocalizedString(@"Share conversation link", nil);
+                    [cell.imageView setImage:[[UIImage imageNamed:@"share"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+
                     return cell;
                 }
                     break;
@@ -2387,9 +2390,6 @@ typedef enum FileAction {
                 case kGuestActionPassword:
                     [self showPasswordOptions];
                     break;
-                case kGuestActionShareLink:
-                    [self shareRoomLinkFromIndexPath:indexPath];
-                    break;
                 case kGuestActionResendInvitations:
                     [self resendInvitations];
                     break;
@@ -2405,6 +2405,9 @@ typedef enum FileAction {
             switch (action) {
                 case kConversationActionMessageExpiration:
                     [self presentMessageExpirationSelector];
+                    break;
+                case kConversationActionShareLink:
+                    [self shareRoomLinkFromIndexPath:indexPath];
                     break;
                 default:
                     break;
