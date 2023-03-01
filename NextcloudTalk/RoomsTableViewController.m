@@ -833,7 +833,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
-    if (room.name && ![room.name isEqualToString:@""]) {
+    
+    if (room.displayName && ![room.displayName isEqualToString:@""]) {
         joinConversationString = [NSString stringWithFormat:NSLocalizedString(@"Join the conversation %@ at", nil), [NSString stringWithFormat:@"\"%@\"", room.name]];
     }
     NSString *shareMessage = [NSString stringWithFormat:@"%@ %@/index.php/call/%@", joinConversationString, activeAccount.server, room.token];
@@ -1023,10 +1024,11 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [notificationsAction setValue:[[UIImage imageNamed:@"notifications"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:notificationsAction];
     }
+
     // Share link
-    if (room.isPublic) {
+    if (room.type != kNCRoomTypeChangelog) {
         // Share Link
-        UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Share conversation link", nil)
+        UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Share link", nil)
                                                                   style:UIAlertActionStyleDefault
                                                                 handler:^void (UIAlertAction *action) {
                                                                     [self shareLinkFromRoomAtIndexPath:indexPath];
@@ -1034,6 +1036,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [shareLinkAction setValue:[[UIImage imageNamed:@"share"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
         [optionsActionSheet addAction:shareLinkAction];
     }
+
     // Room info
     UIAlertAction *roomInfoAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Conversation info", nil)
                                                              style:UIAlertActionStyleDefault
