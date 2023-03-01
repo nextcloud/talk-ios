@@ -2542,8 +2542,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             NSMutableArray *messagesForLastDate = [self->_messages objectForKey:[self->_dateSections lastObject]];
             NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
             
-            // Load messages in chat view
+            // Load messages in chat view keeping scroll position
+            CGPoint contentOffset = self.tableView.contentOffset;
             [self.tableView reloadData];
+            [self.tableView layoutIfNeeded];
+            [self.tableView setContentOffset:contentOffset animated:NO];
             
             BOOL newMessagesContainUserMessage = [self newMessagesContainUserMessage:messages];
             // Remove unread messages separator when user writes a message
