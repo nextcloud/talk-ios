@@ -394,7 +394,8 @@ typedef enum FileAction {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     // Public room toggle
     [actions addObject:[NSNumber numberWithInt:kGuestActionPublicToggle]];
-    // Password protection & Share link
+
+    // Password protection
     if (_room.isPublic) {
         [actions addObject:[NSNumber numberWithInt:kGuestActionPassword]];
     }
