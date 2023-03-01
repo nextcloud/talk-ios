@@ -441,7 +441,9 @@ typedef enum FileAction {
         }
     }
 
-    [actions addObject:[NSNumber numberWithInt:kConversationActionShareLink]];
+    if (_room.type != kNCRoomTypeChangelog) {
+        [actions addObject:[NSNumber numberWithInt:kConversationActionShareLink]];
+    }
     
     return [NSArray arrayWithArray:actions];
 }
