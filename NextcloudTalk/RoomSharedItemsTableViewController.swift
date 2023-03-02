@@ -22,7 +22,12 @@
 import UIKit
 import QuickLook
 
-@objcMembers class RoomSharedItemsTableViewController: UITableViewController, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource {
+@objcMembers class RoomSharedItemsTableViewController: UITableViewController,
+                                                        NCChatFileControllerDelegate,
+                                                        QLPreviewControllerDelegate,
+                                                        QLPreviewControllerDataSource,
+                                                        VLCKitVideoViewControllerDelegate {
+
     let room: NCRoom
     let account: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
     let itemsOverviewLimit: Int = 1
@@ -271,12 +276,28 @@ import QuickLook
 
     func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {
         DispatchQueue.main.async {
-            if self.isPreviewControllerShown {return}
+            if self.isPreviewControllerShown {
+                return
+            }
+
+            self.previewControllerFilePath = fileStatus.fileLocalPath
+            self.isPreviewControllerShown = true
+
+            let fileExtension = NSURL(fileURLWithPath: fileStatus.fileLocalPath).pathExtension
+
+            if fileExtension?.lowercased() == "webm" {
+                let vlcViewController = VLCKitVideoViewController(filePath: fileStatus.fileLocalPath)
+                vlcViewController.delegate = self
+                vlcViewController.modalPresentationStyle = .fullScreen
+
+                self.present(vlcViewController, animated: true)
+
+                return
+            }
+
             let previewController = QLPreviewController()
             previewController.dataSource = self
             previewController.delegate = self
-            self.previewControllerFilePath = fileStatus.fileLocalPath
-            self.isPreviewControllerShown = true
             self.present(previewController, animated: true)
         }
     }
@@ -303,6 +324,10 @@ import QuickLook
     }
 
     func previewControllerDidDismiss(_ controller: QLPreviewController) {
+        isPreviewControllerShown = false
+    }
+
+    func vlckitVideoViewControllerDismissed(_ controller: VLCKitVideoViewController) {
         isPreviewControllerShown = false
     }
 

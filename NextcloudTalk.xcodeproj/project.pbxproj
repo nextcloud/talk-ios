@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1F1C0D7F29A7F33600D17C6D /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
+		1F1C0D8729AFB88800D17C6D /* VLCKitVideoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */; };
+		1F1C0D8929AFB89900D17C6D /* VLCKitVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */; };
 		1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1F1C999E2909846400EACF02 /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F24B5A128E0648600654457 /* ReferenceGithubView.swift */; };
@@ -378,6 +380,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VLCKitVideoViewController.xib; sourceTree = "<group>"; };
+		1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLCKitVideoViewController.swift; sourceTree = "<group>"; };
 		1F24B5A128E0648600654457 /* ReferenceGithubView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubView.swift; sourceTree = "<group>"; };
 		1F24B5A328E0649200654457 /* ReferenceGithubView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGithubView.xib; sourceTree = "<group>"; };
 		1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarButtonItemWithActivity.m; sourceTree = "<group>"; };
@@ -998,6 +1002,8 @@
 				1F468E7728DCC7310099597B /* EmojiTextField.swift */,
 				2C16A82B28E7284D00EDE523 /* NCButton.swift */,
 				1F8995B22970644C00CABA33 /* ColorGenerator.swift */,
+				1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */,
+				1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -1511,6 +1517,7 @@
 				2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */,
 				2C5E72BC27957FCA004ED7FB /* ShellScript */,
 				2C38D4AE27BBAFCC00BAE015 /* Embed Frameworks */,
+				C21100AE204AFC213989DA96 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1702,6 +1709,7 @@
 				1FDE7C9C28DE14B000CB718E /* ReferenceView.xib in Resources */,
 				2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
+				1F1C0D8729AFB88800D17C6D /* VLCKitVideoViewController.xib in Resources */,
 				2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
 				2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */,
@@ -1848,6 +1856,24 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		C21100AE204AFC213989DA96 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/MobileVLCKit/MobileVLCKit.framework/MobileVLCKit",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileVLCKit.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		E75968B5C5288222BC8FCA99 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1960,6 +1986,7 @@
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
 				2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
+				1F1C0D8929AFB89900D17C6D /* VLCKitVideoViewController.swift in Sources */,
 				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
 				2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
 				2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */,
