@@ -64,6 +64,7 @@ typedef void (^JoinRoomExternalSignalingCompletionBlock)(NSError *error);
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 - (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId;
 - (void)connect;
+- (void)forceConnect;
 - (void)disconnect;
 - (void)forceReconnect;
 

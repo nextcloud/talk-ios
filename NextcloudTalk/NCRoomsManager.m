@@ -757,6 +757,13 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
             }
         }
 
+        // Make sure the external signaling contoller is connected.
+        // Could be that the call has been received while the app was inactive or in the background,
+        // so the external signaling controller might be disconnected at this point.
+        if ([extSignalingController disconnected]) {
+            [extSignalingController forceConnect];
+        }
+
         if (_chatViewController) {
             if ([chatViewControllerRoomToken isEqualToString:joiningRoomToken]) {
                 // We're in the chat of the room we want to start a call, so stop chat for now
