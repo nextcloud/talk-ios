@@ -1933,14 +1933,34 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     recognizer.scale = 1;
 
     if (recognizer.state == UIGestureRecognizerStateEnded) {
-        [self adjustScreenViewPosition];
+        CGRect bounds = _screensharingView.bounds;
+        CGSize videoSize = _screensharingSize;
+        CGSize zoomedSize = recognizer.view.frame.size;
+
+        CGRect remoteVideoFrame = AVMakeRectWithAspectRatioInsideRect(videoSize, bounds);
+
+        // Don't zoom smaller than the original size
+        if (zoomedSize.width < remoteVideoFrame.size.width || zoomedSize.height < remoteVideoFrame.size.height) {
+            [UIView animateWithDuration:0.3 animations:^{
+                // We need to reset the transform here, because otherwise panning would be based on that invalid transform
+                self->_screenView.transform = CGAffineTransformIdentity;
+                [self resizeScreensharingView];
+            }];
+        } else {
+            [self adjustScreenViewPosition];
+        }
     }
 }
 
 - (void)screenViewPan:(UIPanGestureRecognizer *)recognizer
 {
     CGPoint point = [recognizer translationInView:self->_screenView];
-    _screenView.center = CGPointMake(_screenView.center.x + point.x, _screenView.center.y + point.y);
+
+    // We need to take the current scaling into account when panning
+    // As we have the same scale factor for X and Y, we can take only one here
+    CGFloat scaleFactor = self->_screenView.transform.a;
+
+    _screenView.center = CGPointMake(_screenView.center.x + (point.x * scaleFactor), _screenView.center.y + (point.y * scaleFactor));
     [recognizer setTranslation:CGPointZero inView:self->_screenView];
 
     if (recognizer.state == UIGestureRecognizerStateEnded) {
@@ -1954,30 +1974,35 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     CGSize size = _screenView.frame.size;
     CGPoint position = _screenView.frame.origin;
 
-    CGFloat limit = 44;
+    // Use half of the height / width as limit but at least 44
+    CGFloat widthLimit = MIN(size.width / 2, parentSize.width / 2);
+    CGFloat heightLimit = MIN(size.height / 2, parentSize.height / 2);
+
+    CGFloat limitWidth = MAX(44, widthLimit);
+    CGFloat limitHeight = MAX(44, heightLimit);
 
     CGFloat viewLeft = position.x;
     CGFloat viewRight = position.x + size.width;
     CGFloat viewTop = position.y;
     CGFloat viewBottom = position.y + size.height;
 
-    // View is out of bounds to the left (so right is < 0)
-    if (viewRight < limit) {
-        position = CGPointMake(0, position.y);
-    }
-
-    // View is out of bounds to the top (so bottom is < 0)
-    if (viewBottom < limit) {
-        position = CGPointMake(position.x, 0);
-    }
-
-    // View is out of bounds to the right (so left is > then the superview width)
-    if (viewLeft > (parentSize.width - limit)) {
+    // View left our limits to the left side, so we want to move it to the right again
+    if (viewRight < limitWidth) {
         position = CGPointMake(parentSize.width - size.width, position.y);
     }
 
-    // View is out of bounds to the bottom (so top is > then the superview height)
-    if (viewTop > (parentSize.height - limit)) {
+    // View left our limits to the top, so we want to move it to y = 0 again
+    if (viewBottom < limitHeight) {
+        position = CGPointMake(position.x, 0);
+    }
+
+    // View left our limits to the right side, so we want to move it to x = 0 again
+    if (viewLeft > (parentSize.width - limitWidth)) {
+        position = CGPointMake(0, position.y);
+    }
+
+    // View left our limits to the bottom, so we want to move it to the top again
+    if (viewTop > (parentSize.height - limitHeight)) {
         position = CGPointMake(position.x, parentSize.height - size.height);
     }
 
