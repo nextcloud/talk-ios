@@ -1960,6 +1960,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     // As we have the same scale factor for X and Y, we can take only one here
     CGFloat scaleFactor = self->_screenView.transform.a;
 
+    // Don't allow to move around when not zoomed
+    if (scaleFactor == 1) {
+        return;
+    }
+
     _screenView.center = CGPointMake(_screenView.center.x + (point.x * scaleFactor), _screenView.center.y + (point.y * scaleFactor));
     [recognizer setTranslation:CGPointZero inView:self->_screenView];
 
