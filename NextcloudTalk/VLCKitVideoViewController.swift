@@ -119,8 +119,8 @@ import MobileVLCKit
         self.delegate?.vlckitVideoViewControllerDismissed(self)
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
 
         // Since there's no way to redraw the current frame in VLCKit, we hide the view
         // if the playback was stopped to not have a disorted view
