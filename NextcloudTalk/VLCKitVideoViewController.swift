@@ -122,9 +122,11 @@ import MobileVLCKit
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
+        guard let mediaPlayer = self.mediaPlayer else { return }
+
         // Since there's no way to redraw the current frame in VLCKit, we hide the view
         // if the playback was stopped to not have a disorted view
-        if !(self.mediaPlayer?.isPlaying ?? false) {
+        if !mediaPlayer.isPlaying, self.mediaReachedEnd() {
             self.videoView.isHidden = true
         }
     }
@@ -143,6 +145,12 @@ import MobileVLCKit
 
     private func resetMedia() {
         self.mediaPlayer?.media = VLCMedia(path: self.filePath)
+    }
+
+    private func mediaReachedEnd() -> Bool {
+        guard let mediaPlayer = self.mediaPlayer else { return false }
+
+        return mediaPlayer.remainingTime.stringValue == "00:00"
     }
 
     // MARK: Controls Visibility
@@ -198,7 +206,7 @@ import MobileVLCKit
         } else {
             // In VLCKit 3.3.17 the position parameter is not working correctly (fixed in 4.0.0)
             // see https://code.videolan.org/videolan/VLCKit/-/issues/583
-            if mediaPlayer.remainingTime.stringValue == "00:00" {
+            if self.mediaReachedEnd() {
                 // When we reached the end of the media, start from the beginning again
                 self.resetMedia()
             }
@@ -228,7 +236,7 @@ import MobileVLCKit
                 self.setPosition = false
 
                 // When the media is in state "ended"/"stopped" we can't seek anymore, so we need to reset the media
-                if mediaPlayer.remainingTime.stringValue == "00:00" {
+                if self.mediaReachedEnd() {
                     self.resetMedia()
 
                     // Need to start playing here, because otherwise the media is not loaded
@@ -264,7 +272,7 @@ import MobileVLCKit
             self.showControls()
 
             // Check if we reached the end, although maybe not reported by the position (fixed in 4.0.0)
-            if mediaPlayer.remainingTime.stringValue == "00:00" {
+            if self.mediaReachedEnd() {
                 self.positionSlider.value = 1
             }
         }
