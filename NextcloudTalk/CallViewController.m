@@ -1890,6 +1890,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 }
 
 - (void)resizeScreensharingView {
+    // We need to reset the transform here, because otherwise panning would be based on that invalid transform
+    _screenView.transform = CGAffineTransformIdentity;
+    
     CGRect bounds = _screensharingView.bounds;
     CGSize videoSize = _screensharingSize;
     
@@ -1942,8 +1945,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         // Don't zoom smaller than the original size
         if (zoomedSize.width < remoteVideoFrame.size.width || zoomedSize.height < remoteVideoFrame.size.height) {
             [UIView animateWithDuration:0.3 animations:^{
-                // We need to reset the transform here, because otherwise panning would be based on that invalid transform
-                self->_screenView.transform = CGAffineTransformIdentity;
                 [self resizeScreensharingView];
             }];
         } else {
