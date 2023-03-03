@@ -475,6 +475,10 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
 
 - (void)handlePushNotificationResponseForRecording:(UNNotificationResponse *)response
 {
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"handlePushNotificationResponseForRecording" expirationHandler:^(BGTaskHelper *task) {
+        [NCUtils log:@"ExpirationHandler called - handlePushNotificationResponseForRecording"];
+    }];
+
     UNNotificationRequest *notificationRequest = response.notification.request;
     NSDictionary *userInfo = notificationRequest.content.userInfo;
 
@@ -485,6 +489,7 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
     NCNotification *serverNotification = [NCNotification notificationWithDictionary:serverNotificationDict];
 
     if (!account || !serverNotification) {
+        [bgTask stopBackgroundTask];
         return;
     }
 
@@ -495,6 +500,7 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
         NSDictionary *fileParameters = [serverNotification.messageRichParameters objectForKey:@"file"];
 
         if (!fileParameters || ![fileParameters objectForKey:@"id"]) {
+            [bgTask stopBackgroundTask];
             return;
         }
 
@@ -512,14 +518,20 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
 
                 [self showLocalNotification:kNCLocalNotificationTypeFailedToShareRecording withUserInfo:userInfo];
             }
+
+            [bgTask stopBackgroundTask];
         }];
 
     } else if ([response.actionIdentifier isEqualToString:NCNotificationActionDismissRecordingNotification]) {
         [[NCAPIController sharedInstance] dismissStoredRecordingNotificationWithTimestamp:notificationTimestamp
                                                                                   forRoom:serverNotification.roomToken
                                                                                forAccount:account
-                                                                      withCompletionBlock:nil];
+                                                                      withCompletionBlock:^(NSError *error) {
+            [bgTask stopBackgroundTask];
+        }];
     } else {
+        [bgTask stopBackgroundTask];
+        
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:serverNotification.subject
                                                                        message:serverNotification.message
                                                                 preferredStyle:UIAlertControllerStyleAlert];
