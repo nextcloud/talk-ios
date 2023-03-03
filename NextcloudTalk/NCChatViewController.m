@@ -2722,6 +2722,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (BOOL)shouldPresentLobbyView
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    BOOL serverSupportsConversationPermissions =
+        [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityConversationPermissions forAccountId:activeAccount.accountId] ||
+        [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag forAccountId:activeAccount.accountId];
+
+    if (serverSupportsConversationPermissions && (_room.permissions & NCPermissionCanIgnoreLobby) != 0) {
+        return NO;
+    }
+
     return _room.lobbyState == NCRoomLobbyStateModeratorsOnly && !_room.canModerate;
 }
 
