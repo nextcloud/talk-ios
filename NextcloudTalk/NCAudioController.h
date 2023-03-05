@@ -27,7 +27,7 @@
 
 extern NSString * const AudioSessionDidChangeRouteNotification;
 extern NSString * const AudioSessionWasActivatedByProviderNotification;
-extern NSString * const AudioSessionDidChangeSpeakerIsActiveNotification;
+extern NSString * const AudioSessionDidChangeRoutingInformationNotification;
 
 @interface NCAudioController : NSObject <RTCAudioSessionDelegate>
 

@@ -28,7 +28,7 @@
 
 NSString * const AudioSessionDidChangeRouteNotification             = @"AudioSessionDidChangeRouteNotification";
 NSString * const AudioSessionWasActivatedByProviderNotification     = @"AudioSessionWasActivatedByProviderNotification";
-NSString * const AudioSessionDidChangeSpeakerIsActiveNotification   = @"AudioSessionDidChangeSpeakerIsActiveNotification";
+NSString * const AudioSessionDidChangeRoutingInformationNotification   = @"AudioSessionDidChangeRoutingInformationNotification";
 
 @implementation NCAudioController
 
@@ -145,7 +145,7 @@ NSString * const AudioSessionDidChangeSpeakerIsActiveNotification   = @"AudioSes
         self.isSpeakerActive = NO;
     }
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:AudioSessionDidChangeSpeakerIsActiveNotification
+    [[NSNotificationCenter defaultCenter] postNotificationName:AudioSessionDidChangeRoutingInformationNotification
                                                         object:self
                                                       userInfo:nil];
 }

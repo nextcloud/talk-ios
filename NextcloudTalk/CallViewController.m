@@ -162,7 +162,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerWantsToUpgradeToVideoCall:) name:CallKitManagerWantsToUpgradeToVideoCall object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeRoute:) name:AudioSessionDidChangeRouteNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidActivate:) name:AudioSessionWasActivatedByProviderNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeSpeaker:) name:AudioSessionDidChangeSpeakerIsActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeRoutingInformation:) name:AudioSessionDidChangeRoutingInformationNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     
@@ -463,7 +463,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [self adjustSpeakerButton];
 }
 
-- (void)audioSessionDidChangeSpeaker:(NSNotification *)notification
+- (void)audioSessionDidChangeRoutingInformation:(NSNotification *)notification
 {
     [self adjustSpeakerButton];
 
