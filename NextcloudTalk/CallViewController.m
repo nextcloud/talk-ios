@@ -777,7 +777,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         self->_videoCallButton.hidden = !self->_isAudioOnly;
 
         self->_lowerHandButton.hidden = !self->_isHandRaised;
-        self->_speakerButton.hidden = NO;
+
+        NCAudioController *audioController = [NCAudioController sharedInstance];
+        self->_speakerButton.hidden = ![audioController isAudioRouteChangeable];
 
         BOOL hideRecordingButton = ![self->_room callRecordingIsInActiveState];
         self->_recordingButton.hidden = hideRecordingButton;
@@ -851,7 +853,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NSMutableArray *items = [[NSMutableArray alloc] init];
 
     // Add speaker button to menu if it was hidden from topbar
-    if ([self.speakerButton isHidden]) {
+    NCAudioController *audioController = [NCAudioController sharedInstance];
+    if ([self.speakerButton isHidden] && [audioController isAudioRouteChangeable]) {
         // TODO: Adjust for AirPlay?
         UIImage *speakerImage = [[UIImage imageNamed:@"speaker"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         NSString *speakerActionTitle = NSLocalizedString(@"Speaker", nil);
@@ -908,22 +911,23 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)adjustSpeakerButton
 {
-    [[WebRTCCommon shared] dispatch:^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         NCAudioController *audioController = [NCAudioController sharedInstance];
-        AVAudioSession *audioSession = audioController.rtcAudioSession.session;
-        NSUInteger numberOfAvailableInputs = audioSession.availableInputs.count;
-
         [self setSpeakerButtonActive:audioController.isSpeakerActive];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // Show AirPlay button if there are more audio routes available
-            if (numberOfAvailableInputs > 1) {
-                [self setSpeakerButtonWithAirplayButton];
-            } else {
-                [self->_airplayView removeFromSuperview];
-            }
-        });
-    }];
+        // If the visibility of the speaker button does not reflect the route changeability
+        // we need to try and adjust the top bar
+        if (self->_speakerButton.isHidden == [audioController isAudioRouteChangeable]) {
+            [self adjustTopBar];
+        }
+
+        // Show AirPlay button if there are more audio routes available
+        if (audioController.numberOfAvailableInputs > 1) {
+            [self setSpeakerButtonWithAirplayButton];
+        } else {
+            [self->_airplayView removeFromSuperview];
+        }
+    });
 }
 
 - (void)setDetailedViewTimer

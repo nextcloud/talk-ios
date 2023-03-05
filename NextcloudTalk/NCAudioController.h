@@ -33,6 +33,7 @@ extern NSString * const AudioSessionDidChangeSpeakerIsActiveNotification;
 
 @property (nonatomic, strong) RTCAudioSession *rtcAudioSession;
 @property (nonatomic, assign) BOOL isSpeakerActive;
+@property (nonatomic, assign) NSInteger numberOfAvailableInputs;
 
 + (instancetype)sharedInstance;
 
@@ -41,5 +42,6 @@ extern NSString * const AudioSessionDidChangeSpeakerIsActiveNotification;
 - (void)disableAudioSession;
 - (void)providerDidActivateAudioSession:(AVAudioSession *)audioSession;
 - (void)providerDidDeactivateAudioSession:(AVAudioSession *)audioSession;
+- (BOOL)isAudioRouteChangeable;
 
 @end
