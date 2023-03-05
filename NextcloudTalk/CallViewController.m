@@ -1932,8 +1932,18 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)screenViewPinch:(UIPinchGestureRecognizer *)recognizer
 {
-    recognizer.view.transform = CGAffineTransformScale(recognizer.view.transform, recognizer.scale, recognizer.scale);
-    recognizer.scale = 1;
+    UIView *screenView = recognizer.view;
+    CGRect bounds = screenView.bounds;
+    CGPoint pinchCenter = [recognizer locationInView:screenView];
+    pinchCenter.x -= CGRectGetMidX(bounds);
+    pinchCenter.y -= CGRectGetMidY(bounds);
+    CGAffineTransform transform = screenView.transform;
+    transform = CGAffineTransformTranslate(transform, pinchCenter.x, pinchCenter.y);
+    CGFloat scale = recognizer.scale;
+    transform = CGAffineTransformScale(transform, scale, scale);
+    transform = CGAffineTransformTranslate(transform, -pinchCenter.x, -pinchCenter.y);
+    screenView.transform = transform;
+    recognizer.scale = 1.0;
 
     if (recognizer.state == UIGestureRecognizerStateEnded) {
         CGRect bounds = _screensharingView.bounds;
