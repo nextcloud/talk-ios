@@ -1990,35 +1990,28 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     CGSize size = _screenView.frame.size;
     CGPoint position = _screenView.frame.origin;
 
-    // Use half of the height / width as limit but at least 44
-    CGFloat widthLimit = MIN(size.width / 2, parentSize.width / 2);
-    CGFloat heightLimit = MIN(size.height / 2, parentSize.height / 2);
-
-    CGFloat limitWidth = MAX(44, widthLimit);
-    CGFloat limitHeight = MAX(44, heightLimit);
-
     CGFloat viewLeft = position.x;
     CGFloat viewRight = position.x + size.width;
     CGFloat viewTop = position.y;
     CGFloat viewBottom = position.y + size.height;
 
-    // View left our limits to the left side, so we want to move it to the right again
-    if (viewRight < limitWidth) {
-        position = CGPointMake(parentSize.width - size.width, position.y);
-    }
-
-    // View left our limits to the top, so we want to move it to y = 0 again
-    if (viewBottom < limitHeight) {
-        position = CGPointMake(position.x, 0);
-    }
-
-    // View left our limits to the right side, so we want to move it to x = 0 again
-    if (viewLeft > (parentSize.width - limitWidth)) {
+    // Left align screenView if it has been moved to the center (and it is wide enough)
+    if (viewLeft > 0 && size.width >= parentSize.width) {
         position = CGPointMake(0, position.y);
     }
 
-    // View left our limits to the bottom, so we want to move it to the top again
-    if (viewTop > (parentSize.height - limitHeight)) {
+    // Top align screenView if it has been moved to the center (and it is tall enough)
+    if (viewTop > 0 && size.height >= parentSize.height) {
+        position = CGPointMake(position.x, 0);
+    }
+
+    // Right align screenView if it has been moved to the center (and it is wide enough)
+    if (viewRight < parentSize.width && size.width >= parentSize.width) {
+        position = CGPointMake(parentSize.width - size.width, position.y);
+    }
+
+    // Bottom align screenView if it has been moved to the center (and it is tall enough)
+    if (viewBottom < parentSize.height && size.height >= parentSize.height) {
         position = CGPointMake(position.x, parentSize.height - size.height);
     }
 
