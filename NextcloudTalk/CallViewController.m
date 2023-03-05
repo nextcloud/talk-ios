@@ -1965,18 +1965,27 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)screenViewPan:(UIPanGestureRecognizer *)recognizer
 {
-    CGPoint point = [recognizer translationInView:self->_screenView];
+    CGSize parentSize = _screenView.superview.frame.size;
+    CGSize size = _screenView.frame.size;
+    CGPoint point = [recognizer translationInView:_screenView];
 
     // We need to take the current scaling into account when panning
     // As we have the same scale factor for X and Y, we can take only one here
-    CGFloat scaleFactor = self->_screenView.transform.a;
+    CGFloat scaleFactor = _screenView.transform.a;
 
-    // Don't allow to move around when not zoomed
-    if (scaleFactor == 1) {
-        return;
+    // Only allow to move around X-axis if screenView is wider than containerView
+    CGFloat pointX = point.x * scaleFactor;
+    if (size.width <= parentSize.width) {
+        pointX = 0;
     }
 
-    _screenView.center = CGPointMake(_screenView.center.x + (point.x * scaleFactor), _screenView.center.y + (point.y * scaleFactor));
+    // Only allow to move around Y-axis if screenView is taller than containerView
+    CGFloat pointY = point.y * scaleFactor;
+    if (size.height <= parentSize.height) {
+        pointY = 0;
+    }
+
+    _screenView.center = CGPointMake(_screenView.center.x + pointX, _screenView.center.y + pointY);
     [recognizer setTranslation:CGPointZero inView:self->_screenView];
 
     if (recognizer.state == UIGestureRecognizerStateEnded) {
