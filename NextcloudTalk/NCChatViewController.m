@@ -428,7 +428,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+
+    [self checkLobbyState];
     [self checkRoomControlsAvailability];
     
     [self startObservingExpiredMessages];
@@ -832,7 +833,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             [_chatController getInitialChatHistory];
         }
     }
-    [self checkRoomControlsAvailability];
 }
 
 - (void)setOfflineFooterView
@@ -2309,6 +2309,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     if (!_hasStopped) {
         [self checkLobbyState];
+        [self checkRoomControlsAvailability];
     }
 }
 
@@ -2431,6 +2432,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
             
             [self.tableView reloadData];
+            [self checkLobbyState];
             
             if (indexPathUnreadMessageSeparator) {
                 [self.tableView scrollToRowAtIndexPath:indexPathUnreadMessageSeparator atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
