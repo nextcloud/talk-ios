@@ -1973,19 +1973,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     // As we have the same scale factor for X and Y, we can take only one here
     CGFloat scaleFactor = _screenView.transform.a;
 
-    // Only allow to move around X-axis if screenView is wider than containerView
-    CGFloat pointX = point.x * scaleFactor;
-    if (size.width <= parentSize.width) {
-        pointX = 0;
-    }
-
-    // Only allow to move around Y-axis if screenView is taller than containerView
-    CGFloat pointY = point.y * scaleFactor;
-    if (size.height <= parentSize.height) {
-        pointY = 0;
-    }
-
-    _screenView.center = CGPointMake(_screenView.center.x + pointX, _screenView.center.y + pointY);
+    _screenView.center = CGPointMake(_screenView.center.x + point.x * scaleFactor, _screenView.center.y + point.y * scaleFactor);
     [recognizer setTranslation:CGPointZero inView:self->_screenView];
 
     if (recognizer.state == UIGestureRecognizerStateEnded) {
@@ -2022,6 +2010,16 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     // Bottom align screenView if it has been moved to the center (and it is tall enough)
     if (viewBottom < parentSize.height && size.height >= parentSize.height) {
         position = CGPointMake(position.x, parentSize.height - size.height);
+    }
+
+    // Align screenView vertically
+    if (size.width <= parentSize.width) {
+        position = CGPointMake(parentSize.width / 2 - size.width / 2, position.y);
+    }
+
+    // Align screenView horizontally
+    if (size.height <= parentSize.height) {
+        position = CGPointMake(position.x, parentSize.height / 2 - size.height / 2);
     }
 
     CGRect frame = _screenView.frame;
