@@ -28,7 +28,7 @@
 
 NSString * const AudioSessionDidChangeRouteNotification             = @"AudioSessionDidChangeRouteNotification";
 NSString * const AudioSessionWasActivatedByProviderNotification     = @"AudioSessionWasActivatedByProviderNotification";
-NSString * const AudioSessionDidChangeSpeakerIsActiveNotification   = @"AudioSessionDidChangeSpeakerIsActiveNotification";
+NSString * const AudioSessionDidChangeRoutingInformationNotification   = @"AudioSessionDidChangeRoutingInformationNotification";
 
 @implementation NCAudioController
 
@@ -66,7 +66,7 @@ NSString * const AudioSessionDidChangeSpeakerIsActiveNotification   = @"AudioSes
         
         [_rtcAudioSession addDelegate:self];
 
-        [self updateIsSpeakerActive];
+        [self updateRouteInformation];
     }
     return self;
 }
@@ -109,7 +109,7 @@ NSString * const AudioSessionDidChangeSpeakerIsActiveNotification   = @"AudioSes
 
     [_rtcAudioSession unlockForConfiguration];
 
-    [self updateIsSpeakerActive];
+    [self updateRouteInformation];
 }
 
 - (void)disableAudioSession
@@ -128,10 +128,12 @@ NSString * const AudioSessionDidChangeSpeakerIsActiveNotification   = @"AudioSes
     [_rtcAudioSession unlockForConfiguration];
 }
 
-- (void)updateIsSpeakerActive
+- (void)updateRouteInformation
 {
     AVAudioSession *audioSession = self.rtcAudioSession.session;
     AVAudioSessionPortDescription *currentOutput = nil;
+
+    self.numberOfAvailableInputs = audioSession.availableInputs.count;
 
     if (audioSession.currentRoute.outputs.count > 0) {
         currentOutput = audioSession.currentRoute.outputs[0];
@@ -143,9 +145,23 @@ NSString * const AudioSessionDidChangeSpeakerIsActiveNotification   = @"AudioSes
         self.isSpeakerActive = NO;
     }
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:AudioSessionDidChangeSpeakerIsActiveNotification
+    [[NSNotificationCenter defaultCenter] postNotificationName:AudioSessionDidChangeRoutingInformationNotification
                                                         object:self
                                                       userInfo:nil];
+}
+
+- (BOOL)isAudioRouteChangeable
+{
+    if (self.numberOfAvailableInputs > 1) {
+        return YES;
+    }
+
+    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
+        // A phone always supports a speaker and earpiece output
+        return YES;
+    }
+
+    return NO;
 }
 
 - (void)providerDidActivateAudioSession:(AVAudioSession *)audioSession
@@ -172,6 +188,8 @@ NSString * const AudioSessionDidChangeSpeakerIsActiveNotification   = @"AudioSes
 
 - (void)audioSessionDidChangeRoute:(RTCAudioSession *)session reason:(AVAudioSessionRouteChangeReason)reason previousRoute:(AVAudioSessionRouteDescription *)previousRoute
 {
+    [self updateRouteInformation];
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:AudioSessionDidChangeRouteNotification
                                                         object:self
                                                       userInfo:nil];
