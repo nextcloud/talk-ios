@@ -27,6 +27,8 @@
 @class NCExternalSignalingController;
 @class TalkAccount;
 
+extern NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification;
+
 typedef enum NCExternalSignalingSendMessageStatus {
     SendMessageSuccess = 0,
     SendMessageSocketError,
