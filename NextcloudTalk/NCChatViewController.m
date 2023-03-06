@@ -779,6 +779,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     } else if ([self isTextInputbarHidden]) {
         // Show text input if it was hidden in a previous state
         [self setTextInputbarHidden:NO animated:YES];
+
+        // Make sure the textinput has the correct height
+        [self setChatMessage:self.textInputbar.textView.text];
     }
     
     if (_presentedInCall) {
