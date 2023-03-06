@@ -47,7 +47,7 @@ import MobileVLCKit
     private var remainingTimeObserver: NSKeyValueObservation?
     private var sliderValueObserver: NSKeyValueObservation?
     private var idleTimer: Timer?
-    private var pauseAfterSeeking: Bool = false
+    private var pauseAfterPlay: Bool = false
 
     init(filePath: String) {
         self.filePath = filePath
@@ -81,7 +81,7 @@ import MobileVLCKit
             }
         })
 
-        self.resetMedia()
+        self.resetMedia(drawFirstFrame: true)
         self.currentTimeLabel.text = "-:-"
         self.totalTimeLabel.text = "-:-"
         self.positionSlider.value = 0
@@ -152,8 +152,13 @@ import MobileVLCKit
         }
     }
 
-    private func resetMedia() {
+    private func resetMedia(drawFirstFrame: Bool) {
         self.mediaPlayer?.media = VLCMedia(path: self.filePath)
+
+        if drawFirstFrame {
+            self.pauseAfterPlay = true
+            self.mediaPlayer?.play()
+        }
     }
 
     private func mediaReachedEnd() -> Bool {
@@ -218,7 +223,7 @@ import MobileVLCKit
             // see https://code.videolan.org/videolan/VLCKit/-/issues/583
             if self.mediaReachedEnd() {
                 // When we reached the end of the media, start from the beginning again
-                self.resetMedia()
+                self.resetMedia(drawFirstFrame: false)
             }
 
             mediaPlayer.play()
@@ -247,11 +252,7 @@ import MobileVLCKit
 
                 // When the media is in state "ended"/"stopped" we can't seek anymore, so we need to reset the media
                 if self.mediaReachedEnd() {
-                    self.resetMedia()
-
-                    // Need to start playing here, because otherwise the media is not loaded
-                    mediaPlayer.play()
-                    self.pauseAfterSeeking = true
+                    self.resetMedia(drawFirstFrame: true)
                 }
 
                 mediaPlayer.position = self.positionSlider.value
@@ -272,8 +273,8 @@ import MobileVLCKit
         if mediaPlayer.isPlaying {
             // When state changed to playing because we reseted the stream and
             // started playing to load it, we want to pause it here again, as it wasn't playing before
-            if self.pauseAfterSeeking {
-                self.pauseAfterSeeking = false
+            if self.pauseAfterPlay {
+                self.pauseAfterPlay = false
                 mediaPlayer.pause()
 
                 return
