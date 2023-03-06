@@ -105,7 +105,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     self = [super init];
     if (self) {
         _videoSettingsModel = [[ARDSettingsModel alloc] init];
-        _signalingConfigutations = [NSMutableDictionary new];
+        _signalingConfigurations = [NSMutableDictionary new];
         _externalSignalingControllers = [NSMutableDictionary new];
         
         [self configureDatabase];
@@ -436,7 +436,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
             NSDictionary *signalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
 
             if (signalingConfiguration && account && account.accountId) {
-                [self->_signalingConfigutations setObject:signalingConfiguration forKey:account.accountId];
+                [self->_signalingConfigurations setObject:signalingConfiguration forKey:account.accountId];
 
                 if (block) {
                     block(nil);
@@ -458,7 +458,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 // SetSignalingConfiguration should be called just once
 - (void)setSignalingConfigurationForAccountId:(NSString *)accountId
 {
-    NSDictionary *signalingConfiguration = [_signalingConfigutations objectForKey:accountId];
+    NSDictionary *signalingConfiguration = [_signalingConfigurations objectForKey:accountId];
     NSString *externalSignalingTicket = [signalingConfiguration objectForKey:@"ticket"];
     NSString *externalSignalingServer = nil;
     

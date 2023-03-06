@@ -103,7 +103,7 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
 - (void)checkAppState
 {
     TalkAccount *activeAccount                  = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigutations] objectForKey:activeAccount.accountId];
+    NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigurations] objectForKey:activeAccount.accountId];
     
     if (!activeAccount.server || !activeAccount.user) {
         [self setAppState:kAppStateNotServerProvided];

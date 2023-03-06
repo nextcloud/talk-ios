@@ -62,7 +62,7 @@ typedef enum NCPreferredFileSorting {
 
 @property (nonatomic, strong) NSMutableArray *supportedBrowsers;
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
-@property (nonatomic, strong) NSMutableDictionary *signalingConfigutations; // accountId -> signalingConfigutation
+@property (nonatomic, strong) NSMutableDictionary *signalingConfigurations; // accountId -> signalingConfigutation
 @property (nonatomic, strong) NSMutableDictionary *externalSignalingControllers; // accountId -> externalSignalingController
 
 + (instancetype)sharedInstance;
