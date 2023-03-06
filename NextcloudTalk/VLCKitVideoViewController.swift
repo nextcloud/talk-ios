@@ -136,6 +136,10 @@ import MobileVLCKit
         }
     }
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+
     private func updateInformation() {
         self.positionSlider.value = self.mediaPlayer?.position ?? 0
 
