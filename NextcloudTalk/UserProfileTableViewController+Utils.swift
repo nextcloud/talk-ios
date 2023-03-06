@@ -38,7 +38,7 @@ extension UserProfileTableViewController {
     }
 
     func refreshUserProfile() {
-        NCSettingsController.sharedInstance().getUserProfile { _ in
+        NCSettingsController.sharedInstance().getUserProfile(forAccountId: account.accountId) { _ in
             self.account = NCDatabaseManager.sharedInstance().activeAccount()
             self.refreshProfileTableView()
         }

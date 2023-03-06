@@ -68,10 +68,10 @@ typedef enum NCPreferredFileSorting {
 + (instancetype)sharedInstance;
 - (void)addNewAccountForUser:(NSString *)user withToken:(NSString *)token inServer:(NSString *)server;
 - (void)setActiveAccountWithAccountId:(NSString *)accountId;
-- (void)getUserProfileWithCompletionBlock:(UpdatedProfileCompletionBlock)block;
+- (void)getUserProfileForAccountId:(NSString *)accountId withCompletionBlock:(UpdatedProfileCompletionBlock)block;
 - (void)logoutAccountWithAccountId:(NSString *)accountId withCompletionBlock:(LogoutCompletionBlock)block;
-- (void)getCapabilitiesWithCompletionBlock:(GetCapabilitiesCompletionBlock)block;
-- (void)getSignalingConfigurationWithCompletionBlock:(GetSignalingConfigCompletionBlock)block;
+- (void)getCapabilitiesForAccountId:(NSString *)accountId withCompletionBlock:(GetCapabilitiesCompletionBlock)block;
+- (void)getSignalingConfigurationForAccountId:(NSString *)accountId withCompletionBlock:(GetSignalingConfigCompletionBlock)block;
 - (void)setSignalingConfigurationForAccountId:(NSString *)accountId;
 - (NCExternalSignalingController *)externalSignalingControllerForAccountId:(NSString *)accountId;
 - (void)connectDisconnectedExternalSignalingControllers;
