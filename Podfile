@@ -14,6 +14,7 @@ pod 'MBProgressHUD', '~> 1.2.0'
 pod 'TOCropViewController', '~> 2.6.0'
 pod 'libPhoneNumber-iOS'
 pod 'MZTimerLabel'
+pod 'MobileVLCKit', '~>3.3.0'
 end
 
 target "NotificationServiceExtension" do

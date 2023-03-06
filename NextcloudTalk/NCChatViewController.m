@@ -96,7 +96,7 @@ typedef enum NCChatMessageAction {
 
 NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-message";
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, ObjectShareMessageTableViewCellDelegate, PollCreationViewControllerDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate, NCChatTitleViewDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, ObjectShareMessageTableViewCellDelegate, PollCreationViewControllerDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate, NCChatTitleViewDelegate, VLCKitVideoViewControllerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -3998,9 +3998,21 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     dispatch_async(dispatch_get_main_queue(), ^{
         self->_isPreviewControllerShown = YES;
         self->_previewControllerFilePath = fileStatus.fileLocalPath;
-        
+
         // When the keyboard is not dismissed, dismissing the previewController might result in a corrupted keyboardView
         [self dismissKeyboard:NO];
+
+        NSString *extension = [[NSURL fileURLWithPath:fileStatus.fileLocalPath].pathExtension lowercaseString];
+
+        // For WebM we use the VLCKitVideoViewController because the native PreviewController does not support WebM
+        if ([extension isEqualToString:@"webm"]) {
+            VLCKitVideoViewController *vlcKitViewController = [[VLCKitVideoViewController alloc] initWithFilePath:fileStatus.fileLocalPath];
+            vlcKitViewController.delegate = self;
+            vlcKitViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+            [self presentViewController:vlcKitViewController animated:YES completion:nil];
+
+            return;
+        }
 
         QLPreviewController * preview = [[QLPreviewController alloc] init];
         UIColor *themeColor = [NCAppBranding themeColor];
@@ -4052,6 +4064,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 }
 
 - (void)previewControllerDidDismiss:(QLPreviewController *)controller
+{
+    _isPreviewControllerShown = NO;
+}
+
+#pragma mark - VLCVideoViewControllerDelegate
+
+- (void)vlckitVideoViewControllerDismissed:(VLCKitVideoViewController *)controller
 {
     _isPreviewControllerShown = NO;
 }

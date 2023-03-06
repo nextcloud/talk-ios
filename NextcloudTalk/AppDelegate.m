@@ -91,6 +91,9 @@
     if (@available(iOS 14.5, *)) {
         [NCUserInterfaceController sharedInstance].mainViewController.displayModeButtonVisibility = UISplitViewControllerDisplayModeButtonVisibilityNever;
     }
+
+    // When we include VLCKit we need to manually call this because otherwise, device rotation might not work
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     
     return YES;
 }
@@ -145,6 +148,7 @@
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 }
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
