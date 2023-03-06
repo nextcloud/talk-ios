@@ -771,16 +771,22 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     if (_room.readOnlyState == NCRoomReadOnlyStateReadOnly || [self shouldPresentLobbyView]) {
         // Hide text input
-        self.textInputbarHidden = YES;
+        [self setTextInputbarHidden:YES animated:_isVisible];
+
         // Disable call buttons
         [_videoCallButton setEnabled:NO];
         [_voiceCallButton setEnabled:NO];
     } else if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatPermission] && (_room.permissions & NCPermissionChat) == 0) {
         // Hide text input
-        self.textInputbarHidden = YES;
+        [self setTextInputbarHidden:YES animated:_isVisible];
     } else if ([self isTextInputbarHidden]) {
         // Show text input if it was hidden in a previous state
-        [self setTextInputbarHidden:NO animated:YES];
+        BOOL isAtBottom = [self.tableView slk_isAtBottom];
+        [self setTextInputbarHidden:NO animated:_isVisible];
+
+        if (isAtBottom) {
+            [self.tableView slk_scrollToBottomAnimated:YES];
+        }
 
         // Make sure the textinput has the correct height
         [self setChatMessage:self.textInputbar.textView.text];
