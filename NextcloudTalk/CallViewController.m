@@ -1075,15 +1075,26 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)forceMuteAudio
 {
-    [self setAudioMuted:YES];
+    if (!_callController) {
+        return;
+    }
 
-    NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
-    NSString *forceMutedString = NSLocalizedString(@"You have been muted by a moderator", nil);
+    [_callController getAudioEnabledStateWithCompletionBlock:^(BOOL isEnabled) {
+        if (!isEnabled) {
+            // We are already muted, no need to mute again
+            return;
+        }
 
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[JDStatusBarNotificationPresenter sharedPresenter] presentWithTitle:micDisabledString subtitle:forceMutedString includedStyle:JDStatusBarNotificationIncludedStyleDark completion:nil];
-        [[JDStatusBarNotificationPresenter sharedPresenter] dismissAfterDelay:7.0];
-    });
+        [self setAudioMuted:YES];
+
+        NSString *micDisabledString = NSLocalizedString(@"Microphone disabled", nil);
+        NSString *forceMutedString = NSLocalizedString(@"You have been muted by a moderator", nil);
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithTitle:micDisabledString subtitle:forceMutedString includedStyle:JDStatusBarNotificationIncludedStyleDark completion:nil];
+            [[JDStatusBarNotificationPresenter sharedPresenter] dismissAfterDelay:7.0];
+        });
+    }];
 }
 
 - (void)setAudioMuted:(BOOL)isMuted
