@@ -105,6 +105,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NSTimer *_batchUpdateTimer;
     UIPinchGestureRecognizer *_screenViewPinchGestureRecognizer;
     UIPanGestureRecognizer *_screenViewPanGestureRecognizer;
+    UITapGestureRecognizer *_screenViewDoubleTapGestureRecognizer;
 }
 
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
@@ -1841,6 +1842,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         [self->_screenView removeFromSuperview];
         [self->_screenView removeGestureRecognizer:self->_screenViewPinchGestureRecognizer];
         [self->_screenView removeGestureRecognizer:self->_screenViewPanGestureRecognizer];
+        [self->_screenView removeGestureRecognizer:self->_screenViewDoubleTapGestureRecognizer];
         self->_screenView = nil;
 
         self->_screenView = renderView;
@@ -1855,6 +1857,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         self->_screenViewPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(screenViewPan:)];
         self->_screenViewPanGestureRecognizer.delegate = self;
         [self->_screenView addGestureRecognizer:self->_screenViewPanGestureRecognizer];
+
+        self->_screenViewDoubleTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(screenViewDoubleTap:)];
+        [self->_screenViewDoubleTapGestureRecognizer setNumberOfTapsRequired:2];
+        [self->_screenView addGestureRecognizer:self->_screenViewDoubleTapGestureRecognizer];
 
         [UIView transitionWithView:self->_screensharingView duration:0.4
                            options:UIViewAnimationOptionTransitionCrossDissolve
@@ -1932,17 +1938,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)screenViewPinch:(UIPinchGestureRecognizer *)recognizer
 {
-    UIView *screenView = recognizer.view;
-    CGRect bounds = screenView.bounds;
-    CGPoint pinchCenter = [recognizer locationInView:screenView];
-    pinchCenter.x -= CGRectGetMidX(bounds);
-    pinchCenter.y -= CGRectGetMidY(bounds);
-    CGAffineTransform transform = screenView.transform;
-    transform = CGAffineTransformTranslate(transform, pinchCenter.x, pinchCenter.y);
-    CGFloat scale = recognizer.scale;
-    transform = CGAffineTransformScale(transform, scale, scale);
-    transform = CGAffineTransformTranslate(transform, -pinchCenter.x, -pinchCenter.y);
-    screenView.transform = transform;
+    [self zoomView:recognizer.view toPoint:[recognizer locationInView:recognizer.view] usingScale:recognizer.scale];
     recognizer.scale = 1.0;
 
     if (recognizer.state == UIGestureRecognizerStateEnded) {
@@ -1965,8 +1961,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)screenViewPan:(UIPanGestureRecognizer *)recognizer
 {
-    CGSize parentSize = _screenView.superview.frame.size;
-    CGSize size = _screenView.frame.size;
     CGPoint point = [recognizer translationInView:_screenView];
 
     // We need to take the current scaling into account when panning
@@ -1979,6 +1973,38 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     if (recognizer.state == UIGestureRecognizerStateEnded) {
         [self adjustScreenViewPosition];
     }
+}
+
+- (void)screenViewDoubleTap:(UIPanGestureRecognizer *)recognizer
+{
+    if (recognizer.state == UIGestureRecognizerStateRecognized) {
+        // We need to take the current scaling into account when panning
+        // As we have the same scale factor for X and Y, we can take only one here
+        CGFloat scaleFactor = _screenView.transform.a;
+
+        [UIView animateWithDuration:0.3 animations:^{
+            if (scaleFactor > 1) {
+                // Set screenView's original size
+                [self resizeScreensharingView];
+            } else {
+                // Zoom 3x screenView into the tap point
+                [self zoomView:recognizer.view toPoint:[recognizer locationInView:recognizer.view] usingScale:3];
+            }
+        }];
+        [self adjustScreenViewPosition];
+    }
+}
+
+- (void)zoomView:(UIView *)view toPoint:(CGPoint)point usingScale:(CGFloat)scale
+{
+    CGRect bounds = view.bounds;
+    point.x -= CGRectGetMidX(bounds);
+    point.y -= CGRectGetMidY(bounds);
+    CGAffineTransform transform = view.transform;
+    transform = CGAffineTransformTranslate(transform, point.x, point.y);
+    transform = CGAffineTransformScale(transform, scale, scale);
+    transform = CGAffineTransformTranslate(transform, -point.x, -point.y);
+    view.transform = transform;
 }
 
 - (void)adjustScreenViewPosition
