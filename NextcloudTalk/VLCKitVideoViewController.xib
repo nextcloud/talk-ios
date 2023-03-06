@@ -11,6 +11,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="VLCKitVideoViewController" customModule="NextcloudTalk" customModuleProvider="target">
             <connections>
                 <outlet property="buttonView" destination="yxp-ju-dZB" id="M4R-kV-Qba"/>
+                <outlet property="closeButton" destination="dpB-dC-5TS" id="Gue-Mo-mAf"/>
                 <outlet property="currentTimeLabel" destination="1cN-xx-LeQ" id="4aQ-Rm-cG1"/>
                 <outlet property="playPauseButton" destination="a5N-Hb-r2p" id="7y8-lW-Q1Q"/>
                 <outlet property="positionSlider" destination="YOo-ek-LBP" id="Nz2-je-Ipm"/>
@@ -86,6 +87,19 @@
                         <constraint firstItem="a5N-Hb-r2p" firstAttribute="top" secondItem="yxp-ju-dZB" secondAttribute="top" id="ypl-ks-PUK"/>
                     </constraints>
                 </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dpB-dC-5TS" userLabel="Close Button">
+                    <rect key="frame" x="339" y="69" width="44" height="44"/>
+                    <color key="backgroundColor" red="0.1175515647" green="0.1187154416" blue="0.1187154416" alpha="0.79780629140000003" colorSpace="custom" customColorSpace="displayP3"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="44" id="Qzf-hF-534"/>
+                        <constraint firstAttribute="height" constant="44" id="WVd-vH-LtD"/>
+                    </constraints>
+                    <inset key="imageEdgeInsets" minX="8" minY="8" maxX="8" maxY="8"/>
+                    <state key="normal" image="close"/>
+                    <connections>
+                        <action selector="closeButtonTap:" destination="-1" eventType="touchUpInside" id="cYX-bT-NhP"/>
+                    </connections>
+                </button>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -99,6 +113,8 @@
                 <constraint firstItem="1cN-xx-LeQ" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Yy4-5a-EYu"/>
                 <constraint firstItem="yxp-ju-dZB" firstAttribute="top" secondItem="YOo-ek-LBP" secondAttribute="bottom" constant="8" id="cXP-YP-ell"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="tnZ-oA-kNS" secondAttribute="trailing" constant="16" id="ct4-Hm-fzE"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="dpB-dC-5TS" secondAttribute="trailing" constant="10" id="cub-yh-tFt"/>
+                <constraint firstItem="dpB-dC-5TS" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="10" id="fGe-6b-6Wa"/>
                 <constraint firstItem="tnZ-oA-kNS" firstAttribute="top" secondItem="YOo-ek-LBP" secondAttribute="bottom" constant="8" id="hh5-7d-R19"/>
                 <constraint firstItem="1cN-xx-LeQ" firstAttribute="top" secondItem="YOo-ek-LBP" secondAttribute="bottom" constant="8" id="uLU-E5-Jms"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="NXo-gc-zjF" secondAttribute="trailing" id="wVS-YR-VVy"/>
@@ -108,6 +124,7 @@
         </view>
     </objects>
     <resources>
+        <image name="close" width="24" height="24"/>
         <image name="play.fill" catalog="system" width="117" height="128"/>
         <image name="square.and.arrow.up" catalog="system" width="115" height="128"/>
     </resources>

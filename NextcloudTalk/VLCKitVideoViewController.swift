@@ -35,6 +35,7 @@ import MobileVLCKit
     @IBOutlet weak var buttonView: UIView!
     @IBOutlet weak var playPauseButton: UIButton!
     @IBOutlet weak var shareButton: UIButton!
+    @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var currentTimeLabel: UILabel!
     @IBOutlet weak var totalTimeLabel: UILabel!
     @IBOutlet weak var positionSlider: UISlider!
@@ -85,6 +86,9 @@ import MobileVLCKit
         self.totalTimeLabel.text = "-:-"
         self.positionSlider.value = 0
 
+        // Set close button icon as template
+        self.closeButton.setImage(UIImage(named: "close")?.withRenderingMode(.alwaysTemplate), for: .normal)
+
         // Allow hiding by swipe
         let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(dismissViewController))
         swipeGesture.direction = .down
@@ -105,6 +109,7 @@ import MobileVLCKit
         super.viewDidLayoutSubviews()
 
         self.buttonView.layer.cornerRadius = self.buttonView.frame.size.height / 2
+        self.closeButton.layer.cornerRadius = self.closeButton.frame.size.height / 2
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -193,6 +198,7 @@ import MobileVLCKit
             self.positionSlider.alpha = alpha
             self.totalTimeLabel.alpha = alpha
             self.currentTimeLabel.alpha = alpha
+            self.closeButton.alpha = alpha
         }
     }
 
@@ -248,6 +254,10 @@ import MobileVLCKit
                 self.updateIdleTimer()
             }
         }
+    }
+
+    @IBAction func closeButtonTap(_ sender: Any) {
+        self.dismissViewController()
     }
 
     // MARK: VLCMediaPlayerDelegate
