@@ -59,6 +59,7 @@
 #import "NCChatTitleView.h"
 #import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
+#import "NCExternalSignalingController.h"
 #import "NCMessageParameter.h"
 #import "NCMessageTextView.h"
 #import "NCNavigationController.h"
@@ -194,6 +195,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didFailRequestingCallTransaction:) name:CallKitManagerDidFailRequestingCallTransaction object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateParticipants:) name:NCExternalSignalingControllerDidUpdateParticipantsNotification object:nil];
 
         // Notifications when runing on Mac 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:@"NSApplicationDidBecomeActiveNotification" object:nil];
@@ -428,7 +430,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+
+    [self checkLobbyState];
     [self checkRoomControlsAvailability];
     
     [self startObservingExpiredMessages];
@@ -768,16 +771,25 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     if (_room.readOnlyState == NCRoomReadOnlyStateReadOnly || [self shouldPresentLobbyView]) {
         // Hide text input
-        self.textInputbarHidden = YES;
+        [self setTextInputbarHidden:YES animated:_isVisible];
+
         // Disable call buttons
         [_videoCallButton setEnabled:NO];
         [_voiceCallButton setEnabled:NO];
     } else if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatPermission] && (_room.permissions & NCPermissionChat) == 0) {
         // Hide text input
-        self.textInputbarHidden = YES;
+        [self setTextInputbarHidden:YES animated:_isVisible];
     } else if ([self isTextInputbarHidden]) {
         // Show text input if it was hidden in a previous state
-        [self setTextInputbarHidden:NO animated:YES];
+        BOOL isAtBottom = [self.tableView slk_isAtBottom];
+        [self setTextInputbarHidden:NO animated:_isVisible];
+
+        if (isAtBottom) {
+            [self.tableView slk_scrollToBottomAnimated:YES];
+        }
+
+        // Make sure the textinput has the correct height
+        [self setChatMessage:self.textInputbar.textView.text];
     }
     
     if (_presentedInCall) {
@@ -832,7 +844,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             [_chatController getInitialChatHistory];
         }
     }
-    [self checkRoomControlsAvailability];
 }
 
 - (void)setOfflineFooterView
@@ -2309,6 +2320,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     if (!_hasStopped) {
         [self checkLobbyState];
+        [self checkRoomControlsAvailability];
     }
 }
 
@@ -2431,6 +2443,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
             
             [self.tableView reloadData];
+            [self checkLobbyState];
             
             if (indexPathUnreadMessageSeparator) {
                 [self.tableView scrollToRowAtIndexPath:indexPathUnreadMessageSeparator atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
@@ -2700,6 +2713,52 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [_chatController clearHistoryAndResetChatController];
         _hasRequestedInitialHistory = YES;
         [_chatController getInitialChatHistory];
+    }
+}
+
+#pragma mark - External signaling controller Notifications
+
+- (void)didUpdateParticipants:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    if (![roomToken isEqualToString:_room.token]) {
+        return;
+    }
+
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    BOOL serverSupportsConversationPermissions =
+    [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityConversationPermissions forAccountId:activeAccount.accountId] ||
+    [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag forAccountId:activeAccount.accountId];
+
+    if (!serverSupportsConversationPermissions) {
+        return;
+    }
+
+    // Find information about this user
+    NSDictionary *appUserDict = nil;
+
+    for (NSDictionary *participantDict in [notification.userInfo objectForKey:@"users"]) {
+        NSString *userId = [participantDict objectForKey:@"userId"];
+
+        if (userId && [userId isEqualToString:activeAccount.userId]) {
+            appUserDict = participantDict;
+            break;
+        }
+    }
+
+    if (!appUserDict) {
+        return;
+    }
+
+    // Check if we still have the same permissions
+    if ([appUserDict objectForKey:@"participantPermissions"]) {
+        NSInteger permissions = [[appUserDict objectForKey:@"participantPermissions"] integerValue];
+
+        if (permissions != _room.permissions) {
+            // Need to update the room from the api because otherwise "canStartCall" is not updated correctly
+            [[NCRoomsManager sharedInstance] updateRoom:_room.token withCompletionBlock:nil];
+        }
     }
 }
 

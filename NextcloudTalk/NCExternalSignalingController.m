@@ -34,6 +34,8 @@ static NSTimeInterval kInitialReconnectInterval = 1;
 static NSTimeInterval kMaxReconnectInterval     = 16;
 static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
+NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification = @"NCExternalSignalingControllerDidUpdateParticipantsNotification";
+
 @interface NCExternalSignalingController () <NSURLSessionWebSocketDelegate>
 
 @property (nonatomic, strong) NSURLSessionWebSocketTask *webSocket;
@@ -529,7 +531,15 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
     NSString *eventType = [eventDict objectForKey:@"type"];
     if ([eventType isEqualToString:@"update"]) {
         //NSLog(@"Participant list changed: %@", [eventDict objectForKey:@"update"]);
-        [self.delegate externalSignalingController:self didReceivedParticipantListMessage:[eventDict objectForKey:@"update"]];
+        NSDictionary *updateDict = [eventDict objectForKey:@"update"];
+        [self.delegate externalSignalingController:self didReceivedParticipantListMessage:updateDict];
+
+        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:[updateDict objectForKey:@"roomid"] forKey:@"roomToken"];
+        [userInfo setObject:[updateDict objectForKey:@"users"] forKey:@"users"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidUpdateParticipantsNotification
+                                                            object:self
+                                                          userInfo:userInfo];
     } else {
         NSLog(@"Unknown room event: %@", eventDict);
     }
