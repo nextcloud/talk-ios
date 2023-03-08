@@ -128,7 +128,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 @property (nonatomic, strong) IBOutlet NSLayoutConstraint *screenshareViewRightContraint;
 @property (nonatomic, strong) IBOutlet NSLayoutConstraint *sideBarViewRightConstraint;
 @property (nonatomic, strong) IBOutlet NSLayoutConstraint *sideBarViewBottomConstraint;
-@property (nonatomic, strong) IBOutlet NSLayoutConstraint *sideBarWidth;
+@property (nonatomic, strong) IBOutlet NSLayoutConstraint *sideBarWidthConstraint;
 @property (nonatomic, strong) IBOutlet NSLayoutConstraint *stackViewToTitleViewConstraint;
 
 @end
@@ -1303,9 +1303,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     CGFloat constant = 0;
 
-    if (self.sideBarWidth.constant > 0) {
+    if (self.sideBarWidthConstraint.constant > 0) {
         // Take sidebar width into account
-        constant += self.sideBarWidth.constant;
+        constant += self.sideBarWidthConstraint.constant;
 
         // Add padding between the element and the sidebar
         constant += 8;
@@ -1325,9 +1325,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     if (visible) {
         [self.sideBarView setHidden:NO];
-        [self.sideBarWidth setConstant:kSidebarWidth];
+        [self.sideBarWidthConstraint setConstant:kSidebarWidth];
     } else {
-        [self.sideBarWidth setConstant:0];
+        [self.sideBarWidthConstraint setConstant:0];
     }
 
     CGFloat rightConstraintConstant = [self getRightSideConstraintConstant];
