@@ -1513,6 +1513,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (IBAction)videoRecordingButtonPressed:(id)sender
 {
     if (![_room canModerate]) {
+        NSString *notificationText = NSLocalizedString(@"This call is being recorded", nil);
+        [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:notificationText dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
+        
         return;
     }
 

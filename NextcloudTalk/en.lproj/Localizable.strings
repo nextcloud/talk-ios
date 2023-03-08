@@ -1412,6 +1412,9 @@
 "There is no account for user %@ in server %@ configured in this app." = "There is no account for user %1$@ in server %2$@ configured in this app.";
 
 /* No comment provided by engineer. */
+"This call is being recorded" = "This call is being recorded";
+
+/* No comment provided by engineer. */
 "This conversation is read-only" = "This conversation is read-only";
 
 /* The meeting start time will be displayed after this text e.g (This meeting is scheduled for tomorrow at 10:00) */
