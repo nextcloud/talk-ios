@@ -29,7 +29,6 @@
 #import "NCChatViewController.h"
 
 #import "AFImageDownloader.h"
-#import "FTPopOverMenu.h"
 #import "JDStatusBarNotification.h"
 #import "NSDate+DateTools.h"
 #import "UIImageView+AFNetworking.h"
