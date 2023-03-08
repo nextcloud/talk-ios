@@ -30,6 +30,7 @@
                 <outlet property="sideBarViewRightConstraint" destination="grQ-FV-QY8" id="dTS-zj-Qdo"/>
                 <outlet property="sideBarWidth" destination="8kc-f3-P81" id="30D-SX-qos"/>
                 <outlet property="speakerButton" destination="dgz-bL-PRr" id="WdG-PS-8Qa"/>
+                <outlet property="stackViewToTitleViewConstraint" destination="uUY-lE-iwc" id="RG2-12-HAc"/>
                 <outlet property="switchCameraButton" destination="Mf3-yk-Olo" id="bJn-Fu-bqF"/>
                 <outlet property="titleView" destination="NY0-IT-mMr" id="TTN-Ws-hgl"/>
                 <outlet property="toggleChatButton" destination="vBI-Mz-P4p" id="PVu-uW-pOJ"/>
