@@ -259,6 +259,19 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return resultImage;
 }
 
++ (UIImage *)roundedImageFromImage:(UIImage *)image
+{
+    CGSize imageSize = image.size;
+    UIGraphicsBeginImageContextWithOptions(imageSize, NO, [UIScreen mainScreen].scale);
+    CGRect rect = CGRectMake(0, 0, imageSize.width, imageSize.height);
+    [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:imageSize.height] addClip];
+    [image drawInRect:rect];
+    UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return resultImage;
+}
+
 + (UIColor *)searchbarBGColorForColor:(UIColor *)color
 {
     CGFloat luma = [self calculateLumaFromColor:color];

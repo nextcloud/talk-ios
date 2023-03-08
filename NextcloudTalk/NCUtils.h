@@ -48,6 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)sha1FromString:(NSString *)string;
 
 + (UIImage *)blurImageFromImage:(UIImage *)image;
++ (UIImage *)roundedImageFromImage:(UIImage *)image;
 
 + (UIColor *)searchbarBGColorForColor:(UIColor *)color;
 
