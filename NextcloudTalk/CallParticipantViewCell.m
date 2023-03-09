@@ -23,7 +23,6 @@
 #import "CallParticipantViewCell.h"
 
 #import "UIImageView+AFNetworking.h"
-#import "UIImageView+Letters.h"
 
 #import "CallViewController.h"
 #import "NCAPIController.h"
@@ -141,7 +140,9 @@ CGFloat const kCallParticipantCellMinHeight = 128;
                                         placeholderImage:nil success:nil failure:nil];
     } else {
         UIColor *guestAvatarColor = [UIColor colorWithRed:0.73 green:0.73 blue:0.73 alpha:1.0]; /*#b9b9b9*/
-        [self.peerAvatarImageView setImageWithString:@"?" color:guestAvatarColor circular:true];
+
+        UIImage *image = [NCUtils getImageWithString:@"?" withBackgroundColor:guestAvatarColor withBounds:self.peerAvatarImageView.bounds isCircular:YES];
+        [self.peerAvatarImageView setImage:image];
     }
 }
 

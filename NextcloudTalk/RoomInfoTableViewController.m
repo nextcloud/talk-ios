@@ -27,7 +27,6 @@
 #import <QuickLook/QuickLook.h>
 
 #import "UIImageView+AFNetworking.h"
-#import "UIImageView+Letters.h"
 #import "UIView+Toast.h"
 
 #import "NextcloudTalk-Swift.h"
@@ -2245,7 +2244,9 @@ typedef enum FileAction {
             } else if (participant.isGuest) {
                 UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
                 NSString *avatarName = ([participant.displayName isEqualToString:@""]) ? @"?" : participant.displayName;
-                [cell.contactImage setImageWithString:avatarName color:guestAvatarColor circular:true];
+
+                UIImage *image = [NCUtils getImageWithString:avatarName withBackgroundColor:guestAvatarColor withBounds:cell.contactImage.bounds isCircular:YES];
+                [cell.contactImage setImage:image];
             } else {
                 [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.participantId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                          placeholderImage:nil success:nil failure:nil];
