@@ -105,17 +105,32 @@ typedef enum {
 
 @interface NCMuteMessage : NCSignalingMessage
 
+- (instancetype)initWithFrom:(NSString *)from
+                      sendTo:(NSString *)to
+                 withPayload:(NSDictionary *)payload
+                 forRoomType:(NSString *)roomType;
+
 - (instancetype)initWithValues:(NSDictionary *)values;
 
 @end
 
 @interface NCUnmuteMessage : NCSignalingMessage
 
+- (instancetype)initWithFrom:(NSString *)from
+                      sendTo:(NSString *)to
+                 withPayload:(NSDictionary *)payload
+                 forRoomType:(NSString *)roomType;
+
 - (instancetype)initWithValues:(NSDictionary *)values;
 
 @end
 
 @interface NCNickChangedMessage : NCSignalingMessage
+
+- (instancetype)initWithFrom:(NSString *)from
+                      sendTo:(NSString *)to
+                 withPayload:(NSDictionary *)payload
+                 forRoomType:(NSString *)roomType;
 
 - (instancetype)initWithValues:(NSDictionary *)values;
 

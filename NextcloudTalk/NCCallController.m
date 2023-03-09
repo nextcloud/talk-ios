@@ -421,7 +421,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
 
         [self->_localVideoTrack setIsEnabled:enable];
-        [self sendDataChannelMessageToAllOfType:enable ? @"videoOn" : @"videoOff" withPayload:nil];
+        [self sendMessageToAllOfType:enable ? @"videoOn" : @"videoOff" withPayload:nil];
     }];
 }
 
@@ -429,11 +429,11 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     [[WebRTCCommon shared] dispatch:^{
         [self->_localAudioTrack setIsEnabled:enable];
-        [self sendDataChannelMessageToAllOfType:enable ? @"audioOn" : @"audioOff" withPayload:nil];
+        [self sendMessageToAllOfType:enable ? @"audioOn" : @"audioOff" withPayload:nil];
 
         if (!enable) {
             self->_speaking = NO;
-            [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
+            [self sendMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
         }
     }];
 }
@@ -628,10 +628,10 @@ static NSString * const kNCVideoTrackKind = @"video";
 
             if (averagePower >= -50.0f && !self->_speaking) {
                 self->_speaking = YES;
-                [self sendDataChannelMessageToAllOfType:@"speaking" withPayload:nil];
+                [self sendMessageToAllOfType:@"speaking" withPayload:nil];
             } else if (averagePower < -50.0f && self->_speaking) {
                 self->_speaking = NO;
-                [self sendDataChannelMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
+                [self sendMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
             }
         }
     }];
@@ -768,7 +768,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     return peerConnectionWrapper;
 }
 
-- (void)sendDataChannelMessageToAllOfType:(NSString *)type withPayload:(id)payload
+- (void)sendMessageToAllOfType:(NSString *)type withPayload:(id)payload
 {
     [[WebRTCCommon shared] assertQueue];
 
@@ -778,6 +778,53 @@ static NSString * const kNCVideoTrackKind = @"video";
         NSArray *connectionWrappers = [self.connectionsDict allValues];
         for (NCPeerConnection *peerConnection in connectionWrappers) {
             [peerConnection sendDataChannelMessageOfType:type withPayload:payload];
+        }
+    }
+
+    // Send a signaling message only if we are using an external signaling server
+    if (![self->_externalSignalingController isEnabled]) {
+        return;
+    }
+    
+    for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
+        NCSignalingMessage *message = nil;
+        NSDictionary *payload = nil;
+        NSString *from = [self signalingSessionId];
+
+        if ([type isEqualToString:@"audioOn"]) {
+            payload = @{@"name": @"audio"};
+            message = [[NCUnmuteMessage alloc] initWithFrom:from
+                                                     sendTo:peer.peerId
+                                                withPayload:payload
+                                                forRoomType:peer.roomType];
+        } else if ([type isEqualToString:@"audioOff"]) {
+            payload = @{@"name": @"audio"};
+            message = [[NCMuteMessage alloc] initWithFrom:from
+                                                   sendTo:peer.peerId
+                                              withPayload:payload
+                                              forRoomType:peer.roomType];
+        } else if ([type isEqualToString:@"videoOn"]) {
+            payload = @{@"name": @"video"};
+            message = [[NCUnmuteMessage alloc] initWithFrom:from
+                                                     sendTo:peer.peerId
+                                                withPayload:payload
+                                                forRoomType:peer.roomType];
+        } else if ([type isEqualToString:@"videoOff"]) {
+            payload = @{@"name": @"video"};
+            message = [[NCMuteMessage alloc] initWithFrom:from
+                                                   sendTo:peer.peerId
+                                              withPayload:payload
+                                              forRoomType:peer.roomType];
+        } else if ([type isEqualToString:@"nickChanged"]) {
+            payload = @{@"name": _account.userDisplayName};
+            message = [[NCNickChangedMessage alloc] initWithFrom:from
+                                                          sendTo:peer.peerId
+                                                     withPayload:payload
+                                                     forRoomType:peer.roomType];
+        }
+
+        if (message) {
+            [self->_externalSignalingController sendCallMessage:message];
         }
     }
 }
@@ -857,7 +904,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                               };
 
     [[WebRTCCommon shared] dispatch:^{
-        [self sendDataChannelMessageToAllOfType:@"nickChanged" withPayload:payload];
+        [self sendMessageToAllOfType:@"nickChanged" withPayload:payload];
     }];
 }
 
@@ -884,19 +931,19 @@ static NSString * const kNCVideoTrackKind = @"video";
         // Send current audio state
         if (self.isAudioEnabled) {
             NSLog(@"Send audioOn to all");
-            [self sendDataChannelMessageToAllOfType:@"audioOn" withPayload:nil];
+            [self sendMessageToAllOfType:@"audioOn" withPayload:nil];
         } else {
             NSLog(@"Send audioOff to all");
-            [self sendDataChannelMessageToAllOfType:@"audioOff" withPayload:nil];
+            [self sendMessageToAllOfType:@"audioOff" withPayload:nil];
         }
 
         // Send current video state
         if (self.isVideoEnabled) {
             NSLog(@"Send videoOn to all");
-            [self sendDataChannelMessageToAllOfType:@"videoOn" withPayload:nil];
+            [self sendMessageToAllOfType:@"videoOn" withPayload:nil];
         } else {
             NSLog(@"Send videoOff to all");
-            [self sendDataChannelMessageToAllOfType:@"videoOff" withPayload:nil];
+            [self sendMessageToAllOfType:@"videoOff" withPayload:nil];
         }
     }];
 }

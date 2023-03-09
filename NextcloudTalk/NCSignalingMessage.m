@@ -49,6 +49,7 @@ static NSString * const kNCSignalingMessagePayloadKey = @"payload";
 static NSString * const kNCSignalingMessageRoomTypeKey = @"roomType";
 static NSString * const kNCSignalingMessageNickKey = @"nick";
 static NSString * const kNCSignalingMessageStatusKey = @"status";
+static NSString * const kNCSignalingMessageNameKey = @"name";
 
 static NSString * const kNCSignalingMessageTypeOfferKey = @"offer";
 static NSString * const kNCSignalingMessageTypeAnswerKey = @"answer";
@@ -483,6 +484,16 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCMuteMessage
 
+- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+
+    return [super initWithFrom:from
+                            to:to
+                           sid:[NCSignalingMessage getMessageSid]
+                          type:kNCSignalingMessageTypeMuteKey
+                       payload:payload
+                      roomType:roomType];
+}
+
 - (instancetype)initWithValues:(NSDictionary *)values {
     NSDictionary *dataDict = [[NSDictionary alloc] initWithDictionary:values];
     NSDictionary *payload = [dataDict objectForKey:kNCSignalingMessagePayloadKey];
@@ -502,6 +513,54 @@ NSString *const kRoomTypeScreen = @"screen";
                       roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
 }
 
+- (NSData *)JSONData {
+    NSError *error = nil;
+    NSData *data =
+    [NSJSONSerialization dataWithJSONObject:[self functionDict]
+                                    options:NSJSONWritingPrettyPrinted
+                                      error:&error];
+    if (error) {
+        RTCLogError(@"Error serializing JSON: %@", error);
+        return nil;
+    }
+
+    return data;
+}
+
+- (NSString *)functionJSONSerialization
+{
+    NSError *error;
+    NSString *jsonString = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[self functionDict]
+                                                       options:0
+                                                         error:&error];
+
+    if (! jsonData) {
+        NSLog(@"Error serializing JSON: %@", error);
+    } else {
+        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+
+    return jsonString;
+}
+
+- (NSDictionary *)messageDict {
+    return @{
+             kNCSignalingMessageEventKey: kNCSignalingMessageKey,
+             kNCSignalingMessageFunctionKey: [self functionJSONSerialization],
+             kNCSignalingMessageSessionIdKey: self.from
+             };
+}
+
+- (NSDictionary *)functionDict {
+    return @{
+             kNCSignalingMessageToKey: self.to,
+             kNCSignalingMessageRoomTypeKey: self.roomType,
+             kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessagePayloadKey: self.payload,
+             };
+}
+
 - (NCSignalingMessageType)messageType {
     return kNCSignalingMessageTypeMute;
 }
@@ -509,6 +568,16 @@ NSString *const kRoomTypeScreen = @"screen";
 @end
 
 @implementation NCUnmuteMessage
+
+- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+
+    return [super initWithFrom:from
+                            to:to
+                           sid:[NCSignalingMessage getMessageSid]
+                          type:kNCSignalingMessageTypeUnmuteKey
+                       payload:payload
+                      roomType:roomType];
+}
 
 - (instancetype)initWithValues:(NSDictionary *)values {
     NSDictionary *dataDict = [[NSDictionary alloc] initWithDictionary:values];
@@ -529,6 +598,54 @@ NSString *const kRoomTypeScreen = @"screen";
                       roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
 }
 
+- (NSData *)JSONData {
+    NSError *error = nil;
+    NSData *data =
+    [NSJSONSerialization dataWithJSONObject:[self functionDict]
+                                    options:NSJSONWritingPrettyPrinted
+                                      error:&error];
+    if (error) {
+        RTCLogError(@"Error serializing JSON: %@", error);
+        return nil;
+    }
+
+    return data;
+}
+
+- (NSString *)functionJSONSerialization
+{
+    NSError *error;
+    NSString *jsonString = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[self functionDict]
+                                                       options:0
+                                                         error:&error];
+
+    if (! jsonData) {
+        NSLog(@"Error serializing JSON: %@", error);
+    } else {
+        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+
+    return jsonString;
+}
+
+- (NSDictionary *)messageDict {
+    return @{
+             kNCSignalingMessageEventKey: kNCSignalingMessageKey,
+             kNCSignalingMessageFunctionKey: [self functionJSONSerialization],
+             kNCSignalingMessageSessionIdKey: self.from
+             };
+}
+
+- (NSDictionary *)functionDict {
+    return @{
+             kNCSignalingMessageToKey: self.to,
+             kNCSignalingMessageRoomTypeKey: self.roomType,
+             kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessagePayloadKey: self.payload,
+             };
+}
+
 - (NCSignalingMessageType)messageType {
     return kNCSignalingMessageTypeUnmute;
 }
@@ -536,6 +653,16 @@ NSString *const kRoomTypeScreen = @"screen";
 @end
 
 @implementation NCNickChangedMessage
+
+- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+
+    return [super initWithFrom:from
+                            to:to
+                           sid:[NCSignalingMessage getMessageSid]
+                          type:kNCSignalingMessageTypeNickChangedKey
+                       payload:payload
+                      roomType:roomType];
+}
 
 - (instancetype)initWithValues:(NSDictionary *)values {
     NSDictionary *dataDict = [[NSDictionary alloc] initWithDictionary:values];
