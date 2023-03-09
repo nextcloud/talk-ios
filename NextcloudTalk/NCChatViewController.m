@@ -31,8 +31,7 @@
 #import "AFImageDownloader.h"
 #import "JDStatusBarNotification.h"
 #import "NSDate+DateTools.h"
-#import "UIImageView+AFNetworking.h"
-#import "UIImageView+Letters.h"
+#import "UIButton+AFNetworking.h"
 #import "UIResponder+SLKAdditions.h"
 #import "UIView+Toast.h"
 
@@ -1565,70 +1564,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (message.file) {
         [NCUtils openFileInNextcloudAppOrBrowser:message.file.path withFileLink:message.file.link];
     }
-}
-
-- (void)presentOptionsForMessageActor:(NCChatMessage *)message fromIndexPath:(NSIndexPath *)indexPath
-{
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getUserActionsForUser:message.actorId usingAccount:activeAccount withCompletionBlock:^(NSDictionary *userActions, NSError *error) {
-        if (!error) {
-            NSArray *actions = [userActions objectForKey:@"actions"];
-            if ([actions isKindOfClass:[NSArray class]]) {
-                UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:message.actorDisplayName
-                                                                                            message:nil
-                                                                                     preferredStyle:UIAlertControllerStyleActionSheet];
-                for (NSDictionary *action in actions) {
-                    NSString *appId = [action objectForKey:@"appId"];
-                    NSString *title = [action objectForKey:@"title"];
-                    NSString *link = [action objectForKey:@"hyperlink"];
-                    
-                    // Talk to user action
-                    if ([appId isEqualToString:@"spreed"]) {
-                        UIAlertAction *talkAction = [UIAlertAction actionWithTitle:title
-                                                                             style:UIAlertActionStyleDefault
-                                                                           handler:^void (UIAlertAction *action) {
-                            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-                            NSString *userId = [userActions objectForKey:@"userId"];
-                            [userInfo setObject:userId forKey:@"actorId"];
-                            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerTalkToUserNotification
-                                                                                object:self
-                                                                              userInfo:userInfo];
-                        }];
-                        [talkAction setValue:[[UIImage imageNamed:@"navigationLogo"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-                        [optionsActionSheet addAction:talkAction];
-                        continue;
-                    }
-                    
-                    // Other user actions
-                    UIAlertAction *action = [UIAlertAction actionWithTitle:title
-                                                                     style:UIAlertActionStyleDefault
-                                                                   handler:^void (UIAlertAction *action) {
-                        NSURL *actionURL = [NSURL URLWithString:[link stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
-                        [[UIApplication sharedApplication] openURL:actionURL options:@{} completionHandler:nil];
-                    }];
-                    
-                    if ([appId isEqualToString:@"profile"]) {
-                        [action setValue:[[UIImage imageNamed:@"user-profile"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-                    } else if ([appId isEqualToString:@"email"]) {
-                        [action setValue:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-                    }
-                    
-                    [optionsActionSheet addAction:action];
-                }
-                
-                [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-                
-                // Presentation on iPads
-                optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
-                CGRect cellRect = [self.tableView rectForRowAtIndexPath:indexPath];
-                CGFloat avatarSize = kChatCellAvatarHeight + 10;
-                CGRect avatarRect = CGRectMake(cellRect.origin.x, cellRect.origin.y, avatarSize, avatarSize);
-                optionsActionSheet.popoverPresentationController.sourceRect = avatarRect;
-                
-                [self presentViewController:optionsActionSheet animated:YES completion:nil];
-            }
-        }
-    }];
 }
 
 - (void)highlightMessageAtIndexPath:(NSIndexPath *)indexPath withScrollPosition:(UITableViewScrollPosition)scrollPosition
@@ -3418,15 +3353,23 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         suggestionCell.titleLabel.text = suggestionName;
         [suggestionCell setUserStatus:suggestionUserStatus];
         if ([suggestionId isEqualToString:@"all"]) {
-            [suggestionCell.avatarView setImage:[UIImage imageNamed:@"group-15"]];
-            [suggestionCell.avatarView setContentMode:UIViewContentModeCenter];
+            [suggestionCell.avatarButton setImage:[UIImage imageNamed:@"group-15"] forState:UIControlStateNormal];
         } else if ([suggestionSource isEqualToString:@"guests"]) {
             UIColor *guestAvatarColor = [NCAppBranding placeholderColor];
             NSString *name = ([suggestionName isEqualToString:@"Guest"]) ? @"?" : suggestionName;
-            [suggestionCell.avatarView setImageWithString:name color:guestAvatarColor circular:true];
+
+            UIImage *image = [NCUtils getImageWithString:name withBackgroundColor:guestAvatarColor withBounds:suggestionCell.avatarButton.bounds isCircular:YES];
+            [suggestionCell.avatarButton setImage:image forState:UIControlStateNormal];
         } else {
-            [suggestionCell.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:suggestionId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                             placeholderImage:nil success:nil failure:nil];
+            [suggestionCell.avatarButton setImageForState:UIControlStateNormal
+                                           withURLRequest:[[NCAPIController sharedInstance]
+                                                           createAvatarRequestForUser:suggestionId
+                                                           withStyle:self.traitCollection.userInterfaceStyle
+                                                           andSize:96
+                                                           usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
+                                         placeholderImage:nil
+                                                  success:nil
+                                                  failure:nil];
         }
         return suggestionCell;
     }
@@ -4007,16 +3950,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NSIndexPath *indexPath = [self indexPathForMessage:message];
         if (indexPath) {
             [self highlightMessageAtIndexPath:indexPath withScrollPosition:UITableViewScrollPositionTop];
-        }
-    });
-}
-
-- (void)cellWantsToDisplayOptionsForMessageActor:(NCChatMessage *)message {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSIndexPath *indexPath = [self indexPathForMessage:message];
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        if (indexPath && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId]) {
-            [self presentOptionsForMessageActor:message fromIndexPath:indexPath];
         }
     });
 }
