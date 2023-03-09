@@ -24,8 +24,7 @@
 
 #import "MaterialActivityIndicator.h"
 #import "SLKUIConstants.h"
-#import "UIImageView+AFNetworking.h"
-#import "UIImageView+Letters.h"
+#import "UIButton+AFNetworking.h"
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -58,21 +57,20 @@
 
 - (void)configureSubviews
 {
-    _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kChatCellAvatarHeight, kChatCellAvatarHeight)];
-    _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
-    _avatarView.userInteractionEnabled = YES;
-    _avatarView.backgroundColor = [NCAppBranding placeholderColor];
-    _avatarView.layer.cornerRadius = kChatCellAvatarHeight/2.0;
-    _avatarView.layer.masksToBounds = YES;
-    UITapGestureRecognizer *avatarTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarTapped:)];
-    [_avatarView addGestureRecognizer:avatarTap];
-    
+    _avatarButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, kChatCellAvatarHeight, kChatCellAvatarHeight)];
+    _avatarButton.translatesAutoresizingMaskIntoConstraints = NO;
+    _avatarButton.backgroundColor = [NCAppBranding placeholderColor];
+    _avatarButton.layer.cornerRadius = kChatCellAvatarHeight/2.0;
+    _avatarButton.layer.masksToBounds = YES;
+    _avatarButton.showsMenuAsPrimaryAction = YES;
+    _avatarButton.imageView.contentMode = UIViewContentModeScaleToFill;
+
     _audioPlayerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 44)];
     _audioPlayerView.translatesAutoresizingMaskIntoConstraints = NO;
     [_audioPlayerView setSemanticContentAttribute:UISemanticContentAttributeForceLeftToRight];
     
     if ([self.reuseIdentifier isEqualToString:VoiceMessageCellIdentifier]) {
-        [self.contentView addSubview:_avatarView];
+        [self.contentView addSubview:self.avatarButton];
         [self.contentView addSubview:self.titleLabel];
         [self.contentView addSubview:self.dateLabel];
     }
@@ -111,7 +109,7 @@
     
     [self.contentView addSubview:self.reactionsView];
     
-    NSDictionary *views = @{@"avatarView": self.avatarView,
+    NSDictionary *views = @{@"avatarButton": self.avatarButton,
                             @"statusView": self.statusView,
                             @"fileStatusView": self.fileStatusView,
                             @"durationLabel": self.durationLabel,
@@ -140,12 +138,12 @@
                               };
     
     if ([self.reuseIdentifier isEqualToString:VoiceMessageCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(>=dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[titleLabel]-[dateLabel(>=dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
         self.vConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.vConstraints];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-statusTopPadding-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarButton(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:GroupedVoiceMessageCellIdentifier]) {
         self.vGroupedConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[audioPlayerView(buttonHeight)]-right-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.vGroupedConstraints];
@@ -179,8 +177,9 @@
     self.bodyTextView.text = @"";
     self.dateLabel.text = @"";
     
-    [self.avatarView cancelImageDownloadTask];
-    self.avatarView.image = nil;
+    [self.avatarButton cancelImageDownloadTaskForState:UIControlStateNormal];
+    [self.avatarButton setImage:nil forState:UIControlStateNormal];
+    self.avatarButton.imageView.contentMode = UIViewContentModeScaleToFill;
     
     self.vConstraints[7].constant = 0;
     self.vGroupedConstraints[5].constant = 0;
@@ -201,8 +200,18 @@
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [self.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:activeAccount]
-                               placeholderImage:nil success:nil failure:nil];
+
+    [self.avatarButton setImageForState:UIControlStateNormal
+                         withURLRequest:[[NCAPIController sharedInstance]
+                                          createAvatarRequestForUser:message.actorId
+                                          withStyle:self.traitCollection.userInterfaceStyle
+                                          andSize:96
+                                          usingAccount:activeAccount]
+                       placeholderImage:nil
+                                success:nil
+                                failure:nil];
+
+    _avatarButton.menu = [super getDeferredUserMenuForMessage:message];
     
     if (message.sendingFailed) {
         UIImageView *errorView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
@@ -378,15 +387,6 @@
     [self.fileStatusView addSubview:_activityIndicator];
 }
 
-#pragma mark - Gesture recognizers
-
-- (void)avatarTapped:(UIGestureRecognizer *)gestureRecognizer
-{
-    if (self.delegate && self.message) {
-        [self.delegate cellWantsToDisplayOptionsForMessageActor:self.message];
-    }
-}
-
 #pragma mark - ReactionsView delegate
 
 - (void)didSelectReactionWithReaction:(NCChatReaction *)reaction
@@ -461,13 +461,6 @@
             [self.delegate cellWantsToPauseAudioFile:self.fileParameter];
         }
     }
-}
-
-- (void)setGuestAvatar:(NSString *)displayName
-{
-    UIColor *guestAvatarColor = [NCAppBranding placeholderColor];
-    NSString *name = ([displayName isEqualToString:@""]) ? @"?" : displayName;
-    [_avatarView setImageWithString:name color:guestAvatarColor circular:true];
 }
 
 - (void)clearFileStatusView {

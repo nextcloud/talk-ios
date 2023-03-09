@@ -47,7 +47,7 @@ static NSString *GroupedVoiceMessageCellIdentifier   = @"GroupedVoiceMessageCell
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *dateLabel;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
-@property (nonatomic, strong) UIImageView *avatarView;
+@property (nonatomic, strong) UIButton *avatarButton;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) UIView *fileStatusView;
 @property (nonatomic, strong) NCMessageFileParameter *fileParameter;
@@ -59,7 +59,6 @@ static NSString *GroupedVoiceMessageCellIdentifier   = @"GroupedVoiceMessageCell
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vGroupedConstraints;
 
 + (CGFloat)defaultFontSize;
-- (void)setGuestAvatar:(NSString *)displayName;
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
 - (void)setPlayerProgress:(CGFloat)progress isPlaying:(BOOL)playing maximumValue:(CGFloat)maxValue;
 - (void)resetPlayer;

@@ -24,8 +24,7 @@
 
 #import "MaterialActivityIndicator.h"
 #import "SLKUIConstants.h"
-#import "UIImageView+AFNetworking.h"
-#import "UIImageView+Letters.h"
+#import "UIButton+AFNetworking.h"
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -59,15 +58,14 @@
 
 - (void)configureSubviews
 {
-    _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kChatCellAvatarHeight, kChatCellAvatarHeight)];
-    _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
-    _avatarView.userInteractionEnabled = YES;
-    _avatarView.backgroundColor = [NCAppBranding placeholderColor];
-    _avatarView.layer.cornerRadius = kChatCellAvatarHeight/2.0;
-    _avatarView.layer.masksToBounds = YES;
-    UITapGestureRecognizer *avatarTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarTapped:)];
-    [_avatarView addGestureRecognizer:avatarTap];
-    
+    _avatarButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, kChatCellAvatarHeight, kChatCellAvatarHeight)];
+    _avatarButton.translatesAutoresizingMaskIntoConstraints = NO;
+    _avatarButton.backgroundColor = [NCAppBranding placeholderColor];
+    _avatarButton.layer.cornerRadius = kChatCellAvatarHeight/2.0;
+    _avatarButton.layer.masksToBounds = YES;
+    _avatarButton.showsMenuAsPrimaryAction = YES;
+    _avatarButton.imageView.contentMode = UIViewContentModeScaleToFill;
+
     _playIconImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellVideoPlayIconSize, kFileMessageCellVideoPlayIconSize)];
     _playIconImageView.hidden = YES;
     [_playIconImageView setTintColor:[UIColor colorWithWhite:1.0 alpha:0.8]];
@@ -87,7 +85,7 @@
     _previewImageView.userInteractionEnabled = YES;
     
     if ([self.reuseIdentifier isEqualToString:FileMessageCellIdentifier]) {
-        [self.contentView addSubview:_avatarView];
+        [self.contentView addSubview:self.avatarButton];
         [self.contentView addSubview:self.titleLabel];
         [self.contentView addSubview:self.dateLabel];
     }
@@ -113,7 +111,7 @@
     
     _previewImageView.contentMode = UIViewContentModeScaleAspectFit;
     
-    NSDictionary *views = @{@"avatarView": self.avatarView,
+    NSDictionary *views = @{@"avatarButton": self.avatarButton,
                             @"statusStackView": self.statusStackView,
                             @"titleLabel": self.titleLabel,
                             @"dateLabel": self.dateLabel,
@@ -133,15 +131,15 @@
                               };
     
     if ([self.reuseIdentifier isEqualToString:FileMessageCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(>=dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
-        self.hPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[titleLabel]-[dateLabel(>=dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
+        self.hPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.hPreviewSize];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         self.vPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[previewImageView(previewSize)]-right-[bodyTextView(>=0@999)]-0-[reactionsView(0)]-left-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:self.vPreviewSize];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarButton(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[statusStackView(statusStackHeight)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:GroupedFileMessageCellIdentifier]) {
         self.hGroupedPreviewSize = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[previewImageView(previewSize)]-(>=0)-|" options:0 metrics:metrics views:views];
@@ -172,8 +170,9 @@
     self.bodyTextView.text = @"";
     self.dateLabel.text = @"";
     
-    [self.avatarView cancelImageDownloadTask];
-    self.avatarView.image = nil;
+    [self.avatarButton cancelImageDownloadTaskForState:UIControlStateNormal];
+    [self.avatarButton setImage:nil forState:UIControlStateNormal];
+    self.avatarButton.imageView.contentMode = UIViewContentModeScaleToFill;
     
     [self.previewImageView cancelImageDownloadTask];
     self.previewImageView.layer.borderWidth = 0.0f;
@@ -203,9 +202,17 @@
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [self.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:activeAccount]
-                               placeholderImage:nil success:nil failure:nil];
+    [self.avatarButton setImageForState:UIControlStateNormal
+                         withURLRequest:[[NCAPIController sharedInstance]
+                                          createAvatarRequestForUser:message.actorId
+                                          withStyle:self.traitCollection.userInterfaceStyle
+                                          andSize:96
+                                          usingAccount:activeAccount]
+                       placeholderImage:nil
+                                success:nil
+                                failure:nil];
 
+    _avatarButton.menu = [super getDeferredUserMenuForMessage:message];
 
     [self requestPreviewForMessage:message withAccount:activeAccount];
     
@@ -406,13 +413,6 @@
 
 #pragma mark - Gesture recognizers
 
-- (void)avatarTapped:(UIGestureRecognizer *)gestureRecognizer
-{
-    if (self.delegate && self.message) {
-        [self.delegate cellWantsToDisplayOptionsForMessageActor:self.message];
-    }
-}
-
 - (void)previewTapped:(UITapGestureRecognizer *)recognizer
 {
     if (!self.fileParameter || !self.fileParameter.path || !self.fileParameter.link) {
@@ -482,13 +482,6 @@
         _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
     }
     return _bodyTextView;
-}
-
-- (void)setGuestAvatar:(NSString *)displayName
-{
-    UIColor *guestAvatarColor = [NCAppBranding placeholderColor];
-    NSString *name = ([displayName isEqualToString:@""]) ? @"?" : displayName;
-    [_avatarView setImageWithString:name color:guestAvatarColor circular:true];
 }
 
 - (void)clearFileStatusView {

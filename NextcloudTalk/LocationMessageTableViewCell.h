@@ -50,7 +50,7 @@ static NSString *GroupedLocationMessageCellIdentifier   = @"GroupedLocationMessa
 @property (nonatomic, strong) UILabel *dateLabel;
 @property (nonatomic, strong) UIImageView *previewImageView;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
-@property (nonatomic, strong) UIImageView *avatarView;
+@property (nonatomic, strong) UIButton *avatarButton;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) GeoLocationRichObject *geoLocationRichObject;
 @property (nonatomic, strong) ReactionsView *reactionsView;
@@ -58,7 +58,6 @@ static NSString *GroupedLocationMessageCellIdentifier   = @"GroupedLocationMessa
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vGroupedConstraints;
 
 + (CGFloat)defaultFontSize;
-- (void)setGuestAvatar:(NSString *)displayName;
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
 
 @end

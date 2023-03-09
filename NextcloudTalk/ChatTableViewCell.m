@@ -22,6 +22,8 @@
 
 #import "ChatTableViewCell.h"
 
+typedef void (^GetMenuUserActionsForMessageCompletionBlock)(NSArray *menuItems);
+
 @interface ChatTableViewCell () <UITextFieldDelegate>
 @end
 
@@ -41,6 +43,109 @@
     [super prepareForReuse];
     self.messageId = -1;
     self.message = nil;
+}
+
+- (UIMenu *)getDeferredUserMenuForMessage:(NCChatMessage *)message
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if (![message.actorType isEqualToString:@"users"] || [message.actorId isEqualToString:activeAccount.userId]) {
+        return nil;
+    }
+
+    UIDeferredMenuElement *deferredMenuElement;
+
+    if (@available(iOS 15.0, *)) {
+        // When iOS 15 is available, we can use an uncached provider so local time is not cached for example
+        deferredMenuElement = [UIDeferredMenuElement elementWithUncachedProvider:^(void (^ _Nonnull completion)(NSArray<UIMenuElement *> * _Nonnull)) {
+            [self getMenuUserActionsForMessage:message withCompletionBlock:^(NSArray *menuItems) {
+                completion(menuItems);
+            }];
+        }];
+    } else {
+        deferredMenuElement = [UIDeferredMenuElement elementWithProvider:^(void (^ _Nonnull completion)(NSArray<UIMenuElement *> * _Nonnull)) {
+            [self getMenuUserActionsForMessage:message withCompletionBlock:^(NSArray *menuItems) {
+                completion(menuItems);
+            }];
+        }];
+    }
+
+    return [UIMenu menuWithTitle:message.actorDisplayName children:@[deferredMenuElement]];
+}
+
+- (void)getMenuUserActionsForMessage:(NCChatMessage *)message withCompletionBlock:(GetMenuUserActionsForMessageCompletionBlock)block
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getUserActionsForUser:message.actorId usingAccount:activeAccount withCompletionBlock:^(NSDictionary *userActions, NSError *error) {
+        if (error) {
+            if (block) {
+                UIAction *errorAction = [UIAction actionWithTitle:NSLocalizedString(@"No actions available", nil) image:nil identifier:nil handler:^(UIAction *action) {}];
+                errorAction.attributes = UIMenuElementAttributesDisabled;
+                block(@[errorAction]);
+            }
+
+            return;
+        }
+
+        NSArray *actions = [userActions objectForKey:@"actions"];
+        if (![actions isKindOfClass:[NSArray class]]) {
+            if (block) {
+                UIAction *errorAction = [UIAction actionWithTitle:NSLocalizedString(@"No actions available", nil) image:nil identifier:nil handler:^(UIAction *action) {}];
+                errorAction.attributes = UIMenuElementAttributesDisabled;
+                block(@[errorAction]);
+            }
+
+            return;
+        }
+
+        NSMutableArray *items = [[NSMutableArray alloc] init];
+
+        for (NSDictionary *action in actions) {
+            NSString *appId = [action objectForKey:@"appId"];
+            NSString *title = [action objectForKey:@"title"];
+            NSString *link = [action objectForKey:@"hyperlink"];
+
+            // Talk to user action
+            if ([appId isEqualToString:@"spreed"]) {
+                UIAction *talkAction = [UIAction actionWithTitle:title
+                                                           image:[[UIImage imageNamed:@"navigationLogo"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
+                                                      identifier:nil
+                                                         handler:^(UIAction *action) {
+                    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+                    NSString *userId = [userActions objectForKey:@"userId"];
+                    [userInfo setObject:userId forKey:@"actorId"];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerTalkToUserNotification
+                                                                        object:self
+                                                                      userInfo:userInfo];
+                }];
+
+                [items addObject:talkAction];
+                continue;
+            }
+
+            // Other user actions
+            UIAction *otherAction = [UIAction actionWithTitle:title
+                                                        image:nil
+                                                   identifier:nil
+                                                      handler:^(UIAction *action) {
+                NSURL *actionURL = [NSURL URLWithString:[link stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+                [[UIApplication sharedApplication] openURL:actionURL options:@{} completionHandler:nil];
+            }];
+
+            if ([appId isEqualToString:@"profile"]) {
+                [otherAction setImage:[[UIImage imageNamed:@"user-profile"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+            } else if ([appId isEqualToString:@"email"]) {
+                [otherAction setImage:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+            } else if ([appId isEqualToString:@"timezone"]) {
+                [otherAction setImage:[UIImage systemImageNamed:@"clock"]];
+            }
+
+            [items addObject:otherAction];
+        }
+
+        if (block) {
+            block(items);
+        }
+    }];
 }
 
 @end
