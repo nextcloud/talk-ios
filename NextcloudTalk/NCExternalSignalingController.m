@@ -535,8 +535,14 @@ NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification 
         [self.delegate externalSignalingController:self didReceivedParticipantListMessage:updateDict];
 
         NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:[updateDict objectForKey:@"roomid"] forKey:@"roomToken"];
-        [userInfo setObject:[updateDict objectForKey:@"users"] forKey:@"users"];
+        NSString *roomToken = [updateDict objectForKey:@"roomid"];
+        if (roomToken){
+            [userInfo setObject:roomToken forKey:@"roomToken"];
+        }
+        NSArray *users = [updateDict objectForKey:@"users"];
+        if (users) {
+            [userInfo setObject:users forKey:@"users"];
+        }
         [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidUpdateParticipantsNotification
                                                             object:self
                                                           userInfo:userInfo];
