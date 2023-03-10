@@ -1,6 +1,3 @@
 [submodule "ThirdParty/SlackTextViewController"]
 	path = ThirdParty/SlackTextViewController
 	url = https://github.com/Ivansss/SlackTextViewController.git
-[submodule "ThirdParty/FTPopOverMenu"]
-	path = ThirdParty/FTPopOverMenu
-	url = https://github.com/Ivansss/FTPopOverMenu.git

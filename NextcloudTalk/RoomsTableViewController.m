@@ -33,7 +33,6 @@
 #import "NextcloudTalk-Swift.h"
 
 #import "CCCertificate.h"
-#import "FTPopOverMenu.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCChatViewController.h"
@@ -265,6 +264,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     AppState appState = [[notification.userInfo objectForKey:@"appState"] intValue];
     [self adaptInterfaceForAppState:appState];
+    [self updateAccountPickerMenu];
 }
 
 - (void)connectionStateHasChanged:(NSNotification *)notification
@@ -304,6 +304,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 - (void)userProfileImageUpdated:(NSNotification *)notification
 {
     [self setProfileButton];
+    [self updateAccountPickerMenu];
 }
 
 - (void)appWillEnterForeground:(NSNotification *)notification
@@ -318,8 +319,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [self setUnreadMessageForInactiveAccountsIndicator];
         });
     }
-    
-    [FTPopOverMenu dismiss];
 }
 
 - (void)appWillResignActive:(NSNotification *)notification
@@ -406,8 +405,9 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     if (multiAccountEnabled) {
         UIButton *logoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
         [logoButton setImage:logoImage forState:UIControlStateNormal];
-        [logoButton addTarget:self action:@selector(showAccountsMenu:) forControlEvents:UIControlEventTouchUpInside];
+        [logoButton setShowsMenuAsPrimaryAction:YES];
         self.navigationItem.titleView = logoButton;
+        [self updateAccountPickerMenu];
     } else {
         self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
     }
@@ -415,53 +415,39 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     self.navigationItem.titleView.accessibilityHint = NSLocalizedString(@"Double tap to change accounts or add a new one", nil);
 }
 
--(void)showAccountsMenu:(UIButton*)sender
+- (void)updateAccountPickerMenu
 {
-    NSMutableArray *menuArray = [NSMutableArray new];
-    NSMutableArray *actionsArray = [NSMutableArray new];
+    if (![self.navigationItem.titleView isKindOfClass:[UIButton class]]) {
+        return;
+    }
+
+    UIButton *logoButton = (UIButton *)self.navigationItem.titleView;
+
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         NSString *accountName = account.userDisplayName;
         UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle andSize:CGSizeMake(72, 72)];
-        UIImageView *accessoryImageView = (account.active) ? [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]] : nil;
-        FTPopOverMenuModel *accountModel = [[FTPopOverMenuModel alloc] initWithTitle:accountName image:accountImage selected:NO accessoryView:accessoryImageView];
-        [menuArray addObject:accountModel];
-        [actionsArray addObject:account];
-    }
-    FTPopOverMenuModel *addAccountModel = [[FTPopOverMenuModel alloc] initWithTitle:NSLocalizedString(@"Add account", nil) image:[UIImage imageNamed:@"add-settings"] selected:NO accessoryView:nil];
-    [menuArray addObject:addAccountModel];
-    [actionsArray addObject:@"AddAccountAction"];
-    
-    FTPopOverMenuConfiguration *menuConfiguration = [[FTPopOverMenuConfiguration alloc] init];
-    menuConfiguration.menuIconMargin = 12;
-    menuConfiguration.menuTextMargin = 12;
-    menuConfiguration.imageSize = CGSizeMake(24, 24);
-    menuConfiguration.separatorInset = UIEdgeInsetsMake(0, 48, 0, 0);
-    menuConfiguration.menuRowHeight = 44;
-    menuConfiguration.autoMenuWidth = YES;
-    menuConfiguration.textFont = [UIFont systemFontOfSize:15];
-    menuConfiguration.shadowOpacity = 0.8;
-    menuConfiguration.roundedImage = YES;
-    menuConfiguration.defaultSelection = YES;
-    menuConfiguration.borderWidth = 1;
-    menuConfiguration.borderColor = [NCAppBranding placeholderColor];
-    menuConfiguration.backgroundColor = [NCAppBranding backgroundColor];
-    menuConfiguration.separatorColor = [NCAppBranding placeholderColor];
-    menuConfiguration.textColor = [UIColor labelColor];
-    menuConfiguration.shadowColor = [UIColor secondaryLabelColor];
+        accountImage = [NCUtils roundedImageFromImage:accountImage];
 
-    [FTPopOverMenu showForSender:sender
-                   withMenuArray:menuArray
-                      imageArray:nil
-                   configuration:menuConfiguration
-                       doneBlock:^(NSInteger selectedIndex) {
-                           id action = [actionsArray objectAtIndex:selectedIndex];
-                           if ([action isKindOfClass:[TalkAccount class]]) {
-                               TalkAccount *account = action;
-                               [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
-                           } else {
-                               [[NCUserInterfaceController sharedInstance] presentLoginViewController];
-                           }
-                       } dismissBlock:nil];
+        UIAction *switchAccountAction = [UIAction actionWithTitle:accountName image:accountImage identifier:nil handler:^(UIAction *action) {
+            [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
+        }];
+
+        if (account.active) {
+            switchAccountAction.state = UIMenuElementStateOn;
+        }
+
+        [items addObject:switchAccountAction];
+    }
+
+    UIAction *addAccount = [UIAction actionWithTitle:NSLocalizedString(@"Add account", nil) image:[UIImage systemImageNamed:@"plus"] identifier:nil handler:^(UIAction *action) {
+        [[NCUserInterfaceController sharedInstance] presentLoginViewController];
+    }];
+
+    [items addObject:addAccount];
+
+    logoButton.menu = [UIMenu menuWithTitle:@"" children:items];
 }
 
 #pragma mark - Search controller

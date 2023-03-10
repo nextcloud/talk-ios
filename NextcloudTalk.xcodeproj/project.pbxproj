@@ -87,7 +87,6 @@
 		2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */; };
 		2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
 		2C1EF36D25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
-		2C2026A0236832D300DFC89B /* FTPopOverMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C20269F236832D300DFC89B /* FTPopOverMenu.m */; };
 		2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C2026A32369F47400DFC89B /* AccountTableViewCell.xib */; };
 		2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
@@ -2022,7 +2021,6 @@
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
 				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,
 				2CEDA88926F10BB20044552B /* UserStatusMessageViewController.swift in Sources */,
-				2C2026A0236832D300DFC89B /* FTPopOverMenu.m in Sources */,
 				2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */,
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */,
