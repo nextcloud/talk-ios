@@ -66,7 +66,6 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, assign) BOOL speaking;
 @property (nonatomic, assign) NSInteger userInCall;
 @property (nonatomic, assign) NSInteger userPermissions;
-@property (nonatomic, strong) NSTimer *sendNickTimer;
 @property (nonatomic, strong) NSTimer *sendCurrentStateTimer;
 @property (nonatomic, strong) NSArray *usersInRoom;
 @property (nonatomic, strong) NSArray *sessionsInCall;
@@ -314,7 +313,6 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)stopCallController
 {
     [self setLeavingCall:YES];
-    [self stopSendingNick];
     [self stopSendingCurrentState];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -908,23 +906,6 @@ static NSString * const kNCVideoTrackKind = @"video";
     }];
 }
 
-- (void)startSendingNick
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_sendNickTimer invalidate];
-        self->_sendNickTimer = nil;
-        self->_sendNickTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(sendNick) userInfo:nil repeats:YES];
-    });
-}
-
-- (void)stopSendingNick
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_sendNickTimer invalidate];
-        self->_sendNickTimer = nil;
-    });
-}
-
 - (void)sendMediaState
 {
     [[WebRTCCommon shared] dispatch:^{
@@ -986,29 +967,6 @@ static NSString * const kNCVideoTrackKind = @"video";
         NSDictionary *userInfo = @{@"interval" : @(interval)};
         self->_sendCurrentStateTimer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(sendCurrentStateWithTimer:) userInfo:userInfo repeats:NO];
     });
-}
-
-- (void)sendMediaStateToPeerConnection:(NCPeerConnection *)peerConnection
-{
-    [[WebRTCCommon shared] dispatch:^{
-        // Send current audio state
-        if (self.isAudioEnabled) {
-            NSLog(@"Send audioOn to peer");
-            [peerConnection sendDataChannelMessageOfType:@"audioOn" withPayload:nil];
-        } else {
-            NSLog(@"Send audioOff");
-            [peerConnection sendDataChannelMessageOfType:@"audioOff" withPayload:nil];
-        }
-
-        // Send current video state
-        if (self.isVideoEnabled) {
-            NSLog(@"Send videoOn to peer");
-            [peerConnection sendDataChannelMessageOfType:@"videoOn" withPayload:nil];
-        } else {
-            NSLog(@"Send videoOff to peer");
-            [peerConnection sendDataChannelMessageOfType:@"videoOff" withPayload:nil];
-        }
-    }];
 }
 
 #pragma mark - External Signaling Controller Delegate
@@ -1425,23 +1383,12 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
     }
 
-    if (newState == RTCIceConnectionStateConnected && [_externalSignalingController hasMCU]) {
+    if (newState == RTCIceConnectionStateConnected) {
         [self startSendingCurrentState];
     }
 
     if (!peerConnection.isMCUPublisherPeer) {
         [self.delegate callController:self iceStatusChanged:newState ofPeer:peerConnection];
-    }
-}
-
-- (void)peerConnectionDidOpenStatusDataChannel:(NCPeerConnection *)peerConnection
-{
-    // Send media state
-    [self sendMediaStateToPeerConnection:peerConnection];
-
-    // Send nick using mcu
-    if (peerConnection.isMCUPublisherPeer) {
-        [self startSendingNick];
     }
 }
 
