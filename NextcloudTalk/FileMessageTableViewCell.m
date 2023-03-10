@@ -198,75 +198,16 @@
     self.bodyTextView.attributedText = message.parsedMessageForChat;
     self.messageId = message.messageId;
     self.message = message;
-    
-    BOOL isMediaFile = [NCUtils isImageFileType:message.file.mimetype] || [NCUtils isVideoFileType:message.file.mimetype];
-    BOOL isVideoFile = [NCUtils isVideoFileType:message.file.mimetype];
-    
+
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [self.avatarView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:message.actorId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:activeAccount]
                                placeholderImage:nil success:nil failure:nil];
-    
-    NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
-    UIImage *filePreviewImage = [UIImage imageNamed:imageName];
-    NSInteger requestedHeight = 3 * kFileMessageCellFileMaxPreviewHeight;
-    __weak typeof(self) weakSelf = self;
 
-    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:requestedHeight usingAccount:activeAccount]
-                                     placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
-        
-                                       //TODO: How to adjust for dark mode?
-                                       weakSelf.previewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
-                                       weakSelf.previewImageView.layer.borderWidth = 1.0f;
-                    
-                                       dispatch_async(dispatch_get_main_queue(), ^(void){
-                                           CGFloat width = image.size.width * image.scale;
-                                           CGFloat height = image.size.height * image.scale;
-                                           
-                                           CGFloat previewMaxHeight = isMediaFile ? kFileMessageCellMediaFilePreviewHeight : kFileMessageCellFileMaxPreviewHeight;
-                                           CGFloat previewMaxWidth = isMediaFile ? kFileMessageCellMediaFileMaxPreviewWidth : kFileMessageCellFileMaxPreviewWidth;
-                                           
-                                           if (height < kFileMessageCellMinimumHeight) {
-                                               CGFloat ratio = kFileMessageCellMinimumHeight / height;
-                                               width = width * ratio;
-                                               if (width > previewMaxWidth) {
-                                                   width = previewMaxWidth;
-                                               }
-                                               height = kFileMessageCellMinimumHeight;
-                                           } else {
-                                               if (height > previewMaxHeight) {
-                                                   CGFloat ratio = previewMaxHeight / height;
-                                                   width = width * ratio;
-                                                   height = previewMaxHeight;
-                                               }
-                                               if (width > previewMaxWidth) {
-                                                   CGFloat ratio = previewMaxWidth / width;
-                                                   width = previewMaxWidth;
-                                                   height = height * ratio;
-                                               }
-                                           }
-                                           weakSelf.vPreviewSize[3].constant = height;
-                                           weakSelf.hPreviewSize[3].constant = width;
-                                           weakSelf.vGroupedPreviewSize[1].constant = height;
-                                           weakSelf.hGroupedPreviewSize[1].constant = width;
-                                           if (isVideoFile) {
-                                               // only show the play icon if there is an image preview (not on top of the default video placeholder)
-                                               weakSelf.playIconImageView.hidden = NO;
-                                               // if the video preview is very narrow, make the play icon fit inside
-                                               weakSelf.playIconImageView.frame = CGRectMake(0, 0, MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize), MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize));
-                                               weakSelf.playIconImageView.center = CGPointMake(width / 2.0, height / 2.0);
-                                           }
-                                           [weakSelf.previewImageView setImage:image];
-                                           [weakSelf setNeedsLayout];
-                                           [weakSelf layoutIfNeeded];
-                                           
-                                           if (weakSelf.delegate) {
-                                               [weakSelf.delegate cellHasDownloadedImagePreviewWithHeight:ceil(height) forMessage:message];
-                                           }
-                                       });
-    } failure:nil];
+
+    [self requestPreviewForMessage:message withAccount:activeAccount];
     
     if (message.sendingFailed) {
         UIImageView *errorView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
@@ -308,6 +249,80 @@
             [self setDeliveryState:ChatMessageDeliveryStateSent];
         }
     }
+}
+
+- (void)requestPreviewForMessage:(NCChatMessage *)message withAccount:(TalkAccount *)account
+{
+    NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
+    UIImage *filePreviewImage = [UIImage imageNamed:imageName];
+
+    if (!message.file.previewAvailable) {
+        // Don't request a preview if we know that there's none
+        [self.previewImageView setImage:filePreviewImage];
+
+        return;
+    }
+
+    BOOL isVideoFile = [NCUtils isVideoFileType:message.file.mimetype];
+    BOOL isMediaFile = isVideoFile || [NCUtils isImageFileType:message.file.mimetype];
+
+    
+    NSInteger requestedHeight = 3 * kFileMessageCellFileMaxPreviewHeight;
+    __weak typeof(self) weakSelf = self;
+
+    [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:requestedHeight usingAccount:account]
+                                     placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+
+                                       //TODO: How to adjust for dark mode?
+                                       weakSelf.previewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
+                                       weakSelf.previewImageView.layer.borderWidth = 1.0f;
+
+                                       dispatch_async(dispatch_get_main_queue(), ^(void){
+                                           CGFloat width = image.size.width * image.scale;
+                                           CGFloat height = image.size.height * image.scale;
+
+                                           CGFloat previewMaxHeight = isMediaFile ? kFileMessageCellMediaFilePreviewHeight : kFileMessageCellFileMaxPreviewHeight;
+                                           CGFloat previewMaxWidth = isMediaFile ? kFileMessageCellMediaFileMaxPreviewWidth : kFileMessageCellFileMaxPreviewWidth;
+
+                                           if (height < kFileMessageCellMinimumHeight) {
+                                               CGFloat ratio = kFileMessageCellMinimumHeight / height;
+                                               width = width * ratio;
+                                               if (width > previewMaxWidth) {
+                                                   width = previewMaxWidth;
+                                               }
+                                               height = kFileMessageCellMinimumHeight;
+                                           } else {
+                                               if (height > previewMaxHeight) {
+                                                   CGFloat ratio = previewMaxHeight / height;
+                                                   width = width * ratio;
+                                                   height = previewMaxHeight;
+                                               }
+                                               if (width > previewMaxWidth) {
+                                                   CGFloat ratio = previewMaxWidth / width;
+                                                   width = previewMaxWidth;
+                                                   height = height * ratio;
+                                               }
+                                           }
+                                           weakSelf.vPreviewSize[3].constant = height;
+                                           weakSelf.hPreviewSize[3].constant = width;
+                                           weakSelf.vGroupedPreviewSize[1].constant = height;
+                                           weakSelf.hGroupedPreviewSize[1].constant = width;
+                                           if (isVideoFile) {
+                                               // only show the play icon if there is an image preview (not on top of the default video placeholder)
+                                               weakSelf.playIconImageView.hidden = NO;
+                                               // if the video preview is very narrow, make the play icon fit inside
+                                               weakSelf.playIconImageView.frame = CGRectMake(0, 0, MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize), MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize));
+                                               weakSelf.playIconImageView.center = CGPointMake(width / 2.0, height / 2.0);
+                                           }
+                                           [weakSelf.previewImageView setImage:image];
+                                           [weakSelf setNeedsLayout];
+                                           [weakSelf layoutIfNeeded];
+
+                                           if (weakSelf.delegate) {
+                                               [weakSelf.delegate cellHasDownloadedImagePreviewWithHeight:ceil(height) forMessage:message];
+                                           }
+                                       });
+    } failure:nil];
 }
 
 - (void)setDeliveryState:(ChatMessageDeliveryState)state
