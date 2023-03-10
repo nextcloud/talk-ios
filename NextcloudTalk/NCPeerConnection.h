@@ -38,7 +38,7 @@
 - (void)peerConnection:(NCPeerConnection *)peerConnection didChangeIceConnectionState:(RTCIceConnectionState)newState;
 
 /** Status data channel has been opened. */
-- (void)peerConnectionDidOpenStatusDataChannel:(NCPeerConnection *)peerConnection;
+//- (void)peerConnectionDidOpenStatusDataChannel:(NCPeerConnection *)peerConnection;
 
 /** Message received from status data channel has been opened. */
 - (void)peerConnection:(NCPeerConnection *)peerConnection didReceiveStatusDataChannelMessage:(NSString *)type;

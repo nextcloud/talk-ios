@@ -354,11 +354,11 @@
 - (void)dataChannelDidChangeState:(RTCDataChannel *)dataChannel
 {
     [[WebRTCCommon shared] dispatch:^{
-        NSLog(@"Data cahnnel '%@' did change state: %ld", dataChannel.label, (long)dataChannel.readyState);
+        NSLog(@"Data channel '%@' did change state: %ld", dataChannel.label, (long)dataChannel.readyState);
         
-        if (dataChannel.readyState == RTCDataChannelStateOpen && [dataChannel.label isEqualToString:@"status"]) {
-            [self.delegate peerConnectionDidOpenStatusDataChannel:self];
-        }
+//        if (dataChannel.readyState == RTCDataChannelStateOpen && [dataChannel.label isEqualToString:@"status"]) {
+//            [self.delegate peerConnectionDidOpenStatusDataChannel:self];
+//        }
     }];
 }
 
