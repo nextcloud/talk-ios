@@ -24,8 +24,7 @@
 
 #import "MaterialActivityIndicator.h"
 #import "SLKUIConstants.h"
-#import "UIImageView+AFNetworking.h"
-#import "UIImageView+Letters.h"
+#import "UIButton+AFNetworking.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -58,16 +57,15 @@
 
 - (void)configureSubviews
 {
-    _avatarView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kChatCellAvatarHeight, kChatCellAvatarHeight)];
-    _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
-    _avatarView.userInteractionEnabled = YES;
-    _avatarView.backgroundColor = [NCAppBranding placeholderColor];
-    _avatarView.layer.cornerRadius = kChatCellAvatarHeight/2.0;
-    _avatarView.layer.masksToBounds = YES;
-    _avatarView.contentMode = UIViewContentModeScaleToFill;
-    UITapGestureRecognizer *avatarTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarTapped:)];
-    [_avatarView addGestureRecognizer:avatarTap];
-    [self.contentView addSubview:_avatarView];
+    _avatarButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, kChatCellAvatarHeight, kChatCellAvatarHeight)];
+    _avatarButton.translatesAutoresizingMaskIntoConstraints = NO;
+    _avatarButton.backgroundColor = [NCAppBranding placeholderColor];
+    _avatarButton.layer.cornerRadius = kChatCellAvatarHeight/2.0;
+    _avatarButton.layer.masksToBounds = YES;
+    _avatarButton.showsMenuAsPrimaryAction = YES;
+    _avatarButton.imageView.contentMode = UIViewContentModeScaleToFill;
+
+    [self.contentView addSubview:_avatarButton];
     
     _statusView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kChatCellStatusViewHeight, kChatCellStatusViewHeight)];
     _statusView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -95,7 +93,7 @@
         [self.contentView addSubview:self.referenceView];
     }
     
-    NSDictionary *views = @{@"avatarView": self.avatarView,
+    NSDictionary *views = @{@"avatarButton": self.avatarButton,
                             @"userStatusImageView": self.userStatusImageView,
                             @"statusView": self.statusView,
                             @"titleLabel": self.titleLabel,
@@ -116,22 +114,22 @@
                               };
     
     if ([self.reuseIdentifier isEqualToString:ChatMessageCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(>=dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[referenceView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[titleLabel]-[dateLabel(>=dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[referenceView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         _vConstraintNormal = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[bodyTextView(>=0@999)]-0-[referenceView(0)]-0-[reactionsView(0)]-(>=left)-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:_vConstraintNormal];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:ReplyMessageCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-[dateLabel(>=dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[referenceView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[titleLabel]-[dateLabel(>=dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[reactionsView(>=0)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[referenceView(>=0)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusView(statusSize)]-padding-[bodyTextView(>=0)]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[quoteContainerView(bodyTextView)]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[quoteContainerView(bodyTextView)]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
         _vConstraintReply = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[quoteContainerView]-left-[bodyTextView(>=0@999)]-0-[referenceView(0)]-0-[reactionsView(0)]-(>=left)-|" options:0 metrics:metrics views:views];
         [self.contentView addConstraints:_vConstraintReply];
@@ -139,7 +137,7 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[quoteContainerView]-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
     } else if ([self.reuseIdentifier isEqualToString:AutoCompletionCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarView(avatarSize)]-right-[titleLabel]-right-|" options:0 metrics:metrics views:views]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[titleLabel]-right-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[titleLabel]|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-32-[userStatusImageView(12)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-32-[userStatusImageView(12)]-(>=0)-|" options:0 metrics:metrics views:views]];
@@ -147,7 +145,7 @@
         self.titleLabel.textColor = [UIColor labelColor];
     }
     
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarView(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarButton(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
 }
 
 - (void)prepareForReuse
@@ -181,10 +179,10 @@
     }
 
     [_referenceView prepareForReuse];
-    
-    [self.avatarView cancelImageDownloadTask];
-    self.avatarView.image = nil;
-    self.avatarView.contentMode = UIViewContentModeScaleToFill;
+
+    [self.avatarButton cancelImageDownloadTaskForState:UIControlStateNormal];
+    [self.avatarButton setImage:nil forState:UIControlStateNormal];
+    self.avatarButton.imageView.contentMode = UIViewContentModeScaleToFill;
     
     self.userStatusImageView.image = nil;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];
@@ -196,13 +194,6 @@
 }
 
 #pragma mark - Gesture recognizers
-
-- (void)avatarTapped:(UIGestureRecognizer *)gestureRecognizer
-{
-    if (self.delegate && self.message) {
-        [self.delegate cellWantsToDisplayOptionsForMessageActor:self.message];
-    }
-}
 
 - (void)quoteTapped:(UIGestureRecognizer *)gestureRecognizer
 {
@@ -321,13 +312,17 @@
             [self setBotAvatar];
         }
     } else {
-        [self.avatarView
-         setImageWithURLRequest:[[NCAPIController sharedInstance]
-                                 createAvatarRequestForUser:message.actorId
-                                 withStyle:self.traitCollection.userInterfaceStyle
-                                 andSize:96
-                                 usingAccount:activeAccount]
-         placeholderImage:nil success:nil failure:nil];
+        [self.avatarButton setImageForState:UIControlStateNormal
+                             withURLRequest:[[NCAPIController sharedInstance]
+                                              createAvatarRequestForUser:message.actorId
+                                              withStyle:self.traitCollection.userInterfaceStyle
+                                              andSize:96
+                                              usingAccount:activeAccount]
+                           placeholderImage:nil
+                                    success:nil
+                                    failure:nil];
+
+        _avatarButton.menu = [super getDeferredUserMenuForMessage:message];
     }
     
     // This check is just a workaround to fix the issue with the deleted parents returned by the API.
@@ -399,18 +394,21 @@
 {
     UIColor *guestAvatarColor = [NCAppBranding placeholderColor];
     NSString *name = ([displayName isEqualToString:@""]) ? @"?" : displayName;
-    [_avatarView setImageWithString:name color:guestAvatarColor circular:true];
+
+    UIImage *image = [NCUtils getImageWithString:name withBackgroundColor:guestAvatarColor withBounds:_avatarButton.bounds isCircular:YES];
+    [_avatarButton setImage:image forState:UIControlStateNormal];
 }
 
 - (void)setBotAvatar
 {
     UIColor *guestAvatarColor = [UIColor colorWithRed:0.21 green:0.21 blue:0.21 alpha:1.0]; /*#363636*/
-    [_avatarView setImageWithString:@">" color:guestAvatarColor circular:true];
+    UIImage *image = [NCUtils getImageWithString:@">" withBackgroundColor:guestAvatarColor withBounds:_avatarButton.bounds isCircular:YES];
+    [_avatarButton setImage:image forState:UIControlStateNormal];
 }
 
 - (void)setChangelogAvatar
 {
-    [_avatarView setImage:[UIImage imageNamed:@"changelog"]];
+    [_avatarButton setImage:[UIImage imageNamed:@"changelog"] forState:UIControlStateNormal];
 }
 
 - (void)setDeliveryState:(ChatMessageDeliveryState)state

@@ -174,7 +174,6 @@
 		2C62AFB624C1A449007E460A /* Share.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C62AFB524C1A449007E460A /* Share.storyboard */; };
 		2C62AFB924C1A4E6007E460A /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C62AFB824C1A4E6007E460A /* ShareViewController.m */; };
 		2C62AFBB24C1B7B1007E460A /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
-		2C62AFDF24C1BD8D007E460A /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
 		2C62AFFA24C1BDA5007E460A /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
 		2C62AFFD24C1BDA5007E460A /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
 		2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
@@ -220,7 +219,6 @@
 		2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C90E5CE1EDF23A00093D85A /* WebKit.framework */; };
 		2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */; };
 		2C9200C32474262C0050084F /* UIBarButtonItem+Badge.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */; };
-		2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
 		2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */; };
 		2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */; };
 		2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B97217F6DBA00A4752C /* NCNotificationController.m */; };
@@ -281,7 +279,6 @@
 		2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
 		2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
 		2CC0017424A3796400A20167 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
-		2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */; };
 		2CC001B724A37A9A00A20167 /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
 		2CC001C124A37AC500A20167 /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
 		2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
@@ -624,8 +621,6 @@
 		2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthenticationViewController.m; sourceTree = "<group>"; };
 		2C9200C12474262C0050084F /* UIBarButtonItem+Badge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIBarButtonItem+Badge.h"; sourceTree = "<group>"; };
 		2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIBarButtonItem+Badge.m"; sourceTree = "<group>"; };
-		2C92195A1F58530B008AC1A3 /* UIImageView+Letters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+Letters.h"; sourceTree = "<group>"; };
-		2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+Letters.m"; sourceTree = "<group>"; };
 		2C928BD2268A06BB00729332 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2C928BD3268A06BB00729332 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2C928BD4268A0AAD00729332 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -965,7 +960,6 @@
 				2C20269D236832D300DFC89B /* FTPopOverMenu */,
 				2CB302F92264775E0053078A /* SlackTextViewController */,
 				2C4E758C214B942D003910D5 /* Firefox */,
-				2C9219591F58530B008AC1A3 /* UIImageView+Letters */,
 				2C4D7D601F2F7C2C00FF4A0D /* AppRTC */,
 			);
 			name = ThirdParty;
@@ -1352,16 +1346,6 @@
 				4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		2C9219591F58530B008AC1A3 /* UIImageView+Letters */ = {
-			isa = PBXGroup;
-			children = (
-				2C92195A1F58530B008AC1A3 /* UIImageView+Letters.h */,
-				2C92195B1F58530B008AC1A3 /* UIImageView+Letters.m */,
-			);
-			name = "UIImageView+Letters";
-			path = "ThirdParty/UIImageView+Letters";
 			sourceTree = "<group>";
 		};
 		2C9B0B99217F6E3400A4752C /* Notifications */ = {
@@ -2059,7 +2043,6 @@
 				2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */,
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
 				1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */,
-				2C92195C1F58530B008AC1A3 /* UIImageView+Letters.m in Sources */,
 				1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
 				2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
@@ -2091,7 +2074,6 @@
 				1F1C0D7F29A7F33600D17C6D /* NCNotificationAction.swift in Sources */,
 				2C4446FC265D5C5800DF1DBC /* NCRoomParticipants.m in Sources */,
 				2CB6ACDC2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
-				2C62AFDF24C1BD8D007E460A /* UIImageView+Letters.m in Sources */,
 				2C1ABD8925769E7D00AEDFB6 /* ShareItem.m in Sources */,
 				2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */,
 				2C62B01024C1BDC5007E460A /* NCRoom.m in Sources */,
@@ -2139,7 +2121,6 @@
 				1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */,
 				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				1FA38C9129A4B3C6008871B8 /* NCNotificationAction.swift in Sources */,
-				2CC0019A24A37A7C00A20167 /* UIImageView+Letters.m in Sources */,
 				2C4446DE2658158000DF1DBC /* NCChatBlock.m in Sources */,
 				2C5BFBF3288AA37F00E75118 /* NCPoll.m in Sources */,
 				2C4446D9265814D100DF1DBC /* ServerCapabilities.m in Sources */,

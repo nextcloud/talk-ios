@@ -25,7 +25,6 @@
 #import "MaterialActivityIndicator.h"
 #import "SLKUIConstants.h"
 #import "AFImageDownloader.h"
-#import "UIImageView+AFNetworking.h"
 
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"

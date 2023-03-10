@@ -58,7 +58,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) FilePreviewImageView *previewImageView;
 @property (nonatomic, strong) UIImageView *playIconImageView;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
-@property (nonatomic, strong) UIImageView *avatarView;
+@property (nonatomic, strong) UIButton *avatarButton;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) UIView *fileStatusView;
 @property (nonatomic, strong) UIStackView *statusStackView;
@@ -71,7 +71,6 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *hGroupedPreviewSize;
 
 + (CGFloat)defaultFontSize;
-- (void)setGuestAvatar:(NSString *)displayName;
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
 
 @end

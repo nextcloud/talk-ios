@@ -40,7 +40,6 @@ typedef enum ChatMessageDeliveryState {
 
 @protocol ChatTableViewCellDelegate <NSObject>
 
-- (void)cellWantsToDisplayOptionsForMessageActor:(NCChatMessage *)message;
 - (void)cellDidSelectedReaction:(NCChatReaction *)reaction forMessage:(NCChatMessage *)message;
 
 @end
@@ -49,5 +48,7 @@ typedef enum ChatMessageDeliveryState {
 
 @property (nonatomic, assign) NSInteger messageId;
 @property (nonatomic, strong) NCChatMessage *message;
+
+- (UIMenu *)getDeferredUserMenuForMessage:(NCChatMessage *)message;
 
 @end

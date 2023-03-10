@@ -49,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (UIImage *)blurImageFromImage:(UIImage *)image;
 + (UIImage *)roundedImageFromImage:(UIImage *)image;
++ (UIImage *)getImageWithString:(NSString *)string withBackgroundColor:(UIColor *)color withBounds:(CGRect)bounds isCircular:(BOOL)isCircular;
 
 + (UIColor *)searchbarBGColorForColor:(UIColor *)color;
 

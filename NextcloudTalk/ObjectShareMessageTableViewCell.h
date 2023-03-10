@@ -47,7 +47,7 @@ static NSString *GroupedObjectShareMessageCellIdentifier    = @"GroupedObjectSha
 @property (nonatomic, strong) UIView *objectContainerView;
 @property (nonatomic, strong) UIImageView *objectTypeImageView;
 @property (nonatomic, strong) UITextView *objectTitle;
-@property (nonatomic, strong) UIImageView *avatarView;
+@property (nonatomic, strong) UIButton *avatarButton;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) NCMessageParameter *objectParameter;
 @property (nonatomic, strong) ReactionsView *reactionsView;
@@ -55,7 +55,6 @@ static NSString *GroupedObjectShareMessageCellIdentifier    = @"GroupedObjectSha
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vGroupedConstraints;
 
 + (CGFloat)defaultFontSize;
-- (void)setGuestAvatar:(NSString *)displayName;
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
 
 @end

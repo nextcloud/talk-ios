@@ -49,7 +49,7 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 @property (nonatomic, strong) UILabel *dateLabel;
 @property (nonatomic, strong) QuotedMessageView *quotedMessageView;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
-@property (nonatomic, strong) UIImageView *avatarView;
+@property (nonatomic, strong) UIButton *avatarButton;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) UIImageView *userStatusImageView;
 

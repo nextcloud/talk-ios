@@ -25,7 +25,6 @@
 @import NextcloudKit;
 
 #import "UIImageView+AFNetworking.h"
-#import "UIImageView+Letters.h"
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -203,7 +202,8 @@ typedef enum RoomSearchSection {
                               placeholderImage:nil success:nil failure:nil];
         cell.roomImage.contentMode = UIViewContentModeScaleToFill;
     } else if ([actorType isEqualToString:@"guests"]) {
-        [cell.roomImage setImageWithString:@"?" color:[UIColor clearColor] circular:NO];
+        UIImage *image = [NCUtils getImageWithString:@"?" withBackgroundColor:[UIColor clearColor] withBounds:cell.roomImage.bounds isCircular:YES];
+        [cell.roomImage setImage:image];
         cell.roomImage.contentMode = UIViewContentModeScaleAspectFit;
     } else if (thumbnailURL) {
         [cell.roomImage setImageWithURL:thumbnailURL placeholderImage:nil];

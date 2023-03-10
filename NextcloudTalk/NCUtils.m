@@ -272,6 +272,73 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return resultImage;
 }
 
++ (UIImage *)getImageWithString:(NSString *)string withBackgroundColor:(UIColor *)color withBounds:(CGRect)bounds isCircular:(BOOL)isCircular
+{
+    // Based on the "UIImageView+Letters" library from Tom Bachant
+
+    CGFloat fontSize = CGRectGetWidth(bounds) * 0.5;
+    NSDictionary *textAttributes = @{
+        NSFontAttributeName: [UIFont boldSystemFontOfSize:fontSize],
+        NSForegroundColorAttributeName: [UIColor whiteColor]
+    };
+
+    NSMutableString *displayString = [NSMutableString stringWithString:@""];
+
+    NSMutableArray *words = [[string componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] mutableCopy];
+
+    //
+    // Get first letter of the first word
+    //
+    if ([words count]) {
+        NSString *firstWord = [words firstObject];
+        if ([firstWord length]) {
+            // Get character range to handle emoji (emojis consist of 2 characters in sequence)
+            NSRange firstLetterRange = [firstWord rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, 1)];
+            [displayString appendString:[firstWord substringWithRange:firstLetterRange]];
+        }
+    }
+
+    CGFloat scale = [UIScreen mainScreen].scale;
+    CGSize size = CGSizeMake(floorf(bounds.size.width * scale) / scale, floorf(bounds.size.height * scale) / scale);
+
+    UIGraphicsBeginImageContextWithOptions(size, NO, scale);
+
+    CGContextRef context = UIGraphicsGetCurrentContext();
+
+    if (isCircular) {
+        //
+        // Clip context to a circle
+        //
+        CGPathRef path = CGPathCreateWithEllipseInRect(bounds, NULL);
+        CGContextAddPath(context, path);
+        CGContextClip(context);
+        CGPathRelease(path);
+    }
+
+    //
+    // Fill background of context
+    //
+    CGContextSetFillColorWithColor(context, color.CGColor);
+    CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
+
+    //
+    // Draw text in the context
+    //
+    NSString *text = [displayString uppercaseString];
+    CGSize textSize = [text sizeWithAttributes:textAttributes];
+
+    [text drawInRect:CGRectMake(bounds.size.width/2 - textSize.width/2,
+                                bounds.size.height/2 - textSize.height/2,
+                                textSize.width,
+                                textSize.height)
+      withAttributes:textAttributes];
+
+    UIImage *snapshot = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return snapshot;
+}
+
 + (UIColor *)searchbarBGColorForColor:(UIColor *)color
 {
     CGFloat luma = [self calculateLumaFromColor:color];
