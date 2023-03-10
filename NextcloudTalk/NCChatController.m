@@ -625,7 +625,7 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
                 
                 for (NCChatMessage *message in storedMessages) {
                     // Update the current room with the new message
-                    if (message.messageId == lastKnownMessage && message.timestamp > self->_room.lastActivity && !message.isUpdateMessage) {
+                    if (message.messageId == lastKnownMessage && message.timestamp >= self->_room.lastActivity && !message.isUpdateMessage) {
                         self->_room.lastActivity = message.timestamp;
                         [[NCRoomsManager sharedInstance] updateLastMessage:message withNoUnreadMessages:YES forRoom:self->_room];
                     }
