@@ -107,7 +107,7 @@ class DiagnosticsTableViewController: UITableViewController {
         self.account = account
 
         self.serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
-        self.signalingConfiguration = NCSettingsController.sharedInstance().signalingConfigutations[account.accountId] as? NSDictionary
+        self.signalingConfiguration = NCSettingsController.sharedInstance().signalingConfigurations[account.accountId] as? NSDictionary
         self.externalSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: account.accountId)
         self.signalingVersion = NCAPIController.sharedInstance().signalingAPIVersion(for: account)
 
