@@ -128,7 +128,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 @property (nonatomic, strong) IBOutlet NSLayoutConstraint *screenshareViewRightContraint;
 @property (nonatomic, strong) IBOutlet NSLayoutConstraint *sideBarViewRightConstraint;
 @property (nonatomic, strong) IBOutlet NSLayoutConstraint *sideBarViewBottomConstraint;
-@property (nonatomic, strong) IBOutlet NSLayoutConstraint *sideBarWidth;
+@property (nonatomic, strong) IBOutlet NSLayoutConstraint *sideBarWidthConstraint;
+@property (nonatomic, strong) IBOutlet NSLayoutConstraint *stackViewToTitleViewConstraint;
 
 @end
 
@@ -808,11 +809,13 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         // Hide titleView if we don't have enough space
         // Don't do it in one go, as then we will have some jumping
-        if (self->_titleView.frame.size.width < 200) {
+        if (self->_topBarButtonStackView.frame.origin.x < 200) {
             [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
             [self->_titleView setHidden:YES];
+            [self->_stackViewToTitleViewConstraint setActive:NO];
         } else {
             [self->_titleView setHidden:NO];
+            [self->_stackViewToTitleViewConstraint setActive:YES];
         }
 
         // Need to update the layout again, if we changed it here
@@ -1300,9 +1303,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     CGFloat constant = 0;
 
-    if (self.sideBarWidth.constant > 0) {
+    if (self.sideBarWidthConstraint.constant > 0) {
         // Take sidebar width into account
-        constant += self.sideBarWidth.constant;
+        constant += self.sideBarWidthConstraint.constant;
 
         // Add padding between the element and the sidebar
         constant += 8;
@@ -1322,9 +1325,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     if (visible) {
         [self.sideBarView setHidden:NO];
-        [self.sideBarWidth setConstant:kSidebarWidth];
+        [self.sideBarWidthConstraint setConstant:kSidebarWidth];
     } else {
-        [self.sideBarWidth setConstant:0];
+        [self.sideBarWidthConstraint setConstant:0];
     }
 
     CGFloat rightConstraintConstant = [self getRightSideConstraintConstant];
