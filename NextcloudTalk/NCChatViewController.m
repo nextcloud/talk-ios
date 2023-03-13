@@ -3984,11 +3984,15 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 #pragma mark - PollCreationViewControllerDelegate
 
-- (void)wantsToCreatePollWithQuestion:(NSString *)question options:(NSArray<NSString *> *)options resultMode:(NCPollResultMode)resultMode maxVotes:(NSInteger)maxVotes
+- (void)pollCreationViewControllerWantsToCreatePollWithPollCreationViewController:(PollCreationViewController *)pollCreationViewController question:(NSString *)question options:(NSArray<NSString *> *)options resultMode:(NCPollResultMode)resultMode maxVotes:(NSInteger)maxVotes
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] createPollWithQuestion:question options:options resultMode:resultMode maxVotes:maxVotes inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NCPoll *poll, NSError *error, NSInteger statusCode) {
-        [self dismissViewControllerAnimated:YES completion:nil];
+        if (error) {
+            [pollCreationViewController showCreationError];
+        } else {
+            [pollCreationViewController close];
+        }
     }];
 }
 

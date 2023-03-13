@@ -176,6 +176,9 @@
 "An error occurred while creating the conversation" = "An error occurred while creating the conversation";
 
 /* No comment provided by engineer. */
+"An error occurred while creating the poll" = "An error occurred while creating the poll";
+
+/* No comment provided by engineer. */
 "An error occurred while deleting the message" = "An error occurred while deleting the message";
 
 /* No comment provided by engineer. */
@@ -492,6 +495,9 @@
 
 /* No comment provided by engineer. */
 "Create poll" = "Create poll";
+
+/* No comment provided by engineer. */
+"Creating poll failed" = "Creating poll failed";
 
 /* No comment provided by engineer. */
 "Credentials for this account were no longer valid" = "Credentials for this account were no longer valid";
@@ -996,6 +1002,9 @@
 
 /* No comment provided by engineer. */
 "No" = "No";
+
+/* No comment provided by engineer. */
+"No actions available" = "No actions available";
 
 /* No comment provided by engineer. */
 "No description provided" = "No description provided";
