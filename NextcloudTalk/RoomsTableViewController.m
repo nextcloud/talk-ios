@@ -294,6 +294,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:nil];
     [self setUnreadMessageForInactiveAccountsIndicator];
+    [self updateAccountPickerMenu];
 }
 
 - (void)serverCapabilitiesUpdated:(NSNotification *)notification
