@@ -337,7 +337,9 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
             managedActiveAccount.avatarScope = [userProfile objectForKey:kUserProfileAvatarScope];
 
             [realm commitWriteTransaction];
-            [[NCAPIController sharedInstance] saveProfileImageForAccount:account];
+
+            TalkAccount *unmanagedUpdatedAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
+            [[NCAPIController sharedInstance] saveProfileImageForAccount:unmanagedUpdatedAccount];
             
             if (block) {
                 block(nil);
