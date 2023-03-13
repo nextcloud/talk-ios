@@ -391,16 +391,17 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     NSDictionary *views = @{@"unreadMessagesButton": _unreadMessageButton,
                             @"textInputbar": self.textInputbar,
-                            @"scrollToBottomButton": _scrollToBottomButton
+                            @"scrollToBottomButton": _scrollToBottomButton,
+                            @"autoCompletionView": self.autoCompletionView
     };
 
     NSDictionary *metrics = @{@"buttonWidth": @(buttonWidth)};
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[unreadMessagesButton(24)]-5-[textInputbar]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[unreadMessagesButton(24)]-5-[autoCompletionView]" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[unreadMessagesButton(buttonWidth)]-(>=0)-|" options:0 metrics:metrics views:views]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual
                                                              toItem:_unreadMessageButton attribute:NSLayoutAttributeCenterX multiplier:1.f constant:0.f]];
 
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[scrollToBottomButton(44)]-10-[textInputbar]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[scrollToBottomButton(44)]-10-[autoCompletionView]" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[scrollToBottomButton(44)]-(>=0)-|" options:0 metrics:metrics views:views]];
 
     NSLayoutConstraint *trailingAnchor = [_scrollToBottomButton.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-10];
