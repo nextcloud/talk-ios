@@ -294,6 +294,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:nil];
     [self setUnreadMessageForInactiveAccountsIndicator];
+    [self updateAccountPickerMenu];
 }
 
 - (void)serverCapabilitiesUpdated:(NSNotification *)notification
@@ -317,6 +318,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
             [self setProfileButton];
             [self setUnreadMessageForInactiveAccountsIndicator];
+            [self updateAccountPickerMenu];
         });
     }
 }
@@ -370,6 +372,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
         [self setProfileButton];
         [self setUnreadMessageForInactiveAccountsIndicator];
+        [self updateAccountPickerMenu];
     });
 }
 
@@ -429,6 +432,21 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         NSString *accountName = account.userDisplayName;
         UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle andSize:CGSizeMake(72, 72)];
         accountImage = [NCUtils roundedImageFromImage:accountImage];
+
+        // Draw a red circle to the image in case we have unread notifications for that account
+        if (account.unreadNotification) {
+            UIGraphicsBeginImageContextWithOptions(CGSizeMake(82, 82), NO, 3);
+            CGContextRef context = UIGraphicsGetCurrentContext();
+            [accountImage drawInRect:CGRectMake(0, 4, 78, 78)];
+            CGContextSaveGState(context);
+
+            CGContextSetFillColorWithColor(context, [UIColor systemRedColor].CGColor);
+            CGContextFillEllipseInRect(context, CGRectMake(52, 0, 30, 30));
+
+            accountImage = UIGraphicsGetImageFromCurrentImageContext();
+
+            UIGraphicsEndImageContext();
+        }
 
         UIAction *switchAccountAction = [UIAction actionWithTitle:accountName image:accountImage identifier:nil handler:^(UIAction *action) {
             [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
