@@ -22,7 +22,7 @@
 import UIKit
 
 @objc protocol PollCreationViewControllerDelegate {
-    func wantsToCreatePoll(question: String, options: [String], resultMode: NCPollResultMode, maxVotes: Int)
+    func pollCreationViewControllerWantsToCreatePoll(pollCreationViewController: PollCreationViewController, question: String, options: [String], resultMode: NCPollResultMode, maxVotes: Int)
 }
 
 @objcMembers class PollCreationViewController: UITableViewController, UITextFieldDelegate {
@@ -92,7 +92,20 @@ import UIKit
     }
 
     func cancelButtonPressed() {
+        close()
+    }
+
+    func close() {
         self.dismiss(animated: true, completion: nil)
+    }
+
+    func showCreationError() {
+        let alert = UIAlertController(title: NSLocalizedString("Creating poll failed", comment: ""),
+                                      message: NSLocalizedString("An error occurred while creating the poll", comment: ""),
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
+        self.present(alert, animated: true)
+        footerView.primaryButton.setButtonEnabled(enabled: true)
     }
 
     func pollFooterView() -> UIView {
@@ -107,7 +120,8 @@ import UIKit
     func createPollButtonPressed() {
         let resultMode: NCPollResultMode = privateSwitch.isOn ? NCPollResultModeHidden : NCPollResultModePublic
         let maxVotes: Int = multipleSwitch.isOn ? 0 : 1
-        self.pollCreationDelegate?.wantsToCreatePoll(question: question, options: options, resultMode: resultMode, maxVotes: maxVotes)
+        footerView.primaryButton.setButtonEnabled(enabled: false)
+        self.pollCreationDelegate?.pollCreationViewControllerWantsToCreatePoll(pollCreationViewController: self, question: question, options: options, resultMode: resultMode, maxVotes: maxVotes)
     }
 
     func checkIfPollIsReadyToCreate() {
