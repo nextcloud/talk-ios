@@ -3116,7 +3116,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NSDate *separatorDate = [_dateSections objectAtIndex:indexPath.section];
         NSMutableArray *messages = [_messages objectForKey:separatorDate];
         [messages removeObjectAtIndex:indexPath.row];
-        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationTop];
+        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }
 }
 
