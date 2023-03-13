@@ -435,13 +435,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
         // Draw a red circle to the image in case we have unread notifications for that account
         if (account.unreadNotification) {
-            UIGraphicsBeginImageContextWithOptions(CGSizeMake(72, 72), NO, 3);
+            UIGraphicsBeginImageContextWithOptions(CGSizeMake(82, 82), NO, 3);
             CGContextRef context = UIGraphicsGetCurrentContext();
-            [accountImage drawInRect:CGRectMake(0, 0, 72, 72)];
+            [accountImage drawInRect:CGRectMake(0, 4, 78, 78)];
             CGContextSaveGState(context);
 
             CGContextSetFillColorWithColor(context, [UIColor systemRedColor].CGColor);
-            CGContextFillEllipseInRect(context, CGRectMake(52, 0, 20, 20));
+            CGContextFillEllipseInRect(context, CGRectMake(52, 0, 30, 30));
 
             accountImage = UIGraphicsGetImageFromCurrentImageContext();
 
