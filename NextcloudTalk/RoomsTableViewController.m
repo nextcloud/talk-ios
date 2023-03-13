@@ -755,11 +755,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     _settingsButton = [[UIBarButtonItem alloc] initWithCustomView:profileButton];
     [self setUnreadMessageForInactiveAccountsIndicator];
-
-    NSLayoutConstraint *width = [_settingsButton.customView.widthAnchor constraintEqualToConstant:30];
-    width.active = YES;
-    NSLayoutConstraint *height = [_settingsButton.customView.heightAnchor constraintEqualToConstant:30];
-    height.active = YES;
     
     [self.navigationItem setLeftBarButtonItem:_settingsButton];
 }
