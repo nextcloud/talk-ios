@@ -143,6 +143,7 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
 @property (nonatomic, strong) NCChatMessage *reactingMessage;
 @property (nonatomic, strong) NSIndexPath *lastMessageBeforeReaction;
 @property (nonatomic, strong) NSTimer *messageExpirationTimer;
+@property (nonatomic, strong) UIButton *scrollToBottomButton;
 
 @end
 
@@ -368,6 +369,20 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self.view addSubview:_unreadMessageButton];
     _chatViewPresentedTimestamp = [[NSDate date] timeIntervalSince1970];
     _lastReadMessage = _room.lastReadMessage;
+
+    _scrollToBottomButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 44, 44) primaryAction:[UIAction actionWithHandler:^(__kindof UIAction * _Nonnull action) {
+        [self.tableView slk_scrollToBottomAnimated:YES];
+    }]];
+
+    _scrollToBottomButton.backgroundColor = [UIColor secondarySystemBackgroundColor];
+    [_scrollToBottomButton setTintColor:[UIColor systemBlueColor]];
+    _scrollToBottomButton.layer.cornerRadius = _scrollToBottomButton.frame.size.height / 2;
+    _scrollToBottomButton.clipsToBounds = YES;
+    _scrollToBottomButton.alpha = 0;
+    _scrollToBottomButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [_scrollToBottomButton setImage:[UIImage systemImageNamed:@"chevron.down"] forState:UIControlStateNormal];
+
+    [self.view addSubview:_scrollToBottomButton];
     
     // Check if there's a stored pending message
     if (_room.pendingMessage != nil) {
@@ -375,13 +390,22 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     NSDictionary *views = @{@"unreadMessagesButton": _unreadMessageButton,
-                            @"textInputbar": self.textInputbar};
+                            @"textInputbar": self.textInputbar,
+                            @"scrollToBottomButton": _scrollToBottomButton
+    };
+
     NSDictionary *metrics = @{@"buttonWidth": @(buttonWidth)};
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[unreadMessagesButton(24)]-5-[textInputbar]" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[unreadMessagesButton(buttonWidth)]-(>=0)-|" options:0 metrics:metrics views:views]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual
                                                              toItem:_unreadMessageButton attribute:NSLayoutAttributeCenterX multiplier:1.f constant:0.f]];
-    
+
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[scrollToBottomButton(44)]-10-[textInputbar]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(>=0)-[scrollToBottomButton(44)]-(>=0)-|" options:0 metrics:metrics views:views]];
+
+    NSLayoutConstraint *trailingAnchor = [_scrollToBottomButton.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-10];
+    trailingAnchor.active = YES;
+
     // We can't use UIColor with systemBlueColor directly, because it will switch to indigo. So make sure we actually get a blue tint here
     [self.textView setTintColor:[UIColor colorWithCGColor:[UIColor systemBlueColor].CGColor]];
 }
@@ -400,9 +424,22 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         }
     };
 
+    void (^animationsScrollButton)(void) = ^void() {
+        CGFloat minimumOffset = (self.tableView.contentSize.height - self.tableView.frame.size.height) - 10;
+
+        if (self.tableView.contentOffset.y < minimumOffset) {
+            // Scrolled -> show button
+            self.scrollToBottomButton.alpha = 1;
+        } else {
+            // At the bottom -> hide button
+            self.scrollToBottomButton.alpha = 0;
+        }
+    };
+
     if (animated) {
         // Make sure the previous animation is finished before issuing another one
         dispatch_async(self.animationDispatchQueue, ^{
+            dispatch_group_enter(self.animationDispatchGroup);
             dispatch_group_enter(self.animationDispatchGroup);
             
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -415,12 +452,21 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                     dispatch_group_leave(self.animationDispatchGroup);
                 }];
             });
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [UIView animateWithDuration:0.3
+                                 animations:animationsScrollButton
+                                 completion:^(BOOL finished) {
+                    dispatch_group_leave(self.animationDispatchGroup);
+                }];
+            });
             
             dispatch_group_wait(self.animationDispatchGroup, DISPATCH_TIME_FOREVER);
         });
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
             animations();
+            animationsScrollButton();
         });
     }
 }
