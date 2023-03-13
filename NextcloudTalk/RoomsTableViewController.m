@@ -452,6 +452,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
             [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
         }];
 
+        if (@available(iOS 15.0, *)) {
+            if (account.unreadBadgeNumber > 0) {
+                switchAccountAction.subtitle = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld notifications", nil), (long)account.unreadBadgeNumber];
+            }
+        }
+
         if (account.active) {
             switchAccountAction.state = UIMenuElementStateOn;
         }
