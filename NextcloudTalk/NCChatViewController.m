@@ -1297,6 +1297,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)didPressLeftButton:(id)sender
 {
+    // The keyboard will be hidden when the action menu is shown. Depending on what
+    // attachment is shared, not resigning might lead to a currupted chat view
+    [self.textView resignFirstResponder];
     [self presentAttachmentsOptions];
     [super didPressLeftButton:sender];
 }
