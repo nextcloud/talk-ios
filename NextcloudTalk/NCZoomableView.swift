@@ -94,12 +94,12 @@ import Foundation
 
         if recognizer.state == .ended {
             let bounds = self.contentView.bounds
-            let videoSize = self.contentViewSize
             let zoomedSize = recognizer.view!.frame.size
 
-            let remoteVideoFrame = AVMakeRect(aspectRatio: videoSize, insideRect: bounds)
+            let aspectRatioContentViewSize = AVMakeRect(aspectRatio: self.contentViewSize, insideRect: bounds).size
 
-            if zoomedSize.width < remoteVideoFrame.size.width || zoomedSize.height < remoteVideoFrame.size.height {
+            // Don't zoom smaller than the original size
+            if zoomedSize.width < aspectRatioContentViewSize.width || zoomedSize.height < aspectRatioContentViewSize.height {
                 UIView.animate(withDuration: 0.3) {
                     self.resizeContentView()
                 }
