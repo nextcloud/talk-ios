@@ -86,5 +86,11 @@
             <string>%d days ago</string>
         </dict>
     </dict>
+
+    <key>%ld notifications</key>
+    <dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@notifications@</string>
+	</dict>
 </dict>
 </plist>
