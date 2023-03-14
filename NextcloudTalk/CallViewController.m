@@ -79,7 +79,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NCCallController *_callController;
     NCChatViewController *_chatViewController;
     UINavigationController *_chatNavigationController;
-    UIView <RTCVideoRenderer> *_screenView;
     CGSize _screensharingSize;
     UITapGestureRecognizer *_tapGestureForDetailedView;
     NSTimer *_detailedViewTimer;
@@ -103,9 +102,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NSMutableArray *_pendingPeerDeletions;
     NSMutableArray *_pendingPeerUpdates;
     NSTimer *_batchUpdateTimer;
-    UIPinchGestureRecognizer *_screenViewPinchGestureRecognizer;
-    UIPanGestureRecognizer *_screenViewPanGestureRecognizer;
-    UITapGestureRecognizer *_screenViewDoubleTapGestureRecognizer;
 }
 
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
@@ -290,7 +286,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         [self setLocalVideoRect];
-        [self resizeScreensharingView];
+        [self->_screensharingView resizeContentView];
         [self adjustTopBar];
     } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
     }];
@@ -1487,7 +1483,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
             strongSelf->_chatNavigationController = nil;
 
-            if ((!strongSelf->_isAudioOnly && strongSelf->_callState == CallStateInCall) || strongSelf->_screenView) {
+            if (!strongSelf->_isAudioOnly && strongSelf->_callState == CallStateInCall) {
                 [strongSelf addTapGestureForDetailedView];
                 [strongSelf showDetailedViewWithTimer];
             }
@@ -1860,35 +1856,16 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         RTCMTLVideoView *renderView = [self->_screenRenderersDict objectForKey:peerId];
-        [self->_screenView removeFromSuperview];
-        [self->_screenView removeGestureRecognizer:self->_screenViewPinchGestureRecognizer];
-        [self->_screenView removeGestureRecognizer:self->_screenViewPanGestureRecognizer];
-        [self->_screenView removeGestureRecognizer:self->_screenViewDoubleTapGestureRecognizer];
-        self->_screenView = nil;
 
-        self->_screenView = renderView;
-        self->_screensharingSize = renderView.frame.size;
-        [self->_screensharingView addSubview:self->_screenView];
+        [self->_screensharingView replaceContentView:renderView];
         [self->_screensharingView bringSubviewToFront:self->_closeScreensharingButton];
-
-        self->_screenViewPinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(screenViewPinch:)];
-        self->_screenViewPinchGestureRecognizer.delegate = self;
-        [self->_screenView addGestureRecognizer:self->_screenViewPinchGestureRecognizer];
-
-        self->_screenViewPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(screenViewPan:)];
-        self->_screenViewPanGestureRecognizer.delegate = self;
-        [self->_screenView addGestureRecognizer:self->_screenViewPanGestureRecognizer];
-
-        self->_screenViewDoubleTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(screenViewDoubleTap:)];
-        [self->_screenViewDoubleTapGestureRecognizer setNumberOfTapsRequired:2];
-        [self->_screenView addGestureRecognizer:self->_screenViewDoubleTapGestureRecognizer];
 
         [UIView transitionWithView:self->_screensharingView duration:0.4
                            options:UIViewAnimationOptionTransitionCrossDissolve
                         animations:^{self->_screensharingView.hidden = NO;}
                         completion:nil];
-        [self resizeScreensharingView];
     });
+
     // Enable/Disable detailed view with tap gesture
     // in voice only call when screensharing is enabled
     if (_isAudioOnly) {
@@ -1906,7 +1883,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             [cell setScreenShared:NO];
         }];
 
-        if (self->_screenView == screenRenderer) {
+        if (self->_screensharingView.contentView == screenRenderer) {
             [self closeScreensharingButtonPressed:self];
         }
 
@@ -1916,166 +1893,21 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     });
 }
 
-- (void)resizeScreensharingView {
-    // We need to reset the transform here, because otherwise panning would be based on that invalid transform
-    _screenView.transform = CGAffineTransformIdentity;
-    
-    CGRect bounds = _screensharingView.bounds;
-    CGSize videoSize = _screensharingSize;
-    
-    if (videoSize.width > 0 && videoSize.height > 0) {
-        // Aspect fill remote video into bounds.
-        CGRect remoteVideoFrame = AVMakeRectWithAspectRatioInsideRect(videoSize, bounds);
-        CGFloat scale = 1;
-        remoteVideoFrame.size.height *= scale;
-        remoteVideoFrame.size.width *= scale;
-        _screenView.frame = remoteVideoFrame;
-        _screenView.center = CGPointMake(CGRectGetMidX(bounds), CGRectGetMidY(bounds));
-    } else {
-        _screenView.frame = bounds;
-    }
-}
-
 - (IBAction)closeScreensharingButtonPressed:(id)sender
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_screenView removeFromSuperview];
-        [self->_screenView removeGestureRecognizer:self->_screenViewPinchGestureRecognizer];
-        [self->_screenView removeGestureRecognizer:self->_screenViewPanGestureRecognizer];
-        self->_screenView = nil;
-        
         [UIView transitionWithView:self->_screensharingView duration:0.4
                            options:UIViewAnimationOptionTransitionCrossDissolve
                         animations:^{self->_screensharingView.hidden = YES;}
                         completion:nil];
     });
+
     // Back to normal voice only UI
     if (_isAudioOnly) {
         [self invalidateDetailedViewTimer];
         [self showDetailedView];
         [self removeTapGestureForDetailedView];
     }
-}
-
-- (void)screenViewPinch:(UIPinchGestureRecognizer *)recognizer
-{
-    [self zoomView:recognizer.view toPoint:[recognizer locationInView:recognizer.view] usingScale:recognizer.scale];
-    recognizer.scale = 1.0;
-
-    if (recognizer.state == UIGestureRecognizerStateEnded) {
-        CGRect bounds = _screensharingView.bounds;
-        CGSize videoSize = _screensharingSize;
-        CGSize zoomedSize = recognizer.view.frame.size;
-
-        CGRect remoteVideoFrame = AVMakeRectWithAspectRatioInsideRect(videoSize, bounds);
-
-        // Don't zoom smaller than the original size
-        if (zoomedSize.width < remoteVideoFrame.size.width || zoomedSize.height < remoteVideoFrame.size.height) {
-            [UIView animateWithDuration:0.3 animations:^{
-                [self resizeScreensharingView];
-            }];
-        } else {
-            [self adjustScreenViewPosition];
-        }
-    }
-}
-
-- (void)screenViewPan:(UIPanGestureRecognizer *)recognizer
-{
-    CGPoint point = [recognizer translationInView:_screenView];
-
-    // We need to take the current scaling into account when panning
-    // As we have the same scale factor for X and Y, we can take only one here
-    CGFloat scaleFactor = _screenView.transform.a;
-
-    _screenView.center = CGPointMake(_screenView.center.x + point.x * scaleFactor, _screenView.center.y + point.y * scaleFactor);
-    [recognizer setTranslation:CGPointZero inView:self->_screenView];
-
-    if (recognizer.state == UIGestureRecognizerStateEnded) {
-        [self adjustScreenViewPosition];
-    }
-}
-
-- (void)screenViewDoubleTap:(UIPanGestureRecognizer *)recognizer
-{
-    if (recognizer.state == UIGestureRecognizerStateRecognized) {
-        // We need to take the current scaling into account when panning
-        // As we have the same scale factor for X and Y, we can take only one here
-        CGFloat scaleFactor = _screenView.transform.a;
-
-        [UIView animateWithDuration:0.3 animations:^{
-            if (scaleFactor > 1) {
-                // Set screenView's original size
-                [self resizeScreensharingView];
-            } else {
-                // Zoom 3x screenView into the tap point
-                [self zoomView:recognizer.view toPoint:[recognizer locationInView:recognizer.view] usingScale:3];
-            }
-        }];
-        [self adjustScreenViewPosition];
-    }
-}
-
-- (void)zoomView:(UIView *)view toPoint:(CGPoint)point usingScale:(CGFloat)scale
-{
-    CGRect bounds = view.bounds;
-    point.x -= CGRectGetMidX(bounds);
-    point.y -= CGRectGetMidY(bounds);
-    CGAffineTransform transform = view.transform;
-    transform = CGAffineTransformTranslate(transform, point.x, point.y);
-    transform = CGAffineTransformScale(transform, scale, scale);
-    transform = CGAffineTransformTranslate(transform, -point.x, -point.y);
-    view.transform = transform;
-}
-
-- (void)adjustScreenViewPosition
-{
-    CGSize parentSize = _screenView.superview.frame.size;
-    CGSize size = _screenView.frame.size;
-    CGPoint position = _screenView.frame.origin;
-
-    CGFloat viewLeft = position.x;
-    CGFloat viewRight = position.x + size.width;
-    CGFloat viewTop = position.y;
-    CGFloat viewBottom = position.y + size.height;
-
-    // Left align screenView if it has been moved to the center (and it is wide enough)
-    if (viewLeft > 0 && size.width >= parentSize.width) {
-        position = CGPointMake(0, position.y);
-    }
-
-    // Top align screenView if it has been moved to the center (and it is tall enough)
-    if (viewTop > 0 && size.height >= parentSize.height) {
-        position = CGPointMake(position.x, 0);
-    }
-
-    // Right align screenView if it has been moved to the center (and it is wide enough)
-    if (viewRight < parentSize.width && size.width >= parentSize.width) {
-        position = CGPointMake(parentSize.width - size.width, position.y);
-    }
-
-    // Bottom align screenView if it has been moved to the center (and it is tall enough)
-    if (viewBottom < parentSize.height && size.height >= parentSize.height) {
-        position = CGPointMake(position.x, parentSize.height - size.height);
-    }
-
-    // Align screenView vertically
-    if (size.width <= parentSize.width) {
-        position = CGPointMake(parentSize.width / 2 - size.width / 2, position.y);
-    }
-
-    // Align screenView horizontally
-    if (size.height <= parentSize.height) {
-        position = CGPointMake(position.x, parentSize.height / 2 - size.height / 2);
-    }
-
-    CGRect frame = _screenView.frame;
-    frame.origin.x = position.x;
-    frame.origin.y = position.y;
-
-    [UIView animateWithDuration:0.3 animations:^{
-        self->_screenView.frame = frame;
-    }];
 }
 
 #pragma mark - GestureDelegate
@@ -2106,9 +1938,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         for (RTCMTLVideoView *rendererView in [self->_screenRenderersDict allValues]) {
             if ([videoView isEqual:rendererView]) {
                 rendererView.frame = CGRectMake(0, 0, size.width, size.height);
-                if ([self->_screenView isEqual:rendererView]) {
+                if ([self.screensharingView.contentView isEqual:rendererView]) {
                     self->_screensharingSize = rendererView.frame.size;
-                    [self resizeScreensharingView];
+                    [self->_screensharingView setContentViewSize:rendererView.frame.size];
+                    [self->_screensharingView resizeContentView];
                 }
             }
         }
