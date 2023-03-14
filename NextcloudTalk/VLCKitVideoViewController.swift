@@ -31,7 +31,7 @@ import MobileVLCKit
 
     public weak var delegate: VLCKitVideoViewControllerDelegate?
 
-    @IBOutlet weak var videoView: UIView!
+    @IBOutlet weak var videoViewContainer: NCZoomableView!
     @IBOutlet weak var buttonView: UIView!
     @IBOutlet weak var playPauseButton: UIButton!
     @IBOutlet weak var shareButton: UIButton!
@@ -48,6 +48,7 @@ import MobileVLCKit
     private var sliderValueObserver: NSKeyValueObservation?
     private var idleTimer: Timer?
     private var pauseAfterPlay: Bool = false
+    private var videoView = UIView()
 
     init(filePath: String) {
         self.filePath = filePath
@@ -62,7 +63,6 @@ import MobileVLCKit
     override func viewDidLoad() {
         self.mediaPlayer = VLCMediaPlayer()
         self.mediaPlayer?.delegate = self
-        self.mediaPlayer?.drawable = self.videoView
 
         self.timeObserver = self.mediaPlayer?.observe(\.time, changeHandler: { _, _ in
             self.updateInformation()
@@ -81,24 +81,12 @@ import MobileVLCKit
             }
         })
 
-        self.resetMedia(drawFirstFrame: true)
-        self.currentTimeLabel.text = "-:-"
-        self.totalTimeLabel.text = "-:-"
+        self.currentTimeLabel.text = "--:--"
+        self.totalTimeLabel.text = "--:--"
         self.positionSlider.value = 0
 
         // Set close button icon as template
         self.closeButton.setImage(UIImage(named: "close")?.withRenderingMode(.alwaysTemplate), for: .normal)
-
-        // Allow hiding by swipe
-        let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(dismissViewController))
-        swipeGesture.direction = .down
-        self.view.isUserInteractionEnabled = true
-        self.view.addGestureRecognizer(swipeGesture)
-
-        // Allow toggle of controls
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleControls))
-        self.view.addGestureRecognizer(tapGesture)
-        self.videoView.addGestureRecognizer(tapGesture)
     }
 
     @objc private func dismissViewController() {
@@ -112,7 +100,31 @@ import MobileVLCKit
         self.closeButton.layer.cornerRadius = self.closeButton.frame.size.height / 2
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        // Set the inital frame size when the view appeared
+        self.videoView.frame = self.videoViewContainer.frame
+        self.videoViewContainer.replaceContentView(self.videoView)
+        self.mediaPlayer?.drawable = self.videoView
+
+        // Allow toggle of controls
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleControls))
+        self.view.isUserInteractionEnabled = true
+        self.view.addGestureRecognizer(tapGesture)
+        self.videoView.addGestureRecognizer(tapGesture)
+
+        // Make sure our singel tap recognizer does not interfere with the double tap recognizer of NCZoomableView
+        if let doubleTapGestureRecognizer = self.videoViewContainer.doubleTapGestureRecoginzer {
+            tapGesture.require(toFail: doubleTapGestureRecognizer)
+        }
+
+        self.resetMedia(drawFirstFrame: true)
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
         self.timeObserver?.invalidate()
         self.remainingTimeObserver?.invalidate()
         self.sliderValueObserver?.invalidate()
@@ -121,6 +133,8 @@ import MobileVLCKit
     }
 
     override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
         self.delegate?.vlckitVideoViewControllerDismissed(self)
     }
 
@@ -132,7 +146,13 @@ import MobileVLCKit
         // Since there's no way to redraw the current frame in VLCKit, we hide the view
         // if the playback was stopped to not have a disorted view
         if !mediaPlayer.isPlaying, self.mediaReachedEnd() {
-            self.videoView.isHidden = true
+            self.videoViewContainer.isHidden = true
+        }
+
+        coordinator.animate(alongsideTransition: nil) { _ in
+            self.videoView.frame = self.videoViewContainer.frame
+            self.videoViewContainer.contentViewSize = self.videoViewContainer.frame.size
+            self.videoViewContainer.resizeContentView()
         }
     }
 
@@ -281,7 +301,7 @@ import MobileVLCKit
             }
 
             self.playPauseButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
-            self.videoView.isHidden = false
+            self.videoViewContainer.isHidden = false
         } else {
             self.playPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
             self.showControls()
