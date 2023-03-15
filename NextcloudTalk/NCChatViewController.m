@@ -23,6 +23,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <ContactsUI/ContactsUI.h>
 #import <QuickLook/QuickLook.h>
+#import <PhotosUI/PhotosUI.h>
 
 @import NextcloudKit;
 
@@ -95,7 +96,29 @@ typedef enum NCChatMessageAction {
 
 NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-message";
 
-@interface NCChatViewController () <UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, ShareViewControllerDelegate, ShareConfirmationViewControllerDelegate, FileMessageTableViewCellDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, ChatMessageTableViewCellDelegate, ShareLocationViewControllerDelegate, LocationMessageTableViewCellDelegate, VoiceMessageTableViewCellDelegate, ObjectShareMessageTableViewCellDelegate, PollCreationViewControllerDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, CNContactPickerDelegate, NCChatTitleViewDelegate, VLCKitVideoViewControllerDelegate>
+@interface NCChatViewController () <UIGestureRecognizerDelegate,
+                                    UINavigationControllerDelegate,
+                                    UITextFieldDelegate,
+                                    PHPickerViewControllerDelegate,
+                                    UIImagePickerControllerDelegate,
+                                    UIDocumentPickerDelegate,
+                                    ShareViewControllerDelegate,
+                                    ShareConfirmationViewControllerDelegate,
+                                    FileMessageTableViewCellDelegate,
+                                    NCChatFileControllerDelegate,
+                                    QLPreviewControllerDelegate,
+                                    QLPreviewControllerDataSource,
+                                    ChatMessageTableViewCellDelegate,
+                                    ShareLocationViewControllerDelegate,
+                                    LocationMessageTableViewCellDelegate,
+                                    VoiceMessageTableViewCellDelegate,
+                                    ObjectShareMessageTableViewCellDelegate,
+                                    PollCreationViewControllerDelegate,
+                                    AVAudioRecorderDelegate,
+                                    AVAudioPlayerDelegate,
+                                    CNContactPickerDelegate,
+                                    NCChatTitleViewDelegate,
+                                    VLCKitVideoViewControllerDelegate>
 
 @property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
@@ -144,6 +167,7 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
 @property (nonatomic, strong) NSIndexPath *lastMessageBeforeReaction;
 @property (nonatomic, strong) NSTimer *messageExpirationTimer;
 @property (nonatomic, strong) UIButton *scrollToBottomButton;
+@property (nonatomic, strong) PHPickerViewController *photoPicker;
 
 @end
 
@@ -1436,11 +1460,15 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)presentPhotoLibrary
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self->_imagePicker = [[UIImagePickerController alloc] init];
-        self->_imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-        self->_imagePicker.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:self->_imagePicker.sourceType];
-        self->_imagePicker.delegate = self;
-        [self presentViewController:self->_imagePicker animated:YES completion:nil];
+        PHPickerConfiguration *config = [[PHPickerConfiguration alloc] init];
+        config.selectionLimit = 5;
+
+        PHPickerFilter *filter = [PHPickerFilter anyFilterMatchingSubfilters:@[[PHPickerFilter imagesFilter], [PHPickerFilter videosFilter]]];
+        config.filter = filter;
+
+        self->_photoPicker = [[PHPickerViewController alloc] initWithConfiguration:config];
+        self->_photoPicker .delegate = self;
+        [self presentViewController:self->_photoPicker animated:YES completion:nil];
     });
 }
 
@@ -1649,6 +1677,61 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (textField == _emojiTextField && _reactingMessage) {
         _reactingMessage = nil;
     }
+}
+
+#pragma mark - PHPhotoPicker Delegate
+
+- (void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results
+{
+    if (results.count == 0) {
+        [picker dismissViewControllerAnimated:YES completion:nil];
+        return;
+    }
+
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:_room account:activeAccount serverCapabilities:serverCapabilities];
+    shareConfirmationVC.delegate = self;
+    shareConfirmationVC.isModal = YES;
+    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:shareConfirmationVC];
+
+    [picker dismissViewControllerAnimated:YES completion:^{
+        [self presentViewController:navigationController animated:YES completion:^{
+            for (PHPickerResult *result in results) {
+                __block NSString *fileName = result.itemProvider.suggestedName;
+
+                [result.itemProvider loadItemForTypeIdentifier:@"public.image" options:nil completionHandler:^(__kindof id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                    if (error) {
+                        return;
+                    }
+
+                    if (fileName) {
+                        // Need to append a file extension here as we just get the filename without a extension from PHPicker
+                        fileName = [NSString stringWithFormat:@"%@.jpg", fileName];
+                    } else {
+                        fileName = [NSString stringWithFormat:@"IMG_%.f.jpg", [[NSDate date] timeIntervalSince1970] * 1000];
+                    }
+
+                    [shareConfirmationVC.shareItemController addItemWithURLAndName:item withName:fileName];
+                }];
+
+                [result.itemProvider loadItemForTypeIdentifier:@"public.movie" options:nil completionHandler:^(__kindof id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                    if (error) {
+                        return;
+                    }
+
+                    if (fileName) {
+                        // Need to append a file extension here as we just get the filename without a extension from PHPicker
+                        fileName = [NSString stringWithFormat:@"%@.mov", fileName];
+                    } else {
+                        fileName = [NSString stringWithFormat:@"VID_%.f.mov", [[NSDate date] timeIntervalSince1970] * 1000];
+                    }
+                    
+                    [shareConfirmationVC.shareItemController addItemWithURLAndName:item withName:fileName];
+                }];
+            }
+        }];
+    }];
 }
 
 #pragma mark - UIImagePickerController Delegate
