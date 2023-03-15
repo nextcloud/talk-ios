@@ -146,6 +146,14 @@
             }
         }];
     }
+
+    if (self.message.isReplyable && !self.message.isDeleting) {
+        __weak typeof(self) weakSelf = self;
+        [self addReplyGestureWithActionBlock:^(UITableView *tableView, NSIndexPath *indexPath) {
+            __strong typeof(self) strongSelf = weakSelf;
+            [strongSelf.delegate cellWantsToReplyToMessage:strongSelf.message];
+        }];
+    }
 }
 
 - (void)setDeliveryState:(ChatMessageDeliveryState)state
