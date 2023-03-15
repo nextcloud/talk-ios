@@ -224,7 +224,7 @@
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N0N-Ny-Aeg" userLabel="CloseScreenshareView">
                             <rect key="frame" x="980" y="12" width="32" height="32"/>
-                            <color key="backgroundColor" white="0.5" alpha="0.95060911873318499" colorSpace="calibratedWhite"/>
+                            <color key="backgroundColor" red="0.11764705882352941" green="0.11764705882352941" blue="0.11764705882352941" alpha="0.80088553523385764" colorSpace="custom" customColorSpace="displayP3"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="32" id="uMi-V0-B3H"/>
                                 <constraint firstAttribute="width" constant="32" id="xCZ-QS-yDb"/>
