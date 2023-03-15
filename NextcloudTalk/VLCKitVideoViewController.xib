@@ -17,7 +17,7 @@
                 <outlet property="positionSlider" destination="YOo-ek-LBP" id="Nz2-je-Ipm"/>
                 <outlet property="shareButton" destination="s5N-YD-tyg" id="Q0l-YZ-QaM"/>
                 <outlet property="totalTimeLabel" destination="tnZ-oA-kNS" id="I5E-Ci-QMO"/>
-                <outlet property="videoView" destination="NXo-gc-zjF" id="oyt-6D-BkG"/>
+                <outlet property="videoViewContainer" destination="NXo-gc-zjF" id="oyt-6D-BkG"/>
                 <outlet property="view" destination="iN0-l3-epB" id="uwm-Nh-hWT"/>
             </connections>
         </placeholder>
@@ -26,7 +26,7 @@
             <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NXo-gc-zjF" userLabel="VideoView">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NXo-gc-zjF" userLabel="VideoView" customClass="NCZoomableView" customModule="NextcloudTalk" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="59" width="393" height="759"/>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>

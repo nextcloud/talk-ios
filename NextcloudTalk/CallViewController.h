@@ -28,6 +28,7 @@
 #import "NCChatTitleView.h"
 
 @class CallViewController;
+@class NCZoomableView;
 @protocol CallViewControllerDelegate <NSObject>
 
 - (void)callViewControllerWantsToBeDismissed:(CallViewController *)viewController;
@@ -47,7 +48,7 @@
 @property (nonatomic, assign) BOOL silentCall;
 
 @property (nonatomic, strong) IBOutlet RTCCameraPreviewView *localVideoView;
-@property (nonatomic, strong) IBOutlet UIView *screensharingView;
+@property (nonatomic, strong) IBOutlet NCZoomableView *screensharingView;
 @property (nonatomic, strong) IBOutlet UIButton *closeScreensharingButton;
 @property (nonatomic, strong) IBOutlet UIButton *toggleChatButton;
 @property (nonatomic, strong) IBOutlet UIView *waitingView;
