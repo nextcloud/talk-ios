@@ -458,8 +458,6 @@
 		2C1D13A2253760EE00EC0533 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		2C1EF36925505DCE007C9768 /* NCNavigationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCNavigationController.h; sourceTree = "<group>"; };
 		2C1EF36A25505DCE007C9768 /* NCNavigationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNavigationController.m; sourceTree = "<group>"; };
-		2C20269E236832D300DFC89B /* FTPopOverMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FTPopOverMenu.h; sourceTree = "<group>"; };
-		2C20269F236832D300DFC89B /* FTPopOverMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FTPopOverMenu.m; sourceTree = "<group>"; };
 		2C2026A32369F47400DFC89B /* AccountTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AccountTableViewCell.xib; sourceTree = "<group>"; };
 		2C2A788C2359CC8800EEB797 /* NCAppBranding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCAppBranding.h; sourceTree = "<group>"; };
 		2C2A788D2359CC8800EEB797 /* NCAppBranding.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAppBranding.m; sourceTree = "<group>"; };
@@ -969,7 +967,6 @@
 			isa = PBXGroup;
 			children = (
 				2CC1C37F29C0945600C8436B /* DRCellSlideGestureRecognizer */,
-				2C20269D236832D300DFC89B /* FTPopOverMenu */,
 				2CB302F92264775E0053078A /* SlackTextViewController */,
 				2C4E758C214B942D003910D5 /* Firefox */,
 				2C4D7D601F2F7C2C00FF4A0D /* AppRTC */,
@@ -1012,16 +1009,6 @@
 				1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */,
 			);
 			name = "User Interface";
-			sourceTree = "<group>";
-		};
-		2C20269D236832D300DFC89B /* FTPopOverMenu */ = {
-			isa = PBXGroup;
-			children = (
-				2C20269E236832D300DFC89B /* FTPopOverMenu.h */,
-				2C20269F236832D300DFC89B /* FTPopOverMenu.m */,
-			);
-			name = FTPopOverMenu;
-			path = ThirdParty/FTPopOverMenu/FTPopOverMenu;
 			sourceTree = "<group>";
 		};
 		2C40281622832EF90000DDFC /* Database */ = {
