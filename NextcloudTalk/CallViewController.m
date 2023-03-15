@@ -29,7 +29,6 @@
 #import <WebRTC/RTCMTLVideoView.h>
 #import <WebRTC/RTCVideoTrack.h>
 
-#import "DBImageColorPicker.h"
 #import "JDStatusBarNotification.h"
 #import "UIImageView+AFNetworking.h"
 
