@@ -25,6 +25,7 @@
 typedef void (^GetMenuUserActionsForMessageCompletionBlock)(NSArray *menuItems);
 
 @interface ChatTableViewCell () <UITextFieldDelegate>
+@property (nonatomic, strong) DRCellSlideGestureRecognizer *replyGestureRecognizer;
 @end
 
 @implementation ChatTableViewCell
@@ -43,6 +44,34 @@ typedef void (^GetMenuUserActionsForMessageCompletionBlock)(NSArray *menuItems);
     [super prepareForReuse];
     self.messageId = -1;
     self.message = nil;
+    [self removeGestureRecognizer:self.replyGestureRecognizer];
+}
+
+- (void)addReplyGestureWithActionBlock:(DRCellSlideActionBlock)block
+{
+    self.replyGestureRecognizer = [DRCellSlideGestureRecognizer new];
+    self.replyGestureRecognizer.leftActionStartPosition = 80;
+    DRCellSlideAction *action = [DRCellSlideAction actionForFraction:0.2];
+    action.behavior = DRCellSlideActionPullBehavior;
+    action.activeColor = [UIColor labelColor];
+    action.inactiveColor = [UIColor placeholderTextColor];
+    action.activeBackgroundColor = self.backgroundColor;
+    action.inactiveBackgroundColor = self.backgroundColor;
+    action.icon = [UIImage imageNamed:@"reply"];
+
+    [action setWillTriggerBlock:^(UITableView *tableView, NSIndexPath *indexPath) {
+        block(tableView, indexPath);
+    }];
+
+    [action setDidChangeStateBlock:^(DRCellSlideAction *action, BOOL active) {
+        if (active) {
+            // Actuate `Peek` feedback (weak boom)
+            AudioServicesPlaySystemSound(1519);
+        }
+    }];
+
+    [self.replyGestureRecognizer addActions:action];
+    [self addGestureRecognizer:self.replyGestureRecognizer];
 }
 
 - (UIMenu *)getDeferredUserMenuForMessage:(NCChatMessage *)message

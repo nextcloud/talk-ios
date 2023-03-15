@@ -296,6 +296,9 @@
 		2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C820E125C20096D91F /* NewRoomTableViewController.m */; };
 		2CC007CB20E125C20096D91F /* NewRoomTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */; };
 		2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
+		2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1C38029C0945600C8436B /* DRCellSlideGestureRecognizer.m */; };
+		2CC1C38729C0945700C8436B /* DRCellSlideAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1C38429C0945700C8436B /* DRCellSlideAction.m */; };
+		2CC1C38829C0945700C8436B /* DRCellSlideActionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1C38529C0945700C8436B /* DRCellSlideActionView.m */; };
 		2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4228147F10009F7288 /* RoomSharedItemsTableViewController.swift */; };
 		2CC1FF4528147F11009F7288 /* RoomSharedItemsTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4328147F10009F7288 /* RoomSharedItemsTableViewController.xib */; };
 		2CC1FF4828183958009F7288 /* NCDeckCardParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */; };
@@ -751,6 +754,12 @@
 		2CC007C920E125C20096D91F /* NewRoomTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NewRoomTableViewController.xib; sourceTree = "<group>"; };
 		2CC007CC20E50B0A0096D91F /* MessageBodyTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageBodyTextView.h; sourceTree = "<group>"; };
 		2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageBodyTextView.m; sourceTree = "<group>"; };
+		2CC1C38029C0945600C8436B /* DRCellSlideGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DRCellSlideGestureRecognizer.m; sourceTree = "<group>"; };
+		2CC1C38129C0945600C8436B /* DRCellSlideAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DRCellSlideAction.h; sourceTree = "<group>"; };
+		2CC1C38229C0945600C8436B /* DRCellSlideActionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DRCellSlideActionView.h; sourceTree = "<group>"; };
+		2CC1C38329C0945600C8436B /* DRCellSlideGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DRCellSlideGestureRecognizer.h; sourceTree = "<group>"; };
+		2CC1C38429C0945700C8436B /* DRCellSlideAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DRCellSlideAction.m; sourceTree = "<group>"; };
+		2CC1C38529C0945700C8436B /* DRCellSlideActionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DRCellSlideActionView.m; sourceTree = "<group>"; };
 		2CC1FF4228147F10009F7288 /* RoomSharedItemsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomSharedItemsTableViewController.swift; sourceTree = "<group>"; };
 		2CC1FF4328147F10009F7288 /* RoomSharedItemsTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomSharedItemsTableViewController.xib; sourceTree = "<group>"; };
 		2CC1FF4628183958009F7288 /* NCDeckCardParameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCDeckCardParameter.h; sourceTree = "<group>"; };
@@ -957,6 +966,7 @@
 		2C05749C1EDDA01700D9E7F2 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				2CC1C37F29C0945600C8436B /* DRCellSlideGestureRecognizer */,
 				2C20269D236832D300DFC89B /* FTPopOverMenu */,
 				2CB302F92264775E0053078A /* SlackTextViewController */,
 				2C4E758C214B942D003910D5 /* Firefox */,
@@ -1437,6 +1447,20 @@
 			path = NotificationServiceExtension;
 			sourceTree = "<group>";
 		};
+		2CC1C37F29C0945600C8436B /* DRCellSlideGestureRecognizer */ = {
+			isa = PBXGroup;
+			children = (
+				2CC1C38029C0945600C8436B /* DRCellSlideGestureRecognizer.m */,
+				2CC1C38129C0945600C8436B /* DRCellSlideAction.h */,
+				2CC1C38229C0945600C8436B /* DRCellSlideActionView.h */,
+				2CC1C38329C0945600C8436B /* DRCellSlideGestureRecognizer.h */,
+				2CC1C38429C0945700C8436B /* DRCellSlideAction.m */,
+				2CC1C38529C0945700C8436B /* DRCellSlideActionView.m */,
+			);
+			name = DRCellSlideGestureRecognizer;
+			path = ThirdParty/DRCellSlideGestureRecognizer/DRCellSlideGestureRecognizer;
+			sourceTree = "<group>";
+		};
 		2CF0679E208A2A430070A79B /* Chat */ = {
 			isa = PBXGroup;
 			children = (
@@ -1887,6 +1911,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C444703265D641300DF1DBC /* NCUserDefaults.m in Sources */,
+				2CC1C38729C0945700C8436B /* DRCellSlideAction.m in Sources */,
 				1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */,
 				1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				2C4446DD2658158000DF1DBC /* NCChatBlock.m in Sources */,
@@ -1996,11 +2021,13 @@
 				2CA155562099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m in Sources */,
 				2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */,
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
+				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
 				1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */,
 				2C4446D8265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */,
 				1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */,
 				2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */,
+				2CC1C38829C0945700C8436B /* DRCellSlideActionView.m in Sources */,
 				1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */,
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
 				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,

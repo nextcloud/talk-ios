@@ -24,6 +24,7 @@
 
 #import "NextcloudTalk-Swift.h"
 
+#import "DRCellSlideGestureRecognizer.h"
 #import "NCChatMessage.h"
 
 static CGFloat kChatCellStatusViewHeight    = 20.0;
@@ -41,6 +42,7 @@ typedef enum ChatMessageDeliveryState {
 @protocol ChatTableViewCellDelegate <NSObject>
 
 - (void)cellDidSelectedReaction:(NCChatReaction *)reaction forMessage:(NCChatMessage *)message;
+- (void)cellWantsToReplyToMessage:(NCChatMessage *)message;
 
 @end
 
@@ -50,5 +52,6 @@ typedef enum ChatMessageDeliveryState {
 @property (nonatomic, strong) NCChatMessage *message;
 
 - (UIMenu *)getDeferredUserMenuForMessage:(NCChatMessage *)message;
+- (void)addReplyGestureWithActionBlock:(DRCellSlideActionBlock)block;
 
 @end
