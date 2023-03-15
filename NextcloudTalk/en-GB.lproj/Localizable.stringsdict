@@ -91,6 +91,17 @@
     <dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@notifications@</string>
+		<key>notifications</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%ld notification</string>
+			<key>other</key>
+			<string>%ld notifications</string>
+		</dict>
 	</dict>
 </dict>
 </plist>

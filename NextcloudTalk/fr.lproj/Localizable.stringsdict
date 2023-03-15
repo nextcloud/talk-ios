@@ -101,6 +101,19 @@
     <dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@notifications@</string>
+		<key>notifications</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%Id notification</string>
+			<key>many</key>
+			<string>%Id notifications</string>
+			<key>other</key>
+			<string>%Id notifications</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
