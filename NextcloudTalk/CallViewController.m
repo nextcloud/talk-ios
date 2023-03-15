@@ -29,7 +29,6 @@
 #import <WebRTC/RTCMTLVideoView.h>
 #import <WebRTC/RTCVideoTrack.h>
 
-#import "DBImageColorPicker.h"
 #import "JDStatusBarNotification.h"
 #import "UIImageView+AFNetworking.h"
 
@@ -609,6 +608,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     if (_room.type == kNCRoomTypeOneToOne) {
         __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
+        __weak NSString *weakRoomDisplayName = self.room.displayName;
         [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
                                               placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
                                                   NSDictionary *headers = [response allHeaderFields];
@@ -625,8 +625,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
                                                       [weakBGView setImage:blurImage];
                                                       weakBGView.contentMode = UIViewContentModeScaleAspectFill;
                                                   } else {
-                                                      DBImageColorPicker *colorPicker = [[DBImageColorPicker alloc] initFromImage:image withBackgroundType:DBImageColorPickerBackgroundTypeDefault];
-                                                      [weakBGView setBackgroundColor:colorPicker.backgroundColor];
+                                                      UIColor *bgColor = [[ColorGenerator shared] usernameToColor:weakRoomDisplayName];
+                                                      [weakBGView setBackgroundColor:bgColor];
                                                       weakBGView.backgroundColor = [weakBGView.backgroundColor colorWithAlphaComponent:0.8];
                                                   }
                                               } failure:nil];

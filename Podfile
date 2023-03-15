@@ -5,7 +5,6 @@ target "NextcloudTalk" do
 pod 'AFNetworking', "3.2.0"
 pod 'DateTools'
 pod 'JDStatusBarNotification'
-pod 'DBImageColorPicker'
 pod 'UICKeyChainStore'
 pod 'Realm', '10.30.0'
 pod 'MaterialComponents/ActivityIndicator'
