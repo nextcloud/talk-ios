@@ -703,6 +703,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     self.titleView.frame = CGRectMake(0, 0, MAXFLOAT, 30);
     self.titleView.delegate = self;
     self.titleView.titleTextView.accessibilityHint = NSLocalizedString(@"Double tap to go to conversation information", nil);
+    self.titleView.alpha = 0;
 
     if (self.navigationController.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
         self.titleView.showSubtitle = NO;
@@ -711,6 +712,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self.titleView updateForRoom:_room];
 
     self.navigationItem.titleView = _titleView;
+
+    [UIView animateWithDuration:0.8 animations:^{
+            self.titleView.alpha = 1;
+    }];
 }
 
 - (void)configureActionItems
