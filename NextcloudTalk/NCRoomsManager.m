@@ -453,7 +453,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
 - (void)updateRoomsAndChatsUpdatingUserStatus:(BOOL)updateStatus withCompletionBlock:(UpdateRoomsAndChatsCompletionBlock)block
 {
-    [self updateRoomsUpdatingUserStatus:updateStatus withCompletionBlock:^(NSArray *roomsWithNewMessages, NSError *error) {
+    [self updateRoomsUpdatingUserStatus:updateStatus withCompletionBlock:^(NSArray *roomsWithNewMessages, TalkAccount *account, NSError *error) {
         if (error) {
             if (block) {
                 block(error);
@@ -465,23 +465,20 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         NSLog(@"Finished rooms update with %lu rooms with new messages", [roomsWithNewMessages count]);
         dispatch_group_t chatUpdateGroup = dispatch_group_create();
         
-        // Disable background message fetch until API v4
-        
-//        // When in low power mode, we only update the conversation list and don't load new messages for each room
-//        if (![NSProcessInfo processInfo].isLowPowerModeEnabled) {
-//            for (NCRoom *room in roomsWithNewMessages) {
-//                dispatch_group_enter(chatUpdateGroup);
-//
-//                NSLog(@"Updating room %@", room.internalId);
-//                NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
-//
-//                [chatController updateHistoryInBackgroundWithCompletionBlock:^(NSError *error) {
-//                    NSLog(@"Finished updating room %@", room.internalId);
-//                    dispatch_group_leave(chatUpdateGroup);
-//                }];
-//            }
-//        }
+        // When in low power mode, we only update the conversation list and don't load new messages for each room
+        if (![NSProcessInfo processInfo].isLowPowerModeEnabled && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatKeepNotifications forAccountId:account.accountId]) {
+            for (NCRoom *room in roomsWithNewMessages) {
+                dispatch_group_enter(chatUpdateGroup);
 
+                NSLog(@"Updating room %@", room.internalId);
+                NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
+
+                [chatController updateHistoryInBackgroundWithCompletionBlock:^(NSError *error) {
+                    NSLog(@"Finished updating room %@", room.internalId);
+                    dispatch_group_leave(chatUpdateGroup);
+                }];
+            }
+        }
                 
         dispatch_group_notify(chatUpdateGroup, dispatch_get_main_queue(), ^{
             // Notify backgroundFetch that we're finished
@@ -539,7 +536,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
                                                           userInfo:userInfo];
         
         if (block) {
-            block(roomsWithNewMessages, error);
+            block(roomsWithNewMessages, activeAccount, error);
         }
     }];
 }

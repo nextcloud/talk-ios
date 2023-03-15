@@ -72,6 +72,7 @@ extern NSString * const kCapabilityTalkPolls;
 extern NSString * const kCapabilityRaiseHand;
 extern NSString * const kCapabilityRecordingV1;
 extern NSString * const kCapabilitySingleConvStatus;
+extern NSString * const kCapabilityChatKeepNotifications;
 
 extern NSString * const kMinimumRequiredTalkCapability;
 
