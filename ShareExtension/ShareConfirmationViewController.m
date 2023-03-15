@@ -40,6 +40,7 @@
 #import "NCUtils.h"
 #import "MBProgressHUD.h"
 
+#import "NextcloudTalk-Swift.h"
 
 @interface ShareConfirmationViewController () <NKCommonDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, QLPreviewControllerDataSource, QLPreviewControllerDelegate, ShareItemControllerDelegate, TOCropViewControllerDelegate, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, UINavigationControllerDelegate>
 {
@@ -421,6 +422,8 @@
 
 - (void)uploadAndShareFiles
 {
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"uploadAndShareFiles" expirationHandler:nil];
+
     _hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     _hud.mode = MBProgressHUDModeAnnularDeterminate;
     _hud.label.text = [NSString stringWithFormat:NSLocalizedString(@"Uploading %ld elements", nil), [self.shareItemController.shareItems count]];
@@ -473,6 +476,8 @@
         } else {
             [self.delegate shareConfirmationViewControllerDidFinish:self];
         }
+
+        [bgTask stopBackgroundTask];
     });
 }
 
