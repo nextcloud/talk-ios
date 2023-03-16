@@ -1183,9 +1183,15 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         
         dispatch_async(dispatch_get_main_queue(), ^{
             // Make sure we're really at the bottom after updating a message
-            if (isAtBottom) {
-                [self.tableView slk_scrollToBottomAnimated:NO];
-                [self updateToolbar:NO];
+            NSIndexPath *newIndexPath = [self indexPathForMessageWithMessageId:messageId];
+
+            if (isAtBottom && newIndexPath) {
+                NSArray* visibleCellsIPs = [self.tableView indexPathsForVisibleRows];
+
+                if ([visibleCellsIPs containsObject:newIndexPath]) {
+                    [self.tableView slk_scrollToBottomAnimated:NO];
+                    [self updateToolbar:NO];
+                }
             }
         });
     });
