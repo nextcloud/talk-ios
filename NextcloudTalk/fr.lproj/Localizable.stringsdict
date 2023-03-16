@@ -108,11 +108,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%Id notification</string>
+			<string>%ld notification</string>
 			<key>many</key>
-			<string>%Id notifications</string>
+			<string>%ld notifications</string>
 			<key>other</key>
-			<string>%Id notifications</string>
+			<string>%ld notifications</string>
 		</dict>
 	</dict>
 </dict>
