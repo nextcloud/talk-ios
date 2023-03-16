@@ -195,28 +195,10 @@
                             self.bestAttemptContent.summaryArgument = serverNotification.objectId;
                         }
 
-                        if (@available(iOS 15.0, *)) {
-                            NCRoom *room = [self roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
-
-                            if (room) {
-                                [[NCIntentController sharedInstance] getInteractionForRoom:room withTitle:self.bestAttemptContent.title withCompletionBlock:^(INSendMessageIntent *sendMessageIntent) {
-                                    __block NSError *error;
-
-                                    if (sendMessageIntent) {
-                                        self.contentHandler([self.bestAttemptContent contentByUpdatingWithProvider:sendMessageIntent error:&error]);
-                                    } else {
-                                        NSLog(@"Did not receive sendMessageIntent -> showing non-communication notification");
-                                        self.contentHandler(self.bestAttemptContent);
-                                    }
-                                }];
-
-                                return;
-                            }
-                        }
-
-                        self.contentHandler(self.bestAttemptContent);
+                        [self createConversationNotificationWithPushNotification:pushNotification];
                     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                        self.contentHandler(self.bestAttemptContent);
+                        // Even if the server request fails, we should try to create a conversation notifications
+                        [self createConversationNotificationWithPushNotification:pushNotification];
                     }];
                 }
             } @catch (NSException *exception) {
@@ -231,6 +213,29 @@
         // No need to wait for the extension timeout, nothing is happening anymore
         self.contentHandler(self.bestAttemptContent);
     }
+}
+
+- (void)createConversationNotificationWithPushNotification:(NCPushNotification *)pushNotification {
+    if (@available(iOS 15.0, *)) {
+        NCRoom *room = [self roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
+
+        if (room) {
+            [[NCIntentController sharedInstance] getInteractionForRoom:room withTitle:self.bestAttemptContent.title withCompletionBlock:^(INSendMessageIntent *sendMessageIntent) {
+                __block NSError *error;
+
+                if (sendMessageIntent) {
+                    self.contentHandler([self.bestAttemptContent contentByUpdatingWithProvider:sendMessageIntent error:&error]);
+                } else {
+                    NSLog(@"Did not receive sendMessageIntent -> showing non-communication notification");
+                    self.contentHandler(self.bestAttemptContent);
+                }
+            }];
+            
+            return;
+        }
+    }
+
+    self.contentHandler(self.bestAttemptContent);
 }
 
 - (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
