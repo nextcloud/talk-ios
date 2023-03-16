@@ -83,6 +83,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     _defaultAPISessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configuration];
     
     _apiSessionManagers = [NSMutableDictionary new];
+    _longPollingApiSessionManagers = [NSMutableDictionary new];
     
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         [self createAPISessionManagerForAccount:account];
@@ -96,7 +97,17 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     configuration.HTTPCookieStorage = cookieStorage;
     NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configuration];
     [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
+
+    // As we can run max. 30s in the background, the default timeout should be lower than 30 to avoid being killed by the OS
+    [apiSessionManager.requestSerializer setTimeoutInterval:25];
     [_apiSessionManagers setObject:apiSessionManager forKey:account.accountId];
+
+    configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    cookieStorage = [NSHTTPCookieStorage sharedCookieStorageForGroupContainerIdentifier:account.accountId];
+    configuration.HTTPCookieStorage = cookieStorage;
+    apiSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configuration];
+    [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
+    [_longPollingApiSessionManagers setObject:apiSessionManager forKey:account.accountId];
 }
 
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account
@@ -1245,7 +1256,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"setReadMarker" : setReadMarker ? @(1) : @(0),
                                  @"includeLastKnown" : include ? @(1) : @(0)};
     
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NCAPISessionManager *apiSessionManager = [_longPollingApiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseMessages = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         // Get X-Chat-Last-Given and X-Chat-Last-Common-Read headers
@@ -1300,11 +1311,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         [self initSessionManagers];
         apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     }
-
-    // In case a request times out, we need to make sure the completionblock is called so the message
-    // is marked as an offline message. As we can run max. 30s in the background, we need to lower the
-    // default timeout from 60s to something < 30s.
-    [apiSessionManager.requestSerializer setTimeoutInterval:25];
 
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
