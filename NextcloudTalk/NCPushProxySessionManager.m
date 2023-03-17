@@ -46,6 +46,10 @@
         
         self.responseSerializer = [[AFHTTPResponseSerializer alloc] init];
         self.requestSerializer = [[AFHTTPRequestSerializer alloc] init];
+
+        // As we can run max. 30s in the background, we need to lower the default timeout from 60s to something < 30s.
+        // Otherwise our app can be killed when trying to register while in the background
+        [self.requestSerializer setTimeoutInterval:25];
         
         AFSecurityPolicy* policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
         self.securityPolicy = policy;
