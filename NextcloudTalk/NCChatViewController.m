@@ -433,6 +433,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     // We can't use UIColor with systemBlueColor directly, because it will switch to indigo. So make sure we actually get a blue tint here
     [self.textView setTintColor:[UIColor colorWithCGColor:[UIColor systemBlueColor].CGColor]];
+
+    [self addMenuToLeftButton];
 }
 
 - (void)updateToolbar:(BOOL)animated
@@ -1325,91 +1327,89 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
 }
 
-- (void)didPressLeftButton:(id)sender
+- (void)addMenuToLeftButton
 {
-    // The keyboard will be hidden when the action menu is shown. Depending on what
+    // The keyboard will be hidden when an action is invoked. Depending on what
     // attachment is shared, not resigning might lead to a currupted chat view
-    [self.textView resignFirstResponder];
-    [self presentAttachmentsOptions];
-    [super didPressLeftButton:sender];
-}
+    NSMutableArray *items = [[NSMutableArray alloc] init];
 
-- (void)presentAttachmentsOptions
-{
-    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:nil
-                                                                                message:nil
-                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    UIAlertAction *cameraAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Camera", nil)
-                                                                 style:UIAlertActionStyleDefault
-                                                               handler:^void (UIAlertAction *action) {
+    UIAction *cameraAction = [UIAction actionWithTitle:NSLocalizedString(@"Camera", nil)
+                                                 image:[UIImage systemImageNamed:@"camera"]
+                                            identifier:nil
+                                               handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self checkAndPresentCamera];
     }];
-    [cameraAction setValue:[[UIImage imageNamed:@"camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
-                                                                 style:UIAlertActionStyleDefault
-                                                               handler:^void (UIAlertAction *action) {
+
+    UIAction *photoLibraryAction = [UIAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
+                                                       image:[UIImage systemImageNamed:@"photo"]
+                                                  identifier:nil
+                                                     handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentPhotoLibrary];
     }];
-    [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *shareLocationAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Location", nil)
-                                                                 style:UIAlertActionStyleDefault
-                                                               handler:^void (UIAlertAction *action) {
+
+    UIAction *shareLocationAction = [UIAction actionWithTitle:NSLocalizedString(@"Location", nil)
+                                                        image:[UIImage systemImageNamed:@"location"]
+                                                   identifier:nil
+                                                      handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentShareLocation];
     }];
-    [shareLocationAction setValue:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *contactShareAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Contacts", nil)
-                                                                 style:UIAlertActionStyleDefault
-                                                               handler:^void (UIAlertAction *action) {
+
+    UIAction *contactShareAction = [UIAction actionWithTitle:NSLocalizedString(@"Contacts", nil)
+                                                       image:[UIImage systemImageNamed:@"person"]
+                                                  identifier:nil
+                                                     handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentShareContact];
     }];
-    [contactShareAction setValue:[[UIImage imageNamed:@"contact"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *filesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Files", nil)
-                                                          style:UIAlertActionStyleDefault
-                                                        handler:^void (UIAlertAction *action) {
+
+    UIAction *filesAction = [UIAction actionWithTitle:NSLocalizedString(@"Files", nil)
+                                                image:[UIImage systemImageNamed:@"doc"]
+                                           identifier:nil
+                                              handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentDocumentPicker];
     }];
-    [filesAction setValue:[[UIImage imageNamed:@"files"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:filesAppName
-                                                     style:UIAlertActionStyleDefault
-                                                   handler:^void (UIAlertAction *action) {
+
+    UIAction *ncFilesAction = [UIAction actionWithTitle:filesAppName
+                                                image:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
+                                           identifier:nil
+                                              handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentNextcloudFilesBrowser];
     }];
-    [ncFilesAction setValue:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *pollAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Poll", nil)
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^void (UIAlertAction *action) {
+
+    UIAction *pollAction = [UIAction actionWithTitle:NSLocalizedString(@"Poll", nil)
+                                               image:[UIImage systemImageNamed:@"chart.bar"]
+                                          identifier:nil
+                                             handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentPollCreation];
     }];
-    [pollAction setValue:[[UIImage imageNamed:@"poll"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    // Add actions
-    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
-        [optionsActionSheet addAction:cameraAction];
-    }
-    [optionsActionSheet addAction:photoLibraryAction];
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityTalkPolls] && _room.type != kNCRoomTypeOneToOne) {
-        [optionsActionSheet addAction:pollAction];
-    }
+
+    // Add actions (inverted)
+    [items addObject:ncFilesAction];
+    [items addObject:filesAction];
+    [items addObject:contactShareAction];
+
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
-        [optionsActionSheet addAction:shareLocationAction];
+        [items addObject:shareLocationAction];
     }
-    [optionsActionSheet addAction:contactShareAction];
-    [optionsActionSheet addAction:filesAction];
-    [optionsActionSheet addAction:ncFilesAction];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.sourceView = self.leftButton;
-    optionsActionSheet.popoverPresentationController.sourceRect = self.leftButton.frame;
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityTalkPolls] && _room.type != kNCRoomTypeOneToOne) {
+        [items addObject:pollAction];
+    }
+
+    [items addObject:photoLibraryAction];
+
+    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
+        [items addObject:cameraAction];
+    }
+
+    self.leftButton.menu = [UIMenu menuWithTitle:@"" children:items];
+    self.leftButton.showsMenuAsPrimaryAction = YES;
 }
 
 - (void)presentNextcloudFilesBrowser
