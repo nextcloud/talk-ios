@@ -36,7 +36,7 @@ extern NSString * const NCRoomsManagerDidUpdateRoomNotification;
 // Call
 extern NSString * const NCRoomsManagerDidStartCallNotification;
 
-typedef void (^UpdateRoomsCompletionBlock)(NSArray *roomsWithNewMessages, NSError *error);
+typedef void (^UpdateRoomsCompletionBlock)(NSArray *roomsWithNewMessages, TalkAccount *account, NSError *error);
 typedef void (^UpdateRoomsAndChatsCompletionBlock)(NSError *error);
 typedef void (^SendOfflineMessagesCompletionBlock)(void);
 
