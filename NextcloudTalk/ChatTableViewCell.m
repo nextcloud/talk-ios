@@ -166,6 +166,8 @@ typedef void (^GetMenuUserActionsForMessageCompletionBlock)(NSArray *menuItems);
                 [otherAction setImage:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
             } else if ([appId isEqualToString:@"timezone"]) {
                 [otherAction setImage:[UIImage systemImageNamed:@"clock"]];
+            } else if ([appId isEqualToString:@"social"]) {
+                [otherAction setImage:[[UIImage imageNamed:@"social"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
             }
 
             [items addObject:otherAction];
