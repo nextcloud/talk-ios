@@ -188,9 +188,12 @@
                 // No animation -> animated would interfere with room highlighting
                 navController.popToRootViewController(animated: false)
 
-                // Make sure the chatViewController gets properly deallocated
-                self.setViewController(self.placeholderViewController, for: .secondary)
-                navController.setViewControllers([self.placeholderViewController], animated: false)
+                // We also need to make sure, that the popToRootViewController animation is finished before setting the placeholderVC
+                self.internalExecuteAfterTransition {
+                    // Make sure the chatViewController gets properly deallocated
+                    self.setViewController(self.placeholderViewController, for: .secondary)
+                    navController.setViewControllers([self.placeholderViewController], animated: false)
+                }
             }
         }
     }
