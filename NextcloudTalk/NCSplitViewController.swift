@@ -179,17 +179,19 @@
     }
 
     func popSecondaryColumnToRootViewController() {
-        if let navController = self.viewController(for: .secondary) as? UINavigationController {
-            if let chatViewController = getActiveChatViewController() {
-                chatViewController.leaveChat()
+        self.internalExecuteAfterTransition {
+            if let navController = self.viewController(for: .secondary) as? UINavigationController {
+                if let chatViewController = self.getActiveChatViewController() {
+                    chatViewController.leaveChat()
+                }
+
+                // No animation -> animated would interfere with room highlighting
+                navController.popToRootViewController(animated: false)
+
+                // Make sure the chatViewController gets properly deallocated
+                self.setViewController(self.placeholderViewController, for: .secondary)
+                navController.setViewControllers([self.placeholderViewController], animated: false)
             }
-
-            // No animation -> animated would interfere with room highlighting
-            navController.popToRootViewController(animated: false)
-
-            // Make sure the chatViewController gets properly deallocated
-            setViewController(placeholderViewController, for: .secondary)
-            navController.setViewControllers([placeholderViewController], animated: false)
         }
     }
 }
