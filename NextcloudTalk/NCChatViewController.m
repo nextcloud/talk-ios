@@ -3982,6 +3982,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             // make sure we're really at the bottom after updating a message since the file previews could grow in size if they contain a media file preview, thus giving the effect of not being at the bottom of the chat
             if (isAtBottom && !self.tableView.isDecelerating) {
                 [self.tableView slk_scrollToBottomAnimated:YES];
+                [self updateToolbar:YES];
             }
         });
     }];
