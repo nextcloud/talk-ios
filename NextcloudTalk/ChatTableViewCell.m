@@ -136,7 +136,7 @@ typedef void (^GetMenuUserActionsForMessageCompletionBlock)(NSArray *menuItems);
             // Talk to user action
             if ([appId isEqualToString:@"spreed"]) {
                 UIAction *talkAction = [UIAction actionWithTitle:title
-                                                           image:[[UIImage imageNamed:@"navigationLogo"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
+                                                           image:[[UIImage imageNamed:@"talk-20"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
                                                       identifier:nil
                                                          handler:^(UIAction *action) {
                     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
@@ -161,11 +161,13 @@ typedef void (^GetMenuUserActionsForMessageCompletionBlock)(NSArray *menuItems);
             }];
 
             if ([appId isEqualToString:@"profile"]) {
-                [otherAction setImage:[[UIImage imageNamed:@"user-profile"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                [otherAction setImage:[UIImage systemImageNamed:@"person"]];
             } else if ([appId isEqualToString:@"email"]) {
-                [otherAction setImage:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                [otherAction setImage:[UIImage systemImageNamed:@"envelope"]];
             } else if ([appId isEqualToString:@"timezone"]) {
                 [otherAction setImage:[UIImage systemImageNamed:@"clock"]];
+            } else if ([appId isEqualToString:@"social"]) {
+                [otherAction setImage:[UIImage systemImageNamed:@"heart"]];
             }
 
             [items addObject:otherAction];
