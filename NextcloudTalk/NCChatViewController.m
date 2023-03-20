@@ -394,8 +394,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     _chatViewPresentedTimestamp = [[NSDate date] timeIntervalSince1970];
     _lastReadMessage = _room.lastReadMessage;
 
+    __weak typeof(self) weakSelf = self;
     _scrollToBottomButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 44, 44) primaryAction:[UIAction actionWithHandler:^(__kindof UIAction * _Nonnull action) {
-        [self.tableView slk_scrollToBottomAnimated:YES];
+        [weakSelf.tableView slk_scrollToBottomAnimated:YES];
     }]];
 
     _scrollToBottomButton.backgroundColor = [UIColor secondarySystemBackgroundColor];
