@@ -161,13 +161,13 @@ typedef void (^GetMenuUserActionsForMessageCompletionBlock)(NSArray *menuItems);
             }];
 
             if ([appId isEqualToString:@"profile"]) {
-                [otherAction setImage:[[UIImage imageNamed:@"user-profile"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                [otherAction setImage:[UIImage systemImageNamed:@"person.fill"]];
             } else if ([appId isEqualToString:@"email"]) {
-                [otherAction setImage:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                [otherAction setImage:[UIImage systemImageNamed:@"envelope.fill"]];
             } else if ([appId isEqualToString:@"timezone"]) {
                 [otherAction setImage:[UIImage systemImageNamed:@"clock"]];
             } else if ([appId isEqualToString:@"social"]) {
-                [otherAction setImage:[[UIImage imageNamed:@"social"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                [otherAction setImage:[UIImage systemImageNamed:@"heart.fill"]];
             }
 
             [items addObject:otherAction];
