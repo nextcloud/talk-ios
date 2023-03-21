@@ -836,7 +836,7 @@ extension SettingsTableViewController {
             byteFormatter.countStyle = .file
 
             let cell = UITableViewCell(style: .value1, reuseIdentifier: advancedCellValue1Identifier)
-            cell.textLabel?.text = NSLocalizedString("Cached Images", comment: "")
+            cell.textLabel?.text = NSLocalizedString("Cached images", comment: "")
             cell.imageView?.image = UIImage(systemName: "photo")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
             cell.detailTextLabel?.text = byteFormatter.string(fromByteCount: Int64(totalCacheSize))
@@ -861,7 +861,7 @@ extension SettingsTableViewController {
             byteFormatter.countStyle = .file
 
             let cell = UITableViewCell(style: .value1, reuseIdentifier: advancedCellValue1Identifier)
-            cell.textLabel?.text = NSLocalizedString("Cached Files", comment: "")
+            cell.textLabel?.text = NSLocalizedString("Cached files", comment: "")
             cell.imageView?.image = UIImage(systemName: "doc")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
             cell.detailTextLabel?.text = byteFormatter.string(fromByteCount: Int64(cacheSize))
