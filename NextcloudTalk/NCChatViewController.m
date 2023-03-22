@@ -2477,9 +2477,18 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
         if (messages.count > 0) {
             NSIndexPath *indexPathUnreadMessageSeparator;
-            int lastMessageIndex = (int)[messages count] - 1;
-            NCChatMessage *lastMessage = [messages objectAtIndex:lastMessageIndex];
-            
+            NCChatMessage *lastMessage = nil;
+
+            // Find the last message we received, which is not an update message
+            for (NSInteger messageIndex = ([messages count] - 1); messageIndex >= 0; messageIndex--) {
+                NCChatMessage *tempMessage = messages[messageIndex];
+
+                if (tempMessage && ![tempMessage isUpdateMessage]) {
+                    lastMessage = tempMessage;
+                    break;
+                }
+            }
+
             [self appendMessages:messages inDictionary:self->_messages];
             
             if (lastMessage && lastMessage.messageId > self->_lastReadMessage) {
