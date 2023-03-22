@@ -257,7 +257,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     self.inverted = NO;
     
     [self showSendMessageButton];
-    [self.leftButton setImage:[UIImage imageNamed:@"attachment"] forState:UIControlStateNormal];
+    [self.leftButton setImage:[UIImage systemImageNamed:@"paperclip"] forState:UIControlStateNormal];
     self.leftButton.accessibilityLabel = NSLocalizedString(@"Share a file from your Nextcloud", nil);
     self.leftButton.accessibilityHint = NSLocalizedString(@"Double tap to open file browser", nil);
     
@@ -322,12 +322,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     _emojiTextField = [[EmojiTextField alloc] init];
     _emojiTextField.delegate = self;
     [self.view addSubview:_emojiTextField];
-    
-    // Add long press gesture recognizer for voice message recording button
-    self.voiceMessageLongPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressInVoiceMessageRecordButton:)];
-    self.voiceMessageLongPressGesture.delegate = self;
-    [self.rightButton addGestureRecognizer:self.voiceMessageLongPressGesture];
-    
+
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ReplyMessageCellIdentifier];
@@ -747,8 +742,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)configureActionItems
 {
-    UIImage *videoCallImage = [[UIImage imageNamed:@"video"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    UIImage *voiceCallImage = [[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIImageSymbolConfiguration *symbolConfiguration = [UIImageSymbolConfiguration configurationWithPointSize:21];
+    UIImage *videoCallImage = [UIImage systemImageNamed:@"video" withConfiguration:symbolConfiguration];
+    UIImage *voiceCallImage = [UIImage systemImageNamed:@"phone" withConfiguration:symbolConfiguration];
     
     CGFloat buttonWidth = 24.0;
     CGFloat buttonPadding = 30.0;
@@ -778,16 +774,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySilentCall]) {
-        [_voiceCallButton.innerButton addGestureRecognizer:[self longPressGestureForBarButtonItem]];
-        [_videoCallButton.innerButton addGestureRecognizer:[self longPressGestureForBarButtonItem]];
+        [self addMenuToCallButtons];
     }
-}
-
-- (UILongPressGestureRecognizer *)longPressGestureForBarButtonItem
-{
-    UILongPressGestureRecognizer *barButtomItemsLongPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressInBarButtonItem:)];
-    barButtomItemsLongPressGesture.delegate = self;
-    return barButtomItemsLongPressGesture;
 }
 
 #pragma mark - User Interface
@@ -795,19 +783,23 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)showVoiceMessageRecordButton
 {
     [self.rightButton setTitle:@"" forState:UIControlStateNormal];
-    [self.rightButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+    [self.rightButton setImage:[UIImage systemImageNamed:@"mic"] forState:UIControlStateNormal];
     self.rightButton.tag = k_voice_record_button_tag;
     self.rightButton.accessibilityLabel = NSLocalizedString(@"Record voice message", nil);
     self.rightButton.accessibilityHint = NSLocalizedString(@"Tap and hold to record a voice message", nil);
+
+    [self addGestureRecognizerToRightButton];
 }
 
 - (void)showSendMessageButton
 {
     [self.rightButton setTitle:@"" forState:UIControlStateNormal];
-    [self.rightButton setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
+    [self.rightButton setImage:[UIImage systemImageNamed:@"paperplane"] forState:UIControlStateNormal];
     self.rightButton.tag = k_send_message_button_tag;
     self.rightButton.accessibilityLabel = NSLocalizedString(@"Send message", nil);
     self.rightButton.accessibilityHint = NSLocalizedString(@"Double tap to send message", nil);
+
+    [self addMenuToRightButton];
 }
 
 - (void)disableRoomControls
@@ -1216,42 +1208,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:NO andDisplayName:_room.displayName silently:NO withAccountId:_room.accountId];
 }
 
-- (void)handleLongPressInBarButtonItem:(UILongPressGestureRecognizer *)gestureRecognizer
-{
-    UIButton *button = (UIButton *)gestureRecognizer.view;
-    BOOL isVoiceCallButton = button == self.voiceCallButton.innerButton;
-    if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
-        [self presentStartCallOptions:isVoiceCallButton];
-    }
-}
-
-- (void)presentStartCallOptions:(BOOL)audioOnly
-{
-    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Call options", nil)
-                                                                                message:nil
-                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    UIAlertAction *silentCallAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-        if (audioOnly) {
-            [self->_voiceCallButton showActivityIndicator];
-        } else {
-            [self->_videoCallButton showActivityIndicator];
-        }
-        [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:!audioOnly andDisplayName:self->_room.displayName
-                                          silently:YES withAccountId:self->_room.accountId];
-    }];
-    [silentCallAction setValue:[[UIImage imageNamed:@"notifications-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    [optionsActionSheet addAction:silentCallAction];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.barButtonItem = audioOnly ? self.voiceCallButton : self.videoCallButton;
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
-}
-
 - (void)sendChatMessage:(NSString *)message withParentMessage:(NCChatMessage *)parentMessage messageParameters:(NSString *)messageParameters silently:(BOOL)silently
 {
     // Create temporary message
@@ -1263,30 +1219,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     // Send message
     [_chatController sendChatMessage:temporaryMessage];
-}
-
-- (void)presentSendChatMessageOptions
-{
-    if (![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySilentSend]) {return;}
-    
-    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Send options", nil)
-                                                                                message:nil
-                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    UIAlertAction *silentSendAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Send without notification", nil)
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-        [self sendCurrentMessageSilently:YES];
-    }];
-    [silentSendAction setValue:[[UIImage imageNamed:@"notifications-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    [optionsActionSheet addAction:silentSendAction];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.sourceView = self.textInputbar;
-    optionsActionSheet.popoverPresentationController.sourceRect = self.rightButton.frame;
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
 - (void)sendCurrentMessageSilently:(BOOL)silently
@@ -1325,6 +1257,59 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     } else if (button.tag == k_voice_record_button_tag) {
         [self showVoiceMessageRecordHint];
     }
+}
+
+- (void)addGestureRecognizerToRightButton
+{
+    // Remove a potential menu so it does not interfere with the long gesture recognizer
+    [self.rightButton setMenu:nil];
+
+    // Add long press gesture recognizer for voice message recording button
+    self.voiceMessageLongPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressInVoiceMessageRecordButton:)];
+    self.voiceMessageLongPressGesture.delegate = self;
+    [self.rightButton addGestureRecognizer:self.voiceMessageLongPressGesture];
+}
+
+- (void)addMenuToRightButton
+{
+    // Remove a gesture recognizer to not interfere with our menu
+    if (self.voiceMessageLongPressGesture) {
+        [self.rightButton removeGestureRecognizer:self.voiceMessageLongPressGesture];
+        self.voiceMessageLongPressGesture = nil;
+    }
+
+    UIAction *silentSendAction = [UIAction actionWithTitle:NSLocalizedString(@"Send without notification", nil)
+                                                 image:[UIImage systemImageNamed:@"bell.slash"]
+                                            identifier:nil
+                                               handler:^(UIAction *action) {
+        [self sendCurrentMessageSilently:YES];
+    }];
+
+    self.rightButton.menu = [UIMenu menuWithTitle:@"" children:@[silentSendAction]];
+}
+
+- (void)addMenuToCallButtons
+{
+    UIAction *voiceCallAction = [UIAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
+                                                    image:[UIImage systemImageNamed:@"bell.slash"]
+                                               identifier:nil
+                                                  handler:^(UIAction *action) {
+        [self.voiceCallButton showActivityIndicator];
+        [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:NO andDisplayName:self->_room.displayName
+                                          silently:YES withAccountId:self->_room.accountId];
+    }];
+
+    UIAction *videoCallAction = [UIAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
+                                                     image:[UIImage systemImageNamed:@"bell.slash"]
+                                                identifier:nil
+                                                   handler:^(UIAction *action) {
+        [self.videoCallButton showActivityIndicator];
+        [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:YES andDisplayName:self->_room.displayName
+                                          silently:YES withAccountId:self->_room.accountId];
+    }];
+
+    self.voiceCallButton.innerButton.menu = [UIMenu menuWithTitle:@"" children:@[voiceCallAction]];
+    self.videoCallButton.innerButton.menu = [UIMenu menuWithTitle:@"" children:@[videoCallAction]];
 }
 
 - (void)addMenuToLeftButton
@@ -2230,9 +2215,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)handleLongPressInVoiceMessageRecordButton:(UILongPressGestureRecognizer *)gestureRecognizer
 {
     if (self.rightButton.tag != k_voice_record_button_tag) {
-        if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
-            [self presentSendChatMessageOptions];
-        }
         return;
     }
     
