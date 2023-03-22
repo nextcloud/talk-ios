@@ -44,7 +44,6 @@
         self.innerButton = [[UIButton alloc] init];
 
         [self.innerButton setImage:buttonImage forState:UIControlStateNormal];
-        self.innerButton.tintColor = themeTextColor;
         self.innerButton.frame = CGRectMake(0, 0, buttonWidth, buttonWidth);
         self.innerButton.tintColor = themeTextColor;
         
