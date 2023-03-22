@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2023 Marcel Müller <ivan@nextcloud.com>
+// Copyright (c) 2023 Marcel Müller <marcel.mueller@nextcloud.com>
 //
 // Author Ivan Sein <ivan@nextcloud.com>
 // Author Marcel Müller <marcel.mueller@nextcloud.com>
