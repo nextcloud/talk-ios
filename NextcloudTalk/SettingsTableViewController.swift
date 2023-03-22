@@ -59,7 +59,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     let kAccountCellIdentifier: String = "AccountCellIdentifier"
     let kAccountTableViewCellNibName: String = "AccountTableViewCell"
 
-    let iconConfiguration = UIImage.SymbolConfiguration(font: .systemFont(ofSize: 19))
+    let iconConfiguration = UIImage.SymbolConfiguration(pointSize: 18)
 
     var activeUserStatus: NCUserStatus?
     var readStatusSwitch = UISwitch()
