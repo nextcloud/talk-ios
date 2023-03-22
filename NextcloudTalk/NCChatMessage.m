@@ -24,6 +24,7 @@
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+#import "NCUtils.h"
 #import "NextcloudTalk-Swift.h"
 
 NSInteger const kChatMessageGroupTimeDifference = 30;
@@ -410,6 +411,40 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     NSString *originalMessage = self.file.contactName ? self.file.contactName : self.message;
     NSString *parsedMessage = originalMessage;
     NSError *error = nil;
+    BOOL shouldPrependEmoji = self.isVoiceMessage || self.file || self.geoLocation || self.deckCard || self.poll;
+    
+    // prepend an appropriate emoji based on file type before formatting the string
+    if (shouldPrependEmoji) {
+        NSString *emojiToPrepend;
+        
+        if (self.isVoiceMessage) {
+            emojiToPrepend = @"🎙️";
+        }
+        else if (self.geoLocation) {
+            emojiToPrepend = @"📍";
+        }
+        else if (self.deckCard) {
+            emojiToPrepend = @"🗂️";
+        }
+        else if (self.poll) {
+            emojiToPrepend = @"📊";
+        }
+        else if (self.file) {
+            if ([[NCUtils previewImageForFileMIMEType:self.file.mimetype] isEqual:@"file-video"]) {
+                emojiToPrepend = @"📼";
+            }
+            else if ([[NCUtils previewImageForFileMIMEType:self.file.mimetype] isEqual:@"file-image"]) {
+                emojiToPrepend = @"🖼️";
+            }
+            else if ([[NCUtils previewImageForFileMIMEType:self.file.mimetype] isEqual:@"file-vcard"]) {
+                emojiToPrepend = @"👤";
+            }
+            else {
+                emojiToPrepend = @"📂";
+            }
+        }
+        parsedMessage = [NSString stringWithFormat:@"%@ %@", emojiToPrepend, parsedMessage];
+    }
     
     NSRegularExpression *parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^}]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
     NSArray *matches = [parameterRegex matchesInString:originalMessage
