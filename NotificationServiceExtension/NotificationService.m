@@ -202,8 +202,8 @@
                     }];
                 }
             } @catch (NSException *exception) {
-                continue;
                 NSLog(@"An error ocurred decrypting the message. %@", exception);
+                continue;
             }
         }
     }
