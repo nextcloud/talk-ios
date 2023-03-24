@@ -257,7 +257,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     self.inverted = NO;
     
     [self showSendMessageButton];
-    [self.leftButton setImage:[UIImage imageNamed:@"attachment"] forState:UIControlStateNormal];
+    [self.leftButton setImage:[UIImage systemImageNamed:@"paperclip"] forState:UIControlStateNormal];
     self.leftButton.accessibilityLabel = NSLocalizedString(@"Share a file from your Nextcloud", nil);
     self.leftButton.accessibilityHint = NSLocalizedString(@"Double tap to open file browser", nil);
     
@@ -322,12 +322,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     _emojiTextField = [[EmojiTextField alloc] init];
     _emojiTextField.delegate = self;
     [self.view addSubview:_emojiTextField];
-    
-    // Add long press gesture recognizer for voice message recording button
-    self.voiceMessageLongPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressInVoiceMessageRecordButton:)];
-    self.voiceMessageLongPressGesture.delegate = self;
-    [self.rightButton addGestureRecognizer:self.voiceMessageLongPressGesture];
-    
+
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ReplyMessageCellIdentifier];
@@ -434,6 +429,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     // We can't use UIColor with systemBlueColor directly, because it will switch to indigo. So make sure we actually get a blue tint here
     [self.textView setTintColor:[UIColor colorWithCGColor:[UIColor systemBlueColor].CGColor]];
+
+    [self addMenuToLeftButton];
 }
 
 - (void)updateToolbar:(BOOL)animated
@@ -746,8 +743,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)configureActionItems
 {
-    UIImage *videoCallImage = [[UIImage imageNamed:@"video"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    UIImage *voiceCallImage = [[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIImageSymbolConfiguration *symbolConfiguration = [UIImageSymbolConfiguration configurationWithPointSize:21];
+    UIImage *videoCallImage = [UIImage systemImageNamed:@"video" withConfiguration:symbolConfiguration];
+    UIImage *voiceCallImage = [UIImage systemImageNamed:@"phone" withConfiguration:symbolConfiguration];
     
     CGFloat buttonWidth = 24.0;
     CGFloat buttonPadding = 30.0;
@@ -777,16 +775,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySilentCall]) {
-        [_voiceCallButton.innerButton addGestureRecognizer:[self longPressGestureForBarButtonItem]];
-        [_videoCallButton.innerButton addGestureRecognizer:[self longPressGestureForBarButtonItem]];
+        [self addMenuToCallButtons];
     }
-}
-
-- (UILongPressGestureRecognizer *)longPressGestureForBarButtonItem
-{
-    UILongPressGestureRecognizer *barButtomItemsLongPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressInBarButtonItem:)];
-    barButtomItemsLongPressGesture.delegate = self;
-    return barButtomItemsLongPressGesture;
 }
 
 #pragma mark - User Interface
@@ -794,19 +784,23 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)showVoiceMessageRecordButton
 {
     [self.rightButton setTitle:@"" forState:UIControlStateNormal];
-    [self.rightButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+    [self.rightButton setImage:[UIImage systemImageNamed:@"mic"] forState:UIControlStateNormal];
     self.rightButton.tag = k_voice_record_button_tag;
     self.rightButton.accessibilityLabel = NSLocalizedString(@"Record voice message", nil);
     self.rightButton.accessibilityHint = NSLocalizedString(@"Tap and hold to record a voice message", nil);
+
+    [self addGestureRecognizerToRightButton];
 }
 
 - (void)showSendMessageButton
 {
     [self.rightButton setTitle:@"" forState:UIControlStateNormal];
-    [self.rightButton setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
+    [self.rightButton setImage:[UIImage systemImageNamed:@"paperplane"] forState:UIControlStateNormal];
     self.rightButton.tag = k_send_message_button_tag;
     self.rightButton.accessibilityLabel = NSLocalizedString(@"Send message", nil);
     self.rightButton.accessibilityHint = NSLocalizedString(@"Double tap to send message", nil);
+
+    [self addMenuToRightButton];
 }
 
 - (void)disableRoomControls
@@ -1215,42 +1209,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [[CallKitManager sharedInstance] startCall:_room.token withVideoEnabled:NO andDisplayName:_room.displayName silently:NO withAccountId:_room.accountId];
 }
 
-- (void)handleLongPressInBarButtonItem:(UILongPressGestureRecognizer *)gestureRecognizer
-{
-    UIButton *button = (UIButton *)gestureRecognizer.view;
-    BOOL isVoiceCallButton = button == self.voiceCallButton.innerButton;
-    if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
-        [self presentStartCallOptions:isVoiceCallButton];
-    }
-}
-
-- (void)presentStartCallOptions:(BOOL)audioOnly
-{
-    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Call options", nil)
-                                                                                message:nil
-                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    UIAlertAction *silentCallAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-        if (audioOnly) {
-            [self->_voiceCallButton showActivityIndicator];
-        } else {
-            [self->_videoCallButton showActivityIndicator];
-        }
-        [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:!audioOnly andDisplayName:self->_room.displayName
-                                          silently:YES withAccountId:self->_room.accountId];
-    }];
-    [silentCallAction setValue:[[UIImage imageNamed:@"notifications-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    [optionsActionSheet addAction:silentCallAction];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.barButtonItem = audioOnly ? self.voiceCallButton : self.videoCallButton;
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
-}
-
 - (void)sendChatMessage:(NSString *)message withParentMessage:(NCChatMessage *)parentMessage messageParameters:(NSString *)messageParameters silently:(BOOL)silently
 {
     // Create temporary message
@@ -1262,30 +1220,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     // Send message
     [_chatController sendChatMessage:temporaryMessage];
-}
-
-- (void)presentSendChatMessageOptions
-{
-    if (![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySilentSend]) {return;}
-    
-    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Send options", nil)
-                                                                                message:nil
-                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    UIAlertAction *silentSendAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Send without notification", nil)
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-        [self sendCurrentMessageSilently:YES];
-    }];
-    [silentSendAction setValue:[[UIImage imageNamed:@"notifications-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    [optionsActionSheet addAction:silentSendAction];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.sourceView = self.textInputbar;
-    optionsActionSheet.popoverPresentationController.sourceRect = self.rightButton.frame;
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
 - (void)sendCurrentMessageSilently:(BOOL)silently
@@ -1326,91 +1260,142 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
 }
 
-- (void)didPressLeftButton:(id)sender
+- (void)addGestureRecognizerToRightButton
 {
-    // The keyboard will be hidden when the action menu is shown. Depending on what
-    // attachment is shared, not resigning might lead to a currupted chat view
-    [self.textView resignFirstResponder];
-    [self presentAttachmentsOptions];
-    [super didPressLeftButton:sender];
+    // Remove a potential menu so it does not interfere with the long gesture recognizer
+    [self.rightButton setMenu:nil];
+
+    // Add long press gesture recognizer for voice message recording button
+    self.voiceMessageLongPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressInVoiceMessageRecordButton:)];
+    self.voiceMessageLongPressGesture.delegate = self;
+    [self.rightButton addGestureRecognizer:self.voiceMessageLongPressGesture];
 }
 
-- (void)presentAttachmentsOptions
+- (void)addMenuToRightButton
 {
-    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:nil
-                                                                                message:nil
-                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    UIAlertAction *cameraAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Camera", nil)
-                                                                 style:UIAlertActionStyleDefault
-                                                               handler:^void (UIAlertAction *action) {
+    // Remove a gesture recognizer to not interfere with our menu
+    if (self.voiceMessageLongPressGesture) {
+        [self.rightButton removeGestureRecognizer:self.voiceMessageLongPressGesture];
+        self.voiceMessageLongPressGesture = nil;
+    }
+
+    UIAction *silentSendAction = [UIAction actionWithTitle:NSLocalizedString(@"Send without notification", nil)
+                                                 image:[UIImage systemImageNamed:@"bell.slash"]
+                                            identifier:nil
+                                               handler:^(UIAction *action) {
+        [self sendCurrentMessageSilently:YES];
+    }];
+
+    self.rightButton.menu = [UIMenu menuWithTitle:@"" children:@[silentSendAction]];
+}
+
+- (void)addMenuToCallButtons
+{
+    UIAction *voiceCallAction = [UIAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
+                                                    image:[UIImage systemImageNamed:@"bell.slash"]
+                                               identifier:nil
+                                                  handler:^(UIAction *action) {
+        [self.voiceCallButton showActivityIndicator];
+        [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:NO andDisplayName:self->_room.displayName
+                                          silently:YES withAccountId:self->_room.accountId];
+    }];
+
+    UIAction *videoCallAction = [UIAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
+                                                     image:[UIImage systemImageNamed:@"bell.slash"]
+                                                identifier:nil
+                                                   handler:^(UIAction *action) {
+        [self.videoCallButton showActivityIndicator];
+        [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:YES andDisplayName:self->_room.displayName
+                                          silently:YES withAccountId:self->_room.accountId];
+    }];
+
+    self.voiceCallButton.innerButton.menu = [UIMenu menuWithTitle:@"" children:@[voiceCallAction]];
+    self.videoCallButton.innerButton.menu = [UIMenu menuWithTitle:@"" children:@[videoCallAction]];
+}
+
+- (void)addMenuToLeftButton
+{
+    // The keyboard will be hidden when an action is invoked. Depending on what
+    // attachment is shared, not resigning might lead to a currupted chat view
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+
+    UIAction *cameraAction = [UIAction actionWithTitle:NSLocalizedString(@"Camera", nil)
+                                                 image:[UIImage systemImageNamed:@"camera"]
+                                            identifier:nil
+                                               handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self checkAndPresentCamera];
     }];
-    [cameraAction setValue:[[UIImage imageNamed:@"camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
-                                                                 style:UIAlertActionStyleDefault
-                                                               handler:^void (UIAlertAction *action) {
+
+    UIAction *photoLibraryAction = [UIAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
+                                                       image:[UIImage systemImageNamed:@"photo"]
+                                                  identifier:nil
+                                                     handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentPhotoLibrary];
     }];
-    [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *shareLocationAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Location", nil)
-                                                                 style:UIAlertActionStyleDefault
-                                                               handler:^void (UIAlertAction *action) {
+
+    UIAction *shareLocationAction = [UIAction actionWithTitle:NSLocalizedString(@"Location", nil)
+                                                        image:[UIImage systemImageNamed:@"location"]
+                                                   identifier:nil
+                                                      handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentShareLocation];
     }];
-    [shareLocationAction setValue:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *contactShareAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Contacts", nil)
-                                                                 style:UIAlertActionStyleDefault
-                                                               handler:^void (UIAlertAction *action) {
+
+    UIAction *contactShareAction = [UIAction actionWithTitle:NSLocalizedString(@"Contacts", nil)
+                                                       image:[UIImage systemImageNamed:@"person"]
+                                                  identifier:nil
+                                                     handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentShareContact];
     }];
-    [contactShareAction setValue:[[UIImage imageNamed:@"contact"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *filesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Files", nil)
-                                                          style:UIAlertActionStyleDefault
-                                                        handler:^void (UIAlertAction *action) {
+
+    UIAction *filesAction = [UIAction actionWithTitle:NSLocalizedString(@"Files", nil)
+                                                image:[UIImage systemImageNamed:@"doc"]
+                                           identifier:nil
+                                              handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentDocumentPicker];
     }];
-    [filesAction setValue:[[UIImage imageNamed:@"files"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *ncFilesAction = [UIAlertAction actionWithTitle:filesAppName
-                                                     style:UIAlertActionStyleDefault
-                                                   handler:^void (UIAlertAction *action) {
+
+    UIAction *ncFilesAction = [UIAction actionWithTitle:filesAppName
+                                                image:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
+                                           identifier:nil
+                                              handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentNextcloudFilesBrowser];
     }];
-    [ncFilesAction setValue:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    UIAlertAction *pollAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Poll", nil)
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^void (UIAlertAction *action) {
+
+    UIAction *pollAction = [UIAction actionWithTitle:NSLocalizedString(@"Poll", nil)
+                                               image:[UIImage systemImageNamed:@"chart.bar"]
+                                          identifier:nil
+                                             handler:^(UIAction *action) {
+        [self.textView resignFirstResponder];
         [self presentPollCreation];
     }];
-    [pollAction setValue:[[UIImage imageNamed:@"poll"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-    
-    // Add actions
-    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
-        [optionsActionSheet addAction:cameraAction];
-    }
-    [optionsActionSheet addAction:photoLibraryAction];
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityTalkPolls] && _room.type != kNCRoomTypeOneToOne) {
-        [optionsActionSheet addAction:pollAction];
-    }
+
+    // Add actions (inverted)
+    [items addObject:ncFilesAction];
+    [items addObject:filesAction];
+    [items addObject:contactShareAction];
+
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLocationSharing]) {
-        [optionsActionSheet addAction:shareLocationAction];
+        [items addObject:shareLocationAction];
     }
-    [optionsActionSheet addAction:contactShareAction];
-    [optionsActionSheet addAction:filesAction];
-    [optionsActionSheet addAction:ncFilesAction];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.sourceView = self.leftButton;
-    optionsActionSheet.popoverPresentationController.sourceRect = self.leftButton.frame;
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityTalkPolls] && _room.type != kNCRoomTypeOneToOne) {
+        [items addObject:pollAction];
+    }
+
+    [items addObject:photoLibraryAction];
+
+    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
+        [items addObject:cameraAction];
+    }
+
+    self.leftButton.menu = [UIMenu menuWithTitle:@"" children:items];
+    self.leftButton.showsMenuAsPrimaryAction = YES;
 }
 
 - (void)presentNextcloudFilesBrowser
@@ -2231,9 +2216,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)handleLongPressInVoiceMessageRecordButton:(UILongPressGestureRecognizer *)gestureRecognizer
 {
     if (self.rightButton.tag != k_voice_record_button_tag) {
-        if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
-            [self presentSendChatMessageOptions];
-        }
         return;
     }
     
