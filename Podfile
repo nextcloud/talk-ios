@@ -38,6 +38,9 @@ pre_install do |installer|
       system("./download_webrtc.sh")
     end
 
+    puts 'Update submodules...'
+    system('git submodule update --init')
+
     dir_af = File.join(installer.sandbox.pod_dir('AFNetworking'), 'UIKit+AFNetworking')
     Dir.foreach(dir_af) {|x|
       real_path = File.join(dir_af, x)
