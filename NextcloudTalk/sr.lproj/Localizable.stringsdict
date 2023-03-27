@@ -13,11 +13,11 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>%d voto</string>
-            <key>many</key>
-            <string>%d votos</string>
+            <string>%d глас</string>
+            <key>few</key>
+            <string>%d гласа</string>
             <key>other</key>
-            <string>%d votos</string>
+            <string>%d гласова</string>
         </dict>
     </dict>
     
@@ -32,11 +32,11 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>ld</string>
             <key>one</key>
-            <string>%ld participantes</string>
-            <key>many</key>
-            <string>%ld participante</string>
+            <string>%ld учесник</string>
+            <key>few</key>
+            <string>%ld учесника</string>
             <key>other</key>
-            <string>%ld participantes</string>
+            <string>%ld учесника</string>
         </dict>
     </dict>
     
@@ -51,11 +51,11 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>%d minuto atrás</string>
-            <key>many</key>
-            <string>%d minutos atrás</string>
+            <string>пре %d минута</string>
+            <key>few</key>
+            <string>пре %d минута</string>
             <key>other</key>
-            <string>%d minutos atrás</string>
+            <string>пре %d минута</string>
         </dict>
     </dict>
     
@@ -70,11 +70,11 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>%d hora atrás</string>
-            <key>many</key>
-            <string>%d horas atrás</string>
+            <string>пре %d сат</string>
+            <key>few</key>
+            <string>пре %d сата</string>
             <key>other</key>
-            <string>%d horas atrás</string>
+            <string>пре %d сати</string>
         </dict>
     </dict>
     
@@ -89,11 +89,11 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>%d dia atrás</string>
-            <key>many</key>
-            <string>%d diass atrás</string>
+            <string>пре %d дан</string>
+            <key>few</key>
+            <string>пре %d дана</string>
             <key>other</key>
-            <string>%d dias atrás</string>
+            <string>пре %d дана</string>
         </dict>
     </dict>
 
@@ -108,11 +108,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%ld notificações</string>
-			<key>many</key>
-			<string>%ld notifications</string>
+			<string>%ld обавештење</string>
+			<key>few</key>
+			<string>%ld обавештења</string>
 			<key>other</key>
-			<string>%ld notifications</string>
+			<string>%ld обавештења</string>
 		</dict>
 	</dict>
 </dict>
