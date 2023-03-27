@@ -32,7 +32,8 @@ extension UserProfileTableViewController {
         headerView.nameLabel?.text = account.userDisplayName
         headerView.nameLabel?.isHidden = self.isEditable
         headerView.scopeButton?.tag = kAvatarScopeButtonTag
-        headerView.scopeButton?.setImage(self.imageForScope(scope: account.avatarScope), for: .normal)
+        let avatarScopeImage = self.imageForScope(scope: account.avatarScope)?.applyingSymbolConfiguration(iconHeaderConfiguration)
+        headerView.scopeButton?.setImage(avatarScopeImage, for: .normal)
         headerView.scopeButton?.addTarget(self, action: #selector(showScopeSelectionDialog(_:)), for: .touchUpInside)
         headerView.scopeButton?.isHidden = !(isEditable && showScopes)
         headerView.editButton?.isHidden = !(isEditable && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTempUserAvatarAPI, forAccountId: account.accountId))
@@ -49,15 +50,15 @@ extension UserProfileTableViewController {
         let cameraAction = UIAlertAction(title: NSLocalizedString("Camera", comment: ""), style: .default) { _ in
             self.checkAndPresentCamera()
         }
-        cameraAction.setValue(UIImage(named: "camera")?.withRenderingMode(.alwaysTemplate), forKey: "image")
+        cameraAction.setValue(UIImage(systemName: "camera"), forKey: "image")
         let photoLibraryAction = UIAlertAction(title: NSLocalizedString("Photo Library", comment: ""), style: .default) { _ in
             self.presentPhotoLibrary()
         }
-        photoLibraryAction.setValue(UIImage(named: "photos")?.withRenderingMode(.alwaysTemplate), forKey: "image")
+        photoLibraryAction.setValue(UIImage(systemName: "photo.on.rectangle.angled"), forKey: "image")
         let removeAction = UIAlertAction(title: NSLocalizedString("Remove", comment: ""), style: .destructive) { _ in
             self.removeUserProfileImage()
         }
-        removeAction.setValue(UIImage(named: "delete")?.withRenderingMode(.alwaysTemplate), forKey: "image")
+        removeAction.setValue(UIImage(systemName: "trash"), forKey: "image")
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
             optionsActionSheet.addAction(cameraAction)
         }

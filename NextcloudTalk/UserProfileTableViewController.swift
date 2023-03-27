@@ -51,6 +51,9 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
     let kTwitterTextFieldTag    = 94
     let kAvatarScopeButtonTag   = 93
 
+    let iconConfiguration = UIImage.SymbolConfiguration(pointSize: 18)
+    let iconHeaderConfiguration = UIImage.SymbolConfiguration(pointSize: 13)
+
     var account = TalkAccount()
     var isEditable = Bool()
     var waitingForModification = Bool()
@@ -191,10 +194,12 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
             return summaryCellForRow(row: indexPath.row)
         case ProfileSection.kProfileSectionAddAccount.rawValue:
             return actionCellWith(identifier: "AddAccountCellIdentifier", text: NSLocalizedString("Add account", comment: ""),
-                                  textColor: .systemBlue, image: UIImage(named: "add-action"), tintColor: .systemBlue)
+                                  textColor: .systemBlue, image: UIImage(systemName: "plus")?.applyingSymbolConfiguration(iconConfiguration), tintColor: .systemBlue)
         case ProfileSection.kProfileSectionRemoveAccount.rawValue:
             let actionTitle = multiAccountEnabled.boolValue ? NSLocalizedString("Remove account", comment: "") : NSLocalizedString("Log out", comment: "")
-            let actionImage = multiAccountEnabled.boolValue ? UIImage(named: "delete") : UIImage(named: "logout")
+            let actionImage = multiAccountEnabled.boolValue ?
+            UIImage(systemName: "trash")?.applyingSymbolConfiguration(iconConfiguration) :
+            UIImage(systemName: "arrow.right.square")?.applyingSymbolConfiguration(iconConfiguration)
             return actionCellWith(identifier: "RemoveAccountCellIdentifier", text: actionTitle, textColor: .systemRed, image: actionImage, tintColor: .systemRed)
         default:
             break
@@ -226,7 +231,7 @@ extension UserProfileTableViewController {
         if let enabled = enabled {
             headerView.button.isEnabled = enabled
         }
-        headerView.button.setImage(self.imageForScope(scope: scopeForImage), for: .normal)
+        headerView.button.setImage(self.imageForScope(scope: scopeForImage)?.applyingSymbolConfiguration(iconHeaderConfiguration), for: .normal)
     }
 
     func setupViewforHeaderInSection(profileSection: Int) -> HeaderWithButton {
@@ -293,18 +298,18 @@ extension UserProfileTableViewController {
         switch summaryRow {
         case SummaryRow.kSummaryRowEmail.rawValue:
             summaryCell.textLabel?.text = account.email
-            summaryCell.imageView?.image = UIImage(named: "mail")?.withRenderingMode(.alwaysTemplate)
+            summaryCell.imageView?.image = UIImage(systemName: "envelope")?.applyingSymbolConfiguration(iconConfiguration)
         case SummaryRow.kSummaryRowPhoneNumber.rawValue:
             let phoneNumber = try? phoneUtil.parse(account.phone, defaultRegion: nil)
             let text = (phoneNumber != nil) ? try? phoneUtil.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
             summaryCell.textLabel?.text = text
-            summaryCell.imageView?.image = UIImage(named: "phone")?.withRenderingMode(.alwaysTemplate)
+            summaryCell.imageView?.image = UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration)
         case SummaryRow.kSummaryRowAddress.rawValue:
             summaryCell.textLabel?.text = account.address
-            summaryCell.imageView?.image = UIImage(named: "location")?.withRenderingMode(.alwaysTemplate)
+            summaryCell.imageView?.image = UIImage(systemName: "mappin")?.applyingSymbolConfiguration(iconConfiguration)
         case SummaryRow.kSummaryRowWebsite.rawValue:
             summaryCell.textLabel?.text = account.website
-            summaryCell.imageView?.image = UIImage(named: "website")?.withRenderingMode(.alwaysTemplate)
+            summaryCell.imageView?.image = UIImage(systemName: "network")?.applyingSymbolConfiguration(iconConfiguration)
         case SummaryRow.kSummaryRowTwitter.rawValue:
             summaryCell.textLabel?.text = account.twitter
             summaryCell.imageView?.image = UIImage(named: "twitter")?.withRenderingMode(.alwaysTemplate)
@@ -312,7 +317,7 @@ extension UserProfileTableViewController {
             break
         }
 
-        summaryCell.imageView?.tintColor = UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)
+        summaryCell.imageView?.tintColor = .secondaryLabel
 
         return summaryCell
     }

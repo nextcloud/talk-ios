@@ -161,13 +161,13 @@ extension UserProfileTableViewController {
 
     func imageForScope(scope: String) -> UIImage? {
         if scope == kUserProfileScopePrivate {
-            return UIImage(named: "mobile-phone-20")?.withRenderingMode(.alwaysTemplate)
+            return UIImage(systemName: "iphone")
         } else if scope == kUserProfileScopeLocal {
-            return UIImage(named: "password-20")?.withRenderingMode(.alwaysTemplate)
+            return UIImage(systemName: "lock")
         } else if scope == kUserProfileScopeFederated {
-            return UIImage(named: "group-20")?.withRenderingMode(.alwaysTemplate)
+            return UIImage(systemName: "person.2")
         } else if scope == kUserProfileScopePublished {
-            return UIImage(named: "browser-20")?.withRenderingMode(.alwaysTemplate)
+            return UIImage(systemName: "network")
         }
         return nil
     }
@@ -219,16 +219,24 @@ extension UserProfileTableViewController {
     func presentScopeSelector(field: String, currentValue: String, title: String) {
         var options = [DetailedOption]()
 
-        let privateOption = setupDetailedOption(identifier: kUserProfileScopePrivate, imageName: "mobile-phone", title: NSLocalizedString("Private", comment: ""),
+        let privateOption = setupDetailedOption(identifier: kUserProfileScopePrivate,
+                                                image: UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration),
+                                                title: NSLocalizedString("Private", comment: ""),
                                                 subtitle: NSLocalizedString("Only visible to people matched via phone number integration", comment: ""),
                                                 selected: currentValue == kUserProfileScopePrivate)
-        let localOption = setupDetailedOption(identifier: kUserProfileScopeLocal, imageName: "password-settings", title: NSLocalizedString("Local", comment: ""),
+        let localOption = setupDetailedOption(identifier: kUserProfileScopeLocal,
+                                              image: UIImage(systemName: "lock")?.applyingSymbolConfiguration(iconConfiguration),
+                                              title: NSLocalizedString("Local", comment: ""),
                                               subtitle: NSLocalizedString("Only visible to people on this instance and guests", comment: ""),
                                               selected: currentValue == kUserProfileScopeLocal)
-        let federatedOption = setupDetailedOption(identifier: kUserProfileScopeFederated, imageName: "group", title: NSLocalizedString("Federated", comment: ""),
+        let federatedOption = setupDetailedOption(identifier: kUserProfileScopeFederated,
+                                                  image: UIImage(systemName: "person.2")?.applyingSymbolConfiguration(iconConfiguration),
+                                                  title: NSLocalizedString("Federated", comment: ""),
                                                   subtitle: NSLocalizedString("Only synchronize to trusted servers", comment: ""),
                                                   selected: currentValue == kUserProfileScopeFederated)
-        let publishedOption = setupDetailedOption(identifier: kUserProfileScopePublished, imageName: "browser-settings", title: NSLocalizedString("Published", comment: ""),
+        let publishedOption = setupDetailedOption(identifier: kUserProfileScopePublished,
+                                                  image: UIImage(systemName: "network")?.applyingSymbolConfiguration(iconConfiguration),
+                                                  title: NSLocalizedString("Published", comment: ""),
                                                   subtitle: NSLocalizedString("Synchronize to trusted servers and the global and public address book", comment: ""),
                                                   selected: currentValue == kUserProfileScopePublished)
 
@@ -273,10 +281,10 @@ extension UserProfileTableViewController {
     }
 
     // Setup Dialog Options
-    func setupDetailedOption(identifier: String, imageName: String, title: String, subtitle: String, selected: Bool) -> DetailedOption {
+    func setupDetailedOption(identifier: String, image: UIImage?, title: String, subtitle: String, selected: Bool) -> DetailedOption {
         let detailedOption = DetailedOption()
         detailedOption.identifier = identifier
-        detailedOption.image = UIImage(named: imageName)?.withRenderingMode(.alwaysTemplate)
+        detailedOption.image = image
         detailedOption.title = title
         detailedOption.subtitle = subtitle
         detailedOption.selected = selected
