@@ -347,10 +347,14 @@
     [_roomsTableViewController setSelectedRoomToken:chatViewController.room.token];
 }
 
-- (void)presentCallViewController:(CallViewController *)callViewController
+- (void)presentCallViewController:(CallViewController *)callViewController withCompletionBlock:(PresentCallControllerCompletionBlock)block
 {
     [_mainViewController dismissViewControllerAnimated:NO completion:nil];
-    [_mainViewController presentViewController:callViewController animated:YES completion:nil];
+    [_mainViewController presentViewController:callViewController animated:YES completion:^{
+        if (block) {
+            block();
+        }
+    }];
 }
 
 - (void)presentCallKitCallInRoom:(NSString *)token withVideoEnabled:(BOOL)video

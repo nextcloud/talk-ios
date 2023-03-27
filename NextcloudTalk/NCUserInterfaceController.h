@@ -32,6 +32,8 @@
 
 @class NCSplitViewController;
 
+typedef void (^PresentCallControllerCompletionBlock)(void);
+
 @interface NCUserInterfaceController : NSObject
 
 @property (nonatomic, strong) NCSplitViewController *mainViewController;
@@ -48,7 +50,7 @@
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification;
 - (void)presentAlertViewController:(UIAlertController *)alertViewController;
 - (void)presentChatViewController:(NCChatViewController *)chatViewController;
-- (void)presentCallViewController:(CallViewController *)callViewController;
+- (void)presentCallViewController:(CallViewController *)callViewController withCompletionBlock:(PresentCallControllerCompletionBlock)block;
 - (void)presentCallKitCallInRoom:(NSString *)token withVideoEnabled:(BOOL)video;
 - (void)presentChatForURL:(NSURLComponents *)urlComponents;
 - (void)presentLoginViewControllerForServerURL:(NSString *)serverURL withUser:(NSString *)user;
