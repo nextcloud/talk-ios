@@ -772,8 +772,9 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
             }
         }
 
-        [[NCUserInterfaceController sharedInstance] presentCallViewController:_callViewController];
-        [self joinRoom:room.token forCall:YES];
+        [[NCUserInterfaceController sharedInstance] presentCallViewController:_callViewController withCompletionBlock:^{
+            [self joinRoom:room.token forCall:YES];
+        }];
     } else {
         NSLog(@"Not starting call due to in another call.");
     }
