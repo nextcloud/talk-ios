@@ -298,7 +298,7 @@
         UIGraphicsEndImageContext();
         [profileButton setImage:profileImage forState:UIControlStateNormal];
     } else {
-        UIImage *profileImage = [[UIImage imageNamed:@"user-profile"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *profileImage = [UIImage systemImageNamed:@"person"];
         [profileButton setImage:profileImage forState:UIControlStateNormal];
         profileButton.contentMode = UIViewContentModeCenter;
     }
