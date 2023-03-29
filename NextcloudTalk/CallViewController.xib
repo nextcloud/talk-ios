@@ -59,10 +59,10 @@
                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="48" id="aZ2-oa-X4M"/>
                             </constraints>
                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
-                            <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            <inset key="contentEdgeInsets" minX="16" minY="0.0" maxX="8" maxY="0.0"/>
-                            <inset key="imageEdgeInsets" minX="-8" minY="0.0" maxX="0.0" maxY="0.0"/>
-                            <state key="normal" image="hang-up"/>
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" image="phone.down.fill" catalog="system">
+                                <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
+                            </state>
                             <connections>
                                 <action selector="hangupButtonPressed:" destination="-1" eventType="touchUpInside" id="S0I-zJ-AFf"/>
                             </connections>
@@ -85,7 +85,9 @@
                                 <constraint firstAttribute="width" constant="44" id="9DJ-Sj-p8R"/>
                             </constraints>
                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <state key="normal" image="chat"/>
+                            <state key="normal" image="message.fill" catalog="system">
+                                <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
+                            </state>
                             <connections>
                                 <action selector="toggleChatButtonPressed:" destination="-1" eventType="touchUpInside" id="zJP-fn-GWH"/>
                             </connections>
@@ -100,7 +102,9 @@
                                         <constraint firstAttribute="width" constant="44" id="q2u-LZ-1pc"/>
                                     </constraints>
                                     <color key="tintColor" systemColor="systemRedColor"/>
-                                    <state key="normal" image="record-circle"/>
+                                    <state key="normal" image="record.circle.fill" catalog="system">
+                                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
+                                    </state>
                                     <connections>
                                         <action selector="videoRecordingButtonPressed:" destination="-1" eventType="touchUpInside" id="Bx0-Nb-pcQ"/>
                                     </connections>
@@ -111,7 +115,10 @@
                                     <constraints>
                                         <constraint firstAttribute="width" constant="44" id="Ar2-um-gQl"/>
                                     </constraints>
-                                    <state key="normal" image="audio"/>
+                                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <state key="normal" image="mic.fill" catalog="system">
+                                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
+                                    </state>
                                     <connections>
                                         <action selector="audioButtonPressed:" destination="-1" eventType="touchUpInside" id="pXz-DO-93v"/>
                                     </connections>
@@ -122,7 +129,10 @@
                                     <constraints>
                                         <constraint firstAttribute="width" constant="44" id="sGL-hj-uAT"/>
                                     </constraints>
-                                    <state key="normal" image="video"/>
+                                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <state key="normal" image="video.fill" catalog="system">
+                                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
+                                    </state>
                                     <connections>
                                         <action selector="videoButtonPressed:" destination="-1" eventType="touchUpInside" id="5Q5-4w-o5q"/>
                                     </connections>
@@ -133,7 +143,10 @@
                                     <constraints>
                                         <constraint firstAttribute="width" constant="44" id="350-WN-M1a"/>
                                     </constraints>
-                                    <state key="normal" image="video-off"/>
+                                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <state key="normal" image="video.slash.fill" catalog="system">
+                                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
+                                    </state>
                                     <connections>
                                         <action selector="videoCallButtonPressed:" destination="-1" eventType="touchUpInside" id="YxF-Ew-WqM"/>
                                     </connections>
@@ -144,7 +157,10 @@
                                     <constraints>
                                         <constraint firstAttribute="width" constant="44" id="tg2-YD-INe"/>
                                     </constraints>
-                                    <state key="normal" image="speaker-off"/>
+                                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <state key="normal" image="speaker.slash.fill" catalog="system">
+                                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
+                                    </state>
                                     <connections>
                                         <action selector="speakerButtonPressed:" destination="-1" eventType="touchUpInside" id="PPl-wW-y2T"/>
                                     </connections>
@@ -156,7 +172,9 @@
                                         <constraint firstAttribute="width" constant="44" id="77m-11-7t8"/>
                                     </constraints>
                                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    <state key="normal" image="hand"/>
+                                    <state key="normal" image="hand.raised.fill" catalog="system">
+                                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
+                                    </state>
                                     <connections>
                                         <action selector="lowerHandButtonPressed:" destination="-1" eventType="touchUpInside" id="vrz-Ss-1iM"/>
                                     </connections>
@@ -168,7 +186,9 @@
                                         <constraint firstAttribute="width" constant="44" id="yxW-nz-Toe"/>
                                     </constraints>
                                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    <state key="normal" image="dots-horizontal"/>
+                                    <state key="normal" image="ellipsis" catalog="system">
+                                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
+                                    </state>
                                 </button>
                             </subviews>
                         </stackView>
@@ -229,7 +249,8 @@
                                 <constraint firstAttribute="height" constant="32" id="uMi-V0-B3H"/>
                                 <constraint firstAttribute="width" constant="32" id="xCZ-QS-yDb"/>
                             </constraints>
-                            <state key="normal" image="close"/>
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" image="xmark" catalog="system"/>
                             <connections>
                                 <action selector="closeScreensharingButtonPressed:" destination="-1" eventType="touchUpInside" id="Pio-Dr-GaB"/>
                             </connections>
@@ -249,7 +270,8 @@
                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mf3-yk-Olo">
                             <rect key="frame" x="153" y="288" width="40" height="40"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <state key="normal" image="switch-camera"/>
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" image="camera.rotate" catalog="system"/>
                             <connections>
                                 <action selector="switchCameraButtonPressed:" destination="-1" eventType="touchUpInside" id="SJb-T1-tkb"/>
                             </connections>
@@ -306,17 +328,17 @@
         </view>
     </objects>
     <resources>
-        <image name="audio" width="24" height="24"/>
-        <image name="chat" width="24" height="24"/>
-        <image name="close" width="24" height="24"/>
-        <image name="dots-horizontal" width="24" height="24"/>
-        <image name="hand" width="24" height="24"/>
-        <image name="hang-up" width="24" height="24"/>
-        <image name="record-circle" width="24" height="24"/>
-        <image name="speaker-off" width="24" height="24"/>
-        <image name="switch-camera" width="24" height="24"/>
-        <image name="video" width="24" height="24"/>
-        <image name="video-off" width="24" height="24"/>
+        <image name="camera.rotate" catalog="system" width="128" height="93"/>
+        <image name="ellipsis" catalog="system" width="128" height="37"/>
+        <image name="hand.raised.fill" catalog="system" width="128" height="128"/>
+        <image name="message.fill" catalog="system" width="128" height="114"/>
+        <image name="mic.fill" catalog="system" width="110" height="128"/>
+        <image name="phone.down.fill" catalog="system" width="128" height="55"/>
+        <image name="record.circle.fill" catalog="system" width="128" height="123"/>
+        <image name="speaker.slash.fill" catalog="system" width="118" height="128"/>
+        <image name="video.fill" catalog="system" width="128" height="81"/>
+        <image name="video.slash.fill" catalog="system" width="128" height="103"/>
+        <image name="xmark" catalog="system" width="128" height="113"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
