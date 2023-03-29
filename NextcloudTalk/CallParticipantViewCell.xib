@@ -34,7 +34,10 @@
                             <constraint firstAttribute="height" constant="32" id="7vp-Kk-0hF"/>
                             <constraint firstAttribute="width" constant="32" id="Z5s-i5-hgP"/>
                         </constraints>
-                        <state key="normal" image="screensharing"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <state key="normal" image="display" catalog="system">
+                            <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
+                        </state>
                         <connections>
                             <action selector="screenSharingButtonPressed:" destination="gTV-IL-0wX" eventType="touchUpInside" id="DzG-u7-nPx"/>
                         </connections>
@@ -43,16 +46,17 @@
                         <rect key="frame" x="22" y="186" width="251" height="24"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BPo-EN-rrM" userLabel="Raised Hand Indicator">
-                                <rect key="frame" x="0.0" y="0.0" width="24" height="24"/>
+                                <rect key="frame" x="0.0" y="0.0" width="28" height="24"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <size key="titleShadowOffset" width="1" height="1"/>
-                                <state key="normal" image="hand">
+                                <state key="normal" image="hand.raised.fill" catalog="system">
                                     <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
                                 </state>
                             </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Duj-37-SmJ" userLabel="Peer Name Label Container">
-                                <rect key="frame" x="36" y="0.0" width="179" height="24"/>
+                                <rect key="frame" x="40" y="0.0" width="179" height="24"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="248" verticalHuggingPriority="251" fixedFrame="YES" text="ghj" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D5h-T2-aB9">
                                         <rect key="frame" x="0.0" y="6" width="179" height="18"/>
@@ -67,11 +71,13 @@
                                 <edgeInsets key="layoutMargins" top="12" left="8" bottom="2" right="8"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vlO-GV-Y3B">
-                                <rect key="frame" x="227" y="0.0" width="24" height="24"/>
+                                <rect key="frame" x="231" y="0.0" width="20" height="24"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <size key="titleShadowOffset" width="1" height="1"/>
-                                <state key="normal" image="audio-off">
+                                <state key="normal" image="mic.slash.fill" catalog="system">
                                     <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="20"/>
                                 </state>
                             </button>
                         </subviews>
@@ -118,8 +124,8 @@
         </collectionViewCell>
     </objects>
     <resources>
-        <image name="audio-off" width="24" height="24"/>
-        <image name="hand" width="24" height="24"/>
-        <image name="screensharing" width="24" height="24"/>
+        <image name="display" catalog="system" width="128" height="101"/>
+        <image name="hand.raised.fill" catalog="system" width="128" height="128"/>
+        <image name="mic.slash.fill" catalog="system" width="108" height="128"/>
     </resources>
 </document>
