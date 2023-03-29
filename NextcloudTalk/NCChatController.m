@@ -346,8 +346,24 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
 - (void)updateHistoryInBackgroundWithCompletionBlock:(UpdateHistoryInBackgroundCompletionBlock)block
 {
     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    __block BOOL expired = NO;
+
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"updateHistoryInBackgroundWithCompletionBlock" expirationHandler:^(BGTaskHelper *task) {
+        [NCUtils log:@"ExpirationHandler called updateHistoryInBackgroundWithCompletionBlock"];
+        expired = YES;
+    }];
 
     _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId history:NO includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        if (expired) {
+            if (block) {
+                block(error);
+            }
+
+            [bgTask stopBackgroundTask];
+
+            return;
+        }
+
         if (!self->_stopChatMessagesPoll) {
             if (error) {
                 NSLog(@"Could not get background chat history. Error: %@", error.description);
@@ -366,6 +382,8 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
         if (block) {
             block(error);
         }
+
+        [bgTask stopBackgroundTask];
     }];
 }
 
