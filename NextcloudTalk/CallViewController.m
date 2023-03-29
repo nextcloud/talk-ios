@@ -802,6 +802,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             [self->_hangUpButton setTitleEdgeInsets:UIEdgeInsetsZero];
         } else {
             [self->_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
+            [self->_hangUpButton setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
             [self->_hangUpButton setContentEdgeInsets:UIEdgeInsetsMake(0, 16, 0, 24)];
             [self->_hangUpButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, -8)];
         }
