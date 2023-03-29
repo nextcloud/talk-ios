@@ -497,7 +497,10 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         NSMutableArray *roomsWithNewMessages = [NSMutableArray new];
 
         if (!error) {
-            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateRoomsTransaction" expirationHandler:nil];
+            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateRoomsTransaction" expirationHandler:^(BGTaskHelper *task) {
+                NSString *logMessage = [NSString stringWithFormat:@"ExpirationHandler called NCUpdateRoomsTransaction, number of rooms %ld", rooms.count];
+                [NCUtils log:logMessage];
+            }];
 
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
