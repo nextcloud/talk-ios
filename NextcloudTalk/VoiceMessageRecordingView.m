@@ -49,7 +49,7 @@
         [self.recordingTimeLabel setTimeFormat:@"mm:ss"];
         [self.recordingTimeLabel start];
         
-        [self.recordingImageView setImage:[[UIImage imageNamed:@"audio"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        [self.recordingImageView setImage:[UIImage systemImageNamed:@"mic.fill"]];
         [self.recordingImageView setTintColor:[UIColor systemRedColor]];
         [self.recordingImageView setContentMode:UIViewContentModeScaleAspectFit];
         [UIImageView animateWithDuration:0.5
