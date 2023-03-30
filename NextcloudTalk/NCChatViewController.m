@@ -3864,7 +3864,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     // Transcribe voice-message
     if ([message.messageType isEqualToString:kMessageTypeVoiceMessage]) {
-        UIImage *transcribeActionImage = [[UIImage imageNamed:@"transcribe-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *transcribeActionImage = [UIImage systemImageNamed:@"text.bubble"];
         UIAction *transcribeAction = [UIAction actionWithTitle:NSLocalizedString(@"Transcribe", @"TRANSLATORS this is for transcribing a voice message to text") image:transcribeActionImage identifier:nil handler:^(UIAction *action){
             
             [self didPressTranscribeVoiceMessage:message];
@@ -3876,7 +3876,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     // Delete option
     if (message.sendingFailed || message.isOfflineMessage || ([message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType] && hasChatPermission)) {
-        UIImage *deleteImage = [[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *deleteImage = [UIImage systemImageNamed:@"trash"];
         UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
             
             [self didPressDelete:message];
