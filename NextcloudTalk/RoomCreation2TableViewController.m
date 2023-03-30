@@ -387,7 +387,8 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
                 cell.textLabel.text = NSLocalizedString(@"Password", nil);
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
                 cell.accessoryView = _passwordTextField;
-                [cell.imageView setImage:[UIImage imageNamed:@"password-settings"]];
+                [cell.imageView setImage:[UIImage systemImageNamed:@"lock"]];
+                cell.imageView.tintColor = [UIColor secondaryLabelColor];
                 
                 return cell;
             } else {

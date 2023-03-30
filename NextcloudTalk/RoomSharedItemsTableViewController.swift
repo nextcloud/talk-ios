@@ -189,7 +189,8 @@ import QuickLook
 
     func showFetchingItemsPlaceholderView() {
         sharedItemsBackgroundView.placeholderView.isHidden = true
-        sharedItemsBackgroundView.setImage(UIImage(named: "media-placeholder"))
+        sharedItemsBackgroundView.setImage(UIImage(systemName: "photo.on.rectangle.angled"))
+        sharedItemsBackgroundView.placeholderImage.contentMode = .scaleAspectFit
         sharedItemsBackgroundView.placeholderTextView.text = NSLocalizedString("No shared items", comment: "")
         sharedItemsBackgroundView.loadingView.startAnimating()
         sharedItemsBackgroundView.loadingView.isHidden = false
