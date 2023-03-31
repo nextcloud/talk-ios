@@ -1257,7 +1257,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"includeLastKnown" : include ? @(1) : @(0),
                                  @"markNotificationsAsRead" : markNotificationsAsRead ? @(1) : @(0)};
     
-    NCAPISessionManager *apiSessionManager = [_longPollingApiSessionManagers objectForKey:account.accountId];
+    NCAPISessionManager *apiSessionManager;
+
+    if (timeout) {
+        apiSessionManager = [_longPollingApiSessionManagers objectForKey:account.accountId];
+    } else {
+        apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    }
+
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseMessages = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         // Get X-Chat-Last-Given and X-Chat-Last-Common-Read headers
