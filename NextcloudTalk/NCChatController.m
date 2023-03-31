@@ -351,6 +351,9 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"updateHistoryInBackgroundWithCompletionBlock" expirationHandler:^(BGTaskHelper *task) {
         [NCUtils log:@"ExpirationHandler called updateHistoryInBackgroundWithCompletionBlock"];
         expired = YES;
+
+        // Make sure we actually end a running pullMessagesTask, because otherwise the completion handler might not be called in time
+        [self->_pullMessagesTask cancel];
     }];
 
     _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId history:NO includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
