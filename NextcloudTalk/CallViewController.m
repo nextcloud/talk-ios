@@ -797,14 +797,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         // When the horizontal size is compact (e.g. iPhone portrait) we don't show the 'End call' text on the button
         // Don't make assumptions about the device here, because with split screen even an iPad can have a compact width
         if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
-            [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
-            [self->_hangUpButton setContentEdgeInsets:UIEdgeInsetsZero];
-            [self->_hangUpButton setTitleEdgeInsets:UIEdgeInsetsZero];
+            [self setHangUpButtonWithTitle:NO];
         } else {
-            [self->_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
-            [self->_hangUpButton setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
-            [self->_hangUpButton setContentEdgeInsets:UIEdgeInsetsMake(0, 16, 0, 24)];
-            [self->_hangUpButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, -8)];
+            [self setHangUpButtonWithTitle:YES];
         }
         
         // Make sure we get the correct frame for the stack view, after changing the visibility of buttons
@@ -814,7 +809,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         // Hide titleView if we don't have enough space
         // Don't do it in one go, as then we will have some jumping
         if (self->_topBarButtonStackView.frame.origin.x < 200) {
-            [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
+            [self setHangUpButtonWithTitle:NO];
             [self->_titleView setHidden:YES];
             [self->_stackViewToTitleViewConstraint setActive:NO];
         } else {
@@ -834,6 +829,20 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         [self adjustMoreButtonMenu];
     });
+}
+
+- (void)setHangUpButtonWithTitle:(BOOL)title
+{
+    if (title) {
+        [_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
+        [_hangUpButton setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
+        [_hangUpButton setContentEdgeInsets:UIEdgeInsetsMake(0, 16, 0, 24)];
+        [_hangUpButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, -8)];
+    } else {
+        [_hangUpButton setTitle:@"" forState:UIControlStateNormal];
+        [_hangUpButton setContentEdgeInsets:UIEdgeInsetsZero];
+        [_hangUpButton setTitleEdgeInsets:UIEdgeInsetsZero];
+    }
 }
 
 - (void)adjustConstraints
