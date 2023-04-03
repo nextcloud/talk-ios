@@ -1271,7 +1271,7 @@ typedef enum FileAction {
                                                                     handler:^void (UIAlertAction *action) {
                                                                         [self demoteFromModerator:participant];
                                                                     }];
-        [demoteFromModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [demoteFromModerator setValue:[UIImage systemImageNamed:@"person"] forKey:@"image"];
         [optionsActionSheet addAction:demoteFromModerator];
     } else if (canParticipantBeModerated && participant.canBePromoted) {
         UIAlertAction *promoteToModerator = [UIAlertAction actionWithTitle:NSLocalizedString(@"Promote to moderator", nil)
@@ -1279,7 +1279,7 @@ typedef enum FileAction {
                                                                    handler:^void (UIAlertAction *action) {
                                                                        [self promoteToModerator:participant];
                                                                    }];
-        [promoteToModerator setValue:[[UIImage imageNamed:@"rename-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [promoteToModerator setValue:[UIImage systemImageNamed:@"crown"] forKey:@"image"];
         [optionsActionSheet addAction:promoteToModerator];
     }
     
@@ -1289,7 +1289,7 @@ typedef enum FileAction {
                                                                  handler:^void (UIAlertAction *action) {
                                                                     [self sendCallNotificationToParticipant:[NSString stringWithFormat:@"%ld", (long)participant.attendeeId] fromIndexPath:indexPath];
                                                                 }];
-        [sendCallNotification setValue:[[UIImage imageNamed:@"notifications"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [sendCallNotification setValue:[UIImage systemImageNamed:@"bell"] forKey:@"image"];
         [optionsActionSheet addAction:sendCallNotification];
     }
     
@@ -1299,17 +1299,7 @@ typedef enum FileAction {
                                                                  handler:^void (UIAlertAction *action) {
                                                                     [self resendInvitationToParticipant:[NSString stringWithFormat:@"%ld", (long)participant.attendeeId] fromIndexPath:indexPath];
                                                                 }];
-        [resendInvitation setValue:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
-        [optionsActionSheet addAction:resendInvitation];
-    }
-    
-    if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
-        UIAlertAction *resendInvitation = [UIAlertAction actionWithTitle:NSLocalizedString(@"Resend invitation", nil)
-                                                                   style:UIAlertActionStyleDefault
-                                                                 handler:^void (UIAlertAction *action) {
-                                                                    [self resendInvitationToParticipant:[NSString stringWithFormat:@"%ld", (long)participant.attendeeId] fromIndexPath:indexPath];
-                                                                }];
-        [resendInvitation setValue:[[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [resendInvitation setValue:[UIImage systemImageNamed:@"envelope"] forKey:@"image"];
         [optionsActionSheet addAction:resendInvitation];
     }
     
@@ -1326,7 +1316,7 @@ typedef enum FileAction {
                                                                   handler:^void (UIAlertAction *action) {
                                                                       [self removeParticipant:participant];
                                                                   }];
-        [removeParticipant setValue:[[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [removeParticipant setValue:[UIImage systemImageNamed:@"trash"] forKey:@"image"];
         [optionsActionSheet addAction:removeParticipant];
     }
     
@@ -1864,8 +1854,8 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Chat messages", nil);
                     cell.detailTextLabel.text = _room.notificationLevelString;
-                    [cell.imageView setImage:[[UIImage imageNamed:@"notifications"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"bell"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;
                 }
@@ -1881,8 +1871,8 @@ typedef enum FileAction {
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _callNotificationSwitch;
                     _callNotificationSwitch.on = _room.notificationCalls;
-                    [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"phone"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;
                 }
@@ -1904,7 +1894,8 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Preview", nil);
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                    [cell.imageView setImage:[UIImage imageNamed:@"preview-file-settings"]];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"eye"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     if (_fileDownloadIndicator) {
                         // Set download indicator in case we're already downloading a file
@@ -1925,7 +1916,7 @@ typedef enum FileAction {
                     
                     UIImage *nextcloudActionImage = [[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
                     [cell.imageView setImage:nextcloudActionImage];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                                         
                     return cell;
                 }
@@ -1941,10 +1932,8 @@ typedef enum FileAction {
             }
             
             cell.textLabel.text = NSLocalizedString(@"Images, files, voice messages…", nil);
-            
-            UIImage *nextcloudActionImage = [[UIImage imageNamed:@"folder-multiple-media"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-            [cell.imageView setImage:nextcloudActionImage];
-            cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+            [cell.imageView setImage:[UIImage systemImageNamed:@"photo.on.rectangle.angled"]];
+            cell.imageView.tintColor = [UIColor secondaryLabelColor];
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             
             return cell;
@@ -1966,7 +1955,8 @@ typedef enum FileAction {
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _publicSwitch;
                     _publicSwitch.on = (_room.type == kNCRoomTypePublic) ? YES : NO;
-                    [cell.imageView setImage:[UIImage imageNamed:@"public-setting"]];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"link"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;
                 }
@@ -1980,7 +1970,8 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = (_room.hasPassword) ? NSLocalizedString(@"Change password", nil) : NSLocalizedString(@"Set password", nil);
-                    [cell.imageView setImage:(_room.hasPassword) ? [UIImage imageNamed:@"password-settings"] : [UIImage imageNamed:@"no-password-settings"]];
+                    [cell.imageView setImage:(_room.hasPassword) ? [UIImage systemImageNamed:@"lock"] : [UIImage systemImageNamed:@"lock.open"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;
                 }
@@ -1995,9 +1986,8 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Resend invitations", nil);
                     
-                    UIImage *nextcloudActionImage = [[UIImage imageNamed:@"mail"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-                    [cell.imageView setImage:nextcloudActionImage];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"envelope"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;
                 }
@@ -2019,8 +2009,8 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Message expiration", nil);
                     cell.detailTextLabel.text = _room.messageExpirationString;
-                    [cell.imageView setImage:[[UIImage imageNamed:@"auto-delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"timer"]];
+                     cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;
                 }
@@ -2036,8 +2026,8 @@ typedef enum FileAction {
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _listableSwitch;
                     _listableSwitch.on = (_room.listable != NCRoomListableScopeParticipantsOnly);
-                    [cell.imageView setImage:[[UIImage imageNamed:@"listable-conversation"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"list.bullet"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;
                 }
@@ -2055,10 +2045,10 @@ typedef enum FileAction {
                     _listableForEveryoneSwitch.on = (_room.listable == NCRoomListableScopeEveryone);
                     
                     // Still assign an image, but hide it to keep the margin the same as the other cells
-                    [cell.imageView setImage:[[UIImage imageNamed:@"listable-conversation"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"list.bullet"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     [cell.imageView setHidden:YES];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
-                    
+
                     return cell;
                 }
                     break;
@@ -2073,8 +2063,8 @@ typedef enum FileAction {
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _readOnlySwitch;
                     _readOnlySwitch.on = _room.readOnlyState;
-                    [cell.imageView setImage:[[UIImage imageNamed:@"message-text-lock"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"lock.square"]];
+                     cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;
                 }
@@ -2088,8 +2078,8 @@ typedef enum FileAction {
                     }
 
                     cell.textLabel.text = NSLocalizedString(@"Share link", nil);
-                    [cell.imageView setImage:[[UIImage imageNamed:@"share"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"square.and.arrow.up"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
 
                     return cell;
                 }
@@ -2113,7 +2103,8 @@ typedef enum FileAction {
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _lobbySwitch;
                     _lobbySwitch.on = (_room.lobbyState == NCRoomLobbyStateModeratorsOnly) ? YES : NO;
-                    [cell.imageView setImage:[UIImage imageNamed:@"lobby"]];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"lobby"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;
                 }
@@ -2132,7 +2123,8 @@ typedef enum FileAction {
                     cell.accessoryView = _lobbyDateTextField;
                     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:_room.lobbyTimer];
                     _lobbyDateTextField.text = _room.lobbyTimer > 0 ? [NCUtils readableDateTimeFromDate:date] : nil;
-                    [cell.imageView setImage:[UIImage imageNamed:@"timer"]];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"calendar.badge.clock"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;
                 }
@@ -2148,8 +2140,8 @@ typedef enum FileAction {
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _sipSwitch;
                     _sipSwitch.on = _room.sipState > NCRoomSIPStateDisabled;
-                    [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"phone"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;
                 }
@@ -2167,9 +2159,9 @@ typedef enum FileAction {
                     _sipNoPINSwitch.on = _room.sipState > NCRoomSIPStateEnabled;
                     
                     // Still assign an image, but hide it to keep the margin the same as the other cells
-                    [cell.imageView setImage:[[UIImage imageNamed:@"phone"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"phone"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     [cell.imageView setHidden:YES];
-                    cell.imageView.tintColor = [UIColor colorWithRed:0.43 green:0.43 blue:0.45 alpha:1];
                     
                     return cell;
                 }
@@ -2280,8 +2272,8 @@ typedef enum FileAction {
             
             // Call status
             if (participant.callIconImageName) {
-                cell.accessoryView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:participant.callIconImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-                [cell.accessoryView setTintColor:[NCAppBranding placeholderColor]];
+                cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:participant.callIconImageName]];
+                [cell.accessoryView setTintColor:[UIColor secondaryLabelColor]];
             } else {
                 cell.accessoryView = nil;
             }
@@ -2305,7 +2297,7 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Leave conversation", nil);
                     cell.textLabel.textColor = [UIColor systemRedColor];
-                    [cell.imageView setImage:[[UIImage imageNamed:@"exit-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"arrow.right.square"]];
                     [cell.imageView setTintColor:[UIColor systemRedColor]];
                     
                     return cell;
@@ -2320,7 +2312,7 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Delete all messages", nil);
                     cell.textLabel.textColor = [UIColor systemRedColor];
-                    [cell.imageView setImage:[[UIImage imageNamed:@"delete-chat"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"trash"]];
                     [cell.imageView setTintColor:[UIColor systemRedColor]];
                     
                     return cell;
@@ -2335,7 +2327,7 @@ typedef enum FileAction {
                     
                     cell.textLabel.text = NSLocalizedString(@"Delete conversation", nil);
                     cell.textLabel.textColor = [UIColor systemRedColor];
-                    [cell.imageView setImage:[[UIImage imageNamed:@"delete-forever"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"trash"]];
                     [cell.imageView setTintColor:[UIColor systemRedColor]];
                     
                     return cell;

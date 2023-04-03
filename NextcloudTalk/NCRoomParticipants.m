@@ -176,7 +176,7 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
         return @"phone";
     }
     
-    return @"audio";
+    return @"mic";
 }
 
 @end
