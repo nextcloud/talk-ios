@@ -3786,7 +3786,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     // Reply option
     if ([self isMessageReplyable:message] && hasChatPermission) {
-        UIImage *replyImage = [[UIImage imageNamed:@"reply"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *replyImage = [UIImage systemImageNamed:@"arrowshape.turn.up.left"];
         UIAction *replyAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply", nil) image:replyImage identifier:nil handler:^(UIAction *action){
             
             [self didPressReply:message];
@@ -3797,7 +3797,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     // Add reaction option
     if ([self isMessageReactable:message] && hasChatPermission) {
-        UIImage *reactionImage = [[UIImage imageNamed:@"emoji"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *reactionImage = [UIImage systemImageNamed:@"face.smiling"];
         UIAction *reactionAction = [UIAction actionWithTitle:NSLocalizedString(@"Add reaction", nil) image:reactionImage identifier:nil handler:^(UIAction *action){
             
             [self didPressAddReaction:message atIndexPath:indexPath];
@@ -3810,7 +3810,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if ([self isMessageReplyable:message] && _room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId] )
     {
-        UIImage *replyPrivateImage = [[UIImage imageNamed:@"user-profile"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *replyPrivateImage = [UIImage systemImageNamed:@"person"];
         UIAction *replyPrivateAction = [UIAction actionWithTitle:NSLocalizedString(@"Reply privately", nil) image:replyPrivateImage identifier:nil handler:^(UIAction *action){
             
             [self didPressReplyPrivately:message];
@@ -3821,7 +3821,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     // Forward option (only normal messages for now)
     if (!message.file && !message.poll && !message.isDeletedMessage) {
-        UIImage *forwardImage = [[UIImage imageNamed:@"forward"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *forwardImage = [UIImage systemImageNamed:@"arrowshape.turn.up.right"];
         UIAction *forwardAction = [UIAction actionWithTitle:NSLocalizedString(@"Forward", nil) image:forwardImage identifier:nil handler:^(UIAction *action){
             
             [self didPressForward:message];
@@ -3832,7 +3832,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     // Re-send option
     if ((message.sendingFailed || message.isOfflineMessage) && hasChatPermission) {
-        UIImage *resendImage = [[UIImage imageNamed:@"refresh"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *resendImage = [UIImage systemImageNamed:@"arrow.clockwise"];
         UIAction *resendAction = [UIAction actionWithTitle:NSLocalizedString(@"Resend", nil) image:resendImage identifier:nil handler:^(UIAction *action){
             
             [self didPressResend:message];
@@ -3842,7 +3842,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Copy option
-    UIImage *copyImage = [[UIImage imageNamed:@"copy"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIImage *copyImage = [UIImage systemImageNamed:@"square.on.square"];
     UIAction *copyAction = [UIAction actionWithTitle:NSLocalizedString(@"Copy", nil) image:copyImage identifier:nil handler:^(UIAction *action){
         
         [self didPressCopy:message];
@@ -3864,7 +3864,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     // Transcribe voice-message
     if ([message.messageType isEqualToString:kMessageTypeVoiceMessage]) {
-        UIImage *transcribeActionImage = [[UIImage imageNamed:@"transcribe-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *transcribeActionImage = [UIImage systemImageNamed:@"text.bubble"];
         UIAction *transcribeAction = [UIAction actionWithTitle:NSLocalizedString(@"Transcribe", @"TRANSLATORS this is for transcribing a voice message to text") image:transcribeActionImage identifier:nil handler:^(UIAction *action){
             
             [self didPressTranscribeVoiceMessage:message];
@@ -3876,7 +3876,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     // Delete option
     if (message.sendingFailed || message.isOfflineMessage || ([message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType] && hasChatPermission)) {
-        UIImage *deleteImage = [[UIImage imageNamed:@"delete"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *deleteImage = [UIImage systemImageNamed:@"trash"];
         UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
             
             [self didPressDelete:message];

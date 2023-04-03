@@ -57,7 +57,7 @@ typedef void (^GetMenuUserActionsForMessageCompletionBlock)(NSArray *menuItems);
     action.inactiveColor = [UIColor placeholderTextColor];
     action.activeBackgroundColor = self.backgroundColor;
     action.inactiveBackgroundColor = self.backgroundColor;
-    action.icon = [UIImage imageNamed:@"reply"];
+    action.icon = [UIImage systemImageNamed:@"arrowshape.turn.up.left"];
 
     [action setWillTriggerBlock:^(UITableView *tableView, NSIndexPath *indexPath) {
         block(tableView, indexPath);
