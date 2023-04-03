@@ -738,7 +738,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)configureActionItems
 {
-    UIImageSymbolConfiguration *symbolConfiguration = [UIImageSymbolConfiguration configurationWithPointSize:21];
+    UIImageSymbolConfiguration *symbolConfiguration = [UIImageSymbolConfiguration configurationWithPointSize:20];
     UIImage *videoCallImage = [UIImage systemImageNamed:@"video" withConfiguration:symbolConfiguration];
     UIImage *voiceCallImage = [UIImage systemImageNamed:@"phone" withConfiguration:symbolConfiguration];
     

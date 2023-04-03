@@ -101,6 +101,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NSMutableArray *_pendingPeerDeletions;
     NSMutableArray *_pendingPeerUpdates;
     NSTimer *_batchUpdateTimer;
+    UIImageSymbolConfiguration *_barButtonsConfiguration;
 }
 
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
@@ -151,6 +152,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     _pendingPeerInserts = [[NSMutableArray alloc] init];
     _pendingPeerDeletions = [[NSMutableArray alloc] init];
     _pendingPeerUpdates = [[NSMutableArray alloc] init];
+
+    _barButtonsConfiguration = [UIImageSymbolConfiguration configurationWithPointSize:20];
     
     // Use image downloader without cache so I can get 200 or 201 from the avatar requests.
     [AvatarBackgroundImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloaderNoCache]];
@@ -720,10 +723,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         if (active) {
             micStatusString = NSLocalizedString(@"Microphone enabled", nil);
-            [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+            [self->_audioMuteButton setImage:[UIImage systemImageNamed:@"mic.fill" withConfiguration:self->_barButtonsConfiguration] forState:UIControlStateNormal];
         } else {
             micStatusString = NSLocalizedString(@"Microphone disabled", nil);
-            [self->_audioMuteButton setImage:[UIImage imageNamed:@"audio-off"] forState:UIControlStateNormal];
+            [self->_audioMuteButton setImage:[UIImage systemImageNamed:@"mic.slash.fill" withConfiguration:self->_barButtonsConfiguration] forState:UIControlStateNormal];
         }
 
         self->_audioMuteButton.accessibilityValue = micStatusString;
@@ -744,10 +747,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         if (active) {
             cameraStatusString = NSLocalizedString(@"Camera enabled", nil);
-            [self->_videoDisableButton setImage:[UIImage imageNamed:@"video"] forState:UIControlStateNormal];
+            [self->_videoDisableButton setImage:[UIImage systemImageNamed:@"video.fill" withConfiguration:self->_barButtonsConfiguration] forState:UIControlStateNormal];
         } else {
             cameraStatusString = NSLocalizedString(@"Camera disabled", nil);
-            [self->_videoDisableButton setImage:[UIImage imageNamed:@"video-off"] forState:UIControlStateNormal];
+            [self->_videoDisableButton setImage:[UIImage systemImageNamed:@"video.slash.fill" withConfiguration:self->_barButtonsConfiguration] forState:UIControlStateNormal];
         }
 
         self->_videoDisableButton.accessibilityValue = cameraStatusString;
@@ -794,9 +797,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         // When the horizontal size is compact (e.g. iPhone portrait) we don't show the 'End call' text on the button
         // Don't make assumptions about the device here, because with split screen even an iPad can have a compact width
         if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
-            [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
+            [self setHangUpButtonWithTitle:NO];
         } else {
-            [self->_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
+            [self setHangUpButtonWithTitle:YES];
         }
         
         // Make sure we get the correct frame for the stack view, after changing the visibility of buttons
@@ -806,7 +809,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         // Hide titleView if we don't have enough space
         // Don't do it in one go, as then we will have some jumping
         if (self->_topBarButtonStackView.frame.origin.x < 200) {
-            [self->_hangUpButton setTitle:@"" forState:UIControlStateNormal];
+            [self setHangUpButtonWithTitle:NO];
             [self->_titleView setHidden:YES];
             [self->_stackViewToTitleViewConstraint setActive:NO];
         } else {
@@ -826,6 +829,20 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         [self adjustMoreButtonMenu];
     });
+}
+
+- (void)setHangUpButtonWithTitle:(BOOL)title
+{
+    if (title) {
+        [_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
+        [_hangUpButton setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
+        [_hangUpButton setContentEdgeInsets:UIEdgeInsetsMake(0, 16, 0, 24)];
+        [_hangUpButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, -8)];
+    } else {
+        [_hangUpButton setTitle:@"" forState:UIControlStateNormal];
+        [_hangUpButton setContentEdgeInsets:UIEdgeInsetsZero];
+        [_hangUpButton setTitleEdgeInsets:UIEdgeInsetsZero];
+    }
 }
 
 - (void)adjustConstraints
@@ -858,11 +875,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NCAudioController *audioController = [NCAudioController sharedInstance];
     if ([self.speakerButton isHidden] && [audioController isAudioRouteChangeable]) {
         // TODO: Adjust for AirPlay?
-        UIImage *speakerImage = [[UIImage imageNamed:@"speaker"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *speakerImage = [UIImage systemImageNamed:@"speaker.wave.3.fill"];
         NSString *speakerActionTitle = NSLocalizedString(@"Speaker", nil);
 
         if (![NCAudioController sharedInstance].isSpeakerActive) {
-            speakerImage = [[UIImage imageNamed:@"speaker-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            speakerImage = [UIImage systemImageNamed:@"speaker.slash.fill"];
         }
 
         UIAction *speakerAction = [UIAction actionWithTitle:speakerActionTitle image:speakerImage identifier:nil handler:^(UIAction *action) {
@@ -879,7 +896,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             raiseHandTitel = NSLocalizedString(@"Lower hand", nil);
         }
 
-        UIAction *raiseHandAction = [UIAction actionWithTitle:raiseHandTitel image:[UIImage imageNamed:@"hand"] identifier:nil handler:^(UIAction *action) {
+        UIAction *raiseHandAction = [UIAction actionWithTitle:raiseHandTitel image:[UIImage systemImageNamed:@"hand.raised.fill"] identifier:nil handler:^(UIAction *action) {
             [self->_callController raiseHand:!self->_isHandRaised];
             self->_isHandRaised = !self->_isHandRaised;
             [self adjustTopBar];
@@ -889,11 +906,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     }
 
     if ([self->_room isUserOwnerOrModerator] && [[NCSettingsController sharedInstance] isRecordingEnabled]) {
-        UIImage *recordingImage = [UIImage imageNamed:@"record-circle"];
+        UIImage *recordingImage = [UIImage systemImageNamed:@"record.circle.fill"];
         NSString *recordingActionTitle = NSLocalizedString(@"Start recording", nil);
 
         if ([self->_room callRecordingIsInActiveState]) {
-            recordingImage = [UIImage imageNamed:@"stop-circle"];
+            recordingImage = [UIImage imageNamed:@"stop.circle.fill"];
             recordingActionTitle = NSLocalizedString(@"Stop recording", nil);
         }
 
@@ -1194,10 +1211,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         if (active) {
             speakerStatusString = NSLocalizedString(@"Speaker enabled", nil);
-            [self.speakerButton setImage:[UIImage imageNamed:@"speaker"] forState:UIControlStateNormal];
+            [self.speakerButton setImage:[UIImage systemImageNamed:@"speaker.wave.3.fill" withConfiguration:self->_barButtonsConfiguration] forState:UIControlStateNormal];
         } else {
             speakerStatusString = NSLocalizedString(@"Speaker disabled", nil);
-            [self.speakerButton setImage:[UIImage imageNamed:@"speaker-off"] forState:UIControlStateNormal];
+            [self.speakerButton setImage:[UIImage systemImageNamed:@"speaker.slash.fill" withConfiguration:self->_barButtonsConfiguration] forState:UIControlStateNormal];
         }
 
         self.speakerButton.accessibilityValue = speakerStatusString;
