@@ -15,10 +15,7 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 - [CocoaPods](https://cocoapods.org/)
 
 ## Development setup
-run
-```
-pod install && open NextcloudTalk.xcworkspace
-```
+After cloning this repository, you can use `pod install` to install all dependencies. After that, open the project with open `NextcloudTalk.xcworkspace`.
 
 Pull Requests will be checked with [SwiftLint](https://github.com/realm/SwiftLint). We strongly encourage the installation of SwiftLint to detect issues as early as possible.
 
