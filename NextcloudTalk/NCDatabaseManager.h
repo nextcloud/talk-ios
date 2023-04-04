@@ -97,6 +97,7 @@ extern NSString * const kMinimumRequiredTalkCapability;
 - (NSInteger)numberOfInactiveAccountsWithUnreadNotifications;
 - (void)removeUnreadNotificationForInactiveAccounts;
 - (void)updateTalkConfigurationHashForAccountId:(NSString *)accountId withHash:(NSString *)hash;
+- (void)updateLastModifiedSinceForAccountId:(NSString *)accountId with:(nonnull NSString *)modifiedSince;
 
 - (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId;
 - (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId;
