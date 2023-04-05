@@ -23,6 +23,7 @@
 #import "SLKTextViewController.h"
 
 #import "NCRoom.h"
+#import "NCChatController.h"
 
 extern NSString * const NCChatViewControllerReplyPrivatelyNotification;
 extern NSString * const NCChatViewControllerForwardNotification;
@@ -31,6 +32,7 @@ extern NSString * const NCChatViewControllerTalkToUserNotification;
 @interface NCChatViewController : SLKTextViewController
 
 @property (nonatomic, strong) NCRoom *room;
+@property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, assign) BOOL presentedInCall;
 @property (nonatomic, assign) NSInteger highlightMessageId;
 

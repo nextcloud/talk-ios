@@ -52,7 +52,6 @@
 #import "PlaceholderView.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
-#import "NCChatController.h"
 #import "NCChatFileController.h"
 #import "NCChatMessage.h"
 #import "NCChatTitleView.h"
@@ -120,7 +119,6 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
                                     NCChatTitleViewDelegate,
                                     VLCKitVideoViewControllerDelegate>
 
-@property (nonatomic, strong) NCChatController *chatController;
 @property (nonatomic, strong) NCChatTitleView *titleView;
 @property (nonatomic, strong) PlaceholderView *chatBackgroundView;
 @property (nonatomic, strong) NSMutableDictionary *messages;
@@ -129,7 +127,6 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
 @property (nonatomic, assign) BOOL hasRequestedInitialHistory;
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
-@property (nonatomic, assign) BOOL hasReceiveNewMessages;
 @property (nonatomic, assign) BOOL retrievingHistory;
 @property (nonatomic, assign) BOOL isVisible;
 @property (nonatomic, assign) BOOL hasJoinedRoom;
@@ -214,6 +211,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCallEndedMessage:) name:NCChatControllerDidReceiveCallEndedMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveUpdateMessage:) name:NCChatControllerDidReceiveUpdateMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveHistoryCleared:) name:NCChatControllerDidReceiveHistoryClearedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMessagesInBackground:) name:NCChatControllerDidReceiveMessagesInBackgroundNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
@@ -618,12 +616,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
 
     // Check if new messages were added while the app was inactive (eg. via background-refresh)
-    NCChatMessage *lastMessage = [[self->_messages objectForKey:[self->_dateSections lastObject]] lastObject];
-    
-    if (lastMessage) {
-        [self.chatController checkForNewMessagesFromMessageId:lastMessage.messageId];
-        [self checkLastCommonReadMessage];
-    }
+    [self checkForNewStoredMessages];
     
     if (!_offlineMode) {
         [[NCRoomsManager sharedInstance] joinRoom:_room.token forCall:NO];
@@ -639,7 +632,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return;
     }
 
-    _hasReceiveNewMessages = NO;
     _startReceivingMessagesAfterJoin = YES;
     [self removeUnreadMessagesSeparator];
     [self savePendingMessage];
@@ -2589,14 +2581,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)didReceiveChatMessages:(NSNotification *)notification
 {
+    // If we receive messages in the background, we should make sure that our update here completely run
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCChatViewControllerdidReceiveChatMessages" expirationHandler:nil];
+
     dispatch_async(dispatch_get_main_queue(), ^{
         NSError *error = [notification.userInfo objectForKey:@"error"];
         if (notification.object != self->_chatController || error) {
             return;
         }
-        
-        BOOL firstNewMessagesAfterHistory = !self->_hasReceiveNewMessages;
-        self->_hasReceiveNewMessages = YES;
+
+        BOOL firstNewMessagesAfterHistory = [notification.userInfo objectForKey:@"firstNewMessagesAfterHistory"];
         
         NSMutableArray *messages = [notification.userInfo objectForKey:@"messages"];
         if (messages.count > 0) {
@@ -2671,6 +2665,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
             self->_highlightMessageId = 0;
         }
+
+        [bgTask stopBackgroundTask];
     });
 }
 
@@ -2779,6 +2775,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         _hasRequestedInitialHistory = YES;
         [_chatController getInitialChatHistory];
     }
+}
+
+- (void)didReceiveMessagesInBackground:(NSNotification *)notification
+{
+    if (notification.object != _chatController) {
+        return;
+    }
+
+    NSLog(@"didReceiveMessagesInBackground");
+    [self checkForNewStoredMessages];
 }
 
 #pragma mark - External signaling controller Notifications
@@ -3227,13 +3233,23 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     });
 }
 
+- (void)checkForNewStoredMessages
+{
+    NCChatMessage *lastMessage = [[self->_messages objectForKey:[self->_dateSections lastObject]] lastObject];
+
+    if (lastMessage) {
+        [self.chatController checkForNewMessagesFromMessageId:lastMessage.messageId];
+        [self checkLastCommonReadMessage];
+    }
+}
+
 - (void)cleanChat
 {
     _messages = [[NSMutableDictionary alloc] init];
     _dateSections = [[NSMutableArray alloc] init];
     _hasReceiveInitialHistory = NO;
     _hasRequestedInitialHistory = NO;
-    _hasReceiveNewMessages = NO;
+    self.chatController.hasReceivedMessagesFromServer = NO;
     [self hideNewMessagesView];
     [self.tableView reloadData];
 }

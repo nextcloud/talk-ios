@@ -41,6 +41,7 @@ NSString * const NCChatControllerDidReceiveUpdateMessageNotification            
 NSString * const NCChatControllerDidReceiveHistoryClearedNotification               = @"NCChatControllerDidReceiveHistoryClearedNotification";
 NSString * const NCChatControllerDidReceiveCallStartedMessageNotification           = @"NCChatControllerDidReceiveCallStartedMessageNotification";
 NSString * const NCChatControllerDidReceiveCallEndedMessageNotification             = @"NCChatControllerDidReceiveCallEndedMessageNotification";
+NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification         = @"NCChatControllerDidReceiveMessagesInBackgroundNotification";
 
 @interface NCChatController ()
 
@@ -345,6 +346,16 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
 
 - (void)updateHistoryInBackgroundWithCompletionBlock:(UpdateHistoryInBackgroundCompletionBlock)block
 {
+    // If there's a pull task running right now, we should not interfere with that
+    if (_pullMessagesTask && _pullMessagesTask.state == NSURLSessionTaskStateRunning) {
+        if (block) {
+            NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+            block(error);
+        }
+
+        return;
+    }
+
     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
     __block BOOL expired = NO;
 
@@ -367,18 +378,23 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
             return;
         }
 
-        if (!self->_stopChatMessagesPoll) {
-            if (error) {
-                NSLog(@"Could not get background chat history. Error: %@", error.description);
-            } else {
-                // Update chat blocks
-                [self updateLastChatBlockWithNewestKnown:lastKnownMessage];
-                
-                // Store new messages
-                if (messages.count > 0) {
-                    [self storeMessages:messages];
-                    [self checkLastCommonReadMessage:lastCommonReadMessage];
-                }
+        if (error) {
+            NSLog(@"Could not get background chat history. Error: %@", error.description);
+        } else {
+            // Update chat blocks
+            [self updateLastChatBlockWithNewestKnown:lastKnownMessage];
+
+            // Store new messages
+            if (messages.count > 0) {
+                [self storeMessages:messages];
+                [self checkLastCommonReadMessage:lastCommonReadMessage];
+
+                // In case we finish after the app already got active again, notify any potential view controller
+                NSMutableDictionary *userInfo = [NSMutableDictionary new];
+                [userInfo setObject:self->_room.token forKey:@"room"];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveMessagesInBackgroundNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
             }
         }
 
@@ -394,10 +410,11 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
 {
     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
     NSArray *storedMessages = [self getNewStoredMessagesInBlock:lastChatBlock sinceMessageId:messageId];
+
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    [userInfo setObject:self->_room.token forKey:@"room"];
     
     if (storedMessages.count > 0) {
-        NSMutableDictionary *userInfo = [NSMutableDictionary new];
-        
         for (NCChatMessage *message in storedMessages) {
             // Notify if "call started" have been received
             if ([message.systemMessage isEqualToString:@"call_started"]) {
@@ -430,14 +447,12 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
             }
         }
         
-        [userInfo removeAllObjects];
-        [userInfo setObject:self->_room.token forKey:@"room"];
         [userInfo setObject:storedMessages forKey:@"messages"];
-        
+        [userInfo setObject:@(!_hasReceivedMessagesFromServer) forKey:@"firstNewMessagesAfterHistory"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
                                                             object:self
                                                           userInfo:userInfo];
-        
+
         // Messages are already sorted by messageId here
         NCChatMessage *lastMessage = [storedMessages lastObject];
 
@@ -622,15 +637,13 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
         if (self->_stopChatMessagesPoll) {
             return;
         }
-        NSMutableDictionary *userInfo = [NSMutableDictionary new];
-        [userInfo setObject:self->_room.token forKey:@"room"];
+
         if (error) {
             if ([self isChatBeingBlocked:statusCode]) {
                 [self notifyChatIsBlocked];
                 return;
             }
             if (statusCode != 304) {
-                [userInfo setObject:error forKey:@"error"];
                 NSLog(@"Could not get new chat messages. Error: %@", error.description);
             }
         } else {
@@ -640,53 +653,12 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
             // Store new messages
             if (messages.count > 0) {
                 [self storeMessages:messages];
-                NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-                NSArray *storedMessages = [self getNewStoredMessagesInBlock:lastChatBlock sinceMessageId:messageId];
-                [userInfo setObject:storedMessages forKey:@"messages"];
-                
-                for (NCChatMessage *message in storedMessages) {
-                    // Update the current room with the new message
-                    if (message.messageId == lastKnownMessage && message.timestamp >= self->_room.lastActivity && !message.isUpdateMessage) {
-                        self->_room.lastActivity = message.timestamp;
-                        [[NCRoomsManager sharedInstance] updateLastMessage:message withNoUnreadMessages:YES forRoom:self->_room];
-                    }
-                    
-                    // Notify if "call started" have been received
-                    if ([message.systemMessage isEqualToString:@"call_started"]) {
-                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveCallStartedMessageNotification
-                                                                            object:self
-                                                                          userInfo:userInfo];
-                    }
-                    // Notify if "call eneded" have been received
-                    if ([message.systemMessage isEqualToString:@"call_ended"] ||
-                        [message.systemMessage isEqualToString:@"call_ended_everyone"] ||
-                        [message.systemMessage isEqualToString:@"call_missed"]) {
-                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveCallEndedMessageNotification
-                                                                            object:self
-                                                                          userInfo:userInfo];
-                    }
-                    // Notify if an "update messages" have been received
-                    if ([message isUpdateMessage]) {
-                        [userInfo setObject:message forKey:@"updateMessage"];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveUpdateMessageNotification
-                                                                            object:self
-                                                                          userInfo:userInfo];
-                    }
-                    // Notify if "history cleared" has been received
-                    if ([message.systemMessage isEqualToString:@"history_cleared"]) {
-                        [userInfo setObject:message forKey:@"historyCleared"];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveHistoryClearedNotification
-                                                                            object:self
-                                                                          userInfo:userInfo];
-                        return;
-                    }
-                }
+                [self checkForNewMessagesFromMessageId:messageId];
             }
         }
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatMessagesNotification
-                                                            object:self
-                                                          userInfo:userInfo];
-        
+
+        self->_hasReceivedMessagesFromServer = YES;
+
         [self checkLastCommonReadMessage:lastCommonReadMessage];
         
         if (error.code != -999) {
@@ -812,6 +784,7 @@ NSString * const NCChatControllerDidReceiveCallEndedMessageNotification         
 {
     [self stopReceivingNewChatMessages];
     [self stopReceivingChatHistory];
+    self.hasReceivedMessagesFromServer = NO;
 }
 
 - (void)clearHistoryAndResetChatController

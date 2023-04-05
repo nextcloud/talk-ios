@@ -479,7 +479,14 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
                 dispatch_group_enter(chatUpdateGroup);
 
                 NSLog(@"Updating room %@", room.internalId);
-                NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
+                NCChatController *chatController;
+
+                if (self.chatViewController && self.chatViewController.chatController && [self.chatViewController.room.internalId isEqualToString:room.internalId]) {
+                    // If there's already a chatController for this room, don't create a new one
+                    chatController = self.chatViewController.chatController;
+                } else {
+                    chatController = [[NCChatController alloc] initForRoom:room];
+                }
 
                 [chatController updateHistoryInBackgroundWithCompletionBlock:^(NSError *error) {
                     NSLog(@"Finished updating room %@", room.internalId);
