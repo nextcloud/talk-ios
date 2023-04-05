@@ -285,14 +285,17 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Rooms Controller
 
-- (NSURLSessionDataTask *)getRoomsForAccount:(TalkAccount *)account updateStatus:(BOOL)updateStatus withCompletionBlock:(GetRoomsCompletionBlock)block
+- (NSURLSessionDataTask *)getRoomsForAccount:(TalkAccount *)account updateStatus:(BOOL)updateStatus modifiedSince:(NSInteger)modifiedSince withCompletionBlock:(GetRoomsCompletionBlock)block
 {
     NSString *endpoint = @"room";
     NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
-    NSDictionary *parameters = @{@"noStatusUpdate" : @(!updateStatus)};
+    NSDictionary *parameters = @{@"noStatusUpdate" : @(!updateStatus),
+                                 @"modifiedSince" : @(modifiedSince)};
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
-    if (serverCapabilities.userStatus) {
+    // Since we are using "modifiedSince" only in background fetches
+    // we will request including user status only when getting the complete room list
+    if (serverCapabilities.userStatus && modifiedSince == 0) {
         URLString = [URLString stringByAppendingString:@"?includeStatus=true"];
     }
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
@@ -2844,8 +2847,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)checkResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account
 {
+    NSString *modifiedSince = [headers objectForKey:@"X-Nextcloud-Talk-Modified-Before"];
     NSString *configurationHash = [headers objectForKey:@"X-Nextcloud-Talk-Hash"];
     
+    if (modifiedSince.length > 0) {
+        [[NCDatabaseManager sharedInstance] updateLastModifiedSinceForAccountId:account.accountId with:modifiedSince];
+    }
+
     if (!configurationHash) {
         return;
     }

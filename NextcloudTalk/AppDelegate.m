@@ -432,7 +432,7 @@
      */
 
     dispatch_group_enter(backgroundRefreshGroup);
-    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO withCompletionBlock:^(NSError *error) {
+    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO onlyLastModified:YES withCompletionBlock:^(NSError *error) {
         [NCUtils log:@"CompletionHandler updateRoomsAndChatsUpdatingUserStatus"];
 
         if (error) {
