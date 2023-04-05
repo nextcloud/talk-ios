@@ -293,7 +293,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"noStatusUpdate" : @(!updateStatus),
                                  @"modifiedSince" : @(modifiedSince)};
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
-    if (serverCapabilities.userStatus) {
+    // Since we are using "modifiedSince" only in background fetches
+    // we will request including user status only when getting the complete room list
+    if (serverCapabilities.userStatus && modifiedSince == 0) {
         URLString = [URLString stringByAppendingString:@"?includeStatus=true"];
     }
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
