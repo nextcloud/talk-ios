@@ -455,6 +455,9 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if (onlyLastModified && [activeAccount.lastReceivedModifiedSince integerValue] == 0) {
+        if (block) {
+            block(nil);
+        }
         return;
     }
 
