@@ -335,8 +335,7 @@ typedef enum FileAction {
     // Participants section
     [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionParticipants]];
     // Destructive actions section
-    if (!_chatViewController || !_chatViewController.presentedInCall) {
-        // Do not show destructive actions when chat is presented during a call
+    if (!_hideDestructiveActions) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionDestructive]];
     }
     return [NSArray arrayWithArray:sections];
