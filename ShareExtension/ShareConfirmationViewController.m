@@ -274,21 +274,21 @@
                                                                handler:^void (UIAlertAction *action) {
         [self checkAndPresentCamera];
     }];
-    [cameraAction setValue:[[UIImage imageNamed:@"camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [cameraAction setValue:[UIImage systemImageNamed:@"camera"] forKey:@"image"];
     
     UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
                                                                  style:UIAlertActionStyleDefault
                                                                handler:^void (UIAlertAction *action) {
         [self presentPhotoLibrary];
     }];
-    [photoLibraryAction setValue:[[UIImage imageNamed:@"photos"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [photoLibraryAction setValue:[UIImage systemImageNamed:@"photo"] forKey:@"image"];
     
     UIAlertAction *filesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Files", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^void (UIAlertAction *action) {
         [self presentDocumentPicker];
     }];
-    [filesAction setValue:[[UIImage imageNamed:@"files"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [filesAction setValue:[UIImage systemImageNamed:@"doc"] forKey:@"image"];
 
 #ifndef APP_EXTENSION
     // Camera access is not available in app extensions
