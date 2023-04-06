@@ -151,6 +151,8 @@
     if (_type == ShareConfirmationTypeText) {
         [self.itemToolbar setHidden:YES];
         [self.shareTextView becomeFirstResponder];
+    } else {
+        [self addMenuToAddButton];
     }
 }
 
@@ -226,11 +228,6 @@
     [self previewCurrentItem];
 }
 
-- (IBAction)addItemButtonPressed:(id)sender {
-    [self presentAdditionalItemOptions];
-}
-
-
 - (void)shareText:(NSString *)sharedText
 {
     _type = ShareConfirmationTypeText;
@@ -263,49 +260,46 @@
 }
 
 #pragma mark - Add additional items
-- (void)presentAdditionalItemOptions
+
+- (void)addMenuToAddButton
 {
-    UIAlertController *optionsActionSheet = [UIAlertController alertControllerWithTitle:nil
-                                                                                message:nil
-                                                                         preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    UIAlertAction *cameraAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Camera", nil)
-                                                                 style:UIAlertActionStyleDefault
-                                                               handler:^void (UIAlertAction *action) {
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+
+    UIAction *cameraAction = [UIAction actionWithTitle:NSLocalizedString(@"Camera", nil)
+                                                 image:[UIImage systemImageNamed:@"camera"]
+                                            identifier:nil
+                                               handler:^(UIAction *action) {
         [self checkAndPresentCamera];
     }];
-    [cameraAction setValue:[UIImage systemImageNamed:@"camera"] forKey:@"image"];
-    
-    UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
-                                                                 style:UIAlertActionStyleDefault
-                                                               handler:^void (UIAlertAction *action) {
+
+    UIAction *photoLibraryAction = [UIAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
+                                                       image:[UIImage systemImageNamed:@"photo"]
+                                                  identifier:nil
+                                                     handler:^(UIAction *action) {
         [self presentPhotoLibrary];
     }];
-    [photoLibraryAction setValue:[UIImage systemImageNamed:@"photo"] forKey:@"image"];
-    
-    UIAlertAction *filesAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Files", nil)
-                                                          style:UIAlertActionStyleDefault
-                                                        handler:^void (UIAlertAction *action) {
+
+
+    UIAction *filesAction = [UIAction actionWithTitle:NSLocalizedString(@"Files", nil)
+                                                image:[UIImage systemImageNamed:@"doc"]
+                                           identifier:nil
+                                              handler:^(UIAction *action) {
         [self presentDocumentPicker];
     }];
-    [filesAction setValue:[UIImage systemImageNamed:@"doc"] forKey:@"image"];
+
 
 #ifndef APP_EXTENSION
     // Camera access is not available in app extensions
     // https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionOverview.html
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
-        [optionsActionSheet addAction:cameraAction];
+        [items addObject:cameraAction];
     }
 #endif
-    
-    [optionsActionSheet addAction:photoLibraryAction];
-    [optionsActionSheet addAction:filesAction];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.barButtonItem = self.addItemButton;
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+
+    [items addObject:photoLibraryAction];
+    [items addObject:filesAction];
+
+    self.addItemButton.menu = [UIMenu menuWithTitle:@"" children:items];
 }
 
 - (void)checkAndPresentCamera

@@ -93,11 +93,7 @@
                                 <action selector="previewItemButtonPressed:" destination="-1" id="wLi-1i-qxY"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem title="AddAction" image="plus" catalog="system" width="56" id="7Ow-Kb-Vy0">
-                            <connections>
-                                <action selector="addItemButtonPressed:" destination="-1" id="E0L-C6-JS9"/>
-                            </connections>
-                        </barButtonItem>
+                        <barButtonItem title="AddAction" image="plus" catalog="system" width="56" id="7Ow-Kb-Vy0"/>
                     </items>
                     <color key="barTintColor" systemColor="systemBackgroundColor"/>
                 </toolbar>
