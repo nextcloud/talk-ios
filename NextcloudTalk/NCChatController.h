@@ -40,10 +40,12 @@ extern NSString * const NCChatControllerDidReceiveUpdateMessageNotification;
 extern NSString * const NCChatControllerDidReceiveHistoryClearedNotification;
 extern NSString * const NCChatControllerDidReceiveCallStartedMessageNotification;
 extern NSString * const NCChatControllerDidReceiveCallEndedMessageNotification;
+extern NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification;
 
 @interface NCChatController : NSObject
 
 @property (nonatomic, strong) NCRoom *room;
+@property (nonatomic, assign) BOOL hasReceivedMessagesFromServer;
 
 - (instancetype)initForRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently;
