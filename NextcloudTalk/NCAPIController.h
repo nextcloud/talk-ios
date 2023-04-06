@@ -90,6 +90,10 @@ typedef void (^GetUserActionsCompletionBlock)(NSDictionary *userActions, NSError
 
 typedef void (^GetUserAvatarImageForUserCompletionBlock)(UIImage *image, NSError *error);
 
+typedef void (^GetAvatarForConversationWithImageCompletionBlock)(UIImage *image, NSError *error);
+typedef void (^SetAvatarForConversationWithImageCompletionBlock)(NSError *error);
+typedef void (^RemoveAvatarForConversationWithImageCompletionBlock)(NSError *error);
+
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
 typedef void (^GetUserProfileEditableFieldsCompletionBlock)(NSArray *userProfileEditableFields, NSError *error);
 typedef void (^SetUserProfileFieldCompletionBlock)(NSError *error, NSInteger statusCode);
@@ -233,6 +237,11 @@ extern NSInteger const kReceivedChatMessagesLimit;
 // User avatars
 - (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId withStyle:(UIUserInterfaceStyle) style andSize:(NSInteger)size usingAccount:(TalkAccount *)account;
 - (void)getUserAvatarForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block;
+
+// Conversation avatars
+- (void)getAvatarForConversation:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetAvatarForConversationWithImageCompletionBlock)block;
+- (NSURLSessionDataTask *)setAvatarForConversationWithImage:(UIImage *)image forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetAvatarForConversationWithImageCompletionBlock)block;
+- (NSURLSessionDataTask *)removeAvatarForConversation:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(RemoveAvatarForConversationWithImageCompletionBlock)block;
 
 // User actions
 - (NSURLSessionDataTask *)getUserActionsForUser:(NSString *)userId usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserActionsCompletionBlock)block;

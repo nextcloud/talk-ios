@@ -2136,6 +2136,81 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 }
 
+#pragma mark - Conversation avatars
+
+- (void)getAvatarForConversation:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetAvatarForConversationWithImageCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"room/%@/avatar", encodedToken];
+    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
+
+    NSMutableURLRequest *avatarRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:URLString] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
+    [avatarRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
+
+    [_imageDownloaderAvatars downloadImageForURLRequest:avatarRequest success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull responseObject) {
+        NSData *pngData = UIImagePNGRepresentation(responseObject);
+        UIImage *image = [UIImage imageWithData:pngData];
+        if (image && block) {
+            block(image, nil);
+        }
+    } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
+        if (block) {
+            block(nil, error);
+        }
+    }];
+}
+
+- (NSURLSessionDataTask *)setAvatarForConversationWithImage:(UIImage *)image forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetAvatarForConversationWithImageCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"room/%@/avatar", encodedToken];
+    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
+
+    NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        [formData appendPartWithFileData:imageData name:@"file" fileName:@"avatar.jpg" mimeType:@"image/jpeg"];
+    } progress:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(error);
+        }
+    }];
+
+    return task;
+}
+
+- (NSURLSessionDataTask *)removeAvatarForConversation:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(RemoveAvatarForConversationWithImageCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"room/%@/avatar", encodedToken];
+    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(error);
+        }
+    }];
+
+    return task;
+}
+
 #pragma mark - User actions
 
 - (NSURLSessionDataTask *)getUserActionsForUser:(NSString *)userId usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserActionsCompletionBlock)block
