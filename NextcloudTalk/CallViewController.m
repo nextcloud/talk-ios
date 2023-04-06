@@ -2149,6 +2149,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)chatTitleViewTapped:(NCChatTitleView *)titleView
 {
     RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room];
+    roomInfoVC.hideDestructiveActions = YES;
 
     roomInfoVC.modalPresentationStyle = UIModalPresentationPageSheet;
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:roomInfoVC];

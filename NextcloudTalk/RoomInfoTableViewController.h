@@ -26,6 +26,8 @@
 
 @interface RoomInfoTableViewController : UITableViewController
 
+@property (nonatomic, assign) BOOL hideDestructiveActions;
+
 - (instancetype)initForRoom:(NCRoom *)room;
 - (instancetype)initForRoom:(NCRoom *)room fromChatViewController:(NCChatViewController *)chatViewController;
 

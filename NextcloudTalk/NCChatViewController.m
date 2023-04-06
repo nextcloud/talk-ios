@@ -4197,6 +4197,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)chatTitleViewTapped:(NCChatTitleView *)titleView
 {
     RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:_room fromChatViewController:self];
+    roomInfoVC.hideDestructiveActions = _presentedInCall;
     NCSplitViewController *splitViewController = [NCUserInterfaceController sharedInstance].mainViewController;
 
     if (splitViewController != nil && !splitViewController.isCollapsed) {
