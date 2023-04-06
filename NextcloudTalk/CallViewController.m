@@ -910,7 +910,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         NSString *recordingActionTitle = NSLocalizedString(@"Start recording", nil);
 
         if ([self->_room callRecordingIsInActiveState]) {
-            recordingImage = [UIImage imageNamed:@"stop.circle.fill"];
+            recordingImage = [UIImage systemImageNamed:@"stop.circle.fill"];
             recordingActionTitle = NSLocalizedString(@"Stop recording", nil);
         }
 
