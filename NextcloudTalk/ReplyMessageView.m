@@ -127,7 +127,7 @@
         _cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
         _cancelButton.translatesAutoresizingMaskIntoConstraints = NO;
         _cancelButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0];
-        [_cancelButton setImage:[UIImage imageNamed:@"cancel"] forState:UIControlStateNormal];
+        [_cancelButton setImage:[UIImage systemImageNamed:@"xmark.circle"] forState:UIControlStateNormal];
         [_cancelButton addTarget:self action:@selector(dismiss) forControlEvents:UIControlEventTouchUpInside];
     }
     return _cancelButton;
