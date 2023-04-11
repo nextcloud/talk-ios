@@ -86,7 +86,7 @@ import MobileVLCKit
         self.positionSlider.value = 0
 
         // Set close button icon as template
-        self.closeButton.setImage(UIImage(named: "close")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        self.closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
     }
 
     @objc private func dismissViewController() {
