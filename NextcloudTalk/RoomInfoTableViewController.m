@@ -176,7 +176,7 @@ typedef enum FileAction {
 {
     [super viewDidLoad];
     
-    self.navigationItem.title = NSLocalizedString(@"Conversation info", nil);
+    self.navigationItem.title = NSLocalizedString(@"Conversation settings", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
@@ -1819,7 +1819,7 @@ typedef enum FileAction {
             }
             
             if (_room.isFavorite) {
-                [cell.favoriteImage setImage:[UIImage imageNamed:@"favorite-room"]];
+                [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];
             }
             
             cell.selectionStyle = UITableViewCellSelectionStyleNone;

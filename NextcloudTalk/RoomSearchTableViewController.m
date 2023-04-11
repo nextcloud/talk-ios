@@ -344,7 +344,7 @@ typedef enum RoomSearchSection {
     
     // Set favorite image
     if (room.isFavorite) {
-        [cell.favoriteImage setImage:[UIImage imageNamed:@"favorite-room"]];
+        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];
     }
     
     return cell;
