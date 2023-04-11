@@ -85,8 +85,7 @@
     
     self.slider = [[UISlider alloc] initWithFrame:CGRectMake(0, 0, 200, 44)];
     self.slider.translatesAutoresizingMaskIntoConstraints = NO;
-    UIImage *sliderThumb = [[UIImage imageNamed:@"circle"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    [self.slider setThumbImage:sliderThumb forState:UIControlStateNormal];
+    [self.slider setThumbImage:[UIImage systemImageNamed:@"circle.fill"] forState:UIControlStateNormal];
     [self.slider setEnabled:NO];
     [self.slider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
     [self.slider setSemanticContentAttribute:UISemanticContentAttributeForceLeftToRight];
@@ -295,15 +294,13 @@
 
 - (void)setPlayButton
 {
-    UIImage *image = [[UIImage imageNamed:@"play"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    [self.playPauseButton setImage:image forState:UIControlStateNormal];
+    [self.playPauseButton setImage:[UIImage systemImageNamed:@"play.fill"] forState:UIControlStateNormal];
     self.playPauseButton.tag = k_play_button_tag;
 }
 
 - (void)setPauseButton
 {
-    UIImage *image = [[UIImage imageNamed:@"pause"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    [self.playPauseButton setImage:image forState:UIControlStateNormal];
+    [self.playPauseButton setImage:[UIImage systemImageNamed:@"pause.fill"] forState:UIControlStateNormal];
     self.playPauseButton.tag = k_pause_button_tag;
 }
 
