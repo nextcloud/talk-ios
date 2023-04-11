@@ -24,6 +24,7 @@
 
 #import "UIImageView+AFNetworking.h"
 
+#import "NCAppBranding.h"
 #import "NCUser.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
@@ -129,12 +130,17 @@
         [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
     }
     
-    cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-unchecked"]];
+    UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];
+    UIColor *selectionImageColor = [UIColor tertiaryLabelColor];
     for (NCUser *user in _selectedParticipants) {
         if ([user.userId isEqualToString:contact.userId] && [user.source isEqualToString:contact.source]) {
-            cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]];
+            selectionImage = [UIImage systemImageNamed:@"checkmark.circle.fill"];
+            selectionImageColor = [NCAppBranding elementColor];
         }
     }
+    UIImageView *selectionImageView = [[UIImageView alloc] initWithImage:selectionImage];
+    selectionImageView.tintColor = selectionImageColor;
+    cell.accessoryView = selectionImageView;
     
     return cell;
 }
