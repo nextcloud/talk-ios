@@ -267,11 +267,11 @@ import UIKit
                 cell.textLabel?.numberOfLines = 4
                 cell.textLabel?.lineBreakMode = .byWordWrapping
                 cell.textLabel?.sizeToFit()
-                var checkboxImageView = UIImageView(image: UIImage(named: "checkbox-unchecked")?.withRenderingMode(.alwaysTemplate))
-                checkboxImageView.tintColor = NCAppBranding.placeholderColor()
+                var checkboxImageView = UIImageView(image: UIImage(systemName: "circle"))
+                checkboxImageView.tintColor = UIColor.tertiaryLabel
                 let votedSelf = poll?.votedSelf as? [Int] ?? []
                 if userSelectedOptions.contains(indexPath.row) || (showIntermediateResults && votedSelf.contains(indexPath.row)) {
-                    checkboxImageView = UIImageView(image: UIImage(named: "checkbox-checked")?.withRenderingMode(.alwaysTemplate))
+                    checkboxImageView = UIImageView(image: UIImage(systemName: "checkmark.circle.fill"))
                     checkboxImageView.tintColor = NCAppBranding.elementColor()
                 }
                 if showIntermediateResults {
