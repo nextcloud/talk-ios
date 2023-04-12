@@ -122,40 +122,39 @@
     [self showConfirmationDialogForSharingItemWithPath:_path andName:[_path lastPathComponent]];
 }
 
-- (void)showSortingOptions
+- (void)addMenuToSortingButton
 {
-    UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:nil
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleActionSheet];
-    UIAlertAction *alphabetical = [UIAlertAction actionWithTitle:NSLocalizedString(@"Alphabetical order", nil)
-                                                           style:UIAlertActionStyleDefault
-                                                         handler:^void (UIAlertAction *action) {
-                                                             [[NCSettingsController sharedInstance] setPreferredFileSorting:NCAlphabeticalSorting];
-                                                             [self sortItemsInDirectory];
-                                                         }];
-    [optionsActionSheet addAction:alphabetical];
-    UIAlertAction *modificationDate = [UIAlertAction actionWithTitle:NSLocalizedString(@"Modification date", nil)
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^void (UIAlertAction *action) {
-                                                                 [[NCSettingsController sharedInstance] setPreferredFileSorting:NCModificationDateSorting];
-                                                                 [self sortItemsInDirectory];
-                                                             }];
-    [optionsActionSheet addAction:modificationDate];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+    NSMutableArray *items = [[NSMutableArray alloc] init];
     
-    UIAlertAction *selectedAction = modificationDate;
+    UIAction *alphabeticalAction = [UIAction actionWithTitle:NSLocalizedString(@"Alphabetical order", nil)
+                                                       image:[self imageForSortingOption:NCAlphabeticalSorting]
+                                                  identifier:nil
+                                                     handler:^(UIAction *action) {
+        [[NCSettingsController sharedInstance] setPreferredFileSorting:NCAlphabeticalSorting];
+        [self sortItemsInDirectory];
+    }];
 
-    if ([[NCSettingsController sharedInstance] getPreferredFileSorting] == NCAlphabeticalSorting) {
-        selectedAction = alphabetical;
+    UIAction *modificationDateAction = [UIAction actionWithTitle:NSLocalizedString(@"Modification date", nil)
+                                                           image:[self imageForSortingOption:NCModificationDateSorting]
+                                                      identifier:nil
+                                                         handler:^(UIAction *action) {
+        [[NCSettingsController sharedInstance] setPreferredFileSorting:NCModificationDateSorting];
+        [self sortItemsInDirectory];
+    }];
+
+    [items addObject:alphabeticalAction];
+    [items addObject:modificationDateAction];
+
+    _sortingButton.menu = [UIMenu menuWithTitle:@"" children:items];
+}
+
+- (UIImage *)imageForSortingOption:(NCPreferredFileSorting)option
+{
+    if ([[NCSettingsController sharedInstance] getPreferredFileSorting] == option) {
+        return [UIImage systemImageNamed:@"checkmark"];
     }
 
-    [selectedAction setValue:[[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-    
-    // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.barButtonItem = _sortingButton;
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
+    return nil;
 }
 
 
@@ -201,6 +200,7 @@
 
     NSArray *descriptors = [NSArray arrayWithObjects:valueDescriptor, nil];
     [_itemsInDirectory sortUsingDescriptors:descriptors];
+    [self addMenuToSortingButton];
     [self.tableView reloadData];
 }
 
@@ -223,10 +223,12 @@
 - (void)configureNavigationBar
 {
     // Sorting button
-    _sortingButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"sorting"]
+    _sortingButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"ellipsis.circle"]
                                                       style:UIBarButtonItemStylePlain
                                                      target:self
-                                                     action:@selector(showSortingOptions)];
+                                                     action:nil];
+    [self addMenuToSortingButton];
+
     // Home folder
     if ([_path isEqualToString:@""]) {
         UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
@@ -249,7 +251,7 @@
                                                                         style:UIBarButtonItemStylePlain
                                                                        target:self
                                                                        action:@selector(shareButtonPressed)];
-        self.navigationItem.rightBarButtonItems = @[shareButton, _sortingButton];
+        self.navigationItem.rightBarButtonItems = @[_sortingButton, shareButton];
         
         self.navigationItem.title = [_path lastPathComponent];
     }
